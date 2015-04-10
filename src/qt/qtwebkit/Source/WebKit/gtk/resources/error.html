@@ -1,0 +1,60 @@
+<html>
+<head>
+<title>Error</title>
+<style type="text/css">
+body {
+ background-color: #fff;
+ margin: 0;
+ padding: 0;
+}
+
+#errorContainer {
+ background: #fff;
+ min-width: 35em;
+ max-width: 35em;
+ position: absolute;
+ top: 2em;
+ left: 1em;
+ padding: 10px;
+ border: 2px solid #eee;
+ -webkit-border-radius: 5px;
+}
+
+#errorTitleText {
+ font-size: 120%%;
+ font-weight: bold;
+}
+
+#errorMessageText {
+ font-size: 80%%;
+}
+
+</style>
+<script type="text/javascript">
+
+function tryagain()
+{
+ location.reload();
+}
+</script>
+</head>
+<body>
+<div id="errorContainer">
+
+<div id="errorTitle">
+ <p id="errorTitleText">Unable to load page</p>
+</div>
+<div id="errorMessage">
+ <p>Problem occurred while loading the URL %s</p>
+ <p id="errorMessageText">%s</a>
+</p>
+</div>
+
+<form name="bl">
+<input type="button" value="Try again" onclick="javascript:tryagain()" />
+</form>
+
+</div>
+
+</body>
+</html>

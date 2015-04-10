@@ -1,0 +1,28 @@
+# -------------------------------------------------------------------
+# This feature enables the use of AllInOne.cpp files by adding them
+# to SOURCES and removing the sources the corresponding files include
+# from SOURCES, to avoid duplicated compilation units.
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+# Globbing all does not work yet, not all AllInOne files build reliably yet.
+# So instead we select them manually.
+#collection = $$files($$_PRO_FILE_PWD_/*AllInOne.cpp, true)
+collection = $$ALL_IN_ONE_SOURCES
+
+for(collectionFile, collection) {
+    lines = $$cat($$_PRO_FILE_PWD_/$$collectionFile, lines)
+    for(line, lines) {
+        line = $$find(line, "^.+include \"(.*)\"")
+        isEmpty(line): next()
+        line ~= s/^.+include \"(.*)\"/\\1/
+        source = $$dirname(collectionFile)/$$line
+        contains(SOURCES, $$source) {
+            SOURCES -= $$source
+            tookFromSources = true
+        }
+    }
+    !isEmpty(tookFromSources): SOURCES *= $$collectionFile
+}
+

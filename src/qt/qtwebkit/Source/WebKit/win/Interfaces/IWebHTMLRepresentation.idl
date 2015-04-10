@@ -1,0 +1,111 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+import "DOMCore.idl";
+#endif
+
+interface IDOMElement;
+interface IDOMNode;
+
+/*!
+    @class WebHTMLRepresentation
+*/
+[
+    object,
+    oleautomation,
+    uuid(E043542A-9545-4de3-8DF0-794FD6811CB1),
+    pointer_default(unique)
+]
+interface IWebHTMLRepresentation : IUnknown
+{
+    /*
+        + (NSArray *)supportedMIMETypes;
+    */
+    HRESULT supportedMIMETypes([in, out] BSTR* types, [in, out] int* cTypes);
+
+    /*
+        + (NSArray *)supportedNonImageMIMETypes;
+    */
+    HRESULT supportedNonImageMIMETypes([in, out] BSTR* types, [in, out] int* cTypes);
+
+    /*
+        + (NSArray *)supportedImageMIMETypes;
+    */
+    HRESULT supportedImageMIMETypes([in, out] BSTR* types, [in, out] int* cTypes);
+
+    /*
+        - (NSAttributedString *)attributedStringFrom:(DOMNode *)startNode startOffset:(int)startOffset to:(DOMNode *)endNode endOffset:(int)endOffset;
+    */
+    HRESULT attributedStringFromDOMNodes([in] IDOMNode* startNode, [in] int startOffset, [in] IDOMNode* endNode, [in] int endOffset, [out, retval] IDataObject** attributedString);
+
+    /*
+        - (DOMElement *)elementWithName:(NSString *)name inForm:(DOMElement *)form;
+    */
+    HRESULT elementWithName([in] BSTR name, [in] IDOMElement* form, [out, retval] IDOMElement** element);
+
+    /*
+        - (BOOL)elementDoesAutoComplete:(DOMElement *)element;
+    */
+    HRESULT elementDoesAutoComplete([in] IDOMElement* element, [out, retval] BOOL* result);
+
+    /*
+        - (BOOL)elementIsPassword:(DOMElement *)element;
+    */
+    HRESULT elementIsPassword([in] IDOMElement* element, [out, retval] BOOL* result);
+
+    /*
+        - (DOMElement *)formForElement:(DOMElement *)element;
+    */
+    HRESULT formForElement([in] IDOMElement* element, [out, retval] IDOMElement** form);
+
+    /*
+        - (DOMElement *)currentForm;
+    */
+    HRESULT currentForm([out, retval] IDOMElement** form);
+
+    /*
+        - (NSArray *)controlsInForm:(DOMElement *)form;
+    */
+    HRESULT controlsInForm([in] IDOMElement* form, [in, out] IDOMElement** controls, [in, out] int* cControls);
+
+    /*
+        - (NSString *)searchForLabels:(NSArray *)labels beforeElement:(DOMElement *)element;
+        Deprecated: use the variant that includes resultDistance and resultIsInCellAbove instead.
+    */
+    HRESULT deprecatedSearchForLabels([in, size_is(cLabels)] BSTR* labels, [in] int cLabels, [in] IDOMElement* beforeElement, [out, retval] BSTR* result);
+
+    /*
+        - (NSString *)matchLabels:(NSArray *)labels againstElement:(DOMElement *)element;
+    */
+    HRESULT matchLabels([in, size_is(cLabels)] BSTR* labels, [in] int cLabels, [in] IDOMElement* againstElement, [out, retval] BSTR* result);
+
+    /*
+        - (NSString *)searchForLabels:(NSArray *)labels beforeElement:(DOMElement *)element resultDistance:(NSUInteger*)outDistance resultIsInCellAbove:(BOOL*)outIsInCellAbove;
+    */
+    HRESULT searchForLabels([in, size_is(cLabels)] BSTR* labels, [in] unsigned cLabels, [in] IDOMElement* beforeElement, [out] unsigned* resultDistance, [out] BOOL* resultIsInCellAbove, [out, retval] BSTR* result);
+}

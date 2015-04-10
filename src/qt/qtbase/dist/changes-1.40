@@ -1,0 +1,291 @@
+Here is a list of user-visible changes in Qt from 1.33 to 1.40.  
+
+Qt 1.40 supports drag and drop, with a simple, platform independent
+API. There are eleven new widget classes in 1.40. Asynchronous I/O
+support is now in the official Qt API.
+
+Since Qt no longer supports any platforms that only supports 8.3
+format file names, the file names of the Qt source and include files
+have been made simpler.  #include <qcombobox.h> instead of qcombo.h,
+etc.  The old names are still present for compatibility.
+
+The new Qt Xt/Motif Extension allows Qt widgets and applications to
+coexist with old Xt/Motif-based applications and widgets.
+
+There are more than one hundred new functions added to existing
+classes and, as usual, we fixed some bugs, made some more speedups,
+and improved the documentation.
+
+
+****************************************************************************
+* 			     New classes				   *
+****************************************************************************
+
+* New widgets
+
+  QHeader	- Table header
+  QListView	- Multicolun listview/treeview
+  QMainWindow	- Application main window
+  QScrollView	- Scrolling area (successor of QwViewPort)
+  QSpinBox	- Spin button 
+  QSplitter	- Paned window
+  QStatusBar	- Status bar
+  QToolBar	- Container for tool buttons (and other widgets)
+  QToolButton	- Fancy push button with auto-raise
+  QWhatsThis	- Light weight help system
+  QWidgetStack	- Stack of widgets
+
+* Support classes
+
+  QFileIconProvider	- Provides icons for the file dialog
+  QIconSet		- Set of icons for different states
+  QListViewItem		- Content of a QListView 
+  QCheckListItem	- Checkable list view item
+
+* Drag and drop related classes
+  
+  QDragObject
+  QStoredDrag
+  QTextDrag
+  QImageDrag
+  QDragManager
+  QDropSite
+
+* Asynchronous I/O
+
+  QAsyncIO
+  QDataPump
+  QDataSink
+  QDataSource
+  QDataStream
+  QIODeviceSource
+  QImageConsumer
+  QImageDecoder
+  QImageFormat
+  QImageFormatType
+
+
+* New Events
+ 
+  QShowEvent 
+  QHideEvent 
+  QDragMoveEvent 
+  QDragEnterEvent
+  QDragResponseEvent 
+  QDragLeaveEvent 
+  QDropEvent 
+  QChildEvent 
+
+
+
+****************************************************************************
+*		       Enhancements from 1.33 to 1.40			   *
+****************************************************************************
+
+The file and print dialogs are far better.
+
+Layouts will now automatically readjust if child widgets change 
+maximum/minimum sizes, or are deleted.
+
+QFont now supports KOI8R
+
+The reference documentation of the extensions is now integrated with
+the main reference documentation in the qt/html directory.
+
+****************************************************************************
+*               Changes that might affect runtime behavior                 *
+****************************************************************************
+
+None known.
+ 
+
+****************************************************************************
+*               Changes that might generate compile errors                 *
+*                        when compiling old code                           *
+****************************************************************************
+
+none
+
+****************************************************************************
+*               Type changes that might generate warnings:                 *
+****************************************************************************
+
+none
+
+****************************************************************************
+* 			Deprecated functions				   *
+****************************************************************************
+Old function:			Replaced by:
+-------------			-----------
+QPixmap::isOptimized		QPixmap::optimization
+QPixmap::optimize		QPixmap::setOptimization
+QPixmap::isGloballyOptimized    QPixmap::defaultOptimization
+QPixmap::optimizeGlobally	QPixmap::setDefaultOptimization
+
+
+****************************************************************************
+*      New global functions
+****************************************************************************
+
+ bitBlt( QImage* dst, int dx, int dy, const QImage* src,
+         int, int, int, int, int conversion_flags );
+
+ bitBlt( QPaintDevice *dst, int, int, const QImage* src,
+	 int, int, int, int, int conversion_flags );
+
+****************************************************************************
+*      New public/protected functions added to existing classes            *
+****************************************************************************
+
+QApplication::sendPostedEvents( QObject *receiver, int event_type ) [static]
+
+QButton::setDown()
+QButton::toggle()
+ 
+QButtonGroup::setButton( int id )
+QButtonGroup::buttonToggled( bool on )
+ 
+QComboBox::setListBox( QListBox * )
+QComboBox::listBox() 
+
+QComboBox::setAutoCompletion( bool )
+QComboBox::autoCompletion() 
+
+QComboBox::clearEdit()
+QComboBox::setEditText( const char * )
+
+QDict::resize()
+
+QDir::drives() [static]
+QDir::remove()
+
+QFileDialog::getExistingDirectory() [static]
+QFileDialog::setIconProvider() [static]
+QFileDialog::iconProvider() [static]
+QFileDialog::setSelection( const char* )
+QFileDialog::setMode( Mode )
+QFileDialog::mode() 
+QFileDialog::setFilter( const char * )
+QFileDialog::setFilters( const char ** )
+QFileDialog::setFilters( const QStrList & )
+QFileDialog::addWidgets( QLabel *, QWidget *, QPushButton * ) [protected]
+
+QFont::isCopyOf( const QFont & ) 
+
+QFontMetrics::minLeftBearing() 
+QFontMetrics::minRightBearing() 
+QFontMetrics::inFont(char)	
+QFontMetrics::leftBearing(char) 
+QFontMetrics::rightBearing(char) 
+QFontMetrics::boundingRect( int x, int y, int w, int h, int flags,
+      			    const char *str, int, int, int *, char ** ) 
+QFontMetrics::size( int flags, char *str, int, int, int *, char ** ) 
+
+QFrame::margin()
+QFrame::setMargin( int )
+
+QGManager::unFreeze()
+QGManager::remove( QWidget *w )
+QGManager::setName( QChain *, const char * )
+
+QGridLayout::numRows()
+QGridLayout::numCols()
+QGridLayout::expand( int rows, int cols )
+
+
+QImage::copy(int x, int y, int w, int h, int conversion_flags=0) 
+QImage::copy(QRect&)	
+QImage::allGray() 
+QImage::isGrayscale() 
+QImage::convertDepthWithPalette( int, QRgb* p, int pc, int cf=0 ) 
+QImage::smoothScale(int width, int height) 
+QImage::loadFromData( QByteArray data, const char *format=0 )
+
+QIntDict::resize()
+
+QLabel::clear()
+ 
+QLCDNumber::sizeHint() const
+
+QLineEdit::setEnabled( bool )
+QLineEdit::setFont( const QFont & )
+QLineEdit::setSelection( int, int )
+QLineEdit::setCursorPosition( int )
+QLineEdit::cursorPosition() const
+QLineEdit::validateAndSet( const char *, int, int, int )
+QLineEdit::insert( const char * )
+QLineEdit::clear()
+QLineEdit::repaintArea( int, int ) [protected]
+ 
+QListBox::setFixedVisibleLines( int lines )
+QListBox::sizeHint()
+QListBox::ensureCurrentVisible( int )
+
+QMenuData::insertItem( const char *text,
+		       const QObject *receiver, const char *member,
+		       int accel, int id, int index = -1 )
+QMenuData::insertItem( const QPixmap &pixmap,
+    		       const QObject *receiver, const char *member,
+    		       int accel, int id, int index = -1 )
+QMenuData::insertItem( const QPixmap &pixmap, const char *text,
+    		       const QObject *receiver, const char *member,
+    		       int accel, int id, int index = -1 )
+QMenuData::findItem( int id, QMenuData ** parent )
+
+ 
+QMovie::QMovie(QDataSource*, int bufsize=1024)
+ 
+QMultiLineEdit::setFixedVisibleLines( int lines )
+
+QObject::tr( const char * ) 
+QObject::name( const char * defaultName )
+
+QPainter::QPainter( const QPaintDevice *, const QWidget * )
+QPainter::begin( const QPaintDevice *, const QWidget * )
+QPainter::xForm( const QPointArray &, int index, int npoints )
+QPainter::xFormDev( const QPointArray &, int index, int npoints )
+QPainter::drawImage()
+QPainter::drawTiledPixmap()
+QPainter::drawPicture( const QPicture & )
+ 
+QPalette::isCopyOf( const QPalette & )
+
+QPixmap::loadFromData( QByteArray data,
+		      const char *,
+		      int )
+QPixmap::optimization()
+QPixmap::setOptimization( Optimization )
+QPixmap::defaultOptimization()
+QPixmap::setDefaultOptimization( Optimization )
+
+QPopupMenu::exec( const QPoint &, int )
+QPopupMenu::aboutToShow()
+
+QPrinter::setPageOrder( PageOrder )
+QPrinter::pageOrder() 
+QPrinter::setColorMode( ColorMode )
+QPrinter::colorMode() 
+
+QPtrDict::resize()
+ 
+QPushButton::setIsMenuButton( bool )
+QPushButton::isMenuButton()
+
+QRegion::QRegion( int x, int y, int w, int h, RegionType = Rectangle )
+QRegion::boundingRect() 
+QRegion::rects()
+ 
+QSize::expandedTo()
+QSize::boundedTo()
+
+QWidget::isEnabledTo(QWidget*) 
+QWidget::isEnabledToTLW() 
+QWidget::fontPropagation() 
+QWidget::setFontPropagation( PropagationMode )
+QWidget::palettePropagation() 
+QWidget::setPalettePropagation( PropagationMode )
+QWidget::isVisibleTo(QWidget*) 
+QWidget::setAcceptDrops( bool on )
+QWidget::acceptDrops()
+QWidget::focusData() [protected]
+

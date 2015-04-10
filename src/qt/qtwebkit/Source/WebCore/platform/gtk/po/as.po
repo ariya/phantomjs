@@ -1,0 +1,2498 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Nilamdyuti Goswami <ngoswami@redhat.com>, 2012, 2013.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: http://bugs.webkit.org\n"
+"POT-Creation-Date: 2013-05-24 23:51+0000\n"
+"PO-Revision-Date: 2013-05-29 14:44+0530\n"
+"Last-Translator: Nilamdyuti Goswami <ngoswami@redhat.com>\n"
+"Language-Team: Assamese <kde-i18n-doc@kde.org>\n"
+"Language: as_IN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 1.5\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#: ../ErrorsGtk.cpp:37
+msgid "Load request cancelled"
+msgstr "ল'ড অনুৰোধ বাতিল কৰা হৈছে"
+
+#: ../ErrorsGtk.cpp:43
+msgid "Not allowed to use restricted network port"
+msgstr "প্ৰতিৰোধ কৰা নেটৱাৰ্ক পোৰ্ট ব্যৱহাৰ কৰাৰ অনুমতি নাই"
+
+#: ../ErrorsGtk.cpp:49
+msgid "URL cannot be shown"
+msgstr "URL দেখুৱাব নোৱাৰি"
+
+#: ../ErrorsGtk.cpp:55
+msgid "Frame load was interrupted"
+msgstr "ফ্ৰেইম ল'ড বাধাগ্ৰস্থ হৈছিল"
+
+#: ../ErrorsGtk.cpp:61
+msgid "Content with the specified MIME type cannot be shown"
+msgstr "ধাৰ্য্যত MIME ধৰণৰ সৈতে সমল দেখুৱাব নোৱাৰি"
+
+#: ../ErrorsGtk.cpp:67
+msgid "File does not exist"
+msgstr "ফাইল অস্তিত্ববান নহয়"
+
+#: ../ErrorsGtk.cpp:73
+msgid "Plugin will handle load"
+msgstr "প্লাগিনে ল'ড লব"
+
+#: ../ErrorsGtk.cpp:85
+msgid "User cancelled the download"
+msgstr "ব্যৱহাৰকাৰীয়ে ডাউনল'ড বাতিল কৰিলে"
+
+#: ../ErrorsGtk.cpp:105
+msgid "Printer not found"
+msgstr "প্ৰিন্টাৰ পোৱা নগল"
+
+#: ../ErrorsGtk.cpp:112
+msgid "Invalid page range"
+msgstr "অবৈধ পৃষ্ঠাৰ বিস্তাৰ"
+
+#: ../LocalizedStringsGtk.cpp:56 ../LocalizedStringsGtk.cpp:61
+msgid "Submit"
+msgstr "জমা দিয়ক"
+
+#: ../LocalizedStringsGtk.cpp:66
+msgid "Reset"
+msgstr "পুনৰসংহতি কৰক"
+
+#: ../LocalizedStringsGtk.cpp:71
+msgid "Details"
+msgstr "বিৱৰণসমূহ"
+
+#: ../LocalizedStringsGtk.cpp:76
+msgid "This is a searchable index. Enter search keywords: "
+msgstr "ই এটা সন্ধান কৰি পৰা সূচী। সন্ধান কিৱাৰ্ডসমূহ সুমুৱাওক:"
+
+#: ../LocalizedStringsGtk.cpp:81
+msgid "Choose File"
+msgstr "ফাইল বাছক"
+
+#: ../LocalizedStringsGtk.cpp:86
+msgid "Choose Files"
+msgstr "ফাইলসমূহ বাছক"
+
+#: ../LocalizedStringsGtk.cpp:91 ../LocalizedStringsGtk.cpp:96
+msgid "(None)"
+msgstr "(কোনো নহয়)"
+
+#: ../LocalizedStringsGtk.cpp:101
+msgid "Open Link in New _Window"
+msgstr "সংযোগক এটা নতুন উইন্ডোত খোলক (_W)"
+
+#: ../LocalizedStringsGtk.cpp:106
+msgid "_Download Linked File"
+msgstr "সংযুক্ত ফাইল ডাউনল'ড কৰক (_D)"
+
+#: ../LocalizedStringsGtk.cpp:111
+msgid "Copy Link Loc_ation"
+msgstr "সংযোগৰ অৱস্থান কপি কৰক (_a)"
+
+#: ../LocalizedStringsGtk.cpp:116
+msgid "Open _Image in New Window"
+msgstr "ছবিক এটা নতুন উইন্ডোত খোলক (_I)"
+
+#: ../LocalizedStringsGtk.cpp:121
+msgid "Sa_ve Image As"
+msgstr "ছবিক এই ধৰণে সংৰক্ষণ কৰক (_v)"
+
+#: ../LocalizedStringsGtk.cpp:126
+msgid "Cop_y Image"
+msgstr "ছবিক কপি কৰক (_y)"
+
+#: ../LocalizedStringsGtk.cpp:131
+msgid "Copy Image _Address"
+msgstr "ছবিৰ ঠিকনা কপি কৰক (_A)"
+
+#: ../LocalizedStringsGtk.cpp:136
+msgid "Open _Video in New Window"
+msgstr "ভিডিঅ'ক নতুন উইন্ডোত খোলক (_V)"
+
+#: ../LocalizedStringsGtk.cpp:141
+msgid "Open _Audio in New Window"
+msgstr "অডিঅ'ক নতুন উইন্ডোত খোলক (_A)"
+
+#: ../LocalizedStringsGtk.cpp:146
+msgid "Cop_y Video Link Location"
+msgstr "ভিডিঅ'ৰ সংযোগ অৱস্থান কপি কৰক (_y)"
+
+#: ../LocalizedStringsGtk.cpp:151
+msgid "Cop_y Audio Link Location"
+msgstr "অডিঅ'ৰ সংযোগ অৱস্থান কপি কৰক (_y)"
+
+#: ../LocalizedStringsGtk.cpp:156
+msgid "_Toggle Media Controls"
+msgstr "মাধ্যমৰ নিয়ন্ত্ৰণসমূহ টগ'ল কৰক (_T)"
+
+#: ../LocalizedStringsGtk.cpp:161
+msgid "Toggle Media _Loop Playback"
+msgstr "মাধ্যমৰ লুপ প্লেবেক টগ'ল কৰক (_L)"
+
+#: ../LocalizedStringsGtk.cpp:166
+msgid "Switch Video to _Fullscreen"
+msgstr "ভিডিঅ'ক সম্পূৰ্ণ পৰ্দাক দেখুৱাওক (_F)"
+
+#: ../LocalizedStringsGtk.cpp:171
+msgid "_Play"
+msgstr "চলাওক (_P)"
+
+#: ../LocalizedStringsGtk.cpp:176
+msgid "_Pause"
+msgstr "বিৰাম দিয়ক (_P)"
+
+#: ../LocalizedStringsGtk.cpp:181
+msgid "_Mute"
+msgstr "মৌণ কৰক (_M)"
+
+#: ../LocalizedStringsGtk.cpp:186
+msgid "Open _Frame in New Window"
+msgstr "ফ্ৰেইমক নতুন উইন্ডোত খোলক (_F)"
+
+#: ../LocalizedStringsGtk.cpp:209
+msgid "_Insert Unicode Control Character"
+msgstr "ইউনিক'ড নিয়ন্ত্ৰণ আখৰ সুমুৱাওক (_I)"
+
+#: ../LocalizedStringsGtk.cpp:214
+msgid "Input _Methods"
+msgstr "ইনপুট পদ্ধতিসমূহ (_M)"
+
+#: ../LocalizedStringsGtk.cpp:237
+msgid "_Reload"
+msgstr "পুনৰ ল'ড কৰক (_R)"
+
+#: ../LocalizedStringsGtk.cpp:254
+msgid "No Guesses Found"
+msgstr "কোনো অনুমান পোৱা নগল"
+
+#: ../LocalizedStringsGtk.cpp:259
+msgid "_Ignore Spelling"
+msgstr "বানান উপেক্ষা কৰক (_I)"
+
+#: ../LocalizedStringsGtk.cpp:264
+msgid "_Learn Spelling"
+msgstr "বানান শিকক (_L)"
+
+#: ../LocalizedStringsGtk.cpp:269
+msgid "_Search the Web"
+msgstr "ৱেবত সন্ধান কৰক (_S)"
+
+#: ../LocalizedStringsGtk.cpp:274
+msgid "_Look Up in Dictionary"
+msgstr "শব্দকোষত সন্ধান কৰক (_L)"
+
+#: ../LocalizedStringsGtk.cpp:279
+msgid "_Open Link"
+msgstr "সংযোগ খোলক (_O)"
+
+#: ../LocalizedStringsGtk.cpp:284
+msgid "Ignore _Grammar"
+msgstr "ব্যাকৰণ উপেক্ষা কৰক (_G)"
+
+#: ../LocalizedStringsGtk.cpp:289
+msgid "Spelling and _Grammar"
+msgstr "বানান আৰু ব্যাকৰণ (_G)"
+
+#: ../LocalizedStringsGtk.cpp:294
+msgid "_Show Spelling and Grammar"
+msgstr "বানান আৰু ব্যাকৰণ দেখুৱাওক (_S)"
+
+#: ../LocalizedStringsGtk.cpp:294
+msgid "_Hide Spelling and Grammar"
+msgstr "বানান আৰু ব্যাকৰণ লুকাওক (_H)"
+
+#: ../LocalizedStringsGtk.cpp:299
+msgid "_Check Document Now"
+msgstr "দস্তাবেজ এতিয়া নীৰিক্ষণ কৰক (_C)"
+
+#: ../LocalizedStringsGtk.cpp:304
+msgid "Check Spelling While _Typing"
+msgstr "টাইপ কৰাৰ সময়ত বানান নীৰিক্ষণ কৰক (_T)"
+
+#: ../LocalizedStringsGtk.cpp:309
+msgid "Check _Grammar With Spelling"
+msgstr "বানানৰ সৈতে ব্যাকৰণ নীৰিক্ষণ কৰক (_G)"
+
+#: ../LocalizedStringsGtk.cpp:314
+msgid "_Font"
+msgstr "ফন্ট (_F)"
+
+#: ../LocalizedStringsGtk.cpp:337
+msgid "_Outline"
+msgstr "আউটলাইন (_O)"
+
+#: ../LocalizedStringsGtk.cpp:342
+msgid "Inspect _Element"
+msgstr "উপাদান নিৰীক্ষণ কৰক (_E)"
+
+#: ../LocalizedStringsGtk.cpp:347
+msgid "LRM _Left-to-right mark"
+msgstr "LRM বাঁওৰ-পৰা-সোঁ চিহ্ন (_L)"
+
+#: ../LocalizedStringsGtk.cpp:352
+msgid "RLM _Right-to-left mark"
+msgstr "RLM সোঁৰ-পৰা-বাঁও চিহ্ন (_R)"
+
+#: ../LocalizedStringsGtk.cpp:357
+msgid "LRE Left-to-right _embedding"
+msgstr "LRE বাঁওৰ-পৰা-সোঁ অন্তৰ্ভুক্তকৰণ (_e)"
+
+#: ../LocalizedStringsGtk.cpp:362
+msgid "RLE Right-to-left e_mbedding"
+msgstr "RLE সোঁৰ-পৰা-বাঁও অন্তৰ্ভুক্তকৰণ (_m)"
+
+#: ../LocalizedStringsGtk.cpp:367
+msgid "LRO Left-to-right _override"
+msgstr "LRO বাঁওৰ-পৰা-সোঁ অভাৰৰাইড (_o)"
+
+#: ../LocalizedStringsGtk.cpp:372
+msgid "RLO Right-to-left o_verride"
+msgstr "RLO সোঁৰ-পৰা-বাঁও অভাৰৰাইড (_v)"
+
+#: ../LocalizedStringsGtk.cpp:377
+msgid "PDF _Pop directional formatting"
+msgstr "PDF পপ দিশ ফৰমেটিং (_P)"
+
+#: ../LocalizedStringsGtk.cpp:382
+msgid "ZWS _Zero width space"
+msgstr "ZWS শূণ্য প্ৰস্থ স্থান (_Z)"
+
+#: ../LocalizedStringsGtk.cpp:387
+msgid "ZWJ Zero width _joiner"
+msgstr "ZWJ শূণ্য প্ৰস্থ সংযুক্তক (_j)"
+
+#: ../LocalizedStringsGtk.cpp:392
+msgid "ZWNJ Zero width _non-joiner"
+msgstr "ZWNJ শূণ্য প্ৰস্থ অসংযুক্তক (_n)"
+
+#: ../LocalizedStringsGtk.cpp:397
+msgid "No recent searches"
+msgstr "কোনো শেহতীয়া সন্ধান নাই"
+
+#: ../LocalizedStringsGtk.cpp:402
+msgid "Recent searches"
+msgstr "শেহতীয়া সন্ধানসমূহ"
+
+#: ../LocalizedStringsGtk.cpp:407
+msgid "_Clear recent searches"
+msgstr "শেহতীয়া সন্ধানসমূহ পৰিষ্কাৰ কৰক (_C)"
+
+#: ../LocalizedStringsGtk.cpp:412
+msgid "definition"
+msgstr "বিৱৰণ"
+
+#: ../LocalizedStringsGtk.cpp:417
+#| msgid "description"
+msgid "description list"
+msgstr "বিৱৰণৰ তালিকা"
+
+#: ../LocalizedStringsGtk.cpp:422
+msgid "term"
+msgstr "চৰ্ত"
+
+#: ../LocalizedStringsGtk.cpp:427
+msgid "description"
+msgstr "বিৱৰণ"
+
+#: ../LocalizedStringsGtk.cpp:432
+msgid "footer"
+msgstr "ফুটাৰ"
+
+#: ../LocalizedStringsGtk.cpp:437
+msgid "press"
+msgstr "টিপক"
+
+#: ../LocalizedStringsGtk.cpp:442
+msgid "select"
+msgstr "বাছক"
+
+#: ../LocalizedStringsGtk.cpp:447
+msgid "activate"
+msgstr "সক্ৰিয় কৰক"
+
+#: ../LocalizedStringsGtk.cpp:452
+msgid "uncheck"
+msgstr "নীৰিক্ষণ নকৰিব"
+
+#: ../LocalizedStringsGtk.cpp:457
+msgid "check"
+msgstr "নীৰিক্ষণ কৰক"
+
+#: ../LocalizedStringsGtk.cpp:462
+msgid "jump"
+msgstr "জঁপিয়াওক"
+
+#: ../LocalizedStringsGtk.cpp:477
+msgid "Missing Plug-in"
+msgstr "সন্ধানহিন প্লাগ-ইন"
+
+#: ../LocalizedStringsGtk.cpp:483
+msgid "Plug-in Failure"
+msgstr "প্লাগ-ইন ব্যৰ্থতা"
+
+#. FIXME: If this file gets localized, this should really be localized as one string with a wildcard for the number.
+#: ../LocalizedStringsGtk.cpp:507
+msgid " files"
+msgstr "ফাইলসমূহ"
+
+#: ../LocalizedStringsGtk.cpp:512
+msgid "Unknown"
+msgstr "অজ্ঞাত"
+
+#: ../LocalizedStringsGtk.cpp:517
+#, c-format
+msgctxt "Title string for images"
+msgid "%s  (%dx%d pixels)"
+msgstr "%s  (%dx%d পিক্সেলসমূহ)"
+
+#: ../LocalizedStringsGtk.cpp:529
+msgid "Loading..."
+msgstr "ল'ড কৰা হৈছে..."
+
+#: ../LocalizedStringsGtk.cpp:534
+msgid "Live Broadcast"
+msgstr "পোণপটীয়া প্ৰচাৰ"
+
+#: ../LocalizedStringsGtk.cpp:540
+#| msgid "pause playback"
+msgid "audio playback"
+msgstr "অডিঅ' প্লেবেক"
+
+#: ../LocalizedStringsGtk.cpp:542
+#| msgid "begin playback"
+msgid "video playback"
+msgstr "ভিডিঅ' প্লেবেক"
+
+#: ../LocalizedStringsGtk.cpp:544
+msgid "mute"
+msgstr "মৌন কৰক"
+
+#: ../LocalizedStringsGtk.cpp:546
+msgid "unmute"
+msgstr "অমৌন কৰক"
+
+#: ../LocalizedStringsGtk.cpp:548
+msgid "play"
+msgstr "চলাওক"
+
+#: ../LocalizedStringsGtk.cpp:550
+msgid "pause"
+msgstr "বিৰাম দিয়ক"
+
+#: ../LocalizedStringsGtk.cpp:552
+msgid "movie time"
+msgstr "চলচিত্ৰৰ সময়"
+
+#: ../LocalizedStringsGtk.cpp:554
+msgid "timeline slider thumb"
+msgstr "টাইমলাইনাৰ স্লাইডাৰ থাম্ব"
+
+#: ../LocalizedStringsGtk.cpp:556
+msgid "back 30 seconds"
+msgstr "৩০ ছেকেণ্ড পিছলৈ"
+
+#: ../LocalizedStringsGtk.cpp:558
+msgid "return to realtime"
+msgstr "প্ৰকৃতসময়লে ঘুৰি যাওক"
+
+#: ../LocalizedStringsGtk.cpp:560
+msgid "elapsed time"
+msgstr "অতিবাহিত সময়"
+
+#: ../LocalizedStringsGtk.cpp:562
+msgid "remaining time"
+msgstr "অৱশিষ্ট সময়"
+
+#: ../LocalizedStringsGtk.cpp:564
+msgid "status"
+msgstr "অৱস্থা"
+
+#: ../LocalizedStringsGtk.cpp:566
+msgid "enter fullscreen"
+msgstr "পূৰ্ণপৰ্দাত দেখুৱাওক"
+
+#: ../LocalizedStringsGtk.cpp:568
+msgid "exit fullscreen"
+msgstr "পূৰ্ণপৰ্দা ত্যাগ কৰক"
+
+#: ../LocalizedStringsGtk.cpp:570
+msgid "fast forward"
+msgstr "দ্ৰুত আগলৈ"
+
+#: ../LocalizedStringsGtk.cpp:572
+msgid "fast reverse"
+msgstr "দ্ৰুত পিছলৈ"
+
+#: ../LocalizedStringsGtk.cpp:574
+msgid "show closed captions"
+msgstr "বন্ধ কৰা কেপষণসমূহ দেখুৱাওক"
+
+#: ../LocalizedStringsGtk.cpp:576
+msgid "hide closed captions"
+msgstr "বন্ধ কৰা বিকল্পসমূহ লুকাওক"
+
+#: ../LocalizedStringsGtk.cpp:578
+msgid "media controls"
+msgstr "মাধ্যম নিয়ন্ত্ৰণসমূহ"
+
+#: ../LocalizedStringsGtk.cpp:587
+msgid "audio element playback controls and status display"
+msgstr "অডিঅ' উপাদান প্লেবেক নিয়ন্ত্ৰণসমূহ আৰু অৱস্থা প্ৰদৰ্শন"
+
+#: ../LocalizedStringsGtk.cpp:589
+msgid "video element playback controls and status display"
+msgstr "ভিডিঅ' উপাদান প্লেবেক নিয়ন্ত্ৰণসমূহ আৰু অৱস্থা প্ৰদৰ্শন"
+
+#: ../LocalizedStringsGtk.cpp:591
+msgid "mute audio tracks"
+msgstr "অডিঅ' ট্ৰেকসমূহ মৌন কৰক"
+
+#: ../LocalizedStringsGtk.cpp:593
+msgid "unmute audio tracks"
+msgstr "অডিঅ' ট্ৰেকসমূহ অমৌন কৰক"
+
+#: ../LocalizedStringsGtk.cpp:595
+msgid "begin playback"
+msgstr "প্লেবেক আৰম্ভ কৰক"
+
+#: ../LocalizedStringsGtk.cpp:597
+msgid "pause playback"
+msgstr "প্লেবেক ৰখাওক"
+
+#: ../LocalizedStringsGtk.cpp:599
+msgid "movie time scrubber"
+msgstr "চলচিত্ৰ সময় স্ক্ৰাবাৰ"
+
+#: ../LocalizedStringsGtk.cpp:601
+msgid "movie time scrubber thumb"
+msgstr "চলচিত্ৰ সময় স্ক্ৰাবাৰ থাম্ব"
+
+#: ../LocalizedStringsGtk.cpp:603
+msgid "seek movie back 30 seconds"
+msgstr "চলচিত্ৰক ৩০ ছেকেণ্ড পিছলৈ সন্ধান কৰক"
+
+#: ../LocalizedStringsGtk.cpp:605
+msgid "return streaming movie to real time"
+msgstr "স্ট্ৰিমিং চলচিত্ৰক প্ৰকৃত সময়লে আনক"
+
+#: ../LocalizedStringsGtk.cpp:607
+msgid "current movie time in seconds"
+msgstr "ছেকেণ্ডত বৰ্তমান চলচিত্ৰ সময়"
+
+#: ../LocalizedStringsGtk.cpp:609
+msgid "number of seconds of movie remaining"
+msgstr "চলচিত্ৰৰ অৱশিষ্ট ছেকেণ্ড"
+
+#: ../LocalizedStringsGtk.cpp:611
+msgid "current movie status"
+msgstr "বৰ্তমান চলচিত্ৰৰ অৱস্থা"
+
+#: ../LocalizedStringsGtk.cpp:613
+msgid "seek quickly back"
+msgstr "পিছলৈ সোনকালে সন্ধান কৰক"
+
+#: ../LocalizedStringsGtk.cpp:615
+msgid "seek quickly forward"
+msgstr "আগলৈ সোনকালে সন্ধান কৰক"
+
+#: ../LocalizedStringsGtk.cpp:617
+msgid "Play movie in fullscreen mode"
+msgstr "চলচিত্ৰক পূৰ্ণপৰ্দা অৱস্থাত চলাওক"
+
+#: ../LocalizedStringsGtk.cpp:619
+msgid "Exit fullscreen mode"
+msgstr "পূৰ্ণপৰ্দা অৱস্থা প্ৰস্থান কৰক"
+
+#: ../LocalizedStringsGtk.cpp:621
+msgid "start displaying closed captions"
+msgstr "বন্ধ কৰা কেপষণসমূহ প্ৰদৰ্শন কৰা আৰম্ভ কৰক"
+
+#: ../LocalizedStringsGtk.cpp:623
+msgid "stop displaying closed captions"
+msgstr "বন্ধ কৰা কেপষণসমূহ প্ৰদৰ্শন কৰা বন্ধ কৰক"
+
+#: ../LocalizedStringsGtk.cpp:632
+msgid "indefinite time"
+msgstr "অসীমিত সময়"
+
+#: ../LocalizedStringsGtk.cpp:662
+msgid "value missing"
+msgstr "মান সন্ধানহিন"
+
+#: ../LocalizedStringsGtk.cpp:698
+msgid "type mismatch"
+msgstr "ধৰণৰ অমিল"
+
+#: ../LocalizedStringsGtk.cpp:721
+msgid "pattern mismatch"
+msgstr "বিন্যাসৰ অমিল"
+
+#: ../LocalizedStringsGtk.cpp:726
+msgid "too long"
+msgstr "অতি দীঘল"
+
+#: ../LocalizedStringsGtk.cpp:731
+msgid "range underflow"
+msgstr "বিস্তাৰৰ আন্ডাৰফ্লো"
+
+#: ../LocalizedStringsGtk.cpp:736
+msgid "range overflow"
+msgstr "বিস্তাৰৰ অভাৰফ্লো"
+
+#: ../LocalizedStringsGtk.cpp:741
+msgid "step mismatch"
+msgstr "স্তৰৰ অমিল"
+
+#: ../LocalizedStringsGtk.cpp:746
+msgid "Unacceptable TLS certificate"
+msgstr "অগ্ৰহণযোগ্য TLS প্ৰমাণপত্ৰ"
+
+#: ../LocalizedStringsGtk.cpp:763
+msgctxt "Closed Captions"
+msgid "Menu section heading for closed captions"
+msgstr "বন্ধ কেপষণসমূহৰ বাবে মেনু অংশ হেডিং"
+
+#: ../LocalizedStringsGtk.cpp:768
+msgctxt "Subtitles"
+msgid "Menu section heading for subtitles"
+msgstr "উপশীৰ্ষকসমূহৰ বাবে মেনু অংশ হেডিং"
+
+#: ../LocalizedStringsGtk.cpp:773
+msgctxt "Off"
+msgid "Menu item label for the track that represents disabling closed captions"
+msgstr ""
+"বন্ধ কেপষণসমূহ অসামৰ্থবান কৰা প্ৰতিনিদ্ধিত্ব কৰা ট্ৰেকৰ বাবে মেনু বস্তু লেবেল"
+
+#: ../LocalizedStringsGtk.cpp:778
+msgctxt "No label"
+msgid "Menu item label for a closed captions track that has no other name"
+msgstr "অন্য কোনো নাম নথকা এটা বন্ধ কেপষণসমূহ ট্ৰেকৰ বাবে মেনু বস্তু লেবেল"
+
+#: ../LocalizedStringsGtk.cpp:784
+msgctxt "Snapshotted Plug-In"
+msgid "Title of the label to show on a snapshotted plug-in"
+msgstr "এটা স্নেপষটেড প্লাগ-ইনত দেখুৱাবলে লেবেলৰ শীৰ্ষক"
+
+#: ../LocalizedStringsGtk.cpp:789
+msgctxt "Click to restart"
+msgid "Subtitle of the label to show on a snapshotted plug-in"
+msgstr "এটা স্নেপষটেড প্লাগ-ইনত দেখুৱাবলে লেবেলৰ উপশীৰ্ষক"
+
+#: ../WebKitAuthenticationWidget.cpp:155
+#, c-format
+msgid "The site %s:%i requests a username and password"
+msgstr "ছাইট %s:%i এ এটা ব্যৱহাৰকাৰীনাম আৰু পাছৱাৰ্ড অনুৰোধ কৰিছে"
+
+#: ../WebKitAuthenticationWidget.cpp:159
+msgid "_Remember password"
+msgstr "পাছৱাৰ্ড মনত ৰাখক (_R)"
+
+#: ../WebKitAuthenticationWidget.cpp:167
+msgid "Server message:"
+msgstr "চাৰ্ভাৰৰ বাৰ্তা:"
+
+#: ../WebKitAuthenticationWidget.cpp:168 ../WebKitAuthenticationWidget.cpp:177
+msgid "Username:"
+msgstr "ব্যৱহাৰকাৰীনাম:"
+
+#: ../WebKitAuthenticationWidget.cpp:169 ../WebKitAuthenticationWidget.cpp:178
+msgid "Password:"
+msgstr "পাছৱাৰ্ড:"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:328
+msgid "Play"
+msgstr "চলাওক"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:330
+msgid "Pause"
+msgstr "বিৰাম দিয়ক"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:410
+msgid "Play / Pause"
+msgstr "চলাওক/বিৰাম দিয়ক"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:410
+msgid "Play or pause the media"
+msgstr "মাধ্যম চলাওক অথবা বিৰাম দিয়ক"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:416
+msgid "Time:"
+msgstr "সময়:"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:442
+msgid "Exit Fullscreen"
+msgstr "পূৰ্ণপৰ্দা ত্যাগ কৰক"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:442
+msgid "Exit from fullscreen mode"
+msgstr "পূৰ্ণপৰ্দা অৱস্থাৰ পৰা প্ৰস্থান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:276
+msgid "Network Request"
+msgstr "নেটৱাৰ্কৰ অনুৰোধ"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:277
+msgid "The network request for the URI that should be downloaded"
+msgstr "ডাউনল'ড কৰিব লগিয়া URl ৰ নেটৱাৰ্ক অনুৰোধ"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:291
+msgid "Network Response"
+msgstr "নেটৱাৰ্কৰ প্ৰতিক্ৰিয়া"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:292
+msgid "The network response for the URI that should be downloaded"
+msgstr "ডাউনল'ড কৰিব লগিয়া URl ৰ বাবে নেটৱাৰ্ক প্ৰতিক্ৰিয়া"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:306
+msgid "Destination URI"
+msgstr "গন্তব্য URl"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:307
+msgid "The destination URI where to save the file"
+msgstr "ফাইল সংৰক্ষণ কৰিবলে গন্তব্য URl"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:321
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:150
+msgid "Suggested Filename"
+msgstr "উপদেশিত ফাইলনাম"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:322
+msgid "The filename suggested as default when saving"
+msgstr "সংৰক্ষণ কৰোতে ফাইলনাম অবিকল্পিত দেখুৱালে"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:339
+msgid "Progress"
+msgstr "প্ৰগতি"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:340
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:171
+msgid "Determines the current progress of the download"
+msgstr "ডাউনল'ডৰ বৰ্তমান প্ৰগতি নিৰ্ধাৰণ কৰে"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:353
+msgid "Status"
+msgstr "অৱস্থা"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:354
+msgid "Determines the current status of the download"
+msgstr "ডাউনল'ডৰ বৰ্তমান অৱস্থা নিৰ্ধাৰণ কৰে"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:369
+msgid "Current Size"
+msgstr "বৰ্তমান আকাৰ"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:370
+msgid "The length of the data already downloaded"
+msgstr "ইতিমধ্যে ডাউনল'ড কৰা তথ্যৰ দৈৰ্ঘ্য"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:384
+msgid "Total Size"
+msgstr "সৰ্বমুঠ আকাৰ"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:385
+msgid "The total size of the file"
+msgstr "ফাইলৰ সৰ্বমুঠ আকাৰ"
+
+#: ../../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:144
+#: ../../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:579
+msgid "Operation was cancelled"
+msgstr "কাৰ্য্য বাতিল কৰা হৈছিল"
+
+#: ../../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:253
+#: ../../../../WebKit/gtk/webkit/webkiticondatabase.cpp:148
+msgid "Path"
+msgstr "পথ"
+
+#: ../../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:254
+#: ../../../../WebKit/gtk/webkit/webkiticondatabase.cpp:149
+msgid "The absolute path of the icon database folder"
+msgstr "আইকন ডাটাবেইচ ফোল্ডাৰৰ প্ৰকৃত পথ"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:129
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:128
+msgid "MIME types filter"
+msgstr "MIME ধৰণসমূহ ফিল্টাৰ"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:130
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:129
+msgid "The filter currently associated with the request"
+msgstr "অনুৰোধৰ সৈতে বৰ্তমানে জড়িত ফিল্টাৰ"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:145
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:142
+msgid "MIME types"
+msgstr "MIME ধৰণসমূহ"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:146
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:143
+msgid "The list of MIME types associated with the request"
+msgstr "অনুৰোধৰ সৈতে জড়িত MIME ধৰণসমূহৰ তালিকা"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:161
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:157
+msgid "Select multiple files"
+msgstr "একাধিক ফাইল বাছক"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:162
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:158
+msgid "Whether the file chooser should allow selecting multiple files"
+msgstr "ফাইল নিৰ্বাচকে একাধিক ফাইল নিৰ্বাচন কৰাৰ অনুমতি দিব লাগে নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:177
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:171
+msgid "Selected files"
+msgstr "নিৰ্বাচিত ফাইলসমূহ"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:178
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:172
+msgid "The list of selected files associated with the request"
+msgstr "অনুৰোধৰ সৈতে জড়িত নিৰ্বাচিত ফাইলসমূহৰ তালিকা"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:174
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:152
+msgid "Context"
+msgstr "পৰিপ্ৰেক্ষতিত"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:175
+msgid "Flags indicating the kind of target that received the event."
+msgstr "ঘটনাক গ্ৰহণ কৰা লক্ষ্যৰ ইংগিত দিয়া ফ্লেগসমূহ"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:189
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:166
+msgid "Link URI"
+msgstr "সংযোগ URl"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:190
+msgid "The URI to which the target that received the event points, if any."
+msgstr "ঘটনা বিন্দুসমূহ গ্ৰহণ কৰা লক্ষ্যৰ URl, যদি উপলব্ধ।"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:203
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:205
+msgid "Image URI"
+msgstr "ছবিৰ URl"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:204
+msgid ""
+"The URI of the image that is part of the target that received the event, if "
+"any."
+msgstr "ঘটনাক গ্ৰহণ কৰা লক্ষ্যৰ অংশ হিচাপে থকা ছবিৰ URl, যদি উপলব্ধ।"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:217
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:218
+msgid "Media URI"
+msgstr "মাধ্যম URl"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:218
+msgid ""
+"The URI of the media that is part of the target that received the event, if "
+"any."
+msgstr "মাধ্যমৰ URl যি ঘটনাক গ্ৰহণ কৰা লক্ষ্যৰ অংশ, যদি উপলব্ধ।"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:239
+msgid "Inner node"
+msgstr "অভ্যন্তৰীক ন'ড"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:240
+msgid "The inner DOM node associated with the hit test result."
+msgstr "হিট পৰিক্ষা ফলাফলৰ সৈতে সংযুক্ত অভ্যন্তৰীক DOM ন'ড।"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:253
+msgid "X coordinate"
+msgstr "X অক্ষ"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:254
+msgid "The x coordinate of the event relative to the view's window."
+msgstr "দৰ্শনৰ উইন্ডোৰ প্ৰাসংগিক ঘটনাৰ x অক্ষ।"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:267
+msgid "Y coordinate"
+msgstr "Y অক্ষ"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:268
+msgid "The y coordinate of the event relative to the view's window."
+msgstr "দৰ্শনৰ উইন্ডোৰ প্ৰাসংগিক ঘটনাৰ y অক্ষ।"
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:134
+#: ../../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:143
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:467
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:176
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:209
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3238
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIRequest.cpp:95
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:99
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:109
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:689
+msgid "URI"
+msgstr "URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:135
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIRequest.cpp:96
+msgid "The URI to which the request will be made."
+msgstr "URl যলৈকে অনুৰোধ কৰা হব।"
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:148
+#: ../../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:157
+msgid "Message"
+msgstr "বাৰ্তা"
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:149
+msgid "The SoupMessage that backs the request."
+msgstr "অনুৰোধক সমৰ্থন কৰা SoupMessage"
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:144
+msgid "The URI to which the response will be made."
+msgstr "URl যলৈকে প্ৰতিক্ৰিয়া কৰা হব।"
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:158
+msgid "The SoupMessage that backs the response."
+msgstr "প্ৰতিক্ৰিয়াক সমৰ্থন কৰা SoupMessage।"
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:171
+msgid "Suggested filename"
+msgstr "উপদেশিত ফাইলনাম"
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:172
+msgid "The suggested filename for the response."
+msgstr "প্ৰতিক্ৰিয়াৰ বাবে উপদেশ দিয়া ফাইলনাম।"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:150
+msgid "Protocol"
+msgstr "প্ৰটোকল"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:151
+msgid "The protocol of the security origin"
+msgstr "সুৰক্ষা উৎসৰ প্ৰটোকল"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:164
+msgid "Host"
+msgstr "হস্ট"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:165
+msgid "The host of the security origin"
+msgstr "সুৰক্ষা উৎসৰ হস্ট"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:178
+msgid "Port"
+msgstr "পোৰ্ট"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:179
+msgid "The port of the security origin"
+msgstr "সুৰক্ষা উৎসৰ পোৰ্ট"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:192
+msgid "Web Database Usage"
+msgstr "ৱেব ডাটাবেইচৰ ব্যৱহাৰ"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:193
+msgid "The cumulative size of all web databases in the security origin"
+msgstr "সুৰক্ষা উৎসত সকলো ৱেব ডাটাবেইচৰ একত্ৰিত আকাৰ"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:205
+msgid "Web Database Quota"
+msgstr "ৱেব ডাটাবেইচ কুটা"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:206
+msgid "The web database quota of the security origin in bytes"
+msgstr "বাইটসমূহত সুৰক্ষা উৎসৰ ৱেব ডাটাবেইচ কুটা"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:139
+msgid "Device Width"
+msgstr "ডিভাইচৰ প্ৰস্থ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:140
+msgid "The width of the screen."
+msgstr "পৰ্দাৰ প্ৰস্থ।"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:161
+msgid "Device Height"
+msgstr "ডিভাইচৰ উচ্চতা"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:162
+msgid "The height of the screen."
+msgstr "পৰ্দাৰ উচ্চতা।"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:185
+msgid "Available Width"
+msgstr "উপলব্ধ প্ৰস্থ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:186
+msgid "The width of the visible area."
+msgstr "দৃশ্যমান স্থানৰ প্ৰস্থ।"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:209
+msgid "Available Height"
+msgstr "উপলব্ধ উচ্চতা"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:210
+msgid "The height of the visible area."
+msgstr "দৃশ্যমান স্থানৰ উচ্চতা।"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:231
+msgid "Desktop Width"
+msgstr "ডেস্কটপ প্ৰস্থ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:232
+msgid ""
+"The width of viewport that works well for most web pages designed for "
+"desktop."
+msgstr ""
+"দৰ্শনপোৰ্টৰ প্ৰস্থ যি ডেস্কটপৰ বাবে ৰূপাঙ্কণ কৰা বেছিৰভাগ ৱেব পৃষ্ঠাৰ বাবে "
+"কাৰ্য্য কৰে।"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:254
+msgid "Device DPI"
+msgstr "ডিভাইচ DPI"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:255
+msgid "The number of dots per inch of the screen."
+msgstr "পৰ্দাৰ প্ৰতি ইঞ্চ বিন্দুৰ সংখ্যা।"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:273
+msgid "Width"
+msgstr "প্ৰস্থ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:274
+msgid "The width of the viewport."
+msgstr "দৰ্শনপোৰ্ট প্ৰস্থ।"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:292
+msgid "Height"
+msgstr "উচ্চতা"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:293
+msgid "The height of the viewport."
+msgstr "দৰ্শনপোৰ্টৰ উচ্চতা।"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:311
+msgid "Initial Scale Factor"
+msgstr "আৰম্ভণি স্কেইল কাৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:312
+msgid "The initial scale of the viewport."
+msgstr "দৰ্শনপোৰ্টৰ আৰম্ভণি স্কেইল।"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:330
+msgid "Minimum Scale Factor"
+msgstr "নূন্যতম স্কেইল কাৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:331
+msgid "The minimum scale of the viewport."
+msgstr "দৰ্শনপোৰ্টৰ নূন্যতম স্কেইল।"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:349
+msgid "Maximum Scale Factor"
+msgstr "সৰ্বাধিক স্কেইল কাৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:350
+msgid "The maximum scale of the viewport."
+msgstr "দৰ্শনপোৰ্টৰ সৰ্বাধিক স্কেইল।"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:368
+msgid "Device Pixel Ratio"
+msgstr "ডিভাইচ পিক্সেল অনুপাত"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:369
+msgid "The device pixel ratio of the viewport."
+msgstr "দৰ্শনপোৰ্টৰ ডিভাইচ পিক্সেল অনুপাত।"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:388
+msgid "User Scalable"
+msgstr "ব্যৱহাৰকাৰী স্কেইলেবুল"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:389
+msgid "Determines whether or not the user can zoom in and out."
+msgstr "ব্যৱহাৰকাৰীয়ে জুম ইন আৰু আউট কৰিব পাৰিব নে নিৰ্ধাৰণ কৰে।"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:407
+msgid "Valid"
+msgstr "বৈধ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:408
+msgid "Determines whether or not the attributes are valid, and can be used."
+msgstr "বৈশিষ্ট্যসমূহ বৈধ হয় নে, আৰু ব্যৱহাৰ কৰিব পাৰি নে নিৰ্ধাৰণ কৰে।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:176
+msgid "Security Origin"
+msgstr "সুৰক্ষাৰ উৎস"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:177
+msgid "The security origin of the database"
+msgstr "ডাটাবেইচৰ সুৰক্ষা উৎস"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:190
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:453
+msgid "Name"
+msgstr "নাম"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:191
+msgid "The name of the Web Database database"
+msgstr "ৱেব ডাটাবেইচ ডাটাবেইচৰ নাম"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:204
+msgid "Display Name"
+msgstr "প্ৰদৰ্শনৰ নাম"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:205
+msgid "The display name of the Web Storage database"
+msgstr "ৱেব সংৰক্ষণ ডাটাবেইচৰ প্ৰদৰ্শন নাম"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:218
+msgid "Expected Size"
+msgstr "প্ৰত্যাশিত আকাৰ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:219
+msgid "The expected size of the Web Database database"
+msgstr "ৱেব ডাটাবেইচ ডাটাবেইচৰ প্ৰত্যাশিত আকাৰ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:231
+msgid "Size"
+msgstr "আকাৰ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:232
+msgid "The current size of the Web Database database"
+msgstr "ৱেব ডাটাবেইচ ডাটাবেইচৰ বৰ্তমান আকাৰ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:244
+msgid "Filename"
+msgstr "ফাইলনাম"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:245
+msgid "The absolute filename of the Web Storage database"
+msgstr "ৱেব সংৰক্ষণ ডাটাবেইচৰ প্ৰকৃত ফাইলনাম"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:454
+msgid "The name of the frame"
+msgstr "ফ্ৰেইমৰ নাম"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:460
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:144
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3224
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:645
+msgid "Title"
+msgstr "শীৰ্ষক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:461
+msgid "The document title of the frame"
+msgstr "ফ্ৰেইমৰ দস্তাবেজ শীৰ্ষক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:468
+msgid "The current URI of the contents displayed by the frame"
+msgstr "ফ্ৰেইম দ্বাৰা প্ৰদৰ্শন কৰা সমলসমূহৰ বৰ্তমান URl"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:499
+msgid "Horizontal Scrollbar Policy"
+msgstr "আনুভূমিক স্ক্ৰলবাৰ নীতি"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:500
+msgid ""
+"Determines the current policy for the horizontal scrollbar of the frame."
+msgstr "ফ্ৰেইমৰ আনুভূমিক স্ক্ৰলবাৰৰ বাবে বৰ্তমান নীতি নিৰ্ধাৰণ কৰে।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:517
+msgid "Vertical Scrollbar Policy"
+msgstr "উলম্ভ স্ক্ৰলবাৰ নীতি"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:518
+msgid "Determines the current policy for the vertical scrollbar of the frame."
+msgstr "ফ্ৰেইমৰ উলম্ব স্ক্ৰলবাৰৰ বাবে বৰ্তমান নীতি নিৰ্ধাৰণ কৰে।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:145
+msgid "The title of the history item"
+msgstr "ইতিহাস বস্তুৰ শীৰ্ষক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:160
+msgid "Alternate Title"
+msgstr "বিকল্প শীৰ্ষক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:161
+msgid "The alternate title of the history item"
+msgstr "ইতিহাস বস্তুৰ বিকল্প শীৰ্ষক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:177
+msgid "The URI of the history item"
+msgstr "ইতিহাস বস্তুৰ URl"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:192
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:163
+msgid "Original URI"
+msgstr "প্ৰকৃত URl"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:193
+msgid "The original URI of the history item"
+msgstr "ইতিহাস বস্তুৰ প্ৰকৃত URl"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:208
+msgid "Last visited Time"
+msgstr "সৰ্বশেষ ভ্ৰমণ কৰা সময়"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:209
+msgid "The time at which the history item was last visited"
+msgstr "ইতিহাসৰ বস্ত ভ্ৰমণ কৰা সৰ্বশেষ সময়"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:273
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:154
+msgid "Web View"
+msgstr "ৱেব দৰ্শন"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:274
+msgid "The Web View that renders the Web Inspector itself"
+msgstr "ৱেব দৰ্শন যি ৱেব নীৰিক্ষকক ৰেন্ডাৰ কৰে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:287
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:122
+msgid "Inspected URI"
+msgstr "নীৰিক্ষণ কৰা URl"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:288
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:123
+msgid "The URI that is currently being inspected"
+msgstr "URl যাক বৰ্তমানে নীৰিক্ষণ কৰা হৈছে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:304
+msgid "Enable JavaScript profiling"
+msgstr "JavaScript আলেখ্যন সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:305
+msgid "Profile the executed JavaScript."
+msgstr "এক্সিকিউট কৰা JavaScript আলেখ্যন কৰক।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:320
+msgid "Enable Timeline profiling"
+msgstr "টাইমলাইন আলেখ্যন সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:321
+msgid "Profile the WebCore instrumentation."
+msgstr "WebCore যন্ত্ৰীকৰণ আলেখ্যন কৰক।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:148
+msgid "Reason"
+msgstr "কাৰণ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:149
+msgid "The reason why this navigation is occurring"
+msgstr "এই মাৰ্গদৰ্শনৰ কাৰণ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:164
+msgid "The URI that was requested as the target for the navigation"
+msgstr "মাৰ্গদৰ্শনৰ লক্ষ্য হিচাপে অনুৰোধ কৰা URl"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:178
+msgid "Button"
+msgstr "বুটাম"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:179
+msgid "The button used to click"
+msgstr "ক্লিক কৰাৰ বাবে ব্যৱহাৰ কৰা বুটাম"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:194
+msgid "Modifier state"
+msgstr "পৰিবৰ্তক অৱস্থা"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:195
+msgid "A bitmask representing the state of the modifier keys"
+msgstr "পৰিবৰ্তক কি'সমূহৰ অৱস্থা প্ৰতিনিদ্ধিত্ব কৰা এটা বিটমাস্ক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:210
+msgid "Target frame"
+msgstr "লক্ষ্যৰ ফ্ৰেইম"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:211
+msgid "The target frame for the navigation"
+msgstr "মাৰ্গদৰ্শনৰ বাবে লক্ষ্য ফ্ৰেইম"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebplugin.cpp:113
+msgid "Enabled"
+msgstr "সামৰ্থবান"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebplugin.cpp:114
+msgid "Whether the plugin is enabled"
+msgstr "প্লাগিন সামৰ্থবান আছে নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:210
+msgid "The URI of the resource"
+msgstr "সম্পদৰ URl"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:224
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:137
+msgid "MIME Type"
+msgstr "MIME ৰ ধৰণ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:225
+msgid "The MIME type of the resource"
+msgstr "সম্পদৰ MIME ধৰণ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:239
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3373
+msgid "Encoding"
+msgstr "এনক'ডিং"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:240
+msgid "The text encoding name of the resource"
+msgstr "সম্পদৰ লিখনী এনক'ডিং নাম"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:255
+msgid "Frame Name"
+msgstr "ফ্ৰেইমৰ নাম"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:256
+msgid "The frame name of the resource"
+msgstr "সম্পদৰ ফ্ৰেইম নাম"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:150
+msgid "Default Encoding"
+msgstr "অবিকল্পিত এনক'ডিং"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:151
+msgid "The default encoding used to display text."
+msgstr "লিখনী প্ৰদৰ্শন কৰিবলে ব্যৱহাৰ কৰা অবিকল্পিত এনক'ডিং।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:159
+msgid "Cursive Font Family"
+msgstr "কাৰ্চিব ফন্ট পৰিয়াল"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:160
+msgid "The default Cursive font family used to display text."
+msgstr "লিখনী প্ৰদৰ্শনৰ বাবে ব্যৱহাৰ কৰা অবিকল্পিত কাৰ্চিব ফন্ট পৰিয়াল।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:168
+msgid "Default Font Family"
+msgstr "অবিকল্পিত ফন্ট পৰিয়াল"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:169
+msgid "The default font family used to display text."
+msgstr "লিখনী প্ৰদৰ্শনৰ বাবে ব্যৱহাৰ কৰা অবিকল্পিত ফন্ট পৰিয়াল।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:177
+msgid "Fantasy Font Family"
+msgstr "কাল্পনিক ফন্ট পৰিয়াল"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:178
+msgid "The default Fantasy font family used to display text."
+msgstr "লিখনী প্ৰদৰ্শনৰ বাবে ব্যৱহাৰ কৰা অবিকল্পিত কাল্পনিক ফন্ট পৰিয়াল।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:186
+msgid "Monospace Font Family"
+msgstr "মনোস্পেইচ ফন্ট পৰিয়াল"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:187
+msgid "The default font family used to display monospace text."
+msgstr "মনোস্পেইচ লিখনী প্ৰদৰ্শন কৰিবলে ব্যৱহাৰ কৰা অবিকল্পিত ফন্ট পৰিয়াল।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:195
+msgid "Sans Serif Font Family"
+msgstr "চান্স চেৰিফ ফন্ট পৰিয়াল"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:196
+msgid "The default Sans Serif font family used to display text."
+msgstr "লিখনী প্ৰদৰ্শন কৰিবলে ব্যৱহাৰ কৰা অবিকল্পিত চান্স চেৰিফ ফন্ট পৰিয়াল।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:204
+msgid "Serif Font Family"
+msgstr "চেৰিফ ফন্ট পৰিয়াল"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:205
+msgid "The default Serif font family used to display text."
+msgstr "লিখনী প্ৰদৰ্শন কৰিবলে ব্যৱহাৰ কৰা অবিকল্পিত চেৰিফ পৰিয়াল।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:213
+msgid "Default Font Size"
+msgstr "অবিকল্পিত ফন্ট আকাৰ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:214
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:729
+msgid "The default font size used to display text."
+msgstr "লিখনী প্ৰদৰ্শন কৰিবলে ব্যৱহাৰ কৰা অবিকল্পিত ফন্টৰ আকাৰ।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:222
+msgid "Default Monospace Font Size"
+msgstr "অবিকল্পিত মনোস্পেইচ ফন্টৰ আকাৰ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:223
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:743
+msgid "The default font size used to display monospace text."
+msgstr "মনোস্পেইচ লিখনী প্ৰদৰ্শন কৰিবলে ব্যৱহাৰ কৰা অবিকল্পিত ফন্টৰ আকাৰ।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:231
+msgid "Minimum Font Size"
+msgstr "নূন্যতম ফন্টৰ আকাৰ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:232
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:758
+msgid "The minimum font size used to display text."
+msgstr "লিখনী প্ৰদৰ্শন কৰিবলে ব্যৱহাৰ কৰা নূন্যতম ফন্টৰ আকাৰ।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:240
+msgid "Minimum Logical Font Size"
+msgstr "নূন্যতম যৌক্তিক ফন্টৰ আকাৰ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:241
+msgid "The minimum logical font size used to display text."
+msgstr "লিখনী প্ৰদৰ্শন কৰিবলে ব্যৱহাৰ কৰা নূন্যতম যৌক্তিক ফন্টৰ আকাৰ।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:260
+msgid "Enforce 96 DPI"
+msgstr "96 DPI বলৱৎ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:261
+msgid "Enforce a resolution of 96 DPI"
+msgstr "96 DPI ৰ এটা বিভেদন বলৱৎ কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:269
+msgid "Auto Load Images"
+msgstr "ছবিসমূহ স্ব ল'ড কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:270
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:470
+msgid "Load images automatically."
+msgstr "ছবিসমূহ স্বচালিতভাৱে ল'ড কৰক।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:278
+msgid "Auto Shrink Images"
+msgstr "ছবিসমূহ স্বচালিতভাৱে সংকোচন কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:279
+msgid "Automatically shrink standalone images to fit."
+msgstr "খাপ খাবলে স্টেন্ডএলৌন ছবিসমূহ স্বচালিতভাৱে সংকোচন কৰক।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:287
+msgid "Respect Image Orientation"
+msgstr "ছবিৰ দিশৰ সন্মান"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:288
+msgid "Whether WebKit should respect image orientation."
+msgstr "WebKit এ ছবিৰ দিশক সন্মান দিব লাগে নে।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:296
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:882
+msgid "Print Backgrounds"
+msgstr "পটভূমিসমূহ প্ৰিন্ট কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:297
+msgid "Whether background images should be printed."
+msgstr "পটভূমি ছবিসমূহ প্ৰিন্ট কৰা হব নে।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:305
+msgid "Enable Scripts"
+msgstr "স্ক্ৰিপ্টসমূহ সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:306
+msgid "Enable embedded scripting languages."
+msgstr "অন্তৰ্ভুক্ত কৰা ভাষাসমূহ সামৰ্থবান কৰক।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:314
+msgid "Enable Plugins"
+msgstr "প্লাগিনসমূহ সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:315
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:580
+msgid "Enable embedded plugin objects."
+msgstr "অন্তৰ্ভুক্ত প্লাগিন অবজেক্টসমূহ সামৰ্থবান কৰক।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:323
+msgid "Resizable Text Areas"
+msgstr "লিখনী স্থানসমূহ পুনৰ আকাৰ দিয়ক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:324
+msgid "Whether text areas are resizable."
+msgstr "লিখনী স্থানসমূহ পুনৰ আকাৰ দিব পাৰি নি।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:331
+msgid "User Stylesheet URI"
+msgstr "ব্যৱহাৰকাৰী স্টাইলশ্বিট URl"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:332
+msgid "The URI of a stylesheet that is applied to every page."
+msgstr "এটা স্টাইলশ্বিটৰ URl যাক প্ৰতিটো পৃষ্ঠাত প্ৰয়োগ কৰা হয়।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:347
+msgid "Zoom Stepping Value"
+msgstr "স্টেপিং মান জুম কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:348
+msgid "The value by which the zoom level is changed when zooming in or out."
+msgstr "জুম ইন অথবা ঝুম আউট কৰোতে জুম স্তৰ পৰিবৰ্তন হোৱাৰ মান।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:366
+msgid "Enable Developer Extras"
+msgstr "উন্নয়নকাৰী অতিৰিক্তসমূহ সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:367
+msgid "Enables special extensions that help developers"
+msgstr "উন্নয়নকাৰীসকলক সহায় কৰা বিশেষ সম্প্ৰসাৰনসমূহ সামৰ্থবান কৰে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:387
+msgid "Enable Private Browsing"
+msgstr "ব্যক্তিগত ব্ৰাউছিং সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:388
+msgid "Enables private browsing mode"
+msgstr "ব্যক্তিগত ব্ৰাউছিং অৱস্থা সামৰ্থবান কৰে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:403
+msgid "Enable Spell Checking"
+msgstr "বানান নীৰিক্ষণ সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:404
+msgid "Enables spell checking while typing"
+msgstr "টাইপ কৰোতে বানান নীৰিক্ষণ সামৰ্থবান কৰে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:427
+msgid "Languages to use for spell checking"
+msgstr "বানান নীৰিক্ষণৰ বাবে ব্যৱহাৰ কৰিবলে ভাষাসমূহ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:428
+msgid "Comma separated list of languages to use for spell checking"
+msgstr "বানান নীৰিক্ষণৰ বাবে ব্যৱহাৰ কৰিবলে ভাষাসমূহৰ কমা পৃথকিত তালিকা"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:442
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:853
+msgid "Enable Caret Browsing"
+msgstr "Caret ব্ৰাউছিং সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:443
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:854
+msgid "Whether to enable accessibility enhanced keyboard navigation"
+msgstr "অভিগম্যতা সম্প্ৰসাৰিত কি'বৰ্ড মাৰ্গদৰ্শন সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:458
+msgid "Enable HTML5 Database"
+msgstr "HTML5 ডাটাবেইচ সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:459
+msgid "Whether to enable HTML5 database support"
+msgstr "HTML5 ডাটাবেইচ সমৰ্থন সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:474
+msgid "Enable HTML5 Local Storage"
+msgstr "HTML5 স্থানীয় সংৰক্ষণ সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:475
+msgid "Whether to enable HTML5 Local Storage support"
+msgstr "HTML5 স্থানীয় সংৰক্ষণ সমৰ্থন সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:490
+msgid "Local Storage Database Path"
+msgstr "স্থানীয় সংৰক্ষণ ডাটাবেইচ পথ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:491
+msgid "The path to where HTML5 Local Storage databases are stored."
+msgstr "HTML5 স্থানীয় সংৰক্ষণ ডাটাবেইচসমূহ সংৰক্ষণ কৰা পথ।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:505
+msgid "Enable XSS Auditor"
+msgstr "XSS অডিটৰ সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:506
+msgid "Whether to enable the XSS auditor"
+msgstr "XSS অডিটৰ সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:524
+msgid "Enable Spatial Navigation"
+msgstr "স্পেচিয়েল মাৰ্গদৰ্শন সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:525
+msgid "Whether to enable Spatial Navigation"
+msgstr "স্পেচিয়েল মাৰ্গদৰ্শন সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:543
+msgid "Enable Frame Flattening"
+msgstr "ফ্ৰেইম ফ্লেটেনিং সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:544
+msgid "Whether to enable Frame Flattening"
+msgstr "ফ্ৰেইম ফ্লেটেনিং সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:561
+msgid "User Agent"
+msgstr "ব্যবহাৰকাৰী সহায়ক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:562
+msgid "The User-Agent string used by WebKitGtk"
+msgstr "WebKitGtk দ্বাৰা ব্যৱহাৰ কৰা ব্যৱহাৰকাৰী-সহায়ক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:577
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:606
+msgid "JavaScript can open windows automatically"
+msgstr "JavaScript এ উইন্ডোসমূহ স্বচালিতভাৱে খোলিব পাৰে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:578
+msgid "Whether JavaScript can open windows automatically"
+msgstr "JavaScript এ উইন্ডোসমূহ স্বচালিতভাৱে খোলিব পাৰিব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:592
+msgid "JavaScript can access Clipboard"
+msgstr "JavaScript এ ক্লিপবৰ্ড অভিগম কৰিব পাৰে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:593
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:966
+msgid "Whether JavaScript can access Clipboard"
+msgstr "JavaScript এ ক্লিপবৰ্ড অভিগম কৰিব পাৰিব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:609
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:501
+msgid "Enable offline web application cache"
+msgstr "অফলাইন ৱেব এপ্লিকেচন ক্যাশ সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:610
+msgid "Whether to enable offline web application cache"
+msgstr "অফলাইন ৱেব এপ্লিকেচন ক্যাশ সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:635
+msgid "Editing behavior"
+msgstr "সম্পাদনাৰ আচৰণ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:636
+msgid "The behavior mode to use in editing mode"
+msgstr "সম্পাদনা অৱস্থাত ব্যৱহাৰ কৰিব লগিয়া আচৰণ অৱস্থা"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:652
+msgid "Enable universal access from file URIs"
+msgstr "ফাইল URls ৰ পৰা সাৰ্বভৈমক অভিগম সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:653
+msgid "Whether to allow universal access from file URIs"
+msgstr "ফাইল URls ৰ পৰা সাৰ্বভৈমক অভিগমৰ অনুমতি দিয়া হব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:668
+msgid "Enable DOM paste"
+msgstr "DOM পেইস্ট সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:669
+msgid "Whether to enable DOM paste"
+msgstr "DOM পেইস্ট সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:687
+msgid "Tab key cycles through elements"
+msgstr "টেব কি' উপাদানসমূহৰে চক্ৰ কৰে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:688
+msgid "Whether the tab key cycles through elements on the page."
+msgstr "টেব কি'সমূহে পৃষ্ঠাত উপাদানসমূহৰে চক্ৰ কৰে নে।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:710
+msgid "Enable Default Context Menu"
+msgstr "অবিকল্পিত পৰিপ্ৰেক্ষতিত মেনু সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:711
+msgid ""
+"Enables the handling of right-clicks for the creation of the default context "
+"menu"
+msgstr ""
+"অবিকল্পিত পৰিপ্ৰেক্ষতিত মেনু সৃষ্টিৰ বাবে ৰাইট-ক্লিকসমূহৰ ব্যৱস্থাপনা "
+"সামৰ্থবান কৰে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:731
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1030
+msgid "Enable Site Specific Quirks"
+msgstr "ছাইট বিশেষ Quirks সামৰ্থবান কৰে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:732
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1031
+msgid "Enables the site-specific compatibility workarounds"
+msgstr "ছাইট-বিশেষ সুসংগতা সমাধানসমূহ সামৰ্থবান কৰে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:754
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1051
+msgid "Enable page cache"
+msgstr "পৃষ্ঠাৰ ক্যাশ সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:755
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1052
+msgid "Whether the page cache should be used"
+msgstr "পৃষ্ঠাৰ ক্যাশ ব্যৱহাৰ কৰা হব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:775
+msgid "Auto Resize Window"
+msgstr "উইন্ডোক স্বচালিতভাৱে পুনৰ আকাৰ দিয়ক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:776
+msgid "Automatically resize the toplevel window when a page requests it"
+msgstr ""
+"যেতিয়া এটা পৃষ্ঠায় অনুৰোধ কৰে স্বচালিতভাৱে ওপৰস্তৰৰ উইন্ডো পুনৰ আকাৰ দিয়ক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:808
+msgid "Enable Java Applet"
+msgstr "Java এপ্লেট সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:809
+msgid "Whether Java Applet support through <applet> should be enabled"
+msgstr "<applet> ৰ সহায়ত Java এপ্লেটৰ সমৰ্থন সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:823
+msgid "Enable Hyperlink Auditing"
+msgstr "হাইপাৰলিঙ্ক অডিটিং সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:824
+msgid "Whether <a ping> should be able to send pings"
+msgstr "<a ping> এ পিঙ পঠাবলে সক্ষম থাকিব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:832
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:869
+msgid "Enable Fullscreen"
+msgstr "পূৰ্ণপৰ্দা সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:833
+msgid "Whether the Mozilla style API should be enabled."
+msgstr "Mozilla শৈলীৰ API সামৰ্থবান কৰা হব নে।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:848
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:916
+msgid "Enable WebGL"
+msgstr "WebGL সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:849
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:917
+msgid "Whether WebGL content should be rendered"
+msgstr "WebGL সমল ৰেণ্ডাৰ কৰা হব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:865
+msgid "Enable accelerated compositing"
+msgstr "গতি বৃদ্ধিত প্ৰস্তুতি সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:866
+msgid "Whether accelerated compositing should be enabled"
+msgstr "গতি বৃদ্ধিত প্ৰস্তুতি সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:884
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:901
+msgid "Enable WebAudio"
+msgstr "WebAudio সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:885
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:902
+msgid "Whether WebAudio content should be handled"
+msgstr "WebAudio সমল ব্যৱস্থাপনা কৰা হব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:901
+msgid "WebKit prefetches domain names"
+msgstr "WebKit এ ডমেইন নামসমূহ আগতিয়াকৈ প্ৰাপ্ত কৰে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:902
+msgid "Whether WebKit prefetches domain names"
+msgstr "WebKit এ ডমেইন নামসমূহ আগতিয়াকৈ প্ৰাপ্ত কৰে নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:920
+msgid "Enable Media Stream"
+msgstr "মাধ্যম স্ট্ৰিম সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:921
+msgid "Whether Media Stream should be enabled"
+msgstr "মাধ্যম স্ট্ৰিম সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:936
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1084
+msgid "Enable smooth scrolling"
+msgstr "নিমজ স্ক্ৰলিং সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:937
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1085
+msgid "Whether to enable smooth scrolling"
+msgstr "নিমজ স্ক্ৰলিং সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:955
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:982
+msgid "Media playback requires user gesture"
+msgstr "মাধ্যম প্লেবেকৰ বাবে ব্যৱহাৰকাৰী দ্বাৰা কাৰ্য্য কৰাৰ প্ৰয়োজন"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:956
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:983
+msgid "Whether media playback requires user gesture"
+msgstr "মাধ্যম প্লেবেকৰ বাবে ব্যৱহাৰকাৰী দ্বাৰা কাৰ্য্য কৰাৰ প্ৰয়োজন আছে নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:972
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:997
+msgid "Media playback allows inline"
+msgstr "মাধ্যম প্লেবেকে ইনলাইনৰ অনুমতি দিয়ে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:973
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:998
+msgid "Whether media playback allows inline"
+msgstr "মাধ্যম প্লেবেকে ইনলাইনৰ অনুমতি দিয়ে নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:991
+msgid "Enable CSS shaders"
+msgstr "CSS শেইডাৰসমূহ সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:992
+msgid "Whether to enable css shaders"
+msgstr "css শেইডাৰসমূহ সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1007
+msgid "Enable display of insecure content"
+msgstr "অসুৰক্ষিত সমলৰ প্ৰদৰ্শন সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1008
+msgid "Whether non-HTTPS resources can display on HTTPS pages."
+msgstr "নন-HTTPS সম্পদসমূহ HTTPS পৃষ্ঠাসমূহত প্ৰদৰ্শন হব নে।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1023
+msgid "Enable running of insecure content"
+msgstr "অসুৰক্ষিত সমল চলোৱা সামৰ্থবান কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1024
+msgid "Whether non-HTTPS resources can run on HTTPS pages."
+msgstr "নন-HTTPS সম্পদসমূহ HTTPS পৃষ্ঠাসমূহত চলিব নে।"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:1307
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:455
+msgid "Select Files"
+msgstr "ফাইলসমূহ বাছক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:1307
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:455
+msgid "Select File"
+msgstr "ফাইল বাছক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3225
+msgid "Returns the @web_view's document title"
+msgstr "@web_view's দস্তাবেজ শীৰ্ষক ঘুৰাই দিয়ে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3239
+msgid "Returns the current URI of the contents displayed by the @web_view"
+msgstr "@web_view দ্বাৰা প্ৰদৰ্শন কৰা সমলসমূহৰ বৰ্তমান URl ঘুৰাই দিয়ে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3252
+msgid "Copy target list"
+msgstr "লক্ষ্যৰ তালিকা কপি কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3253
+msgid "The list of targets this web view supports for clipboard copying"
+msgstr ""
+"ক্লিপবৰ্ড কপি কৰাৰ বাবে এই ৱেব দৰ্শন দ্বাৰা সমৰ্থন কৰা লক্ষ্যসমূহৰ তালিকা"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3266
+msgid "Paste target list"
+msgstr "লক্ষ্যৰ তালিকা পেইস্ট কৰক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3267
+msgid "The list of targets this web view supports for clipboard pasting"
+msgstr ""
+"ক্লিপবৰ্ড পেইস্ট কৰাৰ বাবে এই ৱেব দৰ্শন দ্বাৰা সমৰ্থন কৰা লক্ষ্যসমূহৰ তালিকা"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3273
+msgid "Settings"
+msgstr "সংহতিসমূহ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3274
+msgid "An associated WebKitWebSettings instance"
+msgstr "এটা সংযুক্ত WebKitWebSettings উদাহৰণ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3287
+#: ../../../../WebKit2/UIProcess/gtk/WebInspectorProxyGtk.cpp:92
+#: ../../../../WebKit2/UIProcess/gtk/WebInspectorProxyGtk.cpp:157
+msgid "Web Inspector"
+msgstr "ৱেব নীৰিক্ষক"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3288
+msgid "The associated WebKitWebInspector instance"
+msgstr "সংযুক্ত WebKitWebInspector ৰ উদাহৰণ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3301
+msgid "Viewport Attributes"
+msgstr "দৰ্শনপোৰ্টৰ বৈশিষ্ট্যসমূহ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3302
+msgid "The associated WebKitViewportAttributes instance"
+msgstr "সংযুক্ত WebKitViewportAttributes উদাহৰণ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3322
+msgid "Editable"
+msgstr "সম্পাদনযোগ্য"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3323
+msgid "Whether content can be modified by the user"
+msgstr "সমল ব্যৱহাৰকাৰী দ্বাৰা পৰিবৰ্তন কৰিব পৰা যাব নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3329
+msgid "Transparent"
+msgstr "স্বচ্ছ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3330
+msgid "Whether content has a transparent background"
+msgstr "সমলৰ এটা স্বচ্ছ পটভূমি আছে নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3343
+msgid "Zoom level"
+msgstr "জুমৰ স্তৰ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3344
+msgid "The level of zoom of the content"
+msgstr "সমলৰ জুমৰ স্তৰ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3359
+msgid "Full content zoom"
+msgstr "সম্পূৰ্ণ সমল জুম"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3360
+msgid "Whether the full content is scaled when zooming"
+msgstr "জুম কৰোতে সম্পূৰ্ণ সমল স্কেইল কৰা হয় নে"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3374
+msgid "The default encoding of the web view"
+msgstr "ৱেব দৰ্শনৰ অবিকল্পিত এনক'ডিং"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3387
+msgid "Custom Encoding"
+msgstr "স্বনিৰ্বাচিত এনক'ডিং"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3388
+msgid "The custom encoding of the web view"
+msgstr "ৱেব দৰ্শনৰ স্বনিৰ্বাচিত এনক'ডিং"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3440
+msgid "Icon URI"
+msgstr "আইকন URl"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3441
+msgid "The URI for the favicon for the #WebKitWebView."
+msgstr "#WebKitWebView ৰ favicon ৰ বাবপ URl।"
+
+#: ../../../../WebKit2/Shared/Downloads/soup/DownloadSoup.cpp:89
+#, c-format
+msgid ""
+"Cannot determine destination URI for download with suggested filename %s"
+msgstr ""
+"উপদেশ দিয়া ফাইলনাম %s ৰ সৈতে ডাউনল'ডৰ বাবে গন্তব্য URl নিৰ্ধাৰণ কৰিব নোৱাৰি"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:139
+msgid "Destination"
+msgstr "গন্তব্য"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:140
+msgid "The local URI to where the download will be saved"
+msgstr "স্থানীয় URl যত ডাউনল'ড সংৰক্ষণ কৰা হব"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:152
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:122
+msgid "Response"
+msgstr "প্ৰতিক্ৰিয়া"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:153
+msgid "The response of the download"
+msgstr "ডাউনল'ডৰ প্ৰতিক্ৰিয়া"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:170
+msgid "Estimated Progress"
+msgstr "আনুমানিক প্ৰগতি"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:141
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:255
+#, c-format
+msgid "Unknown favicon for page %s"
+msgstr "পৃষ্ঠা %s ৰ বাবে অজ্ঞাত favicon"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:147
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:251
+#, c-format
+msgid "Page %s does not have a favicon"
+msgstr "পৃষ্ঠা %s ৰ এটা favicon নাই"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:247
+msgid "Favicons database not initialized yet"
+msgstr "Favicons ডাটাবেইচ এতিয়াও আৰম্ভ কৰা হোৱা নাই"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:175
+msgid "Search text"
+msgstr "লিখনী সন্ধান কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:176
+msgid "Text to search for in the view"
+msgstr "দৰ্শনত সন্ধান কৰিবলে লিখনী"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:188
+msgid "Search Options"
+msgstr "সন্ধান বিকল্পসমূহ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:189
+msgid "Search options to be used in the search operation"
+msgstr "সন্ধান কাৰ্য্যত ব্যৱহাৰ কৰিবলে সন্ধান বিকল্পসমূহ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:202
+msgid "Maximum matches count"
+msgstr "সৰ্বাধিক মিলৰ গণনা"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:203
+msgid "The maximum number of matches in a given text to report"
+msgstr "সংবাদন কৰিবলে এটা প্ৰদান কৰা লিখনীত মিলসমূহৰ সৰ্বাধিক সংখ্যা"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:215
+msgid "WebView"
+msgstr "WebView"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:216
+msgid "The WebView associated with this find controller"
+msgstr "এই সন্ধান নিয়ন্ত্ৰকৰ সৈতে সংযুক্ত WebView"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:153
+msgid "Flags with the context of the WebKitHitTestResult"
+msgstr "WebKitHitTestResult ৰ পৰিপ্ৰেক্ষতিত ফ্লেগসমূহ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:167
+msgid "The link URI"
+msgstr "সংযোগ URl"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:179
+msgid "Link Title"
+msgstr "সংযোগ শীৰ্ষক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:180
+msgid "The link title"
+msgstr "সংযোগ শীৰ্ষক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:192
+msgid "Link Label"
+msgstr "সংযোগ লেবেল"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:193
+msgid "The link label"
+msgstr "সংযোগ লেবেল"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:206
+msgid "The image URI"
+msgstr "ছবিৰ URl"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:219
+msgid "The media URI"
+msgstr "মাধ্যমৰ URl"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:105
+msgid "Navigation type"
+msgstr "মাৰ্গদৰ্শনৰ ধৰণ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:106
+msgid "The type of navigation triggering this decision"
+msgstr "এই নিৰ্ণয় আৰম্ভ কৰা মাৰ্গদৰ্শনৰ ধৰণ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:123
+msgid "Mouse button"
+msgstr "মাউছ বুটাম"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:124
+msgid "The mouse button used if this decision was triggered by a mouse event"
+msgstr "ব্যৱহৃত মাউছ বুটাম যদি এই নিৰ্ণয় এটা মাউছ ঘটনা দ্বাৰা আৰম্ভ কৰা হৈছিল"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:140
+msgid "Mouse event modifiers"
+msgstr "মাউছ ঘটনা পৰিবৰ্তকসমূহ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:141
+msgid "The modifiers active if this decision was triggered by a mouse event"
+msgstr "সক্ৰিয় পৰিবৰ্তকসমূহ যদি এই নিৰ্ণয় এটা মাউছ ঘটনা দ্বাৰা আৰম্ভ কৰা হৈছিল"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:154
+msgid "Navigation URI request"
+msgstr "মাৰ্গদৰ্শন URl অনুৰোধ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:155
+msgid "The URI request that is associated with this navigation"
+msgstr "এই মাৰ্গদৰ্শনৰ সৈতে সংযুক্ত URl অনুৰোধ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:170
+msgid "Frame name"
+msgstr "ফ্ৰেইমৰ নাম"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:171
+msgid "The name of the new frame this navigation action targets"
+msgstr "এই মাৰ্গদৰ্শন কাৰ্য্য লক্ষ্য কৰা নতুন ফ্ৰেইমৰ নাম"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:155
+msgid "The web view that will be printed"
+msgstr "ৱেব দৰ্শন যাক প্ৰিন্ট কৰা হব"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:167
+msgid "Print Settings"
+msgstr "প্ৰিন্ট সংহতিসমূহ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:168
+msgid "The initial print settings for the print operation"
+msgstr "প্ৰিন্ট কাৰ্য্যৰ বাবে আৰম্ভণি প্ৰিন্ট সংহতিসমূহ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:179
+msgid "Page Setup"
+msgstr "পৃষ্ঠাৰ সংস্থাপন"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:180
+msgid "The initial page setup for the print operation"
+msgstr "প্ৰিন্ট কাৰ্য্যৰ বাবে আৰম্ভণি পৃষ্ঠাৰ সংস্থাপন"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:91
+msgid "Response URI request"
+msgstr "URl অনুৰোধ প্ৰতিক্ৰিয়া কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:92
+msgid "The URI request that is associated with this policy decision"
+msgstr "এই নীতি অধিবেশনৰ সৈতে জড়িত URl অনুৰোধ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:105
+msgid "URI response"
+msgstr "URI প্ৰতিক্ৰিয়া"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:106
+msgid "The URI response that is associated with this policy decision"
+msgstr "এই নীতি নিৰ্ণয়ৰ সৈতে সংযুক্ত URl প্ৰতিক্ৰিয়া"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:454
+msgid "Enable JavaScript"
+msgstr "JavaScript সামৰ্থবান কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:455
+msgid "Enable JavaScript."
+msgstr "JavaScript সামৰ্থবান কৰক।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:469
+msgid "Auto load images"
+msgstr "ছবিসমূহ স্বচালিতভাৱে ল'ড কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:483
+msgid "Load icons ignoring image load setting"
+msgstr "ছবি ল'ড সংহতি উপেক্ষা কৰি আইকনসমূহ ল'ড কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:484
+msgid "Whether to load site icons ignoring image load setting."
+msgstr "ছবি ল'ড সংহতি উপেক্ষা কৰি ছাইট আইকনসমূহ ল'ড কৰা হব নে।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:502
+msgid "Whether to enable offline web application cache."
+msgstr "অফলাইন ৱেব এপ্লিকেচন ক্যাশ সামৰ্থবান কৰা হব নে।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:518
+msgid "Enable HTML5 local storage"
+msgstr "HTML5 স্থানীয় সংৰক্ষণ সামৰ্থবান কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:519
+msgid "Whether to enable HTML5 Local Storage support."
+msgstr "HTML5 স্থানীয় সংৰক্ষণ সমৰ্থন সামৰ্থবান কৰা হব নে।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:536
+msgid "Enable HTML5 database"
+msgstr "HTML5 ডাটাবেইচ সামৰ্থবান কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:537
+msgid "Whether to enable HTML5 database support."
+msgstr "HTML5 ডাটাবেইচ সমৰ্থন সামৰ্থবান কৰা হব নে।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:550
+msgid "Enable XSS auditor"
+msgstr "XSS অডিটৰ সামৰ্থবান কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:551
+msgid "Whether to enable the XSS auditor."
+msgstr "XSS অডিটৰ সামৰ্থবান কৰা হব নে।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:566
+msgid "Enable frame flattening"
+msgstr "ফ্ৰেইম ফ্লেটেনিং সামৰ্থবান কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:567
+msgid "Whether to enable frame flattening."
+msgstr "ফ্ৰেইম ফ্লেটেনিং সামৰ্থবান কৰা হব নে।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:579
+msgid "Enable plugins"
+msgstr "প্লাগিনসমূহ সামৰ্থবান কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:592
+msgid "Enable Java"
+msgstr "Java সামৰ্থবান কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:593
+msgid "Whether Java support should be enabled."
+msgstr "Java সমৰ্থন সামৰ্থবান কৰা হব নে।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:607
+msgid "Whether JavaScript can open windows automatically."
+msgstr "JavaScript এ উইন্ডোসমূহ স্বচালিতভাৱে খোলিব পাৰিব নে।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:622
+msgid "Enable hyperlink auditing"
+msgstr "হাইপাৰলিঙ্ক অডিটিং সামৰ্থবান কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:623
+msgid "Whether <a ping> should be able to send pings."
+msgstr "<a ping> এ পিঙ পঠাবলে সক্ষম থাকিব নে।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:635
+msgid "Default font family"
+msgstr "অবিকল্পিত ফন্ট পৰিয়াল"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:636
+msgid ""
+"The font family to use as the default for content that does not specify a "
+"font."
+msgstr ""
+"এটা ফন্ট ধাৰ্য্য নকৰা সমলৰ বাবে অবিকল্পিত হিচাপে ব্যৱহাৰ কৰিবলে ফন্ট পৰিয়াল।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:649
+msgid "Monospace font family"
+msgstr "মনোস্পেইচ ফন্ট পৰিয়াল"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:650
+msgid "The font family used as the default for content using monospace font."
+msgstr ""
+"মনোস্পেইচ ফন্ট ব্যৱহাৰ কৰা সমলৰ বাবে অবিকল্পিত হিচাপে ব্যৱহাৰ কৰা ফন্ট পৰিয়াল।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:662
+msgid "Serif font family"
+msgstr "চেৰিফ ফন্ট পৰিয়াল"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:663
+msgid "The font family used as the default for content using serif font."
+msgstr ""
+"চেৰিফ ফন্ট ব্যৱহাৰ কৰা সমলৰ বাবে অবিকল্পিত হিচাপে ব্যৱহাৰ কৰা ফন্ট পৰিয়াল।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:675
+msgid "Sans-serif font family"
+msgstr "চান্স-চেৰিফ ফন্ট পৰিয়াল"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:676
+msgid "The font family used as the default for content using sans-serif font."
+msgstr ""
+"চান্স-চেৰিফ ফন্ট ব্যৱহাৰ কৰা সমলৰ বাবে অবিকল্পিত হিচাপে ব্যৱহাৰ কৰা ফন্ট "
+"পৰিয়াল।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:688
+msgid "Cursive font family"
+msgstr "কাৰ্চিভ ফন্ট পৰিয়াল"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:689
+msgid "The font family used as the default for content using cursive font."
+msgstr ""
+"কাৰ্চিভ ফন্ট ব্যৱহাৰ কৰা সমলৰ বাবে অবিকল্পিত হিচাপে ব্যৱহাৰ কৰা ফন্ট পৰিয়াল।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:701
+msgid "Fantasy font family"
+msgstr "ফেন্টাচি ফন্ট পৰিয়াল"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:702
+msgid "The font family used as the default for content using fantasy font."
+msgstr ""
+"ফেন্টাচি ফন্ট ব্যৱহাৰ কৰা সমলৰ বাবে অবিকল্পিত হিচাপে ব্যৱহাৰ কৰা ফন্ট পৰিয়াল।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:714
+msgid "Pictograph font family"
+msgstr "পিক্টোগ্ৰাফ ফন্টৰ পৰিয়াল"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:715
+msgid "The font family used as the default for content using pictograph font."
+msgstr ""
+"পিক্টোগ্ৰাফ ফন্ট ব্যৱহাৰ কৰা সমলৰ বাবে অবিকল্পিত হিচাপে ব্যৱহাৰ কৰা ফন্ট "
+"পৰিয়াল।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:728
+msgid "Default font size"
+msgstr "অবিকল্পিত ফন্ট আকাৰ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:742
+msgid "Default monospace font size"
+msgstr "অবিকল্পিত মনোস্পেইচ ফন্টৰ আকাৰ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:757
+msgid "Minimum font size"
+msgstr "নূন্যতম ফন্টৰ আকাৰ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:770
+msgid "Default charset"
+msgstr "অবিকল্পিত চাৰচেট"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:771
+msgid ""
+"The default text charset used when interpreting content with unspecified "
+"charset."
+msgstr ""
+"অধাৰ্য্যত চাৰচেটৰ সৈতে সমল বিশ্লেষণ কৰোতে ব্যৱহৃত অবিকল্পিত লিখনী চাৰচেট।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:784
+msgid "Enable private browsing"
+msgstr "ব্যক্তিগত ব্ৰাউছিং সামৰ্থবান কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:785
+msgid "Whether to enable private browsing"
+msgstr "ব্যক্তিগত ব্ৰাউছিং সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:797
+msgid "Enable developer extras"
+msgstr "উন্নয়নকাৰী অতিৰিক্তসমূহ সামৰ্থবান কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:798
+msgid "Whether to enable developer extras"
+msgstr "উন্নয়নকাৰী অতিৰিক্তসমূহ সামৰ্থবান কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:810
+msgid "Enable resizable text areas"
+msgstr "পুনৰ আকাৰ দিব পৰা লিখনী আকাৰসমূহ সামৰ্থবান কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:811
+msgid "Whether to enable resizable text areas"
+msgstr "পুনৰ আকাৰ দিব পৰা লিখনী স্থানবোৰ সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:826
+msgid "Enable tabs to links"
+msgstr "সংযোগসমূহলে টেবসমূহ সামৰ্থবান কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:827
+msgid "Whether to enable tabs to links"
+msgstr "টেবসমূহ সংযোগসমূহলে সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:840
+msgid "Enable DNS prefetching"
+msgstr "DNS প্ৰিফেচিং সামৰ্থবান কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:841
+msgid "Whether to enable DNS prefetching"
+msgstr "DNS প্ৰিফেচিং সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:870
+msgid "Whether to enable the Javascriipt Fullscreen API"
+msgstr "Javascriipt পূৰ্ণপৰ্দা API সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:883
+msgid "Whether background images should be drawn during printing"
+msgstr "প্ৰিন্টিংৰ সময় পটভূমি ছবিসমূহ অঁকা হব নে"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:934
+msgid "Allow modal dialogs"
+msgstr "মডেল ডাইলগসমূহৰ অনুমতি দিয়ক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:935
+msgid "Whether it is possible to create modal dialogs"
+msgstr "মডেল ডাইলগসমূহ সৃষ্টি কৰাটো সম্ভব নে"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:950
+msgid "Zoom Text Only"
+msgstr "কেৱল লিখনী ডাঙৰ কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:951
+msgid "Whether zoom level of web view changes only the text size"
+msgstr "ৱেব দৰ্শনৰ জুম স্তৰে কেৱল লিখনী আকাৰ পৰিবৰ্তন কৰে নে"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:965
+msgid "JavaScript can access clipboard"
+msgstr "JavaScript এ ক্লিপবৰ্ড অভিগম কৰিব পাৰে"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1012
+msgid "Draw compositing indicators"
+msgstr "কম্পোচিটিং ইণ্ডিকেটৰসমূহ আঁকক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1013
+msgid "Whether to draw compositing borders and repaint counters"
+msgstr "কম্পোচিটিং প্ৰান্তবোৰ অঁকা আৰু কাউন্টাৰসমূহ পুনৰ ৰঙ কৰা হব নে"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1071
+msgid "User agent string"
+msgstr "ব্যবহাৰকাৰী সহায়ক স্ট্ৰিং"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1072
+msgid "The user agent string"
+msgstr "ব্যৱহাৰকাৰী সহায়ক স্ট্ৰিং"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1102
+#| msgid "Enable accelerated compositing"
+msgid "Enable accelerated 2D canvas"
+msgstr "গতি বৃদ্ধিত 2D কেনভাচ সামৰ্থবান কৰক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1103
+#| msgid "Whether to enable resizable text areas"
+msgid "Whether to enable accelerated 2D canvas"
+msgstr "গতি বৃদ্ধিত 2D কেনভাচ সামৰ্থবান কৰা হব নে"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1118
+msgid "Write console messages on stdout"
+msgstr "কনচৌল বাৰ্তাসমূহ stdout লৈ লিখক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1119
+#| msgid "Whether to load site icons ignoring image load setting."
+msgid "Whether to write console messages on stdout"
+msgstr "কনচৌল বাৰ্তাসমূহ stdout লৈ লিখা হব নে"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:100
+msgid "The URI for which the response was made."
+msgstr "URl যাৰ বাবে প্ৰতিক্ৰিয়া সৃষ্টি কৰা হৈছিল।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:111
+msgid "Status Code"
+msgstr "অৱস্থাৰ ক'ড"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:112
+msgid "The status code of the response as returned by the server."
+msgstr "চাৰ্ভাৰ দ্বাৰা ঘুৰাই দিয়া প্ৰতিক্ৰিয়াৰ অৱস্থা ক'ড।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:124
+msgid "Content Length"
+msgstr "সমলৰ দৈৰ্ঘ্য"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:125
+msgid "The expected content length of the response."
+msgstr "প্ৰতিক্ৰিয়াৰ প্ৰত্যাশিত সমল দৈৰ্ঘ্য।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:138
+msgid "The MIME type of the response"
+msgstr "প্ৰতিক্ৰিয়াৰ MIME ধৰণ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:151
+msgid "The suggested filename for the URI response"
+msgstr "URl প্ৰতিক্ৰিয়াৰ বাবে উপদেশিত ফাইলনাম"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:134
+msgid "Attached Height"
+msgstr "সংলগ্ন উচ্চতা"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:135
+msgid "The height that the inspector view should have when it is attached"
+msgstr "সংলগ্ন হওতে নীৰিক্ষক দৰ্শনৰ থাকিব লগিয়া উচ্চতা"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:110
+msgid "The current active URI of the resource"
+msgstr "সম্পদৰ বৰ্তমান সক্ৰিয় URl"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:123
+msgid "The response of the resource"
+msgstr "সম্পদৰ প্ৰতিক্ৰিয়া"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:617
+msgid "Web Context"
+msgstr "ৱেব পৰিপ্ৰেক্ষতিত"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:618
+msgid "The web context for the view"
+msgstr "দৰ্শনৰ বাবে ৱেব পৰিপ্ৰেক্ষতিত"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:631
+#| msgid "WebView"
+msgid "WebView Group"
+msgstr "WebView দল"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:632
+#| msgid "The device pixel ratio of the viewport."
+msgid "The WebKitWebViewGroup of the view"
+msgstr "দৰ্শনৰ WebKitWebViewGroup"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:646
+msgid "Main frame document title"
+msgstr "মূখ্য ফ্ৰেইম দস্তাবেজ শীৰ্ষক"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:664
+msgid "Estimated Load Progress"
+msgstr "আনুমানিক ল'ডৰ প্ৰগতি"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:665
+msgid "An estimate of the percent completion for a document load"
+msgstr "এটা দস্তাবেজ ল'ডৰ বাবে শতাংশ সম্পূৰ্ণৰ এটা অনুমান"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:677
+msgid "Favicon"
+msgstr "Favicon"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:678
+msgid "The favicon associated to the view, if any"
+msgstr "দৰ্শনৰ সৈতে সংযুক্ত favicon, যদি উপলব্ধ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:690
+msgid "The current active URI of the view"
+msgstr "দৰ্শনৰ বৰ্তমান সক্ৰিয় URI"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:704
+msgid "The zoom level of the view content"
+msgstr "দৰ্শন সমলৰ জুম স্তৰ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:722
+msgid "Whether the view is loading a page"
+msgstr "দৰ্শনে এটা পৃষ্ঠা ল'ড কৰি আছে নে"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:736
+msgid "The view mode to display the web view contents"
+msgstr "ৱেব দৰ্শন সমলসমূহ প্ৰদৰ্শন কৰিবলে দৰ্শন অৱস্থা"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:2512
+msgid "An exception was raised in JavaScript"
+msgstr "JavaScript ত এটা ব্যতিক্ৰম দাঙি ধৰা হৈছিল"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:3041
+msgid "There was an error creating the snapshot"
+msgstr "স্নেপশ্বট সৃষ্টি কৰোতে এটা ত্ৰুটি হৈছিল"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:209
+msgid "Geometry"
+msgstr "জ্যামিতি"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:210
+msgid "The size and position of the window on the screen."
+msgstr "পৰ্দাত উইন্ডোৰ আকাৰ আৰু অৱস্থান।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:222
+msgid "Toolbar Visible"
+msgstr "টুলবাৰ দৃশ্যমান"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:223
+msgid "Whether the toolbar should be visible for the window."
+msgstr "উইন্ডোৰ বাবে টুলবাৰ দৃশ্যমান হব লাগিব নে।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:235
+msgid "Statusbar Visible"
+msgstr "অৱস্থাবাৰ দৃশ্যমান"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:236
+msgid "Whether the statusbar should be visible for the window."
+msgstr "উইন্ডোৰ বাবে অৱস্থাবাৰ দৃশ্যমান হব লাগিব নে।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:248
+msgid "Scrollbars Visible"
+msgstr "স্ক্ৰলবাৰসমূহ দৃশ্যমান"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:249
+msgid "Whether the scrollbars should be visible for the window."
+msgstr "উইন্ডোৰ বাবে স্ক্ৰলবাৰসমূহ দৃশ্যমান হব লাগিব নে।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:261
+msgid "Menubar Visible"
+msgstr "মেনুবাৰ দৃশ্যমান"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:262
+msgid "Whether the menubar should be visible for the window."
+msgstr "উইন্ডোৰ বাবে মেনুবাৰ দৃশ্যমান হব লাগিব নে।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:274
+msgid "Locationbar Visible"
+msgstr "অৱস্থানবাৰ দৃশ্যমান"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:275
+msgid "Whether the locationbar should be visible for the window."
+msgstr "উইন্ডোৰ বাবে অৱস্থানবাৰ দৃশ্যমান হব লাগিব নে।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:286
+msgid "Resizable"
+msgstr "পুনৰ আকাৰ দিব পৰা"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:287
+msgid "Whether the window can be resized."
+msgstr "উইন্ডোক পুনৰ আকাৰ দিব পাৰি নে।"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:299
+msgid "Fullscreen"
+msgstr "পূৰ্ণপৰ্দা"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:300
+msgid "Whether window will be displayed fullscreen."
+msgstr "উইন্ডোক পূৰ্ণপৰ্দাত প্ৰদৰ্শন কৰা হব নে।"
+
+#~ msgid "audio element controller"
+#~ msgstr "অডিঅ' উপাদান নিয়ন্ত্ৰক"
+
+#~ msgid "video element controller"
+#~ msgstr "ভিডিঅ' উপাদান নিয়ন্ত্ৰক"
+
+#~ msgid "user-scalable"
+#~ msgstr "ব্যৱহাৰকাৰী-স্কেইলেবুল"
+
+#~ msgid "valid"
+#~ msgstr "বৈধ"
+
+#~ msgid "A username and password are being requested by the site %s"
+#~ msgstr "ছাইট %s দ্বাৰা এটা ব্যৱহাৰকাৰীনাম আৰু পাছৱাৰ্ড অনুৰোধ কৰা হৈছে"

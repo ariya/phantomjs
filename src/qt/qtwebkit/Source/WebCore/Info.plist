@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>${PRODUCT_NAME}</string>
+	<key>CFBundleGetInfoString</key>
+	<string>${BUNDLE_VERSION}, Copyright 2003-2013 Apple Inc.; Copyright 1997 Martin Jones &lt;mjones@kde.org&gt;; Copyright 1998, 1999 Torben Weis &lt;weis@kde.org&gt;; Copyright 1998, 1999, 2002 Waldo Bastian &lt;bastian@kde.org&gt;; Copyright 1998-2000 Lars Knoll &lt;knoll@kde.org&gt;; Copyright 1999, 2001 Antti Koivisto &lt;koivisto@kde.org&gt;; Copyright 1999-2001 Harri Porten &lt;porten@kde.org&gt;; Copyright 2000 Simon Hausmann &lt;hausmann@kde.org&gt;; Copyright 2000, 2001 Dirk Mueller &lt;mueller@kde.org&gt;; Copyright 2000, 2001 Peter Kelly &lt;pmk@post.com&gt;; Copyright 2000 Daniel Molkentin &lt;molkentin@kde.org&gt;; Copyright 2000 Stefan Schimanski &lt;schimmi@kde.org&gt;; Copyright 1998-2000 Netscape Communications Corporation; Copyright 1998, 1999, 2000 Thai Open Source Software Center Ltd and Clark Cooper; Copyright 2001, 2002 Expat maintainers.</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.apple.${PRODUCT_NAME}</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>${PRODUCT_NAME}</string>
+	<key>CFBundlePackageType</key>
+	<string>FMWK</string>
+	<key>CFBundleShortVersionString</key>
+	<string>${SHORT_VERSION_STRING}</string>
+	<key>CFBundleVersion</key>
+	<string>${BUNDLE_VERSION}</string>
+</dict>
+</plist>

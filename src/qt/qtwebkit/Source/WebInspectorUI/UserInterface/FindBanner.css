@@ -1,0 +1,196 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.find-banner {
+    border-bottom: 1px solid rgb(153, 153, 153);
+
+    font-family: "Lucida Grande", sans-serif;
+    font-size: 11px;
+
+    position: absolute;
+    top: -22px;
+    left: 0;
+    right: 0;
+    height: 22px;
+
+    text-align: right;
+
+    white-space: nowrap;
+    overflow: hidden;
+
+    -webkit-transition-property: top;
+    -webkit-transition-duration: 200ms;
+    -webkit-transition-timing-function: ease-in;
+
+    z-index: 500;
+}
+
+.find-banner.showing {
+    top: 0;
+    -webkit-transition-timing-function: ease-out;
+}
+
+.find-banner.no-find-banner-transition,
+.supports-find-banner.no-find-banner-transition {
+    -webkit-transition-duration: 0 !important;
+}
+
+.supports-find-banner {
+    -webkit-transition-property: top;
+    -webkit-transition-duration: 200ms;
+    -webkit-transition-timing-function: ease-in;
+}
+
+.supports-find-banner.showing-find-banner {
+    top: 22px !important;
+    -webkit-transition-timing-function: ease-out;
+}
+
+.find-banner > :first-child {
+    margin-left: 8px !important;
+}
+
+.find-banner > :last-child {
+    margin-right: 8px !important;
+}
+
+.find-banner > input[type="search"] {
+    margin: 1px 4px;
+
+    width: 143px;
+    height: 19px;
+
+    vertical-align: top;
+
+    -webkit-appearance: none;
+
+    outline: none;
+
+    border: 1px solid rgb(146, 146, 146);
+    border-radius: 4px;
+    background-color: white;
+    box-shadow: inset rgba(0, 0, 0, 0.1) 0 1px 0;
+}
+
+.find-banner > button {
+    margin: 1px 4px;
+
+    padding-left: 6px;
+    padding-right: 6px;
+
+    -webkit-appearance: none;
+
+    border-radius: 4px;
+    border: 1px solid rgb(146, 146, 146);
+
+    background-color: white;
+    background-image: none;
+    box-shadow: none;
+
+    line-height: 11px;
+
+    height: 19px;
+
+    text-align: center;
+    vertical-align: top;
+
+    outline-offset: -2px;
+}
+
+.find-banner > button > .glyph {
+    display: inline-block;
+
+    width: 7px;
+    height: 7px;
+}
+
+.find-banner > button:disabled > .glyph {
+    opacity: 0.65;
+}
+
+.find-banner > button:active:not(:disabled) {
+    border: 1px solid rgb(141, 141, 141);
+    background-image: -webkit-linear-gradient(top, rgb(200, 200, 200), rgb(218, 218, 218));
+    box-shadow: rgba(255, 255, 255, 0.33) 0 1px 0, inset rgb(165, 165, 165) 0 1px 1px;
+}
+
+.find-banner > button:disabled {
+    border: 1px solid rgb(195, 195, 195);
+    background-image: none;
+}
+
+.find-banner > button.segmented.left {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+
+    margin-right: 0;
+
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.find-banner > button.segmented.left > .glyph {
+    background-image: -webkit-canvas(find-banner-previous-arrow-normal);
+    background-size: 7px 7px;
+    background-repeat: no-repeat;
+}
+
+.find-banner > button.segmented.left:active:not(:disabled) > .glyph {
+    background-image: -webkit-canvas(find-banner-previous-arrow-normal-active);
+}
+
+.find-banner > button.segmented.right {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+
+    margin-left: -1px;
+
+    padding-left: 5px;
+    padding-right: 7px;
+}
+
+.find-banner > button.segmented.right > .glyph {
+    background-image: -webkit-canvas(find-banner-next-arrow-normal);
+    background-size: 7px 7px;
+    background-repeat: no-repeat;
+}
+
+.find-banner > button.segmented.right:active:not(:disabled) > .glyph {
+    background-image: -webkit-canvas(find-banner-next-arrow-normal-active);
+}
+
+.find-banner > button.segmented {
+    min-width: 22px;
+}
+
+.find-banner > button.segmented:active {
+    z-index: 100;
+    position: relative;
+}
+
+.find-banner > label {
+    margin: 0 6px;
+    line-height: 21px;
+}

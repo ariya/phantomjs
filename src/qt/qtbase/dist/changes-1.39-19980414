@@ -1,0 +1,173 @@
+examples/qdir/qdir.cpp    1.2  warwick  +4 -3  (1998/04/06)
+
+  better captions
+
+
+src/widgets/qscrollview.cpp    2.34  warwick  +11 -1
+
+  clean up in destructor code.
+
+
+src/widgets/qlined.cpp    2.70  agulbra  +6 -4
+
+  don't start drags just now
+
+
+examples/scrollview/scrollview.cpp    1.10  warwick  +2 -2
+
+  make it Big
+
+
+src/kernel/qapp_x11.cpp    2.127  agulbra  +37 -6
+src/kernel/qfont.h    2.9  agulbra  +3 -2
+
+  sort of parse $LANG
+
+
+examples/application/main.cpp    1.2  warwick  +3 -2
+
+  use setMainWidget
+
+
+extensions/opengl/src/qgl.pro    1.8  warwick  +1 -1  (1998/04/08)
+
+  Building libqgl doesn't need -lqgl
+
+
+src/dialogs/qfiledlg.cpp    2.54  agulbra  +74 -21
+src/dialogs/qfiledlg.h    2.14  agulbra  +5 -3
+
+  allow setting of initial file name when using statics.  
+
+src/dialogs/qfiledlg.cpp    2.55  agulbra  +11 -11
+
+  allow setting thename of a nonexistent file as initial default in
+  getSaveFileName()
+
+
+src/kernel/qpsprn.cpp    2.13  agulbra  +4 -4
+
+  avoid at-least-a-warning-at-most-an-UMR.
+
+
+src/moc/moc.pro    1.9  warwick  +1 -1
+
+  include qt include
+
+
+extensions/opengl/src/qgl.pro    1.9  warwick  +1 -1
+
+  more -lqgl
+
+
+src/tools/qglobal.h    2.48  agulbra  +4 -1
+
+  openbsd
+
+
+src/widgets/qsplitter.h    1.7  agulbra  +3 -3
+
+  remove semicolon after Q_OBJECT
+
+
+src/dialogs/qfiledlg.cpp    2.53  agulbra  +15 -3
+
+  say "Readable, writable" and so on instead of ASHR (shades of MS-DOS)
+
+
+src/widgets/qlcdnum.cpp    2.11  agulbra  +17 -2
+src/widgets/qlcdnum.h    2.7  agulbra  +3 -1
+
+  sizeHint().  decent minimum size using the golden mean.
+
+
+src/moc/GNUmakefile    2.4  warwick  +11 -3
+src/moc/moc.pro    1.8  warwick  +1 -1
+src/moc/moc.t    1.11  warwick  +1 -1
+src/moc/moc.t    1.10  warwick  +1 -1
+
+  yacc flags
+
+
+src/kernel/qpainter.cpp    2.40  warwick  +4 -4  (1998/04/09)
+src/widgets/qmlined.cpp    2.90  warwick  +4 -2
+src/widgets/qscrollview.cpp    2.35  warwick  +39 -33
+
+  Fixed cursor position in QMultiLineEdit.
+  Fixed focus navigation in QScrollView.
+
+
+src/widgets/qscrollview.cpp    2.36  agulbra  +8 -3
+
+  be a little more careful about event processing - removeChild() was
+  called from QScrollViewData destructor and didn't like that.
+
+
+src/kernel/qprn_x11.cpp    2.10  agulbra  +62 -77
+src/kernel/qpsprn.cpp    2.14  agulbra  +1525 -157
+src/kernel/qpsprn.h    2.5  agulbra  +17 -9
+
+  added support for character encodings other than iso 8859-1.  the
+  header is computed dynamically; the fonts and encodings used on the
+  first few pages are put in the header, any other fonts and encodings
+  are added to the output stream as necessary.  removed the need for a
+  temporary file.  rewrote the font name cache so two QPSPrinter objects
+  printing at the same time won't conflict.  put back in the header size
+  compression.
+
+
+src/widgets/qcombo.cpp    2.82  warwick  +3 -3  (1998/04/13)
+
+  Correct sizeHint.
+
+
+src/widgets/qscrollview.cpp    2.37  warwick  +22 -18
+src/widgets/qscrollview.h    2.19  warwick  +1 -2
+
+  Improve focus tabbing.
+
+
+src/kernel/qwidget.cpp    2.98  warwick  +60 -16
+src/kernel/qwidget.h    2.48  warwick  +3 -1
+
+  Inherit *parents* palette, not application palette *** CHANGED BEHAVIOUR ***
+  Generalize isEnabledToTLW and isVisibleToTLW
+
+
+src/widgets/qtablevw.cpp    2.44  warwick  +8 -28
+
+  Propagate palette changes to scrollbars.
+  Combine common code.
+
+
+src/widgets/qlistview.cpp    2.91  warwick  +24 -6
+src/widgets/qlistview.h    2.43  warwick  +5 -3
+
+  Provide parent() of list view item.
+
+
+src/widgets/qlistbox.cpp    2.61  warwick  +45 -3
+src/widgets/qlistbox.h    2.15  warwick  +6 -2
+
+  Update maxItemWidth on font change.
+  Add sizeHint()
+
+src/kernel/qregion.cpp    2.8  hanord  +84 -51  (1998/04/14)
+src/kernel/qregion.h    2.9  hanord  +12 -3
+src/kernel/qrgn_win.cpp    2.11  hanord  +39 -25
+src/kernel/qrgn_x11.cpp    2.11  hanord  +48 -29
+
+  Removed the internal (and slow) byte array.
+  Uses the region rectangles for saving complex regions.
+
+
+src/widgets/qchkbox.cpp    2.20  warwick  +5 -4
+src/widgets/qradiobt.cpp    2.25  warwick  +9 -4
+
+  Small sizeHint when no text or pixmap.
+
+
+src/kernel/qptr_win.cpp    2.32  agulbra  +5 -2
+src/kernel/qptr_x11.cpp    2.46  agulbra  +5 -2
+
+  clip properly in drawPixmap().

@@ -56,8 +56,6 @@
 #include <QImageWriter>
 #include <QUuid>
 
-#include <gifwriter.h>
-
 #include "phantom.h"
 #include "networkaccessmanager.h"
 #include "utils.h"
@@ -76,7 +74,7 @@
 #define BLANK_HTML                      "<html><head></head><body></body></html>"
 #define CALLBACKS_OBJECT_NAME           "_phantom"
 #define INPAGE_CALL_NAME                "window.callPhantom"
-#define CALLBACKS_OBJECT_INJECTION      INPAGE_CALL_NAME" = function() { return window."CALLBACKS_OBJECT_NAME".call.call(_phantom, Array.prototype.splice.call(arguments, 0)); };"
+#define CALLBACKS_OBJECT_INJECTION      INPAGE_CALL_NAME" = function() { return window."CALLBACKS_OBJECT_NAME".call.call(_phantom, Array.prototype.slice.call(arguments, 0)); };"
 #define CALLBACKS_OBJECT_PRESENT        "typeof(window."CALLBACKS_OBJECT_NAME") !== \"undefined\";"
 
 #define STDOUT_FILENAME "/dev/stdout"
@@ -385,22 +383,11 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     m_mainFrame->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
     m_customWebPage->settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
-    if (phantomCfg->offlineStoragePath().isEmpty()) {
-        m_customWebPage->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-    } else {
-        m_customWebPage->settings()->setOfflineStoragePath(phantomCfg->offlineStoragePath());
-    }
-    if (phantomCfg->offlineStorageDefaultQuota() > 0) {
-        m_customWebPage->settings()->setOfflineStorageDefaultQuota(phantomCfg->offlineStorageDefaultQuota());
-    }
-
     m_customWebPage->settings()->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
-    m_customWebPage->settings()->setOfflineWebApplicationCachePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-
     m_customWebPage->settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
 
     m_customWebPage->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
-    m_customWebPage->settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    m_customWebPage->settings()->setLocalStoragePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
 
     // Custom network access manager to allow traffic monitoring.
     m_networkAccessManager = new NetworkAccessManager(this, phantomCfg);
@@ -855,7 +842,7 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
         operation = settingsMap.value("operation").toString();
         QString bodyString = settingsMap.value("data").toString();
         QString encoding = settingsMap.value("encoding").toString().toLower();
-        body = encoding == "utf-8" || encoding == "utf8" ? bodyString.toUtf8() : bodyString.toAscii();
+        body = encoding == "utf-8" || encoding == "utf8" ? bodyString.toUtf8() : bodyString.toLatin1();
         if (settingsMap.contains("headers")) {
             QMapIterator<QString, QVariant> i(settingsMap.value("headers").toMap());
             while (i.hasNext()) {
@@ -889,15 +876,14 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
     if (address == "about:blank") {
         m_mainFrame->setHtml(BLANK_HTML);
     } else {
-        QUrl url = QUrl::fromEncoded(QByteArray(address.toAscii()));
+        QUrl url = QUrl::fromEncoded(QByteArray(address.toLatin1()));
 
-#if QT_VERSION == QT_VERSION_CHECK(4, 8, 0)
         // Assume local file if scheme is empty
         if (url.scheme().isEmpty()) {
             url.setPath(QFileInfo(url.toString()).absoluteFilePath().prepend("/"));
             url.setScheme("file");
         }
-#endif
+
         request.setUrl(url);
         m_mainFrame->load(request, networkOp, body);
     }
@@ -944,9 +930,6 @@ bool WebPage::render(const QString &fileName, const QVariantMap &option)
     else if (fileName.endsWith(".pdf", Qt::CaseInsensitive) ){
         format = "pdf";
     }
-    else if (fileName.endsWith(".gif", Qt::CaseInsensitive) ){
-        format = "gif";
-    }
 
     if( option.contains("quality") ){
         quality = option.value("quality").toInt();
@@ -956,16 +939,12 @@ bool WebPage::render(const QString &fileName, const QVariantMap &option)
     if ( format == "pdf" ){
         retval = renderPdf(outFileName);
     }
-    else if ( format == "gif" ) {
-        QImage rawPageRendering = renderImage();
-        retval = exportGif(rawPageRendering, outFileName);
-    }
     else{
         QImage rawPageRendering = renderImage();
 
         const char *f = 0; // 0 is QImage#save default
         if( format != "" ){
-            f = format.toUtf8().constData();
+            f = format.toLocal8Bit().constData();
         }
 
         retval = rawPageRendering.save(outFileName, f, quality);
@@ -984,7 +963,7 @@ bool WebPage::render(const QString &fileName, const QVariantMap &option)
             _setmode(_fileno(stdout), O_BINARY);
 #endif
 
-            ((File *)system->_stdout())->write(QString::fromAscii(ba.constData(), ba.size()));
+            ((File *)system->_stdout())->write(QString::fromLatin1(ba.constData(), ba.size()));
 
 #ifdef Q_OS_WIN32
             _setmode(_fileno(stdout), O_TEXT);
@@ -995,7 +974,7 @@ bool WebPage::render(const QString &fileName, const QVariantMap &option)
             _setmode(_fileno(stderr), O_BINARY);
 #endif
 
-            ((File *)system->_stderr())->write(QString::fromAscii(ba.constData(), ba.size()));
+            ((File *)system->_stderr())->write(QString::fromLatin1(ba.constData(), ba.size()));
 
 #ifdef Q_OS_WIN32
             _setmode(_fileno(stderr), O_TEXT);
@@ -1100,8 +1079,8 @@ qreal stringToPointSize(const QString &string)
         { "mm", 72 / 25.4 },
         { "cm", 72 / 2.54 },
         { "in", 72 },
-        { "px", 72.0 / PHANTOMJS_PDF_DPI / 2.54 },
-        { "", 72.0 / PHANTOMJS_PDF_DPI / 2.54 }
+        { "px", 72.0 / PHANTOMJS_PDF_DPI },
+        { "", 72.0 / PHANTOMJS_PDF_DPI }
     };
     for (uint i = 0; i < sizeof(units) / sizeof(units[0]); ++i) {
         if (string.endsWith(units[i].unit)) {
@@ -1631,7 +1610,7 @@ static void injectCallbacksObjIntoFrame(QWebFrame *frame, WebpageCallbacks *call
     // Inject object only if it's not already present
     if (frame->evaluateJavaScript(CALLBACKS_OBJECT_PRESENT).toBool() == false) {
         // Decorate the window object in this frame (object ownership left to the creator/parent)
-        frame->addToJavaScriptWindowObject(CALLBACKS_OBJECT_NAME, callbacksObject, QScriptEngine::QtOwnership);
+        frame->addToJavaScriptWindowObject(CALLBACKS_OBJECT_NAME, callbacksObject, QWebFrame::QtOwnership);
         frame->evaluateJavaScript(CALLBACKS_OBJECT_INJECTION);
     }
 }
@@ -1659,6 +1638,11 @@ void WebPage::handleRepaintRequested(const QRect &dirtyRect)
 void WebPage::stopJavaScript()
 {
     m_shouldInterruptJs = true;
+}
+
+void WebPage::clearMemoryCache()
+{
+    QWebSettings::clearMemoryCaches();
 }
 
 #include "webpage.moc"

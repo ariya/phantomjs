@@ -1,0 +1,132 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.hierarchical-path-component {
+    display: -webkit-flex;
+    position: relative;
+    height: 20px;
+    min-width: 32px;
+}
+
+.hierarchical-path-component.show-selector-arrows {
+    min-width: 44px;
+}
+
+.hierarchical-path-component.collapsed {
+    min-width: 24px;
+}
+
+.hierarchical-path-component.collapsed > .icon {
+    display: none;
+}
+
+.hierarchical-path-component.collapsed > .title {
+    margin-left: 3px;
+}
+
+.hierarchical-path-component.collapsed > select {
+    display: none;
+}
+
+.hierarchical-path-component > .icon {
+    vertical-align: top;
+    margin: 2px 3px 2px 4px;
+    width: 16px;
+    height: 16px;
+}
+
+.hierarchical-path-component > .selector-arrows {
+    vertical-align: top;
+    margin: 2px 3px 2px 4px;
+    width: 5px;
+    height: 16px;
+    opacity: 0.6;
+    content: url(Images/UpDownArrows.svg);
+}
+
+.hierarchical-path-component > .title {
+    display: -webkit-flex;
+    -webkit-flex: 1;
+
+    vertical-align: top;
+
+    text-shadow: rgba(255, 255, 255, 0.5) 0 1px 0;
+    font-family: "Lucida Grande", sans-serif;
+    font-size: 11px;
+    line-height: 20px;
+    height: 20px;
+
+    min-width: 0;
+    max-width: 400px;
+}
+
+.hierarchical-path-component > .title > .content {
+    min-width: 0;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hierarchical-path-component > select {
+    opacity: 0;
+
+ /* Positioned so the text in the menu aligns with the text in .title. */
+    position: absolute;
+    top: -1px;
+    left: 10px;
+    right: 0;
+    bottom: 0;
+}
+
+.hierarchical-path:not(.always-show-last-path-component-separator) > .hierarchical-path-component:last-child > .separator {
+    visibility: hidden;
+}
+
+.hierarchical-path-component > .separator {
+    display: inline-block;
+    vertical-align: top;
+
+    background-image: url(Images/HierarchicalNavigationItemChevron.pdf);
+    background-repeat: no-repeat;
+    background-position-y: center;
+
+    opacity: 0.75;
+
+    width: 7px;
+    height: 20px;
+
+    margin-left: 2px;
+}
+
+.hierarchical-path-component.text-only {
+    padding-left: 5px;
+    padding-right: 1px;
+}
+
+.hierarchical-path-component.text-only > select {
+ /* Positions so the text in the menu aligns with the text in .title for text only path components. */
+    left: -8px;
+}

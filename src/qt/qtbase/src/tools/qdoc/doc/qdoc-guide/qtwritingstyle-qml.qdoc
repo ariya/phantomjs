@@ -1,0 +1,164 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+\page qtwritingstyle-qml.html
+\title QML Documentation Style
+\brief Style guidelines for QML documentation
+
+QDoc can process QML types defined as C++ classes and QML types defined in
+\c .qml files. For C++ classes documented as QML types, the QDoc comments are
+in the \c .cpp file while QML types defined in QML are in the \c .qml
+file. The C++ classes must also be documented
+documented with the QML \l{topic-commands}{topic commands}:
+
+\list
+\li \l{qmlattachedproperty-command}{\\qmlattachedproperty}
+\li \l{qmlattachedsignal-command}{\\qmlattachedsignal}
+\li \l{qmlbasictype-command}{\\qmlbasictype}
+\li \l{qmltype-command}{\\qmltype}
+\li \l{qmlmethod-command}{\\qmlmethod}
+\li \l{qmlproperty-command}{\\qmlproperty}
+\li \l{qmlsignal-command}{\\qmlsignal}
+\li \l{qmlmodule-command}{\\qmlmodule}
+\li \l{inqmlmodule-command}{\\inqmlmodule}
+\li \l{instantiates-command}{\\instantiates}
+\endlist
+
+For QML types defined in \c .qml files, QDoc will parse the QML and determine
+the properties, signals, and the type within the QML definition. The QDoc
+block then needs to be immediately above the declaration. For QML types
+implemented in C++, QDoc will output warnings if the C++ class documentation
+does not exist. The class documentation may be marked as
+\l{internal-command}{internal} if it is not a public API.
+
+\section1 QML Types
+
+The \l{qmltype-command}{\\qmltype} command is for QML type documentation.
+
+\snippet examples/qml.qdoc.sample qmltype
+
+The \l{instantiates-command}{\\instantiates} accepts the C++ class which
+implements the QML type as the argument. For types implemented in QML, this
+is not needed.
+
+The \e{brief description} provides a summary for the QML type. The brief does
+not need to be a complete sentence and may start with a verb. QDoc will append
+the brief description onto the QML type in tables and generated lists.
+
+\code
+\qmltype ColorAnimation
+\brief Animates changes in color values
+\endcode
+
+Here are some alternate verbs for the brief statement:
+\list
+\li "Provides..."
+\li "Specifies..."
+\li "Describes..."
+\endlist
+
+The \e{detailed description} follows the brief and may contain images, snippet,
+and link to other documentation.
+
+\section1 Properties
+
+The property description focuses on what the property \e does and may use the
+following style:
+
+Property documentation usually starts with "This property..." but for certain
+properties, these are the common expressions:
+\list
+\li "This property holds..."
+\li "This property describes..."
+\li "This property represents..."
+\li "Returns \c true when... and \c false when..." - for properties that
+are marked \c{read-only}.
+\li "Sets the..." - for properties that configure a type.
+\endlist
+
+\section1 Signals and Handlers Documentation
+
+QML signals are documented either in the QML file or in the C++ implementation
+with the \l{qmlsignal-command}{\\qmlsignal} command. Signal documentation
+must include the condition for emitting the signal, mention the corresponding
+signal handler, and document whether the signal accepts a parameter.
+
+\snippet examples/qml.qdoc.sample signals
+
+These are the possible documentation styles for signals:
+\list
+\li "This signal is triggered when..."
+\li "Triggered when..."
+\li "Emitted when..."
+\endlist
+
+\section1 Methods and JavaScript Functions
+
+Typically, function documentation immediately precedes the implementation of the
+function in the \c .cpp file. The \l{topic-commands}{topic command} for
+functions is \l{fn-command}{\\fn}. For functions in QML or JavaScript, the
+documentation must reside immediately above the function declaration.
+
+The function documentation starts with a verb, indicating the operation the
+function performs.
+
+\snippet examples/qml.qdoc.sample function
+
+Some common verbs for function documentation:
+\list
+\li "Copies..." - for constructors
+\li "Destroys..." - for destructors
+\li "Returns..." - for accessor functions
+\endlist
+
+The function documentation must document:
+\list
+\li the return type
+\li the parameters
+\li the actions of the functions
+\endlist
+
+The \l{a-command}{\\a} command marks the parameter in the documentation.
+The return type documentation should link to the type documentation or be
+marked with the \l{c-command}{\\c} command in the case of boolean values.
+
+\section1 Enumerations
+
+QML enumerations are documented as QML properties with the
+\l{qmlproperty-command}{\\qmlproperty} command. The type of the property
+is \c enumeration.
+
+\snippet examples/qml.qdoc.sample enums
+
+The QDoc comment lists the values of the enumeration. If the enumeration is
+implemented in C++, the documentation may link to the corresponding C++
+enumeration. However, the QDoc comment should advise that the enumeration
+is a C++ enumeration.
+
+*/
+

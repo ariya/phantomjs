@@ -1,0 +1,12 @@
+# -------------------------------------------------------------------
+# Mac OS X specific defaults
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+CONFIG -= app_bundle
+
+load(default_pre)
+
+debug: CONFIG += use_all_in_one_files
+

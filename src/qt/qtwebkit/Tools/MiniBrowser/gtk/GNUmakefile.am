@@ -1,0 +1,73 @@
+if ENABLE_WEBKIT2
+noinst_PROGRAMS += \
+	Programs/MiniBrowser
+endif
+
+Programs_MiniBrowser_CPPFLAGS = \
+	-I$(srcdir)/Source \
+	-I$(top_builddir)/DerivedSources/WebKit2 \
+	-I$(top_builddir)/DerivedSources/WebKit2/webkit2gtk \
+	-I$(top_builddir)/DerivedSources/WebKit2/webkit2gtk/include \
+	-DWEBKIT_EXEC_PATH=\"${shell pwd}/$(top_builddir)/Programs/\" \
+	-DWEBKIT_INJECTED_BUNDLE_PATH=\"${shell pwd}/$(top_builddir)/.libs\" \
+	$(global_cppflags) \
+	$(javascriptcore_cppflags) \
+	$(FREETYPE_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(GTK_CFLAGS) \
+	$(LIBSOUP_CFLAGS)
+
+Programs_MiniBrowser_SOURCES = \
+	Tools/MiniBrowser/gtk/BrowserCellRendererVariant.h \
+	Tools/MiniBrowser/gtk/BrowserCellRendererVariant.c \
+	Tools/MiniBrowser/gtk/BrowserDownloadsBar.h \
+	Tools/MiniBrowser/gtk/BrowserDownloadsBar.c \
+	Tools/MiniBrowser/gtk/BrowserSettingsDialog.h \
+	Tools/MiniBrowser/gtk/BrowserSettingsDialog.c \
+	Tools/MiniBrowser/gtk/BrowserWindow.h \
+	Tools/MiniBrowser/gtk/BrowserWindow.c \
+	Tools/MiniBrowser/gtk/main.c
+
+minibrowser_built_sources += \
+	DerivedSources/WebKit2/BrowserMarshal.h \
+	DerivedSources/WebKit2/BrowserMarshal.c
+nodist_Programs_MiniBrowser_SOURCES = \
+	$(minibrowser_built_sources)
+
+Programs_MiniBrowser_LDADD = \
+	libwebkit2gtk-@WEBKITGTK_API_MAJOR_VERSION@.@WEBKITGTK_API_MINOR_VERSION@.la \
+	$(FREETYPE_LIBS) \
+	$(GLIB_LIBS) \
+	$(GTK_LIBS) \
+	$(LIBSOUP_LIBS)
+
+Programs_MiniBrowser_LDFLAGS = \
+	-no-fast-install \
+	-no-install
+
+CLEANFILES += \
+	$(top_builddir)/Programs/MiniBrowser \
+	$(minibrowser_built_sources) \
+	$(top_builddir)/stamp-mini-browser-marshal.h \
+	$(top_builddir)/stamp-mini-browser-marshal.c
+
+BUILT_SOURCES += $(minibrowser_built_sources)
+
+minibrowser_marshal_list = $(srcdir)/Tools/MiniBrowser/gtk/browser-marshal.list
+
+$(GENSOURCES_WEBKIT2)/BrowserMarshal.h: stamp-mini-browser-marshal.h
+	@true
+$(GENSOURCES_WEBKIT2)/BrowserMarshal.c: stamp-mini-browser-marshal.c
+	@true
+
+stamp-mini-browser-marshal.c: $(minibrowser_marshal_list)
+	$(AM_V_GEN)$(GLIB_GENMARSHAL) --prefix=browser_marshal $(minibrowser_marshal_list) --body > $(GENSOURCES_WEBKIT2)/BrowserMarshal.c && \
+	echo timestamp > $(@F)
+
+stamp-mini-browser-marshal.h: $(MiniBrowser_marshal_list)
+	$(AM_V_GEN)$(GLIB_GENMARSHAL) --prefix=browser_marshal $(minibrowser_marshal_list) --header > $(GENSOURCES_WEBKIT2)/BrowserMarshal.h && \
+	echo timestamp > $(@F)
+
+EXTRA_DIST += \
+	$(srcdir)/Tools/MiniBrowser/gtk/browser-marshal.list
+

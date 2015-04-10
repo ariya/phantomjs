@@ -1,0 +1,90 @@
+#!/usr/bin/python
+
+# Copyright (C) 2009 Apple Inc.  All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import optparse, os, shutil, subprocess, sys
+
+sourceRootDirectory = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+archiveFile = os.path.join(sourceRootDirectory, "layout-test-results.zip")
+
+def main():
+    parser = optparse.OptionParser("usage: %prog [options] [action]")
+    parser.add_option("--platform", dest="platform")
+    parser.add_option("--debug", action="store_const", const="debug", dest="configuration")
+    parser.add_option("--release", action="store_const", const="release", dest="configuration")
+
+    options, (action, ) = parser.parse_args()
+    if not options.platform:
+        parser.error("Platform is required")
+    if not options.configuration:
+        parser.error("Configuration is required")
+    if action not in ('archive'):
+        parser.error("Action is required")
+
+    layoutTestResultsDir = os.path.abspath(os.path.join(sourceRootDirectory, "layout-test-results"))
+    return archiveTestResults(options.configuration, options.platform, layoutTestResultsDir)
+
+def archiveTestResults(configuration, platform, layoutTestResultsDir):
+    assert platform in ('mac', 'win', 'wincairo', 'gtk', 'qt', 'efl')
+
+    try:
+        os.unlink(archiveFile)
+    except OSError, e:
+        if e.errno != 2:
+            raise
+
+    try:
+        # Ensure that layoutTestResultsDir exists since we cannot archive a directory that does not exist
+        os.makedirs(layoutTestResultsDir)
+    except OSError, e:
+        if e.errno != 17:
+            raise
+
+    open(os.path.join(layoutTestResultsDir, '.placeholder'), 'w').close()
+
+    if platform == 'mac':
+        if subprocess.call(["ditto", "-c", "-k", "--sequesterRsrc", layoutTestResultsDir, archiveFile]):
+            return 1
+    elif platform in ('win', 'wincairo', 'gtk', 'qt', 'efl'):
+        if subprocess.call(["zip", "-r", archiveFile, "."], cwd=layoutTestResultsDir):
+            return 1
+
+    try:
+        shutil.rmtree(layoutTestResultsDir)
+    except OSError, e:
+
+        # Python in Cygwin throws a mysterious exception with errno of 90
+        # when removing the layout test result directory after successfully
+        # deleting its contents, claiming "Directory not empty".
+        # We can safely ignore this since it was the directory contents that
+        # we are most interested in deleting.
+        # Python in Cygwin will also sometimes throw errno 2 if a process is
+        # holding a file open. There's no point in failing to create the
+        # archive just because some other process is behaving badly. See
+        # <http://webkit.org/b/55581>.
+        if e.errno != 90 and e.errno != 2:
+            raise
+
+if __name__ == '__main__':
+    sys.exit(main())

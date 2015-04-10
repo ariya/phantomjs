@@ -1,0 +1,149 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>FreeType-2.3.12 API Reference</title>
+<style type="text/css">
+  body { font-family: Verdana, Geneva, Arial, Helvetica, serif;
+         color: #000000;
+         background: #FFFFFF; }
+
+  p { text-align: justify; }
+  h1 { text-align: center; }
+  li { text-align: justify; }
+  td { padding: 0 0.5em 0 0.5em; }
+  td.left { padding: 0 0.5em 0 0.5em;
+            text-align: left; }
+
+  a:link { color: #0000EF; }
+  a:visited { color: #51188E; }
+  a:hover { color: #FF0000; }
+
+  span.keyword { font-family: monospace;
+                 text-align: left;
+                 white-space: pre;
+                 color: darkblue; }
+
+  pre.colored { color: blue; }
+
+  ul.empty { list-style-type: none; }
+</style>
+</head>
+<body>
+
+<table align=center><tr><td><font size=-1>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-1>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+<center><h1>FreeType-2.3.12 API Reference</h1></center>
+
+<center><h1>
+LCD Filtering
+</h1></center>
+<h2>Synopsis</h2>
+<table align=center cellspacing=5 cellpadding=0 border=0>
+<tr><td></td><td><a href="#FT_LcdFilter">FT_LcdFilter</a></td><td></td><td><a href="#FT_Library_SetLcdFilter">FT_Library_SetLcdFilter</a></td><td></td><td></td></tr>
+</table><br><br>
+
+<table align=center width="87%"><tr><td>
+<p>The <a href="ft2-lcd_filtering.html#FT_Library_SetLcdFilter">FT_Library_SetLcdFilter</a> API can be used to specify a low-pass filter which is then applied to LCD-optimized bitmaps generated through <a href="ft2-base_interface.html#FT_Render_Glyph">FT_Render_Glyph</a>. This is useful to reduce color fringes which would occur with unfiltered rendering.</p>
+<p>Note that no filter is active by default, and that this function is <b>not</b> implemented in default builds of the library. You need to #define FT_CONFIG_OPTION_SUBPIXEL_RENDERING in your &lsquo;ftoption.h&rsquo; file in order to activate it.</p>
+</td></tr></table><br>
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_LcdFilter">FT_LcdFilter</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_LCD_FILTER_H (freetype/ftlcdfil.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">enum</span>  FT_LcdFilter_
+  {
+    <a href="ft2-lcd_filtering.html#FT_LcdFilter">FT_LCD_FILTER_NONE</a>    = 0,
+    <a href="ft2-lcd_filtering.html#FT_LcdFilter">FT_LCD_FILTER_DEFAULT</a> = 1,
+    <a href="ft2-lcd_filtering.html#FT_LcdFilter">FT_LCD_FILTER_LIGHT</a>   = 2,
+    <a href="ft2-lcd_filtering.html#FT_LcdFilter">FT_LCD_FILTER_LEGACY</a>  = 16,
+
+    FT_LCD_FILTER_MAX   /* do not remove */
+
+  } <b>FT_LcdFilter</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A list of values to identify various types of LCD filters.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>values</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>FT_LCD_FILTER_NONE</b></td><td>
+<p>Do not perform filtering. When used with subpixel rendering, this results in sometimes severe color fringes.</p>
+</td></tr>
+<tr valign=top><td><b>FT_LCD_FILTER_DEFAULT</b></td><td>
+<p>The default filter reduces color fringes considerably, at the cost of a slight blurriness in the output.</p>
+</td></tr>
+<tr valign=top><td><b>FT_LCD_FILTER_LIGHT</b></td><td>
+<p>The light filter is a variant that produces less blurriness at the cost of slightly more color fringes than the default one. It might be better, depending on taste, your monitor, or your personal vision.</p>
+</td></tr>
+<tr valign=top><td><b>FT_LCD_FILTER_LEGACY</b></td><td>
+<p>This filter corresponds to the original libXft color filter. It provides high contrast output but can exhibit really bad color fringes if glyphs are not extremely well hinted to the pixel grid. In other words, it only works well if the TrueType bytecode interpreter is enabled <b>and</b> high-quality hinted fonts are used.</p>
+<p>This filter is only provided for comparison purposes, and might be disabled or stay unsupported in the future.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>since</b></em></td></tr><tr><td>
+<p>2.3.0</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Library_SetLcdFilter">FT_Library_SetLcdFilter</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_LCD_FILTER_H (freetype/ftlcdfil.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Error">FT_Error</a> )
+  <b>FT_Library_SetLcdFilter</b>( <a href="ft2-base_interface.html#FT_Library">FT_Library</a>    library,
+                           <a href="ft2-lcd_filtering.html#FT_LcdFilter">FT_LcdFilter</a>  filter );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>This function is used to apply color filtering to LCD decimated bitmaps, like the ones used when calling <a href="ft2-base_interface.html#FT_Render_Glyph">FT_Render_Glyph</a> with <a href="ft2-base_interface.html#FT_Render_Mode">FT_RENDER_MODE_LCD</a> or <a href="ft2-base_interface.html#FT_Render_Mode">FT_RENDER_MODE_LCD_V</a>.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>library</b></td><td>
+<p>A handle to the target library instance.</p>
+</td></tr>
+<tr valign=top><td><b>filter</b></td><td>
+<p>The filter type.</p>
+<p>You can use <a href="ft2-lcd_filtering.html#FT_LcdFilter">FT_LCD_FILTER_NONE</a> here to disable this feature, or <a href="ft2-lcd_filtering.html#FT_LcdFilter">FT_LCD_FILTER_DEFAULT</a> to use a default filter that should work well on most LCD screens.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>FreeType error code. 0&nbsp;means success.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>This feature is always disabled by default. Clients must make an explicit call to this function with a &lsquo;filter&rsquo; value other than <a href="ft2-lcd_filtering.html#FT_LcdFilter">FT_LCD_FILTER_NONE</a> in order to enable it.</p>
+<p>Due to <b>PATENTS</b> covering subpixel rendering, this function doesn't do anything except returning &lsquo;FT_Err_Unimplemented_Feature&rsquo; if the configuration macro FT_CONFIG_OPTION_SUBPIXEL_RENDERING is not defined in your build of the library, which should correspond to all default builds of FreeType.</p>
+<p>The filter affects glyph bitmaps rendered through <a href="ft2-base_interface.html#FT_Render_Glyph">FT_Render_Glyph</a>, <a href="ft2-outline_processing.html#FT_Outline_Get_Bitmap">FT_Outline_Get_Bitmap</a>, <a href="ft2-base_interface.html#FT_Load_Glyph">FT_Load_Glyph</a>, and <a href="ft2-base_interface.html#FT_Load_Char">FT_Load_Char</a>.</p>
+<p>It does <i>not</i> affect the output of <a href="ft2-outline_processing.html#FT_Outline_Render">FT_Outline_Render</a> and <a href="ft2-outline_processing.html#FT_Outline_Get_Bitmap">FT_Outline_Get_Bitmap</a>.</p>
+<p>If this feature is activated, the dimensions of LCD glyph bitmaps are either larger or taller than the dimensions of the corresponding outline with regards to the pixel grid. For example, for <a href="ft2-base_interface.html#FT_Render_Mode">FT_RENDER_MODE_LCD</a>, the filter adds up to 3&nbsp;pixels to the left, and up to 3&nbsp;pixels to the right.</p>
+<p>The bitmap offset values are adjusted correctly, so clients shouldn't need to modify their layout and glyph positioning code when enabling the filter.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>since</b></em></td></tr><tr><td>
+<p>2.3.0</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+</body>
+</html>

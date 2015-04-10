@@ -1,0 +1,5 @@
+#!/usr/bin/perl -w
+
+while (<>) {
+    print "$1\n" if /^\s*\"(.+)\", referenced from:$/;
+}

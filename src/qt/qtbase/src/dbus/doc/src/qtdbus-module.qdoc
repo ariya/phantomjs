@@ -1,0 +1,66 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \module QtDBus
+    \title Qt D-Bus C++ Classes
+    \brief The Qt D-Bus module is a Unix-only library that you can use
+    to perform Inter-Process Communication using the \l{D-Bus} protocol.
+
+    \ingroup modules
+    \qtvariable dbus
+
+    \target The QDBus compiler
+
+
+    Applications using the Qt D-Bus module can provide services to
+    other, remote applications by exporting objects, as well as use
+    services exported by those applications by placing calls and
+    accessing properties.
+
+    The Qt D-Bus module provides an interface that extends the Qt \l
+    {signalsandslots.html}{Signals and Slots} mechanism, allowing one
+    to connect to a signal emitted remotely as well as to connect a
+    local signal to remote slot.
+
+    To use this module, use the following code in your application:
+
+    \snippet code/doc_src_qtdbus.cpp 0
+
+    If you're using qmake to build your application, you can add this
+    line to your .pro file to make it link against the Qt D-Bus
+    libraries:
+
+    \snippet code/doc_src_qtdbus.pro 1
+
+    \note The source code for this module is located in the \c{src/qdbus}
+    directory. When installing Qt from source, this module is built when Qt's
+    tools are built.
+
+    See the \l {D-Bus} page for detailed information on
+    how to use this module.
+*/

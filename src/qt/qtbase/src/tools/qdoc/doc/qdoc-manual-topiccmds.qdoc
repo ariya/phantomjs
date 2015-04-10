@@ -1,0 +1,1605 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page 13-qdoc-commands-topics.html
+    \previouspage Command Index
+    \contentspage QDoc Manual
+    \nextpage Context Commands
+
+    \title Topic Commands
+
+    A topic command tells QDoc which source code element is being
+    documented. Some topic commands allow you to create documentation
+    pages that aren't tied to any underlying source code element.
+
+    When QDoc processes a QDoc comment, it tries to connect the
+    comment to an element in the source code by first looking for a
+    topic command that names the source code element. If there is no
+    topic command, QDoc tries to connect the comment to the source
+    code element that immediately follows the comment. If it can't do
+    either of these and if there is no topic command that indicates
+    the comment does not have an underlying source code element (e.g.
+    \l{page-command} {\\page}), then the comment is discarded.
+
+    \target topic argument
+
+    The name of the entity being documented is usually the only
+    argument for a topic command. Use the complete name. Sometimes
+    there can be a second parameter in the argument. See e.g. \l
+    {page-command} {\\page}.
+
+    \code
+        \enum QComboBox::InsertPolicy
+    \endcode
+
+    The \l {fn-command} {\\fn} command is a special case. For the \l
+    {fn-command} {\\fn} command, use the function's signature
+    including the class qualifier.
+
+    \code
+        \fn void QGraphicsWidget::setWindowFlags(Qt::WindowFlags wFlags)
+    \endcode
+
+    A topic command can appear anywhere in a comment but must stand
+    alone on its own line. It is good practice is to let the topic command
+    be the first line of the comment. If the argument spans several
+    lines, make sure that each line (except the last one) is ended
+    with a backslash. Moreover, QDoc counts parentheses, which means
+    that if it encounters a '(' it considers everything until the
+    closing ')' as its argument.
+
+    If a topic command is repeated with different arguments, the
+    same documentation will appear for both the units.
+
+    \code
+    / *!
+        \fn void PreviewWindow::setWindowFlags()
+        \fn void ControllerWindow::setWindowFlags()
+
+        Sets the widgets flags using the QWidget::setWindowFlags()
+        function.
+
+        Then runs through the available window flags, creating a text
+        that contains the names of the flags that matches the flags
+        parameter, displaying the text in the widgets text editor.
+    * /
+    \endcode
+
+    The \c PreviewWindow::setWindowFlags() and \c
+    ControllerWindow::setWindowFlags() functions will get the same
+    documentation.
+
+    \target class-command
+    \section1 \\class
+
+    The \\class command is for documenting a C++ class. The argument
+    is the complete name of the class. The command tells QDoc that a
+    class is part of the public API, and lets you enter a detailed
+    description.
+
+    \code
+    / *!
+        \class QMap::iterator
+
+        \brief The QMap::iterator class provides an STL-style
+        non-const iterator for QMap and QMultiMap.
+
+        QMap features both \l{STL-style iterators} and
+        \l{Java-style iterators}. The STL-style iterators ...
+    * /
+    \endcode
+
+    The HTML documentation for the named class is written to a
+    \c{.html} file named from the class name, in lower case, and with
+    the double colon qualifier(s) replaced with '-'. For example, the
+    documentation for the \c QMap::Iterator class is written to \c
+    qmap-iterator.html.
+
+    \target framework
+
+    The file contains the class description from the \\class comment,
+    plus the documentation generated from QDoc comments for all the
+    class members: a list of the class's types, properties,
+    functions, signals, and slots.
+
+    In addition to the detailed description of the class, the \\class
+    comment typically contains a \l {brief-command} {\\brief} command
+    and one or more \l{Markup Commands}. See the \\class command for
+    any of the Qt class for examples. Here is a very simple example:
+
+    \code
+    / *!
+        \class PreviewWindow
+        \brief The PreviewWindow class is a custom widget.
+               displaying the names of its currently set
+               window flags in a read-only text editor.
+
+        \ingroup miscellaneous
+
+        The PreviewWindow class inherits QWidget. The widget
+        displays the names of its window flags set with the \l
+        {function} {setWindowFlags()} function. It is also
+        provided with a QPushButton that closes the window.
+
+        ...
+
+        \sa QWidget
+    * /
+    \endcode
+
+    The way QDoc renders this \\class will depend a lot on your \c
+    {style.css} file, but the general outline of the class reference
+    page will look like this:
+
+    \quotation
+        \raw HTML
+            <h1>PreviewWindow Class Reference</h1>
+        \endraw
+
+        The PreviewWindow class is a custom widget displaying
+        the names of its currently set window flags in a
+        read-only text editor. \l {preview window} {More...}
+
+        \raw HTML
+            <h3>Properties</h3>
+        \endraw
+
+        \list
+            \li 52 properties inherited from QWidget
+            \li 1 property inherited from QObject
+        \endlist
+
+        \raw HTML
+            <h3>Public Functions</h3>
+        \endraw
+
+        \list
+            \li \l {constructor} {PreviewWindow}(QWidget *parent = 0)
+            \li void \l {function} {setWindowFlags}(Qt::WindowFlags flags)
+        \endlist
+
+        \list
+            \li 183 public functions inherited from QWidget
+            \li 28 public functions inherited from QObject
+        \endlist
+
+        \raw HTML
+           <h3>Public Slots</h3>
+        \endraw
+
+        \list
+            \li 17 public slots inherited from QWidget
+            \li 1 public slot inherited from QObject
+        \endlist
+
+        \raw HTML
+            <h3>Additional Inherited Members</h3>
+        \endraw
+
+        \list
+            \li 1 signal inherited from QWidget
+            \li 1 signal inherited from QObject
+            \li 4 static public members inherited from QWidget
+            \li 4 static public members inherited from QObject
+            \li 39 protected functions inherited from QWidget
+            \li 7 protected functions inherited from QObject
+        \endlist
+
+        \target preview window
+
+        \raw HTML
+            <hr />
+            <h2>Detailed Description</h2>
+        \endraw
+
+        The PreviewWindow class is a custom widget displaying
+        the names of its currently set window flags in a
+        read-only text editor.
+
+        The PreviewWindow class inherits QWidget. The widget
+        displays the names of its window flags set with the \l
+        {function} {setWindowFlags()} function. It is also
+        provided with a QPushButton that closes the window.
+
+        ...
+
+        See also QWidget.
+
+        \raw HTML
+            <hr />
+            <h2>Member Function Documentation</h2>
+        \endraw
+
+        \target constructor
+        \raw HTML
+           <h3>PreviewWindow(QWidget *parent = 0)</h3>
+        \endraw
+
+        Constructs a preview window widget with \e parent.
+
+        \target function
+        \raw HTML
+            <h3>setWindowFlags(Qt::WindowFlags flags)</h3>
+        \endraw
+
+        Sets the widgets flags using the
+        QWidget::setWindowFlags() function.
+
+        Then runs through the available window flags,
+        creating a text that contains the names of the flags
+        that matches the flags parameter, displaying
+        the text in the widgets text editor.
+    \endquotation
+
+    \target enum-command
+    \section1 \\enum
+
+    The \\enum command is for documenting a C++ enum type. The
+    argument is the full name of the enum type.
+
+    The enum values are documented in the \\enum comment using the \l
+    {value-command} {\\value} command. If an enum value is not
+    documented with \\value, QDoc emits a warning. These warnings can
+    be avoided using the \l {omitvalue-command} {\\omitvalue} command
+    to tell QDoc that an enum value should not be documented. The enum
+    documentation will be included on the class reference page, header
+    file page, or namespace page where the enum type is defined. For
+    example, consider the enum type \c {Corner} in the Qt namespace:
+
+    \code
+        enum Corner {
+            TopLeftCorner = 0x00000,
+            TopRightCorner = 0x00001,
+            BottomLeftCorner = 0x00002,
+            BottomRightCorner = 0x00003
+        #if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
+            ,TopLeft = TopLeftCorner,
+            TopRight = TopRightCorner,
+            BottomLeft = BottomLeftCorner,
+            BottomRight = BottomRightCorner
+        #endif
+        };
+    \endcode
+
+    This enum can be cocumented this way:
+
+    \code
+    / *!
+        \enum Qt::Corner
+
+        This enum type specifies a corner in a rectangle:
+
+        \value TopLeftCorner
+               The top-left corner of the rectangle.
+        \value TopRightCorner
+               The top-right corner of the rectangle.
+        \value BottomLeftCorner
+               The bottom-left corner of the rectangle.
+        \value BottomRightCorner
+               The bottom-right corner of the rectangle.
+
+        \omitvalue TopLeft
+        \omitvalue TopRight
+        \omitvalue BottomLeft
+        \omitvalue BottomRight
+    * /
+    \endcode
+
+    Note the inclusion of the namespace qualifier. QDoc will render
+    this enum type in \c {qt.html} like this:
+
+           \quotation
+           \raw HTML
+               <h3 class="fn"><a name="Corner-enum"></a>enum Qt::Corner</h3>
+
+               <p>This enum type specifies a corner in a rectangle:</p>
+
+               <table border="1" cellpadding="2" cellspacing="1" width="100%">
+               <tr>
+               <th width="25%">Constant</th>
+               <th width="15%">Value</th>
+               <th width="60%">Description</th>
+               </tr>
+
+               <tr>
+               <td valign="top"><tt>Qt::TopLeftCorner</tt></td>
+               <td align="center" valign="top"><tt>0x00000</tt></td>
+               <td valign="top">The top-left corner of the rectangle.</td>
+               </tr>
+
+               <tr>
+               <td valign="top"><tt>Qt::TopRightCorner</tt></td>
+               <td align="center" valign="top"><tt>0x00001</tt></td>
+               <td valign="top">The top-right corner of the rectangle.</td>
+               </tr>
+
+               <tr>
+               <td valign="top"><tt>Qt::BottomLeftCorner</tt></td>
+               <td align="center" valign="top"><tt>0x00002</tt></td>
+               <td valign="top">The bottom-left corner of the rectangle.</td>
+               </tr>
+
+               <tr>
+               <td valign="top"><tt>Qt::BottomRightCorner</tt></td>
+               <td align="center" valign="top"><tt>0x00003</tt></td>
+               <td valign="top">The bottom-right corner of the rectangle.</td>
+               </tr>
+
+               </table>
+           \endraw
+           \endquotation
+
+    See also \l {value-command} {\\value} and \l {omitvalue-command} {\\omitvalue}.
+
+    \target example-command
+    \section1 \\example
+
+    The \\example command is for documenting an example. The argument
+    is the example's path relative to omne of the paths listed in the
+    \l {exampledirs-variable} {exampledirs} variable in the QDoc
+    configuration file.
+
+    The documentation page will be output to \c {path-to-example}.html.
+    QDoc will add a list of all the example's source files at the top
+    of the page.
+
+    For example, if \l {exampledirs-variable} {exampledirs} contains
+    \c $QTDIR/examples/widgets/imageviewer, then
+
+    \code
+    / *!
+        \example widgets/imageviewer
+        \title ImageViewer Example
+        \subtitle
+
+        The example shows how to combine QLabel and QScrollArea
+        to display an image.
+
+        ...
+    * /
+    \endcode
+
+    QDoc renders this example in widgets-imageviewer.html:
+
+    \quotation
+        \raw HTML
+        <center><h1>Image Viewer Example</h1></center>
+        \endraw
+
+        Files:
+        \list
+        \li \l{http://qt-project.org/doc/qt-5.0/qtwidgets/widgets-imageviewer-imageviewer-cpp.html}
+           {widgets/imageviewer/imageviewer.cpp}
+        \li \l{http://qt-project.org/doc/qt-5.0/qtwidgets/widgets-imageviewer-imageviewer-h.html}
+           {widgets/imageviewer/imageviewer.h}
+        \li \l{http://qt-project.org/doc/qt-5.0/qtwidgets/widgets-imageviewer-main-cpp.html}
+           {widgets/imageviewer/main.cpp}
+        \endlist
+
+        The example shows how to combine QLabel and QScrollArea
+        to display an image.
+
+        ...
+    \endquotation
+
+    \target externalpage-command
+    \section1 \\externalpage
+
+    The \\externalpage command assigns a title to an external URL.
+
+    \code
+    / *!
+        \externalpage http://qt-project.org/doc/
+        \title Qt Documentation Site
+    * /
+    \endcode
+
+    This allows you to include a link to the external page in your
+    documentation this way:
+
+    \code
+    / *!
+        At the \l {Qt Documentation Site} you can find the latest
+        documentation for Qt, Qt Creator, the Qt SDK and much more.
+    * /
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+        At the \l {http://qt-project.org/doc/}{Qt Documentation Site}
+        you can find the latest documentation for Qt, Qt Creator, the Qt SDK
+        and much more.
+    \endquotation
+
+    To achieve the same result without using the \\externalpage
+    command, you would have to hard-code the address into your
+    documentation:
+
+    \code
+    / *!
+        At the \l {http://qt-project.org/doc/}{Qt Documentation Site}
+        you can find the latest documentation for Qt, Qt Creator, the Qt SDK
+        and much more.
+    * /
+    \endcode
+
+    The \\externalpage command makes it easier to maintain the
+    documentation. If the address changes, you only need to change the
+    argument of the \\externalpage command.
+
+    \target fn-command
+    \section1 \\fn (function)
+
+    The \\fn command is for documenting a function. The argument is
+    the function's signature, including its return type, const-ness,
+    and list of formal arguments with types. If the named function
+    doesn't exist, QDoc emits a warning.
+
+    \note The \\fn command is QDoc's default command: when no
+    topic command can be found in a QDoc comment, QDoc tries to tie
+    the documentation to the following code as if it is the
+    documentation for a function. Hence, it is normally not necessary
+    to include this command when documenting a function, if the
+    function's QDoc comment is written immediately above the function
+    implementation in the \c .cpp file. But it must be present when
+    documenting an inline function in the \c .cpp file that is
+    implemented in the \c .h file.
+
+    \code
+    / *!
+        \fn bool QToolBar::isAreaAllowed(Qt::ToolBarArea area) const
+
+        Returns \c true if this toolbar is dockable in the given
+        \a area; otherwise returns \c false.
+    * /
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+        \raw HTML
+           <h3>bool QToolBar::isAreaAllowed(Qt::ToolBarArea area) const
+           </h3>
+        \endraw
+
+        Returns \c true if this toolbar is dockable in the given
+        \a area; otherwise returns \c false.
+    \endquotation
+
+    See also \l {overload-command} {\\overload}.
+
+    \target group-command
+    \section1 \\group
+
+    The \\group command creates a separate page that lists the classes
+    belonging to the group. The argument is the group name.
+
+    A class is included in a group by using the \l {ingroup-command}
+    {\\ingroup} command. Overview pages can also be related to a group
+    using the same command, but the list of overview pages must be
+    requested explicitly using the \l {generatelist-command}
+    {\\generatelist} command (see example below).
+
+    The \\group command is typically followed by a \l {title-command}
+    {\\title} command and a short introduction to the group. The
+    HTML page for the group is written to a \c {.html} file put in
+    <lower-case>\e{group}.html.
+
+    Each class name is listed as a link to the class reference page
+    followed by the text from the class's \l {brief-command} {\\brief}
+    texts.
+
+    \code
+    / *!
+        \group io
+
+        \title Input/Output and Networking
+
+        These classes are used to handle input and output to
+        and from external devices, processes, files etc., as
+        well as manipulating files and directories.
+    * /
+    \endcode
+
+    QDoc generates a group page in \c{io.html} that will look
+    like this:
+
+    \quotation
+         \raw HTML
+
+         <h1>Input/Output and Networking</h1>
+
+         <p>These classes are used to handle input and output
+         to and from external devices, processes, files etc., as
+         well as manipulating files and directories.</p>
+
+         <p>
+         <table width="100%">
+             <tr valign="top" bgcolor="#e0e0e0">
+             <td><b>
+             <a href="http://qt-project.org/doc/qt-5.0/qtnetwork/qabstractsocket.html">QAbstractSocket</a>
+             </b></td>
+             <td>
+             The base functionality common to all socket types
+             </td></tr>
+
+             <tr valign="top" bgcolor="#e0e0e0">
+             <td><b>
+             <a href="http://qt-project.org/doc/qt-5.0/qtcore/qbuffer.html">QBuffer</a>
+             </b></td>
+             <td>
+             QIODevice interface for a QByteArray
+             </td></tr>
+
+             <tr valign="top" bgcolor="#e0e0e0">
+             <td><b>
+             <a href="http://qt-project.org/doc/qt-5.0/qtgui/qclipboard.html">QClipboard</a>
+             </b></td>
+             <td>
+             Access to the window system clipboard
+             </td></tr>
+         </table>
+         \endraw
+    \endquotation
+
+    Note that overview pages related to the group, must be listed
+    explicitly using the \l {generatelist-command} {\\generatelist}
+    command with the \c related argument.
+
+    \code
+    / *!
+        \group architecture
+
+        \title Architecture
+
+        These documents describe aspects of Qt's architecture
+        and design, including overviews of core Qt features and
+        technologies.
+
+        \generatelist{related}
+    * /
+    \endcode
+
+    See also \l {ingroup-command} {\\ingroup} and \l
+    {generatelist-command} {\\generatelist}.
+
+    \target headerfile-command
+    \section1 \\headerfile
+
+    The \\headerfile command is for documenting the global functions,
+    types and macros that are declared in a header file, but not in a
+    namespace. The argument is the name of the header file. The HTML
+    page is written to a \c {.html} file constructed from the header
+    file argument.
+
+    The documentation for a function, type, or macro that is declared
+    in the header file being documented, is included in the header file
+    page using the \l {relates-command} {\\relates} command.
+
+    If the argument doesn't exist as a header file, the \\headerfile
+    command creates a documentation page for the header file anyway.
+
+           \code
+           / *!
+               \headerfile <QtAlgorithms>
+
+               \title Generic Algorithms
+
+               \brief The <QtAlgorithms> header file provides
+                generic template-based algorithms.
+
+               Qt provides a number of global template functions in \c
+               <QtAlgorithms> that work on containers and perform
+               well-know algorithms.
+           * /
+           \endcode
+
+    QDoc generates a header file page \c{qtalgorithms.html} that looks
+    like this:
+
+           \quotation
+               \raw HTML
+               <center><h1>&lt;QtAlgorithms&gt; -
+                           Generic Algorithms</h1></center>
+               <p>The <QtAlgorithms> header file provides generic
+               template-based algorithms.
+               <a href="13-qdoc-commands-topics.html#header-command">More...</a>
+               </p>
+
+               <h3>Functions</h3>
+               <ul>
+               <li>RandomAccessIterator
+               <a href="http://qt-project.org/doc/qt-5.0/qtcore/qtalgorithms.html#qBinaryFind">qBinaryFind</a></b>
+               (RandomAccessIterator begin, RandomAccessIterator end,
+               const T & value)</li>
+               <li>...</li></ul>
+               <hr />
+               \endraw
+
+               \target header
+
+               \raw HTML
+               <h2>Detailed Description</h2>
+               <p>The <QtAlgorithms> header file provides generic
+               template-based algorithms. </p>
+               \endraw
+
+               Qt provides a number of global template functions in \c
+               <QtAlgorithms> that work on containers and perform
+               well-know algorithms.
+
+               ...
+           \endquotation
+
+    \target macro-command
+    \section1 \\macro
+
+    The \\macro command is for documenting a C++ macro. The argument
+    is the macro in one of three styles: function-like macros like
+    Q_ASSERT(), declaration-style macros like Q_PROPERTY(), and macros
+    without parentheses like Q_OBJECT.
+
+    The \\macro comment must contain a \l {relates-command}
+    {\\relates} command that attaches the macro comment to a class,
+    header file, or namespace. Otherwise, the documentation will be
+    lost. Here are three example macro comments followed by what they
+    might look like in \c {qtglobal.html} or \c {qobject.html}:
+
+    \code
+    / *!
+        \macro void Q_ASSERT(bool test)
+        \relates <QtGlobal>
+
+        Prints a warning message containing the source code
+        file name and line number if \a test is false.
+
+        ...
+
+        \sa Q_ASSERT_X(), qFatal(), {Debugging Techniques}
+    * /
+    \endcode
+
+    \quotation
+        \raw HTML
+        <h3>void Q_ASSERT ( bool <i>test</i> )</h3>
+        \endraw
+
+        Prints a warning message containing the source code
+        file name and line number if \a test is false.
+
+        ...
+
+        See also Q_ASSERT_X(), qFatal() and \l {Debugging Techniques}.
+
+   \endquotation
+
+    \code
+    / *!
+        \macro Q_PROPERTY(...)
+        \relates QObject
+
+        This macro declares a QObject property. The syntax is:
+
+        ...
+
+        \sa {Qt's Property System}
+    * /
+    \endcode
+
+    \quotation
+        \raw HTML
+        <h3>Q_PROPERTY ( ... )</h3>
+        \endraw
+
+        This macro declares a QObject property. The syntax is:
+
+        ...
+
+        See also \l {Qt's Property System}.
+    \endquotation
+
+    \code
+    / *!
+        \macro Q_OBJECT
+        \relates QObject
+
+        The Q_OBJECT macro must appear in the private section
+        of a class definition that declares its own signals and
+        slots, or that uses other services provided by Qt's
+        meta-object system.
+
+        ...
+
+        \sa {Meta-Object System}, {Signals and Slots}, {Qt's
+        Property System}
+    * /
+    \endcode
+
+    \quotation
+        \raw HTML
+        <h3>Q_OBJECT</h3>
+        \endraw
+
+        The Q_OBJECT macro must appear in the private section
+        of a class definition that declares its own signals and
+        slots or that uses other services provided by Qt's
+        meta-object system.
+
+        ...
+
+        See also \l {Meta-Object System}, \l {Signals &
+        Slots} and \l {Qt's Property System}.
+    \endquotation
+
+    \target module-command
+    \section1 \\module
+
+    The \\module creates a page that lists the classes belonging to
+    the module specified by the command's argument. A class included
+    in the module by including the \l {inmodule-command} {\\inmodule}
+    command in the \\class comment.
+
+    The \\module command is typically followed by a \l {title-command}
+    {\\title} and a \l {brief-command} {\\brief} command. Each class
+    is listed as a link to the class reference page followed by the
+    text from the class's \l {brief-command} {\\brief} command. For
+    example:
+
+    \code
+    / *!
+        \module QtNetwork
+
+        \title Qt Network Module
+
+        \brief Contains classes for writing TCP/IP clients and servers.
+
+        The network module provides classes to make network
+        programming easier and portable. It offers both
+        high-level classes such as QNetworkAccessManager that
+        implements application-level protocols, and
+        lower-level classes such as QTcpSocket, QTcpServer, and
+        QUdpSocket.
+    * /
+    \endcode
+
+    QDoc renders this in \c {qtnetwork.html} like this:
+
+           \quotation
+               \raw HTML
+               <h1><center>Qt Network Module</center></h1>
+               \endraw
+
+               The Qt Network module offers classes that allow you to
+               write TCP/IP clients and servers.\l {module
+               details} {More...}
+
+               \raw HTML
+               <p>
+               <table width="100%">
+                   <tr valign="top" bgcolor="#d0d0d0">
+                   <td><b>
+                   <a href="http://qt-project.org/doc/qt-5.0/qtnetwork/qabstractsocket.html">QAbstractSocket</a>
+                   </b></td>
+                   <td>
+                   The base functionality common to all socket types
+                   </td></tr>
+
+                   <tr valign="top" bgcolor="#d0d0d0">
+                   <td><b>
+                   <a href="http://doc.qt.digia.com/4.0/qftp.html">QFtp</a>
+                   </b></td>
+                   <td>
+                   Implementation of the FTP protocol
+                   </td></tr>
+
+                   <tr valign="top" bgcolor="#d0d0d0">
+                   <td>...</td>
+                   <td>...</td>
+                   </tr>
+               </table>
+
+               <p><hr /></p>
+               \endraw
+
+               \target module details
+
+               \raw HTML
+               <h2>Detailed Description</h2>
+
+               <p>
+               The Qt Network module offers classes that allow you to
+               write TCP/IP clients and servers.
+               </p>
+
+               <p>
+               The network module provides classes to make network
+               programming easier and portable. It offers both
+               high-level classes such as QNetworkAccessManager that
+               implements application-level protocols, and
+               lower-level classes such as QTcpSocket, QTcpServer, and
+               QUdpSocket.
+               </p>
+               \endraw
+
+               ...
+
+           \endquotation
+
+    See also \l {inmodule-command} {\\inmodule}
+
+    \target namespace-command
+    \section1 \\namespace
+
+    The \\namespace command is for documenting the contents of the C++
+    namespace named as its argument. The documentation outline QDoc
+    generates for a namespace is similar to the outline it generates
+    for a C++ class.
+
+    \code
+    / *!
+        \namespace Qt
+
+        \brief Contains miscellaneous identifiers used throughout the Qt library.
+    * /
+    \endcode
+
+    QDoc renders this in \c{qt.html} like this:
+
+           \quotation
+               \raw HTML
+               <center><h1>Qt Namespace Reference</h1></center>
+               <p>The Qt namespace contains miscellaneous
+               identifiers used throughout the Qt library.
+               <a href="13-qdoc-commands-topics.html#name">More...</a>
+               </p>
+
+               <pre>#include &lt;Qt&gt;</pre>
+               <ul>
+               <li>
+               <a href="http://doc.qt.digia.com/4.0/qt-qt3.html">
+                   Qt 3 support members</a></li>
+               </ul>
+
+
+               <h3>Types</h3>
+               <ul>
+               <li>flags
+               <a href="http://doc.qt.digia.com/4.0/qt.html#AlignmentFlag-enum">Alignment</a></b></li>
+               <li>...</li></ul>
+               <hr />
+               \endraw
+
+               \target name
+
+               \raw HTML
+               <h2>Detailed Description</h2>
+               <p>Contains miscellaneous identifiers
+               used throughout the Qt library.</p>
+               \endraw
+
+               ...
+           \endquotation
+
+    \target page-command
+    \section1 \\page
+
+    The \\page command is for creating a stand-alone documentation
+    page. The argument can consist of two parts separated by a
+    space. The first part is the name of the file where QDoc should
+    store the page. The second part, if present, is a word that
+    specifies the page type. Currently, the second part can be one of
+    the following list of words:
+
+    \list
+
+    \li faq - A frequently asked question.
+
+    \li howto - A user guide on how to use some components of the
+    software.
+
+    \li example - A page that describes a working example.
+
+    \li overview - For text pages that provide an overview of some
+    important subject.
+
+    \li tutorial - For text pages that are part of a tutorial.
+
+    \li api - This is the type of page used for C++ class references and
+    QML type references. You should never use this one for the pages
+    you write, because this one is reserved for qdoc.
+
+    \endlist
+
+    The page title is set using the \l {title-command} {\\title}
+    command.
+
+           \code
+           / *!
+               \page aboutqt.html
+
+               \title About Qt
+
+               Qt is a C++ toolkit for cross-platform GUI
+               application development. Qt provides single-source
+               portability across Microsoft Windows, Mac OS X, Linux,
+               and all major commercial Unix variants.
+
+               Qt provides application developers with all the
+               functionality needed to build applications with
+               state-of-the-art graphical user interfaces. Qt is fully
+               object-oriented, easily extensible, and allows true
+               component programming.
+
+               ...
+            * /
+            \endcode
+
+    QDoc renders this page in \c {aboutqt.html}.
+
+    \target property-command
+    \section1 \\property
+
+    The \\property command is for documenting a Qt property. The
+    argument is the full property name.
+
+    A property is defined using the Q_PROPERTY() macro. The macro
+    takes as arguments the property's name and its set, reset and get
+    functions.
+
+    \code
+    Q_PROPERTY(QString state READ state WRITE setState)
+    \endcode
+
+    The set, reset and get functions don't need to be documented,
+    documenting the property is sufficient. QDoc will generate a list
+    of the access function that will appear in the property
+    documentation which in turn will be located in the documentation
+    of the class that defines the property.
+
+    The \\property command comment typically includes a \l
+    {brief-command} {\\brief} command. For properties the \l
+    {brief-command} {\\brief} command's argument is a sentence
+    fragment that will be included in a one line description of the
+    property. The command follows the same rules for the \l
+    {brief-property} {description} as the \l {variable-command}
+    {\\variable} command.
+
+    \code
+    / *!
+        \property QPushButton::flat
+        \brief Whether the border is disabled.
+
+        This property's default is false.
+    * /
+    \endcode
+
+    QDoc includes this in \c {qpushbutton.html} like this:
+
+    \quotation
+        \raw HTML
+        <h3>flat : bool</h3>
+        \endraw
+
+        This property holds whether the border is disabled.
+
+        This property's default is false.
+
+        Access functions:
+
+        \list
+        \li \b { bool isFlat () const}
+        \li \b { void setFlat ( bool )}
+        \endlist
+
+    \endquotation
+
+    \code
+    / *!
+        \property QWidget::width
+        \brief The width of the widget excluding any window frame.
+
+        See the \l {Window Geometry} documentation for an
+        overview of window geometry.
+
+        \sa geometry, height, size
+    * /
+    \endcode
+
+    QDoc includes this in \c {qwidget.html} like this:
+
+    \quotation
+        \raw HTML
+        <h3>width : const int</h3>
+        \endraw
+
+        This property holds the width of the widget excluding
+        any window frame.
+
+        See the \l {Window Geometry} documentation for an
+        overview of window geometry.
+
+        Access functions:
+
+        \list
+        \li \b { int width () const}
+        \endlist
+
+        See also \l{QWidget::geometry} {geometry},
+        \l{QWidget::height} {height}, and \l{QWidget::size} {size}.
+    \endquotation
+
+    \target service-command
+    \section1 \\service
+
+    The \\service command tells QDoc that a class is a service class
+    and names the service. The command takes two arguments, the name
+    of the class and the name of the service. Currently, this command
+    is not used in the Qt documentation.
+
+     \code
+         / *!
+             \service TimeService Time
+             ...
+         * /
+         class TimeService : public QCopObjectService
+         {
+             ...
+         }
+     \endcode
+
+     See also \l {class-command} {\\class} and \l
+     {generatelist-command} {\\generatelist}.
+
+    \target qmlattachedproperty-command
+    \section1 \\qmlattachedproperty
+
+    The \\qmlattachedproperty command is for documenting a QML
+    property that will be attached to some QML type. See
+    \l{http://qt-project.org/doc/qt-4.7/qdeclarativeintroduction.html#attached-properties}
+    {Attached Properties}. The argument is the rest of the line. The
+    argument text should be the property type, followed by the QML
+    element name where the property is being declared, the \c{::}
+    qualifier, and finally the property name. If we have a QML
+    attached property named \c isCurrentItem in QML \c ListView,
+    and the property has type \c {bool}, the \\qmlattachedproperty for
+    it would look like this:
+
+    \code
+    / *!
+        \qmlattachedproperty bool ListView::isCurrentItem
+        This attached property is \c true if this delegate is the current
+    item; otherwise false.
+
+        It is attached to each instance of the delegate.
+
+        This property may be used to adjust the appearance of the current
+    item, for example:
+
+        \snippet doc/src/snippets/declarative/listview/listview.qml isCurrentItem
+    * /
+    \endcode
+
+    QDoc includes this attached property on the QML reference page for the
+    \l{http://qt-project.org/doc/qt-4.7/qml-listview.html#isCurrentItem-prop}
+    {ListView} element.
+
+    \target qmlattachedsignal-command
+    \section1 \\qmlattachedsignal
+
+    The \\qmlattachedsignal command is for documenting an attachable
+    \l{Signal and Handler Event System}{signal}. The \\qmlattachedsignal
+    command is used just like the \l{qmlsignal-command} {\\qmlsignal} command.
+
+    The argument is the rest of the line. It should be the name of the
+    QML type where the signal is declared, the \c{::}
+    qualifier, and finally the signal name. For example, a QML
+    attached signal named \c add() in the \c GridView
+    element is documented like this:
+
+    \code
+    / *!
+        \qmlattachedsignal GridView::add()
+        This attached signal is emitted immediately after an item is added to the view.
+    * /
+    \endcode
+
+    QDoc includes this documentation on the QML reference page for the
+    \l GridView element.
+
+    \target qmlbasictype-command
+    \section1 \\qmlbasictype
+
+    The \\qmlbasictype command is for documenting a basic type for QML.
+    The argument is the type name. The type must be included in the
+    QML basic types group using the \l{ingroup-command}{\\ingroup}
+    command as shown below. This will cause QDoc to include the
+    documentation for the type on the
+    \l{http://qt-project.org/doc/qt-4.7/qdeclarativebasictypes.html}
+    {QML Basic Types} page. The \l{brief-command} {\\brief} command
+    is also required, because it appears on the
+    \l{http://qt-project.org/doc/qt-4.7/qdeclarativebasictypes.html}
+    {QML Basic Types} page as well.
+
+    \code
+    / *!
+        \qmlbasictype int
+        \ingroup qmlbasictypes
+
+        \brief An integer is a whole number, for example 0, 10, or -20.
+
+        An integer is a whole number, e.g. 0, 10, or -20. The possible
+        \c int values range from around -2000000000 to around
+        2000000000, although most elements will only accept a reduced
+        range (which they mention in their documentation).
+
+        Example:
+        \qml
+        Item { width: 100; height: 200 }
+        \endqml
+
+        \sa {QML Basic Types}
+    * /
+    \endcode
+
+    QDoc outputs this as \l{http://qt-project.org/doc/qt-4.7/qml-int.html}
+    {qml-int.html}.
+
+    \target qmlclass-command
+    \section1 \\qmlclass
+
+    This command is deprecated. Use \l{qmltype-command} {\\qmltype}
+    instead.
+
+    The \\qmlclass command is for documenting a QML type that is
+    instantiated by a C++ class. The command has two arguments. The
+    first argument is the name of the QML type. The second argument
+    is the name of the C++ class that instantiates the QML type.
+
+    \code
+    / *!
+        \qmlclass Transform QGraphicsTransform
+        \ingroup qml-transform-elements
+        \since 4.7
+        \brief Provides a way of building advanced transformations on Items.
+
+        The Transform element is a base type which cannot be
+        instantiated directly. The following concrete Transform types
+        are available:
+
+        \list
+          \li \l Rotation
+          \li \l Scale
+          \li \l Translate
+        \endlist
+
+        The Transform elements let you create and control advanced
+        transformations that can be configured independently using
+        specialized properties.
+
+        You can assign any number of Transform elements to an \l
+        Item. Each Transform is applied in order, one at a time.
+
+    * /
+    \endcode
+
+    This example generates the
+    \l {http://qt-project.org/doc/qt-4.7/qml-transform.html} {QML Transform}
+    page. The \\qmlclass comment should include the \l
+    {since-command} {\\since} command, because all QML types are
+    new. It should also include the \l{brief-command} {\\brief}
+    command. If a type is a member of a group of QML
+    types, it should also include one or more \l{ingroup-command}
+    {\\ingroup} commands.
+
+    \target qmlmethod-command
+    \section1 \\qmlmethod
+
+    The \\qmlmethod command is for documenting a QML method. The
+    argument is the complete method signature, including return
+    type and parameter names and types.
+
+    \code
+    / *!
+        \qmlmethod void TextInput::select(int start, int end)
+
+        Causes the text from \a start to \a end to be selected.
+
+        If either start or end is out of range, the selection is not changed.
+
+        After having called this, selectionStart will become the lesser, and
+        selectionEnd the greater (regardless of the order passed to this method).
+
+       \sa selectionStart, selectionEnd
+    * /
+    \endcode
+
+    QDoc includes this documentation on the element reference page for the
+    \l{http://qt-project.org/doc/qt-4.7/qml-textinput.html#select-method}
+    {TextInput} element.
+
+    \target qmltype-command
+    \section1 \\qmltype
+
+    The \\qmltype command is for documenting a QML type. The command
+    has one argument, which is the name of the QML type.
+
+    If the QML type is instantiated by a C++ class, that class must be
+    specified using the \l{instantiates-command} {\\instantiates}
+    context command.
+
+    \code
+    / *!
+        \qmltype Transform
+        \instantiates QGraphicsTransform
+        \ingroup qml-transform-elements
+        \since 4.7
+        \brief The Transform elements provide a way to build
+        advanced transformations on Items.
+
+        The Transform element is a base type which cannot be
+        instantiated directly. The concrete Transform types are:
+
+        \list
+          \li \l Rotation
+          \li \l Scale
+          \li \l Translate
+        \endlist
+
+        The Transform elements let you create and control advanced
+        transformations that can be configured independently using
+        specialized properties.
+
+        You can assign any number of Transform elements to an \l
+        Item. Each Transform is applied in order, one at a time.
+
+    * /
+    \endcode
+
+    The example generates the \l
+    {http://qt-project.org/doc/qt-4.7/qml-transform.html} {QML Transform}
+    page. The \e{\\qmltype} comment includes \l{instantiates-command}
+    {\\instantiates} to specify that a Transform is instantiated by
+    the C++ class QGraphicsTransform. A \\qmltype comment should
+    always include a \l {since-command} {\\since} command, because all
+    QML types are new. It should also include a \l{brief-command}
+    {\\brief} description. If a QML type is a member of a QML type group,
+    the \\qmltype comment should include one or more \l{ingroup-command}
+    {\\ingroup} commands.
+
+
+    \target qmlproperty-command
+    \section1 \\qmlproperty
+
+    The \\qmlproperty command is for documenting a QML property. The
+    argument is the rest of the line. The argument text should be the
+    property type, followed by the QML type name, the \c{::}
+    qualifier, and finally the property name. If we have a QML
+    property named \c x in QML type \c Translate, and the property
+    has type \c {real}, the \\qmlproperty for it would look like this:
+
+    \code
+        / *!
+            \qmlproperty real Translate::x
+
+            The translation along the X axis.
+        * /
+    \endcode
+
+    QDoc includes this QML property on the QML reference page for the
+    \l {http://qt-project.org/doc/qt-4.7/qml-translate.html} {Translate}
+    element.
+
+    \target qmlsignal-command
+    \section1 \\qmlsignal
+
+    The \\qmlsignal command is for documenting a QML signal.
+    The argument is the rest of the line. The arguments should be: the QML type
+    where the signal is declared, the \c{::} qualifier, and finally the signal
+    name. If we have a QML signal named \c clicked(), the documentation for it
+    would look like this:
+
+    \code
+    / *!
+    \qmlsignal UIComponents::Button::clicked()
+    This signal is emitted when the user clicks the button. A click is defined
+    as a press followed by a release. The corresponding handler is
+    \c onClicked.
+    * /
+    \endcode
+
+    QDoc includes this documentation on the QML reference page for the
+    \l{http://qt-project.org/doc/qt-4.7/qml-mousearea.html#onEntered-signal}
+    {MouseArea} element.
+
+    \target qmlmodule-command
+    \section1 \\qmlmodule
+
+    Insert the \c{\\qmlmodule} command to create a \c QML module page. A QML
+    module is a collection of QML types or any related material. This
+    command is similar to the \l{group-command}.
+
+    A QML class may belong to a module by inserting the
+    \l{inqmlmodule-command}{\\inqmlmodule} command as a topic command.
+    Every member of a group must be linked to using the module name and two
+    colons (\c{::}).
+
+    \code
+    \beginqdoc
+        A link to the TabWidget of the UI Component is \l {UIComponent::TabWidget}.
+    \endqdoc
+    \endcode
+
+    QDoc will generate a page for the module with a listing of the members
+    of the module.
+
+    \code
+        \qmlmodule ClickableComponents
+
+        This is a list of the Clickable Components set. A Clickable component
+        responds to a \c clicked() event.
+    \endcode
+
+    The \l{componentset}{UIComponents} example demonstrates proper usage of
+    QDoc commands to document QML types and QML modules.
+
+    \target inqmlmodule-command
+    \section1 \\inqmlmodule
+
+    A QML class may belong to a \l{qmlmodule-command}{QML module} by inserting
+    the \l{inqmlmodule-command}{\\inqmlmodule} command as a topic command.
+    Every member of a group must be linked to using the module name and two
+    colons (\c{::}).
+
+    \code
+        \qmltype ClickableButton
+        \inqmlmodule ClickableComponents
+
+        A clickable button that responds to the \c click() event.
+    \endcode
+
+    To link to the \c ClickableButton, use the
+    \c{\l ClickableComponents::ClickableButton} format.
+
+    The \l{componentset}{UIComponents} example demonstrates proper usage of
+    QDoc commands to document QML types and QML modules.
+
+    \target instantiates-command
+    \section1 \\instantiates
+
+    The \\instantiates command is used in the \l{qmltype-command} {QML
+    type} comment of an elemental QML type to specify the name of the
+    C++ class that instantiates the QML type.
+
+    If the QML type is not instantiated by a C++ class, this command
+    is not used.
+
+    \code
+    / *!
+        \qmltype Transform
+        \instantiates QGraphicsTransform
+        \ingroup qml-transform-elements
+        \since 4.7
+        \brief Provides elements provide a way to build
+        advanced transformations on Items.
+
+        The Transform element is a base type which cannot be
+        instantiated directly.
+    * /
+    \endcode
+
+    The example generates the \l
+    {http://qt-project.org/doc/qt-4.7/qml-transform.html} {QML Transform}
+    page. The \e{\\qmltype} comment includes \l{instantiates-command}
+    {\\instantiates} to specify that a Transform is instantiated by
+    the C++ class QGraphicsTransform. A \\qmltype comment should
+
+    \target typedef-command
+    \section1 \\typedef
+
+    The \\typedef command is for documenting a C++ typedef. The
+    argument is the name of the typedef. The documentation for
+    the typedef will be included in the reference documentation
+    for the class, namespace, or header file in which the typedef
+    is declared. To relate the \\typedef to a class, namespace, or
+    header file, the \\typedef comment must contain a
+     \l {relates-command} {\\relates} command.
+
+    \code
+    / *!
+        \typedef QObjectList
+        \relates QObject
+
+        Synonym for QList<QObject>.
+    * /
+    \endcode
+
+    QDoc includes this in \c {qobject.html} as:
+
+    \quotation
+        \raw HTML
+        <h3>typedef QObjectList</h3>
+        \endraw
+
+        Synonym for QList<QObject>.
+    \endquotation
+
+    Another, although more rare, example:
+
+    \code
+    / *!
+        \typedef QMsgHandler
+        \relates QtGlobal
+
+        This is a typedef for a pointer to a function with the
+        following signature:
+
+        \code
+            void myMsgHandler(QtMsgType, const char *);
+        \ endcode
+
+        \sa QtMsgType, qInstallMsgHandler()
+    * /
+    \endcode
+
+    QDoc includes this in \c {qtglobal.html} as:
+
+    \quotation
+        \raw HTML
+        <h3>typedef QtMsgHandler</h3>
+        \endraw
+
+        This is a typedef for a pointer to a function with the
+        following signature:
+
+        \raw HTML
+        <tt>
+        <pre>    void myMsgHandler(QtMsgType, const char *);</pre>
+        </tt>
+        \endraw
+
+        See also QtMsgType and qInstallMsgHandler().
+    \endquotation
+
+    Other typedefs are located on the reference page for the class
+    that defines them.
+
+    \code
+    / *!
+        \typedef QLinkedList::Iterator
+
+        Qt-style synonym for QList::iterator.
+    * /
+    \endcode
+
+    QDoc includes this one on the reference page for class QLinkedList as:
+
+    \quotation
+        \raw HTML
+        <h3>typedef QLinkedList::Iterator</h3>
+        \endraw
+
+        Qt-style synonym for QList::iterator.
+    \endquotation
+
+    \target variable-command
+    \section1 \\variable
+
+    The \\variable command is for documenting a class member variable
+    or a constant. The argument is the variable or constant name. The
+    \\variable command comment includes a \l {brief-command} {\\brief}
+    command. QDoc generates the documentation based on the text from
+    \\brief command.
+
+    The documentation will be located in the in the associated class,
+    header file, or namespace documentation.
+
+    In case of a member variable:
+
+    \code
+    / *!
+        \variable QStyleOption::palette
+        \brief The palette that should be used when painting
+               the control
+    * /
+    \endcode
+
+    QDoc includes this in qstyleoption.html as:
+
+    \quotation
+        \raw HTML
+        <h3>
+            <a href="http://qt-project.org/doc/qt-5.0/qtgui/qpalette.html">
+                QPalette
+            </a>
+            QStyleOption::palette
+        </h3>
+        \endraw
+
+        This variable holds the palette that should be used
+        when painting the control.
+    \endquotation
+
+    You can also document constants with the \\variable command. For
+    example, suppose you have the \c Type and \c UserType constants in
+    the QTreeWidgetItem class:
+
+    \code
+    enum { Type = 0, UserType = 1000 };
+    \endcode
+
+    For these, the \\variable command can be used this way:
+
+    \code
+    / *!
+        \variable QTreeWidgetItem::Type
+
+        The default type for tree widget items.
+
+        \sa UserType, type()
+    * /
+    \endcode
+    \code
+    / *!
+        \variable QTreeWidgetItem::UserType
+
+        The minimum value for custom types. Values below
+        UserType are reserved by Qt.
+
+        \sa Type, type()
+    * /
+    \endcode
+
+    QDoc includes these in qtreewidget.html as:
+
+    \quotation
+        \raw HTML
+        <h3>
+        const int QTreeWidgetItem::Type
+        </h3>
+        \endraw
+
+        The default type for tree widget items.
+
+        See also \l {QTreeWidgetItem::UserType} {UserType} and \l
+        {QTreeWidgetItem::type()} {type()}.
+
+        \raw HTML
+        <h3>
+        const int QTreeWidgetItem::UserType
+        </h3>
+        \endraw
+
+        The minimum value for custom types. Values below
+        UserType are reserved by Qt.
+
+        See also \l {QTreeWidgetItem::Type} {Type} and
+        \l{QTreeWidgetItem::type()} {type()}.
+
+    \endquotation
+*/

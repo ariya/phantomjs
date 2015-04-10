@@ -1,0 +1,402 @@
+# When editing this file, please run the following command to make sure you
+# haven't introduced any syntax errors:
+#
+# ./Tools/Scripts/check-webkit-style
+#
+# If you want to test your regular expressions, you can edit various files and
+# then try following command:
+#
+# ./Tools/Scripts/webkit-patch apply-watchlist-local
+#
+{
+    "DEFINITIONS": {
+        "AppleMacPublicApi": {
+            "filename": r"Source/WebCore/bindings/objc/PublicDOMInterfaces.h"
+        },
+        "Forms": {
+            "filename": r"Source/WebCore/html/HTML(DataList|FieldSet|Input|Keygen|Label|Legend|OptGroup|Option|Output|Select|TextArea)Element\."
+                        r"|Source/WebCore/html/.*Form[A-Z].*\."
+                        r"|Source/WebCore/html/\w*InputType\."
+                        r"|Source/WebCore/html/shadow/(SliderThumbElement|TextControlInnerElements)\."
+                        r"|Source/WebCore/rendering/Render(FileUploadControl|ListBox|MenuList|Slider|TextControl.*)\."
+        },
+        "Geolocation": {
+            "filename": r"Source/WebCore/Modules/geolocation/"
+                        r"|Source/WebCore/page/GeolocationClient.h"
+                        r"|Source/WebCore/bindings/js/JSGeolocationCustom.cpp"
+                        r"|Source/WebCore/platform/mock/GeolocationClientMock.(h|cpp)"
+                        r"|Source/WebKit2/WebProcess/Geolocation/",
+        },
+        "GStreamerGraphics": {
+            "filename": r"Source/WebCore/platform/graphics/gstreamer/",
+        },
+        "GStreamerAudio": {
+            "filename": r"Source/WebCore/platform/audio/gstreamer/",
+        },
+        "WebIDL": {
+            "filename": r"Source/WebCore/(?!inspector)(?!testing).*\.idl"
+        },
+        "webkitpy": {
+            "filename": r"Tools/Scripts/webkitpy/",
+        },
+        "webkitperl": {
+            "filename": r"Tools/Scripts/webkitperl/"
+                        r"|Tools/Scripts/webkitdirs.pm"
+                        r"|Tools/Scripts/VCSUtils.pm"
+                        r"|Tools/Scripts/test-webkitperl",
+        },
+        "SVNScripts": {
+            "filename": r"Tools/Scripts/svn-.*",
+        },
+        "XSS": {
+            "filename": r".*XSS",
+        },
+        "FrameLoader": {
+            "more": r"FrameLoader\.(cpp|h)",
+        },
+        "Loader": {
+            "filename": r"Source/WebCore/loader/",
+        },
+        "Rendering": {
+            "filename": r"Source/WebCore/rendering/",
+        },
+        "RenderLayers": {
+            "filename": r"Source/WebCore/rendering/RenderLayer*",
+        },
+        "GraphicsLayer": {
+            "filename": r"Source/WebCore/platform/graphics/GraphicsLayer*",
+        },
+        "CoreAnimation": {
+            "filename": r"Source/WebCore/platform/graphics/ca/",
+        },
+        "Animation": {
+            "filename": r"Source/WebCore/page/animation/",
+        },
+        "GtkWebKit2PublicAPI": {
+            "filename": r"Source/WebKit2/UIProcess/API/gtk/",
+        },
+        "QtBuildSystem": {
+            # Project files for each target are intentionally left out, as those
+            # mostly list source and header files, which would just add noise.
+            "filename": r"Tools/qmake/"
+                        r"|WebKit.pro",
+        },
+        "QtWebKit2PublicAPI": {
+            "filename": r"Source/WebKit2/UIProcess/API/qt/"
+                        r"|Source/WebKit2/UIProcess/API/cpp/qt/"
+                        r"|Source/WebKit2/UIProcess/API/C/qt/",
+        },
+        "QtGraphics": {
+            "filename": r"Source/WebCore/platform/graphics/qt/"
+        },
+        "CoordinatedGraphics": {
+            "filename": r"Source/WebKit2/WebProcess/WebPage/CoordinatedGraphics/"
+                        r"|Source/WebKit2/UIProcess/CoordinatedGraphics/"
+                        r"|Source/WebKit2/Shared/CoordinatedGraphics/"
+                        r"|Source/WebCore/platform/graphics/surfaces/",
+        },
+        "TextureMapper": {
+            "filename": r"Source/WebCore/platform/graphics/texmap/",
+        },
+        "OpenGL": {
+            "filename": r"Source/WebCore/platform/graphics/opengl/",
+        },
+        "QtWebKit2PlatformSpecific": {
+            "filename": r"Source/WebKit2/.*\.(pri|pro)"
+                        r"|Source/WebKit2/Platform/qt/"
+                        r"|Source/WebKit2/qt/"
+                        r"|Source/WebKit2/PluginProcess/qt/"
+                        r"|Source/WebKit2/Platform/qt/"
+                        r"|Source/WebKit2/Shared/API/c/qt/"
+                        r"|Source/WebKit2/Shared/qt/"
+                        r"|Source/WebKit2/WebProcess/InjectedBundle/qt/"
+                        r"|Source/WebKit2/WebProcess/FullScreen/qt/"
+                        r"|Source/WebKit2/WebProcess/WebPage/qt/"
+                        r"|Source/WebKit2/WebProcess/qt/"
+                        r"|Source/WebKit2/WebProcess/Plugins/Netscape/qt/"
+                        r"|Source/WebKit2/WebProcess/Downloads/qt/"
+                        r"|Source/WebKit2/WebProcess/WebCoreSupport/qt/"
+                        r"|Source/WebKit2/WebProcess/Cookies/qt/"
+                        r"|Source/WebKit2/UIProcess/qt/"
+                        r"|Source/WebKit2/UIProcess/Plugins/qt/"
+                        r"|Source/WebKit2/UIProcess/Launcher/qt/",
+        },
+        "CSS": {
+            "filename": r"Source/WebCore/css/",
+        },
+        "DOM": {
+            "filename": r"Source/WebCore/dom/",
+        },
+        "HTML": {
+            "filename": r"Source/WebCore/html/",
+        },
+        "DOMAttributes": {
+            "filename": r"Source/WebCore/dom/.*Attr.*"
+                        r"|Source/WebCore/dom/NamedNodeMap\.(cpp|h|idl)"
+                        r"|Source/WebCore/dom/Element\.(cpp|h|idl)",
+        },
+        "EFL": {
+            "filename": r"Source/WebKit/efl/"
+                        r"|Source/WebCore/platform/efl/"
+                        r"|Source/WTF/wtf/efl/"
+                        r"|Tools/EWebLauncher"
+                        r"|Tools/DumpRenderTree/efl/"
+                        r"|LayoutTests/platform/efl/",
+        },
+        "EFLWebKit2PublicAPI": {
+            "filename": r"Source/WebKit2/UIProcess/API/efl/"
+                        r"|Source/WebKit2/UIProcess/API/C/efl/",
+        },
+        "EFLWebKit2PlatformSpecific": {
+            "filename": r"Source/WebKit2/.*\.(cmake|txt)"
+                        r"|Source/WebKit2/Platform/efl/"
+                        r"|Source/WebKit2/efl/"
+                        r"|Source/WebKit2/Shared/API/c/efl/"
+                        r"|Source/WebKit2/Shared/efl/"
+                        r"|Source/WebKit2/WebProcess/InjectedBundle/efl/"
+                        r"|Source/WebKit2/WebProcess/WebPage/efl/"
+                        r"|Source/WebKit2/WebProcess/efl/"
+                        r"|Source/WebKit2/WebProcess/Downloads/efl/"
+                        r"|Source/WebKit2/WebProcess/WebCoreSupport/efl/"
+                        r"|Source/WebKit2/UIProcess/efl/"
+                        r"|Source/WebKit2/UIProcess/Launcher/efl/",
+        },
+        "CMake": {
+            "filename": r".*CMakeLists\w*\.txt"
+                        r"|.*\w+\.cmake"
+                        r"|Source/cmake/",
+        },
+        "Selectors": {
+            "filename": r"Source/WebCore/css/CSSSelector*"
+                        r"|Source/WebCore/css/SelectorChecker.*"
+                        r"|Source/WebCore/css/StyleResolver.*"
+                        r"|Source/WebCore/dom/SelectorQuery.*",
+        },
+        "SoupNetwork": {
+            "filename": r"Source/WebCore/platform/network/soup/",
+        },
+        "ScrollingCoordinator": {
+            "filename": r"Source/WebCore/page/scrolling/",
+        },
+        "WebKitGTKTranslations": {
+            "filename": r"Source/WebKit/gtk/po/",
+        },
+        "Media": {
+            "filename": r"(Source|LayoutTests)/.*([Mm]edia|[Aa]udio|[Vv]ideo)",
+        },
+        "MathML": {
+            "filename": r"(Source|LayoutTests|Websites)/.*mathml",
+        },
+        "Editing": {
+            "filename": r"Source/WebCore/editing/",
+        },
+        "BlackBerry": {
+            "filename": r"Source/WebKit/blackberry/"
+                        r"|Source/WebCore/page/blackberry"
+                        r"|Source/WebCore/history/blackberry"
+                        r"|Source/WebCore/plugins/blackberry"
+                        r"|Source/WebCore/editing/blackberry"
+                        r"|Source/WebCore/Resources/blackberry"
+                        r"|Source/WebCore/platform/image-decoders/blackberry"
+                        r"|Source/WebCore/platform/blackberry"
+                        r"|Source/WebCore/platform/text/blackberry"
+                        r"|Source/WebCore/platform/network/blackberry"
+                        r"|Source/WebCore/platform/graphics/blackberry"
+                        r"|Source/WTF/wtf/blackberry"
+                        r"|ManualTests/blackberry"
+                        r"|Tools/DumpRenderTree/blackberry"
+                        r"|LayoutTests/platform/blackberry",
+        },
+        "NetworkInfo": {
+            "filename": r"Source/WebCore/Modules/networkinfo",
+        },
+        "Battery": {
+            "filename": r"Source/WebCore/Modules/battery",
+        },
+        "WTF": {
+            "filename": r"Source/WTF/wtf",
+        },
+        "WebGL": {
+            "filename": r"Source/WebCore/html/canvas/.*WebGL.*"
+                        r"|Source/WebCore/bindings/js/.*WebGL.*"
+                        r"|Source/WebCore/platform/graphics/gpu"
+                        r"|Source/WebCore/platform/graphics/opengl"
+                        r"|Source/WebCore/platform/graphics/ANGLE.*"
+                        r"|Source/WebCore/platform/graphics/.*GraphicsContext3D.*"
+                        r"|Source/ThirdParty/ANGLE",
+        },
+        "Filters": {
+            "filename": r"Source/WebCore/platform/graphics/filters"
+                        r"|Source/WebCore/rendering/.*Filter.*"
+                        r"|Source/WebCore/rendering/style/.*Filter.*"
+                        r"|Source/WebCore/rendering/svg/.*Filter.*"
+                        r"|Source/WebCore/svg/graphics/filters"
+                        r"|Source/WebCore/svg/graphics/.*Filter.*",
+        },
+        "TouchAdjustment": {
+            "filename": r"Source/WebCore/page/TouchAdjustment.*"
+                        r"|LayoutTests/touchadjustment"
+                        r"|Source/WebKit/blackberry/WebKitSupport/FatFingers.*",
+        },
+        "SVG": {
+            "filename": r"Source/WebCore/svg"
+                        r"|Source/WebCore/rendering/svg",
+        },
+        "WebInspectorAPI": {
+            "filename": r"Source/WebCore/inspector/InjectedScriptSource.js"
+                        r"|Source/WebCore/inspector/.+\.json"
+                        r"|Source/WebCore/inspector/.+\.idl"
+                        r"|Source/WebCore/page/Console.idl",
+        },
+        "WebSocket": {
+            "filename": r"Source/WebCore/Modules/websockets"
+                        r"|Source/WebCore/platform/network/(|.+/)SocketStream.*",
+        },
+        "MediaStream": {
+            "filename": r"Source/WebCore/Modules/mediastream"
+                        r"|Source/WebCore/platform/mediastream"
+                        r"|LayoutTests/fast/mediastream",
+        },
+        "Accessibility": {
+            "filename": r"Source/WebCore/accessibility"
+                        r"|LayoutTests/.*accessibility",
+        },
+        "Cairo": {
+            "filename": r"Source/WebCore/platform/graphics/cairo",
+        },
+        "Harfbuzz": {
+            "filename": r"Source/WebCore/platform/graphics/harfbuzz",
+        },
+        "PerformanceTests": {
+            "filename": r"PerformanceTests"
+                        r"|Tools/Scripts/webkitpy/performance_tests",
+        },
+        "GtkBuildSystem": {
+            "filename": r"configure.ac"
+                        r"|.*GNUmakefile.(am|features.am.in)",
+        },
+        "ConsoleUsage": {
+            "more": r"[Aa]ddConsoleMessage|reportException|logExceptionToConsole|addMessage|printErrorMessage"
+        },
+        "ContentSecurityPolicyUsage": {
+            "more": r"[Cc]ontentSecurityPolicy(?!\.(h|cpp))",
+        },
+        "ContentSecurityPolicyFiles": {
+            "filename": r"Source/WebCore/page/(Content|DOM)SecurityPolicy\."
+                        r"|LayoutTests/http/tests/security/contentSecurityPolicy"
+        },
+        "RegionsDevelopment": {
+            "filename": r"Source/WebCore/rendering/RenderRegion\.(h|cpp)"
+                        r"|Source/WebCore/rendering/RenderFlowThread\.(h|cpp)"
+                        r"|Source/WebCore/rendering/FlowThreadController\.(h|cpp)"
+                        r"|Source/WebCore/rendering/RenderRegionSet\.(h|cpp)"
+                        r"|Source/WebCore/rendering/RenderNamedFlowThread\.(h|cpp)"
+                        r"|Source/WebCore/rendering/RenderBoxRegionInfo\.h"
+                        r"|Source/WebCore/dom/WebKitNamedFlow\.(h|cpp|idl)"
+                        r"|Source/WebCore/dom/(DOM)?NamedFlowCollection\.(h|cpp|idl)"
+                        r"|Source/WebCore/css/WebKitCSSRegionRule\.(h|cpp|idl)"
+                        r"|LayoutTests/fast/regions",
+        },
+        "RegionsExpectationsMore": {
+            "filename": r"LayoutTests/platform/.*TestExpectations",
+            "more": r"fast/regions/.*\.html",
+        },
+        "RegionsExpectationsLess": {
+            "filename": r"LayoutTests/platform/.*TestExpectations",
+            "less": r"fast/regions/.*\.html",
+        },
+        "RegionsUsage": {
+            "more": r"(RenderRegion|RenderFlowThread|RenderNamedFlowThread)(?!\.(h|cpp))",
+        },
+        "IndexedDB": {
+            "filename": r"Source/WebCore/Modules/indexeddb"
+                        r"|Source/WebCore/bindings/.*IDB.*\.(h|cpp)"
+                        r"|Source/WebCore/bindings/.*SerializedScriptValue.*\.(h|cpp)"
+                        r"|Source/WebCore/platform/leveldb"
+                        r"|LayoutTests/storage/indexeddb"
+                        r"|LayoutTests/platform/.*/storage/indexeddb",
+        },
+        "BindingsScripts": {
+            "filename": r"Source/WebCore/bindings/scripts/",
+        },
+        "cURLNetwork": {
+            "filename": r"Source/WebCore/platform/network/curl/",
+        },
+    },
+    "CC_RULES": {
+        # Note: All email addresses listed must be registered with bugzilla.
+        # Specifically, levin@chromium.org and levin+threading@chromium.org are
+        # two different accounts as far as bugzilla is concerned.
+        "Accessibility": [ "cfleizach@apple.com", "dmazzoni@google.com", "apinheiro@igalia.com", "jdiggs@igalia.com", "aboxhall@chromium.org", "mario@webkit.org" ],
+        "Animation" : [ "simon.fraser@apple.com", "dino@apple.com", "dstockwell@chromium.org" ],
+        "AppleMacPublicApi": [ "timothy@apple.com" ],
+        "Battery": [ "gyuyoung.kim@webkit.org", "dchris@gmail.com" ],
+        "BindingsScripts": [ "dchris@gmail.com" ],
+        "BlackBerry": [ "mifenton@rim.com", "rwlbuis@gmail.com", "tonikitoo@webkit.org" ],
+        "Cairo": [ "dominik.rottsches@intel.com" ],
+        "CMake": [ "rakuco@webkit.org", "gyuyoung.kim@webkit.org" ],
+        "CoordinatedGraphics" : [ "noam@webkit.org", "zeno@webkit.org", "cmarcelo@webkit.org", "luiz@webkit.org" ],
+        "ConsoleUsage" : [ "mkwst@chromium.org" ],
+        "ContentSecurityPolicyFiles|ContentSecurityPolicyUsage" : [ "mkwst@chromium.org" ],
+        "CoreAnimation" : [ "simon.fraser@apple.com" ],
+        "CSS": [ "alexis@webkit.org", "macpherson@chromium.org", "esprehn+autocc@chromium.org", "glenn@skynav.com" ],
+        "cURLNetwork": [ "galpeter@inf.u-szeged.hu" ],
+        "DOM": [ "esprehn+autocc@chromium.org", "kangil.han@samsung.com" ],
+        "DOMAttributes": [ "cmarcelo@webkit.org", ],
+        "EFL": [ "rakuco@webkit.org", "gyuyoung.kim@webkit.org", "dchris@gmail.com" ],
+        "EFLWebKit2PlatformSpecific": [ "gyuyoung.kim@webkit.org", "rakuco@webkit.org", "dchris@gmail.com" ],
+        "EFLWebKit2PublicAPI": [ "gyuyoung.kim@webkit.org", "rakuco@webkit.org", "dchris@gmail.com" ],
+        "Editing": [ "mifenton@rim.com" ],
+        "Filters": [ "dino@apple.com", "kondapallykalyan@gmail.com" ],
+        "Forms": [ "tkent@chromium.org", "mifenton@rim.com" ],
+        "FrameLoader": [ "japhet@chromium.org" ],
+        "Geolocation": [ "benjamin@webkit.org" ],
+        "GraphicsLayer": [ "simon.fraser@apple.com", "kondapallykalyan@gmail.com" ],
+        "GStreamerGraphics": [ "alexis@webkit.org", "pnormand@igalia.com", "gns@gnome.org", "mrobinson@webkit.org" ],
+        "GStreamerAudio": [ "pnormand@igalia.com", "dchris@gmail.com" ],
+        "GtkBuildSystem": [ "zandobersek@gmail.com" ],
+        "GtkWebKit2PublicAPI": [ "cgarcia@igalia.com", "gns@gnome.org", "mrobinson@webkit.org" ],
+        "Harfbuzz": [ "dominik.rottsches@intel.com" ],
+        "HTML": [ "esprehn+autocc@chromium.org" ],
+        "IndexedDB": [ "alecflett@chromium.org", "jsbell@chromium.org" ],
+        "Loader": [ "japhet@chromium.org" ],
+        "MathML": [ "dbarton@mathscribe.com", "mrobinson@webkit.org", "fred.wang@free.fr" ],
+        "Media": [ "eric.carlson@apple.com", "jer.noble@apple.com", "glenn@skynav.com" ],
+        "MediaStream": [ "tommyw@google.com", "hta@google.com" ],
+        "NetworkInfo": [ "gyuyoung.kim@webkit.org", "dchris@gmail.com" ],
+        "OpenGL" : [ "noam@webkit.org", "dino@apple.com", "kondapallykalyan@gmail.com" ],
+        "PerformanceTests": [ "rniwa@webkit.org" ],
+        "QtBuildSystem" : [ "abecsi@webkit.org" ],
+        "QtGraphics" : [ "noam@webkit.org" ],
+        "QtWebKit2PlatformSpecific": [ "alexis@webkit.org", "cmarcelo@webkit.org", "abecsi@webkit.org" ],
+        "QtWebKit2PublicAPI": [ "alexis@webkit.org", "cmarcelo@webkit.org", "abecsi@webkit.org" ],
+        "RegionsDevelopment|RegionsExpectationsMore|RegionsExpectationsLess|RegionsUsage": [ "WebkitBugTracker@adobe.com" ],
+        "Rendering": [ "esprehn+autocc@chromium.org", "glenn@skynav.com", "kondapallykalyan@gmail.com" ],
+        "RenderLayers" : [ "simon.fraser@apple.com", "kondapallykalyan@gmail.com" ],
+        "SVG": ["schenney@chromium.org", "pdr@google.com", "fmalita@chromium.org", "dominik.rottsches@intel.com" ],
+        "SVNScripts": [ "dbates@webkit.org" ],
+        "ScrollingCoordinator": [ "andersca@apple.com", "jamesr@chromium.org", "tonikitoo@webkit.org", "cmarcelo@webkit.org", "luiz@webkit.org" ],
+        "Selectors": [ "allan.jensen@digia.com" ],
+        "SoupNetwork": [ "rakuco@webkit.org", "gns@gnome.org", "mrobinson@webkit.org", "danw@gnome.org", "dchris@gmail.com" ],
+        "TextureMapper" : [ "noam@webkit.org", "cmarcelo@webkit.org", "luiz@webkit.org", "kondapallykalyan@gmail.com" ],
+        "TouchAdjustment" : [ "allan.jensen@digia.com" ],
+        "WTF": [ "benjamin@webkit.org", "cmarcelo@webkit.org" ],
+        "WebGL": [ "dino@apple.com", "kondapallykalyan@gmail.com" ],
+        "WebIDL": [ "esprehn+autocc@chromium.org", "dchris@gmail.com", "kondapallykalyan@gmail.com" ],
+        "WebInspectorAPI": [ "timothy@apple.com", "joepeck@webkit.org", "graouts@apple.com" ],
+        "WebKitGTKTranslations": [ "gns@gnome.org", "mrobinson@webkit.org" ],
+        "WebSocket": [ "yutak@chromium.org", "toyoshim+watchlist@chromium.org" ],
+        "XSS": [ "dbates@webkit.org" ],
+        "webkitperl": [ "dbates@webkit.org" ],
+        "webkitpy": [ "dpranke@chromium.org", "glenn@skynav.com" ],
+    },
+    "MESSAGE_RULES": {
+        "AppleMacPublicApi": [ "Please wait for approval from timothy@apple.com (or another member "
+                               "of the Apple Safari Team) before submitting "
+                               "because this patch contains changes to the Apple Mac "
+                               "WebKit.framework public API.", ],
+        "GtkWebKit2PublicAPI": [ "Thanks for the patch. If this patch contains new public API "
+                                 "please make sure it follows the guidelines for new WebKit2 GTK+ API. "
+                                 "See http://trac.webkit.org/wiki/WebKitGTK/AddingNewWebKit2API", ],
+    },
+}

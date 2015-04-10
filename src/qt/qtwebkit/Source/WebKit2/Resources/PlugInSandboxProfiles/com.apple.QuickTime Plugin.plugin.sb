@@ -1,0 +1,8 @@
+(webkit-powerbox)
+(shared-preferences-read-write "com.apple.quicktime.plugin.preferences")
+
+(allow file-read* file-write*
+    (home-library-subpath "/Caches/QuickTime")
+    (home-library-preferences-literal "/QuickTime Preferences"))
+
+(allow network-bind (local ip))

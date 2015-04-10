@@ -1,0 +1,23 @@
+<!--
+    The page contains the input field element which is filled
+    with the misspelled word to perform spelling.
+-->
+<HTML>
+<HEAD>
+    <TITLE>Testing Web Page for Spelling</TITLE>
+    <SCRIPT>
+        function setInputFieldValue()
+        {
+            // The input field has to be focused before typing to it.
+            document.getElementById("input").focus();
+
+            // 'Space' notifies WebKit that word has been inserted.
+            document.getElementById("input").value = "aa ";
+        }
+    </SCRIPT>
+</HEAD>
+
+<BODY onload="setInputFieldValue()">
+<INPUT type="text" id="input">
+</BODY>
+</HTML>

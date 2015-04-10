@@ -1,0 +1,58 @@
+# Copyright (C) 2010 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS'' AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS BE LIABLE FOR
+# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+messages -> WebContext LegacyReceiver {
+
+    # Visited link provider messages.
+    AddVisitedLinkHash(uint64_t linkHash)
+
+    DidGetStatistics(WebKit::StatisticsData statisticsData, uint64_t callbackID)
+
+#if PLATFORM(MAC)
+    # Pasteboard messages.
+    
+    GetPasteboardTypes(WTF::String pasteboardName) -> (Vector<WTF::String> types)
+    GetPasteboardPathnamesForType(WTF::String pasteboardName, WTF::String pasteboardType) -> (Vector<WTF::String> pathnames)
+    GetPasteboardStringForType(WTF::String pasteboardName, WTF::String pasteboardType) -> (WTF::String string)
+    GetPasteboardBufferForType(WTF::String pasteboardName, WTF::String pasteboardType) -> (WebKit::SharedMemory::Handle handle, uint64_t size)
+    PasteboardCopy(WTF::String fromPasteboard, WTF::String toPasteboard)
+    GetPasteboardChangeCount(WTF::String pasteboardName) -> (uint64_t changeCount)
+    GetPasteboardUniqueName() -> (WTF::String pasteboardName)
+    GetPasteboardColor(WTF::String pasteboardName) -> (WebCore::Color color)
+    GetPasteboardURL(WTF::String pasteboardName) -> (WTF::String urlString)
+    AddPasteboardTypes(WTF::String pasteboardName, Vector<WTF::String> pasteboardTypes)
+    SetPasteboardTypes(WTF::String pasteboardName, Vector<WTF::String> pasteboardTypes)
+    SetPasteboardPathnamesForType(WTF::String pasteboardName, WTF::String pasteboardType, Vector<WTF::String> pathnames)
+    SetPasteboardStringForType(WTF::String pasteboardName, WTF::String pasteboardType, WTF::String string)
+    SetPasteboardBufferForType(WTF::String pasteboardName, WTF::String pasteboardType, WebKit::SharedMemory::Handle handle, uint64_t size)
+#endif
+
+#if !PLATFORM(MAC)
+    // FIXME: This a dummy message, to avoid breaking the build for platforms that don't require
+    // any synchronous messages, and should be removed when <rdar://problem/8775115> is fixed.
+    Dummy() -> (bool dummyReturn)
+#endif
+
+    # Plug-in messages.
+    void AddPlugInAutoStartOriginHash(WTF::String pageOrigin, uint32_t hash)
+    void PlugInDidReceiveUserInteraction(uint32_t hash)
+}

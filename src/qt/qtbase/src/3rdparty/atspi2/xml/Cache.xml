@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node name="/node">
+<interface name="org.a11y.atspi.Cache">
+
+  <method name="GetItems">
+    <arg name="nodes" type="a((so)(so)a(so)assusau)" direction="out"/>
+    <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QSpiAccessibleCacheArray"/>
+  </method>
+
+  <signal name="AddAccessible">
+    <arg name="nodeAdded" type="((so)(so)a(so)assusau)"/>
+    <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QSpiAccessibleCacheItem"/>
+  </signal>
+
+  <signal name="RemoveAccessible">
+    <arg name="nodeRemoved" type="(so)"/>
+    <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QSpiObjectReference"/>
+  </signal>
+
+</interface>
+</node>

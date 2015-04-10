@@ -1,0 +1,368 @@
+Qt 4.6.1 is a bug-fix release. It maintains both forward and backward
+compatibility (source and binary) with Qt 4.6.0.  For more details,
+refer to the online documentation included in this distribution. The
+documentation is also available online:
+
+  http://qt.nokia.com/doc/4.6
+
+The Qt version 4.6 series is binary compatible with the 4.5.x series.
+Applications compiled for 4.5 will continue to run with 4.6.
+
+Some of the changes listed in this file include issue tracking numbers
+corresponding to tasks in the Qt Bug Tracker, the (now obsolete) Task
+Tracker, or the Merge Request queue of the public source repository.
+
+Qt Bug Tracker: http://bugreports.qt.nokia.com
+Task Tracker:   http://qt.nokia.com/developer/task-tracker
+Merge Request:  http://qt.gitorious.org
+
+****************************************************************************
+*                           General                                        *
+****************************************************************************
+
+Optimizations
+-------------
+
+ - Optimized empty QUrl creation
+    * [QTBUG-4030] Empty QUrls no longer allocate memory now
+
+ * See list of Important Behavior Changes below
+
+
+****************************************************************************
+*                          Library                                         *
+****************************************************************************
+
+QtCore
+------
+
+ - QFile
+    * Improve performance of getting the canonical filename on Linux
+      and Symbian by using realpath() system call.
+    * Avoid stat() when opening a file.
+
+ - QLibrary and QPluginLoader
+    * Do not look at the Qt patch-level version embedded in plugins'
+      buildkeys when trying to determine if the plugin is compatible
+
+ - QProcessEnvironment
+    * [QTBUG-6701] Ensure we don't crash in operator==
+
+ - QTextEncoder
+    * [merge request 399] QTextEncoder::fromUnicode as QT3 support
+      member
+
+ - QXmlStreamreader
+    * [merge request 1926] Fix parsing of DTDs that contain empty markup
+      declarations.
+
+QtGui
+-----
+
+ - QApplication
+    * [QTBUG-6654] Fix crashes when deleting QWidgets in touch event
+      handlers.
+ - QGraphicsEffect
+    * [QTBUG-5918] Fixed redraw bugs when using graphics effects on
+      items while animating them by transformations.
+ - QGraphicsItem
+    * [QTBUG-5917] Fixed memory leaks when removing a QGraphicsEffect from
+      a QGraphicsItem or QWidget with setGraphicsEffect(0).
+    * [QTBUG-5859] Fixes incorrect rounding of the exposed rectangle of the
+      QGraphicsItem causing painting issues when scaling the QGraphicsView.
+    * [QTBUG-5071] Fixes transformation problems when grouping/ungrouping
+      the item with a QGraphicsItemGroup.
+ - QGraphicsObject
+    * 'id' property was removed. Use the 'objectName' property instead.
+ - QGraphicsScene
+    * [QTBUG-6654] Fix crashes when deleting QGraphicsItems in touch
+      event handlers.
+ - QGraphicsView
+    * [QTBUG-6935] When using CacheBackground, the background is now
+      correctly repainted after the QGraphicsView is shown after being
+      hidden.
+    * [QTBUG-6835] Mouse tracking is now automatically enabled when using
+      AnchorUnderMouse for view transformation.
+    * [QTBUG-6958] Fix speed regression in _q_polishItems()
+    * [QTBUG-6544] Fix a crash on the focus chain when removing items from 
+      the scene.
+    * Fix a crash in KDE/Plasma with QGraphicsView with topLevels.
+ - QGraphicsWidget
+    * [QTBUG-6272] Only call updateFont if the font has changed.
+ - QPainter
+    * [QTBUG-5939] Fixed incorrect redirection matrix that was causing
+      wrong transformation for QGraphicsProxyWidgets.
+    * [QTBUG-6684] Added optimizations of 32-bit blend functions
+      for ARM platforms with NEON support.
+ - QPixmap
+    * load() and loadFromData() can now support compressed GL textures
+      in the DDS, ETC1, PVRTC2, and PVRTC4 formats if the OpenGL graphics
+      system is active and the appropriate extensions are present in the
+      GL implementation.
+    * [QTBUG-6840] Fixed load() to not modify referenced copies.
+    * [QTBUG-5840] Fixed a crash in fromImage() when passing in a null image.
+    * [QTBUG-6116] Fixed memory leak where a global object was not destroyed
+      at program exit.
+ - QPixmapCache
+    * Fixed a small leak when using the new QPixmapCache::Key based API.
+ - QPrinter
+    * [QTBUG-3412] QGraphicsProxyWidgets are now rendered correctly when
+      printing a QGraphicsScene to PDF format.
+ - QRasterPixmapData
+    * [QTBUG-6985] Fixed metric() to return the correct height in mm.
+ - QTextDocument
+    * [QTBUG-5397] Fixed printing of QTextDocuments not including custom
+      text objects.
+    * [QTBUG-6051] Fixed an endless loop when printing a QTextDocument.
+
+QtDBus
+------
+
+ - QDBusConnection
+    * [QTBUG-5979] Fixed the signal-delivery mechanism to update
+      correctly when the sender name changes/appears on the bus.
+    * [QTBUG-7041] Fixed marshalling of booleans in release mode.
+    * [QT-2307] Fixed calls with the QDBus::BlockWithGui mode.
+ - QDBusInterface
+    * Made it continue working even when the remote object
+      introspection fails.
+ - QDBusInterface and qdbuscpp2xml
+    * [QTBUG-5563] Fixed an issue with generating annotations in
+      signals.
+ - QDBusPendingReply and QDBusReply
+    * [QTBUG-6571] Fixed a crash that would happen if you tried to
+      make a call with a disconnected QDBusConnection.
+
+QtMultimedia
+------------
+
+ - QAudioOutput
+   * [Merge request 418] Fixed compilation the example provided for
+     QAudioOutput::start.
+
+QtNetwork
+---------
+
+ - QNetworkAccessManager
+    * HTTP: Send our locale with the HTTP request.
+    * HTTP: Start Accept-language and Authorization header with capital letter.
+    * HTTP: Fix caching algorithm, matching RFC 2612 and the documentation.
+    * HTTP [QTBUG-7060]: Fix an issue with headers like "private, max-age=300".
+    * file: Introduce special subclass for higher performance with file:// URLs.
+ - QTcpSocket
+    * [QTBUG-5799] Fix waitForConnected() on Windows.
+ - QNetworkProxyFactory
+    * Fixed systemProxyForQuery(), it could sometimes return invalid empty list
+      on Windows.
+ - QNetworkCookieJar
+    * [QTBUG-5815] Do not check paths when accepting cookies.
+ - QHostInfo
+    * Use five parallel threads for host lookup instead of one.
+
+QtOpenGL
+--------
+
+ - QGL2PaintEngineEx
+    * Performance: Don't mark brush as dirty if it hasn't changed.
+    * Performance: Use 3x3 PMV matrices rather than 4x4.
+    * Performance: Move the 0.5 offset we add for aliased rendering to
+      updateMatrix().
+    * Performance: Remove superfluous enable/disable vertex attrib arrays.
+    * Performance: Track the glVertexAttribPointer and only update it if it's
+      changed.
+    * [QTBUG-7094]  Introduce new "snapToPixelGrid" flag for drawText.
+ - QGLContext
+    * bindTexture(QString) now supports DDS, ETC1, PVRTC2, and PVRTC4
+      compressed textures if the appropriate extensions are present
+      in the GL implementation.
+    * bindTexture(QImage): Reduce double-copying of textures when flipping.
+    * [QTBUG-6454] Better EGL extension checking to avoid prefix problems
+      with EGL_foo matching EGL_foo_bar.
+    * [QTBUG-6217] Work around problems with glColor4ub() on Intel Q45/Q43
+      Express by consistently using glColor4f() everywhere.
+    * bindTexture(QImage): Fix GL_BGRA formats under OpenGL/ES by using
+      the same value for both internal and external texture formats.
+    * [QTBUG-5041] Disable depth testing while in renderText().
+ - QGLEngineSelector
+    * [QTBUG-5638] Detect GL2 based on fragment shaders, not programs.
+      Fragment programs are a GL1 feature.
+ - QGLFramebufferObject
+    * [QTBUG-6712] Update docs to better explain how QPainter changes
+      the GL state when used on an FBO.
+ - QGLGlyphCache
+    * [QTBUG-6936] Fix memory leak of QGLGlyphCoord objects.
+ - QGLPaintDevice
+    * [QTBUG-6204] Rebind window surface FBO after native GL rendering.
+ - QGLPixmapData
+    * [QTBUG-6902] Align GL_RGB data on a 4-byte line boundary.
+ - QGLWidget
+    * [QTBUG-5002, QTBUG-6931] Fixed QGLWidget::renderText().
+    * Fixed WA_TranslucentBackground for QGLWidgets on X11/EGL.
+    * Fix EGL surface leaks when re-parenting on X11/EGL.
+ - QTriangulatingStroker
+    * [QTBUG-6045] Crash in dashed line handling in the GL stroker.
+
+QtOpenVG
+--------
+
+ - [QT-2555] Automatically destroy VG pixmaps when the last window surface
+   goes away to reduce memory consumption of backgrounded applications.
+ - [QTBUG-6639] Recover from out-of-memory when creating VGImage's.
+ - [QT-2554] Add a VGImage allocation pool to support reclaiming older
+   images when the GPU runs out of memory.
+ - [QTBUG-7051] Reset the OpenVG scissor after a native painting call-out.
+ - [QTBUG-7015] Avoid deep copies of QImage in QImage::bits() calls.
+
+QtWebKit
+--------
+
+ - Fixed user agent string on Symbian (webkit.org/b/31961).
+ - QWebInspector: Don't disable when hiding (webkit.org/b/31851).
+ - Fix JavaScript prompt behaviour for empty/null strings (webkit.org/b/30914).
+ - Fixed lastIndexOf() on Symbian (webkit.org/b/31773).
+ - Fixed crash with Flash on Windows with MinGW.
+ - Fixed wrapping of QObjects with recurring identity (webkit.org/b/31681).
+ - Fixed compilation with ICC.
+ - Fixed assertion when dragging SVG images (webkit.org/b/32511).
+ - Added the framecapture example to the default build (merge request 2235)
+ - Fixed crash with ACID3 test on Symbian
+ - Fixed security issue XSL stylesheets and security origins.
+
+QtSql
+-----
+
+ - [QTBUG-5373] Fixed QSqlRelationalTableModel doesn't correctly work with
+   relation in other database schema.
+ - [QTBUG-5298] (OCI) Fixed QSqlDatabase.tables() does not work with system
+   tables.
+ - [QTBUG-6421] Fixed setForwardOnly() for both OCI and SQLite.
+ - [QTBUG-6618] (ODBC) Fixed segfault when error string is larger than 256
+   chars.
+ - [QTBUG-4461] (OCI) Fixed problem with clobs being handled as binary.
+
+QtSvg
+-----
+
+ - QSvgRenderer
+    * [QTBUG-6867] Fixed regression in the parsing of paths with relative
+      offsets.
+    * [QTBUG-6899] Fixed crash when parsing invalid coordinate list.
+ - QtXmlPatterns
+    * [QTBUG-6771] Fixed static builds.
+
+Qt Plugins
+----------
+
+ - JPEG plugin
+    * Remove obsolete parameter string handling.
+    * [QT-2023] Re-implement ScaledSize, ClipRect, ScaledClipRect with
+      libjpeg features for greater performance.
+ - PBM plugin
+    * [QTBUG-6937] Use Mono instead of MonoLSB when writing pbm files.
+ - TIFF plugin
+    * [QTBUG-6870] BitsPerSample should default to 1 in TIFF files.
+ - PNG plugin
+    * [QTBUG-7161] Avoid a deep copy of QImage::bits() in the png writer.
+
+
+****************************************************************************
+*                      Platform Specific Changes                           *
+****************************************************************************
+
+Qt for Unix (X11 and Mac OS X)
+------------------------------
+
+ - [QTBUG-6755] Ensure we don't call select(2) with a negative timeout
+   if the timer expires during timeout recalculation.
+ - Added mkspecs for Sun CC that enable -library=stlport by default,
+   to restore STL capability with that compiler.
+ - [QTBUG-6576] Fixed compilation on HP-UX 11.11.
+ - [QTBUG-6961] Fixed compilation on HURD.
+
+Qt for Linux/X11
+----------------
+
+ - [QTBUG-5732] Fixed querying of GLX extensions under X11.
+ - [QTBUG-5547] Fixed handling of the "..." button.
+ - Added new mkspec for Maemo targets (linux-g++-maemo).
+ - Added new mkspec for Scratchbox host compiler (unsupported/linux-host-g++).
+ - QGuiEventDispatcherGlib (internal class)
+    * Fix regression introduced in 4.6.0 that could cause X11 event
+      processing to starve timer events.
+ - QFileSystemWatcher
+    * [QTBUG-4840] Fix memory leak in the dnotify implementation.
+ - QIcon
+    * [QTBUG-6121] Fixed a problem causing svg-based icon themes to look fuzzy.
+ - QGtkStyle
+    * [QTBUG-6484] Ensure that gtk-enable-mnemonics is respected.
+
+Qt for Windows
+--------------
+
+ - [QTBUG-5145] Compile fixes for win32-icc.
+ - QAtomicPointer
+    * [QTBUG-6079] Fix compilation for 64-bit Windows targets.
+ - QEventDispatchWin32 (internal class)
+    * [QTBUG-6083] Fix a performance regression introduced in 4.6.0
+      that would cause all Qt posted events to be sent at 15-16ms
+      intervals (instead of as quickly as possible).
+ - Vista/XP styles
+    * [QTBUG-6271] Fixed a compatibility issue with MDI windows in 
+      certain non-standard themes.
+
+Qt for Mac OS X
+---------------
+
+ - QPixmap
+   * [QTBUG-5070] Fixed a crash on Mac that could occur when loading
+     pixmaps of different sizes into the same QPixmap object.
+ - [QTBUG-6973] Fixed a memory leak when using QWidget::setWindowIcon() in
+   Carbon.
+ - [QTBUG-5186] Fixed a bug which caused drag and drop icons to show 
+   incorrectly.
+ - [QTBUG-6636] Fixed a crash due to stack overflow in QColorDialog on Cocoa.
+ - [QTBUG-6378] Fix a text cursor rendering bug.
+ - [QTBUG-6636] Fixed a crash when calling removeToolBar on Mac native toolbars
+   using Cocoa.
+ - [QTBUG-5613] Fixed a bug where the application refused to quit when showing
+   a single modal dialog.
+ - Gestures are now available for the Carbon port also when building Qt against
+   SDK < 10.6
+
+Qt for Symbian
+--------------
+
+ - QApplication
+   * [QTBUG-6098] Added a flag to avoid construction of application panes.
+ - Other:
+   * [QTBUG-4990] Rewrote most of the regular pointer handling.
+
+
+****************************************************************************
+*                          Tools                                           *
+****************************************************************************
+
+ - Designer
+   * [QTBUG-6863] Fixed static linking on Mac.
+   * [QTBUG-6760] Fixed display of action shortcut in action editor.
+   * [QTBUG-6505] Fixed handling of QHeaderView properties.
+   * [QTBUG-5335] Fixed handling of layout margins of custom containers.
+
+ - uic
+   * [QTBUG-5824] Fixed code generation to generate a call to
+     QMainWindow::setCentralWidget() for promoted widgets as well.
+
+****************************************************************************
+* Important Behavior Changes *
+****************************************************************************
+
+ - Phonon
+   * Include headers have been changed. The only official method for
+     including Phonon headers is <phonon/ClassName> or
+     <phonon/classname.h>. This change was necessary because of
+     frameworks on Mac.
+
+     Compatibility is provided for <Phonon/*> includes, but is not
+     guaranteed to work. Including <phonon> and <Phonon> is not
+     supported.
+

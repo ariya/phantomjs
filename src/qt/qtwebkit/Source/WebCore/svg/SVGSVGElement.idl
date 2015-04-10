@@ -1,0 +1,77 @@
+/*
+ * Copyright (C) 2004, 2005 Nikolas Zimmermann <zimmermann@kde.org>
+ * Copyright (C) 2004, 2005, 2010 Rob Buis <buis@kde.org>
+ * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ * Copyright (C) 2006 Apple Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+// TODO: no css::ViewCSS available!
+// TODO: Fix SVGSVGElement inheritance (css::DocumentCSS)! 
+// TODO: no events::DocumentEvent available!
+[
+    Conditional=SVG
+] interface SVGSVGElement : SVGGraphicsElement {
+    readonly attribute SVGAnimatedLength x;
+    readonly attribute SVGAnimatedLength y;
+    readonly attribute SVGAnimatedLength width;
+    readonly attribute SVGAnimatedLength height;
+             attribute DOMString contentScriptType;
+             attribute DOMString contentStyleType;
+    readonly attribute SVGRect viewport;
+    readonly attribute float pixelUnitToMillimeterX;
+    readonly attribute float pixelUnitToMillimeterY;
+    readonly attribute float screenPixelToMillimeterX;
+    readonly attribute float screenPixelToMillimeterY;
+    readonly attribute boolean useCurrentView;
+    readonly attribute SVGViewSpec currentView;
+             attribute float currentScale;
+    readonly attribute SVGPoint currentTranslate;
+
+    unsigned long suspendRedraw([Default=Undefined] optional unsigned long maxWaitMilliseconds);
+    void unsuspendRedraw([Default=Undefined] optional unsigned long suspendHandleId);
+    void unsuspendRedrawAll();
+    void forceRedraw();
+    void pauseAnimations();
+    void unpauseAnimations();
+    boolean animationsPaused();
+    float getCurrentTime();
+    void setCurrentTime([Default=Undefined] optional float seconds);
+    NodeList getIntersectionList([Default=Undefined] optional SVGRect rect, 
+                                 [Default=Undefined] optional SVGElement referenceElement);
+    NodeList getEnclosureList([Default=Undefined] optional SVGRect rect, 
+                              [Default=Undefined] optional SVGElement referenceElement);
+    boolean checkIntersection([Default=Undefined] optional SVGElement element, 
+                              [Default=Undefined] optional SVGRect rect);
+    boolean checkEnclosure([Default=Undefined] optional SVGElement element, 
+                           [Default=Undefined] optional SVGRect rect);
+    void deselectAll();
+
+    SVGNumber createSVGNumber();
+    SVGLength createSVGLength();
+    SVGAngle createSVGAngle();
+    SVGPoint createSVGPoint();
+    SVGMatrix createSVGMatrix();
+    SVGRect createSVGRect();
+    SVGTransform createSVGTransform();
+    SVGTransform createSVGTransformFromMatrix([Default=Undefined] optional SVGMatrix matrix);
+    Element getElementById([Default=Undefined] optional DOMString elementId);
+};
+
+SVGSVGElement implements SVGExternalResourcesRequired;
+SVGSVGElement implements SVGFitToViewBox;
+SVGSVGElement implements SVGZoomAndPan;

@@ -1,0 +1,19 @@
+#!/usr/bin/python
+
+# FIXME: Delete this file after all of the TestExpectations are converted.
+
+import sys
+
+from webkitpy.common.host import Host
+from webkitpy.layout_tests.models.test_expectations import TestExpectationParser
+
+host = Host()
+port = host.port_factory.get(sys.argv[1])
+filename = sys.argv[2]
+contents = host.filesystem.read_text_file(filename)
+
+parser = TestExpectationParser(port, [], False)
+expectation_lines = parser.parse(filename, contents)
+for line in expectation_lines:
+    new_line = line.to_string(parser._test_configuration_converter)
+    print new_line

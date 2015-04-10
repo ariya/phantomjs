@@ -1,0 +1,329 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.data-grid {
+    position: relative;
+    border: 1px solid #aaa;
+    outline: none;
+}
+
+.data-grid .highlight {
+    background-color: rgb(255, 230, 179);
+}
+
+.data-grid tr.selected .highlight {
+    background-color: transparent;
+}
+
+.data-grid table {
+    table-layout: fixed;
+    border-spacing: 0;
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 10px;
+    font-family: Lucida Grande, sans-serif;
+}
+
+.data-grid .data-container {
+    position: absolute;
+    top: 16px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow-x: hidden;
+    overflow-y: overlay;
+}
+
+.data-grid.inline .data-container {
+    position: static;
+}
+
+.data-grid.inline {
+    border: 1px solid rgb(181, 181, 181);
+}
+
+.data-grid th {
+    text-align: left;
+    vertical-align: middle;
+
+    background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), -webkit-linear-gradient(top, transparent, transparent),
+        -webkit-linear-gradient(top, white, white 25%, rgb(244, 244, 244) 50%, rgb(236, 236, 236) 50%, rgb(237, 237, 237));
+    background-size: 1px 11px, 0px 0px, 100% 100%;
+    background-position: left 2px, right 2px, center;
+    background-repeat: no-repeat;
+
+    box-shadow: inset rgba(255, 255, 255, 0.3) 0 -1px 0;
+    border-bottom: 1px solid rgb(182, 182, 182);
+
+    height: 15px;
+    font-weight: normal;
+    padding: 0 4px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.data-grid th:first-child {
+    background-position: -1px 2px, right 2px, center;
+}
+
+.data-grid th:active:first-child {
+    background-position: -1px 2px, right top, center;
+}
+
+.data-grid th:last-child {
+    background-position: left 2px, -1px 2px, center;
+}
+
+.data-grid th:active:last-child {
+    background-position: left top, -1px top, center;
+}
+
+.data-grid tr.filler {
+    display: table-row !important;
+    height: auto !important;
+}
+
+.data-grid tr.filler td {
+    height: auto !important;
+    padding: 0 !important;
+}
+
+.data-grid table.data {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    border-top: 0 none transparent;
+    background-image: -webkit-linear-gradient(top, white, white 50%, rgb(243, 246, 250) 50%, rgb(243, 246, 250));
+    background-size: 100% 32px;
+    table-layout: fixed;
+}
+
+.data-grid.inline table.data {
+    position: static;
+}
+
+.data-grid table.data tr {
+    display: none;
+}
+
+.data-grid table.data tr.revealed {
+    display: table-row;
+}
+
+.data-grid td {
+    vertical-align: top;
+    height: 12px;
+    line-height: 12px;
+    padding: 2px 4px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.data-grid td:last-child {
+    padding-right: 16px;
+}
+
+.data-grid td > div, .data-grid th > div {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.data-grid .centered div {
+    text-align: center;
+}
+
+.data-grid .right div {
+    text-align: right;
+}
+
+.data-grid th.sortable div {
+    position: relative;
+}
+
+.data-grid th.sortable:not(.mouse-over-collapser):active {
+    background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), -webkit-linear-gradient(top, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+        -webkit-linear-gradient(top, rgb(224, 224, 224), rgb(224, 224, 224) 25%, rgb(214, 214, 214) 50%, rgb(207, 207, 207) 50%, rgb(208, 208, 208));
+    background-size: 1px 15px, 1px 15px, 100% 100%;
+    background-position: left top, right top, center;
+
+    box-shadow: inset rgba(255, 255, 255, 0.1) 0 -1px 0;
+    border-bottom: 1px solid rgb(160, 160, 160);
+}
+
+.data-grid th.sort-ascending, .data-grid th.sort-descending {
+    background-image: -webkit-linear-gradient(top, rgba(0, 0, 120, 0.2), rgba(0, 0, 120, 0.2)), -webkit-linear-gradient(top, rgba(0, 0, 120, 0.2), rgba(0, 0, 120, 0.2)),
+        -webkit-linear-gradient(top, rgb(199, 226, 246), rgb(169, 209, 239) 25%, rgb(158, 204, 239) 50%, rgb(142, 196, 237) 50%, rgb(187, 230, 245));
+    background-size: 1px 15px, 1px 15px, 100% 100%;
+    background-position: left top, right top, center;
+
+    box-shadow: inset rgba(255, 255, 255, 0.1) 0 -1px 0;
+    border-bottom: 1px solid rgb(130, 179, 210);
+}
+
+.data-grid th.sortable.sort-ascending:not(.mouse-over-collapser):active, .data-grid th.sortable.sort-descending:not(.mouse-over-collapser):active {
+    background-image: -webkit-linear-gradient(top, rgba(0, 0, 120, 0.2), rgba(0, 0, 120, 0.2)), -webkit-linear-gradient(top, rgba(0, 0, 120, 0.2), rgba(0, 0, 120, 0.2)),
+        -webkit-linear-gradient(top, rgb(144, 180, 227), rgb(109, 160, 220) 25%, rgb(96, 155, 221) 50%, rgb(77, 146, 219) 50%, rgb(130, 186, 227));
+    background-size: 1px 15px, 1px 15px, 100% 100%;
+    background-position: left top, right top, center;
+
+    border-bottom: 1px solid rgb(63, 125, 192);
+}
+
+.data-grid th:active + th,
+.data-grid th.sort-ascending + th,
+.data-grid th.sort-descending + th {
+    background-position: -1px 2px, -1px 2px, center;
+}
+
+.data-grid th:active + th.sort-ascending,
+.data-grid th:active + th.sort-descending,
+.data-grid th.sort-ascending + th:active,
+.data-grid th.sort-descending + th:active {
+    background-position: -1px top, right top, center;
+}
+
+.data-grid th:first-child:active,
+.data-grid th.sort-ascending:first-child,
+.data-grid th.sort-descending:first-child {
+    background-position: -1px top, right top, center !important;
+}
+
+.data-grid th:last-child:active,
+.data-grid th.sort-ascending:last-child,
+.data-grid th.sort-descending:last-child {
+    background-position: left top, -1px top, center !important;
+}
+
+.data-grid th.sort-ascending > div:first-child,
+.data-grid th.sort-descending > div:first-child {
+    padding-right: 10px;
+}
+
+.data-grid th.sort-ascending > div:first-child::after {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+
+    margin-bottom: auto;
+    margin-top: auto;
+
+    width: 9px;
+    height: 8px;
+
+    content: "";
+
+    background-image: -webkit-canvas(data-grid-sort-indicator-up-arrow);
+    background-size: 9px 8px;
+    background-repeat: no-repeat;
+}
+
+.data-grid th.sort-descending > div:first-child::after {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+
+    margin-bottom: auto;
+    margin-top: auto;
+
+    width: 9px;
+    height: 8px;
+
+    content: "";
+
+    background-image: -webkit-canvas(data-grid-sort-indicator-down-arrow);
+    background-size: 9px 8px;
+    background-repeat: no-repeat;
+}
+
+.data-grid button {
+    line-height: 19px;
+}
+
+body.window-inactive .data-grid th.sort-ascending,
+body.window-inactive .data-grid th.sort-descending {
+    background-image: -webkit-linear-gradient(top, white, white 25%, rgb(244, 244, 244) 50%, rgb(236, 236, 236) 50%, rgb(237, 237, 237)),
+        -webkit-linear-gradient(top, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2));
+    background-size: 100% 100%, 1px 11px;
+    background-position: center, right center;
+    background-repeat: no-repeat;
+    border-bottom: 1px solid rgb(182, 182, 182);
+}
+
+.data-grid tr.parent td.disclosure::before {
+    float: left;
+
+    content: "";
+
+    background-image: -webkit-canvas(disclosure-triangle-tiny-closed-normal);
+    background-size: 8px 8px;
+    background-repeat: no-repeat;
+
+    width: 8px;
+    height: 8px;
+
+    margin-top: 2px;
+    margin-right: 2px;
+}
+
+.data-grid tr.parent.expanded td.disclosure::before {
+    background-image: -webkit-canvas(disclosure-triangle-tiny-open-normal);
+}
+
+.data-grid:focus tr.parent.selected td.disclosure::before {
+    background-image: -webkit-canvas(disclosure-triangle-tiny-closed-selected);
+}
+
+.data-grid:focus tr.parent.expanded.selected td.disclosure::before {
+    background-image: -webkit-canvas(disclosure-triangle-tiny-open-selected);
+}
+
+.data-grid tr.selected {
+    background-color: rgb(212, 212, 212) !important;
+    color: inherit !important;
+}
+
+.data-grid:focus tr.selected {
+    background-color: rgb(56, 121, 217) !important;
+    color: white !important;
+}
+
+.data-grid tr:not(.parent) td.disclosure {
+    text-indent: 10px;
+}
+
+.data-grid-resizer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    z-index: 500;
+    cursor: col-resize;
+}

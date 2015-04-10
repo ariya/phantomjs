@@ -1,0 +1,233 @@
+/*!
+    \module QtWebKit
+    \title Qt WebKit Widgets C++ Classes
+    \brief Provides a web browser engine as well as C++ classes to render and
+    interact with web content
+    \qtvariable webkitwidgets
+
+    To include the definitions of the module's classes, use the
+    following directive:
+
+    \snippet webkitsnippets/qtwebkit_build_snippet.qdoc 1
+
+    To link against the module, add this line to your \l qmake \c
+    .pro file:
+
+    \snippet webkitsnippets/qtwebkit_build_snippet.qdoc 0
+
+*/
+
+/*!
+    \qmlmodule QtWebKit 3.0
+    \title Qt WebKit QML Types
+    \ingroup qmlmodules
+    \brief Provides QML types for rendering web content within a QML application
+
+    The QML types can be imported into your applciation using the following
+    import statement in your .qml file:
+
+    \code
+    import QtQuick 2.0
+    import QtWebKit 3.0
+    \endcode
+*/
+
+/*!
+    \page qtwebkitwidgets-index.html
+    \title Qt WebKit Widgets
+    \ingroup modules
+
+    \brief The Qt WebKit Widgets module provides a web browser engine as well as
+    C++ classes to render and interact with web content.
+
+    Qt WebKit Widgets provides a Web browser engine that makes it easy to embed
+    content from the World Wide Web into your Qt application. At the same time
+    Web content can be enhanced with native controls.
+
+    Qt WebKit Widgets provides facilities for rendering of HyperText Markup
+    Language (HTML), Extensible HyperText Markup Language (XHTML) and Scalable
+    Vector Graphics (SVG) documents, styled using Cascading Style Sheets (CSS)
+    and scripted with JavaScript.
+
+    A bridge between the JavaScript execution environment and the Qt object
+    model makes it possible for custom QObjects to be scripted. For detailed
+    documentation see \l{The Qt WebKit Bridge}.
+    Integration with the Qt networking module enables Web pages to be transparently loaded
+    from Web servers, the local file system or even the Qt resource system.
+
+    In addition to providing pure rendering features, HTML documents can be
+    made fully editable to the user through the use of the \c{contenteditable}
+    attribute on HTML elements.
+
+    QtWebKit has been enhanced to become more attractive on the mobile front as well.
+    For more information see \l{Qt WebKit Goes Mobile}.
+
+    Qt WebKit is based on the Open Source WebKit engine. More information about
+    WebKit itself can be found on the \l{WebKit Open Source Project} Web site.
+
+    \section1 Including In Your Project
+
+    To include the definitions of the module's classes, use the
+    following directive:
+
+    \snippet webkitsnippets/qtwebkit_build_snippet.qdoc 1
+
+    To link against the module, add this line to your \l qmake \c
+    .pro file:
+
+    \snippet webkitsnippets/qtwebkit_build_snippet.qdoc 0
+
+    \section1 Notes
+
+    \note Building the Qt WebKit module with debugging symbols is problematic
+    on many platforms due to the size of the WebKit engine. We recommend
+    building the module only in release mode for embedded platforms.
+    Currently Qt WebKit will always be compiled without debugging symbols
+    when using gcc. Take a look at 
+    \c{Tools/mkspecs/features/production_build.prf} if you need to change this.
+
+    \note Web site icons, also known as "FavIcons", are currently not supported
+    on Windows. We plan to address this in a future release.
+
+    \section1 Architecture
+
+    The easiest way to render content is through the QWebView class. As a
+    widget it can be embedded into your forms or a graphics view, and it
+    provides convenience functions for downloading and rendering web sites.
+
+    \snippet webkitsnippets/simple/main.cpp Using QWebView
+
+    QWebView is used to view Web pages. An instance of QWebView has one
+    QWebPage. QWebPage provides access to the document structure in a page,
+    describing features such as frames, the navigation history, and the
+    undo/redo stack for editable content.
+
+    HTML documents can be nested using frames in a frameset. An individual
+    frame in HTML is represented using the QWebFrame class. This class includes the
+    bridge to the JavaScript window object and can be painted using QPainter.
+    Each QWebPage has one QWebFrame object as its main frame, and the main frame
+    may contain many child frames.
+
+    Individual elements of an HTML document can be accessed via DOM JavaScript
+    interfaces from within a web page. The equivalent of this API in Qt WebKit
+    is represented by QWebElement. QWebElement objects are obtained using QWebFrame's
+    \l{QWebFrame::}{findAllElements()} and \l{QWebFrame::}{findFirstElement()}
+    functions with CSS selector queries.
+
+    Common web browser features, defaults and other settings can be configured
+    through the QWebSettings class. It is possible to provide defaults for all
+    QWebPage instances through the default settings. Individual attributes
+    can be overidden by the page specific settings object.
+
+    \section1 Netscape Plugin Support
+
+    \note Netscape plugin support is only available on desktop platforms.
+
+    Since WebKit supports the Netscape Plugin API, Qt applications can display
+    Web pages that embed common plugins on platforms for which those plugins
+    are available. To enable plugin support, the user must have the appropriate
+    binary files for those plugins installed and the \l{QWebSettings::PluginsEnabled}
+    attribute must be enabled for the application.
+
+    The following locations are searched for plugins:
+
+    \table
+    \header \li Linux/Unix (X11)
+    \row \li
+    \list
+    \li \c{.mozilla/plugins} in the user's home directory
+    \li \c{.netscape/plugins} in the user's home directory
+    \li System locations, such as
+    \list
+    \li \c{/usr/lib/browser/plugins}
+    \li \c{/usr/local/lib/mozilla/plugins}
+    \li \c{/usr/lib/firefox/plugins}
+    \li \c{/usr/lib64/browser-plugins}
+    \li \c{/usr/lib/browser-plugins}
+    \li \c{/usr/lib/mozilla/plugins}
+    \li \c{/usr/local/netscape/plugins}
+    \li \c{/opt/mozilla/plugins}
+    \li \c{/opt/mozilla/lib/plugins}
+    \li \c{/opt/netscape/plugins}
+    \li \c{/opt/netscape/communicator/plugins}
+    \li \c{/usr/lib/netscape/plugins}
+    \li \c{/usr/lib/netscape/plugins-libc5}
+    \li \c{/usr/lib/netscape/plugins-libc6}
+    \li \c{/usr/lib64/netscape/plugins}
+    \li \c{/usr/lib64/mozilla/plugins}
+    \endlist
+    \li Locations specified by environment variables:
+    \list
+    \li \c{$MOZILLA_HOME/plugins}
+    \li \c{$MOZ_PLUGIN_PATH}
+    \li \c{$QTWEBKIT_PLUGIN_PATH}
+    \endlist
+    \endlist
+    \endtable
+
+    \table
+    \header  \li Windows
+    \row \li
+    \list
+    \li The user's \c{Application Data\Mozilla\plugins} directory
+    \li Standard system locations of plugins for Quicktime, Flash, etc.
+    \endlist
+    \endtable
+
+    \table
+    \header \li Mac OS X
+    \row \li
+    \list
+    \li \c{Library/Internet Plug-Ins} in the user's home directory
+    \li The system \c{/Library/Internet Plug-Ins} directory
+    \endlist
+    \endtable
+
+    \section1 Examples
+
+    There are several Qt WebKit Widgets examples located in the
+    \l{Qt WebKit Examples} page.
+
+    \section1 License Information
+
+    This is a snapshot of the Qt port of WebKit. The exact version information
+    can be found in the \c{VERSION} file supplied with Qt.
+
+    Qt Commercial Edition licensees that wish to distribute applications that
+    use the Qt WebKit module need to be aware of their obligations under the
+    GNU Library General Public License (LGPL).
+
+    Developers using the Open Source Edition can choose to redistribute
+    the module under the appropriate version of the GNU LGPL.
+
+    \legalese
+    WebKit is licensed under the GNU Library General Public License.
+    Individual contributor names and copyright dates can be found
+    inline in the code.
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Library General Public
+    License as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Library General Public License for more details.
+
+    You should have received a copy of the GNU Library General Public License
+    along with this library; see the file COPYING.LIB.  If not, write to
+    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+    Boston, MA 02110-1301, USA.
+    \endlegalese
+*/
+
+/*!
+    \externalpage http://www.w3.org/TR/selectors/
+    \title Standard CSS selector
+*/
+
+/*!
+    \externalpage http://www.w3.org/TR/selectors-api/
+    \title DOM Selectors API
+*/

@@ -45,6 +45,7 @@ class Config: public QObject
     Q_PROPERTY(bool diskCacheEnabled READ diskCacheEnabled WRITE setDiskCacheEnabled)
     Q_PROPERTY(int maxDiskCacheSize READ maxDiskCacheSize WRITE setMaxDiskCacheSize)
     Q_PROPERTY(bool ignoreSslErrors READ ignoreSslErrors WRITE setIgnoreSslErrors)
+    Q_PROPERTY(bool localUrlAccessEnabled READ localUrlAccessEnabled WRITE setLocalUrlAccessEnabled)
     Q_PROPERTY(bool localToRemoteUrlAccessEnabled READ localToRemoteUrlAccessEnabled WRITE setLocalToRemoteUrlAccessEnabled)
     Q_PROPERTY(QString outputEncoding READ outputEncoding WRITE setOutputEncoding)
     Q_PROPERTY(QString proxyType READ proxyType WRITE setProxyType)
@@ -58,6 +59,7 @@ class Config: public QObject
     Q_PROPERTY(bool javascriptCanOpenWindows READ javascriptCanOpenWindows WRITE setJavascriptCanOpenWindows)
     Q_PROPERTY(bool javascriptCanCloseWindows READ javascriptCanCloseWindows WRITE setJavascriptCanCloseWindows)
     Q_PROPERTY(QString sslProtocol READ sslProtocol WRITE setSslProtocol)
+    Q_PROPERTY(QString sslCiphers READ sslCiphers WRITE setSslCiphers)
     Q_PROPERTY(QString sslCertificatesPath READ sslCertificatesPath WRITE setSslCertificatesPath)
     Q_PROPERTY(QString webdriver READ webdriver WRITE setWebdriver)
     Q_PROPERTY(QString webdriverLogFile READ webdriverLogFile WRITE setWebdriverLogFile)
@@ -93,6 +95,9 @@ public:
 
     bool ignoreSslErrors() const;
     void setIgnoreSslErrors(const bool value);
+
+    bool localUrlAccessEnabled() const;
+    void setLocalUrlAccessEnabled(const bool value);
 
     bool localToRemoteUrlAccessEnabled() const;
     void setLocalToRemoteUrlAccessEnabled(const bool value);
@@ -160,6 +165,9 @@ public:
     void setSslProtocol(const QString& sslProtocolName);
     QString sslProtocol() const;
 
+    void setSslCiphers(const QString& sslCiphersName);
+    QString sslCiphers() const;
+
     void setSslCertificatesPath(const QString& sslCertificatesPath);
     QString sslCertificatesPath() const;
 
@@ -197,6 +205,7 @@ private:
     bool m_diskCacheEnabled;
     int m_maxDiskCacheSize;
     bool m_ignoreSslErrors;
+    bool m_localUrlAccessEnabled;
     bool m_localToRemoteUrlAccessEnabled;
     QString m_outputEncoding;
     QString m_proxyType;
@@ -221,6 +230,7 @@ private:
     bool m_javascriptCanOpenWindows;
     bool m_javascriptCanCloseWindows;
     QString m_sslProtocol;
+    QString m_sslCiphers;
     QString m_sslCertificatesPath;
     QString m_webdriverIp;
     QString m_webdriverPort;

@@ -33,8 +33,8 @@
 
 #include <QMap>
 #include <QVariantMap>
-#include <QWebPage>
-#include <QWebFrame>
+#include <QtWebKitWidgets/QWebPage>
+#include <QtWebKitWidgets/QWebFrame>
 
 #include "cookiejar.h"
 
@@ -80,6 +80,8 @@ class WebPage : public QObject, public QWebFrame::PrintCallback
     Q_PROPERTY(int framesCount READ framesCount)
     Q_PROPERTY(QString focusedFrameName READ focusedFrameName)
     Q_PROPERTY(QStringList captureContent READ captureContent WRITE setCaptureContent)
+    Q_PROPERTY(QObject *cookieJar READ cookieJar WRITE setCookieJarFromQObject)
+    Q_PROPERTY(QVariantList cookies READ cookies WRITE setCookies)
 
 public:
     WebPage(QObject *parent, const QUrl &baseUrl = QUrl());
@@ -498,6 +500,8 @@ public slots:
     void stop();
 
     void stopJavaScript();
+
+    void clearMemoryCache();
 
 signals:
     void initialized();

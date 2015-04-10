@@ -36,6 +36,7 @@
 #include <QNetworkRequest>
 #include <QSslSocket>
 #include <QSslCertificate>
+#include <QSslCipher>
 #include <QRegExp>
 
 #include "phantom.h"
@@ -73,6 +74,30 @@ static const char *toString(QNetworkAccessManager::Operation op)
     return str;
 }
 
+// Stub QNetworkReply used when file:/// URLs are disabled.
+// Somewhat cargo-culted from QDisabledNetworkReply.
+
+NoFileAccessReply::NoFileAccessReply(QObject *parent, const QNetworkRequest &req, const QNetworkAccessManager::Operation op)
+    : QNetworkReply(parent)
+{
+    setRequest(req);
+    setUrl(req.url());
+    setOperation(op);
+
+    qRegisterMetaType<QNetworkReply::NetworkError>();
+    QString msg = (QCoreApplication::translate("QNetworkReply", "Protocol \"%1\" is unknown")
+                   .arg(req.url().scheme()));
+    setError(ProtocolUnknownError, msg);
+
+    QMetaObject::invokeMethod(this, "error", Qt::QueuedConnection,
+                              Q_ARG(QNetworkReply::NetworkError, ProtocolUnknownError));
+    QMetaObject::invokeMethod(this, "finished", Qt::QueuedConnection);
+}
+
+// The destructor must be out-of-line in order to trigger generation of the vtable.
+NoFileAccessReply::~NoFileAccessReply() {}
+
+
 TimeoutTimer::TimeoutTimer(QObject* parent)
     : QTimer(parent)
 {
@@ -98,22 +123,38 @@ bool JsNetworkRequest::setHeader(const QString& name, const QVariant& value)
         return false;
 
     // Pass `null` as the second argument to remove a HTTP header
-    m_networkRequest->setRawHeader(name.toAscii(), value.toByteArray());
+    m_networkRequest->setRawHeader(name.toLatin1(), value.toByteArray());
     return true;
 }
 
 void JsNetworkRequest::changeUrl(const QString& address)
 {
     if (m_networkRequest) {
-        QUrl url = QUrl::fromEncoded(QByteArray(address.toAscii()));
+        QUrl url = QUrl::fromEncoded(address.toLatin1());
         m_networkRequest->setUrl(url);
     }
 }
+
+struct ssl_protocol_option {
+  const char* name;
+  QSsl::SslProtocol proto;
+};
+const ssl_protocol_option ssl_protocol_options[] = {
+  { "default", QSsl::SecureProtocols },
+  { "tlsv1.2", QSsl::TlsV1_2 },
+  { "tlsv1.1", QSsl::TlsV1_1 },
+  { "tlsv1.0", QSsl::TlsV1_0 },
+  { "tlsv1",   QSsl::TlsV1_0 },
+  { "sslv3",   QSsl::SslV3 },
+  { "any",     QSsl::AnyProtocol },
+  { 0,         QSsl::UnknownProtocol }
+};
 
 // public:
 NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config)
     : QNetworkAccessManager(parent)
     , m_ignoreSslErrors(config->ignoreSslErrors())
+    , m_localUrlAccessEnabled(config->localUrlAccessEnabled())
     , m_authAttempts(0)
     , m_maxAuthAttempts(3)
     , m_resourceTimeout(0)
@@ -124,9 +165,9 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
 {
     if (config->diskCacheEnabled()) {
         m_networkDiskCache = new QNetworkDiskCache(this);
-        m_networkDiskCache->setCacheDirectory(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));
+        m_networkDiskCache->setCacheDirectory(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
         if (config->maxDiskCacheSize() >= 0)
-            m_networkDiskCache->setMaximumCacheSize(config->maxDiskCacheSize() * 1024);
+            m_networkDiskCache->setMaximumCacheSize(qint64(config->maxDiskCacheSize()) * 1024);
         setCache(m_networkDiskCache);
     }
 
@@ -137,15 +178,34 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
             m_sslConfiguration.setPeerVerifyMode(QSslSocket::VerifyNone);
         }
 
-        // set the SSL protocol to SSLv3 by the default
-        m_sslConfiguration.setProtocol(QSsl::SslV3);
+        bool setProtocol = false;
+        for (const ssl_protocol_option *proto_opt = ssl_protocol_options;
+             proto_opt->name;
+             proto_opt++) {
+            if (config->sslProtocol() == proto_opt->name) {
+                m_sslConfiguration.setProtocol(proto_opt->proto);
+                setProtocol = true;
+                break;
+            }
+        }
+        // FIXME: actually object to an invalid setting.
+        if (!setProtocol) {
+            m_sslConfiguration.setProtocol(QSsl::SecureProtocols);
+        }
 
-        if (config->sslProtocol() == "sslv2") {
-            m_sslConfiguration.setProtocol(QSsl::SslV2);
-        } else if (config->sslProtocol() == "tlsv1") {
-            m_sslConfiguration.setProtocol(QSsl::TlsV1);
-        } else if (config->sslProtocol() == "any") {
-            m_sslConfiguration.setProtocol(QSsl::AnyProtocol);
+        // Essentially the same as what QSslSocket::setCiphers(QString) does.
+        // That overload isn't available on QSslConfiguration.
+        if (!config->sslCiphers().isEmpty()) {
+            QList<QSslCipher> cipherList;
+            foreach (const QString &cipherName,
+                     config->sslCiphers().split(QLatin1String(":"),
+                                                QString::SkipEmptyParts)) {
+                QSslCipher cipher(cipherName);
+                if (!cipher.isNull())
+                    cipherList << cipher;
+            }
+            if (!cipherList.isEmpty())
+                m_sslConfiguration.setCiphers(cipherList);
         }
 
         if (!config->sslCertificatesPath().isEmpty()) {
@@ -231,10 +291,12 @@ void NetworkAccessManager::setCookieJar(QNetworkCookieJar *cookieJar)
 QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkRequest & request, QIODevice * outgoingData)
 {
     QNetworkRequest req(request);
+    QString scheme = req.url().scheme().toLower();
+    bool isLocalFile = req.url().isLocalFile();
 
     if (!QSslSocket::supportsSsl()) {
-        if (req.url().scheme().toLower() == QLatin1String("https"))
-            qWarning() << "Request using https scheme without SSL support";
+      if (scheme == QLatin1String("https"))
+        qWarning() << "Request using https scheme without SSL support";
     } else {
         req.setSslConfiguration(m_sslConfiguration);
     }
@@ -256,7 +318,7 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     // set custom HTTP headers
     QVariantMap::const_iterator i = m_customHeaders.begin();
     while (i != m_customHeaders.end()) {
-        req.setRawHeader(i.key().toAscii(), i.value().toByteArray());
+        req.setRawHeader(i.key().toLatin1(), i.value().toByteArray());
         ++i;
     }
 
@@ -281,19 +343,27 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     JsNetworkRequest jsNetworkRequest(&req, this);
     emit resourceRequested(data, &jsNetworkRequest);
 
-    QNetworkReply *nested_reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
-    QNetworkReply *tracked_reply = m_replyTracker.trackReply(nested_reply,
-                                                             m_idCounter,
-                                                             shouldCaptureResponse(req.url().toString()));
+    // Pass duty to the superclass - special case: file:/// may be disabled.
+    // This conditional must match QNetworkAccessManager's own idea of what a
+    // local file URL is.
+    QNetworkReply *reply;
+    if (!m_localUrlAccessEnabled && (isLocalFile || scheme == QLatin1String("qrc"))) {
+      reply = new NoFileAccessReply(this, req, op);
+    } else {
+      QNetworkReply *nested_reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
+      reply = m_replyTracker.trackReply(nested_reply,
+                                        m_idCounter,
+                                        shouldCaptureResponse(req.url().toString()));
+    }
 
     // reparent jsNetworkRequest to make sure that it will be destroyed with QNetworkReply
-    jsNetworkRequest.setParent(tracked_reply);
+    jsNetworkRequest.setParent(reply);
 
     // If there is a timeout set, create a TimeoutTimer
     if(m_resourceTimeout > 0){
 
-        TimeoutTimer *nt = new TimeoutTimer(tracked_reply);
-        nt->reply = tracked_reply; // We need the reply object in order to abort it later on.
+        TimeoutTimer *nt = new TimeoutTimer(reply);
+        nt->reply = reply; // We need the reply object in order to abort it later on.
         nt->data = data;
         nt->setInterval(m_resourceTimeout);
         nt->setSingleShot(true);
@@ -302,7 +372,7 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
         connect(nt, SIGNAL(timeout()), this, SLOT(handleTimeout()));
     }
             
-    return tracked_reply;
+    return reply;
 }
 
 bool NetworkAccessManager::shouldCaptureResponse(const QString& url)
@@ -423,6 +493,8 @@ void NetworkAccessManager::handleNetworkError(QNetworkReply* reply, int requestI
     data["url"] = reply->url().toString();
     data["errorCode"] = reply->error();
     data["errorString"] = reply->errorString();
+    data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+    data["statusText"] = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
 
     emit resourceError(data);
 }

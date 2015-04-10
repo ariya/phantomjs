@@ -1,0 +1,9 @@
+# -------------------------------------------------------------------
+# Module file for leveldb, used by targets that depend on leveldb
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+WEBKIT.leveldb.root_source_dir = $${ROOT_WEBKIT_DIR}/Source/ThirdParty/leveldb
+
+include($${WEBKIT.leveldb.root_source_dir}/leveldb.pri)

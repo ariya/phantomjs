@@ -1,0 +1,437 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies)
+
+#This library is free software; you can redistribute it and/or
+#modify it under the terms of the GNU Library General Public
+#License as published by the Free Software Foundation; either
+#version 2 of the License, or (at your option) any later version.
+
+#This library is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#Library General Public License for more details.
+
+#You should have received a copy of the GNU Library General Public License
+#along with this library; see the file COPYING.LIB.  If not, write to
+#the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#Boston, MA 02110-1301, USA.
+
+from __future__ import with_statement
+
+import sys
+import os
+import re
+import logging
+from subprocess import Popen, PIPE, STDOUT
+from optparse import OptionParser
+
+
+class Log(object):
+    def __init__(self, name):
+        self._log = logging.getLogger(name)
+        self.debug = self._log.debug
+        self.warn = self._log.warn
+        self.error = self._log.error
+        self.exception = self._log.exception
+        self.info = self._log.info
+
+
+class Options(Log):
+    """ Option manager. It parses and checks script's parameters, sets an internal variable. """
+
+    def __init__(self, args):
+        Log.__init__(self, "Options")
+        log = self._log
+        opt = OptionParser("%prog [options] [PathToSearch].\nTry -h or --help.")
+        opt.add_option("-j", "--parallel-level", action="store", type="int",
+              dest="parallel_level", default=None,
+              help="Number of parallel processes executing the Qt's tests. Default: cpu count.")
+        opt.add_option("-v", "--verbose", action="store", type="int",
+              dest="verbose", default=2,
+              help="Verbose level (0 - quiet, 1 - errors only, 2 - infos and warnings, 3 - debug information). Default: %default.")
+        opt.add_option("", "--tests-options", action="store", type="string",
+              dest="tests_options", default="",
+              help="Parameters passed to Qt's tests (for example '-eventdelay 123').")
+        opt.add_option("-o", "--output-file", action="store", type="string",
+              dest="output_file", default="/tmp/qtwebkittests.html",
+              help="File where results will be stored. The file will be overwritten. Default: %default.")
+        opt.add_option("-b", "--browser", action="store", dest="browser",
+              default="xdg-open",
+              help="Browser in which results will be opened. Default %default.")
+        opt.add_option("", "--do-not-open-results", action="store_false",
+              dest="open_results", default=True,
+              help="The results shouldn't pop-up in a browser automatically")
+        opt.add_option("-d", "--developer-mode", action="store_true",
+              dest="developer", default=False,
+              help="Special mode for debugging. In general it simulates human behavior, running all autotests. In the mode everything is executed synchronously, no html output will be generated, no changes or transformation will be applied to stderr or stdout. In this mode options; parallel-level, output-file, browser and do-not-open-results will be ignored.")
+        opt.add_option("-t", "--timeout", action="store", type="int",
+              dest="timeout", default=0,
+              help="Timeout in seconds for each testsuite. Zero value means that there is not timeout. Default: %default.")
+        opt.add_option("--release", action="store_true", dest="release", default=True,
+              help="Run API tests in WebKitBuild/Release/... directory. It is ignored if PathToSearch is passed.")
+        opt.add_option("--debug", action="store_false", dest="release",
+              help="Run API tests in WebKitBuild/Debug/... directory. It is ignored if PathToSearch is passed.")
+        opt.add_option("-2", "--webkit2", action="store_true", dest="webkit2", default=False,
+              help="Run WebKit2 API tests. Default: Run WebKit1 API tests. It is ignored if PathToSearch is passed.")
+
+        self._o, self._a = opt.parse_args(args)
+        verbose = self._o.verbose
+        if verbose == 0:
+            logging.basicConfig(level=logging.CRITICAL,)
+        elif verbose == 1:
+            logging.basicConfig(level=logging.ERROR,)
+        elif verbose == 2:
+            logging.basicConfig(level=logging.INFO,)
+        elif verbose == 3:
+            logging.basicConfig(level=logging.DEBUG,)
+        else:
+            logging.basicConfig(level=logging.INFO,)
+            log.warn("Bad verbose level, switching to default.")
+
+        if self._o.release:
+            configuration = "Release"
+        else:
+            configuration = "Debug"
+
+        if self._o.webkit2:
+            test_directory = "WebKit2/UIProcess/API/qt/tests/"
+        else:
+            test_directory = "WebKit/qt/tests/"
+
+        try:
+            if len(self._a) == 0:
+                self._o.path = "WebKitBuild/%s/Source/%s" % (configuration, test_directory)
+            else:
+                if len(self._a) > 1:
+                    raise IndexError("Only one directory should be provided.")
+                self._o.path = self._a[0]
+
+            if not os.path.exists(self._o.path):
+                raise Exception("Given path doesn't exist.")
+        except IndexError:
+            log.error("Bad usage. Please try -h or --help.")
+            sys.exit(1)
+        except Exception:
+            log.error("Path '%s' doesn't exist", self._o.path)
+            sys.exit(2)
+
+        if self._o.developer:
+            if not self._o.parallel_level is None:
+                log.warn("Developer mode sets parallel-level option to one.")
+            self._o.parallel_level = 1
+            self._o.open_results = False
+
+    def __getattr__(self, attr):
+        """ Maps all options properties into this object (remove one level of indirection). """
+        return getattr(self._o, attr)
+
+
+def run_test(args):
+    """ Runs one given test.
+    args should contain a tuple with 3 elements;
+      TestSuiteResult containing full file name of an autotest executable.
+      str with options that should be passed to the autotest executable
+      bool if true then the stdout will be buffered and separated from the stderr, if it is false
+        then the stdout and the stderr will be merged together and left unbuffered (the TestSuiteResult output will be None).
+      int time after which the autotest executable would be killed
+    """
+    log = logging.getLogger("Exec")
+    test_suite, options, buffered, timeout = args
+    timer = None
+    try:
+        log.info("Running... %s", test_suite.test_file_name())
+        if buffered:
+            tst = Popen([test_suite.test_file_name()] + options.split(), stdout=PIPE, stderr=None)
+        else:
+            tst = Popen([test_suite.test_file_name()] + options.split(), stdout=None, stderr=STDOUT)
+        if timeout:
+            from threading import Timer
+            log.debug("Setting timeout timer %i sec on %s (process %s)", timeout, test_suite.test_file_name(), tst.pid)
+            def process_killer():
+                try:
+                    try:
+                        tst.terminate()
+                    except AttributeError:
+                        # Workaround for python version < 2.6 it can be removed as soon as we drop support for python2.5
+                        try:
+                            import ctypes
+                            PROCESS_TERMINATE = 1
+                            handle = ctypes.windll.kernel32.OpenProcess(PROCESS_TERMINATE, False, tst.pid)
+                            ctypes.windll.kernel32.TerminateProcess(handle, -1)
+                            ctypes.windll.kernel32.CloseHandle(handle)
+                        except AttributeError:
+                            # windll is not accessible so we are on *nix like system
+                            import signal
+                            os.kill(tst.pid, signal.SIGTERM)
+                    log.error("Timeout, process '%s' (%i) was terminated", test_suite.test_file_name(), tst.pid)
+                except OSError, e:
+                    # the process was finished before got killed
+                    pass
+            timer = Timer(timeout, process_killer)
+            timer.start()
+    except OSError, e:
+        log.exception("Can't open an autotest file: '%s'. Skipping the test...", e.filename)
+    else:
+        test_suite.set_output(tst.communicate()[0])  # takes stdout only, in developer mode it would be None.
+    log.info("Finished %s", test_suite.test_file_name())
+    if timeout:
+        timer.cancel()
+    return test_suite
+
+
+class TestSuiteResult(object):
+    """ Keeps information about a test. """
+
+    def __init__(self):
+        self._output = None
+        self._test_file_name = None
+
+    def set_output(self, xml):
+        if xml:
+            self._output = xml.strip()
+
+    def output(self):
+        return self._output
+
+    def set_test_file_name(self, file_name):
+        self._test_file_name = file_name
+
+    def test_file_name(self):
+        return self._test_file_name
+
+
+class Main(Log):
+    """ The main script. All real work is done in run() method. """
+
+    def __init__(self, options):
+        Log.__init__(self, "Main")
+        self._options = options
+        if options.parallel_level > 1 or options.parallel_level is None:
+            try:
+                from multiprocessing import Pool
+            except ImportError:
+                self.warn("Import Error: the multiprocessing module couldn't be loaded (may be lack of python-multiprocessing package?). The Qt autotests will be executed one by one.")
+                options.parallel_level = 1
+        if options.parallel_level == 1:
+
+            class Pool(object):
+                """ A hack, created to avoid problems with multiprocessing module, this class is single thread replacement for the multiprocessing.Pool class. """
+                def __init__(self, processes):
+                    pass
+
+                def imap_unordered(self, func, files):
+                    return map(func, files)
+
+                def map(self, func, files):
+                    return map(func, files)
+
+        self._Pool = Pool
+
+    def run(self):
+        """ Find && execute && publish results of all test. "All in one" function. """
+        # This is needed for Qt finding our QML modules. The current code makes our
+        # two existing API tests (WK1 API and WK2 UI process API) work correctly.
+        qml_import_path = self._options.path + "../../../../imports"
+        qml_import_path += ":" + self._options.path + "../../../../../../imports"
+        os.putenv("QML_IMPORT_PATH", qml_import_path)
+        path = os.getenv("PATH")
+        path += ":" + self._options.path + "../../../../../../bin"
+        os.putenv("PATH", path)
+        self.debug("Searching executables...")
+        tests_executables = self.find_tests_paths(self._options.path)
+        self.debug("Found: %s", len(tests_executables))
+        self.debug("Executing tests...")
+        results = self.run_tests(tests_executables)
+        if not self._options.developer:
+            self.debug("Transforming...")
+            transformed_results = self.transform(results)
+            self.debug("Publishing...")
+            self.announce_results(transformed_results)
+
+    def find_tests_paths(self, path):
+        """ Finds all tests executables inside the given path. """
+        executables = []
+        for root, dirs, files in os.walk(path):
+            # Check only for a file that name starts from 'tst_' and that we can execute.
+            filtered_path = filter(lambda w: w.startswith('tst_') and os.access(os.path.join(root, w), os.X_OK), files)
+            filtered_path = map(lambda w: os.path.join(root, w), filtered_path)
+            for file_name in filtered_path:
+                r = TestSuiteResult()
+                r.set_test_file_name(file_name)
+                executables.append(r)
+        return executables
+
+    def run_tests(self, files):
+        """ Executes given files by using a pool of workers. """
+        workers = self._Pool(processes=self._options.parallel_level)
+        # to each file add options.
+        self.debug("Using %s the workers pool, number of workers %i", repr(workers), self._options.parallel_level)
+        package = map(lambda w: [w, self._options.tests_options, not self._options.developer, self._options.timeout], files)
+        self.debug("Generated packages for workers: %s", repr(package))
+        results = workers.map(run_test, package)  # Collects results.
+        return results
+
+    def transform(self, results):
+        """ Transforms list of the results to specialized versions. """
+        stdout = self.convert_to_stdout(results)
+        html = self.convert_to_html(results)
+        return {"stdout": stdout, "html": html}
+
+    def announce_results(self, results):
+        """ Shows the results. """
+        self.announce_results_stdout(results['stdout'])
+        self.announce_results_html(results['html'])
+
+    def announce_results_stdout(self, results):
+        """ Show the results by printing to the stdout."""
+        print(results)
+
+    def announce_results_html(self, results):
+        """ Shows the result by creating a html file and calling a web browser to render it. """
+        with file(self._options.output_file, 'w') as f:
+            f.write(results)
+        if self._options.open_results:
+            Popen(self._options.browser + " " + self._options.output_file, stdout=None, stderr=None, shell=True)
+
+    def check_crash_occurences(self, results):
+        """ Checks if any test crashes and it sums them  """
+        totals = [0,0,0]
+        crash_count = 0
+        txt = []
+        #collecting results into one container with checking crash
+        for result in results:
+            found = None
+            if result.output():
+                txt.append(result.output())
+                found = re.search(r"([0-9]+) passed, ([0-9]+) failed, ([0-9]+) skipped", result.output())
+
+            if found:
+                totals = reduce(lambda x, y: (int(x[0]) + int(y[0]), int(x[1]) + int(y[1]), int(x[2]) + int(y[2])), (totals, found.groups()))
+            else:
+                txt.append('CRASHED: %s' % result.test_file_name())
+                crash_count += 1
+                self.warn("Missing sub-summary: %s" % result.test_file_name())
+
+        txt='\n\n'.join(txt)
+
+        totals = list(totals)
+        totals.append(crash_count)
+        totals = map(str, totals)
+        return txt, totals
+
+    def convert_to_stdout(self, results):
+        """ Converts results, that they could be nicely presented in the stdout. """
+        txt, totals = self.check_crash_occurences(results)
+
+        totals = "%s passed, %s failed, %s skipped, %s crashed" % (totals[0], totals[1], totals[2], totals[3])
+
+        txt += '\n' + '*' * 70
+        txt += "\n**" + ("TOTALS: " + totals).center(66) + '**'
+        txt += '\n' + '*' * 70 + '\n'
+        return txt
+
+    def convert_to_html(self, results):
+        """ Converts results, that they could showed as a html page. """
+        txt, totals = self.check_crash_occurences(results)
+        txt = txt.replace('&', '&amp;').replace('<', "&lt;").replace('>', "&gt;")
+        # Add a color and a style.
+        txt = re.sub(r"([* ]+(Finished)[ a-z_A-Z0-9]+[*]+)",
+            lambda w: r"",
+            txt)
+        txt = re.sub(r"([*]+[ a-z_A-Z0-9]+[*]+)",
+            lambda w: "<case class='good'><br><br><b>" + w.group(0) + r"</b></case>",
+            txt)
+        txt = re.sub(r"(Config: Using QTest library)((.)+)",
+            lambda w: "\n<case class='good'><br><i>" + w.group(0) + r"</i>  ",
+            txt)
+        txt = re.sub(r"\n(PASS)((.)+)",
+            lambda w: "</case>\n<case class='good'><br><status class='pass'>" + w.group(1) + r"</status>" + w.group(2),
+            txt)
+        txt = re.sub(r"\n(FAIL!)((.)+)",
+            lambda w: "</case>\n<case class='bad'><br><status class='fail'>" + w.group(1) + r"</status>" + w.group(2),
+            txt)
+        txt = re.sub(r"\n(XPASS)((.)+)",
+            lambda w: "</case>\n<case class='bad'><br><status class='xpass'>" + w.group(1) + r"</status>" + w.group(2),
+            txt)
+        txt = re.sub(r"\n(XFAIL)((.)+)",
+            lambda w: "</case>\n<case class='good'><br><status class='xfail'>" + w.group(1) + r"</status>" + w.group(2),
+            txt)
+        txt = re.sub(r"\n(SKIP)((.)+)",
+            lambda w: "</case>\n<case class='good'><br><status class='xfail'>" + w.group(1) + r"</status>" + w.group(2),
+            txt)
+        txt = re.sub(r"\n(QWARN)((.)+)",
+            lambda w: "</case>\n<case class='bad'><br><status class='warn'>" + w.group(1) + r"</status>" + w.group(2),
+            txt)
+        txt = re.sub(r"\n(RESULT)((.)+)",
+            lambda w: "</case>\n<case class='good'><br><status class='benchmark'>" + w.group(1) + r"</status>" + w.group(2),
+            txt)
+        txt = re.sub(r"\n(QFATAL|CRASHED)((.)+)",
+            lambda w: "</case>\n<case class='bad'><br><status class='crash'>" + w.group(1) + r"</status>" + w.group(2),
+            txt)
+        txt = re.sub(r"\n(Totals:)([0-9', a-z]*)",
+            lambda w: "</case>\n<case class='good'><br><b>" + w.group(1) + r"</b>" + w.group(2) + "</case>",
+            txt)
+        # Find total count of failed, skipped, passed and crashed tests.
+        totals = "%s passed, %s failed, %s skipped, %s crashed." % (totals[0], totals[1], totals[2], totals[3])
+        # Create a header of the html source.
+        txt = """
+        <html>
+        <head>
+          <script>
+          function init() {
+              // Try to find the right styleSheet (this document could be embedded in an other html doc)
+              for (i = document.styleSheets.length - 1; i >= 0; --i) {
+                  if (document.styleSheets[i].cssRules[0].selectorText == "case.good") {
+                      resultStyleSheet = i;
+                      return;
+                  }
+              }
+              // The styleSheet hasn't been found, but it should be the last one.
+              resultStyleSheet = document.styleSheets.length - 1;
+          }
+
+          function hide() {
+              document.styleSheets[resultStyleSheet].cssRules[0].style.display='none';
+          }
+
+          function show() {
+              document.styleSheets[resultStyleSheet].cssRules[0].style.display='';
+          }
+
+          </script>
+          <style type="text/css">
+            case.good {color:black}
+            case.bad {color:black}
+            status.pass {color:green}
+            status.crash {color:red}
+            status.fail {color:red}
+            status.xpass {color:663300}
+            status.xfail {color:004500}
+            status.benchmark {color:000088}
+            status.warn {color:orange}
+            status.crash {color:red; text-decoration:blink; background-color:black}
+          </style>
+        </head>
+        <body onload="init()">
+        <center>
+          <h1>Qt's autotests results</h1>%(totals)s<br>
+          <hr>
+          <form>
+            <input type="button" value="Show failures only" onclick="hide()"/>
+            &nbsp;
+            <input type="button" value="Show all" onclick="show()"/>
+          </form>
+        </center>
+        <hr>
+        %(results)s
+        </body>
+        </html>""" % {"totals": totals, "results": txt}
+        return txt
+
+
+if __name__ == '__main__':
+    options = Options(sys.argv[1:])
+    main = Main(options)
+    main.run()

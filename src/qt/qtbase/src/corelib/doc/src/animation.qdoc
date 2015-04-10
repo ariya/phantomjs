@@ -1,0 +1,370 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \group animation
+    \title Animation Framework
+
+    This page lists classes belonging to \l{Qt Core}'s
+    \l{The Animation Framework}{animation framework}.
+
+*/
+
+/*!
+    \page animation-overview.html
+    \title The Animation Framework
+    \ingroup qt-gui-concepts
+
+    \brief An overview of the Animation Framework
+
+    \ingroup frameworks-technologies
+
+    \keyword Animation
+
+    The animation framework aims to provide an easy way for creating animated
+    and smooth GUI's. By animating Qt properties, the framework provides great
+    freedom for animating widgets and other \l{QObject}s. The framework can
+    also be used with the Graphics View framework. Many of the concepts
+    available in the animation framework are also available in \l{Qt Quick},
+    where it offers a declarative way of defining animations. Much of the
+    knowledge acquired about the animation framework can be applied to
+    \l{Qt Quick}.
+
+    In this overview, we explain the basics of its architecture. We
+    also show examples of the most common techniques that the
+    framework allows for animating QObjects and graphics items.
+
+    \tableofcontents
+
+    \section1 The Animation Architecture
+
+    We will in this section take a high-level look at the animation
+    framework's architecture and how it is used to animate Qt
+    properties. The following diagram shows the most important classes
+    in the animation framework.
+
+    \image animations-architecture.png
+
+    The animation framework foundation consists of the base class
+    QAbstractAnimation, and its two subclasses QVariantAnimation and
+    QAnimationGroup. QAbstractAnimation is the ancestor of all
+    animations. It represents basic properties that are common for all
+    animations in the framework; notably, the ability to start, stop,
+    and pause an animation. It is also receives the time change
+    notifications.
+
+    The animation framework further provides the QPropertyAnimation
+    class, which inherits QVariantAnimation and performs animation of
+    a Qt property, which is part of Qt's \l{Meta-Object
+    System}{meta-object system}. The class performs an interpolation
+    over the property using an easing curve. So when you want to
+    animate a value, you can declare it as a property and make your
+    class a QObject. Note that this gives us great freedom in
+    animating already existing widgets and other \l{QObject}s.
+
+    Complex animations can be constructed by building a tree structure
+    of \l{QAbstractAnimation}s. The tree is built by using
+    \l{QAnimationGroup}s, which function as containers for other
+    animations. Note also that the groups are subclasses of
+    QAbstractAnimation, so groups can themselves contain other groups.
+
+    The animation framework can be used on its own, but is also
+    designed to be part of the state machine framework (See the
+    \l{The State Machine Framework}{state machine framework} for an
+    introduction to the Qt state machine). The state machine provides
+    a special state that can play an animation. A QState can also set
+    properties when the state is entered or exited, and this special
+    animation state will interpolate between these values when given a
+    QPropertyAnimation. We will look more closely at this later.
+
+    Behind the scenes, the animations are controlled by a global
+    timer, which sends \l{QAbstractAnimation::updateCurrentTime()}{updates} to
+    all animations that are playing.
+
+    For detailed descriptions of the classes' function and roles in
+    the framework, please look up their class descriptions.
+
+    \section1 Classes in the Animation Framework
+
+    These classes provide a framework for creating both simple and complex
+    animations.
+
+    \annotatedlist animation
+
+    \section1 Animating Qt Properties
+
+    As mentioned in the previous section, the QPropertyAnimation class
+    can interpolate over Qt properties. It is this class that should
+    be used for animation of values; in fact, its superclass,
+    QVariantAnimation, is an abstract class, and cannot be used
+    directly.
+
+    A major reason we chose to animate Qt properties is that it
+    presents us with freedom to animate already existing classes in
+    the Qt API. Notably, the QWidget class (which we can also embed in
+    a QGraphicsView) has properties for its bounds, colors, etc.
+    Let's look at a small example:
+
+    \code
+        QPushButton button("Animated Button");
+        button.show();
+
+        QPropertyAnimation animation(&button, "geometry");
+        animation.setDuration(10000);
+        animation.setStartValue(QRect(0, 0, 100, 30));
+        animation.setEndValue(QRect(250, 250, 100, 30));
+
+        animation.start();
+    \endcode
+
+    This code will move \c button from the top left corner of the
+    screen to the position (250, 250) in 10 seconds (10000 milliseconds).
+
+    The example above will do a linear interpolation between the
+    start and end value. It is also possible to set values
+    situated between the start and end value. The interpolation
+    will then go by these points.
+
+    \code
+        QPushButton button("Animated Button");
+        button.show();
+
+        QPropertyAnimation animation(&button, "geometry");
+        animation.setDuration(10000);
+
+        animation.setKeyValueAt(0, QRect(0, 0, 100, 30));
+        animation.setKeyValueAt(0.8, QRect(250, 250, 100, 30));
+        animation.setKeyValueAt(1, QRect(0, 0, 100, 30));
+
+        animation.start();
+    \endcode
+
+    In this example, the animation will take the button to (250, 250)
+    in 8 seconds, and then move it back to its original position in
+    the remaining 2 seconds. The movement will be linearly
+    interpolated between these points.
+
+    You also have the possibility to animate values of a QObject
+    that is not declared as a Qt property. The only requirement is
+    that this value has a setter. You can then subclass the class
+    containing the value and declare a property that uses this setter.
+    Note that each Qt property requires a getter, so you will need to
+    provide a getter yourself if this is not defined.
+
+    \code
+        class MyGraphicsRectItem : public QObject, public QGraphicsRectItem
+        {
+            Q_OBJECT
+            Q_PROPERTY(QRectF geometry READ geometry WRITE setGeometry)
+        };
+    \endcode
+
+    In the above code example, we subclass QGraphicsRectItem and
+    define a geometry property. We can now animate the widgets
+    geometry even if QGraphicsRectItem does not provide the geometry
+    property.
+
+    For a general introduction to the Qt property system, see its
+    \l{Qt's Property System}{overview}.
+
+    \section1 Animations and the Graphics View Framework
+
+    When you want to animate \l{QGraphicsItem}s, you also use
+    QPropertyAnimation. However, QGraphicsItem does not inherit QObject.
+    A good solution is to subclass the graphics item you wish to animate.
+    This class will then also inherit QObject.
+    This way, QPropertyAnimation can be used for \l{QGraphicsItem}s.
+    The example below shows how this is done. Another possibility is
+    to inherit QGraphicsWidget, which already is a QObject.
+
+    \code
+        class Pixmap : public QObject, public QGraphicsPixmapItem
+        {
+            Q_OBJECT
+            Q_PROPERTY(QPointF pos READ pos WRITE setPos)
+            ...
+    \endcode
+
+    As described in the previous section, we need to define
+    properties that we wish to animate.
+
+    Note that QObject must be the first class inherited as the
+    meta-object system demands this.
+
+    \section1 Easing Curves
+
+    As mentioned, QPropertyAnimation performs an interpolation between
+    the start and end property value. In addition to adding more key
+    values to the animation, you can also use an easing curve. Easing
+    curves describe a function that controls how the speed of the
+    interpolation between 0 and 1 should be, and are useful if you
+    want to control the speed of an animation without changing the
+    path of the interpolation.
+
+    \code
+        QPushButton button("Animated Button");
+        button.show();
+
+        QPropertyAnimation animation(&button, "geometry");
+        animation.setDuration(3000);
+        animation.setStartValue(QRect(0, 0, 100, 30));
+        animation.setEndValue(QRect(250, 250, 100, 30));
+
+        animation.setEasingCurve(QEasingCurve::OutBounce);
+
+        animation.start();
+    \endcode
+
+    Here the animation will follow a curve that makes it bounce like a
+    ball as if it was dropped from the start to the end position.
+    QEasingCurve has a large collection of curves for you to choose
+    from. These are defined by the QEasingCurve::Type enum. If you are
+    in need of another curve, you can also implement one yourself, and
+    register it with QEasingCurve.
+
+    \omit Drop this for the first Lab release
+    (Example of custom easing curve (without the actual impl of
+    the function I expect)
+    \endomit
+
+    \section1 Putting Animations Together
+
+    An application will often contain more than one animation. For
+    instance, you might want to move more than one graphics item
+    simultaneously or move them in sequence after each other.
+
+    The subclasses of QAnimationGroup (QSequentialAnimationGroup and
+    QParallelAnimationGroup) are containers for other animations so
+    that these animations can be animated either in sequence or
+    parallel. The QAnimationGroup is an example of an animation that
+    does not animate properties, but it gets notified of time changes
+    periodically. This enables it to forward those time changes to its
+    contained animations, and thereby controlling when its animations
+    are played.
+
+    Let's look at code examples that use both
+    QSequentialAnimationGroup and QParallelAnimationGroup, starting
+    off with the latter.
+
+    \code
+        QPushButton *bonnie = new QPushButton("Bonnie");
+        bonnie->show();
+
+        QPushButton *clyde = new QPushButton("Clyde");
+        clyde->show();
+
+        QPropertyAnimation *anim1 = new QPropertyAnimation(bonnie, "geometry");
+        // Set up anim1
+
+        QPropertyAnimation *anim2 = new QPropertyAnimation(clyde, "geometry");
+        // Set up anim2
+
+        QParallelAnimationGroup *group = new QParallelAnimationGroup;
+        group->addAnimation(anim1);
+        group->addAnimation(anim2);
+
+        group->start();
+    \endcode
+
+    A parallel group plays more than one animation at the same time.
+    Calling its \l{QAbstractAnimation::}{start()} function will start
+    all animations it governs.
+
+    \code
+        QPushButton button("Animated Button");
+        button.show();
+
+        QPropertyAnimation anim1(&button, "geometry");
+        anim1.setDuration(3000);
+        anim1.setStartValue(QRect(0, 0, 100, 30));
+        anim1.setEndValue(QRect(500, 500, 100, 30));
+
+        QPropertyAnimation anim2(&button, "geometry");
+        anim2.setDuration(3000);
+        anim2.setStartValue(QRect(500, 500, 100, 30));
+        anim2.setEndValue(QRect(1000, 500, 100, 30));
+
+        QSequentialAnimationGroup group;
+
+        group.addAnimation(&anim1);
+        group.addAnimation(&anim2);
+
+        group.start();
+    \endcode
+
+    As you no doubt have guessed, QSequentialAnimationGroup plays
+    its animations in sequence. It starts the next animation in
+    the list after the previous is finished.
+
+    Since an animation group is an animation itself, you can add
+    it to another group. This way, you can build a tree structure
+    of animations which specifies when the animations are played
+    in relation to each other.
+
+    \section1 Animations and States
+
+    When using a \l{The State Machine Framework}{state machine}, we
+    can associate one or more animations to a transition between states
+    using a QSignalTransition or QEventTransition class. These classes
+    are both derived from QAbstractTransition, which defines the
+    convenience function \l{QAbstractTransition::}{addAnimation()} that
+    enables the appending of one or more animations triggered when the
+    transition occurs.
+
+    We also have the possibility to associate properties with the
+    states rather than setting the start and end values ourselves.
+    Below is a complete code example that animates the geometry of a
+    QPushButton.
+
+    \code
+        QPushButton *button = new QPushButton("Animated Button");
+        button->show();
+
+        QStateMachine *machine = new QStateMachine;
+
+        QState *state1 = new QState(machine);
+        state1->assignProperty(button, "geometry", QRect(0, 0, 100, 30));
+        machine->setInitialState(state1);
+
+        QState *state2 = new QState(machine);
+        state2->assignProperty(button, "geometry", QRect(250, 250, 100, 30));
+
+        QSignalTransition *transition1 = state1->addTransition(button,
+            SIGNAL(clicked()), state2);
+        transition1->addAnimation(new QPropertyAnimation(button, "geometry"));
+
+        QSignalTransition *transition2 = state2->addTransition(button,
+            SIGNAL(clicked()), state1);
+        transition2->addAnimation(new QPropertyAnimation(button, "geometry"));
+
+        machine->start();
+    \endcode
+
+    For a more comprehensive example of how to use the state machine
+    framework for animations, see the states example (it lives in the
+    \c{examples/animation/states} directory).
+*/

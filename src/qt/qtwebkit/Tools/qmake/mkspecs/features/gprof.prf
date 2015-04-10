@@ -1,0 +1,11 @@
+# -------------------------------------------------------------------
+# This optional feature file adds rules that make running gprof
+# on QtWebKit easier.
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+build?(webkit2): error("WebKit2 is not supported with gprof")
+
+QMAKE_CXXFLAGS += -pg
+QMAKE_LFLAGS += -pg

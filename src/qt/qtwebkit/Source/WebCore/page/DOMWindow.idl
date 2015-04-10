@@ -1,0 +1,324 @@
+/*
+ * Copyright (C) 2006, 2007, 2008, 2009, 2013 Apple Inc. All rights reserved.
+ * Copyright (C) 2011 Google Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+[
+    CheckSecurity,
+    JSCustomDefineOwnProperty,
+    CustomDeleteProperty,
+    CustomGetOwnPropertySlot,
+    CustomEnumerateProperty,
+    JSCustomMarkFunction,
+    JSCustomToNativeObject,
+    CustomPutFunction,
+    EventTarget,
+    JSGenerateToNativeObject,
+    ReplaceableConstructor,
+    JSLegacyParent=JSDOMWindowBase,
+    InterfaceName=Window
+] interface DOMWindow {
+    // DOM Level 0
+    [Replaceable] readonly attribute Screen screen;
+    [Replaceable, DoNotCheckSecurityOnGetter] readonly attribute History history;
+    [Replaceable] readonly attribute BarProp locationbar;
+    [Replaceable] readonly attribute BarProp menubar;
+    [Replaceable] readonly attribute BarProp personalbar;
+    [Replaceable] readonly attribute BarProp scrollbars;
+    [Replaceable] readonly attribute BarProp statusbar;
+    [Replaceable] readonly attribute BarProp toolbar;
+    [Replaceable] readonly attribute Navigator navigator;
+    [Replaceable] readonly attribute Navigator clientInformation;
+    readonly attribute Crypto crypto;
+#if !defined(LANGUAGE_CPP) || !LANGUAGE_CPP
+    [DoNotCheckSecurity, CustomSetter] attribute Location location;
+#endif
+    [Replaceable, CustomGetter] readonly attribute Event event;
+
+    DOMSelection getSelection();
+
+    [CheckSecurityForNode] readonly attribute Element frameElement;
+
+    [DoNotCheckSecurity, CallWith=ScriptExecutionContext] void focus();
+    [DoNotCheckSecurity] void blur();
+    [DoNotCheckSecurity, CallWith=ScriptExecutionContext] void close();
+
+    void print();
+    void stop();
+
+    [Custom] DOMWindow open(DOMString url,
+                            DOMString name,
+                            optional DOMString options);
+
+    [Custom] any showModalDialog(DOMString url,
+                                       optional any dialogArgs,
+                                       optional DOMString featureArgs);
+
+    void alert([Default=Undefined] optional DOMString message);
+    boolean confirm([Default=Undefined] optional DOMString message);
+    [TreatReturnedNullStringAs=Null] DOMString prompt([Default=Undefined] optional DOMString message,
+                                                [TreatNullAs=NullString, TreatUndefinedAs=NullString,Default=Undefined] optional DOMString defaultValue);
+
+    boolean find([Default=Undefined] optional DOMString string,
+                 [Default=Undefined] optional boolean caseSensitive,
+                 [Default=Undefined] optional boolean backwards,
+                 [Default=Undefined] optional boolean wrap,
+                 [Default=Undefined] optional boolean wholeWord,
+                 [Default=Undefined] optional boolean searchInFrames,
+                 [Default=Undefined] optional boolean showDialog);
+
+    [Replaceable] readonly attribute  boolean offscreenBuffering;
+
+    [Replaceable] readonly attribute long outerHeight;
+    [Replaceable] readonly attribute long outerWidth;
+    [Replaceable] readonly attribute long innerHeight;
+    [Replaceable] readonly attribute long innerWidth;
+    [Replaceable] readonly attribute long screenX;
+    [Replaceable] readonly attribute long screenY;
+    [Replaceable] readonly attribute long screenLeft;
+    [Replaceable] readonly attribute long screenTop;
+    [Replaceable] readonly attribute long scrollX;
+    [Replaceable] readonly attribute long scrollY;
+    readonly attribute long pageXOffset;
+    readonly attribute long pageYOffset;
+
+    void scrollBy([Default=Undefined] optional long x, [Default=Undefined] optional long y);
+    void scrollTo([Default=Undefined] optional long x, [Default=Undefined] optional long y);
+    void scroll([Default=Undefined] optional long x, [Default=Undefined] optional long y);
+    void moveBy([Default=Undefined] optional float x, [Default=Undefined] optional float y); // FIXME: this should take longs not floats.
+    void moveTo([Default=Undefined] optional float x, [Default=Undefined] optional float y); // FIXME: this should take longs not floats.
+    void resizeBy([Default=Undefined] optional float x, [Default=Undefined] optional float y); // FIXME: this should take longs not floats.
+    void resizeTo([Default=Undefined] optional float width, [Default=Undefined] optional float height); // FIXME: this should take longs not floats.
+
+    [DoNotCheckSecurity] readonly attribute boolean closed;
+
+    [Replaceable, DoNotCheckSecurityOnGetter] readonly attribute unsigned long length;
+
+    attribute DOMString name;
+
+    attribute DOMString status;
+    attribute DOMString defaultStatus;
+#if defined(LANGUAGE_JAVASCRIPT) && LANGUAGE_JAVASCRIPT
+    // This attribute is an alias of defaultStatus and is necessary for legacy uses.
+    attribute DOMString defaultstatus;
+#endif
+
+    // Self referential attributes
+    [Replaceable, DoNotCheckSecurityOnGetter] readonly attribute DOMWindow self;
+    [DoNotCheckSecurity] readonly attribute DOMWindow window;
+    [Replaceable, DoNotCheckSecurityOnGetter] readonly attribute  DOMWindow frames;
+
+    [Replaceable, DoNotCheckSecurityOnGetter] readonly attribute DOMWindow opener;
+    [Replaceable, DoNotCheckSecurityOnGetter] readonly attribute DOMWindow parent;
+    [DoNotCheckSecurityOnGetter] readonly attribute DOMWindow top;
+
+    // DOM Level 2 AbstractView Interface
+    readonly attribute Document document;
+
+    // CSSOM View Module
+    MediaQueryList matchMedia(DOMString query);
+
+    // styleMedia has been removed from the CSSOM View specification.
+    readonly attribute StyleMedia styleMedia;
+
+    // DOM Level 2 Style Interface
+    CSSStyleDeclaration getComputedStyle([Default=Undefined] optional Element element,
+                                                              [TreatNullAs=NullString, TreatUndefinedAs=NullString,Default=Undefined] optional DOMString pseudoElement);
+
+    // WebKit extensions
+#if defined(LANGUAGE_JAVASCRIPT) && LANGUAGE_JAVASCRIPT
+    CSSRuleList getMatchedCSSRules([Default=Undefined] optional Element element,
+                                   [TreatNullAs=NullString, TreatUndefinedAs=NullString,Default=Undefined] optional DOMString pseudoElement);
+#endif
+
+    [Replaceable] readonly attribute double devicePixelRatio;
+    
+    WebKitPoint webkitConvertPointFromPageToNode([Default=Undefined] optional Node node, 
+                                                 [Default=Undefined] optional WebKitPoint p);
+    WebKitPoint webkitConvertPointFromNodeToPage([Default=Undefined] optional Node node, 
+                                                 [Default=Undefined] optional WebKitPoint p);
+
+    readonly attribute DOMApplicationCache applicationCache;
+
+    [GetterRaisesException] readonly attribute Storage sessionStorage;
+    [GetterRaisesException] readonly attribute Storage localStorage;
+
+#if defined(ENABLE_ORIENTATION_EVENTS) && ENABLE_ORIENTATION_EVENTS
+    // This is the interface orientation in degrees. Some examples are:
+    //  0 is straight up; -90 is when the device is rotated 90 clockwise;
+    //  90 is when rotated counter clockwise.
+    readonly attribute long orientation;
+#endif
+
+    [Replaceable] readonly attribute Console console;
+
+    // cross-document messaging
+#if defined(LANGUAGE_JAVASCRIPT) && LANGUAGE_JAVASCRIPT
+    [DoNotCheckSecurity, Custom, RaisesException] void postMessage(SerializedScriptValue message, DOMString targetOrigin, optional Array messagePorts);
+#else
+    // There's no good way to expose an array via the ObjC bindings, so for now just allow passing in a single port.
+    [DoNotCheckSecurity, Custom, RaisesException] void postMessage(SerializedScriptValue message, optional MessagePort messagePort, DOMString targetOrigin);
+#endif
+
+#if defined(ENABLE_WEB_TIMING) && ENABLE_WEB_TIMING
+    [Replaceable] readonly attribute Performance performance;
+#endif
+
+#if defined(ENABLE_REQUEST_ANIMATION_FRAME) && ENABLE_REQUEST_ANIMATION_FRAME
+    long requestAnimationFrame(RequestAnimationFrameCallback callback);
+    void cancelAnimationFrame(long id);
+    long webkitRequestAnimationFrame(RequestAnimationFrameCallback callback);
+    [ImplementedAs=cancelAnimationFrame] void webkitCancelAnimationFrame(long id);
+    [ImplementedAs=cancelAnimationFrame] void webkitCancelRequestAnimationFrame(long id); // This is a deprecated alias for webkitCancelAnimationFrame(). Remove this when removing vendor prefix.
+#endif
+
+    [Replaceable,Conditional=CSS3_CONDITIONAL_RULES] readonly attribute DOMWindowCSS CSS;
+
+    // Events
+    attribute EventListener onabort;
+    attribute EventListener onbeforeunload;
+    attribute EventListener onblur;
+    attribute EventListener oncanplay;
+    attribute EventListener oncanplaythrough;
+    attribute EventListener onchange;
+    attribute EventListener onclick;
+    attribute EventListener oncontextmenu;
+    attribute EventListener ondblclick;
+    attribute EventListener ondrag;
+    attribute EventListener ondragend;
+    attribute EventListener ondragenter;
+    attribute EventListener ondragleave;
+    attribute EventListener ondragover;
+    attribute EventListener ondragstart;
+    attribute EventListener ondrop;
+    attribute EventListener ondurationchange;
+    attribute EventListener onemptied;
+    attribute EventListener onended;
+    attribute EventListener onerror;
+    attribute EventListener onfocus;
+    attribute EventListener onhashchange;
+    attribute EventListener oninput;
+    attribute EventListener oninvalid;
+    attribute EventListener onkeydown;
+    attribute EventListener onkeypress;
+    attribute EventListener onkeyup;
+    attribute EventListener onload;
+    attribute EventListener onloadeddata;
+    attribute EventListener onloadedmetadata;
+    attribute EventListener onloadstart;
+    attribute EventListener onmessage;
+    attribute EventListener onmousedown;
+    attribute EventListener onmouseenter;
+    attribute EventListener onmouseleave;
+    attribute EventListener onmousemove;
+    attribute EventListener onmouseout;
+    attribute EventListener onmouseover;
+    attribute EventListener onmouseup;
+    attribute EventListener onmousewheel;
+    attribute EventListener onoffline;
+    attribute EventListener ononline;
+    attribute EventListener onpagehide;
+    attribute EventListener onpageshow;
+    attribute EventListener onpause;
+    attribute EventListener onplay;
+    attribute EventListener onplaying;
+    attribute EventListener onpopstate;
+    attribute EventListener onprogress;
+    attribute EventListener onratechange;
+    attribute EventListener onresize;
+    attribute EventListener onscroll;
+    attribute EventListener onseeked;
+    attribute EventListener onseeking;
+    attribute EventListener onselect;
+    attribute EventListener onstalled;
+    attribute EventListener onstorage;
+    attribute EventListener onsubmit;
+    attribute EventListener onsuspend;
+    attribute EventListener ontimeupdate;
+    attribute EventListener onunload;
+    attribute EventListener onvolumechange;
+    attribute EventListener onwaiting;
+
+    // Not implemented yet.
+    // attribute EventListener onafterprint;
+    // attribute EventListener onbeforeprint;
+    // attribute EventListener onreadystatechange;
+    // attribute EventListener onredo;
+    // attribute EventListener onshow;
+    // attribute EventListener onundo;
+
+    // Webkit extensions
+    attribute EventListener onreset;
+    attribute EventListener onsearch;
+    attribute EventListener onwebkitanimationend;
+    attribute EventListener onwebkitanimationiteration;
+    attribute EventListener onwebkitanimationstart;
+    attribute EventListener onwebkittransitionend;
+    attribute EventListener ontransitionend;
+#if defined(ENABLE_ORIENTATION_EVENTS) && ENABLE_ORIENTATION_EVENTS
+    attribute EventListener onorientationchange;
+#endif
+    [Conditional=TOUCH_EVENTS] attribute EventListener ontouchstart;
+    [Conditional=TOUCH_EVENTS] attribute EventListener ontouchmove;
+    [Conditional=TOUCH_EVENTS] attribute EventListener ontouchend;
+    [Conditional=TOUCH_EVENTS] attribute EventListener ontouchcancel;
+
+    [Conditional=DEVICE_ORIENTATION] attribute EventListener ondevicemotion;
+    [Conditional=DEVICE_ORIENTATION] attribute EventListener ondeviceorientation;
+
+    [Conditional=PROXIMITY_EVENTS] attribute EventListener onwebkitdeviceproximity;
+
+    // EventTarget interface
+    [Custom] void addEventListener(DOMString type,
+                                  EventListener listener,
+                                  optional boolean useCapture);
+    [Custom] void removeEventListener(DOMString type,
+                                      EventListener listener,
+                                      optional boolean useCapture);
+    [RaisesException] boolean dispatchEvent(Event evt);
+
+    void captureEvents(/*in long eventFlags*/);
+    void releaseEvents(/*in long eventFlags*/);
+
+#if defined(LANGUAGE_JAVASCRIPT) && LANGUAGE_JAVASCRIPT
+    // Additional constructors.
+    [CustomGetter, CustomConstructor] attribute HTMLImageElementNamedConstructor Image; // Usable with new operator
+    // Mozilla has a separate XMLDocument object for XML documents.
+    // We just use Document for this.
+    attribute DocumentConstructor XMLDocument;
+    [Conditional=BLOB] attribute DOMURLConstructor webkitURL; // FIXME: deprecate this.
+    attribute MutationObserverConstructor WebKitMutationObserver; // FIXME: Add metrics to determine when we can remove this.
+    [Conditional=INDEXED_DATABASE] attribute IDBCursorConstructor webkitIDBCursor;
+    [Conditional=INDEXED_DATABASE] attribute IDBDatabaseConstructor webkitIDBDatabase;
+    [Conditional=INDEXED_DATABASE] attribute IDBFactoryConstructor webkitIDBFactory;
+    [Conditional=INDEXED_DATABASE] attribute IDBIndexConstructor webkitIDBIndex;
+    [Conditional=INDEXED_DATABASE] attribute IDBKeyRangeConstructor webkitIDBKeyRange;
+    [Conditional=INDEXED_DATABASE] attribute IDBObjectStoreConstructor webkitIDBObjectStore;
+    [Conditional=INDEXED_DATABASE] attribute IDBRequestConstructor webkitIDBRequest;
+    [Conditional=INDEXED_DATABASE] attribute IDBTransactionConstructor webkitIDBTransaction;
+#endif // defined(LANGUAGE_JAVASCRIPT)
+};
+
+DOMWindow implements WindowTimers;
+DOMWindow implements WindowBase64;

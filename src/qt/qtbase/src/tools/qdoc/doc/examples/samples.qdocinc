@@ -1,0 +1,109 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+//! [qvector3d-class]
+/*!
+    \class QVector3D
+    \brief The QVector3D class represents a vector or vertex in 3D space.
+    \since 4.6
+    \ingroup painting-3D
+
+    Vectors are one of the main building blocks of 3D representation and
+    drawing.  They consist of three coordinates, traditionally called
+    x, y, and z.
+
+    The QVector3D class can also be used to represent vertices in 3D space.
+    We therefore do not need to provide a separate vertex class.
+
+    \b{Note:} By design values in the QVector3D instance are stored as \c float.
+    This means that on platforms where the \c qreal arguments to QVector3D
+    functions are represented by \c double values, it is possible to
+    lose precision.
+
+    \sa QVector2D, QVector4D, QQuaternion
+*/
+//! [qvector3d-class]
+
+//! [qvector3d-function]
+/*!
+    \fn QVector3D::QVector3D(const QPoint& point)
+
+    Constructs a vector with x and y coordinates from a 2D \a point, and a
+    z coordinate of 0.
+*/
+//! [qvector3d-function]
+
+//! [sample-page]
+/*!
+    \page generic-guide.html
+    \title Generic QDoc Guide
+    \nextpage Creating QDoc Configuration Files
+    There are three essential materials for generating documentation with qdoc:
+
+    \list
+        \li \c qdoc binary
+        \li \c qdocconf configuration files
+        \li \c Documentation in \c C++, \c QML, and \c .qdoc files
+    \endlist
+*/
+//! [sample-page]
+
+//! [sample-faq]
+/*!
+    \page altruism-faq.html faq
+    \title Altruism Frequently Asked Questions
+
+    \brief All the questions about altruism, answered.
+
+    ...
+*/
+//! [sample-faq]
+
+//! [sample-example]
+/*!
+    \title UI Components: Tab Widget Example
+    \example declarative/ui-components/tabwidget
+
+    This example shows how to create a tab widget. It also demonstrates how
+    \l {Property aliases}{property aliases} and
+    \l {Introduction to the QML Language#Default Properties}{default properties} can be used to collect and
+    assemble the child items declared within an \l Item.
+
+    \image qml-tabwidget-example.png
+*/
+//! [sample-example]
+
+//! [sample-overview]
+/*!
+    \page overview-qt-technology.html overview
+    \title Overview of a Qt Technology
+
+    \brief provides a technology never seen before.
+
+*/
+//! [sample-overview]
+

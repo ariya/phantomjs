@@ -1,0 +1,707 @@
+2013-07-24  Antoine Quint  <graouts@apple.com>
+
+        Web Inspector: control+clicking on a numeric token should not show the context menu
+        https://bugs.webkit.org/show_bug.cgi?id=119048
+
+        Reviewed by Timothy Hatcher.
+
+        Track "contextmenu" events when we're hovering a token containing a numeric value
+        and call preventDefault() in the event handler to ensure that the context menu does
+        not appear.
+
+        * UserInterface/CodeMirrorDragToAlterNumberController.js:
+        (WebInspector.CodeMirrorDragToAlterNumberController.prototype.handleEvent):
+        (WebInspector.CodeMirrorDragToAlterNumberController.prototype._setTracksMouseClickAndDrag):
+
+2013-07-24  Antoine Quint  <graouts@apple.com>
+
+        Web Inspector: support click-and-drag editing of CSS numeric values
+        https://bugs.webkit.org/show_bug.cgi?id=118896
+
+        Reviewed by Timothy Hatcher.
+
+        Add support for adjustment of numeric values in the various CodeMirror editors
+        by holding the option key and dragging the mouse. By default, dragging one pixel
+        changes the value by 1, but key modifiers allow to customize that behavior by using
+        the control key to change the value to 0.1 and the shift key to change the value to 10.
+
+        * UserInterface/CodeMirrorAdditions.js:
+        Split adjustNumber() into two methods such that we may use its logic from the
+        CodeMirrorDragToAlterNumberController. The new method, CodeMirror.prototype.alterNumberInRange()
+        allow to set begin and end CodeMirror positions such that the existing alterNumber()
+        can use information based on the current cursor position, and CodeMirrorDragToAlterNumberController
+        can use information based on the hovered token.
+
+        * UserInterface/CodeMirrorDragToAlterNumberController.css: Added.
+        (.CodeMirror.drag-to-adjust .CodeMirror-lines):
+        Set the cursor to "col-resize" when a number token is hovered and the option key
+        modifier is pressed.
+
+        * UserInterface/CodeMirrorDragToAlterNumberController.js: Added.
+        (WebInspector.CodeMirrorDragToAlterNumberController):
+        We define the new "dragToAdjustNumbers" CodeMirror option.
+
+        (WebInspector.CodeMirrorDragToAlterNumberController.prototype.set enabled):
+        The "enabled" property controls whether the associated CodeMirror instance
+        may act upon hovering numeric values to adjust them via a drag interaction.
+
+        (WebInspector.CodeMirrorDragToAlterNumberController.prototype.handleEvent):
+        Proxy for various event-specific methods to deal with mouse events. We also bind
+        the value of the "active" property to the "mouseenter" and "mouseleave" events
+        if we're not currently dragging-to-adjust.
+
+        (WebInspector.CodeMirrorDragToAlterNumberController.prototype._setActive):
+        The "active" property is set when the mouse is over the associated CodeMirror
+        editor and when it's on we track all "mousemove" events such that we may
+        identify tokens containing numeric values. We also start tracking changes to the
+        option modifier key press state such that we may change the cursor accordingly.
+        We ensure that the CodeMirror instance is not read-only such that we don't
+        allow adjustment of numeric values in places where they couldn't be committed.
+
+        (WebInspector.CodeMirrorDragToAlterNumberController.prototype._setDragging):
+        The "dragging" property reflects whether a dragging-to-adjust interaction
+        is underway. We call into WebInspector.elementDragStart() and WebInspector.elementDragEnd()
+        to set the cursor to "col-resize" for the whole document while tracking mousemove
+        and mouseup events at the window level such that we can drag-to-adjust even outside
+        of the inspector window.
+
+        (WebInspector.CodeMirrorDragToAlterNumberController.prototype._setTracksMouseClickAndDrag):
+        The "tracksMouseClickAndDrag" property is set to true whenever the controller
+        has detected that a token containing a numeric value is being hovered and the
+        option modifier key is pressed. This property controls the cursor value for the
+        hovered token to reflect that a drag-to-adjust interaction is allowed and tracks
+        "mousedown" events for when a dragging interaction may be initiated.
+
+        (WebInspector.CodeMirrorDragToAlterNumberController.prototype._modifiersDidChange):
+        Sets the "tracksMouseClickAndDrag" property depending on the availability of a hovered
+        token containing a numeric value and the pressed state of the option modified key.
+
+        (WebInspector.CodeMirrorDragToAlterNumberController.prototype._mouseMoved):
+        Handles "mousemove" events when we're not in the "dragging" state such that we
+        check the currently hovered token, if any, to see if it contains a number that
+        we may drag-to-adjust. Subsequently, we may enter the "tracksMouseClickAndDrag"
+        state.
+
+        (WebInspector.CodeMirrorDragToAlterNumberController.prototype._mouseWasPressed):
+        Handles "mousedown" events during a drag-to-adjust interaction. We simply track
+        the current mouse position in the x-axis and enter the "dragging" state.
+
+        (WebInspector.CodeMirrorDragToAlterNumberController.prototype._mouseWasDragged):
+        Handles "mousemove" events when we are in the "dragging" state. We compare the
+        current mouse position in the x-axis with the last recoreded value and determine
+        the amount by which we should adjust the value, taking into account the shift and
+        control modifier keys. We then call into WebInspector.alterNumberInRange() to
+        apply the change amount to the associated CodeMirror editor.
+
+        (WebInspector.CodeMirrorDragToAlterNumberController.prototype._mouseWasReleased):
+        Handles "mouseup" events, simply exiting the "dragging" state and resetting other
+        parameters we would have customized as a result of the drag-to-adjust interaction.
+
+        (WebInspector.CodeMirrorDragToAlterNumberController.prototype._reset):
+        Resetting some parameters we would have customized as a result of the drag-to-adjust
+        interaction.
+
+        * UserInterface/Main.html:
+        Include the new CodeMirrorDragToAlterNumberController.{js|css} files.
+
+        * UserInterface/Main.js:
+        (WebInspector.elementDragStart):
+        (WebInspector.elementDragEnd):
+        Add an extra parameter to elementDragStart() such that the caller may specify the event
+        target for the "mousemove" and "mouseup" events.
+
+2013-07-23  Roland Takacs  <rtakacs@inf.u-szeged.hu>
+
+        WebSocket initialization to use remote inspector
+        https://bugs.webkit.org/show_bug.cgi?id=118678
+
+        Reviewed by Timothy Hatcher.
+
+        Add WebSocket initialization and define a 'connect-src' directive in the
+        Content-Security-Policy HTTP header to enable the connection.
+
+        * UserInterface/InspectorFrontendHostStub.js:
+        (.WebInspector.InspectorFrontendHostStub.prototype.sendMessageToBackend):
+        * UserInterface/Main.html:
+        * UserInterface/Main.js:
+        (WebInspector.loaded):
+        (WebInspector._initializeWebSocketIfNeeded.createSocket.WebInspector):
+        (WebInspector._initializeWebSocketIfNeeded.createSocket):
+        (WebInspector._initializeWebSocketIfNeeded):
+
+2013-07-22  Diego Pino Garcia  <dpino@igalia.com>
+
+        Web Inspector: When right-clicking on a DataGrid column, show editing 
+        menu option as "Edit <columnName>" instead of just "Edit"
+        https://bugs.webkit.org/show_bug.cgi?id=118970
+
+        Reviewed by Timothy Hatcher.
+
+        * Localizations/en.lproj/localizedStrings.js: Add literal "Edit '%s'"
+        * UserInterface/DataGrid.js: Change "Edit" for "Edit <columnTitle>"
+        (WebInspector.DataGrid.prototype._contextMenuInDataTable):
+
+2013-07-21  Seokju Kwon  <seokju.kwon@gmail.com>
+
+        Web Inspector: Cleanup InspectorFrontendHostStub.js
+        https://bugs.webkit.org/show_bug.cgi?id=118959
+
+        Reviewed by Timothy Hatcher.
+
+        Remove some functions because we dont use on New Inspector.
+
+        * UserInterface/InspectorFrontendHostStub.js:
+        (.WebInspector.InspectorFrontendHostStub):
+        (.WebInspector.InspectorFrontendHostStub.prototype.save):
+
+2013-07-17  Seokju Kwon  <seokju.kwon@gmail.com>
+
+        Web Inspector: Fix a typo in WebInspector.loaded
+        https://bugs.webkit.org/show_bug.cgi?id=118834
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Main.js:
+        (WebInspector.loaded):
+
+2013-07-16  Seokju Kwon  <seokju.kwon@gmail.com>
+
+        Web Inspector: InspectorFrontendHost is undefined
+        https://bugs.webkit.org/show_bug.cgi?id=118715
+
+        Reviewed by Timothy Hatcher.
+
+        Add InspectorFrontendHostStub.js to New Inspector because of the InspectorFrontendHost initialization.
+
+        * UserInterface/InspectorFrontendHostStub.js: Added.
+        (.WebInspector.InspectorFrontendHostStub):
+        (.WebInspector.InspectorFrontendHostStub.prototype.platform):
+        (.WebInspector.InspectorFrontendHostStub.prototype.port):
+        (.WebInspector.InspectorFrontendHostStub.prototype.bringToFront):
+        (.WebInspector.InspectorFrontendHostStub.prototype.closeWindow):
+        (.WebInspector.InspectorFrontendHostStub.prototype.requestSetDockSide):
+        (.WebInspector.InspectorFrontendHostStub.prototype.setAttachedWindowHeight):
+        (.WebInspector.InspectorFrontendHostStub.prototype.setAttachedWindowWidth):
+        (.WebInspector.InspectorFrontendHostStub.prototype.setToolbarHeight):
+        (.WebInspector.InspectorFrontendHostStub.prototype.moveWindowBy):
+        (.WebInspector.InspectorFrontendHostStub.prototype.loaded):
+        (.WebInspector.InspectorFrontendHostStub.prototype.localizedStringsURL):
+        (.WebInspector.InspectorFrontendHostStub.prototype.inspectedURLChanged):
+        (.WebInspector.InspectorFrontendHostStub.prototype.copyText):
+        (.WebInspector.InspectorFrontendHostStub.prototype.openInNewTab):
+        (.WebInspector.InspectorFrontendHostStub.prototype.canSave):
+        (.WebInspector.InspectorFrontendHostStub.prototype.save):
+        (.WebInspector.InspectorFrontendHostStub.prototype.append):
+        (.WebInspector.InspectorFrontendHostStub.prototype.close.cleanup):
+        (.WebInspector.InspectorFrontendHostStub.prototype.close):
+        (.WebInspector.InspectorFrontendHostStub.prototype.sendMessageToBackend):
+        (.WebInspector.InspectorFrontendHostStub.prototype.loadResourceSynchronously):
+        * UserInterface/Main.html:
+
+2013-07-15  Seokju Kwon  <seokju.kwon@gmail.com>
+
+        Web Inspector: Remove unused columns from select query in ImageUtilities.js
+        https://bugs.webkit.org/show_bug.cgi?id=118694
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/ImageUtilities.js: Remove pixelRatio and formatVersion from select query.
+
+2013-07-15  Timothy Hatcher  <timothy@apple.com>
+
+        Update CodeMirror to 3.14.1.
+
+        https://bugs.webkit.org/show_bug.cgi?id=118605
+
+        Reviewed by Joseph Pecoraro.
+
+        * Scripts/update-codemirror-resources.rb: Updated the list to add closebrackets.js and sorted the files.
+        * Tools/PrettyPrinting/CodeMirrorFormatters.js:
+        * Tools/PrettyPrinting/Formatter.js:
+        * Tools/PrettyPrinting/FormatterContentBuilder.js:
+        * Tools/PrettyPrinting/codemirror.css:
+        * Tools/PrettyPrinting/codemirror.js:
+        * Tools/PrettyPrinting/css.js:
+        * Tools/PrettyPrinting/javascript.js:
+        * UserInterface/External/CodeMirror/closebrackets.js:
+        * UserInterface/External/CodeMirror/codemirror.css:
+        * UserInterface/External/CodeMirror/codemirror.js:
+        * UserInterface/External/CodeMirror/coffeescript.js:
+        * UserInterface/External/CodeMirror/comment.js:
+        * UserInterface/External/CodeMirror/css.js:
+        * UserInterface/External/CodeMirror/javascript.js:
+        * UserInterface/External/CodeMirror/matchbrackets.js:
+        * UserInterface/External/CodeMirror/sql.js:
+        * UserInterface/External/CodeMirror/xml.js:
+
+2013-07-15  Timothy Hatcher  <timothy@apple.com>
+
+        Make sure to add main resources for sub-frames to the Network Timeline.
+
+        https://bugs.webkit.org/show_bug.cgi?id=118649
+
+        Reviewed by Joseph Pecoraro.
+
+        * UserInterface/TimelineManager.js:
+        (WebInspector.TimelineManager.prototype._mainResourceDidChange): Remove the
+        call to _clear() and early return for event.target.isMainFrame(). The _clear()
+        is already handled if needed by the call to _startAutoRecording(), so it was
+        redundant here and caused the erroneous addition of isMainFrame() early return.
+
+2013-07-15  Timothy Hatcher  <timothy@apple.com>
+
+        Properly handle style text changes while the color popover is open.
+
+        https://bugs.webkit.org/show_bug.cgi?id=118575
+
+        Reviewed by Joseph Pecoraro.
+
+        * UserInterface/CSSStyleDeclarationTextEditor.js:
+        (WebInspector.CSSStyleDeclarationTextEditor.prototype._colorSwatchClicked.updateCodeMirror):
+        The original text marker might have been cleared by a style update, in this case we need to
+        find the new color text marker so we know the right range for the new style color text.
+
+2013-07-14  Commit Queue  <commit-queue@webkit.org>
+
+        Unreviewed, rolling out r152598.
+        http://trac.webkit.org/changeset/152598
+        https://bugs.webkit.org/show_bug.cgi?id=118658
+
+        totally broke the web inspector (JS ERROR: SyntaxError:
+        Expected token '}') (Requested by thorton on #webkit).
+
+        * Tools/PrettyPrinting/CodeMirrorFormatters.js:
+        * Tools/PrettyPrinting/Formatter.js:
+        * Tools/PrettyPrinting/FormatterContentBuilder.js:
+        * Tools/PrettyPrinting/codemirror.css:
+        (.CodeMirror-scrollbar-filler):
+        (.CodeMirror-gutters):
+        (.CodeMirror-vscrollbar, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler):
+        (.CodeMirror-widget):
+        * Tools/PrettyPrinting/codemirror.js:
+        (window.CodeMirror):
+        (window.CodeMirror.):
+        (.do):
+        (moveVisually):
+        * Tools/PrettyPrinting/css.js:
+        (.):
+        (CodeMirror):
+        * Tools/PrettyPrinting/javascript.js:
+        (.):
+        * UserInterface/External/CodeMirror/codemirror.css:
+        (.CodeMirror-widget):
+        * UserInterface/External/CodeMirror/codemirror.js:
+        (window.CodeMirror):
+        (window.CodeMirror.):
+        * UserInterface/External/CodeMirror/coffeescript.js:
+        * UserInterface/External/CodeMirror/comment.js:
+        (.):
+        * UserInterface/External/CodeMirror/css.js:
+        (.):
+        (CodeMirror):
+        * UserInterface/External/CodeMirror/javascript.js:
+        (.):
+        * UserInterface/External/CodeMirror/matchbrackets.js:
+        (.):
+        * UserInterface/External/CodeMirror/sql.js:
+        * UserInterface/External/CodeMirror/xml.js:
+
+2013-07-12  Timothy Hatcher  <timothy@apple.com>
+
+        Update CodeMirror to 7f560afa1c (3.14+).
+
+        https://bugs.webkit.org/show_bug.cgi?id=118605
+
+        Reviewed by Sam Weinig.
+
+        * Tools/PrettyPrinting/CodeMirrorFormatters.js:
+        * Tools/PrettyPrinting/Formatter.js:
+        * Tools/PrettyPrinting/FormatterContentBuilder.js:
+        * Tools/PrettyPrinting/codemirror.css:
+        * Tools/PrettyPrinting/codemirror.js:
+        * Tools/PrettyPrinting/css.js:
+        * Tools/PrettyPrinting/javascript.js:
+        * UserInterface/External/CodeMirror/codemirror.css:
+        * UserInterface/External/CodeMirror/codemirror.js:
+        * UserInterface/External/CodeMirror/coffeescript.js:
+        * UserInterface/External/CodeMirror/comment.js:
+        * UserInterface/External/CodeMirror/css.js:
+        * UserInterface/External/CodeMirror/javascript.js:
+        * UserInterface/External/CodeMirror/matchbrackets.js:
+        * UserInterface/External/CodeMirror/sql.js:
+        * UserInterface/External/CodeMirror/xml.js:
+
+2013-07-12  Seokju Kwon  <seokju.kwon@gmail.com>
+
+        Web Inspector: Pass null for sidebarPanels and role in WebInspector.Sidebar()
+        https://bugs.webkit.org/show_bug.cgi?id=118589
+
+        Reviewed by Timothy Hatcher.
+
+        sidebarPanels : It is necessary to get correct argument after r152141.
+        Without this, error messages can be displayed.
+        role : Could pass null for it since default value is "group".
+
+        * UserInterface/Main.js:
+        (WebInspector.contentLoaded):
+
+2013-07-03  Timothy Hatcher  <timothy@apple.com>
+
+        Guard remaining calls to decodeURIComponent with a try/catch.
+
+        https://bugs.webkit.org/show_bug.cgi?id=118371
+
+        Reviewed by Joseph Pecoraro.
+
+        * UserInterface/Main.js:
+        (WebInspector.displayNameForURL):
+        (WebInspector.updateWindowTitle):
+        * UserInterface/Utilities.js:
+        (arrayResult):
+        (queryString):
+
+2013-07-03  Jessie Berlin  <jberlin@apple.com>
+
+        Ran update-webkit-localizable-strings.
+
+        Rubber-stamped by Joseph Pecoraro.
+
+        * Localizations/en.lproj/localizedStrings.js:
+
+2013-06-28  Dean Jackson  <dino@apple.com>
+
+        Update Apple System fonts in auto-complete
+        https://bugs.webkit.org/show_bug.cgi?id=118205
+        <rdar://problem/14308488>
+
+        Reviewed by Joseph Pecoraro.
+
+        Update for the new Apple System font names, and remove some invalid entries.
+
+        * UserInterface/CSSKeywordCompletions.js: General cleanup. Note that
+        "apple-system-short-caption2" looks like it was accidentally omitted. It wasn't :)
+
+2013-06-28  James Craig  <james@cookiecrook.com>
+
+        Web Inspector: AX: VoiceOver speaks all inspector search fields as 'required'
+        https://bugs.webkit.org/show_bug.cgi?id=118122
+
+        Reviewed by Timothy Hatcher.
+
+        Removed bogus "required" state, and switched :valid selector to use :not(:placeholder-shown)
+        so that screen readers will not indicate a bogus :required/:invalid state to the user.
+        Minor cosmetic difference blocked by http://webkit.org/b/118162
+
+        * UserInterface/FilterBar.css:
+        (.filter-bar > input[type="search"]:focus):
+        (.filter-bar > input[type="search"]:not(:placeholder-shown)):
+        * UserInterface/FilterBar.js:
+        (WebInspector.FilterBar):
+        * UserInterface/ResourceSidebarPanel.js:
+        (WebInspector.ResourceSidebarPanel):
+        * UserInterface/SearchBar.css:
+        (.search-bar > input[type="search"]:focus):
+        (.search-bar > input[type="search"]:not(:placeholder-shown)):
+        * UserInterface/SearchBar.js:
+        (WebInspector.SearchBar):
+
+2013-06-27  James Craig  <james@cookiecrook.com>
+
+        Web Inspector: AX: Add container ARIA roles (toolbar, main, labeled regions, etc.) 
+        so the layout is more discoverable to screen reader users
+        https://bugs.webkit.org/show_bug.cgi?id=118104
+
+        Reviewed by Timothy Hatcher.
+
+        Made the basic layout (toolbar, sidebars, main) of the Web Inspector understandable
+        and navigable with VoiceOver.
+
+        * Localizations/en.lproj/localizedStrings.js:
+        * UserInterface/ButtonNavigationItem.js:
+        * UserInterface/CSSStyleDetailsSidebarPanel.js:
+        * UserInterface/DashboardManager.js:
+        * UserInterface/Main.js:
+        * UserInterface/NavigationBar.js:
+        * UserInterface/NavigationItem.js:
+        * UserInterface/NavigationSidebarPanel.js:
+        * UserInterface/RadioButtonNavigationItem.js:
+        * UserInterface/Sidebar.js:
+        * UserInterface/SidebarPanel.js:
+        * UserInterface/Toolbar.js:
+
+2013-06-27  James Craig  <james@cookiecrook.com>
+
+        Web Inspector: AX: Console log of the Inspector does not announce output for screen readers
+        https://bugs.webkit.org/show_bug.cgi?id=115976
+
+        Reviewed by Timothy Hatcher.
+
+        Main console log area (div.console-messages) is now an ARIA live region (role="log")
+        so screen readers speak plain text updates.
+        
+        Also added contextual labels (e.g. input/output) but speech output verification of
+        those is currently blocked by http://webkit.org/b/118096
+
+        * Localizations/en.lproj/localizedStrings.js:
+        * UserInterface/ConsoleCommand.js:
+        (WebInspector.ConsoleCommand.prototype.toMessageElement):
+        * UserInterface/ConsoleCommandResult.js:
+        (WebInspector.ConsoleCommandResult.prototype.toMessageElement):
+        * UserInterface/LogContentView.css:
+        (@media reader):
+        * UserInterface/LogContentView.js:
+        (WebInspector.LogContentView):
+
+
+2013-06-27  Matthew Holden  <jftholden@yahoo.com>
+
+        Web Inspector: Display color picker in popover on color swatch click
+        https://bugs.webkit.org/show_bug.cgi?id=117919
+
+        Reviewed by Timothy Hatcher.
+
+        Includes fixes from second code review.
+
+        * Localizations/en.lproj/localizedStrings.js:
+        * UserInterface/CSSColorPicker.css: Added.
+        (.colorpicker-container):
+        (.colorpicker-fill-parent):
+        (.colorpicker-top):
+        (.colorpicker-color):
+        (.colorpicker-bottom span):
+        (.colorpicker-text):
+        (.colorpicker-color-text-value):
+        (.colorpicker-hue):
+        (.colorpicker-fill):
+        (.colorpicker-range-container):
+        (.colorpicker-range-container *):
+        (.colorpicker-range-container label):
+        (.colorpicker-range-container input):
+        (.colorpicker-saturation):
+        (.colorpicker-value):
+        (.colorpicker-dragger):
+        (.colorpicker-slider):
+        (.colorpicker-container .swatch):
+        (.colorpicker-container .swatch-inner):
+        * UserInterface/CSSColorPicker.js: Added.
+        (WebInspector.CSSColorPicker.consume):
+        (WebInspector.CSSColorPicker.move):
+        (WebInspector.CSSColorPicker.start):
+        (WebInspector.CSSColorPicker.stop):
+        (WebInspector.CSSColorPicker.makeDraggable):
+        (WebInspector.CSSColorPicker.hueDrag):
+        (WebInspector.CSSColorPicker.colorDragStart):
+        (WebInspector.CSSColorPicker.colorDrag):
+        (WebInspector.CSSColorPicker.alphaDrag):
+        (WebInspector.CSSColorPicker.colorSwatchClicked):
+        (WebInspector.CSSColorPicker):
+        (WebInspector.CSSColorPicker.prototype.get element):
+        (WebInspector.CSSColorPicker.prototype.set color):
+        (WebInspector.CSSColorPicker.prototype.get color):
+        (WebInspector.CSSColorPicker.prototype.get outputColorFormat):
+        (WebInspector.CSSColorPicker.prototype.get colorHueOnly):
+        (WebInspector.CSSColorPicker.prototype.set displayText):
+        (WebInspector.CSSColorPicker.prototype.shown):
+        (WebInspector.CSSColorPicker.prototype._updateHelperLocations):
+        (WebInspector.CSSColorPicker.prototype._updateDisplay):
+        (WebInspector.CSSColorPicker.hsvaToRGBA):
+        (WebInspector.CSSColorPicker.rgbaToHSVA):
+        * UserInterface/CSSStyleDeclarationTextEditor.js:
+        (WebInspector.CSSStyleDeclarationTextEditor.prototype.didDismissPopover):
+        (WebInspector.CSSStyleDeclarationTextEditor.prototype.):
+        (WebInspector.CSSStyleDeclarationTextEditor.prototype._createColorSwatches):
+        (WebInspector.CSSStyleDeclarationTextEditor.prototype.event.newColorText.colorTextMarker):
+        (WebInspector.CSSStyleDeclarationTextEditor.prototype.event.newColorText):
+        * UserInterface/Main.html:
+
+2013-06-26  Antoine Quint  <graouts@apple.com>
+
+        Web Inspector: stepping through while paused in debugger makes a popover appear
+        https://bugs.webkit.org/show_bug.cgi?id=117994
+
+        There is no obvious need to call tokenTrackingControllerNewHighlightCandidate when the
+        active call frame changes and it leads to an extraneous display of the popover.
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/SourceCodeTextEditor.js:
+        (WebInspector.SourceCodeTextEditor.prototype._activeCallFrameDidChange):
+
+2013-06-24  Antoine Quint  <graouts@apple.com>
+
+        Web Inspector: WebInspector.displayNameForURL() failure prevents DOM inspection
+        https://bugs.webkit.org/show_bug.cgi?id=117927
+
+        Handle possible mis-encoded URI fragments passed to decodeURIComponent() which
+        could prevent inspection of the DOM.
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Main.js:
+        (WebInspector.displayNameForURL):
+
+2013-06-17  Darin Adler  <darin@apple.com>
+
+        Sort all the Xcode project files
+        https://bugs.webkit.org/show_bug.cgi?id=117696
+
+        Reviewed by Anders Carlsson.
+
+        * WebInspectorUI.xcodeproj/project.pbxproj: Ran the sort-Xcode-project-file script.
+
+2013-06-21  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Uncaught exception when pretty printing WebInspector.Script
+        https://bugs.webkit.org/show_bug.cgi?id=117893
+
+        This was an issue with an earlier refactoring. The sourceCode is a Script,
+        so replace the non-existent local variable "script" with "this._sourceCode".
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/SourceCodeTextEditor.js:
+        (WebInspector.SourceCodeTextEditor.prototype.textEditorUpdatedFormatting):
+
+2013-06-21  Timothy Hatcher  <timothy@apple.com>
+
+        Stop removing and re-adding breakpoints from the backend on reload.
+
+        On reload the sourceCode for breakpoints are nulled out, which fires DisplayLocationDidChange.
+        Then the sourceCode is reassociated, firing DisplayLocationDidChange again. In these cases we
+        don't need to update the backend, since nothing really changed.
+
+        https://bugs.webkit.org/show_bug.cgi?id=117877
+
+        Reviewed by Joseph Pecoraro.
+
+        * UserInterface/DebuggerManager.js:
+        (WebInspector.DebuggerManager.prototype._breakpointDisplayLocationDidChange): Return early when
+        _ignoreBreakpointDisplayLocationDidChangeEvent is true.
+        (WebInspector.DebuggerManager.prototype.reset): Set _ignoreBreakpointDisplayLocationDidChangeEvent.
+        (WebInspector.DebuggerManager.prototype._associateBreakpointsWithSourceCode): Ditto.
+
+2013-06-19  Antoine Quint  <graouts@apple.com>
+
+        Web Inspector: Copying array or object output does not contain values
+        https://bugs.webkit.org/show_bug.cgi?id=117669
+
+        ConsoleCommandResult was overriding toClipboardString() but wasn't using the complex code
+        in ConsoleMessageImpl's toClipboardString() to provide a nicely formatted output for objects.
+        We now use a "clipboarPrefixString" property to customize the prefix used in the clipboard
+        and, additionally, only use that prefix if we're copying more than a single message since it's
+        the only situation where it's useful to have the ">" or "<" prefix shown. Console messages with
+        a log level always print the level and when saving the console log using Cmd+S, all messages
+        contain their prefix as well.
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/ConsoleCommand.js:
+        (WebInspector.ConsoleCommand.prototype.toClipboardString):
+        Handle the new isPrefixOptional argument.
+
+        * UserInterface/ConsoleCommandResult.js:
+        (WebInspector.ConsoleCommandResult.prototype.get clipboarPrefixString):
+        Provide a custom "< " prefix and set "enforcesClipboardPrefixString" to false such that
+        the prefix isn't printed out in situations when it may not.
+
+        * UserInterface/ConsoleMessageImpl.js:
+        Set "enforcesClipboardPrefixString" to true since we always want to log the log level
+        prefix in all situations.
+
+        (WebInspector.ConsoleMessageImpl.prototype.get clipboarPrefixString):
+        Implement this new getter to return our clipboard string such that subclasses may
+        customize it.
+
+        (WebInspector.ConsoleMessageImpl.prototype.toClipboardString):
+        Take into account both isPrefixOptional and the "enforcesClipboardPrefixString" property
+        to only log the prefix if necessary.
+
+        * UserInterface/LogContentView.js:
+        (WebInspector.LogContentView.prototype._formatMessagesAsData):
+        Make the logging of prefix optional when we have a single message selected and we're
+        not saving via Cmd+S.
+
+2013-06-18  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: Infrequent uncaught exception with debugger popovers breaks inspector
+        https://bugs.webkit.org/show_bug.cgi?id=117755
+
+        Create the ZERO_SIZE and ZERO_RECT objects after we've setup the Size
+        and Rect prototypes, so they get the expected methods. We then need to
+        handle the ZERO_RECT case better, and not attempt to draw a background
+        in a canvas with a 0 size, which would produce an exception.
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/Geometry.js:
+        * UserInterface/Popover.js:
+        (WebInspector.Popover.prototype._update):
+
+2013-06-18  Timothy Hatcher  <timothy@apple.com>
+
+        If the tree outline is processing a selection currently, then don't change the selection.
+
+        This is needed to allow breakpoints tree elements to be selected without jumping back to
+        selecting the resource tree element.
+
+        https://bugs.webkit.org/show_bug.cgi?id=117746
+
+        Reviewed by Joseph Pecoraro.
+
+        * UserInterface/Main.js:
+        (WebInspector._revealAndSelectRepresentedObjectInNavigationSidebar):
+        * UserInterface/TreeOutline.js:
+        (TreeElement.prototype.select):
+
+2013-06-18  Timothy Hatcher  <timothy@apple.com>
+
+        Update breakpoints to match Xcode 5.
+
+        This updates the breakpoint images, line colors, and moves breakpoints toggle button
+        to the Debugger sidebar navigation bar.
+
+        https://bugs.webkit.org/show_bug.cgi?id=117723
+
+        Reviewed by Joseph Pecoraro.
+
+        * Localizations/en.lproj/localizedStrings.js: Updated.
+        * UserInterface/DebuggerSidebarPanel.css: Removed custom toggle button rules.
+        * UserInterface/DebuggerSidebarPanel.js:
+        (WebInspector.DebuggerSidebarPanel):
+        (WebInspector.DebuggerSidebarPanel.prototype._breakpointsToggleButtonClicked):
+        * UserInterface/Images/Breakpoint.png: Updated.
+        * UserInterface/Images/Breakpoints.pdf: Added.
+        * UserInterface/Images/Breakpoint@2x.png: Updated.
+        * UserInterface/Images/BreakpointButton.pdf: Updated.
+        * UserInterface/Images/BreakpointInactive.png: Updated.
+        * UserInterface/Images/BreakpointInactive@2x.png: Updated.
+        * UserInterface/Images/BreakpointInactiveButton.pdf: Updated.
+        * UserInterface/Images/InstructionPointer.png: Updated.
+        * UserInterface/Images/InstructionPointer@2x.png: Updated.
+        * UserInterface/SourceCodeTextEditor.css:
+        (.source-code.text-editor > .CodeMirror .error): Updated background-color and removed box-shadow.
+        (.source-code.text-editor > .CodeMirror .warning): Ditto.
+        * UserInterface/TextEditor.css:
+        (.text-editor > .CodeMirror .has-breakpoint .CodeMirror-linenumber::before): Changed left position to 0.
+        (.text-editor > .CodeMirror .execution-line .CodeMirror-linenumber::after): Updated position.
+        (.text-editor > .CodeMirror .execution-line): Updated background-color and removed box-shadow.
+
+2013-06-13  Joseph Pecoraro  <pecoraro@apple.com>
+
+        <http://webkit.org/b/117615> Web Inspector: JS PrettyPrinting Should have space between "do" and "{"
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/CodeMirrorFormatters.js:
+
+2013-06-13  Joseph Pecoraro  <pecoraro@apple.com>
+
+        <http://webkit.org/b/117612> Web Inspector: "Search Resource Content" should cancel when I remove all text search text
+
+        Reviewed by Timothy Hatcher.
+
+        * UserInterface/ResourceSidebarPanel.js:
+        (WebInspector.ResourceSidebarPanel):
+        (WebInspector.ResourceSidebarPanel.prototype._searchFieldInput):
+
+== Rolled over to ChangeLog-2013-06-11 ==

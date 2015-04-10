@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<body>
+    We want to make sure the page sends its onload event even if it has media in a windowless WebView.
+    <audio src="invalid.mp3"></audio>
+    <script>
+    var didTriggerLoad = false;
+    window.addEventListener('load', function(event) {
+        didTriggerLoad = true;
+    }, false);
+    </script>
+</body>
+</html>

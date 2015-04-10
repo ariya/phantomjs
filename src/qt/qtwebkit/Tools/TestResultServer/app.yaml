@@ -1,0 +1,18 @@
+application: webkit-test-results
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /stylesheets
+  static_dir: stylesheets
+
+- url: /dashboards
+  static_dir: static-dashboards
+
+- url: /testfile/delete
+  script: main.py
+  login: admin
+
+- url: /.*
+  script: main.py

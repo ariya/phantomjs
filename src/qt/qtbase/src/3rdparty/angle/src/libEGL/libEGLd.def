@@ -1,0 +1,36 @@
+LIBRARY	libEGLd
+EXPORTS
+	eglBindAPI                      @14
+	eglBindTexImage                 @20
+	eglChooseConfig                 @7
+	eglCopyBuffers                  @33
+	eglCreateContext                @23
+	eglCreatePbufferFromClientBuffer        @18
+	eglCreatePbufferSurface         @10
+	eglCreatePixmapSurface          @11
+	eglCreateWindowSurface          @9
+	eglDestroyContext               @24
+	eglDestroySurface               @12
+	eglGetConfigAttrib              @8
+	eglGetConfigs                   @6
+	eglGetCurrentContext            @26
+	eglGetCurrentDisplay            @28
+	eglGetCurrentSurface            @27
+	eglGetDisplay                   @2
+	eglGetError                     @1
+	eglGetProcAddress               @34
+	eglInitialize                   @3
+	eglMakeCurrent                  @25
+	eglQueryAPI                     @15
+	eglQueryContext                 @29
+	eglQueryString                  @5
+	eglQuerySurface                 @13
+	eglReleaseTexImage              @21
+	eglReleaseThread                @17
+	eglSurfaceAttrib                @19
+	eglSwapBuffers                  @32
+	eglSwapInterval                 @22
+	eglTerminate                    @4
+	eglWaitClient                   @16
+	eglWaitGL                       @30
+	eglWaitNative                   @31

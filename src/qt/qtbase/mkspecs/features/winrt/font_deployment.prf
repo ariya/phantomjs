@@ -1,0 +1,60 @@
+# Provide default fonts for windows phone
+# The DEFAULTFONTS variable indicates, whether the default set of fonts is
+# used for deployment. The check below won't work after the fonts are added
+# so this helper variable is added and used for the user warning check later.
+!defined(FONTS, var):winphone {
+    FONTS = \
+        $$[QT_HOST_PREFIX/src]/lib/fonts/DejaVuSans.ttf \
+        $$[QT_HOST_PREFIX/src]/lib/fonts/DejaVuSans-Bold.ttf \
+        $$[QT_HOST_PREFIX/src]/lib/fonts/DejaVuSans-BoldOblique.ttf \
+        $$[QT_HOST_PREFIX/src]/lib/fonts/DejaVuSansMono.ttf \
+        $$[QT_HOST_PREFIX/src]/lib/fonts/DejaVuSansMono-Bold.ttf \
+        $$[QT_HOST_PREFIX/src]/lib/fonts/DejaVuSansMono-BoldOblique.ttf \
+        $$[QT_HOST_PREFIX/src]/lib/fonts/DejaVuSansMono-Oblique.ttf \
+        $$[QT_HOST_PREFIX/src]/lib/fonts/DejaVuSans-Oblique.ttf \
+        $$[QT_HOST_PREFIX/src]/lib/fonts/DejaVuSerif.ttf \
+        $$[QT_HOST_PREFIX/src]/lib/fonts/DejaVuSerif-Bold.ttf \
+        $$[QT_HOST_PREFIX/src]/lib/fonts/DejaVuSerif-BoldOblique.ttf \
+        $$[QT_HOST_PREFIX/src]/lib/fonts/DejaVuSerif-Oblique.ttf
+    DEFAULTFONTS =
+}
+
+if(build_pass:equals(TEMPLATE, "app"))| \
+if(!build_pass:equals(TEMPLATE, "vcapp")) {
+    defined(DEFAULTFONTS, var) {
+        message(Default fonts will automatically be deployed with your application. \
+            To avoid automatic deployment unset the \"FONTS\" variable (\"FONTS =\") in your .pro file. \
+            You can also customize which fonts are deployed by setting the \"FONTS\" variable.)
+    }
+
+    contains(TEMPLATE, "vc.*") {
+        BUILD_DIR = $$OUT_PWD
+    } else {
+        load(resolve_target)
+        BUILD_DIR = $$dirname(QMAKE_RESOLVED_TARGET)
+    }
+
+    for (FONT, FONTS) {
+        font_$${FONT}.input = $$FONT
+        font_$${FONT}.output = $$BUILD_DIR/fonts/$$basename(FONT)
+        font_$${FONT}.CONFIG = verbatim
+        QMAKE_SUBSTITUTES += font_$${FONT}
+    }
+
+    !isEmpty(FONTS):equals(TEMPLATE, "app") {
+        fonts.files = $$BUILD_DIR/fonts/*
+        isEmpty($$target.path) {
+            fonts.path = $$OUT_PWD/fonts
+        } else {
+            fonts.path = $$target.path/fonts
+        }
+
+        INSTALLS += fonts
+    }
+}
+
+!isEmpty(FONTS):winphone:equals(TEMPLATE, "vcapp"):build_pass {
+    fonts.files = $$OUT_PWD/fonts/*
+    fonts.path = fonts
+    DEPLOYMENT += fonts
+}

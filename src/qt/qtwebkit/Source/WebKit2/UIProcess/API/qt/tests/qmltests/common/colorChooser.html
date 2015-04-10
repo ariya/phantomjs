@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Title</title>
+<script>
+function detectInputTypeColorEnabled() {
+    var element = document.getElementById('test')
+    element.value = 'should sanitize';
+    if (element.value != 'should sanitize')
+        document.title = 'Feature enabled';
+    else
+        document.title = 'Feature disabled';
+}
+function updateTitle(element) {
+    document.title = element.value;
+}
+</script>
+</head>
+<body onload='detectInputTypeColorEnabled()'>
+<input id='test' type='color' onclick='updateTitle(this)' onchange='updateTitle(this)' style='width:50px; height:50px; position:"absolute"; top:0px; left:0px'>
+</html>

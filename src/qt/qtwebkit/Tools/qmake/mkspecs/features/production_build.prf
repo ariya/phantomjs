@@ -1,0 +1,17 @@
+# All in one files reduce memory usage at link time. At compiler time the code
+# visibility for the compiler increases and faster more compact code can be produced,
+# so turn it on in production builds.
+CONFIG *= use_all_in_one_files
+
+# Builds with debug flags result in a huge amount of symbols with the GNU toolchain,
+# resulting in the need of several gigabytes of memory at link-time. Reduce the pressure
+# by compiling any static library like WTF or JSC with release flags instead and keep debug
+# symbols for the static libraries that implement API.
+if(linux-*:!contains(QMAKE_HOST.arch, x86_64))|mingw:if(CONFIG(debug, debug|release)|contains(QT_CONFIG,separate_debug_info)):contains(TEMPLATE, lib):staticlib {
+    !equals(TARGET, WebKit2):!equals(TARGET, WebKitWidgets) {
+        CONFIG += no_debug_info
+        CONFIG -= separate_debug_info
+        QMAKE_CFLAGS += $$QMAKE_CFLAGS_RELEASE
+        QMAKE_CXXFLAGS += $$QMAKE_CXXFLAGS_RELEASE
+    }
+}

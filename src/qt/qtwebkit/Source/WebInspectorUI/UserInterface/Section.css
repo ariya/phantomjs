@@ -1,0 +1,195 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.section {
+    position: relative;
+}
+
+.section .header {
+    color: black;
+    padding: 0 8px 0 18px;
+    min-height: 18px;
+    white-space: nowrap;
+    background-origin: padding;
+    background-clip: padding;
+}
+
+.section .header::before {
+    position: absolute;
+    top: 5px;
+    left: 7px;
+
+    width: 8px;
+    height: 8px;
+
+    background-image: -webkit-canvas(disclosure-triangle-tiny-closed-normal);
+    background-size: 8px 8px;
+    background-repeat: no-repeat;
+
+    content: "";
+}
+
+.section.expanded .header::before {
+    background-image: -webkit-canvas(disclosure-triangle-tiny-open-normal);
+}
+
+.section .header .title, .event-bar .header .title {
+    font-weight: normal;
+    word-wrap: break-word;
+    white-space: normal;
+    line-height: 18px;
+}
+
+.section .header .title.blank-title {
+    font-style: italic;
+}
+
+.section .header label, .event-bar .header label {
+    display: none;
+}
+
+.section.expanded .header label, .event-bar.expanded .header label {
+    display: inline;
+}
+
+.section .header .subtitle, .event-bar .header .subtitle {
+    float: right;
+    margin-left: 5px;
+    max-width: 55%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.section .header .subtitle a {
+    color: inherit;
+}
+
+.section .properties, .event-bar .event-properties {
+    display: none;
+}
+
+.section.expanded .properties, .event-bar.expanded .event-properties {
+    display: block;
+    padding-left: 16px;
+}
+
+.section.expanded.no-header .properties {
+    padding-left: 0;
+}
+
+.section.no-affect .properties li {
+    opacity: 0.5;
+}
+
+.section.no-affect .properties li.editing {
+    opacity: 1.0;
+}
+
+.properties-tree {
+    margin: 0;
+    padding: 0 6px 2px;
+    list-style: none;
+    min-height: 18px;
+    outline: none;
+}
+
+.properties-tree li {
+    margin-left: 12px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    -webkit-user-select: text;
+    cursor: default;
+}
+
+.properties-tree li.parent {
+    margin-left: 1px;
+}
+
+.properties-tree li.parent::before {
+    float: left;
+
+    content: "";
+
+    background-image: -webkit-canvas(disclosure-triangle-tiny-closed-normal);
+    background-size: 8px 8px;
+    background-repeat: no-repeat;
+
+    width: 8px;
+    height: 8px;
+
+    margin-top: 3px;
+    padding-right: 2px;
+}
+
+.properties-tree li.parent.expanded::before {
+    background-image: -webkit-canvas(disclosure-triangle-tiny-open-normal);
+}
+
+.properties-tree li .info {
+    padding-top: 4px;
+    padding-bottom: 3px;
+}
+
+.properties-tree ol {
+    display: none;
+    margin: 0;
+    -webkit-padding-start: 12px;
+    list-style: none;
+}
+
+.properties-tree ol.expanded {
+    display: block;
+}
+
+.section .properties li.editing-sub-part {
+    padding: 3px 6px 8px 18px;
+    margin: -3px -6px -8px -6px;
+    text-overflow: clip;
+}
+
+.section .properties .name, .event-properties .name {
+    color: rgb(136, 19, 145);
+}
+
+.section .properties .dimmed {
+    opacity: 0.6;
+}
+
+.section .properties .value.error {
+    color: red;
+}
+
+.section .properties .number, .event-properties .number {
+    color: blue;
+}
+
+.section .properties .keyword, .event-properties .keyword {
+    color: rgb(136, 19, 79);
+}
+
+.section .properties .color, .event-properties .color {
+    color: rgb(118, 15, 21);
+}

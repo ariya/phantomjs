@@ -1,0 +1,828 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+import "IWebScriptObject.idl";
+#endif
+
+interface IWebScriptObject;
+interface IDOMNodeList;
+interface IDOMNamedNodeMap;
+interface IDOMDocumentType;
+interface IDOMElement;
+interface IDOMDocumentFragment;
+interface IDOMText;
+interface IDOMComment;
+interface IDOMCDATASection;
+interface IDOMProcessingInstruction;
+interface IDOMAttr;
+interface IDOMEntityReference;
+interface IDOMDocument;
+interface IDOMCSSStyleDeclaration;
+/*
+    @interface DOMObject : WebScriptObject <NSCopying>
+*/
+[
+    object,
+    oleautomation,
+    uuid(A27FA225-F34E-425d-88EB-A35BD105A527),
+    pointer_default(unique)
+]
+interface IDOMObject : IWebScriptObject
+{
+}
+
+/*
+    @interface DOMImplementation : DOMObject
+*/
+[
+    object,
+    oleautomation,
+    uuid(6E48C25D-E542-4d1a-BC73-ACDC21E39C56),
+    pointer_default(unique)
+]
+interface IDOMImplementation : IDOMObject
+{
+    /*
+        - (BOOL)hasFeature:(NSString *)feature :(NSString *)version;
+    */
+    HRESULT hasFeature([in] BSTR feature, [in] BSTR version, [out, retval] BOOL* result);
+
+    /*
+        - (DOMDocumentType *)createDocumentType:(NSString *)qualifiedName :(NSString *)publicId :(NSString *)systemId;
+    */
+    HRESULT createDocumentType([in] BSTR qualifiedName, [in] BSTR publicId, [in] BSTR systemId, [out, retval] IDOMDocumentType** result);
+
+    /*
+        - (DOMDocument *)createDocument:(NSString *)namespaceURI :(NSString *)qualifiedName :(DOMDocumentType *)doctype;
+    */
+    HRESULT createDocument([in] BSTR namespaceURI, [in] BSTR qualifiedName, [in] IDOMDocumentType* doctype, [out, retval] IDOMDocument** result);
+}
+
+/*
+    @interface DOMNode : DOMObject <DOMEventTarget>
+*/
+[
+    object,
+    oleautomation,
+    uuid(3EEA3E20-72DA-4be7-954F-79B5A14AD726),
+    pointer_default(unique)
+]
+interface IDOMNode : IDOMObject
+{
+    /*
+        - (NSString *)nodeName;
+    */
+    HRESULT nodeName([out, retval] BSTR* result);
+
+    /*
+        - (NSString *)nodeValue;
+    */
+    HRESULT nodeValue([out, retval] BSTR* result);
+
+    /*
+        - (void)setNodeValue:(NSString *)string;
+    */
+    HRESULT setNodeValue([in] BSTR value);
+
+    /*
+        - (unsigned short)nodeType;
+    */
+    HRESULT nodeType([out, retval] unsigned short* result);
+
+    /*
+        - (DOMNode *)parentNode;
+    */
+    HRESULT parentNode([out, retval] IDOMNode** result);
+
+    /*
+        - (DOMNodeList *)childNodes;
+    */
+    HRESULT childNodes([out, retval] IDOMNodeList** result);
+
+    /*
+        - (DOMNode *)firstChild;
+    */
+    HRESULT firstChild([out, retval] IDOMNode** result);
+
+    /*
+        - (DOMNode *)lastChild;
+    */
+    HRESULT lastChild([out, retval] IDOMNode** result);
+
+    /*
+        - (DOMNode *)previousSibling;
+    */
+    HRESULT previousSibling([out, retval] IDOMNode** result);
+
+    /*
+        - (DOMNode *)nextSibling;
+    */
+    HRESULT nextSibling([out, retval] IDOMNode** result);
+
+    /*
+        - (DOMNamedNodeMap *)attributes;
+    */
+    HRESULT attributes([out, retval] IDOMNamedNodeMap** result);
+
+    /*
+        - (DOMDocument *)ownerDocument;
+    */
+    HRESULT ownerDocument([out, retval] IDOMDocument** result);
+
+    /*
+        - (DOMNode *)insertBefore:(DOMNode *)newChild :(DOMNode *)refChild;
+    */
+    HRESULT insertBefore([in] IDOMNode* newChild, [in] IDOMNode* refChild, [out, retval] IDOMNode** result);
+
+    /*
+        - (DOMNode *)replaceChild:(DOMNode *)newChild :(DOMNode *)oldChild;
+    */
+    HRESULT replaceChild([in] IDOMNode* newChild, [in] IDOMNode* oldChild, [out, retval] IDOMNode** result);
+
+    /*
+        - (DOMNode *)removeChild:(DOMNode *)oldChild;
+    */
+    HRESULT removeChild([in] IDOMNode* oldChild, [out, retval] IDOMNode** result);
+
+    /*
+        - (DOMNode *)appendChild:(DOMNode *)newChild;
+    */
+    HRESULT appendChild([in] IDOMNode* oldChild, [out, retval] IDOMNode** result);
+
+    /*
+        - (BOOL)hasChildNodes;
+    */
+    HRESULT hasChildNodes([out, retval] BOOL* result);
+
+    /*
+        - (DOMNode *)cloneNode:(BOOL)deep;
+    */
+    HRESULT cloneNode([in] BOOL deep, [out, retval] IDOMNode** result);
+
+    /*
+        - (void)normalize;
+    */
+    HRESULT normalize();
+
+    /*
+        - (BOOL)isSupported:(NSString *)feature :(NSString *)version;
+    */
+    HRESULT isSupported([in] BSTR feature, [in] BSTR version, [out, retval] BOOL* result);
+
+    /*
+        - (NSString *)namespaceURI;
+    */
+    HRESULT namespaceURI([out, retval] BSTR* result);
+
+    /*
+        - (NSString *)prefix;
+    */
+    HRESULT prefix([out, retval] BSTR* result);
+
+    /*
+        - (void)setPrefix:(NSString *)prefix;
+    */
+    HRESULT setPrefix([in] BSTR prefix);
+
+    /*
+        - (NSString *)localName;
+    */
+    HRESULT localName([out, retval] BSTR* result);
+
+    /*
+        - (BOOL)hasAttributes;
+    */
+    HRESULT hasAttributes([out, retval] BOOL* result);
+
+    /*
+        - (BOOL)isSameNode:(DOMNode *)other;
+    */
+    HRESULT isSameNode([in] IDOMNode* other, [out, retval] BOOL* result);
+
+    /*
+        - (BOOL)isEqualNode:(DOMNode *)other;
+    */
+    HRESULT isEqualNode([in] IDOMNode* other, [out, retval] BOOL* result); 
+
+    /*
+        - (NSString *)textContent;
+    */
+    HRESULT textContent([out, retval] BSTR* result);
+
+    /*
+        - (void)setTextContent:(NSString *)text;
+    */
+    HRESULT setTextContent([in] BSTR text);
+}
+
+/*
+    @interface DOMNodeList : DOMObject
+*/
+[
+    object,
+    oleautomation,
+    uuid(10A05A96-CBD9-4493-83AD-FAFB952615CE),
+    pointer_default(unique)
+]
+interface IDOMNodeList : IDOMObject
+{
+    /*
+        - (DOMNode *)item:(unsigned)index;
+    */
+    HRESULT item([in] UINT index, [out, retval] IDOMNode** result);
+
+    /*
+        - (unsigned)length;
+    */
+    HRESULT length([out, retval] UINT* result);
+}
+
+/*
+    @interface DOMNamedNodeMap : DOMObject
+*/
+[
+    object,
+    oleautomation,
+    uuid(E6CBF396-C9F9-431b-A8D6-BCB525067E9F),
+    pointer_default(unique)
+]
+interface IDOMNamedNodeMap : IDOMObject
+{
+    /*
+        - (DOMNode *)getNamedItem:(NSString *)name;
+    */
+    HRESULT getNamedItem([in] BSTR name, [out, retval] IDOMNode** result);
+
+    /*
+        - (DOMNode *)setNamedItem:(DOMNode *)arg;
+    */
+    HRESULT setNamedItem([in] IDOMNode* arg, [out, retval] IDOMNode** result);
+
+    /*
+        - (DOMNode *)removeNamedItem:(NSString *)name;
+    */
+    HRESULT removeNamedItem([in] BSTR name, [out, retval] IDOMNode** result);
+
+    /*
+        - (DOMNode *)item:(unsigned)index;
+    */
+    HRESULT item([in] UINT index, [out, retval] IDOMNode** result);
+
+    /*
+        - (unsigned)length;
+    */
+    HRESULT length([out, retval] UINT* result);
+
+    /*
+        - (DOMNode *)getNamedItemNS:(NSString *)namespaceURI :(NSString *)localName;
+    */
+    HRESULT getNamedItemNS([in] BSTR namespaceURI, [in] BSTR localName, [out, retval] IDOMNode** result);
+
+    /*
+        - (DOMNode *)setNamedItemNS:(DOMNode *)arg;
+    */
+    HRESULT setNamedItemNS([in] IDOMNode* arg, [out, retval] IDOMNode** result);
+
+    /*
+        - (DOMNode *)removeNamedItemNS:(NSString *)namespaceURI :(NSString *)localName;
+    */
+    HRESULT removeNamedItemNS([in] BSTR namespaceURI, [in] BSTR localName, [out, retval] IDOMNode** result);
+}
+
+/*
+    @interface DOMDocument : IDOMNode
+*/
+[
+    object,
+    oleautomation,
+    uuid(A83C2C44-0BAC-45c7-8E17-6A49975D5CCA),
+    pointer_default(unique)
+]
+interface IDOMDocument : IDOMNode
+{
+    /*
+        - (DOMDocumentType *)doctype;
+    */
+    HRESULT doctype([out, retval] IDOMDocumentType** result);
+
+    /*
+        - (DOMImplementation *)implementation;
+    */
+    HRESULT implementation([out, retval] IDOMImplementation** result);
+
+    /*
+        - (DOMElement *)documentElement;
+    */
+    HRESULT documentElement([out, retval] IDOMElement** result);
+
+    /*
+        - (DOMElement *)createElement:(NSString *)tagName;
+    */
+    HRESULT createElement([in] BSTR tagName, [out, retval] IDOMElement** result);
+
+    /*
+        - (DOMDocumentFragment *)createDocumentFragment;
+    */
+    HRESULT createDocumentFragment([out, retval] IDOMDocumentFragment** result);
+
+    /*
+        - (DOMText *)createTextNode:(NSString *)data;
+    */
+    HRESULT createTextNode([in] BSTR data, [out, retval] IDOMText** result);
+
+    /*
+        - (DOMComment *)createComment:(NSString *)data;
+    */
+    HRESULT createComment([in] BSTR data, [out, retval] IDOMComment** result);
+
+    /*
+        - (DOMCDATASection *)createCDATASection:(NSString *)data;
+    */
+    HRESULT createCDATASection([in] BSTR data, [out, retval] IDOMCDATASection** result);
+
+    /*
+        - (DOMProcessingInstruction *)createProcessingInstruction:(NSString *)target :(NSString *)data;
+    */
+    HRESULT createProcessingInstruction([in] BSTR target, [in] BSTR data, [out, retval] IDOMProcessingInstruction** result);
+
+    /*
+        - (DOMAttr *)createAttribute:(NSString *)name;
+    */
+    HRESULT createAttribute([in] BSTR name, [out, retval] IDOMAttr** result);
+
+    /*
+        - (DOMEntityReference *)createEntityReference:(NSString *)name;
+    */
+    HRESULT createEntityReference([in] BSTR name, [out, retval] IDOMEntityReference** result);
+
+    /*
+        - (DOMNodeList *)getElementsByTagName:(NSString *)tagname;
+    */
+    HRESULT getElementsByTagName([in] BSTR tagName, [out, retval] IDOMNodeList** result);
+
+    /*
+        - (DOMNode *)importNode:(DOMNode *)importedNode :(BOOL)deep;
+    */
+    HRESULT importNode([in] IDOMNode* importedNode, [in] BOOL deep, [out, retval] IDOMNode** result);
+
+    /*
+        - (DOMElement *)createElementNS:(NSString *)namespaceURI :(NSString *)qualifiedName;
+    */
+    HRESULT createElementNS([in] BSTR namespaceURI, [in] BSTR qualifiedName, [out, retval] IDOMElement** result);
+
+    /*
+        - (DOMAttr *)createAttributeNS:(NSString *)namespaceURI :(NSString *)qualifiedName;
+    */
+    HRESULT createAttributeNS([in] BSTR namespaceURI, [in] BSTR qualifiedName, [out, retval] IDOMAttr** result);
+
+    /*
+        - (DOMNodeList *)getElementsByTagNameNS:(NSString *)namespaceURI :(NSString *)localName;
+    */
+    HRESULT getElementsByTagNameNS([in] BSTR namespaceURI, [in] BSTR localName, [out, retval] IDOMNodeList** result);
+
+    /*
+        - (DOMElement *)getElementById:(NSString *)elementId;
+    */
+    HRESULT getElementById([in] BSTR elementId, [out, retval] IDOMElement** result);
+}
+
+/*
+    @interface DOMCharacterData : IDOMNode
+*/
+[
+    object,
+    oleautomation,
+    uuid(F4DED047-FE61-461a-BDBD-BB87F79DB713),
+    pointer_default(unique)
+]
+interface IDOMCharacterData : IDOMNode
+{
+    /*
+        - (NSString *)data;
+    */
+    HRESULT data([out, retval] BSTR* result);
+
+    /*
+        - (void)setData:(NSString *)data;
+    */
+    HRESULT setData([in] BSTR data);
+
+    /*
+        - (unsigned)length;
+    */
+    HRESULT length([out, retval] UINT* result);
+
+    /*
+        - (NSString *)substringData:(unsigned)offset :(unsigned)count;
+    */
+    HRESULT substringData([in] UINT offset, [in] UINT count, [out, retval] BSTR* result);
+
+    /*
+        - (void)appendData:(NSString *)arg;
+    */
+    HRESULT appendData([in] BSTR arg);
+
+    /*
+        - (void)insertData:(unsigned)offset :(NSString *)arg;
+    */
+    HRESULT insertData([in] UINT offset, [in] BSTR arg);
+
+    /*
+        - (void)deleteData:(unsigned)offset :(unsigned) count;
+    */
+    HRESULT deleteData([in] UINT offset, [in] UINT count);
+
+    /*
+        - (void)replaceData:(unsigned)offset :(unsigned)count :(NSString *)arg;
+    */
+    HRESULT replaceData([in] UINT offset, [in] UINT count, [in] BSTR arg);
+}
+
+/*
+    @interface DOMAttr : IDOMNode
+*/
+[
+    object,
+    oleautomation,
+    uuid(B587E098-8206-4b5a-A7DB-422F218571A0),
+    pointer_default(unique)
+]
+interface IDOMAttr : IDOMNode
+{
+    /*
+        - (NSString *)name;
+    */
+    HRESULT name([out, retval] BSTR* result);
+
+    /*
+        - (BOOL)specified;
+    */
+    HRESULT specified([out, retval] BOOL* result);
+
+    /*
+        - (NSString *)value;
+    */
+    HRESULT value([out, retval] BSTR* value);
+
+    /*
+        - (void)setValue:(NSString *)value;
+    */
+    HRESULT setValue([in] BSTR value);
+
+    /*
+        - (DOMElement *)ownerElement;
+    */
+    HRESULT ownerElement([out, retval] IDOMElement** result);
+}
+
+/*
+    @interface DOMElement : IDOMNode
+*/
+[
+    object,
+    oleautomation,
+    uuid(E053A35B-7775-4859-80EA-C35D02D145A2),
+    pointer_default(unique)
+]
+interface IDOMElement : IDOMNode
+{
+    /*
+        - (NSString *)tagName;
+    */
+    HRESULT tagName([out, retval] BSTR* result);
+
+    /*
+        - (NSString *)getAttribute:(NSString *)name;
+    */
+    HRESULT getAttribute([in] BSTR name, [out, retval] BSTR* result);
+
+    /*
+        - (void)setAttribute:(NSString *)name :(NSString *)value;
+    */
+    HRESULT setAttribute([in] BSTR name, [in] BSTR value);
+
+    /*
+        - (void)removeAttribute:(NSString *)name;
+    */
+    HRESULT removeAttribute([in] BSTR name);
+
+    /*
+        - (DOMAttr *)getAttributeNode:(NSString *)name;
+    */
+    HRESULT getAttributeNode([in] BSTR name, [out, retval] IDOMAttr** result);
+
+    /*
+        - (DOMAttr *)setAttributeNode:(DOMAttr *)newAttr;
+    */
+    HRESULT setAttributeNode([in] IDOMAttr* newAttr, [out, retval] IDOMAttr** result);
+
+    /*
+        - (DOMAttr *)removeAttributeNode:(DOMAttr *)oldAttr;
+    */
+    HRESULT removeAttributeNode([in] IDOMAttr* oldAttr, [out, retval] IDOMAttr** result);
+
+    /*
+        - (DOMNodeList *)getElementsByTagName:(NSString *)name;
+    */
+    HRESULT getElementsByTagName([in] BSTR name, [out, retval] IDOMNodeList** result);
+
+    /*
+        - (NSString *)getAttributeNS:(NSString *)namespaceURI :(NSString *)localName;
+    */
+    HRESULT getAttributeNS([in] BSTR namespaceURI, [in] BSTR localName, [out, retval] BSTR* result);
+
+    /*
+        - (void)setAttributeNS:(NSString *)namespaceURI :(NSString *)qualifiedName :(NSString *)value;
+    */
+    HRESULT setAttributeNS([in] BSTR namespaceURI, [in] BSTR qualifiedName, [in] BSTR value);
+
+    /*
+        - (void)removeAttributeNS:(NSString *)namespaceURI :(NSString *)localName;
+    */
+    HRESULT removeAttributeNS([in] BSTR namespaceURI, [in] BSTR localName);
+
+    /*
+        - (DOMAttr *)getAttributeNodeNS:(NSString *)namespaceURI :(NSString *)localName;
+    */
+    HRESULT getAttributeNodeNS([in] BSTR namespaceURI, [in] BSTR localName, [out, retval] IDOMAttr** result);
+
+    /*
+        - (DOMAttr *)setAttributeNodeNS:(DOMAttr *)newAttr;
+    */
+    HRESULT setAttributeNodeNS([in] IDOMAttr* newAttr, [out, retval] IDOMAttr** result);
+
+    /*
+        - (DOMNodeList *)getElementsByTagNameNS:(NSString *)namespaceURI :(NSString *)localName;
+    */
+    HRESULT getElementsByTagNameNS([in] BSTR namespaceURI, [in] BSTR localName, [out, retval] IDOMNodeList** result);
+
+    /*
+        - (BOOL)hasAttribute:(NSString *)name;
+    */
+    HRESULT hasAttribute([in] BSTR name, [out, retval] BOOL* result);
+
+    /*
+        - (BOOL)hasAttributeNS:(NSString *)namespaceURI :(NSString *)localName;
+    */
+    HRESULT hasAttributeNS([in] BSTR namespaceURI, [in] BSTR localName, [out, retval] BOOL* result);
+
+    /*
+        - (void)focus;
+    */
+    HRESULT focus();
+
+    /*
+        - (void)blur;
+    */
+    HRESULT blur();
+}
+
+/*
+    @interface DOMElement (DOMElementExtensions)
+*/
+[
+    object,
+    oleautomation,
+    uuid(98E481F5-4405-4c2a-BF77-1CE95FE5F992),
+    pointer_default(unique)
+]
+interface IDOMElementExtensions : IUnknown
+{
+    /*
+        - (int)offsetLeft;
+    */
+    HRESULT offsetLeft([out, retval] int* result);
+
+    /*
+        - (int)offsetTop;
+    */
+    HRESULT offsetTop([out, retval] int* result);
+
+    /*
+        - (int)offsetWidth;
+    */
+    HRESULT offsetWidth([out, retval] int* result);
+
+    /*
+        - (int)offsetHeight;
+    */
+    HRESULT offsetHeight([out, retval] int* result);
+
+    /*
+        - (DOMElement *)offsetParent;
+    */
+    HRESULT offsetParent([out, retval] IDOMElement** result);
+
+    /*
+        - (int)clientWidth;
+    */
+    HRESULT clientWidth([out, retval] int* result);
+
+    /*
+        - (int)clientHeight;
+    */
+    HRESULT clientHeight([out, retval] int* result);
+
+    /*
+        - (int)scrollLeft;
+    */
+    HRESULT scrollLeft([out, retval] int* result);
+
+    /*
+        - (void)setScrollLeft:(int)newScrollLeft;
+    */
+    HRESULT setScrollLeft([in] int newScrollLeft);
+
+    /*
+        - (int)scrollTop;
+    */
+    HRESULT scrollTop([out, retval] int* result);
+
+    /*
+        - (void)setScrollTop:(int)newScrollTop;
+    */
+    HRESULT setScrollTop([in] int newScrollTop);
+
+    /*
+        - (int)scrollWidth;
+    */
+    HRESULT scrollWidth([out, retval] int* result);
+
+    /*
+        - (int)scrollHeight;
+    */
+    HRESULT scrollHeight([out, retval] int* result);
+
+    /*
+        - (void)scrollIntoView:(BOOL)alignWithTop;
+    */
+    HRESULT scrollIntoView([in] BOOL alignWithTop);
+
+    /*
+        - (void)scrollIntoViewIfNeeded:(BOOL)centerIfNeeded;
+    */
+    HRESULT scrollIntoViewIfNeeded([in] BOOL centerIfNeeded);
+}
+
+/*
+    @interface DOMText : DOMCharacterData
+*/
+[
+    object,
+    oleautomation,
+    uuid(74638F45-1AA0-4db5-958C-82066E00BD2B),
+    pointer_default(unique)
+]
+interface IDOMText : IDOMCharacterData
+{
+    /*
+        - (DOMText *)splitText:(unsigned)offset;
+    */
+    HRESULT splitText([in] UINT offset, [out, retval] IDOMText** result);
+}
+
+/*
+    @interface DOMComment : DOMCharacterData
+*/
+[
+    object,
+    oleautomation,
+    uuid(118002E8-847F-4b1a-968C-B25A6AC7B128),
+    pointer_default(unique)
+]
+interface IDOMComment : IDOMCharacterData
+{
+}
+
+/*
+    @interface DOMCDATASection : DOMText
+*/
+[
+    object,
+    oleautomation,
+    uuid(31B506C1-45A3-4d72-815A-311B0A897E58),
+    pointer_default(unique)
+]
+interface IDOMCDATASection : IDOMText
+{
+}
+
+/*
+    @interface DOMDocumentType : IDOMNode
+*/
+[
+    object,
+    oleautomation,
+    uuid(17FCE6EA-4164-4bd4-9DBF-0395FBF37FD3),
+    pointer_default(unique)
+]
+interface IDOMDocumentType : IDOMNode
+{
+    /*
+        - (NSString *)name;
+    */
+    HRESULT name([out, retval] BSTR* result);
+
+    /*
+        - (DOMNamedNodeMap *)entities;
+    */
+    HRESULT entities([out, retval] IDOMNamedNodeMap** result);
+
+    /*
+        - (DOMNamedNodeMap *)notations;
+    */
+    HRESULT notations([out, retval] IDOMNamedNodeMap** result);
+
+    /*
+        - (NSString *)publicId;
+    */
+    HRESULT publicId([out, retval] BSTR* result);
+
+    /*
+        - (NSString *)systemId;
+    */
+    HRESULT systemId([out, retval] BSTR* result);
+
+    /*
+        - (NSString *)internalSubset;
+    */
+    HRESULT internalSubset([out, retval] BSTR* result);
+}
+
+/*
+    @interface DOMEntityReference : IDOMNode
+*/
+[
+    object,
+    oleautomation,
+    uuid(0593CE45-15B2-44af-BBD0-5A1654F8240E),
+    pointer_default(unique)
+]
+interface IDOMEntityReference : IDOMNode
+{
+}
+
+/*
+    @interface DOMProcessingInstruction : IDOMNode
+*/
+[
+    object,
+    oleautomation,
+    uuid(D99D2F48-ABF3-426a-9339-54681E1AFCA9),
+    pointer_default(unique)
+]
+interface IDOMProcessingInstruction : IDOMNode
+{
+    /*
+        - (NSString *)target;
+    */
+    HRESULT target([out, retval] BSTR* result);
+
+    /*
+        - (NSString *)data;
+    */
+    HRESULT data([out, retval] BSTR* result);
+
+    /*
+        - (void)setData:(NSString *)data;
+    */
+    HRESULT setData([in] BSTR data);
+}
+
+/*
+    @interface DOMDocumentFragment : IDOMNode
+*/
+[
+    object,
+    oleautomation,
+    uuid(09D35665-8396-4868-949E-8AA2407A6E10),
+    pointer_default(unique)
+]
+interface IDOMDocumentFragment : IDOMNode
+{
+}

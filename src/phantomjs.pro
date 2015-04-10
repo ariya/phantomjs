@@ -1,16 +1,23 @@
+
+if(!equals(QT_MAJOR_VERSION, 5)|!equals(QT_MINOR_VERSION, 3)) {
+    error("This program can only be compiled with Qt 5.3.x.")
+}
+
 TEMPLATE = app
 TARGET = phantomjs
-QT += network webkit
+QT += network webkitwidgets
 CONFIG += console
 
 DESTDIR = ../bin
 
 RESOURCES = phantomjs.qrc \
-    ghostdriver/ghostdriver.qrc \
-    qt/src/3rdparty/webkit/Source/WebCore/inspector/front-end/WebKit.qrc \
-    qt/src/3rdparty/webkit/Source/WebCore/generated/InspectorBackendStub.qrc
+    ghostdriver/ghostdriver.qrc
 
-HEADERS += csconverter.h \
+!winrt:!win32: {
+    QTPLUGIN += qphantom
+}
+
+HEADERS += \
     phantom.h \
     callback.h \
     webpage.h \
@@ -28,14 +35,14 @@ HEADERS += csconverter.h \
     encoding.h \
     config.h \
     childprocess.h \
-    repl.h
+    repl.h \
+    crashdump.h
 
 SOURCES += phantom.cpp \
     callback.cpp \
     webpage.cpp \
     webserver.cpp \
     main.cpp \
-    csconverter.cpp \
     utils.cpp \
     networkreplyproxy.cpp \
     networkreplytracker.cpp \
@@ -48,7 +55,8 @@ SOURCES += phantom.cpp \
     encoding.cpp \
     config.cpp \
     childprocess.cpp \
-    repl.cpp
+    repl.cpp \
+    crashdump.cpp
 
 OTHER_FILES += \
     bootstrap.js \
@@ -60,7 +68,6 @@ OTHER_FILES += \
     modules/cookiejar.js \
     repl.js
 
-include(gif/gif.pri)
 include(mongoose/mongoose.pri)
 include(linenoise/linenoise.pri)
 include(qcommandline/qcommandline.pri)
@@ -72,12 +79,6 @@ linux*|mac|openbsd* {
       breakpad/src/common/convert_UTF.c \
       breakpad/src/common/md5.cc \
       breakpad/src/common/string_conversion.cc 
-
-    QTPLUGIN += \
-        qcncodecs \
-        qjpcodecs \
-        qkrcodecs \
-        qtwcodecs
 }
 
 linux* {
@@ -121,23 +122,16 @@ mac {
 }
 
 win32-msvc* {
-    LIBS += -lCrypt32
+    LIBS += -lCrypt32 -llibxml2
     INCLUDEPATH += breakpad/src
     SOURCES += breakpad/src/client/windows/handler/exception_handler.cc \
       breakpad/src/client/windows/crash_generation/crash_generation_client.cc \
       breakpad/src/common/windows/guid_string.cc
     CONFIG(static) {
         DEFINES += STATIC_BUILD
-        QTPLUGIN += \
-            qcncodecs \
-            qjpcodecs \
-            qkrcodecs \
-            qtwcodecs \
-            qico
     }
 }
 
 openbsd* {
     LIBS += -L/usr/X11R6/lib
 }
-

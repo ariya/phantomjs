@@ -1,0 +1,1030 @@
+//
+// CSS value names
+//
+inherit
+initial
+//
+// CSS_PROP_OUTLINE_STYLE
+// CSS_PROP_BORDER_TOP_STYLE
+// CSS_PROP_BORDER_BOTTOM_STYLE
+// CSS_PROP_BORDER_LEFT_STYLE
+// The order here must match the order of the EBorderStyle enum in RenderStyleConstants.h.
+none
+hidden
+inset
+groove
+outset
+ridge
+dotted
+dashed
+solid
+double
+
+//
+// CSS_PROP_FONT:
+//
+caption
+icon
+menu
+message-box
+small-caption
+-webkit-mini-control
+-webkit-small-control
+-webkit-control
+status-bar
+
+//
+// CSS_PROP_FONT_STYLE:
+//
+//normal
+italic
+oblique
+// The following is only allowed in @font-face:
+all
+//
+// CSS_PROP_FONT_VARIANT:
+//
+//normal
+small-caps
+
+// -webkit-font-variant-ligatures:
+//
+// normal
+common-ligatures
+no-common-ligatures
+discretionary-ligatures
+no-discretionary-ligatures
+historical-ligatures
+no-historical-ligatures
+
+//
+// CSS_PROP_FONT_WEIGHT:
+//
+normal
+bold
+bolder
+lighter
+100
+200
+300
+400
+500
+600
+700
+800
+900
+//
+// CSS_PROP_FONT_SIZE:
+//
+xx-small
+x-small
+small
+medium
+large
+x-large
+xx-large
+-webkit-xxx-large
+smaller
+larger
+//
+// CSS_PROP_FONT_STRETCH:
+//
+//normal
+wider
+narrower
+ultra-condensed
+extra-condensed
+condensed
+semi-condensed
+semi-expanded
+expanded
+extra-expanded
+ultra-expanded
+//
+// CSS_PROP_GENERIC_FONT_FAMILY:
+//
+serif
+sans-serif
+cursive
+fantasy
+monospace
+-webkit-body
+-webkit-pictograph
+//
+//
+// CSS_PROP_*_COLOR
+//
+aqua
+black
+blue
+fuchsia
+gray
+green
+lime
+maroon
+navy
+olive
+orange
+purple
+red
+silver
+teal
+white
+yellow
+transparent
+-webkit-link
+-webkit-activelink
+activeborder
+activecaption
+appworkspace
+background
+buttonface
+buttonhighlight
+buttonshadow
+buttontext
+captiontext
+graytext
+highlight
+highlighttext
+inactiveborder
+inactivecaption
+inactivecaptiontext
+infobackground
+infotext
+menutext
+scrollbar
+threeddarkshadow
+threedface
+threedhighlight
+threedlightshadow
+threedshadow
+window
+windowframe
+windowtext
+-webkit-focus-ring-color
+currentcolor
+//
+// colors in non strict mode
+grey
+-webkit-text
+//
+// CSS_PROP_BACKGROUND_REPEAT:
+//
+repeat
+repeat-x
+repeat-y
+no-repeat
+// round
+// space
+//
+// CSS_PROP__WEBKIT_BACKGROUND_COMPOSITE:
+//
+clear
+copy
+source-over
+source-in
+source-out
+source-atop
+destination-over
+destination-in
+destination-out
+destination-atop
+xor
+plus-darker
+// highlight
+plus-lighter
+//
+// CSS_PROP_VERTICAL_ALIGN:
+//
+baseline
+middle
+sub
+super
+text-top
+text-bottom
+top
+bottom
+// HTML alignment MIDDLE has no corresponding CSS alignment
+-webkit-baseline-middle
+//
+// CSS_PROP_TEXT_ALIGN:
+// The order here must match the order of the ETextAlign enum in RenderStyleConstants.h.
+//
+-webkit-auto
+left
+right
+center
+justify
+-webkit-left
+-webkit-right
+-webkit-center
+-webkit-match-parent
+//
+// CSS_PROP_TEXT_JUSTIFY:
+//
+//auto
+//none
+inter-word
+inter-ideograph
+inter-cluster
+distribute
+kashida
+//
+// CSS_PROP_LIST_STYLE_POSITION:
+//
+outside
+inside
+//
+// CSS_PROP_LIST_STYLE_TYPE:
+// The order here must match the order of the EListStyleType enum in RenderStyleConstants.h.
+//
+disc
+circle
+square
+decimal
+decimal-leading-zero
+arabic-indic
+binary
+bengali
+cambodian
+khmer
+devanagari
+gujarati
+gurmukhi
+kannada
+lower-hexadecimal
+lao
+malayalam
+mongolian
+myanmar
+octal
+oriya
+persian
+urdu
+telugu
+tibetan
+thai
+upper-hexadecimal
+lower-roman
+upper-roman
+lower-greek
+lower-alpha
+lower-latin
+upper-alpha
+upper-latin
+afar
+ethiopic-halehame-aa-et
+ethiopic-halehame-aa-er
+amharic
+ethiopic-halehame-am-et
+amharic-abegede
+ethiopic-abegede-am-et
+cjk-earthly-branch
+cjk-heavenly-stem
+ethiopic
+ethiopic-halehame-gez
+ethiopic-abegede
+ethiopic-abegede-gez
+hangul-consonant
+hangul
+lower-norwegian
+oromo
+ethiopic-halehame-om-et
+sidama
+ethiopic-halehame-sid-et
+somali
+ethiopic-halehame-so-et
+tigre
+ethiopic-halehame-tig
+tigrinya-er
+ethiopic-halehame-ti-er
+tigrinya-er-abegede
+ethiopic-abegede-ti-er
+tigrinya-et
+ethiopic-halehame-ti-et
+tigrinya-et-abegede
+ethiopic-abegede-ti-et
+upper-greek
+upper-norwegian
+asterisks
+footnotes
+hebrew
+armenian
+lower-armenian
+upper-armenian
+georgian
+cjk-ideographic
+hiragana
+katakana
+hiragana-iroha
+katakana-iroha
+//none
+//
+// CSS_PROP_DISPLAY:
+// The order here must match the order of the EDisplay enum in RenderStyleConstants.h.
+//
+inline
+block
+list-item
+run-in
+compact
+inline-block
+table
+inline-table
+table-row-group
+table-header-group
+table-footer-group
+table-row
+table-column-group
+table-column
+table-cell
+table-caption
+-webkit-box
+-webkit-inline-box
+-webkit-flex
+-webkit-inline-flex
+-webkit-grid
+-webkit-inline-grid
+//none
+//
+// CSS_PROP_CURSOR:
+// The order here must match the order of the ECursor enum in RenderStyleConstants.h.
+//
+auto
+crosshair
+default
+pointer
+move
+vertical-text
+cell
+context-menu
+alias
+// copy
+progress
+no-drop
+not-allowed
+-webkit-zoom-in
+-webkit-zoom-out
+e-resize
+ne-resize
+nw-resize
+n-resize
+se-resize
+sw-resize
+s-resize
+w-resize
+ew-resize
+ns-resize
+nesw-resize
+nwse-resize
+col-resize
+row-resize
+text
+wait
+help
+all-scroll
+-webkit-grab
+-webkit-grabbing
+// none
+//
+// CSS_PROP_CURSOR_VISIBILITY:
+// auto
+auto-hide
+//
+// CSS_PROP_DIRECTION:
+//
+ltr
+rtl
+//
+// CSS_PROP_TEXT_TRANSFORM:
+//
+capitalize
+uppercase
+lowercase
+//none
+//
+// CSS_PROP_VISIBILITY:
+//
+visible
+//hidden
+collapse
+//
+// Unordered rest
+//
+a3
+a4
+a5
+above
+absolute
+always
+avoid
+b4
+b5
+below
+bidi-override
+blink
+both
+close-quote
+crop
+cross
+embed
+fixed
+hand
+hide
+higher
+invert
+-webkit-isolate
+-webkit-isolate-override
+-webkit-plaintext
+landscape
+ledger
+legal
+letter
+level
+line-through
+local
+loud
+lower
+-webkit-marquee
+mix
+no-close-quote
+no-open-quote
+nowrap
+open-quote
+overlay
+overline
+portrait
+pre
+pre-line
+pre-wrap
+relative
+scroll
+separate
+show
+static
+thick
+thin
+underline
+#if defined(ENABLE_CSS3_TEXT) && ENABLE_CSS3_TEXT
+wavy
+#endif
+-webkit-nowrap
+
+// CSS3 Values
+// CSS_PROP_BOX_ALIGN
+stretch
+start
+end
+//center
+//baseline
+
+#if defined(ENABLE_CSS_BOX_DECORATION_BREAK) && ENABLE_CSS_BOX_DECORATION_BREAK
+// CSS_PROP_BOX_DECORATION_BREAK
+clone
+slice
+#endif
+
+// CSS_PROP_BOX_DIRECTION
+// normal
+reverse
+
+// CSS_PROP_BOX_ORIENT
+horizontal
+vertical
+inline-axis
+block-axis
+
+// CSS_PROP_BOX_PACK
+// start
+// end
+// center
+// justify
+
+// CSS_PROP_BOX_LINES
+single
+multiple
+
+// CSS_PROP_ALIGN_CONTENT
+flex-start
+flex-end
+// center
+space-between
+space-around
+// stretch
+
+// CSS_PROP_ALIGN_ITEMS / CSS_PROP_ALIGN_SELF
+// flex-start
+// flex-end
+// center
+// baseline
+// stretch
+
+// CSS_PROP_JUSTIFY_CONTENT
+// flex-start
+// flex-end
+// center
+// space-between
+// space-around
+
+// CSS_PROP_FLEX_FLOW
+row
+row-reverse
+column
+column-reverse
+// nowrap
+// wrap
+wrap-reverse
+
+// CSS_PROP_MARQUEE_DIRECTION
+forwards
+backwards
+ahead
+// reverse
+// left
+// right
+up
+down
+// auto
+
+// CSS_PROP_MARQUEE_SPEED
+slow
+// normal
+fast
+
+// CSS_PROP_MARQUEE_REPETITION
+infinite
+
+// CSS_PROP_MARQUEE_STYLE
+// none
+slide
+// scroll
+alternate
+
+//
+// CSS_PROP__KHTML_USER_MODIFY
+//
+read-only
+read-write
+read-write-plaintext-only
+
+//
+// CSS_PROP__KHTML_USER_DRAG
+//
+element
+
+//
+// CSS_PROP__KHTML_USER_SELECT
+//
+ignore
+
+//
+// CSS_PROP_WIDTH/MIN_WIDTH/MAX_WIDTH
+//
+intrinsic
+min-intrinsic
+
+//
+// CSS3 intrinsic dimension keywords
+//
+-webkit-min-content
+-webkit-max-content
+-webkit-fill-available
+-webkit-fit-content
+
+//
+// CSS_PROP_TEXT_OVERFLOW
+//
+clip
+ellipsis
+
+//
+// CSS_PROP__KHTML_MARGIN_COLLAPSE
+//
+// collapse
+// separate
+discard
+
+//
+// CSS_PROP_TEXT_*_COLOR
+//
+dot-dash
+dot-dot-dash
+wave
+
+//
+// CSS_PROP_TEXT_*_MODE
+//
+continuous
+skip-white-space
+
+//
+// CSS_PROP_WORD_BREAK
+//
+break-all
+
+//
+// CSS_PROP_WORD_WRAP
+//
+break-word
+
+//
+// CSS_PROP__KHTML_NBSP_MODE
+//
+space
+
+//
+// CSS_PROP__KHTML_LINE_BREAK
+//
+// auto
+loose
+// normal
+strict
+after-white-space
+
+// -webkit-appearance
+// The order here must match the order in the ControlPart enum in ThemeTypes.h.
+// All appearance values that should be accepted by the parser should be listed between 'checkbox' and 'textarea':
+checkbox
+radio
+push-button
+square-button
+button
+button-bevel
+default-button
+inner-spin-button
+-webkit-input-speech-button
+listbox
+listitem
+media-enter-fullscreen-button
+media-exit-fullscreen-button
+media-fullscreen-volume-slider
+media-fullscreen-volume-slider-thumb
+media-mute-button
+media-play-button
+media-overlay-play-button
+media-seek-back-button
+media-seek-forward-button
+media-rewind-button
+media-return-to-realtime-button
+media-toggle-closed-captions-button
+media-slider
+media-sliderthumb
+media-volume-slider-container
+media-volume-slider
+media-volume-sliderthumb
+media-volume-slider-mute-button
+media-controls-background
+media-controls-fullscreen-background
+media-current-time-display
+media-time-remaining-display
+menulist
+menulist-button
+menulist-text
+menulist-textfield
+meter
+progress-bar
+progress-bar-value
+slider-horizontal
+slider-vertical
+sliderthumb-horizontal
+sliderthumb-vertical
+caret
+searchfield
+searchfield-decoration
+searchfield-results-decoration
+searchfield-results-button
+searchfield-cancel-button
+snapshotted-plugin-overlay
+textfield
+relevancy-level-indicator
+continuous-capacity-level-indicator
+discrete-capacity-level-indicator
+rating-level-indicator
+textarea
+// An appearance value that should not be accepted by the parser:
+caps-lock-indicator
+
+//
+// CSS_PROP_BORDER_IMAGE
+//
+// stretch
+// repeat
+round
+
+//
+// CSS_PROP_BACKGROUND_CLIP/ORIGIN
+//
+// border/content/padding are deprecated and ultimately will only apply to the -webkit- form of these properties.
+// border-box/content-box/padding-box should be used instead.
+//
+border
+border-box
+content
+content-box
+padding
+padding-box
+
+//
+// background-size
+//
+contain
+cover
+
+//
+// CSS_PROP__KHTML_RTL_ORDERING
+//
+logical
+visual
+
+//
+// CSS_PROP__WEBKIT_BORDER_FIT
+//
+lines
+
+//
+// CSS_PROP__WEBKIT_ANIMATION_DIRECTION
+//
+// alternate
+
+alternate-reverse
+
+//
+// CSS_PROP__WEBKIT_ANIMATION_FILL_MODE
+//
+// forwards
+// backwards
+// both
+
+//
+// CSS_PROP__WEBKIT_ANIMATION_ITERATION_COUNT
+//
+// infinite
+
+//
+// CSS_PROP__WEBKIT_ANIMATION_PLAY_STATE
+//
+running
+paused
+
+//
+// CSS_PROP__WEBKIT_TRANSFORM_STYLE
+//
+flat
+preserve-3d
+
+//
+// CSS_PROP__WEBKIT_TRANSITION_TIMING_FUNCTION
+// CSS_PROP__WEBKIT_ANIMATION_TIMING_FUNCTION
+//
+ease
+linear
+ease-in
+ease-out
+ease-in-out
+step-start
+step-end
+
+//
+// CSS_PROP_ZOOM
+//
+document
+reset
+
+#if defined(ENABLE_CSS_DEVICE_ADAPTATION) && ENABLE_CSS_DEVICE_ADAPTATION
+//
+// CSS_PROP_USER_ZOOM
+//
+// fixed
+zoom
+
+//
+// CSS_PROP_MIN_WIDTH
+// CSS_PROP_MAX_WIDTH
+// CSS_PROP_MIN_HEIGHT
+// CSS_PROP_MAX_HEIGHT
+//
+// auto
+device-width
+device-height
+#endif
+
+//
+// CSS_PROP_POINTER_EVENTS
+//
+visiblePainted
+visibleFill
+visibleStroke
+//visible
+painted
+fill
+stroke
+//all
+//none
+
+//
+// CSS_PROP_SPEECH
+//
+spell-out
+digits
+literal-punctuation
+no-punctuation
+
+//
+// -webkit-font-smoothing
+//
+// auto
+// none
+antialiased
+subpixel-antialiased
+
+// text-rendering
+//auto
+optimizeSpeed
+optimizeLegibility
+geometricPrecision
+
+// -webkit-color-adjust
+economy
+exact
+
+// -webkit-color-correction
+//default
+sRGB
+
+#if defined(ENABLE_VIEW_MODE_CSS_MEDIA) && ENABLE_VIEW_MODE_CSS_MEDIA
+// (-webkit-view-mode:) media feature:
+floating
+fullscreen
+maximized
+minimized
+windowed
+#endif // ENABLE_VIEW_MODE_CSS_MEDIA
+
+// -webkit-hyphenate-limit-lines
+no-limit
+
+// -webkit-hyphens
+// none
+manual
+// auto
+
+#if defined(ENABLE_ACCELERATED_OVERFLOW_SCROLLING) && ENABLE_ACCELERATED_OVERFLOW_SCROLLING
+// -webkit-overflow-scrolling
+// auto
+touch
+#endif
+
+// -webkit-writing-mode
+// SVG compatibility
+lr
+rl
+tb
+lr-tb
+rl-tb
+tb-rl
+// Standard values from CSS3
+horizontal-tb
+vertical-rl
+vertical-lr
+horizontal-bt
+
+// -webkit-ruby-position
+after
+before
+
+// -webkit-text-emphasis-position
+over
+under
+
+// -webkit-text-emphasis-style
+filled
+open
+dot
+// circle
+double-circle
+triangle
+sesame
+
+// -webkit-radial-gradient
+// circle
+ellipse
+closest-side
+closest-corner
+farthest-side
+farthest-corner
+// contain
+// cover
+
+// -webkit-text-orientation
+sideways
+sideways-right
+upright
+vertical-right
+
+// -webkit-line-box-contain
+font
+glyphs
+inline-box
+replaced
+
+// -webkit-font-feature-settings
+on
+off
+
+// image-rendering
+// auto
+// optimizeSpeed
+optimizeQuality
+-webkit-crisp-edges
+-webkit-optimize-contrast
+
+// -webkit-shape-inside
+// -webkit-shape-outside
+nonzero
+evenodd
+outside-shape
+
+// -webkit-region-fragment
+// auto
+break
+
+// -webkit-wrap-flow
+// auto
+// both
+// left
+// right
+maximum
+// clear
+
+// -webkit-wrap-through
+wrap
+// none
+
+// -webkit-line-align
+edges
+
+#if (defined(ENABLE_SVG) && ENABLE_SVG) || (defined(ENABLE_CSS3_TEXT) && ENABLE_CSS3_TEXT)
+alphabetic
+#endif
+
+// position
+#if defined(ENABLE_CSS_STICKY_POSITION) && ENABLE_CSS_STICKY_POSITION
+-webkit-sticky
+#endif // CSS_STICKY_POSITION
+
+// (pointer:) media feature
+// none
+coarse
+fine
+
+#if (defined(ENABLE_CSS_FILTERS) && ENABLE_CSS_FILTERS) || (defined(ENABLE_CSS_COMPOSITING) && ENABLE_CSS_COMPOSITING)
+// -webkit-filter
+#if defined(ENABLE_CSS_SHADERS) && ENABLE_CSS_SHADERS
+// values for the custom() function
+// border-box
+// padding-box
+// content-box
+attached
+filter-box
+detached
+#endif // CSS_SHADERS
+#endif // CSS_FILTERS
+// blend modes
+// normal
+multiply
+screen
+// overlay
+darken
+lighten
+color-dodge
+color-burn
+hard-light
+soft-light
+difference
+exclusion
+hue
+saturation
+color
+luminosity
+
+#if defined(ENABLE_CSS_IMAGE_RESOLUTION) && ENABLE_CSS_IMAGE_RESOLUTION
+from-image
+snap
+#endif
+
+// overflow
+-webkit-paged-x
+-webkit-paged-y
+
+// -webkit-app-region
+#if defined(ENABLE_DRAGGABLE_REGION) && ENABLE_DRAGGABLE_REGION
+drag
+no-drag
+#endif
+
+#if defined(ENABLE_CSS3_TEXT) && ENABLE_CSS3_TEXT
+// text-indent
+-webkit-each-line
+-webkit-hanging
+#endif
+

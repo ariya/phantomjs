@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+    font-family: Verdana, sans-serif;
+    margin: 0px;
+    padding: 0px;
+}
+#bubbleContainer {
+    display: inline-block;
+    white-space: nowrap;
+}
+.status {
+    display: block;
+    float: left;
+    margin: 1px;
+    padding: 1px 2px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    border: 1px solid #AAA;
+    background-color: white;
+    font-size: 11px;
+    cursor: pointer;
+    text-decoration: none;
+    color: black;
+}
+.status:hover {
+    border-color: #666;
+}
+.none {
+    cursor: auto;
+}
+.none:hover {
+    border-color: #AAA;
+}
+.pass {
+    background-color: #8FDF5F;
+    border: 1px solid #4F8530;
+}
+.fail {
+    background-color: #E98080;
+    border: 1px solid #A77272;
+}
+.pending {
+    background-color: #FFFC6C;
+    border: 1px solid #C5C56D;
+}
+.error {
+  background-color: #E0B0FF;
+  border: 1px solid #ACA0B3;
+}
+.queue_position {
+    font-size: 9px;
+}
+form {
+    display: inline-block;
+}
+</style>
+<script>
+window.addEventListener("message", function(e) {
+  if (e.data == 'containerMetrics') {
+    e.source.postMessage({'width': bubbleContainer.offsetWidth, 'height': bubbleContainer.offsetHeight},
+        e.origin);
+  } else
+    console.log("Unknown postMessage: " + e.data);
+}, false);
+</script>
+</head>
+<body>
+<div id="bubbleContainer">
+  {% for bubble in bubbles %}
+  <a class="status {{ bubble.state }}" target="_top"
+  {% if bubble.status %}
+      href="/patch/{{ bubble.attachment_id }}"
+      title="{{ bubble.status.date|timesince }} ago"
+  {% endif %}
+  >
+    {{ bubble.name }}
+    {% if bubble.queue_position %}
+    <span class="queue_position">#{{ bubble.queue_position }}</span>
+    {% endif %}
+  </a>
+  {% endfor %}
+
+{% if show_submit_to_ews %}
+  <form name="submit_to_ews" method="POST" action="/submit-to-ews">
+    <input type="hidden" name="attachment_id" value="{{ attachment_id }}">
+    <input type="hidden" name="next_action" value="return_to_bubbles">
+    <input class="status" type="submit" value="Submit for EWS analysis">
+  </form>
+{% endif %}
+</div>
+</body>
+</html>

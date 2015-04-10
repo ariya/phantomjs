@@ -1,0 +1,64 @@
+/*
+ * Copyright (C) 2006, 2007, 2009 Apple Inc. All rights reserved.
+ * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+// Introduced in DOM Level 2:
+[
+    JSCustomHeader,
+    JSCustomMarkFunction,
+    GenerateIsReachable,
+    CustomToJSObject,
+    ObjCPolymorphic,
+] interface CSSRule {
+
+    // RuleType
+    const unsigned short UNKNOWN_RULE = 0;
+    const unsigned short STYLE_RULE = 1;
+    const unsigned short CHARSET_RULE = 2;
+    const unsigned short IMPORT_RULE = 3;
+    const unsigned short MEDIA_RULE = 4;
+    const unsigned short FONT_FACE_RULE = 5;
+    const unsigned short PAGE_RULE = 6;
+    const unsigned short WEBKIT_KEYFRAMES_RULE = 7;
+    const unsigned short WEBKIT_KEYFRAME_RULE = 8;
+#if defined(ENABLE_CSS3_CONDITIONAL_RULES) && ENABLE_CSS3_CONDITIONAL_RULES
+    const unsigned short SUPPORTS_RULE = 12;
+#endif
+#if defined(ENABLE_CSS_DEVICE_ADAPTATION) && ENABLE_CSS_DEVICE_ADAPTATION
+    const unsigned short WEBKIT_VIEWPORT_RULE = 15;
+#endif
+#if defined(ENABLE_CSS_REGIONS) && ENABLE_CSS_REGIONS
+    const unsigned short WEBKIT_REGION_RULE = 16;
+#endif
+#if defined(ENABLE_CSS_SHADERS) && ENABLE_CSS_SHADERS
+    const unsigned short WEBKIT_FILTER_RULE = 17;
+#endif
+#if defined(ENABLE_SHADOW_DOM) && ENABLE_SHADOW_DOM
+    const unsigned short HOST_RULE = 1001;
+#endif
+
+    readonly attribute unsigned short   type;
+
+    [TreatReturnedNullStringAs=Null, TreatNullAs=NullString, SetterRaisesException] attribute DOMString cssText;
+
+    readonly attribute CSSStyleSheet    parentStyleSheet;
+    readonly attribute CSSRule          parentRule;
+
+};
+

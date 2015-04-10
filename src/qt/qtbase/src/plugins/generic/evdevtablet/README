@@ -1,0 +1,44 @@
+Generic plug-in for accessing pen-based tablets via evdev
+
+To test, run the demo app from examples/widgets/tablet with the
+command-line argument -plugin EvdevTablet
+
+Known to work with 3rd generation Wacom Bamboo Pen & Touch. Recent
+tablets like this one may need an updated wacom kernel driver for
+kernels 3.2 and older.
+
+Supports x, y, pressure, pen & eraser pointer types, proximity enter,
+proximity leave. The additional advanced fields of QTabletEvent will
+not be utilized.
+
+Connecting the tablet will result in two input devices: one for finger
+touch and the tablet buttons, and another for pen input including the
+stylus buttons. This plugin cares about the latter only. For touch,
+try the evdevtouch plugin.
+
+The plugin generates QTabletEvents only. For compatibility with Qt 4,
+TabletPress, Move and Release are only sent when the stylus is
+touching the screen.
+
+TabletEnterProximity and TabletLeaveProximity are always sent to the
+QGuiApplication instance. Use an event filter (or subclass) to handle
+these. In proximity events most of the data (incl. position) will be
+left unspecified as these are mere indication of the fact that the
+stylus entered the range of the tablet.
+
+When running under X, it is likely that no events are received due to
+the input device being grabbed. A temporary workaround is to disable
+the device from X via
+xinput set-prop <device> <device enabled property> 0.
+
+
+TODO #1: Indicate motion when lifted but still in proximity. Needs new
+event types.
+
+TODO #1.1: Where to report ABS_DISTANCE? Needs a new QTabletEvent member
+(unless we hijack z).
+
+TODO #2: QKeyEvent from the stylus buttons (BTN_STYLUS, BTN_STYLUS2,
+but there are no suitable Qt::Key_* constants?)
+
+TODO #3: QKeyEvent in evdevtouch (or this plugin?) from tablet buttons

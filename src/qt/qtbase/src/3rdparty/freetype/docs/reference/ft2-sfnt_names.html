@@ -1,0 +1,232 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>FreeType-2.3.12 API Reference</title>
+<style type="text/css">
+  body { font-family: Verdana, Geneva, Arial, Helvetica, serif;
+         color: #000000;
+         background: #FFFFFF; }
+
+  p { text-align: justify; }
+  h1 { text-align: center; }
+  li { text-align: justify; }
+  td { padding: 0 0.5em 0 0.5em; }
+  td.left { padding: 0 0.5em 0 0.5em;
+            text-align: left; }
+
+  a:link { color: #0000EF; }
+  a:visited { color: #51188E; }
+  a:hover { color: #FF0000; }
+
+  span.keyword { font-family: monospace;
+                 text-align: left;
+                 white-space: pre;
+                 color: darkblue; }
+
+  pre.colored { color: blue; }
+
+  ul.empty { list-style-type: none; }
+</style>
+</head>
+<body>
+
+<table align=center><tr><td><font size=-1>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-1>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+<center><h1>FreeType-2.3.12 API Reference</h1></center>
+
+<center><h1>
+SFNT Names
+</h1></center>
+<h2>Synopsis</h2>
+<table align=center cellspacing=5 cellpadding=0 border=0>
+<tr><td></td><td><a href="#FT_SfntName">FT_SfntName</a></td></tr>
+<tr><td></td><td><a href="#FT_Get_Sfnt_Name_Count">FT_Get_Sfnt_Name_Count</a></td></tr>
+<tr><td></td><td><a href="#FT_Get_Sfnt_Name">FT_Get_Sfnt_Name</a></td></tr>
+<tr><td></td><td><a href="#FT_PARAM_TAG_IGNORE_PREFERRED_FAMILY">FT_PARAM_TAG_IGNORE_PREFERRED_FAMILY</a></td></tr>
+<tr><td></td><td><a href="#FT_PARAM_TAG_IGNORE_PREFERRED_SUBFAMILY">FT_PARAM_TAG_IGNORE_PREFERRED_SUBFAMILY</a></td></tr>
+</table><br><br>
+
+<table align=center width="87%"><tr><td>
+<p>The TrueType and OpenType specifications allow the inclusion of a special &lsquo;names table&rsquo; in font files. This table contains textual (and internationalized) information regarding the font, like family name, copyright, version, etc.</p>
+<p>The definitions below are used to access them if available.</p>
+<p>Note that this has nothing to do with glyph names!</p>
+</td></tr></table><br>
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_SfntName">FT_SfntName</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_SFNT_NAMES_H (freetype/ftsnames.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span>  FT_SfntName_
+  {
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  platform_id;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  encoding_id;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  language_id;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  name_id;
+
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>*   string;      /* this string is *not* null-terminated! */
+    <a href="ft2-basic_types.html#FT_UInt">FT_UInt</a>    string_len;  /* in bytes */
+
+  } <b>FT_SfntName</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A structure used to model an SFNT &lsquo;name&rsquo; table entry.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>fields</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>platform_id</b></td><td>
+<p>The platform ID for &lsquo;string&rsquo;.</p>
+</td></tr>
+<tr valign=top><td><b>encoding_id</b></td><td>
+<p>The encoding ID for &lsquo;string&rsquo;.</p>
+</td></tr>
+<tr valign=top><td><b>language_id</b></td><td>
+<p>The language ID for &lsquo;string&rsquo;.</p>
+</td></tr>
+<tr valign=top><td><b>name_id</b></td><td>
+<p>An identifier for &lsquo;string&rsquo;.</p>
+</td></tr>
+<tr valign=top><td><b>string</b></td><td>
+<p>The &lsquo;name&rsquo; string. Note that its format differs depending on the (platform,encoding) pair. It can be a Pascal String, a UTF-16 one, etc.</p>
+<p>Generally speaking, the string is not zero-terminated. Please refer to the TrueType specification for details.</p>
+</td></tr>
+<tr valign=top><td><b>string_len</b></td><td>
+<p>The length of &lsquo;string&rsquo; in bytes.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>Possible values for &lsquo;platform_id&rsquo;, &lsquo;encoding_id&rsquo;, &lsquo;language_id&rsquo;, and &lsquo;name_id&rsquo; are given in the file &lsquo;ttnameid.h&rsquo;. For details please refer to the TrueType or OpenType specification.</p>
+<p>See also <a href="ft2-truetype_tables.html#TT_PLATFORM_XXX">TT_PLATFORM_XXX</a>, <a href="ft2-truetype_tables.html#TT_APPLE_ID_XXX">TT_APPLE_ID_XXX</a>, <a href="ft2-truetype_tables.html#TT_MAC_ID_XXX">TT_MAC_ID_XXX</a>, <a href="ft2-truetype_tables.html#TT_ISO_ID_XXX">TT_ISO_ID_XXX</a>, and <a href="ft2-truetype_tables.html#TT_MS_ID_XXX">TT_MS_ID_XXX</a>.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Get_Sfnt_Name_Count">FT_Get_Sfnt_Name_Count</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_SFNT_NAMES_H (freetype/ftsnames.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_UInt">FT_UInt</a> )
+  <b>FT_Get_Sfnt_Name_Count</b>( <a href="ft2-base_interface.html#FT_Face">FT_Face</a>  face );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Retrieve the number of name strings in the SFNT &lsquo;name&rsquo; table.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>face</b></td><td>
+<p>A handle to the source face.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>The number of strings in the &lsquo;name&rsquo; table.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Get_Sfnt_Name">FT_Get_Sfnt_Name</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_SFNT_NAMES_H (freetype/ftsnames.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Error">FT_Error</a> )
+  <b>FT_Get_Sfnt_Name</b>( <a href="ft2-base_interface.html#FT_Face">FT_Face</a>       face,
+                    <a href="ft2-basic_types.html#FT_UInt">FT_UInt</a>       idx,
+                    <a href="ft2-sfnt_names.html#FT_SfntName">FT_SfntName</a>  *aname );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Retrieve a string of the SFNT &lsquo;name&rsquo; table for a given index.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>face</b></td><td>
+<p>A handle to the source face.</p>
+</td></tr>
+<tr valign=top><td><b>idx</b></td><td>
+<p>The index of the &lsquo;name&rsquo; string.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>output</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>aname</b></td><td>
+<p>The indexed <a href="ft2-sfnt_names.html#FT_SfntName">FT_SfntName</a> structure.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>FreeType error code. 0&nbsp;means success.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>The &lsquo;string&rsquo; array returned in the &lsquo;aname&rsquo; structure is not null-terminated. The application should deallocate it if it is no longer in use.</p>
+<p>Use <a href="ft2-sfnt_names.html#FT_Get_Sfnt_Name_Count">FT_Get_Sfnt_Name_Count</a> to get the total number of available &lsquo;name&rsquo; table entries, then do a loop until you get the right platform, encoding, and name ID.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_PARAM_TAG_IGNORE_PREFERRED_FAMILY">FT_PARAM_TAG_IGNORE_PREFERRED_FAMILY</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_SFNT_NAMES_H (freetype/ftsnames.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+#define <b>FT_PARAM_TAG_IGNORE_PREFERRED_FAMILY</b>  <a href="ft2-basic_types.html#FT_MAKE_TAG">FT_MAKE_TAG</a>( 'i', 'g', 'p', 'f' )
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A constant used as the tag of <a href="ft2-base_interface.html#FT_Parameter">FT_Parameter</a> structures to make FT_Open_Face() ignore preferred family subfamily names in &lsquo;name&rsquo; table since OpenType version 1.4. For backwards compatibility with legacy systems which has 4-face-per-family restriction.</p>
+</td></tr></table><br>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_PARAM_TAG_IGNORE_PREFERRED_SUBFAMILY">FT_PARAM_TAG_IGNORE_PREFERRED_SUBFAMILY</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_SFNT_NAMES_H (freetype/ftsnames.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+#define <b>FT_PARAM_TAG_IGNORE_PREFERRED_SUBFAMILY</b>  <a href="ft2-basic_types.html#FT_MAKE_TAG">FT_MAKE_TAG</a>( 'i', 'g', 'p', 's' )
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A constant used as the tag of <a href="ft2-base_interface.html#FT_Parameter">FT_Parameter</a> structures to make FT_Open_Face() ignore preferred subfamily names in &lsquo;name&rsquo; table since OpenType version 1.4. For backwards compatibility with legacy systems which has 4-face-per-family restriction.</p>
+</td></tr></table><br>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+</body>
+</html>

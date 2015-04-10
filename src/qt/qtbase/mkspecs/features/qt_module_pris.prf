@@ -1,0 +1,190 @@
+#
+#  W A R N I N G
+#  -------------
+#
+# This file is not part of the Qt API.  It exists purely as an
+# implementation detail.  It may change from version to version
+# without notice, or even be removed.
+#
+# We mean it.
+#
+
+load(qt_build_paths)
+# Pre-generated headers in the source tree and
+# - shadow build or
+# - non-shadow non-prefix build of a module which is not qtbase (because the build-time
+#   generated headers all end up in qtbase).
+!git_build:if(!equals(_PRO_FILE_PWD_, $$OUT_PWD) \
+              |if(!prefix_build:!equals(MODULE_BASE_INDIR, $$[QT_HOST_PREFIX]))): \
+    CONFIG += split_incpath
+force_independent|split_incpath: \
+    CONFIG += need_fwd_pri
+mod_work_pfx = $$MODULE_QMAKE_OUTDIR/mkspecs/modules
+need_fwd_pri: \
+    mod_inst_pfx = $$MODULE_QMAKE_OUTDIR/mkspecs/modules-inst
+else: \
+    mod_inst_pfx = $$mod_work_pfx
+!internal_module {
+    MODULE_ID = $$MODULE
+    MODULE_PRIVATE_PRI = $$mod_inst_pfx/qt_lib_$${MODULE}_private.pri
+    mods_to_load = $$MODULE $${MODULE}_private
+} else {
+    MODULE_ID = $${MODULE}_private
+    mods_to_load = $${MODULE}_private
+}
+need_fwd_pri: \
+    pris_to_load = $$MODULE_ID
+else: \
+    pris_to_load = $$mods_to_load
+MODULE_PRI = $$mod_inst_pfx/qt_lib_$${MODULE_ID}.pri
+MODULE_FWD_PRI = $$mod_work_pfx/qt_lib_$${MODULE_ID}.pri
+
+!build_pass {
+
+    # Create a module .pri file
+    host_build: \
+        module_libs = "\$\$QT_MODULE_HOST_LIB_BASE"
+    else: \
+        module_libs = "\$\$QT_MODULE_LIB_BASE"
+    unix:!static {
+        host_build: \
+            module_rpath = "QT.$${MODULE_ID}.rpath = $$[QT_HOST_LIBS]"
+        else: \
+            module_rpath = "QT.$${MODULE_ID}.rpath = $$[QT_INSTALL_LIBS/raw]"
+    } else {
+        module_rpath =
+    }
+    !isEmpty(QT_PRIVATE): \
+        module_rundep = "QT.$${MODULE_ID}.run_depends = $$replace(QT_PRIVATE, -private$, _private)"
+    else: \
+        module_rundep =
+    static: \
+        module_build_type = staticlib
+    else:mac:contains(QT_CONFIG, qt_framework): \
+        module_build_type = lib_bundle
+    else: \
+        module_build_type =
+    internal_module: \
+        module_build_type += internal_module
+    !isEmpty(MODULE_CONFIG): \
+        module_config = "QT.$${MODULE_ID}.CONFIG = $$MODULE_CONFIG"
+    else: \
+        module_config =
+    !isEmpty(MODULE_PLUGIN_TYPES): \
+        module_plugtypes = "QT.$${MODULE_ID}.plugin_types = $$replace(MODULE_PLUGIN_TYPES, /.*$, )"
+    else: \
+        module_plugtypes =
+    !no_module_headers:!minimal_syncqt {
+        MODULE_INCLUDES = \$\$QT_MODULE_INCLUDE_BASE \$\$QT_MODULE_INCLUDE_BASE/$$MODULE_INCNAME
+        MODULE_PRIVATE_INCLUDES = \$\$QT_MODULE_INCLUDE_BASE/$$MODULE_INCNAME/$$VERSION \
+                                  \$\$QT_MODULE_INCLUDE_BASE/$$MODULE_INCNAME/$$VERSION/$$MODULE_INCNAME
+    }
+    split_incpath: \
+        MODULE_SHADOW_INCLUDES = $$replace(MODULE_INCLUDES, ^\\\$\\\$QT_MODULE_INCLUDE_BASE, \
+                                                            $$MODULE_BASE_OUTDIR/include)
+    MODULE_INCLUDES += $$MODULE_AUX_INCLUDES
+    MODULE_PRIVATE_INCLUDES += $$MODULE_PRIVATE_AUX_INCLUDES
+    internal_module: \
+        MODULE_INCLUDES += $$MODULE_PRIVATE_INCLUDES
+    split_incpath: \
+        MODULE_FWD_PRI_CONT_SUFFIX += "QT.$${MODULE_ID}.includes += $$MODULE_SHADOW_INCLUDES"
+    MODULE_PRI_CONT = \
+        "QT.$${MODULE_ID}.VERSION = $${VERSION}" \
+        "QT.$${MODULE_ID}.MAJOR_VERSION = $$section(VERSION, ., 0, 0)" \
+        "QT.$${MODULE_ID}.MINOR_VERSION = $$section(VERSION, ., 1, 1)" \
+        "QT.$${MODULE_ID}.PATCH_VERSION = $$section(VERSION, ., 2, 2)" \
+        "" \
+        "QT.$${MODULE_ID}.name = $$TARGET" \
+        "QT.$${MODULE_ID}.libs = $$module_libs" \
+        $$module_rpath \
+        "QT.$${MODULE_ID}.includes = $$MODULE_INCLUDES"
+    !host_build: MODULE_PRI_CONT += \
+        "QT.$${MODULE_ID}.bins = \$\$QT_MODULE_BIN_BASE" \
+        "QT.$${MODULE_ID}.libexecs = \$\$QT_MODULE_LIBEXEC_BASE" \
+        "QT.$${MODULE_ID}.plugins = \$\$QT_MODULE_PLUGIN_BASE" \
+        "QT.$${MODULE_ID}.imports = \$\$QT_MODULE_IMPORT_BASE" \
+        "QT.$${MODULE_ID}.qml = \$\$QT_MODULE_QML_BASE" \
+        $$module_plugtypes
+    MODULE_PRI_CONT += \
+        "QT.$${MODULE_ID}.depends =$$join(MODULE_DEPENDS, " ", " ")" \
+        $$module_rundep \
+        "QT.$${MODULE_ID}.module_config =$$join(module_build_type, " ", " ")" \
+        $$module_config \
+        "QT.$${MODULE_ID}.DEFINES = $$MODULE_DEFINES" \ # assume sufficient quoting
+        "" \
+        "QT_MODULES += $$MODULE"
+    write_file($$MODULE_PRI, MODULE_PRI_CONT)|error("Aborting.")
+    !internal_module {
+        module_build_type += internal_module no_link
+        MODULE_PRIVATE_PRI_CONT = \
+            "QT.$${MODULE}_private.VERSION = $${VERSION}" \
+            "QT.$${MODULE}_private.MAJOR_VERSION = $$section(VERSION, ., 0, 0)" \
+            "QT.$${MODULE}_private.MINOR_VERSION = $$section(VERSION, ., 1, 1)" \
+            "QT.$${MODULE}_private.PATCH_VERSION = $$section(VERSION, ., 2, 2)" \
+            "" \
+            "QT.$${MODULE}_private.name = $${TARGET}" \   # Same name as base module
+            "QT.$${MODULE}_private.libs = $$module_libs" \
+            "QT.$${MODULE}_private.includes = $$MODULE_PRIVATE_INCLUDES" \
+            "QT.$${MODULE}_private.depends = $$replace($$list($$MODULE $$QT_FOR_PRIVATE), -private$, _private)" \
+            "QT.$${MODULE}_private.module_config =$$join(module_build_type, " ", " ")"
+        write_file($$MODULE_PRIVATE_PRI, MODULE_PRIVATE_PRI_CONT)|error("Aborting.")
+    }
+    MODULE_PRI_FILES = $$MODULE_PRI $$MODULE_PRIVATE_PRI
+
+    need_fwd_pri {
+
+        split_incpath: \
+            MODULE_BASE_INCDIR = $$MODULE_BASE_INDIR
+        else: \
+            MODULE_BASE_INCDIR = $$MODULE_BASE_OUTDIR
+
+        # Create a forwarding module .pri file
+        MODULE_FWD_PRI_CONT = \
+            "QT_MODULE_BIN_BASE = $$MODULE_BASE_OUTDIR/bin" \
+            "QT_MODULE_INCLUDE_BASE = $$MODULE_BASE_INCDIR/include" \
+            "QT_MODULE_IMPORT_BASE = $$MODULE_BASE_OUTDIR/imports" \
+            "QT_MODULE_QML_BASE = $$MODULE_BASE_OUTDIR/qml" \
+            "QT_MODULE_LIB_BASE = $$MODULE_BASE_OUTDIR/lib" \
+            "QT_MODULE_HOST_LIB_BASE = $$MODULE_BASE_OUTDIR/lib" \
+            "QT_MODULE_LIBEXEC_BASE = $$MODULE_BASE_OUTDIR/libexec" \
+            "QT_MODULE_PLUGIN_BASE = $$MODULE_BASE_OUTDIR/plugins" \
+            "include($$MODULE_PRI)"
+        !internal_module: MODULE_FWD_PRI_CONT += \
+            "include($$MODULE_PRIVATE_PRI)"
+        MODULE_FWD_PRI_CONT += $$MODULE_FWD_PRI_CONT_SUFFIX
+        write_file($$MODULE_FWD_PRI, MODULE_FWD_PRI_CONT)|error("Aborting.")
+        touch($$MODULE_FWD_PRI, $$MODULE_PRI)
+        MODULE_PRI_FILES += $$MODULE_FWD_PRI
+
+    } else {
+
+        # This is needed for the direct include() below. Mirrors qt_config.prf
+        QT_MODULE_BIN_BASE = $$[QT_INSTALL_BINS]
+        QT_MODULE_INCLUDE_BASE = $$[QT_INSTALL_HEADERS]
+        QT_MODULE_IMPORT_BASE = $$[QT_INSTALL_IMPORTS]
+        QT_MODULE_QML_BASE = $$[QT_INSTALL_QML]
+        QT_MODULE_LIB_BASE = $$[QT_INSTALL_LIBS]
+        QT_MODULE_HOST_LIB_BASE = $$[QT_HOST_LIBS]
+        QT_MODULE_LIBEXEC_BASE = $$[QT_INSTALL_LIBEXECS]
+        QT_MODULE_PLUGIN_BASE = $$[QT_INSTALL_PLUGINS]
+
+    }
+
+    # Then, inject the new module into the current cache state
+    !contains(QMAKE_INTERNAL_INCLUDED_FILES, $$MODULE_PRI): \ # before the actual include()!
+        cache(QMAKE_INTERNAL_INCLUDED_FILES, add transient, MODULE_PRI_FILES)
+    for(pri, pris_to_load): \
+        include($$mod_work_pfx/qt_lib_$${pri}.pri)
+    for(mod, mods_to_load) {
+        for(var, $$list(VERSION MAJOR_VERSION MINOR_VERSION PATCH_VERSION \
+                        name depends module_config CONFIG DEFINES sources \
+                        includes bins libs libexecs plugins imports qml \
+                        rpath_link \
+                )):defined(QT.$${mod}.$$var, var):cache(QT.$${mod}.$$var, transient)
+    }
+    cache(QT_MODULES, transient)
+
+} # !build_pass
+
+# Schedule the regular .pri file for installation
+CONFIG += qt_install_module

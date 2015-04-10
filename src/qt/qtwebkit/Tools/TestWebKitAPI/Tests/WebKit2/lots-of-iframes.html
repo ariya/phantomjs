@@ -1,0 +1,35 @@
+<html>
+<head>
+<script type="text/javascript">
+  var maxNumberOfFrames = 100;
+
+  function createIFrames() {
+    var str = "<div id=\"status\"></div>";
+    for (var i = 0; i < maxNumberOfFrames + 1; i++) {
+      str += "<iframe id=\"i" + i + "\" src=\"data:text/html,iframe_" + i + "\"></iframe>";
+    }
+    document.getElementsByTagName("body")[0].innerHTML = str;
+
+    var results = "";
+
+    var f = document.getElementById("i" + (maxNumberOfFrames - 1));
+    if (f && f.contentWindow) {
+      results += "Sucessfully created " + maxNumberOfFrames + " frames.<br>";
+    } else {
+      results += "Failed to create " + maxNumberOfFrames + " frames.<br>";
+    }
+
+    var g = document.getElementById("i" + maxNumberOfFrames);
+    if (g && g.contentWindow) {
+      results += "Failed to block creation of frame number " + (maxNumberOfFrames + 1) + ".";
+    } else {
+      results += "Successfully blocked creation of frame number " + (maxNumberOfFrames + 1) + ".";
+    }
+
+    document.getElementById("status").innerHTML = results;
+  }
+</script>
+</head>
+<body onLoad="createIFrames()">
+</body>
+</html>

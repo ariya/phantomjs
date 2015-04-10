@@ -1,0 +1,66 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+  \group gallery
+  \title Qt Widget Gallery
+  \brief Qt widgets shown in different styles on various platforms.
+
+  Qt's support for widget styles and themes enables your application to fit in
+  with the native desktop environment. Below, you can find links to the various
+  widget styles that are supplied with Qt.
+
+  \table
+  \row
+  \li \image windowsxp-tabwidget.png Windows XP Style Widget Gallery
+  \caption \l{Windows XP Style Widget Gallery}
+
+  The Windows XP style is provided by QWindowsXPStyle.
+  \li \image windows-tabwidget.png Windows Style Widget Gallery
+  \caption \l{Windows Style Widget Gallery}
+
+  The Windows style is provided by QWindowsStyle.
+  \li \image windowsvista-tabwidget.png Windows Vista Style Widget Gallery
+  \caption \l{Windows Vista Style Widget Gallery}
+
+  The Windows Vista style is provided by QWindowsVistaStyle.
+
+  \row
+  \li \image macintosh-tabwidget.png Macintosh Style Widget Gallery
+  \caption \l{Macintosh Style Widget Gallery}
+
+  The Macintosh style is provided by QMacStyle.
+  \li \image gtk-tabwidget.png GTK Style Widget Gallery
+  \caption \l{GTK Style Widget Gallery}
+
+  The GTK style is provided by QGtkStyle.
+  \li \image fusion-tabwidget.png Fusion Style Widget Gallery
+  \caption \l{Fusion Style Widget Gallery}
+
+  The Fusion style is provided by QFusionStyle.
+  \endtable
+*/

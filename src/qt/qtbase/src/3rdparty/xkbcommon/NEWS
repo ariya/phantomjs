@@ -1,0 +1,129 @@
+libxkbcommon 0.4.1
+==================
+
+- Converted README to markdown and added a Quick Guide to the
+  documentation, which breezes through the most common parts of
+  xkbcommon.
+
+- Added two new functions, xkb_state_key_get_utf{8,32}(). They
+  combine the operations of xkb_state_key_get_syms() and
+  xkb_keysym_to_utf{8,32}(), and provide a nicer interface for it
+  (espcially for multiple-keysyms-per-level).
+
+- The xkb_state_key_get_utf{8,32}() functions now apply Control
+  transformation: when the Control modifier is active, the string
+  is converted to an appropriate control character.
+  This matches the behavior of libX11's XLookupString(3), and
+  required by the XKB specification:
+  http://www.x.org/releases/current/doc/kbproto/xkbproto.html#Interpreting_the_Control_Modifier
+
+  https://bugs.freedesktop.org/show_bug.cgi?id=75892
+
+- The consumed modifiers for a key are now calculated similarly
+  to libX11. The previous behavior caused a bug where Shift would
+  not cancel an active Caps Lock.
+
+- Make xkbcommon-x11 work with the keymap reported by the XQuartz
+  X server.
+
+  https://bugs.freedesktop.org/show_bug.cgi?id=75798
+
+- Reduce memory usage during keymap compilation some more.
+
+- New API:
+  xkb_state_key_get_consumed_mods()
+  xkb_state_key_get_utf8()
+  xkb_state_key_get_utf32()
+
+- Deprecated API:
+  XKB_MAP_COMPILE_PLACEHOLDER, XKB_MAP_NO_FLAGS
+    use XKB_KEYMAP_NO_FLAGS instead.
+
+- Bug fixes.
+
+libxkbcommon 0.4.0
+==================
+
+- Add a new add-on library, xkbcommon-x11, to support creating keymaps
+  with the XKB X11 protocol, by querying the X server directly.
+  See the xkbcommon/xkbcommon-x11.h header file for more details.
+  This library requires libxcb-xkb >= 1.10, and is enabled by default.
+  It can be disabled with the --disable-x11 configure switch.
+  Distributions are encouraged to split the necessary files for this
+  library (libxkbcommon-x11.so, xkbcommon-x11.pc, xkbcommon/xkbcommon-x11.h)
+  to a separate package, such that the main package does not depend on
+  X11 libraries.
+
+- Fix the keysym <-> name lookup table to not require huge amounts of
+  relocations.
+
+- Fix a bug in the keysym <-> name lookup, whereby lookup might fail in
+  some rare cases.
+
+- Reduce memory usage during keymap compilation.
+
+- New API:
+  New keysyms from xproto 7.0.25 (German T3 layout keysyms).
+  XKB_MOD_NAME_NUM for the usual NumLock modifier.
+  xkb_x11_* types and functions, XKB_X11_* constants.
+
+
+libxkbcommon 0.3.2
+==================
+
+- Log messages from the library now look like "xkbcommon: ERROR" by
+  default, instead of xkbcomp-like "Error:   ".
+
+- Apply capitalization transformation on keysyms in
+  xkb_keysym_get_one_sym(), to match the behavior specified in the XKB
+  specification:
+  http://www.x.org/releases/current/doc/kbproto/xkbproto.html#Interpreting_the_Lock_Modifier
+
+- Support byacc for generating the parser, in addition to Bison.
+
+- New API:
+  XKB_KEY_XF86AudioMicMute keysym from xproto 7.0.24.
+  XKB_KEYSYM_NO_FLAGS
+  XKB_CONTEXT_NO_FLAGS
+  XKB_MAP_COMPILE_NO_FLAGS
+
+- Bug fixes.
+
+
+libxkbcommon 0.3.1
+==================
+
+- Replace the flex scanner with a hand-written one. flex is no longer
+  a build requirement.
+
+- New API:
+  xkb_keymap_min_keycode()
+  xkb_keymap_max_keycode()
+  xkb_keymap_key_for_each()
+
+
+libxkbcommon 0.3.0
+==================
+
+- Allow passing NULL to *_unref() functions; do nothing instead of
+  crashing.
+
+- The functions xkb_keymap_num_levels_for_key() and
+  xkb_keymap_get_syms_by_level() now allow out-of-range values for the
+  'layout' parameter. The functions now wrap the value around the number
+  of layouts instead of failing.
+
+- The function xkb_keysym_get_name() now types unicode keysyms in
+  uppercase and 0-padding, to match the format used by XKeysymToString().
+
+- Building Linux-specific tests is no longer attempted on non-Linux
+  environments.
+
+- The function xkb_keymap_new_from_names() now accepts a NULL value for
+  the 'names' parameter, instead of failing. This is equivalent to passing
+  a 'struct xkb_rule_names' with all fields set to NULL.
+
+- New API:
+  xkb_keymap_new_from_buffer()
+
+- Bug fixes.

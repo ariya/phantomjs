@@ -1,0 +1,104 @@
+#!/usr/bin/env ruby
+
+# Copyright (C) 2010 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+# BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+
+base_directory = ENV['TARGET_BUILD_DIR'] or throw "Unable to find TARGET_BUILD_DIR in the environment!"
+is_shallow_bundle = (ENV['SHALLOW_BUNDLE'] || "NO").upcase == "YES"
+
+Dir.chdir base_directory
+
+$PERMITTED_INCLUDE_TYPES = { :public => [ :public ], :private => [ :public, :private ] }
+
+$HEADER_NAMES_TO_TYPE = { }
+$HEADERS_BY_TYPE = { :public => [], :private => [] }
+
+$error_printed = false
+
+def print_error msg
+  $error_printed = true
+  STDERR.puts "ERROR: #{msg}"
+end
+
+def build_header_maps is_shallow_bundle
+  current_version_path = is_shallow_bundle ? "" : "Versions/A/"
+  all_headers = `find WebKit.framework/#{current_version_path}{,Private}Headers -type f -name '*.h'`.split
+
+  all_headers.each do |header|
+    if /\/Headers\/(.*)/.match(header)
+      $HEADER_NAMES_TO_TYPE[$1] = :public
+      $HEADERS_BY_TYPE[:public] << header
+    elsif /\/PrivateHeaders\/(.*)/.match(header)
+      $HEADER_NAMES_TO_TYPE[$1] = :private
+      $HEADERS_BY_TYPE[:private] << header
+    else
+      print_error "Unknown header type: #{header}"
+    end
+  end
+end
+
+def resolve_include(header, included_header, permitted_types)
+  # Ignore includes that aren't in the typical framework style.
+  return unless /<([^\/]+)\/(.*)>/.match(included_header)
+
+  framework, included_header_name = [$1, $2]
+
+  # Ignore includes that aren't related to other WebKit headers.
+  return unless framework =~ /^Web/
+
+  # A header of any type including a WebCore header is a recipe for disaster.
+  if framework == "WebCore"
+    print_error "#{header} included #{included_header}!"
+    return
+  end
+
+  header_type = $HEADER_NAMES_TO_TYPE[included_header_name]
+
+  if not header_type
+    print_error "#{header} included #{included_header} but I could not find a header of that name!"
+  elsif not permitted_types.member?(header_type)
+    print_error "#{header} included #{included_header} which is #{header_type}!"
+  end
+end
+
+def verify_includes(header, permitted_types)
+  File.open(header) do |file|
+    file.each_line do |line|
+      if /#(include|import) (.*)/.match(line)
+        resolve_include(header, $2, permitted_types)
+      end
+    end
+  end
+end
+
+build_header_maps is_shallow_bundle
+
+$HEADERS_BY_TYPE.each do |header_type, headers|
+  permitted_types = $PERMITTED_INCLUDE_TYPES[header_type]
+  headers.each do |header|
+    verify_includes header, permitted_types
+  end
+end
+
+exit 1 if $error_printed

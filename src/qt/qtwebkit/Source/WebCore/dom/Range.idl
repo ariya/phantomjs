@@ -1,0 +1,99 @@
+/*
+ * Copyright (C) 2006 Apple Computer, Inc.
+ * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+// Introduced in DOM Level 2:
+[
+    ImplementationLacksVTable
+] interface Range {
+
+    [GetterRaisesException] readonly attribute Node startContainer;
+    [GetterRaisesException] readonly attribute long startOffset;
+    [GetterRaisesException] readonly attribute Node endContainer;
+    [GetterRaisesException] readonly attribute long endOffset;
+    [GetterRaisesException] readonly attribute boolean collapsed;
+    [GetterRaisesException] readonly attribute Node commonAncestorContainer;
+
+    [ObjCLegacyUnnamedParameters, RaisesException] void setStart([Default=Undefined] optional Node refNode, 
+                                 [Default=Undefined] optional long offset);
+    [ObjCLegacyUnnamedParameters, RaisesException] void setEnd([Default=Undefined] optional Node refNode, 
+                               [Default=Undefined] optional long offset);
+    [RaisesException] void setStartBefore([Default=Undefined] optional Node refNode);
+    [RaisesException] void setStartAfter([Default=Undefined] optional Node refNode);
+    [RaisesException] void setEndBefore([Default=Undefined] optional Node refNode);
+    [RaisesException] void setEndAfter([Default=Undefined] optional Node refNode);
+    [RaisesException] void collapse([Default=Undefined] optional boolean toStart);
+    [RaisesException] void selectNode([Default=Undefined] optional Node refNode);
+    [RaisesException] void selectNodeContents([Default=Undefined] optional Node refNode);
+
+    // CompareHow
+    const unsigned short START_TO_START = 0;
+    const unsigned short START_TO_END   = 1;
+    const unsigned short END_TO_END     = 2;
+    const unsigned short END_TO_START   = 3;
+
+    [ObjCLegacyUnnamedParameters, RaisesException] short compareBoundaryPoints([Default=Undefined] optional CompareHow how,
+                                               [Default=Undefined] optional Range sourceRange);
+
+    [RaisesException] void deleteContents();
+    [RaisesException] DocumentFragment extractContents();
+    [RaisesException] DocumentFragment cloneContents();
+    [RaisesException] void insertNode([Default=Undefined] optional Node newNode);
+    [RaisesException] void surroundContents([Default=Undefined] optional Node newParent);
+    [RaisesException] Range cloneRange();
+    [RaisesException] DOMString toString();
+
+    [RaisesException] void detach();
+
+#if defined(LANGUAGE_JAVASCRIPT) || LANGUAGE_JAVASCRIPT
+    // CSSOM View Module API extensions
+
+    ClientRectList getClientRects();
+    ClientRect getBoundingClientRect();
+#endif
+
+    // extensions
+
+    [RaisesException] DocumentFragment createContextualFragment([Default=Undefined] optional DOMString html);
+
+    // WebKit extensions
+
+    [RaisesException] boolean intersectsNode([Default=Undefined] optional Node refNode);
+
+    [RaisesException] short compareNode([Default=Undefined] optional Node refNode);
+
+    // CompareResults
+    const unsigned short NODE_BEFORE           = 0;
+    const unsigned short NODE_AFTER            = 1;
+    const unsigned short NODE_BEFORE_AND_AFTER = 2;
+    const unsigned short NODE_INSIDE           = 3;
+
+    [RaisesException] short comparePoint([Default=Undefined] optional Node refNode, 
+                       [Default=Undefined] optional long offset);
+
+    [RaisesException] boolean isPointInRange([Default=Undefined] optional Node refNode, 
+                           [Default=Undefined] optional long offset);
+
+    [RaisesException] void expand([Default=Undefined] optional DOMString unit);
+
+#if !defined(LANGUAGE_JAVASCRIPT) || !LANGUAGE_JAVASCRIPT
+    readonly attribute DOMString text;
+#endif
+};
+

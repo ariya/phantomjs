@@ -1,0 +1,204 @@
+# FIXME: Add support for global settings.
+# FIXME: Add support for custom getters/setters.
+
+defaultTextEncodingName type=String
+ftpDirectoryTemplatePath type=String
+localStorageDatabasePath type=String
+editableLinkBehavior type=EditableLinkBehavior, initial=EditableLinkDefaultBehavior
+textDirectionSubmenuInclusionBehavior type=TextDirectionSubmenuInclusionBehavior, initial=TextDirectionSubmenuAutomaticallyIncluded
+passwordEchoDurationInSeconds type=double, initial=1
+
+# Sets the magnification value for validation message timer.  If the
+# magnification value is N, a validation message disappears automatically after
+# <message length> * N / 1000 seconds.  If N is equal to or less than 0, a
+# validation message doesn't disappears automaticaly.
+validationMessageTimerMagnification type=int, initial=50
+
+# Number of pixels below which 2D canvas is rendered in software
+# even if hardware acceleration is enabled.
+# Hardware acceleration is useful for large canvases where it can avoid the
+# pixel bandwidth between the CPU and GPU. But GPU acceleration comes at
+# a price - extra back-buffer and texture copy. Small canvases are also
+# widely used for stylized fonts. Anti-aliasing text in hardware at that
+# scale is generally slower. So below a certain size it is better to
+# draw canvas in software.
+minimumAccelerated2dCanvasSize type=int, initial=257*256
+
+layoutFallbackWidth type=int, initial=980
+maximumDecodedImageSize type=size_t, initial=numeric_limits<size_t>::max()
+deviceWidth type=int, initial=0
+deviceHeight type=int, initial=0
+
+# Allow clients concerned with memory consumption to set a quota on session storage
+# since the memory used won't be released until the Page is destroyed.
+sessionStorageQuota type=unsigned, initial=StorageMap::noQuota
+
+minimumFontSize type=int, initial=0, setNeedsStyleRecalcInAllFrames=1
+minimumLogicalFontSize type=int, initial=0, setNeedsStyleRecalcInAllFrames=1
+defaultFontSize type=int, initial=0, setNeedsStyleRecalcInAllFrames=1
+defaultFixedFontSize type=int, initial=0, setNeedsStyleRecalcInAllFrames=1
+
+editingBehaviorType type=EditingBehaviorType, initial=editingBehaviorTypeForPlatform()
+maximumHTMLParserDOMTreeDepth type=unsigned, initial=defaultMaximumHTMLParserDOMTreeDepth
+
+# This setting only affects site icon image loading if loadsImagesAutomatically setting is false and this setting is true.
+# All other permutations still heed loadsImagesAutomatically setting.
+loadsSiteIconsIgnoringImageLoadingSetting initial=false
+
+caretBrowsingEnabled initial=false
+localStorageEnabled initial=false
+allowUniversalAccessFromFileURLs initial=true
+allowFileAccessFromFileURLs initial=true
+javaScriptCanOpenWindowsAutomatically initial=false
+supportsMultipleWindows initial=true
+javaScriptCanAccessClipboard initial=false
+shouldPrintBackgrounds initial=false
+usesDashboardBackwardCompatibilityMode initial=false, conditional=DASHBOARD_SUPPORT
+
+screenFontSubstitutionEnabled initial=true, setNeedsStyleRecalcInAllFrames=1
+textAreasAreResizable initial=false, setNeedsStyleRecalcInAllFrames=1
+authorAndUserStylesEnabled initial=true, setNeedsStyleRecalcInAllFrames=1
+acceleratedCompositingEnabled initial=true, setNeedsStyleRecalcInAllFrames=1
+showDebugBorders initial=false, setNeedsStyleRecalcInAllFrames=1
+showRepaintCounter initial=false, setNeedsStyleRecalcInAllFrames=1
+
+# This is a quirk we are pro-actively applying to old applications. It changes keyboard event dispatching,
+# making keyIdentifier available on keypress events, making charCode available on keydown/keyup events,
+# and getting keypress dispatched in more cases.
+needsKeyboardEventDisambiguationQuirks initial=false
+
+treatsAnyTextCSSLinkAsStylesheet initial=false
+shrinksStandaloneImagesToFit initial=true
+pageCacheSupportsPlugins initial=false
+showsURLsInToolTips initial=false
+showsToolTipOverTruncatedText initial=false
+forceFTPDirectoryListings initial=false
+developerExtrasEnabled initial=false
+javaScriptExperimentsEnabled initial=false
+scriptMarkupEnabled initial=true
+needsSiteSpecificQuirks initial=false
+webArchiveDebugModeEnabled initial=false, conditional=WEB_ARCHIVE
+localFileContentSniffingEnabled initial=false
+offlineWebApplicationCacheEnabled initial=false
+enforceCSSMIMETypeInNoQuirksMode initial=true
+usesEncodingDetector initial=false
+allowScriptsToCloseWindows initial=false
+canvasUsesAcceleratedDrawing initial=false
+acceleratedDrawingEnabled initial=false
+acceleratedFiltersEnabled initial=false
+regionBasedColumnsEnabled initial=false
+cssGridLayoutEnabled initial=false
+
+# FIXME: This should really be disabled by default as it makes platforms that don't support the feature download files
+# they can't use by. Leaving enabled for now to not change existing behavior.
+downloadableBinaryFontsEnabled initial=true
+
+xssAuditorEnabled initial=false
+unsafePluginPastingEnabled initial=true
+acceleratedCompositingForFixedPositionEnabled initial=false
+acceleratedCompositingForOverflowScrollEnabled initial=false
+
+# Works only in conjunction with forceCompositingMode.
+acceleratedCompositingForScrollableFramesEnabled initial=false
+compositedScrollingForFramesEnabled initial=false
+
+experimentalNotificationsEnabled initial=false
+webGLEnabled initial=false
+webGLErrorsToConsoleEnabled initial=true
+openGLMultisamplingEnabled initial=true
+privilegedWebGLExtensionsEnabled initial=false
+accelerated2dCanvasEnabled initial=false
+antialiased2dCanvasEnabled initial=true
+loadDeferringEnabled initial=true
+webAudioEnabled initial=false
+paginateDuringLayoutEnabled initial=false
+fullScreenEnabled initial=false, conditional=FULLSCREEN_API
+asynchronousSpellCheckingEnabled initial=false
+
+# This feature requires an implementation of ValidationMessageClient.
+interactiveFormValidationEnabled initial=false
+
+usePreHTML5ParserQuirks initial=false
+hyperlinkAuditingEnabled initial=false
+crossOriginCheckInGetMatchedCSSRulesDisabled initial=false
+forceCompositingMode initial=false
+shouldInjectUserScriptsInInitialEmptyDocument initial=false
+fixedElementsLayoutRelativeToFrame initial=false
+allowDisplayOfInsecureContent initial=true
+allowRunningOfInsecureContent initial=true
+mediaPlaybackRequiresUserGesture initial=false
+mediaPlaybackAllowsInline initial=true
+passwordEchoEnabled initial=false
+suppressesIncrementalRendering initial=false
+incrementalRenderingSuppressionTimeoutInSeconds type=double, initial=defaultIncrementalRenderingSuppressionTimeoutInSeconds
+backspaceKeyNavigationEnabled initial=true
+visualWordMovementEnabled initial=false
+shouldDisplaySubtitles initial=false, conditional=VIDEO_TRACK
+shouldDisplayCaptions initial=false, conditional=VIDEO_TRACK
+shouldDisplayTextDescriptions initial=false, conditional=VIDEO_TRACK
+scrollingCoordinatorEnabled initial=false
+scrollAnimatorEnabled initial=true, conditional=SMOOTH_SCROLLING
+notificationsEnabled initial=true
+
+# Some apps needs isLoadingInAPISense to account for active subresource loaders.
+needsIsLoadingInAPISenseQuirk initial=false
+
+shouldRespectImageOrientation initial=false
+wantsBalancedSetDefersLoadingBehavior initial=false
+requestAnimationFrameEnabled initial=true
+deviceSupportsTouch initial=false
+deviceSupportsMouse initial=true
+
+# For touch adjustment to apply, the compile option TOUCH_ADJUSTMENT must also be enabled.
+# This setting adds a means to dynamically disable the feature at runtime on systems with
+# support for touch adjustment.
+touchAdjustmentEnabled initial=true
+
+needsDidFinishLoadOrderQuirk initial=false
+fixedPositionCreatesStackingContext initial=false
+syncXHRInDocumentsEnabled initial=true
+cookieEnabled initial=true
+mediaEnabled initial=true
+applicationChromeMode initial=false
+DOMPasteAllowed initial=false
+
+threadedHTMLParser initial=false, conditional=THREADED_HTML_PARSER
+useThreadedHTMLParserForDataURLs initial=false, conditional=THREADED_HTML_PARSER
+
+# When enabled, window.blur() does not change focus, and
+# window.focus() only changes focus when invoked from the context that
+# created the window.
+windowFocusRestricted initial=true
+
+diagnosticLoggingEnabled initial=false
+applyDeviceScaleFactorInCompositor initial=true
+applyPageScaleFactorInCompositor initial=false
+plugInSnapshottingEnabled initial=false
+snapshotAllPlugIns initial=false
+autostartOriginPlugInSnapshottingEnabled initial=true
+primaryPlugInSnapshotDetectionEnabled initial=true
+maximumPlugInSnapshotAttempts type=unsigned, initial=20
+frameFlatteningEnabled initial=false
+
+allowCustomScrollbarInMainFrame initial=true
+webSecurityEnabled initial=true
+spatialNavigationEnabled initial=false
+
+# This setting adds a means to enable/disable touch initiated drag & drop. If
+# enabled, the user can initiate drag using long press.
+touchDragDropEnabled initial=false
+
+unifiedTextCheckerEnabled initial=defaultUnifiedTextCheckerEnabled
+
+logsPageMessagesToSystemConsoleEnabled initial=false
+
+backForwardCacheExpirationInterval type=double, initial=1800
+
+# Some apps could have a default video poster if it is not set.
+defaultVideoPosterURL type=String
+
+smartInsertDeleteEnabled initial=defaultSmartInsertDeleteEnabled
+selectTrailingWhitespaceEnabled initial=defaultSelectTrailingWhitespaceEnabled
+
+selectionIncludesAltImageText initial=true
+useLegacyBackgroundSizeShorthandBehavior initial=false

@@ -1,0 +1,177 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+cpp_quote("#define WebURLErrorDomain TEXT(\"CFURLErrorDomain\")")
+/*!
+    @enum NSURL-related Error Codes
+    @abstract Constants used by NSError to indicate errors in the WebFoundation domain
+    @discussion Documentation on each constant forthcoming.
+*/
+enum
+{
+    WebURLErrorUnknown =                         -1,
+    WebURLErrorCancelled =                       -999,
+    WebURLErrorBadURL =                          -1000,
+    WebURLErrorTimedOut =                        -1001,
+    WebURLErrorUnsupportedURL =                  -1002,
+    WebURLErrorCannotFindHost =                  -1003,
+    WebURLErrorCannotConnectToHost =             -1004,
+    WebURLErrorNetworkConnectionLost =           -1005,
+    WebURLErrorDNSLookupFailed =                 -1006,
+    WebURLErrorHTTPTooManyRedirects =            -1007,
+    WebURLErrorResourceUnavailable =             -1008,
+    WebURLErrorNotConnectedToInternet =          -1009,
+    WebURLErrorRedirectToNonExistentLocation =   -1010,
+    WebURLErrorBadServerResponse =               -1011,
+    WebURLErrorUserCancelledAuthentication =     -1012,
+    WebURLErrorUserAuthenticationRequired =      -1013,
+    WebURLErrorZeroByteResource =                -1014,
+    WebURLErrorFileDoesNotExist =                -1100,
+    WebURLErrorFileIsDirectory =                 -1101,
+    WebURLErrorNoPermissionsToReadFile =         -1102,
+    WebURLErrorSecureConnectionFailed =          -1200,
+    WebURLErrorServerCertificateHasBadDate =     -1201,
+    WebURLErrorServerCertificateUntrusted =      -1202,
+    WebURLErrorServerCertificateHasUnknownRoot = -1203,
+    WebURLErrorServerCertificateNotYetValid =    -1204,
+    WebURLErrorClientCertificateRejected =       -1205,
+    WebURLErrorClientCertificateRequired =       -1206,
+    WebURLErrorCannotLoadFromNetwork =           -2000,
+
+    // Download and file I/O errors
+    WebURLErrorCannotCreateFile =                -3000,
+    WebURLErrorCannotOpenFile =                  -3001,
+    WebURLErrorCannotCloseFile =                 -3002,
+    WebURLErrorCannotWriteToFile =               -3003,
+    WebURLErrorCannotRemoveFile =                -3004,
+    WebURLErrorCannotMoveFile =                  -3005,
+    WebURLErrorDownloadDecodingFailedMidStream = -3006,
+    WebURLErrorDownloadDecodingFailedToComplete =-3007,
+};
+
+cpp_quote("#define WebKitErrorDomain TEXT(\"WebKitErrorDomain\")")
+/*!
+    @enum
+    @abstract Policy errors
+    @constant WebKitErrorCannotShowMIMEType
+    @constant WebKitErrorCannotShowURL
+    @constant WebKitErrorFrameLoadInterruptedByPolicyChange
+*/
+enum {
+    WebKitErrorCannotShowMIMEType =                             100,
+    WebKitErrorCannotShowURL =                                  101,
+    WebKitErrorFrameLoadInterruptedByPolicyChange =             102,
+    WebKitErrorCannotUseRestrictedPort =                        103,
+};
+
+/*!
+    @enum
+    @abstract Plug-in and java errors
+    @constant WebKitErrorCannotFindPlugIn
+    @constant WebKitErrorCannotLoadPlugIn
+    @constant WebKitErrorJavaUnavailable
+*/
+enum {
+    WebKitErrorCannotFindPlugIn =                               200,
+    WebKitErrorCannotLoadPlugIn =                               201,
+    WebKitErrorJavaUnavailable =                                202,
+};
+
+/*!
+    @enum
+    @abstract Geolocation errors
+    @constant WebKitErrorGeolocationLocationUnknown
+*/
+enum {
+    WebKitErrorGeolocationLocationUnknown  =                    300,
+};
+
+cpp_quote("#define WebKitErrorMIMETypeKey TEXT(\"WebKitErrorMIMETypeKey\")")
+cpp_quote("#define WebKitErrorPlugInNameKey TEXT(\"WebKitErrorPlugInNameKey\")")
+cpp_quote("#define WebKitErrorPlugInPageURLStringKey TEXT(\"WebKitErrorPlugInPageURLStringKey\")")
+
+cpp_quote("#define WebPOSIXErrorDomain TEXT(\"NSPOSIXErrorDomain\")")
+cpp_quote("#define WebPOSIXErrorECONNRESET 54")
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+#endif
+
+[
+    object,
+    oleautomation,
+    hidden,
+    uuid(89E3B189-0B60-4d6b-A87A-3F1172CB5538),
+    pointer_default(unique)
+]
+interface IWebError : IUnknown
+{
+    HRESULT init([in] BSTR domain, [in] int code, [in] BSTR url);
+
+    /*
+        - (int)code
+    */
+    HRESULT code([out, retval] int* result);
+
+    /*
+        - (NSString *)domain
+    */
+    HRESULT domain([out, retval] BSTR* result);
+
+    /*
+        - (NSString *)localizedDescription
+    */
+    HRESULT localizedDescription([out, retval] BSTR* result);
+
+    /*
+        - (NSString *)localizedFailureReason
+    */
+    HRESULT localizedFailureReason([out, retval] BSTR* result);
+
+    /*
+        - (NSArray *)localizedRecoveryOptions
+    */
+    HRESULT localizedRecoveryOptions([out, retval] IEnumVARIANT** enumOptions);
+
+    /*
+        - (NSString *)localizedRecoverySuggestion
+    */
+    HRESULT localizedRecoverySuggestion([out, retval] BSTR* result);
+    
+    /*
+        - (id)recoverAttempter
+    */
+    HRESULT recoverAttempter([out, retval] IUnknown** result);
+
+    /*
+        - (NSDictionary *)userInfo
+    */
+    HRESULT userInfo([out, retval] IPropertyBag** result);
+
+    HRESULT failingURL([out, retval] BSTR* result);
+
+    HRESULT isPolicyChangeError([out, retval] BOOL* result);
+}

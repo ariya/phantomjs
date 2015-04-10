@@ -1,0 +1,99 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ * Copyright (C) 2009 Anthony Ricaud <rik@webkit.org>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1.  Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ * 2.  Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ * 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+ *     its contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.crumbs {
+    display: inline-block;
+    pointer-events: auto;
+    cursor: default;
+    font-size: 11px;
+    line-height: 19px;
+    text-shadow: rgba(255, 255, 255, 0.75) 0 1px 0;
+    color: rgb(20, 20, 20);
+    margin-left: -1px;
+    margin-top: -1px;
+    padding-right: 12px;
+}
+
+.crumbs .crumb {
+    height: 24px;
+    border-width: 0 12px 0 2px;
+    -webkit-border-image: url(Images/segment.png) 0 12 0 2;
+    margin-right: -12px;
+    padding-left: 18px;
+    padding-right: 2px;
+    white-space: nowrap;
+    line-height: 23px;
+    float: right;
+}
+
+.crumbs .crumb.collapsed > * {
+    display: none;
+}
+
+.crumbs .crumb.collapsed::before {
+    content: "\2026";
+    font-weight: bold;
+}
+
+.crumbs .crumb.compact .extra {
+    display: none;
+}
+
+.crumbs .crumb.start {
+    padding-left: 7px;
+}
+
+.crumbs .crumb.end {
+    border-width: 0 2px 0 2px;
+    padding-right: 6px;
+    -webkit-border-image: url(Images/segmentEnd.png) 0 2 0 2;
+}
+
+.crumbs .crumb.selected {
+    -webkit-border-image: url(Images/segmentSelected.png) 0 12 0 2;
+    color: black;
+    text-shadow: rgba(255, 255, 255, 0.5) 0 1px 0;
+}
+
+.crumbs .crumb.selected:hover {
+    -webkit-border-image: url(Images/segmentSelected.png) 0 12 0 2;
+}
+
+.crumbs .crumb.selected.end, .crumbs .crumb.selected.end:hover {
+    -webkit-border-image: url(Images/segmentSelectedEnd.png) 0 2 0 2;
+}
+
+.crumbs .crumb:hover {
+    -webkit-border-image: url(Images/segmentHover.png) 0 12 0 2;
+    color: black;
+}
+
+.crumbs .crumb.end:hover {
+    -webkit-border-image: url(Images/segmentHoverEnd.png) 0 2 0 2;
+}

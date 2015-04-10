@@ -1,0 +1,443 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page coordsys.html
+    \title Coordinate System
+    \ingroup qt-graphics
+    \ingroup best-practices
+    \brief Information about the coordinate system used by the paint
+    system.
+
+    The coordinate system is controlled by the QPainter
+    class. Together with the QPaintDevice and QPaintEngine classes,
+    QPainter form the basis of Qt's painting system, Arthur. QPainter
+    is used to perform drawing operations, QPaintDevice is an
+    abstraction of a two-dimensional space that can be painted on
+    using a QPainter, and QPaintEngine provides the interface that the
+    painter uses to draw onto different types of devices.
+
+    The QPaintDevice class is the base class of objects that can be
+    painted: Its drawing capabilities are inherited by the QWidget,
+    QImage, QPixmap, QPicture, and QOpenGLPaintDevice classes. The
+    default coordinate system of a paint device has its origin at the
+    top-left corner. The \e x values increase to the right and the \e
+    y values increase downwards. The default unit is one pixel on
+    pixel-based devices and one point (1/72 of an inch) on printers.
+
+    The mapping of the logical QPainter coordinates to the physical
+    QPaintDevice coordinates are handled by QPainter's transformation
+    matrix, viewport and "window". The logical and physical coordinate
+    systems coincide by default. QPainter also supports coordinate
+    transformations (e.g. rotation and scaling).
+
+    \tableofcontents
+
+    \section1 Rendering
+
+    \section2 Logical Representation
+
+    The size (width and height) of a graphics primitive always
+    correspond to its mathematical model, ignoring the width of the
+    pen it is rendered with:
+
+    \table
+    \row
+    \li \inlineimage coordinatesystem-rect.png
+    \li \inlineimage coordinatesystem-line.png
+    \row
+    \li QRect(1, 2, 6, 4)
+    \li QLine(2, 7, 6, 1)
+    \endtable
+
+    \section2 Aliased Painting
+
+    When drawing, the pixel rendering is controlled by the
+    QPainter::Antialiasing render hint.
+
+    The \l {QPainter::RenderHint}{RenderHint} enum is used to specify
+    flags to QPainter that may or may not be respected by any given
+    engine. The QPainter::Antialiasing value indicates that the engine
+    should antialias edges of primitives if possible, i.e. smoothing
+    the edges by using different color intensities.
+
+    But by default the painter is \e aliased and other rules apply:
+    When rendering with a one pixel wide pen the pixels will be
+    rendered to the \e {right and below the mathematically defined
+    points}. For example:
+
+    \table
+    \row
+    \li \inlineimage coordinatesystem-rect-raster.png
+    \li \inlineimage coordinatesystem-line-raster.png
+
+    \row
+    \li
+    \snippet code/doc_src_coordsys.cpp 0
+
+    \li
+    \snippet code/doc_src_coordsys.cpp 1
+    \endtable
+
+    When rendering with a pen with an even number of pixels, the
+    pixels will be rendered symetrically around the mathematical
+    defined points, while rendering with a pen with an odd number of
+    pixels, the spare pixel will be rendered to the right and below
+    the mathematical point as in the one pixel case. See the QRectF
+    diagrams below for concrete examples.
+
+    \table
+    \header
+    \li {3,1} QRectF
+    \row
+    \li \inlineimage qrect-diagram-zero.png
+    \li \inlineimage qrectf-diagram-one.png
+    \row
+    \li Logical representation
+    \li One pixel wide pen
+    \row
+    \li \inlineimage qrectf-diagram-two.png
+    \li \inlineimage qrectf-diagram-three.png
+    \row
+    \li Two pixel wide pen
+    \li Three pixel wide pen
+    \endtable
+
+    Note that for historical reasons the return value of the
+    QRect::right() and QRect::bottom() functions deviate from the true
+    bottom-right corner of the rectangle.
+
+    QRect's \l {QRect::right()}{right()} function returns \l
+    {QRect::left()}{left()} + \l {QRect::width()}{width()} - 1 and the
+    \l {QRect::bottom()}{bottom()} function returns \l
+    {QRect::top()}{top()} + \l {QRect::height()}{height()} - 1.  The
+    bottom-right green point in the diagrams shows the return
+    coordinates of these functions.
+
+    We recommend that you simply use QRectF instead: The QRectF class
+    defines a rectangle in the plane using floating point coordinates
+    for accuracy (QRect uses integer coordinates), and the
+    QRectF::right() and QRectF::bottom() functions \e do return the
+    true bottom-right corner.
+
+    Alternatively, using QRect, apply \l {QRect::x()}{x()} + \l
+    {QRect::width()}{width()} and \l {QRect::y()}{y()} + \l
+    {QRect::height()}{height()} to find the bottom-right corner, and
+    avoid the \l {QRect::right()}{right()} and \l
+    {QRect::bottom()}{bottom()} functions.
+
+    \section2 Anti-aliased Painting
+
+    If you set QPainter's \l {QPainter::Antialiasing}{anti-aliasing}
+    render hint, the pixels will be rendered symetrically on both
+    sides of the mathematically defined points:
+
+    \table
+    \row
+    \li \inlineimage coordinatesystem-rect-antialias.png
+    \li \inlineimage coordinatesystem-line-antialias.png
+    \row
+    \li
+
+    \snippet code/doc_src_coordsys.cpp 2
+
+    \li
+    \snippet code/doc_src_coordsys.cpp 3
+    \endtable
+
+    \section1 Transformations
+
+    By default, the QPainter operates on the associated device's own
+    coordinate system, but it also has complete support for affine
+    coordinate transformations.
+
+    You can scale the coordinate system by a given offset using the
+    QPainter::scale() function, you can rotate it clockwise using the
+    QPainter::rotate() function and you can translate it (i.e. adding
+    a given offset to the points) using the QPainter::translate()
+    function.
+
+    \table
+    \row
+    \li \inlineimage qpainter-clock.png
+    \li \inlineimage qpainter-rotation.png
+    \li \inlineimage qpainter-scale.png
+    \li \inlineimage qpainter-translation.png
+    \row
+    \li nop
+    \li \l {QPainter::rotate()}{rotate()}
+    \li \l {QPainter::scale()}{scale()}
+    \li \l {QPainter::translate()}{translate()}
+    \endtable
+
+    You can also twist the coordinate system around the origin using
+    the QPainter::shear() function. All the transformation operations
+    operate on QPainter's transformation matrix that you can retrieve
+    using the QPainter::worldTransform() function. A matrix transforms
+    a point in the plane to another point.
+
+    If you need the same transformations over and over, you can also
+    use QTransform objects and the QPainter::worldTransform() and
+    QPainter::setWorldTransform() functions. You can at any time save the
+    QPainter's transformation matrix by calling the QPainter::save()
+    function which saves the matrix on an internal stack. The
+    QPainter::restore() function pops it back.
+
+    One frequent need for the transformation matrix is when reusing
+    the same drawing code on a variety of paint devices. Without
+    transformations, the results are tightly bound to the resolution
+    of the paint device. Printers have high resolution, e.g. 600 dots
+    per inch, whereas screens often have between 72 and 100 dots per
+    inch.
+
+    \table 100%
+    \header
+    \li {2,1} Analog Clock Example
+    \row
+    \li \inlineimage coordinatesystem-analogclock.png
+    \li
+    The Analog Clock example shows how to draw the contents of a
+    custom widget using QPainter's transformation matrix.
+
+    We recommend compiling and running this example before you read
+    any further. In particular, try resizing the window to different
+    sizes.
+
+    \row
+    \li {2,1}
+
+    \snippet analogclock/main.cpp 1
+
+    We translate the coordinate system so that point (0, 0) is in the
+    widget's center, instead of being at the top-left corner. We also
+    scale the system by \c side / 100, where \c side is either the
+    widget's width or the height, whichever is shortest. We want the
+    clock to be square, even if the device isn't.
+
+    This will give us a 200 x 200 square area, with the origin (0, 0)
+    in the center, that we can draw on. What we draw will show up in
+    the largest possible square that will fit in the widget.
+
+    See also the \l {Window-Viewport Conversion} section.
+
+    \snippet analogclock/main.cpp 2
+
+    We draw the clock's hour hand by rotating the coordinate system
+    and calling QPainter::drawConvexPolygon(). Thank's to the
+    rotation, it's drawn pointed in the right direction.
+
+    The polygon is specified as an array of alternating \e x, \e y
+    values, stored in the \c hourHand static variable (defined at the
+    beginning of the function), which corresponds to the four points
+    (2, 0), (0, 2), (-2, 0), and (0, -25).
+
+    The calls to QPainter::save() and QPainter::restore() surrounding
+    the code guarantees that the code that follows won't be disturbed
+    by the transformations we've used.
+
+    \snippet analogclock/main.cpp 3
+
+    We do the same for the clock's minute hand, which is defined by
+    the four points (1, 0), (0, 1), (-1, 0), and (0, -40). These
+    coordinates specify a hand that is thinner and longer than the
+    minute hand.
+
+    \snippet analogclock/main.cpp 4
+
+    Finally, we draw the clock face, which consists of twelve short
+    lines at 30-degree intervals. At the end of that, the painter is
+    rotated in a way which isn't very useful, but we're done with
+    painting so that doesn't matter.
+    \endtable
+
+    For more information about the transformation matrix, see the
+    QTransform documentation.
+
+    \section1 Window-Viewport Conversion
+
+    When drawing with QPainter, we specify points using logical
+    coordinates which then are converted into the physical coordinates
+    of the paint device.
+
+    The mapping of the logical coordinates to the physical coordinates
+    are handled by QPainter's world transformation \l
+    {QPainter::worldTransform()}{worldTransform()} (described in the \l
+    Transformations section), and QPainter's \l
+    {QPainter::viewport()}{viewport()} and \l
+    {QPainter::window()}{window()}.  The viewport represents the
+    physical coordinates specifying an arbitrary rectangle. The
+    "window" describes the same rectangle in logical coordinates. By
+    default the logical and physical coordinate systems coincide, and
+    are equivalent to the paint device's rectangle.
+
+    Using window-viewport conversion you can make the logical
+    coordinate system fit your preferences. The mechanism can also be
+    used to make the drawing code independent of the paint device. You
+    can, for example, make the logical coordinates extend from (-50,
+    -50) to (50, 50) with (0, 0) in the center by calling the
+    QPainter::setWindow() function:
+
+    \snippet code/doc_src_coordsys.cpp 4
+
+    Now, the logical coordinates (-50,-50) correspond to the paint
+    device's physical coordinates (0, 0). Independent of the paint
+    device, your painting code will always operate on the specified
+    logical coordinates.
+
+    By setting the "window" or viewport rectangle, you perform a
+    linear transformation of the coordinates. Note that each corner of
+    the "window" maps to the corresponding corner of the viewport, and
+    vice versa. For that reason it normally is a good idea to let the
+    viewport and "window" maintain the same aspect ratio to prevent
+    deformation:
+
+    \snippet code/doc_src_coordsys.cpp 5
+
+    If we make the logical coordinate system a square, we should also
+    make the viewport a square using the QPainter::setViewport()
+    function. In the example above we make it equivalent to the
+    largest square that fit into the paint device's rectangle. By
+    taking the paint device's size into consideration when setting the
+    window or viewport, it is possible to keep the drawing code
+    independent of the paint device.
+
+    Note that the window-viewport conversion is only a linear
+    transformation, i.e. it does not perform clipping. This means that
+    if you paint outside the currently set "window", your painting is
+    still transformed to the viewport using the same linear algebraic
+    approach.
+
+    \image coordinatesystem-transformations.png
+
+    The viewport, "window" and transformation matrix determine how
+    logical QPainter coordinates map to the paint device's physical
+    coordinates. By default the world transformation matrix is the
+    identity matrix, and the "window" and viewport settings are
+    equivalent to the paint device's settings, i.e. the world,
+    "window" and device coordinate systems are equivalent, but as we
+    have seen, the systems can be manipulated using transformation
+    operations and window-viewport conversion. The illustration above
+    describes the process.
+
+    \omit
+    \section1 Related Classes
+
+    Qt's paint system, Arthur, is primarily based on the QPainter,
+    QPaintDevice, and QPaintEngine classes:
+
+    \table
+    \header \li Class \li Description
+    \row
+    \li QPainter
+    \li
+    The QPainter class performs low-level painting on widgets and
+    other paint devices.  QPainter can operate on any object that
+    inherits the QPaintDevice class, using the same code.
+    \row
+    \li QPaintDevice
+    \li
+    The QPaintDevice class is the base class of objects that can be
+    painted. Qt provides several devices: QWidget, QImage, QPixmap,
+    QPrinter and QPicture, and other devices can also be defined by
+    subclassing QPaintDevice.
+    \row
+    \li QPaintEngine
+    \li
+    The QPaintEngine class provides an abstract definition of how
+    QPainter draws to a given device on a given platform.  Qt 4
+    provides several premade implementations of QPaintEngine for the
+    different painter backends we support; it provides one paint
+    engine for each supported window system and painting
+    frameworkt. You normally don't need to use this class directly.
+    \endtable
+
+    The 2D transformations of the coordinate system are specified
+    using the QTransform class:
+
+    \table
+    \header \li Class \li Description
+    \row
+    \li QTransform
+    \li
+    A 3 x 3 transformation matrix. Use QTransform to rotate, shear,
+    scale, or translate the coordinate system.
+    \endtable
+
+    In addition Qt provides several graphics primitive classes. Some
+    of these classes exist in two versions: an \c{int}-based version
+    and a \c{qreal}-based version. For these, the \c qreal version's
+    name is suffixed with an \c F.
+
+    \table
+    \header \li Class \li Description
+    \row
+    \li \l{QPoint}(\l{QPointF}{F})
+    \li
+    A single 2D point in the coordinate system. Most functions in Qt
+    that deal with points can accept either a QPoint, a QPointF, two
+    \c{int}s, or two \c{qreal}s.
+    \row
+    \li \l{QSize}(\l{QSizeF}{F})
+    \li
+    A single 2D vector. Internally, QPoint and QSize are the same, but
+    a point is not the same as a size, so both classes exist.  Again,
+    most functions accept either QSizeF, a QSize, two \c{int}s, or two
+    \c{qreal}s.
+    \row
+    \li \l{QRect}(\l{QRectF}{F})
+    \li
+    A 2D rectangle. Most functions accept either a QRectF, a QRect,
+    four \c{int}s, or four \c {qreal}s.
+    \row
+    \li \l{QLine}(\l{QLineF}{F})
+    \li
+    A 2D finite-length line, characterized by a start point and an end
+    point.
+    \row
+    \li \l{QPolygon}(\l{QPolygonF}{F})
+    \li
+    A 2D polygon. A polygon is a vector of \c{QPoint(F)}s. If the
+    first and last points are the same, the polygon is closed.
+    \row
+    \li QPainterPath
+    \li
+    A vectorial specification of a 2D shape. Painter paths are the
+    ultimate painting primitive, in the sense that any shape
+    (rectange, ellipse, spline) or combination of shapes can be
+    expressed as a path. A path specifies both an outline and an area.
+    \row
+    \li QRegion
+    \li
+    An area in a paint device, expressed as a list of
+    \l{QRect}s. In general, we recommend using the vectorial
+    QPainterPath class instead of QRegion for specifying areas,
+    because QPainterPath handles painter transformations much better.
+    \endtable
+    \endomit
+
+    \sa {Analog Clock Window Example}
+*/

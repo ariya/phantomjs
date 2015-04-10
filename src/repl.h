@@ -30,7 +30,7 @@
 #ifndef REPL_H
 #define REPL_H
 
-#include <QWebFrame>
+#include <QtWebKitWidgets/QWebFrame>
 
 #include "phantom.h"
 

@@ -1,0 +1,308 @@
+/*
+ * Copyright (C) 2010 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+body {
+  font-family: Helvetica, sans-serif;
+  background-color: #DDD;
+}
+
+.controls {
+  border: 1px solid black;
+  width: 300px;
+  height: 660px;
+  float: left;
+  font-size: smaller;
+  padding: 4px;
+}
+
+.controls div {
+  margin: 4px;
+}
+
+.controls select {
+  width: 100%;
+}
+
+.details > div {
+  margin: 4px 0;
+}
+
+.test-type {
+  float: left;
+}
+
+.name > button {
+  margin-top: 20px;
+  float: right;
+}
+
+.actions {
+  margin-left: 320px;
+  border: 1px solid black;
+  font-size: smaller;
+  height: 30px;
+  padding: 4px;
+  margin-bottom: 8px;
+}
+
+.actions button {
+  font-size: 13px;
+  width: 5em;
+}
+
+.note {
+  display: inline-block;
+  font-size: 10px;
+  margin-left: 5px;
+  color: gray;
+}
+.action-buttons {
+  float: right;
+}
+
+#test-content {
+  margin-left: 320px;
+  height: 612px;
+  border: 1px solid black;
+  padding: 4px;
+  background-color: white;
+}
+
+.info > div {
+  margin: 6px 0;
+}
+
+.info .title {
+  font-size: larger;
+  font-weight: bold;
+}
+
+.info .url {
+  font-family: monospace;
+}
+
+.info .assertion, .info .flags {
+  font-size: smaller;
+}
+
+#warning {
+  padding-left: 1em;
+  color: red;
+  display: none;
+}
+
+#print-button {
+  float: right;
+  display: none;
+}
+
+#test-content.print {
+}
+
+#test-content.print #print-button {
+  display: inline;
+}
+
+#test-content.warn #warning {
+  display: inline;
+}
+
+#test-content iframe {
+  border: 1px solid gray;
+  margin: 2px;
+}
+
+#test-content h2 {
+  font-size: 11pt;
+  margin: 2px 0 2px 0;
+  color: darkgray;
+}
+
+#test-list > option.untested {
+}
+
+#test-list > option.pass {
+  color: rgba(0, 128, 0, 0.6);
+}
+
+#test-list > option.fail {
+  color: rgba(255, 0, 0, 0.6);
+}
+
+#test-list > option.skipped {
+  color: rgba(255, 128, 0, 0.6);
+}
+
+#test-content.with-ref {
+}
+
+.frame-wrapper {
+
+}
+
+.frame-wrapper iframe {
+  width: 98%;
+  height: 460px;
+}
+
+.frame-wrapper {
+  height: 500px;
+  width: 99%;
+  display: inline-block;
+}
+
+.with-ref > .frame-wrapper {
+  width: 49%;
+}
+
+#ref-wrapper {
+  height: 500px;
+  width: 49%;
+  display: none;
+}
+
+.with-ref > #ref-wrapper {
+  display: inline-block;
+}
+
+.results {
+  border: 1px solid black;
+  padding: 4px;
+  margin-top: 6px;
+}
+
+#output {
+  border: 1px solid black;
+  font-size: smaller;
+  height: 220px;
+  margin: 4px;
+  padding: 4px;
+  overflow-y: auto;
+  background-color: white;
+}
+
+#output > p {
+  margin: 0;
+}
+#output .pass {
+  color: green;
+}
+
+#output .fail {
+  color: red;
+}
+
+#output .skipped {
+  color: orange;
+}
+
+#output .invalid {
+  background: red;
+}
+
+.output-options {
+  float: right;
+  border: 1px solid black;
+  width: 200px;
+  height: 220px;
+  margin: 4px;
+  padding: 4px;
+  font-size: smaller;
+}
+
+.output-options select {
+  width: 90%;
+}
+
+.summary {
+  font-size: smaller;
+  margin: 4px;
+}
+
+.summary .label {
+  display: inline-block;
+  min-width: 5em;
+  margin: 0;
+}
+
+.summary span {
+  display: inline-block;
+  min-width: 3em;
+  text-align: right;
+  margin: 0;
+}
+
+.summary td {
+  text-align: right;
+  padding: 4px;
+}
+
+.custom button {
+  display: block;
+  margin: 12px 0;
+}
+
+/* Overlay */
+
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: none;
+}
+
+#overlay.visible {
+  display: block;
+}
+
+.overlay-contents {
+  position: relative;
+  background-color: white;
+  margin: 50px auto;
+  width: 1000px;
+  padding: 20px;
+}
+
+.overlay-contents textarea {
+  width: 90em;
+  height: 50em;
+}
+.overlay-contents .buttons {
+  text-align: right;
+}
+
+.overlay-contents .note {
+  float: left;
+}
+
+.overlay-contents .buttons button {
+  font-size: 13px;
+  width: 6em;
+  margin: 12px 8px;
+}
+

@@ -1,0 +1,19 @@
+qtPrepareTool(QMAKE_UIC, uic, _DEP)
+
+isEmpty(UI_DIR):UI_DIR = .
+isEmpty(QMAKE_MOD_UIC):QMAKE_MOD_UIC = ui_
+
+uic.commands = $$QMAKE_UIC ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+uic.depend_command = $$QMAKE_UIC_DEP -d ${QMAKE_FILE_IN}
+uic.output = $$UI_DIR/$${QMAKE_MOD_UIC}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
+uic.input = FORMS
+uic.variable_out = GENERATED_FILES
+uic.CONFIG += no_link target_predeps
+uic.name = UIC ${QMAKE_FILE_IN}
+silent:uic.commands = @echo uic ${QMAKE_FILE_IN} && $$uic.commands
+QMAKE_EXTRA_COMPILERS += uic
+INCREDIBUILD_XGE += uic
+
+!isEmpty(FORMS) {
+    INCLUDEPATH += $$absolute_path($$UI_DIR, $$OUT_PWD)
+}

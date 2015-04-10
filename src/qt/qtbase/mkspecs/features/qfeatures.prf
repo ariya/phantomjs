@@ -1,0 +1,4 @@
+# This file needs to be loaded explicitly, as the evaluation is relatively
+# expensive, and not many projects will actually need it.
+QMAKE_QT_FEATURES = $$[QT_HOST_DATA/get]/mkspecs/qfeatures.pri
+include($$QMAKE_QT_FEATURES) | error("Failed to load $$QMAKE_QT_FEATURES")

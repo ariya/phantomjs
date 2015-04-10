@@ -1,0 +1,149 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2005, 2006, 2007 Apple Computer, Inc.  All rights reserved.
+# Copyright (C) Research In Motion Limited 2010. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Updates a development environment to the new WebKitSupportLibrary
+
+use strict;
+use warnings;
+
+use File::Find;
+use File::Temp ();
+use File::Spec;
+use FindBin;
+use lib $FindBin::Bin;
+use webkitdirs;
+
+use constant NOTAVERSION => "-1";
+
+my $sourceDir = sourceDir();
+my $file = "WebKitSupportLibrary";
+my $zipFile = "$file.zip"; 
+my $zipDirectory = toUnixPath($ENV{'WEBKITSUPPORTLIBRARIESZIPDIR'}) || $sourceDir;
+my $pathToZip = File::Spec->catfile($zipDirectory, $zipFile);
+my $webkitLibrariesDir = toUnixPath($ENV{'WEBKIT_LIBRARIES'}) || "$sourceDir/WebKitLibraries/win";
+my $versionFile = $file . "Version";
+my $pathToVersionFile = File::Spec->catfile($webkitLibrariesDir, $versionFile);
+my $tmpRelativeDir = File::Temp::tempdir("webkitlibsXXXXXXX", TMPDIR => 1, CLEANUP => 1);
+my $tmpAbsDir = File::Spec->rel2abs($tmpRelativeDir);
+my $versionFileURL = "https://developer.apple.com/opensource/internet/$versionFile";
+
+my $extractedVersion = extractedVersion();
+
+# Check whether the extracted library is up-to-date. If it is, we don't have anything to do.
+my $expectedVersion = downloadExpectedVersionNumber();
+if ($extractedVersion ne NOTAVERSION && $extractedVersion eq $expectedVersion) {
+    print "$file is up-to-date.\n";
+    exit;
+}
+
+# Check whether the downloaded library is up-to-date. If it isn't, the user needs to download it.
+my $zipFileVersion = zipFileVersion();
+dieAndInstructToDownload("$zipFile could not be found in $zipDirectory.") if $zipFileVersion eq NOTAVERSION;
+dieAndInstructToDownload("$zipFile is out-of-date.") if $expectedVersion ne NOTAVERSION && $zipFileVersion ne $expectedVersion;
+if ($zipFileVersion eq $extractedVersion) {
+    print "Falling back to existing version of $file.\n";
+    exit;
+}
+
+my $result = system "unzip", "-q", "-d", $tmpAbsDir, $pathToZip;
+die "Couldn't unzip $zipFile." if $result;
+
+print "\nInstalling $file...\n";
+
+sub wanted
+{
+    my $relativeName = File::Spec->abs2rel($File::Find::name, "$tmpAbsDir/$file/win");
+    my $destination = "$webkitLibrariesDir/$relativeName";
+
+    if (-d $_) {
+        mkdir $destination;
+        return;
+    }
+
+    system "cp", $_, $destination;
+}
+
+File::Find::find(\&wanted, "$tmpAbsDir/$file");
+
+print "The $file has been sucessfully installed in\n $webkitLibrariesDir\n";
+exit;
+
+sub toUnixPath
+{
+    my $path = shift;
+    return unless $path;
+    chomp($path = `cygpath -u '$path'`);
+    return $path;
+}
+
+sub extractedVersion
+{
+    if (open VERSION, "<", $pathToVersionFile) {
+        chomp(my $extractedVersion = <VERSION>);
+        close VERSION;
+        return $extractedVersion;
+    }
+    return NOTAVERSION;
+}
+
+sub downloadExpectedVersionNumber
+{
+    chomp(my $expectedVersion = `curl -s --sslv3 -k $versionFileURL`);
+    return WEXITSTATUS($?) ? NOTAVERSION : $expectedVersion;
+}
+
+sub zipFileVersion
+{
+    return NOTAVERSION unless -f $pathToZip;
+    chomp(my $zipFileVersion = `unzip -p "$pathToZip" $file/win/$versionFile`);
+    return $zipFileVersion;
+}
+
+sub dieAndInstructToDownload
+{
+    my $message = shift;
+
+    die <<EOF;
+
+===============================================================================
+$message
+Please download $zipFile from:
+
+    https://developer.apple.com/opensource/internet/webkit_sptlib_agree.html
+
+and place it in:
+
+    $sourceDir
+
+Then run build-webkit again.
+===============================================================================
+
+EOF
+
+}

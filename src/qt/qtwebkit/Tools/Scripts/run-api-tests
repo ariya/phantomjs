@@ -1,0 +1,339 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2010, 2011, 2012 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+# BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+use strict;
+use warnings;
+
+use File::Basename;
+use FindBin;
+use Getopt::Long qw(:config pass_through);
+use IPC::Open3;
+use lib $FindBin::Bin;
+use webkitdirs;
+use VCSUtils;
+
+sub buildTestTool();
+sub dumpTestsBySuite(\@);
+sub listAllTests();
+sub runTest($$$);
+sub runTestsBySuite(\@$);
+sub prepareEnvironmentForRunningTestTool();
+sub testToolPath();
+
+# Defined in VCSUtils.
+sub possiblyColored($$);
+
+# Timeout for individual test, in sec
+my $timeout = 10;
+
+my $showHelp = 0;
+my $verbose = 0;
+my $dumpTests = 0;
+my $build = 1;
+my $root;
+my $buildDefault = $build ? "build" : "do not build";
+my @testsFailed;
+my @testsTimedOut;
+
+my $programName = basename($0);
+my $usage = <<EOF;
+Usage: $programName [options] [suite or test prefixes]
+  --help                Show this help message
+  -v|--verbose          Verbose output
+  -d|--dump-tests       Dump the names of testcases without running them
+  --[no-]build          Build (or do not build) unit tests prior to running (default: $buildDefault)
+  --root=               Path to the pre-built root containing TestWebKitAPI
+EOF
+
+GetOptions(
+    'help' => \$showHelp,
+    'verbose|v' => \$verbose,
+    'dump|d' => \$dumpTests,
+    'build!' => \$build,
+    'root=s' => \$root
+);
+
+if ($showHelp) {
+   print STDERR $usage;
+   exit 1;
+}
+
+setConfiguration();
+
+setConfigurationProductDir(Cwd::abs_path($root)) if (defined($root));
+
+buildTestTool() if $build && !defined($root);
+setPathForRunningWebKitApp(\%ENV);
+my @testsToRun = listAllTests();
+
+@testsToRun = grep { my $test = $_; grep { $test =~ m/^\Q$_\E/ } @ARGV; } @testsToRun if @ARGV;
+
+if ($dumpTests) {
+    dumpTestsBySuite(@testsToRun);
+    exit 0;
+}
+
+exit runTestsBySuite(@testsToRun, $verbose);
+
+sub isSupportedPlatform()
+{
+    return isAppleMacWebKit() || isAppleWinWebKit();
+}
+
+sub dumpTestsBySuite(\@)
+{
+    my ($tests) = @_;
+    print "Dumping test cases\n";
+    print "------------------\n";
+    my $lastSuite = "";
+    for my $suiteAndTest (sort @$tests) {
+        my ($suite, $test) = split(/\./, $suiteAndTest);
+        if ($lastSuite ne $suite) {
+            $lastSuite = $suite;
+            print "$suite:\n";
+        }
+        print "   $test\n";
+    }
+    print "------------------\n";
+}
+
+sub runTestsBySuite(\@$)
+{
+    my ($tests, $verbose) = @_;
+    my $anyFailures = 0;
+    my $lastSuite = "";
+    for my $suiteAndTest (sort @$tests) {
+        my ($suite, $test) = split(/\./, $suiteAndTest);
+        if ($lastSuite ne $suite) {
+            $lastSuite = $suite;
+            print "Suite: $suite\n" unless $verbose;
+        }
+        my $failed = runTest($suite, $test, $verbose);
+        $anyFailures ||= $failed;
+    }
+    
+    if ($verbose) {
+        if (@testsFailed) {
+            print "Tests that failed:\n";
+            for my $test (@testsFailed) {
+                print "  $test\n";
+            }
+        }
+        if (@testsTimedOut) {
+            print "Tests that timed out:\n";
+            for my $test (@testsTimedOut) {
+                print "  $test\n";
+            }
+        }
+    }
+    return $anyFailures;
+}
+
+sub runTest($$$)
+{
+    my ($suite, $testName, $verbose) = @_;
+    my $test = $suite . "." . $testName;
+
+    my $gtestArg = "--gtest_filter=" . $test;
+
+    print "    Test: $testName -> " unless $verbose;
+
+    my $result = 0;
+    my $timedOut = 0;
+
+    die "run-api-tests is not supported on this platform.\n" unless isSupportedPlatform();
+
+    prepareEnvironmentForRunningTestTool();
+
+    local *DEVNULL;
+    my ($childIn, $childOut, $childErr);
+    if ($verbose) {
+        $childOut = ">&STDERR";
+        $childErr = ">&STDERR";
+    } else {
+        open(DEVNULL, ">", File::Spec->devnull()) or die "Failed to open /dev/null";
+        $childOut = ">&DEVNULL";
+        $childErr = ">&DEVNULL";
+    }
+
+    my $pid;
+    if (isAppleMacWebKit() && architecture()) {
+        $pid = open3($childIn, $childOut, $childErr, "arch", "-" . architecture(), testToolPath(), $gtestArg, @ARGV) or die "Failed to run test: $test.";
+    } else {
+        $pid = open3($childIn, $childOut, $childErr, testToolPath(), $gtestArg, @ARGV) or die "Failed to run test: $test.";
+    }
+
+    close($childIn);
+    close($childOut);
+    close($childErr);
+    close(DEVNULL) unless ($verbose);
+    eval {
+        local $SIG{ALRM} = sub { die "alarm\n" };
+        alarm $timeout;
+        waitpid($pid, 0);
+        alarm 0;
+        $result = $?;
+    };
+    if ($@) {
+        die unless $@ eq "alarm\n";
+        kill SIGTERM, $pid or kill SIGKILL, $pid;
+        $timedOut = 1;
+    }
+
+    if ($result) {
+        push @testsFailed, $test;
+    }
+    if ($timedOut) {
+        push @testsTimedOut, $test;
+        print possiblyColored("bold yellow", "Timeout"), "\n";
+    } elsif (!$verbose) {
+        if ($result) {
+            print possiblyColored("bold red", "Failed"), "\n";
+        } else {
+            print possiblyColored("bold green", "Passed"), "\n";
+        }
+    }
+
+    return $timedOut || $result;
+}
+
+sub listAllTests()
+{
+    my @toolOutput;
+    my $timedOut;
+
+    die "run-api-tests is not supported on this platform.\n" unless isSupportedPlatform();
+
+    prepareEnvironmentForRunningTestTool();
+
+    local *DEVNULL;
+    my ($childIn, $childOut, $childErr);
+    if ($verbose) {
+        $childErr = ">&STDERR";
+    } else {
+        open(DEVNULL, ">", File::Spec->devnull()) or die "Failed to open /dev/null";
+        $childErr = ">&DEVNULL";
+    }
+
+    my $pid;
+    if (isAppleMacWebKit() && architecture()) {
+        $pid = open3($childIn, $childOut, $childErr, "arch", "-" . architecture(), testToolPath(), "--gtest_list_tests") or die "Failed to build list of tests!";
+    } else {
+        $pid = open3($childIn, $childOut, $childErr, testToolPath(), "--gtest_list_tests") or die "Failed to build list of tests!";
+    }
+
+    close($childIn);
+    @toolOutput = <$childOut>;
+    close($childOut);
+    close($childErr);
+    close(DEVNULL) unless ($verbose);
+
+    waitpid($pid, 0);
+    my $result = $?;
+
+    if ($result) {
+        print STDERR "Failed to build list of tests!\n";
+        exit exitStatus($result);
+    }
+
+    my @tests = ();
+    my $suite;
+    for my $line (@toolOutput) {
+       $line =~ s/[\r\n]*$//;
+       if ($line =~ m/\.$/) {
+          $suite = $line; # "SuiteName."
+       } else {
+          # Disabling WebKit2 API test on Windows since we will be disabling WebKit2 on Windows.
+          next if (isAppleWinWebKit() && $suite =~ m/WebKit2*/);       
+          $line =~ s/^\s*//; # "TestName"
+          push @tests, $suite . $line; # "SuiteName.TestName"
+        }
+    }
+
+    return @tests;
+}
+
+sub buildTestTool()
+{
+    my $originalCwd = getcwd();
+
+    chdirWebKit();
+
+    my $buildTestTool = "build-api-tests";
+    print STDERR "Running $buildTestTool\n";
+
+    local *DEVNULL;
+    my ($childIn, $childOut, $childErr);
+    if ($verbose) {
+        # When not quiet, let the child use our stdout/stderr.
+        $childOut = ">&STDOUT";
+        $childErr = ">&STDERR";
+    } else {
+        open(DEVNULL, ">", File::Spec->devnull()) or die "Failed to open /dev/null";
+        $childOut = ">&DEVNULL";
+        $childErr = ">&DEVNULL";
+    }
+
+    my @args = argumentsForConfiguration();
+    my $pathToBuildTestTool = File::Spec->catfile("Tools", "Scripts", $buildTestTool);
+    my $buildProcess = open3($childIn, $childOut, $childErr, "perl", $pathToBuildTestTool, @args) or die "Failed to run " . $buildTestTool;
+
+    close($childIn);
+    close($childOut);
+    close($childErr);
+    close(DEVNULL) unless ($verbose);
+
+    waitpid($buildProcess, 0);
+    my $buildResult = $?;
+
+    if ($buildResult) {
+        print STDERR "Compiling TestWebKitAPI failed!\n";
+        exit exitStatus($buildResult);
+    }
+
+    chdir $originalCwd;
+}
+
+sub prepareEnvironmentForRunningTestTool()
+{
+    return unless isAppleMacWebKit();
+
+    $ENV{DYLD_FRAMEWORK_PATH} = productDir();
+    $ENV{WEBKIT_UNSET_DYLD_FRAMEWORK_PATH} = "YES";
+}
+
+sub testToolPath()
+{
+    my $path = File::Spec->catfile(productDir(), "TestWebKitAPI");
+    return $path unless isAppleWinWebKit();
+
+    my $suffix;
+    if (configurationForVisualStudio() eq "Debug_All") {
+        $suffix = "_debug";
+    } else {
+        $suffix = "";
+    }
+    return "$path$suffix.exe";
+}

@@ -1,0 +1,551 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page graphicsview.html
+    \title Graphics View Framework
+    \ingroup qt-graphics
+    \ingroup qt-basic-concepts
+
+    \brief An overview of the Graphics View framework for interactive 2D
+    graphics.
+
+    \keyword Graphics View
+    \keyword GraphicsView
+    \keyword Graphics
+    \keyword Canvas
+    \since 4.2
+
+    Graphics View provides a surface for managing and interacting with a large
+    number of custom-made 2D graphical items, and a view widget for
+    visualizing the items, with support for zooming and rotation.
+
+    The framework includes an event propagation architecture that allows
+    precise double-precision interaction capabilities for the items on the
+    scene. Items can handle key events, mouse press, move, release and
+    double click events, and they can also track mouse movement.
+
+    Graphics View uses a BSP (Binary Space Partitioning) tree to provide very
+    fast item discovery, and as a result of this, it can visualize large
+    scenes in real-time, even with millions of items.
+
+    Graphics View was introduced in Qt 4.2, replacing its predecessor,
+    QCanvas.
+
+    Topics:
+
+    \tableofcontents
+
+    \section1 The Graphics View Architecture
+
+      Graphics View provides an item-based approach to model-view programming,
+      much like InterView's convenience classes QTableView, QTreeView and
+      QListView. Several views can observe a single scene, and the scene
+      contains items of varying geometric shapes.
+
+      \section2 The Scene
+
+        QGraphicsScene provides the Graphics View scene. The scene has the
+        following responsibilities:
+
+        \list
+        \li Providing a fast interface for managing a large number of items
+        \li Propagating events to each item
+        \li Managing item state, such as selection and focus handling
+        \li Providing untransformed rendering functionality; mainly for printing
+        \endlist
+
+        The scene serves as a container for QGraphicsItem objects. Items are
+        added to the scene by calling QGraphicsScene::addItem(), and then
+        retrieved by calling one of the many item discovery functions.
+        QGraphicsScene::items() and its overloads return all items contained
+        by or intersecting with a point, a rectangle, a polygon or a general
+        vector path. QGraphicsScene::itemAt() returns the topmost item at a
+        particular point. All item discovery functions return the items in
+        descending stacking order (i.e., the first returned item is topmost,
+        and the last item is bottom-most).
+
+        \snippet graphicsview.cpp 0
+
+        QGraphicsScene's event propagation architecture schedules scene events
+        for delivery to items, and also manages propagation between items. If
+        the scene receives a mouse press event at a certain position, the
+        scene passes the event on to whichever item is at that position.
+
+        QGraphicsScene also manages certain item states, such as item
+        selection and focus. You can select items on the scene by calling
+        QGraphicsScene::setSelectionArea(), passing an arbitrary shape. This
+        functionality is also used as a basis for rubberband selection in
+        QGraphicsView. To get the list of all currently selected items, call
+        QGraphicsScene::selectedItems(). Another state handled by
+        QGraphicsScene is whether or not an item has keyboard input focus. You
+        can set focus on an item by calling QGraphicsScene::setFocusItem() or
+        QGraphicsItem::setFocus(), or get the current focus item by calling
+        QGraphicsScene::focusItem().
+
+        Finally, QGraphicsScene allows you to render parts of the scene into a
+        paint device through the QGraphicsScene::render() function. You can
+        read more about this in the Printing section later in this document.
+
+      \section2 The View
+
+        QGraphicsView provides the view widget, which visualizes the contents
+        of a scene. You can attach several views to the same scene, to provide
+        several viewports into the same data set. The view widget is a scroll
+        area, and provides scroll bars for navigating through large scenes. To
+        enable OpenGL support, you can set a QGLWidget as the viewport by
+        calling QGraphicsView::setViewport().
+
+        \snippet graphicsview.cpp 1
+
+        The view receives input events from the keyboard and mouse, and
+        translates these to scene events (converting the coordinates used
+        to scene coordinates where appropriate), before sending the events
+        to the visualized scene.
+
+        Using its transformation matrix, QGraphicsView::transform(), the view can
+        \e transform the scene's coordinate system. This allows advanced
+        navigation features such as zooming and rotation. For convenience,
+        QGraphicsView also provides functions for translating between view and
+        scene coordinates: QGraphicsView::mapToScene() and
+        QGraphicsView::mapFromScene().
+
+        \image graphicsview-view.png
+
+      \section2 The Item
+
+        QGraphicsItem is the base class for graphical items in a
+        scene. Graphics View provides several standard items for typical
+        shapes, such as rectangles (QGraphicsRectItem), ellipses
+        (QGraphicsEllipseItem) and text items (QGraphicsTextItem), but the
+        most powerful QGraphicsItem features are available when you write a
+        custom item. Among other things, QGraphicsItem supports the following
+        features:
+
+        \list
+        \li Mouse press, move, release and double click events, as well as mouse
+        hover events, wheel events, and context menu events.
+        \li Keyboard input focus, and key events
+        \li Drag and drop
+        \li Grouping, both through parent-child relationships, and with
+        QGraphicsItemGroup
+        \li Collision detection
+        \endlist
+
+        Items live in a local coordinate system, and like QGraphicsView, it
+        also provides many functions for mapping coordinates between the item
+        and the scene, and from item to item. Also, like QGraphicsView, it can
+        transform its coordinate system using a matrix:
+        QGraphicsItem::transform(). This is useful for rotating and scaling
+        individual items.
+
+        Items can contain other items (children). Parent items'
+        transformations are inherited by all its children. Regardless of an
+        item's accumulated transformation, though, all its functions (e.g.,
+        QGraphicsItem::contains(), QGraphicsItem::boundingRect(),
+        QGraphicsItem::collidesWith()) still operate in local coordinates.
+
+        QGraphicsItem supports collision detection through the
+        QGraphicsItem::shape() function, and QGraphicsItem::collidesWith(),
+        which are both virtual functions. By returning your item's shape as a
+        local coordinate QPainterPath from QGraphicsItem::shape(),
+        QGraphicsItem will handle all collision detection for you. If you want
+        to provide your own collision detection, however, you can reimplement
+        QGraphicsItem::collidesWith().
+
+        \image graphicsview-items.png
+
+    \section1 Classes in the Graphics View Framework
+
+      These classes provide a framework for creating interactive applications.
+
+      \annotatedlist graphicsview-api
+
+    \section1 The Graphics View Coordinate System
+
+      Graphics View is based on the Cartesian coordinate system; items'
+      position and geometry on the scene are represented by sets of two
+      numbers: the x-coordinate, and the y-coordinate. When observing a scene
+      using an untransformed view, one unit on the scene is represented by
+      one pixel on the screen.
+
+      \note The inverted Y-axis coordinate system (where \c y grows upwards)
+      is unsupported as Graphics Views uses Qt's coordinate system.
+
+      There are three effective coordinate systems in play in Graphics View:
+      Item coordinates, scene coordinates, and view coordinates. To simplify
+      your implementation, Graphics View provides convenience functions that
+      allow you to map between the three coordinate systems.
+
+      When rendering, Graphics View's scene coordinates correspond to
+      QPainter's \e logical coordinates, and view coordinates are the
+      same as \e device coordinates.  In the \l{Coordinate System}
+      documentation, you can read about the relationship between
+      logical coordinates and device coordinates.
+
+      \image graphicsview-parentchild.png
+
+      \section2 Item Coordinates
+
+          Items live in their own local coordinate system. Their coordinates
+          are usually centered around its center point (0, 0), and this is
+          also the center for all transformations. Geometric primitives in the
+          item coordinate system are often referred to as item points, item
+          lines, or item rectangles.
+
+          When creating a custom item, item coordinates are all you need to
+          worry about; QGraphicsScene and QGraphicsView will perform all
+          transformations for you. This makes it very easy to implement custom
+          items. For example, if you receive a mouse press or a drag enter
+          event, the event position is given in item coordinates. The
+          QGraphicsItem::contains() virtual function, which returns \c true if a
+          certain point is inside your item, and false otherwise, takes a
+          point argument in item coordinates. Similarly, an item's bounding
+          rect and shape are in item coordinates.
+
+          At item's \e position is the coordinate of the item's center point
+          in its parent's coordinate system; sometimes referred to as \e
+          parent coordinates. The scene is in this sense regarded as all
+          parent-less items' "parent". Top level items' position are in scene
+          coordinates.
+
+          Child coordinates are relative to the parent's coordinates. If the
+          child is untransformed, the difference between a child coordinate
+          and a parent coordinate is the same as the distance between the
+          items in parent coordinates. For example: If an untransformed child
+          item is positioned precisely in its parent's center point, then the
+          two items' coordinate systems will be identical. If the child's
+          position is (10, 0), however, the child's (0, 10) point will
+          correspond to its parent's (10, 10) point.
+
+          Because items' position and transformation are relative to the
+          parent, child items' coordinates are unaffected by the parent's
+          transformation, although the parent's transformation implicitly
+          transforms the child. In the above example, even if the parent is
+          rotated and scaled, the child's (0, 10) point will still correspond
+          to the parent's (10, 10) point. Relative to the scene, however, the
+          child will follow the parent's transformation and position. If the
+          parent is scaled (2x, 2x), the child's position will be at scene
+          coordinate (20, 0), and its (10, 0) point will correspond to the
+          point (40, 0) on the scene.
+
+          With QGraphicsItem::pos() being one of the few exceptions,
+          QGraphicsItem's functions operate in item coordinates, regardless of
+          the item, or any of its parents' transformation. For example, an
+          item's bounding rect (i.e. QGraphicsItem::boundingRect()) is always
+          given in item coordinates.
+
+      \section2 Scene Coordinates
+
+          The scene represents the base coordinate system for all its items.
+          The scene coordinate system describes the position of each top-level
+          item, and also forms the basis for all scene events delivered to the
+          scene from the view.  Each item on the scene has a scene position
+          and bounding rectangle (QGraphicsItem::scenePos(),
+          QGraphicsItem::sceneBoundingRect()), in addition to its local item
+          pos and bounding rectangle. The scene position describes the item's
+          position in scene coordinates, and its scene bounding rect forms the
+          basis for how QGraphicsScene determines what areas of the scene have
+          changed. Changes in the scene are communicated through the
+          QGraphicsScene::changed() signal, and the argument is a list of
+          scene rectangles.
+
+      \section2 View Coordinates
+
+          View coordinates are the coordinates of the widget. Each unit in
+          view coordinates corresponds to one pixel. What's special about this
+          coordinate system is that it is relative to the widget, or viewport,
+          and unaffected by the observed scene. The top left corner of
+          QGraphicsView's viewport is always (0, 0), and the bottom right
+          corner is always (viewport width, viewport height). All mouse events
+          and drag and drop events are originally received as view
+          coordinates, and you need to map these coordinates to the scene in
+          order to interact with items.
+
+      \section2 Coordinate Mapping
+
+          Often when dealing with items in a scene, it can be useful to map
+          coordinates and arbitrary shapes from the scene to an item, from
+          item to item, or from the view to the scene. For example, when you
+          click your mouse in QGraphicsView's viewport, you can ask the scene
+          what item is under the cursor by calling
+          QGraphicsView::mapToScene(), followed by
+          QGraphicsScene::itemAt(). If you want to know where in the viewport
+          an item is located, you can call QGraphicsItem::mapToScene() on the
+          item, then QGraphicsView::mapFromScene() on the view. Finally, if
+          you use want to find what items are inside a view ellipse, you can
+          pass a QPainterPath to mapToScene(), and then pass the mapped path
+          to QGraphicsScene::items().
+
+          You can map coordinates and shapes to and from and item's scene by
+          calling QGraphicsItem::mapToScene() and
+          QGraphicsItem::mapFromScene(). You can also map to an item's parent
+          item by calling QGraphicsItem::mapToParent() and
+          QGraphicsItem::mapFromParent(), or between items by calling
+          QGraphicsItem::mapToItem() and QGraphicsItem::mapFromItem(). All
+          mapping functions can map both points, rectangles, polygons and
+          paths.
+
+          The same mapping functions are available in the view, for mapping to
+          and from the scene. QGraphicsView::mapFromScene() and
+          QGraphicsView::mapToScene(). To map from a view to an item, you
+          first map to the scene, and then map from the scene to the item.
+
+    \section1 Key Features
+
+      \section2 Zooming and rotating
+
+        QGraphicsView supports the same affine transformations as QPainter
+        does through QGraphicsView::setMatrix(). By applying a transformation
+        to the view, you can easily add support for common navigation features
+        such as zooming and rotating.
+
+        Here is an example of how to implement zoom and rotate slots in a
+        subclass of QGraphicsView:
+
+        \snippet graphicsview.cpp 2
+
+        The slots could be connected to \l{QToolButton}{QToolButtons} with
+        \l{QAbstractButton::autoRepeat}{autoRepeat} enabled.
+
+        QGraphicsView keeps the center of the view aligned when you transform
+        the view.
+
+        See also the \l{Elastic Nodes Example}{Elastic Nodes} example for
+        code that shows how to implement basic zooming features.
+
+      \section2 Printing
+
+        Graphics View provides single-line printing through its rendering
+        functions, QGraphicsScene::render() and QGraphicsView::render().  The
+        functions provide the same API: You can have the scene or the view
+        render all or parts of their contents into any paint device by passing
+        a QPainter to either of the rendering functions. This example shows
+        how to print the whole scene into a full page, using QPrinter.
+
+        \snippet graphicsview.cpp 3
+
+        The difference between the scene and view rendering functions is that
+        one operates in scene coordinates, and the other in view coordinates.
+        QGraphicsScene::render() is often preferred for printing whole
+        segments of a scene untransformed, such as for plotting geometrical
+        data, or for printing a text document. QGraphicsView::render(), on the
+        other hand, is suitable for taking screenshots; its default behavior
+        is to render the exact contents of the viewport using the provided
+        painter.
+
+        \snippet graphicsview.cpp 4
+
+        When the source and target areas' sizes do not match, the source
+        contents are stretched to fit into the target area. By passing a
+        Qt::AspectRatioMode to the rendering function you are using, you can
+        choose to maintain or ignore the aspect ratio of the scene when the
+        contents are stretched.
+
+      \section2 Drag and Drop
+
+        Because QGraphicsView inherits QWidget indirectly, it already provides
+        the same drag and drop functionality that QWidget provides. In
+        addition, as a convenience, the Graphics View framework provides drag
+        and drop support for the scene, and for each and every item. As the
+        view receives a drag, it translates the drag and drop events into a
+        QGraphicsSceneDragDropEvent, which is then forwarded to the scene. The
+        scene takes over scheduling of this event, and sends it to the first
+        item under the mouse cursor that accepts drops.
+
+        To start a drag from an item, create a QDrag object, passing a pointer
+        to the widget that starts the drag. Items can be observed by many
+        views at the same time, but only one view can start the drag. Drags
+        are in most cases started as a result of pressing or moving the mouse,
+        so in mousePressEvent() or mouseMoveEvent(), you can get the
+        originating widget pointer from the event. For example:
+
+        \snippet graphicsview.cpp 5
+
+        To intercept drag and drop events for the scene, you reimplement
+        QGraphicsScene::dragEnterEvent() and whichever event handlers your
+        particular scene needs, in a QGraphicsItem subclass. You can read more
+        about drag and drop in Graphics View in the documentation for each of
+        QGraphicsScene's event handlers.
+
+        Items can enable drag and drop support by calling
+        QGraphicsItem::setAcceptDrops(). To handle the incoming drag,
+        reimplement QGraphicsItem::dragEnterEvent(),
+        QGraphicsItem::dragMoveEvent(), QGraphicsItem::dragLeaveEvent(), and
+        QGraphicsItem::dropEvent().
+
+        See also the \l{Drag and Drop Robot Example}{Drag and Drop Robot} example
+        for a demonstration of Graphics View's support for drag and drop
+        operations.
+
+      \section2 Cursors and Tooltips
+
+        Like QWidget, QGraphicsItem also supports cursors
+        (QGraphicsItem::setCursor()), and tooltips
+        (QGraphicsItem::setToolTip()). The cursors and tooltips are activated
+        by QGraphicsView as the mouse cursor enters the item's area (detected
+        by calling QGraphicsItem::contains()).
+
+        You can also set a default cursor directly on the view by calling
+        QGraphicsView::setCursor().
+
+        See also the \l{Drag and Drop Robot Example}{Drag and Drop Robot}
+        example for code that implements tooltips and cursor shape handling.
+
+      \section2 Animation
+
+        Graphics View supports animation at several levels. You can
+        easily assemble animation by using the Animation Framework.
+        For that you'll need your items to inherit from
+        QGraphicsObject and associate QPropertyAnimation with
+        them. QPropertyAnimation allows to animate any QObject
+        property.
+
+        Another option is to create a custom item that inherits from QObject
+        and QGraphicsItem. The item can the set up its own timers, and control
+        animations with incremental steps in QObject::timerEvent().
+
+        A third option, which is mostly available for compatibility with
+        QCanvas in Qt 3, is to \e advance the scene by calling
+        QGraphicsScene::advance(), which in turn calls
+        QGraphicsItem::advance().
+
+      \section2 OpenGL Rendering
+
+        To enable OpenGL rendering, you simply set a new QGLWidget as the
+        viewport of QGraphicsView by calling QGraphicsView::setViewport(). If
+        you want OpenGL with antialiasing, you need OpenGL sample buffer
+        support (see QGLFormat::sampleBuffers()).
+
+        Example:
+
+        \snippet graphicsview.cpp 6
+
+      \section2 Item Groups
+
+        By making an item a child of another, you can achieve the most
+        essential feature of item grouping: the items will move together, and
+        all transformations are propagated from parent to child.
+
+        In addition, QGraphicsItemGroup is a special item that combines child
+        event handling with a useful interface for adding and removing items
+        to and from a group. Adding an item to a QGraphicsItemGroup will keep
+        the item's original position and transformation, whereas reparenting
+        items in general will cause the child to reposition itself relative to
+        its new parent. For convenience, you can create
+        \l{QGraphicsItemGroup}s through the scene by calling
+        QGraphicsScene::createItemGroup().
+
+      \section2 Widgets and Layouts
+
+        Qt 4.4 introduced support for geometry and layout-aware items through
+        QGraphicsWidget. This special base item is similar to QWidget, but
+        unlike QWidget, it doesn't inherit from QPaintDevice; rather from
+        QGraphicsItem instead. This allows you to write complete widgets with
+        events, signals & slots, size hints and policies, and you can also
+        manage your widgets geometries in layouts through
+        QGraphicsLinearLayout and QGraphicsGridLayout.
+
+        \section3 QGraphicsWidget
+
+          Building on top of QGraphicsItem's capabilities and lean footprint,
+          QGraphicsWidget provides the best of both worlds: extra
+          functionality from QWidget, such as the style, font, palette, layout
+          direction, and its geometry, and resolution independence and
+          transformation support from QGraphicsItem.  Because Graphics View
+          uses real coordinates instead of integers, QGraphicsWidget's
+          geometry functions also operate on QRectF and QPointF. This also
+          applies to frame rects, margins and spacing. With QGraphicsWidget
+          it's not uncommon to specify contents margins of (0.5, 0.5, 0.5,
+          0.5), for example. You can create both subwidgets and "top-level"
+          windows; in some cases you can now use Graphics View for advanced
+          MDI applications.
+
+          Some of QWidget's properties are supported, including window flags
+          and attributes, but not all. You should refer to QGraphicsWidget's
+          class documentation for a complete overview of what is and what is
+          not supported. For example, you can create decorated windows by
+          passing the Qt::Window window flag to QGraphicsWidget's constructor,
+          but Graphics View currently doesn't support the Qt::Sheet and
+          Qt::Drawer flags that are common on Mac OS X.
+
+          The capabilities of QGraphicsWidget are expected to grow depending
+          on community feedback.
+
+        \section3 QGraphicsLayout
+
+          QGraphicsLayout is part of a second-generation layout framework
+          designed specifically for QGraphicsWidget. Its API is very similar
+          to that of QLayout. You can manage widgets and sublayouts inside
+          either QGraphicsLinearLayout and QGraphicsGridLayout. You can also
+          easily write your own layout by subclassing QGraphicsLayout
+          yourself, or add your own QGraphicsItem items to the layout by
+          writing an adaptor subclass of QGraphicsLayoutItem.
+
+      \section2 Embedded Widget Support
+
+          Graphics View provides seamless support for embedding any widget
+          into the scene. You can embed simple widgets, such as QLineEdit or
+          QPushButton, complex widgets such as QTabWidget, and even complete
+          main windows. To embed your widget to the scene, simply call
+          QGraphicsScene::addWidget(), or create an instance of
+          QGraphicsProxyWidget to embed your widget manually.
+
+          Through QGraphicsProxyWidget, Graphics View is able to deeply
+          integrate the client widget features including its cursors,
+          tooltips, mouse, tablet and keyboard events, child widgets,
+          animations, pop-ups (e.g., QComboBox or QCompleter), and the widget's
+          input focus and activation. QGraphicsProxyWidget even integrates the
+          embedded widget's tab order so that you can tab in and out of
+          embedded widgets. You can even embed a new QGraphicsView into your
+          scene to provide complex nested scenes.
+
+          When transforming an embedded widget, Graphics View makes sure that
+          the widget is transformed resolution independently, allowing the
+          fonts and style to stay crisp when zoomed in. (Note that the effect
+          of resolution independence depends on the style.)
+
+    \section1 Performance
+
+      \section2 Floating Point Instructions
+
+        In order to accurately and quickly apply transformations and effects to
+        items, Graphics View is built with the assumption that the user's hardware
+        is able to provide reasonable performance for floating point instructions.
+
+        Many workstations and desktop computers are equipped with suitable hardware
+        to accelerate this kind of computation, but some embedded devices may only
+        provide libraries to handle mathematical operations or emulate floating
+        point instructions in software.
+
+        As a result, certain kinds of effects may be slower than expected on certain
+        devices. It may be possible to compensate for this performance hit by making
+        optimizations in other areas; for example, by using \l{#OpenGL Rendering}{OpenGL}
+        to render a scene. However, any such optimizations may themselves cause a
+        reduction in performance if they also rely on the presence of floating point
+        hardware.
+*/

@@ -1,0 +1,93 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+#endif
+
+/*!
+    @class WebResource
+    @discussion A WebResource represents a fully downloaded URL. 
+    It includes the data of the resource as well as the metadata associated with the resource.
+    
+    @interface WebResource : NSObject <NSCoding, NSCopying>
+*/
+[
+    object,
+    oleautomation,
+    uuid(09567E0E-7859-494a-B0E4-92C13CFE5574),
+    pointer_default(unique)
+]
+interface IWebResource : IUnknown
+{
+    /*!
+        @method initWithData:URL:MIMEType:textEncodingName:frameName
+        @abstract The initializer for WebResource.
+        @param data The data of the resource.
+        @param URL The URL of the resource.
+        @param MIMEType The MIME type of the resource.
+        @param textEncodingName The text encoding name of the resource (can be nil).
+        @param frameName The frame name of the resource if the resource represents the contents of an entire HTML frame (can be nil).
+        @result An initialized WebResource.
+        - (id)initWithData:(NSData *)data URL:(NSURL *)URL MIMEType:(NSString *)MIMEType textEncodingName:(NSString *)textEncodingName frameName:(NSString *)frameName;
+    */
+    HRESULT initWithData([in] IStream* data, [in] BSTR url, [in] BSTR mimeType, [in] BSTR textEncodingName, [in] BSTR frameName);
+
+    /*!
+        @method data
+        @result The data of the resource.
+        - (NSData *)data;
+    */
+    HRESULT data([out, retval] IStream** data);
+
+    /*!
+        @method URL
+        @result The URL of the resource.
+        - (NSURL *)URL;
+    */
+    HRESULT URL([out, retval] BSTR* url);
+
+    /*!
+        @method MIMEType
+        @result The MIME type of the resource.
+        - (NSString *)MIMEType;
+    */
+    HRESULT MIMEType([out, retval] BSTR* mime);
+
+    /*!
+        @method textEncodingName
+        @result The text encoding name of the resource (can be nil).
+        - (NSString *)textEncodingName;
+    */
+    HRESULT textEncodingName([out, retval] BSTR* encodingName);
+
+    /*!
+        @method frameName
+        @result The frame name of the resource if the resource represents the contents of an entire HTML frame (can be nil).
+        - (NSString *)frameName;
+    */
+    HRESULT frameName([out, retval] BSTR* name);
+}

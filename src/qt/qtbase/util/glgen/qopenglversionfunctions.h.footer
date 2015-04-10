@@ -1,0 +1,13 @@
+
+#else
+
+// No need for backend classes with function pointers with ES2.
+// All function addresses are independent of context and display.
+
+#endif // !QT_OPENGL_ES_2
+
+QT_END_NAMESPACE
+
+#endif // QT_NO_OPENGL
+
+#endif

@@ -1,0 +1,21 @@
+<html>
+<head>
+<title>File chooser test</title>
+<script>
+function updateTitle()
+{
+  var myinput = document.getElementById('myInput');
+  var title = ""
+  for (var i = 0; i < myinput.files.length; i++) {
+    title += myinput.files[i].name;
+    if (i < (myinput.files.length - 1))
+      title += "|";
+  }
+  document.title = title;
+}
+</script>
+</head>
+<body>
+<input type="file" id="myInput" name="Upload media" accept="image/*,video/*" multiple="multiple" onchange="updateTitle()" style="top: 10; left: 10;"/>
+</body>
+</html>

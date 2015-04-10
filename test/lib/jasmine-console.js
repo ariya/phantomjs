@@ -1,4 +1,4 @@
-jasmine.ConsoleReporter = function(print, doneCallback, showColors) {
+jasmine.ConsoleReporter = function(print, doneCallback, showColors, verbose) {
   //inspired by mhevery's jasmine-node reporter
   //https://github.com/mhevery/jasmine-node
 
@@ -40,12 +40,12 @@ jasmine.ConsoleReporter = function(print, doneCallback, showColors) {
     newline();
   }
 
-  function greenPass() {
-    print(greenStr("PASS"));
+  function greenDot() {
+    print(greenStr("."));
   }
 
-  function redFail() {
-    print(redStr("FAIL"));
+  function redF() {
+    print(redStr("F"));
   }
 
   function yellowStar() {
@@ -73,11 +73,18 @@ jasmine.ConsoleReporter = function(print, doneCallback, showColors) {
     return newArr.join("\n");
   }
 
-  function specFailureDetails(suiteDescription, specDescription, stackTraces) {
+  function specFailureDetails(suiteDescription, specDescription, items) {
     newline();
     print(suiteDescription + " " + specDescription);
-    for (var i = 0; i < stackTraces.length; i++) {
-      print(indent(stackTraces[i], 2));
+    newline();
+    for (var i = 0; i < items.length; i++) {
+      if (!items[i].passed()) {
+        if (items[i].trace.stack)
+          print(indent(items[i].trace.stack, 2));
+        else
+          print(indent(items[i].toString(), 2));
+        newline();
+      }
     }
   }
 
@@ -90,6 +97,8 @@ jasmine.ConsoleReporter = function(print, doneCallback, showColors) {
     newline();
     print(colorF(specs + " " + plural(language.spec, specs) + ", " +
       failed + " " + plural(language.failure, failed)));
+    newline();
+    newline();
   }
 
   function greenSummary(specs, failed) {
@@ -120,15 +129,25 @@ jasmine.ConsoleReporter = function(print, doneCallback, showColors) {
 
   this.reportSpecResults = function(spec) {
     var results = spec.results();
-    if (results.skipped) {
-      yellowStar();
-    } else {
-      if (results.passed()) {
-        print('#' + spec.id + ' ' + spec.suite.description + ': ' + spec.description);
-        greenPass();
+    if (verbose) {
+      var msg;
+      if (results.skipped) {
+        msg = yellowStr("SKIP");
+      } else if (results.passed()) {
+        msg = greenStr("PASS");
       } else {
-        print(redStr('#' + spec.id + ' ' + spec.suite.description + ': ' + spec.description));
-        redFail();
+        msg = redStr("FAIL");
+      }
+      msg += " " + spec.getFullName();
+      print(msg);
+      newline();
+    } else {
+      if (results.skipped) {
+        yellowStar();
+      } else if (results.passed()) {
+        greenDot();
+      } else {
+        redF();
       }
     }
   };
@@ -153,17 +172,15 @@ jasmine.ConsoleReporter = function(print, doneCallback, showColors) {
       var suiteResult = suiteResults[i];
       for (var j = 0; j < suiteResult.failedSpecResults.length; j++) {
         var failedSpecResult = suiteResult.failedSpecResults[j];
-        var stackTraces = [];
-        for (var k = 0; k < failedSpecResult.items_.length; k++) stackTraces.push(failedSpecResult.items_[k].trace.stack);
-        callback(suiteResult.description, failedSpecResult.description, stackTraces);
+        callback(suiteResult.description, failedSpecResult.description,
+                 failedSpecResult.items_);
       }
     }
   }
 
   this.reportRunnerResults = function(runner) {
-    eachSpecFailure(this.suiteResults, function(suiteDescription, specDescription, stackTraces) {
-      specFailureDetails(suiteDescription, specDescription, stackTraces);
-    });
+    newline();
+    eachSpecFailure(this.suiteResults, specFailureDetails);
 
     finished(this.now() - this.runnerStartTime);
 

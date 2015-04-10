@@ -68,6 +68,18 @@ private:
     QNetworkRequest* m_networkRequest;
 };
 
+class NoFileAccessReply : public QNetworkReply
+{
+    Q_OBJECT
+
+public:
+    NoFileAccessReply(QObject *parent, const QNetworkRequest &req, const QNetworkAccessManager::Operation op);
+    ~NoFileAccessReply();
+    void abort() {}
+protected:
+    qint64 readData(char *, qint64) { return -1; }
+};
+
 class NetworkAccessManager : public QNetworkAccessManager
 {
     Q_OBJECT
@@ -86,6 +98,7 @@ public:
 
 protected:
     bool m_ignoreSslErrors;
+    bool m_localUrlAccessEnabled;
     int m_authAttempts;
     int m_maxAuthAttempts;
     int m_resourceTimeout;

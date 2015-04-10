@@ -1,0 +1,25 @@
+# -------------------------------------------------------------------
+# Set rpath for the application/library we're building
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+equals(ROOT_BUILD_DIR, $$dirname(DESTDIR)): RPATHDIR_RELATIVE_TO_DESTDIR = ../lib
+
+linux-*:!isEmpty(RPATHDIR_RELATIVE_TO_DESTDIR) {
+    # Do the rpath by hand since it's not possible to use ORIGIN in QMAKE_RPATHDIR
+    # this expands to $ORIGIN (after qmake and make), it does NOT read a qmake var.
+    QMAKE_RPATHDIR = \$\$ORIGIN/$${RPATHDIR_RELATIVE_TO_DESTDIR} $${QMAKE_RPATHDIR}
+    RPATH = $$join(QMAKE_RPATHDIR, ":")
+
+    QMAKE_LFLAGS += -Wl,-z,origin \'-Wl,-rpath,$${RPATH}\'
+    QMAKE_RPATHDIR =
+} else {
+    QMAKE_RPATHDIR = $${ROOT_BUILD_DIR}/lib $${QMAKE_RPATHDIR}
+}
+
+# FIXME: For Qt5 this will only give correct rpath for the tools that come with WebKit
+# Any client application built against a developer-build of Qt + WebKit (that does
+# QT += webkit) will not get the rpath pointing to the stand-alone WebKit-build,
+# and will have to set LD_LIBRARY_PATH or do their own rpath logic. This needs
+# to be fixed on the Qt side.

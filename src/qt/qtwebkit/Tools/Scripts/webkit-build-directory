@@ -1,0 +1,81 @@
+#!/usr/bin/perl
+
+# Copyright (C) 2010 Google Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# A script to expose WebKit's build directory detection logic to non-perl scripts.
+
+use FindBin;
+use Getopt::Long;
+
+use lib $FindBin::Bin;
+use webkitdirs;
+
+my $showConfigurationDirectory = 0;
+my $showHelp = 0;
+my $showTopLevelDirectory = 0;
+
+
+my $programName = basename($0);
+my $usage = <<EOF;
+Usage: $programName [options]
+  --configuration       Show the build directory for a specific configuration (e.g. Debug, Release.  Defaults to the active configuration set by set-webkit-configuration)
+  -h|--help             Show this help message
+  --top-level           Show the top-level build directory
+
+  --blackberry          Find the build directory for the BlackBerry port on Mac/Linux
+  --efl                 Find the build directory for the EFL port
+  --gtk                 Find the build directory for the GTK+ port
+  --qt                  Find the build directory for the Qt port
+  --wincairo            Find the build directory for using Cairo (rather than CoreGraphics) on Windows
+  --wince               Find the build directory for the WinCE port
+
+Either --configuration or --top-level is required.
+EOF
+
+setConfiguration(); # Figure out from the command line if we're --debug or --release or the default.
+
+# FIXME: Check if extra flags are valid or not.
+Getopt::Long::Configure('pass_through'); # Let --blackberry, etc... be handled by webkitdirs
+my $getOptionsResult = GetOptions(
+    'configuration' => \$showConfigurationDirectory,
+    'top-level' => \$showTopLevelDirectory,
+    'help|h' => \$showHelp,
+);
+
+if (!$getOptionsResult || $showHelp) {
+    print STDERR $usage;
+    exit 1;
+}
+
+if (!$showConfigurationDirectory && !$showTopLevelDirectory) {
+    print baseProductDir() . "\n";
+    print productDir() . "\n";
+} elsif ($showTopLevelDirectory) {
+    print baseProductDir() . "\n";
+} else {
+    print productDir() . "\n";
+}

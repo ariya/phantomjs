@@ -1,0 +1,10 @@
+# -------------------------------------------------------------------
+# Mac OS X specific defaults
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+# We don't want verify and other platform macros to pollute the namespace
+DEFINES += __ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0
+
+load(default_post)

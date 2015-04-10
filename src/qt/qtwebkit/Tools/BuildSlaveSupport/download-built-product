@@ -1,0 +1,56 @@
+#!/usr/bin/python
+#
+# Copyright (C) 2009 Apple Inc.  All rights reserved.
+# Copyright (C) 2012 Google Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+import optparse
+import os
+import subprocess
+import sys
+import urllib
+
+
+def main():
+    parser = optparse.OptionParser("usage: %prog [options] [url]")
+    parser.add_option("--platform", dest="platform")
+    parser.add_option("--debug", action="store_const", const="debug", dest="configuration")
+    parser.add_option("--release", action="store_const", const="release", dest="configuration")
+
+    options, (url, ) = parser.parse_args()
+
+    archiveDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "WebKitBuild"))
+    if not os.path.isdir(archiveDir):
+        os.makedirs(archiveDir)
+    archivePath = os.path.join(archiveDir, "%s.zip" % options.configuration)
+
+    if sys.platform == 'win32':  # curl is not availble on Windows (outside of cygwin)
+        urllib.urlretrieve(url, archivePath)
+        return 0
+
+    return subprocess.call(["curl", "--fail", "--output", archivePath, url])
+
+
+if __name__ == '__main__':
+    sys.exit(main())

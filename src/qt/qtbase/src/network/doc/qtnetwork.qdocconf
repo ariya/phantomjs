@@ -1,0 +1,45 @@
+include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
+
+project                 = QtNetwork
+description             = Qt Network Reference Documentation
+url                     = http://qt-project.org/doc/qt-$QT_VER
+version                 = $QT_VERSION
+
+examplesinstallpath     = network
+
+qhp.projects            = QtNetwork
+
+qhp.QtNetwork.file         = qtnetwork.qhp
+qhp.QtNetwork.namespace           = org.qt-project.qtnetwork.$QT_VERSION_TAG
+qhp.QtNetwork.virtualFolder       = qtnetwork
+qhp.QtNetwork.indexTitle          = Qt Network
+qhp.QtNetwork.indexRoot           =
+
+qhp.QtNetwork.filterAttributes    = qtnetwork $QT_VERSION qtrefdoc
+qhp.QtNetwork.customFilters.Qt.name = QtNetwork $QT_VERSION
+qhp.QtNetwork.customFilters.Qt.filterAttributes = qtnetwork $QT_VERSION
+
+qhp.QtNetwork.subprojects         = classes
+qhp.QtNetwork.subprojects.classes.title = C++ Classes
+qhp.QtNetwork.subprojects.classes.indexTitle = Qt Network C++ Classes
+qhp.QtNetwork.subprojects.classes.selectors = class fake:headerfile
+qhp.QtNetwork.subprojects.classes.sortPages = true
+
+tagfile                 = ../../../doc/qtnetwork/qtnetwork.tags
+
+depends                 += qtcore qtgui qtdoc
+
+headerdirs  += ..
+
+sourcedirs  += .. \
+               ../../../examples/network/doc/src
+
+exampledirs += ../../../examples/network \
+               ../ \
+               snippets
+
+imagedirs   += images \
+               ../../../examples/network/doc/images
+
+navigation.landingpage = "Qt Network"
+navigation.cppclassespage = "Qt Network C++ Classes"

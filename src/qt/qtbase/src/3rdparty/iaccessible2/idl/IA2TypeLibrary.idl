@@ -1,0 +1,94 @@
+/*************************************************************************
+ *
+ *  File Name (IA2TypeLibrary.idl)
+ *
+ *  IAccessible2 IDL Specification
+ *
+ *  Copyright (c) 2007, 2010 Linux Foundation
+ *  Copyright (c) 2006 IBM Corporation
+ *  Copyright (c) 2000, 2006 Sun Microsystems, Inc.
+ *  All rights reserved.
+ *
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   1. Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *
+ *   2. Redistributions in binary form must reproduce the above
+ *      copyright notice, this list of conditions and the following
+ *      disclaimer in the documentation and/or other materials
+ *      provided with the distribution.
+ *
+ *   3. Neither the name of the Linux Foundation nor the names of its
+ *      contributors may be used to endorse or promote products
+ *      derived from this software without specific prior written
+ *      permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ *  CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ *  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ *  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ *  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ *  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ *  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *  This BSD License conforms to the Open Source Initiative "Simplified
+ *  BSD License" as published at:
+ *  http://www.opensource.org/licenses/bsd-license.php
+ *
+ *  IAccessible2 is a trademark of the Linux Foundation. The IAccessible2
+ *  mark may be used in accordance with the Linux Foundation Trademark
+ *  Policy to indicate compliance with the IAccessible2 specification.
+ *
+ ************************************************************************/
+
+// This is not a standalone file.  It is to be appended to the end of the
+// merged IDL file.
+
+cpp_quote("")
+cpp_quote("// Type Library Definitions")
+cpp_quote("")
+
+[
+    uuid(c974e070-3787-490a-87b0-e333b06ca1e2),
+    helpstring("IAccessible2 Type Library"),
+    version(1.2),
+    hidden
+]
+
+library IAccessible2Lib
+{
+    importlib ("stdole2.tlb");
+    importlib ("oleacc.dll");
+    interface IAccessible2;
+    interface IAccessibleAction;
+    interface IAccessibleApplication;
+    interface IAccessibleComponent;
+    interface IAccessibleEditableText;
+    interface IAccessibleHyperlink;
+    interface IAccessibleHypertext;
+    interface IAccessibleImage;
+    interface IAccessibleRelation;
+    interface IAccessibleTable;
+    interface IAccessibleTable2;
+    interface IAccessibleTableCell;
+    interface IAccessibleText;
+    interface IAccessibleValue;
+    enum IA2CoordinateType;
+    enum IA2EventID;
+    enum IA2Role;
+    enum IA2ScrollType;
+    enum IA2States;
+    enum IA2TableModelChangeType;
+    enum IA2TextBoundaryType;
+    enum IA2TextSpecialOffsets;
+}

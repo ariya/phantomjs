@@ -1,0 +1,126 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2011 Apple Computer, Inc.  All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Script to run the WebKit Open Source Project Regular Expression functional tests.
+
+use strict;
+use FindBin;
+use Getopt::Long qw(:config pass_through);
+use lib $FindBin::Bin;
+use webkitdirs;
+use POSIX;
+
+# determine configuration
+setConfiguration();
+my $configuration = configuration();
+
+my $defaultTestFile = "RegExpTest.data";
+
+# These variables are intentionally left undefined.
+my $root;
+my $testFile;
+my $showHelp;
+my $verbose;
+
+my $buildJSC = 1;
+
+my $programName = basename($0);
+my $buildJSCDefault = $buildJSC ? "will check" : "will not check";
+my $usage = <<EOF;
+Usage: $programName [options] [options to pass to build system]
+  --help                        Show this help message
+  --file=                       File to use instead of default ($defaultTestFile)
+  --root=                       Path to pre-built root containing jsc
+  --[no-]build                  Check (or don't check) to see if the jsc build is up-to-date (default: $buildJSCDefault)
+  --verbose                     Increase test output on failures
+EOF
+
+GetOptions(
+    'verbose' => \$verbose,
+    'root=s' => \$root,
+    'file=s' => \$testFile,
+    'build!' => \$buildJSC,
+    'help' => \$showHelp
+);
+
+# Assume any arguments left over from GetOptions are assumed to be build arguments
+my @buildArgs = @ARGV;
+
+
+if ($showHelp) {
+   print STDERR $usage;
+   exit 1;
+}
+
+setConfigurationProductDir(Cwd::abs_path($root)) if (defined($root));
+
+if (!defined($root) && $buildJSC) {
+    chdirWebKit();
+
+    push(@buildArgs, argumentsForConfiguration());
+    
+    print "Running: build-jsc " . join(" ", @buildArgs) . "\n";
+    my $buildResult = system "perl", "Tools/Scripts/build-jsc", @buildArgs;
+    if ($buildResult) {
+        print STDERR "Compiling jsc failed!\n";
+        exit exitStatus($buildResult);
+    }
+}
+
+my $productDir = jscProductDir();
+$ENV{DYLD_FRAMEWORK_PATH} = $productDir;
+setPathForRunningWebKitApp(\%ENV) if isCygwin();
+
+sub testapiPath($)
+{
+    my ($productDir) = @_;
+    my $jscName = "testapi";
+    $jscName .= "_debug" if configurationForVisualStudio() eq "Debug_All";
+    return "$productDir/$jscName";
+}
+
+# Find JavaScriptCore directory
+if (!defined($testFile)) {
+    $testFile = $defaultTestFile;
+    chdirWebKit();
+    chdir("Source/JavaScriptCore");
+    chdir "tests/regexp" or die;
+}
+
+my $command = $productDir . "/testRegExp";
+
+if (defined($verbose) && $verbose) {
+    $command .= " --verbose";
+}
+
+$command .= " " . $testFile;
+
+printf "Running: " . $command . "\n";
+my $result = system $command;
+exit exitStatus($result)  if $result;
+

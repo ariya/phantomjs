@@ -1,0 +1,225 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.toolbar .dashboard {
+    display: -webkit-flex;
+    -webkit-flex-flow: row nowrap;
+
+    -webkit-justify-content: space-between;
+
+    margin: 4px 10px;
+    padding: 0 5px;
+
+    width: 375px;
+
+    background-image: -webkit-linear-gradient(bottom, rgba(0, 128, 255, 0.075), rgba(0, 128, 255, 0)),
+        -webkit-linear-gradient(left, rgba(0, 0, 0, 0.09), transparent, rgba(0, 0, 0, 0.09)),
+        -webkit-linear-gradient(top, rgb(240, 244, 251), rgb(250, 253, 255));
+    background-size: 100% 6px, auto, auto;
+    background-position: bottom, center, center;
+    background-repeat: no-repeat;
+
+    border: 1px solid rgb(163, 163, 163);
+    border-radius: 4px;
+
+    box-shadow: rgba(255, 255, 255, 0.45) 0 1px 0;
+}
+
+body.window-inactive .toolbar .dashboard {
+    border-color: rgb(196, 196, 196);
+    background-image: none;
+    background-color: rgb(239, 239, 239);
+}
+
+.toolbar.collapsed .dashboard {
+    width: 175px;
+}
+
+.toolbar.collapsed .dashboard > .time,
+.toolbar.collapsed .dashboard > .resourcesSize,
+.toolbar.collapsed .dashboard > .logs {
+    display: none;
+}
+
+.toolbar .dashboard > .item {
+    font-family: Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 11px;
+    line-height: 12px;
+
+    padding: 0 5px;
+
+    display: -webkit-flex;
+
+    min-width: 45px;
+
+    -webkit-justify-content: center;
+    -webkit-align-items: center;
+
+    border-radius: 4px;
+    border: 1px solid transparent;
+}
+
+.toolbar .dashboard > .time,
+.toolbar .dashboard > .resourcesSize {
+    min-width: 70px;
+}
+
+.toolbar .dashboard > .item.enabled:hover {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.toolbar .dashboard > .item.enabled:active {
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.toolbar .dashboard > .item > * {
+    display: -webkit-flex;
+    -webkit-align-items: center;
+}
+
+.toolbar .dashboard > .item > img {
+    opacity: 0.2;
+    width: 16px;
+    height: 16px;
+    pointer-events: none;
+}
+
+.toolbar .dashboard > .item.enabled > img {
+    opacity: 0.5;
+}
+
+.toolbar .dashboard > .item.enabled:hover > img {
+    opacity: 0.65;
+}
+
+.toolbar .dashboard > .item > div {
+    display: -webkit-flex;
+    -webkit-flex: 1;
+
+    color: rgba(0, 0, 0, 0.2);
+    padding-left: 2px;
+}
+
+.toolbar .dashboard > .item.enabled > div {
+    color: rgba(0, 0, 0, 0.7);
+}
+
+.toolbar .dashboard > .item.enabled:hover > div {
+    color: rgba(0, 0, 0, 0.85);
+}
+
+.toolbar .dashboard > .resourcesCount > img {
+    content: url(Images/Resources.svg);
+}
+
+.toolbar .dashboard > .time > img {
+    content: url(Images/Time.svg);
+}
+
+.toolbar .dashboard > .logs > img {
+    content: url(Images/Logs.svg);
+}
+
+.toolbar .dashboard > .resourcesSize > img {
+    content: url(Images/Weight.svg);
+}
+
+.toolbar .dashboard > .errors > img {
+    content: url(Images/Errors.svg);
+}
+
+.toolbar .dashboard > .errors.enabled > img {
+    content: url(Images/ErrorsEnabled.svg);
+    opacity: 0.9;
+}
+
+.toolbar .dashboard > .errors.enabled:hover > img {
+    opacity: 1;
+}
+
+.toolbar .dashboard > .errors.enabled > div {
+    color: rgba(201, 55, 57, 0.9);
+}
+
+.toolbar .dashboard > .errors.enabled:hover > div {
+    color: rgb(201, 55, 57);
+}
+
+.toolbar .dashboard > .issues > img {
+    content: url(Images/Issues.svg);
+}
+
+.toolbar .dashboard > .issues.enabled > img {
+    content: url(Images/IssuesEnabled.svg);
+    opacity: 0.9;
+}
+
+.toolbar .dashboard > .issues.enabled:hover > img {
+    opacity: 1;
+}
+
+.toolbar .dashboard > .issues.enabled > div {
+    color: rgba(224, 164, 4, 0.9);
+}
+
+.toolbar .dashboard > .issues.enabled:hover > div {
+    color: rgb(224, 164, 4);
+}
+
+.toolbar.small-size.icon-and-label-vertical .dashboard,
+.toolbar.normal-size.icon-and-label-vertical .dashboard {
+    margin-top: 6px;
+}
+
+/* Styles for the extra short style, one row with quite a small y-margin */
+
+.toolbar.label-only .dashboard,
+.toolbar.small-size.icon-only .dashboard,
+.toolbar.small-size.icon-and-label-vertical .dashboard,
+.toolbar.small-size.icon-and-label-horizontal .dashboard {
+    height: 22px;
+}
+
+.toolbar.label-only .dashboard > .item,
+.toolbar.small-size.icon-only .dashboard > .item,
+.toolbar.small-size.icon-and-label-vertical .dashboard > .item,
+.toolbar.small-size.icon-and-label-horizontal .dashboard > .item {
+    margin: 1px 0;
+}
+
+/* Styles for the fairly short style, one row with quite a bit of y-margin */
+
+.toolbar.normal-size.icon-only .dashboard,
+.toolbar.normal-size.icon-and-label-vertical .dashboard,
+.toolbar.normal-size.icon-and-label-horizontal .dashboard {
+    height: 30px;
+}
+
+.toolbar.normal-size.icon-only .dashboard > .item,
+.toolbar.normal-size.icon-and-label-vertical .dashboard > .item,
+.toolbar.normal-size.icon-and-label-horizontal .dashboard > .item {
+    margin: 4px 0;
+}

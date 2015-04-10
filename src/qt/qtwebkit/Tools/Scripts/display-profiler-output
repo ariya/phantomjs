@@ -1,0 +1,938 @@
+#!/usr/bin/env ruby
+
+# Copyright (C) 2012, 2013 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+# BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+require 'rubygems'
+
+require 'readline'
+
+begin
+    require 'json'
+    require 'highline'
+rescue LoadError
+    $stderr.puts "Error: some required gems are not installed!"
+    $stderr.puts
+    $stderr.puts "Try running:"
+    $stderr.puts
+    $stderr.puts "sudo gem install json"
+    $stderr.puts "sudo gem install highline"
+    exit 1
+end
+
+class Bytecode
+    attr_accessor :bytecodes, :bytecodeIndex, :opcode, :description, :topCounts, :bottomCounts, :machineInlinees, :osrExits
+    
+    def initialize(bytecodes, bytecodeIndex, opcode, description)
+        @bytecodes = bytecodes
+        @bytecodeIndex = bytecodeIndex
+        @opcode = opcode
+        @description = description
+        @topCounts = [] # "source" counts
+        @bottomCounts = {} # "machine" counts, maps compilations to counts
+        @machineInlinees = {} # maps my compilation to a set of inlinees
+        @osrExits = []
+    end
+    
+    def shouldHaveCounts?
+        @opcode != "op_call_put_result"
+    end
+    
+    def addTopCount(count)
+        @topCounts << count
+    end
+    
+    def addBottomCountForCompilation(count, compilation)
+        @bottomCounts[compilation] = [] unless @bottomCounts[compilation]
+        @bottomCounts[compilation] << count
+    end
+    
+    def addMachineInlinee(compilation, inlinee)
+        @machineInlinees[compilation] = {} unless @machineInlinees[compilation]
+        @machineInlinees[compilation][inlinee] = true
+    end
+    
+    def totalTopExecutionCount
+        sum = 0
+        @topCounts.each {
+            | value |
+            sum += value.count
+        }
+        sum
+    end
+    
+    def topExecutionCount(engine)
+        sum = 0
+        @topCounts.each {
+            | value |
+            if value.engine == engine
+                sum += value.count
+            end
+        }
+        sum
+    end
+    
+    def totalBottomExecutionCount
+        sum = 0
+        @bottomCounts.each_value {
+            | counts |
+            max = 0
+            counts.each {
+                | value |
+                max = [max, value.count].max
+            }
+            sum += max
+        }
+        sum
+    end
+    
+    def bottomExecutionCount(engine)
+        sum = 0
+        @bottomCounts.each_pair {
+            | compilation, counts |
+            if compilation.engine == engine
+                max = 0
+                counts.each {
+                    | value |
+                    max = [max, value.count].max
+                }
+                sum += max
+            end
+        }
+        sum
+    end
+    
+    def totalExitCount
+        sum = 0
+        @osrExits.each {
+            | exit |
+            sum += exit.count
+        }
+        sum
+    end
+end
+
+class Bytecodes
+    attr_accessor :codeHash, :inferredName, :source, :instructionCount, :machineInlineSites, :compilations
+    
+    def initialize(json)
+        @codeHash = json["hash"].to_s
+        @inferredName = json["inferredName"].to_s
+        @source = json["sourceCode"].to_s
+        @instructionCount = json["instructionCount"].to_i
+        @bytecode = {}
+        json["bytecode"].each {
+            | subJson |
+            index = subJson["bytecodeIndex"].to_i
+            @bytecode[index] = Bytecode.new(self, index, subJson["opcode"].to_s, subJson["description"].to_s)
+        }
+        @machineInlineSites = {} # maps compilation to a set of origins
+        @compilations = []
+    end
+    
+    def name(limit)
+        if to_s.size > limit
+            "\##{@codeHash}"
+        else
+            to_s
+        end
+    end
+    
+    def to_s
+        "#{@inferredName}\##{@codeHash}"
+    end
+    
+    def matches(pattern)
+        if pattern =~ /^#/
+            $~.post_match == @codeHash
+        elsif pattern =~ /#/
+            pattern == to_s
+        else
+            pattern == @inferredName or pattern == @codeHash
+        end
+    end
+    
+    def each
+        @bytecode.values.sort{|a, b| a.bytecodeIndex <=> b.bytecodeIndex}.each {
+            | value |
+            yield value
+        }
+    end
+    
+    def bytecode(bytecodeIndex)
+        @bytecode[bytecodeIndex]
+    end
+    
+    def addMachineInlineSite(compilation, origin)
+        @machineInlineSites[compilation] = {} unless @machineInlineSites[compilation]
+        @machineInlineSites[compilation][origin] = true
+    end
+    
+    def totalMachineInlineSites
+        sum = 0
+        @machineInlineSites.each_value {
+            | set |
+            sum += set.size
+        }
+        sum
+    end
+    
+    def sourceMachineInlineSites
+        set = {}
+        @machineInlineSites.each_value {
+            | mySet |
+            set.merge!(mySet)
+        }
+        set.size
+    end
+    
+    def totalMaxTopExecutionCount
+        max = 0
+        @bytecode.each_value {
+            | bytecode |
+            max = [max, bytecode.totalTopExecutionCount].max
+        }
+        max
+    end
+    
+    def maxTopExecutionCount(engine)
+        max = 0
+        @bytecode.each_value {
+            | bytecode |
+            max = [max, bytecode.topExecutionCount(engine)].max
+        }
+        max
+    end
+    
+    def totalMaxBottomExecutionCount
+        max = 0
+        @bytecode.each_value {
+            | bytecode |
+            max = [max, bytecode.totalBottomExecutionCount].max
+        }
+        max
+    end
+    
+    def maxBottomExecutionCount(engine)
+        max = 0
+        @bytecode.each_value {
+            | bytecode |
+            max = [max, bytecode.bottomExecutionCount(engine)].max
+        }
+        max
+    end
+    
+    def totalExitCount
+        sum = 0
+        each {
+            | bytecode |
+            sum += bytecode.totalExitCount
+        }
+        sum
+    end
+end
+
+class ProfiledBytecode
+    attr_reader :bytecodeIndex, :description
+    
+    def initialize(json)
+        @bytecodeIndex = json["bytecodeIndex"].to_i
+        @description = json["description"].to_s
+    end
+end
+
+class ProfiledBytecodes
+    attr_reader :header, :bytecodes
+    
+    def initialize(json)
+        @header = json["header"]
+        @bytecodes = $bytecodes[json["bytecodesID"].to_i]
+        @sequence = json["bytecode"].map {
+            | subJson |
+            ProfiledBytecode.new(subJson)
+        }
+    end
+    
+    def each
+        @sequence.each {
+            | description |
+            yield description
+        }
+    end
+end
+
+def originStackFromJSON(json)
+    json.map {
+        | subJson |
+        $bytecodes[subJson["bytecodesID"].to_i].bytecode(subJson["bytecodeIndex"].to_i)
+    }
+end
+
+class CompiledBytecode
+    attr_accessor :origin, :description
+    
+    def initialize(json)
+        @origin = originStackFromJSON(json["origin"])
+        @description = json["description"].to_s
+    end
+end
+
+class ExecutionCounter
+    attr_accessor :origin, :engine, :count
+    
+    def initialize(origin, engine, count)
+        @origin = origin
+        @engine = engine
+        @count = count
+    end
+end
+
+class OSRExit
+    attr_reader :compilation, :origin, :codeAddresses, :exitKind, :isWatchpoint, :count
+    
+    def initialize(compilation, origin, codeAddresses, exitKind, isWatchpoint, count)
+        @compilation = compilation
+        @origin = origin
+        @codeAddresses = codeAddresses
+        @exitKind = exitKind
+        @isWatchpoint = isWatchpoint
+        @count = count
+    end
+    
+    def dumpForDisplay(prefix)
+        puts(prefix + "EXIT: due to #{@exitKind}, #{@count} times")
+    end
+end
+
+class Compilation
+    attr_accessor :bytecode, :engine, :descriptions, :counters, :compilationIndex
+    attr_accessor :osrExits, :profiledBytecodes, :numInlinedGetByIds, :numInlinedPutByIds
+    attr_accessor :numInlinedCalls
+    
+    def initialize(json)
+        @bytecode = $bytecodes[json["bytecodesID"].to_i]
+        @bytecode.compilations << self
+        @compilationIndex = @bytecode.compilations.size
+        @engine = json["compilationKind"]
+        @descriptions = json["descriptions"].map {
+            | subJson |
+            CompiledBytecode.new(subJson)
+        }
+        @descriptions.each {
+            | description |
+            next if description.origin.empty?
+            description.origin[1..-1].each_with_index {
+                | inlinee, index |
+                description.origin[0].addMachineInlinee(self, inlinee.bytecodes)
+                inlinee.bytecodes.addMachineInlineSite(self, description.origin[0...index])
+            }
+        }
+        @counters = {}
+        json["counters"].each {
+            | subJson |
+            origin = originStackFromJSON(subJson["origin"])
+            counter = ExecutionCounter.new(origin, @engine, subJson["executionCount"].to_i)
+            @counters[origin] = counter
+            origin[-1].addTopCount(counter)
+            origin[0].addBottomCountForCompilation(counter, self)
+        }
+        @osrExits = {}
+        json["osrExits"].each {
+            | subJson |
+            osrExit = OSRExit.new(self, originStackFromJSON(subJson["origin"]),
+                                  json["osrExitSites"][subJson["id"]].map {
+                                      | value |
+                                      value.hex
+                                  }, subJson["exitKind"], subJson["isWatchpoint"],
+                                  subJson["count"])
+            osrExit.codeAddresses.each {
+                | codeAddress |
+                osrExits[codeAddress] = [] unless osrExits[codeAddress]
+                osrExits[codeAddress] << osrExit
+            }
+            osrExit.origin[-1].osrExits << osrExit
+        }
+        @profiledBytecodes = []
+        json["profiledBytecodes"].each {
+            | subJson |
+            @profiledBytecodes << ProfiledBytecodes.new(subJson)
+        }
+        @numInlinedGetByIds = json["numInlinedGetByIds"]
+        @numInlinedPutByIds = json["numInlinedPutByIds"]
+        @numInlinedCalls = json["numInlinedCalls"]
+    end
+    
+    def counter(origin)
+        @counters[origin]
+    end
+    
+    def to_s
+        "#{bytecode}-#{compilationIndex}-#{engine}"
+    end
+end
+
+class DescriptionLine
+    attr_reader :actualCountsString, :sourceCountsString, :disassembly, :shouldShow
+    
+    def initialize(actualCountsString, sourceCountsString, disassembly, shouldShow)
+        @actualCountsString = actualCountsString
+        @sourceCountsString = sourceCountsString
+        @disassembly = disassembly
+        @shouldShow = shouldShow
+    end
+    
+    def codeAddress
+        if @disassembly =~ /^\s*(0x[0-9a-fA-F]+):/
+            $1.hex
+        else
+            nil
+        end
+    end
+end
+            
+if ARGV.length != 1
+    $stderr.puts "Usage: display-profiler-output <path to profiler output file>"
+    $stderr.puts
+    $stderr.puts "The typical usage pattern for the profiler currently looks something like:"
+    $stderr.puts
+    $stderr.puts "Path/To/jsc -p profile.json myprogram.js"
+    $stderr.puts "display-profiler-output profile.json"
+    exit 1
+end
+
+$json = JSON::parse(IO::read(ARGV[0]))
+$bytecodes = $json["bytecodes"].map {
+    | subJson |
+    Bytecodes.new(subJson)
+}
+$compilations = $json["compilations"].map {
+    | subJson |
+    Compilation.new(subJson)
+}
+$engines = ["Baseline", "DFG"]
+
+def lpad(str,chars)
+  if str.length>chars
+    str
+  else
+    "%#{chars}s"%(str)
+  end
+end
+
+def rpad(str, chars)
+    while str.length < chars
+        str += " "
+    end
+    str
+end
+
+def center(str, chars)
+    while str.length < chars
+        str += " "
+        if str.length < chars
+            str = " " + str
+        end
+    end
+    str
+end
+
+def mayBeHash(hash)
+    hash =~ /#/ or hash.size == 6
+end
+
+def sourceOnOneLine(source, limit)
+    source.gsub(/\s+/, ' ')[0...limit]
+end
+
+def screenWidth
+    if $stdin.tty?
+        HighLine::SystemExtensions.terminal_size[0]
+    else
+        200
+    end
+end
+
+def summary(mode)
+    remaining = screenWidth
+    
+    # Figure out how many columns we need for the code block names, and for counts
+    maxCount = 0
+    maxName = 0
+    $bytecodes.each {
+        | bytecodes |
+        maxCount = ([maxCount] + $engines.map {
+                        | engine |
+                        bytecodes.maxTopExecutionCount(engine)
+                    } + $engines.map {
+                        | engine |
+                        bytecodes.maxBottomExecutionCount(engine)
+                    }).max
+        maxName = [bytecodes.to_s.size, maxName].max
+    }
+    maxCountDigits = maxCount.to_s.size
+    
+    hashCols = [[maxName, 30].min, "CodeBlock".size].max
+    remaining -= hashCols + 1
+    
+    countCols = [maxCountDigits * $engines.size, "Source Counts".size].max
+    remaining -= countCols + 1
+    
+    if mode == :full
+        instructionCountCols = 6
+        remaining -= instructionCountCols + 1
+        
+        machineCountCols = [maxCountDigits * $engines.size, "Machine Counts".size].max
+        remaining -= machineCountCols + 1
+        
+        compilationsCols = 7
+        remaining -= compilationsCols + 1
+        
+        inlinesCols = 9
+        remaining -= inlinesCols + 1
+        
+        exitCountCols = 7
+        remaining -= exitCountCols + 1
+        
+        recentOptsCols = 12
+        remaining -= recentOptsCols + 1
+    end
+    
+    if remaining > 0
+        sourceCols = remaining
+    else
+        sourceCols = nil
+    end
+    
+    print(center("CodeBlock", hashCols))
+    if mode == :full
+        print(" " + center("#Instr", instructionCountCols))
+    end
+    print(" " + center("Source Counts", countCols))
+    if mode == :full
+        print(" " + center("Machine Counts", machineCountCols))
+        print(" " + center("#Compil", compilationsCols))
+        print(" " + center("Inlines", inlinesCols))
+        print(" " + center("#Exits", exitCountCols))
+        print(" " + center("Last Opts", recentOptsCols))
+    end
+    if sourceCols
+        print(" " + center("Source", sourceCols))
+    end
+    puts
+    
+    print(center("", hashCols))
+    if mode == :full
+        print(" " + (" " * instructionCountCols))
+    end
+    print(" " + center("Base/DFG", countCols))
+    if mode == :full
+        print(" " + center("Base/DFG", machineCountCols))
+        print(" " + (" " * compilationsCols))
+        print(" " + center("Src/Total", inlinesCols))
+        print(" " + (" " * exitCountCols))
+        print(" " + center("Get/Put/Call", recentOptsCols))
+    end
+    puts
+    $bytecodes.sort {
+        | a, b |
+        b.totalMaxTopExecutionCount <=> a.totalMaxTopExecutionCount
+    }.each {
+        | bytecode |
+        print(center(bytecode.name(hashCols), hashCols))
+        if mode == :full
+            print(" " + center(bytecode.instructionCount.to_s, instructionCountCols))
+        end
+        print(" " +
+              center($engines.map {
+                         | engine |
+                         bytecode.maxTopExecutionCount(engine).to_s
+                     }.join("/"), countCols))
+        if mode == :full
+            print(" " + center($engines.map {
+                                   | engine |
+                                   bytecode.maxBottomExecutionCount(engine).to_s
+                               }.join("/"), machineCountCols))
+            print(" " + center(bytecode.compilations.size.to_s, compilationsCols))
+            print(" " + center(bytecode.sourceMachineInlineSites.to_s + "/" + bytecode.totalMachineInlineSites.to_s, inlinesCols))
+            print(" " + center(bytecode.totalExitCount.to_s, exitCountCols))
+            lastCompilation = bytecode.compilations[-1]
+            if lastCompilation
+                optData = [lastCompilation.numInlinedGetByIds,
+                           lastCompilation.numInlinedPutByIds,
+                           lastCompilation.numInlinedCalls]
+            else
+                optData = ["N/A"]
+            end
+            print(" " + center(optData.join('/'), recentOptsCols))
+        end
+        if sourceCols
+            print(" " + sourceOnOneLine(bytecode.source, sourceCols))
+        end
+        puts
+    }
+end
+
+def executeCommand(*commandArray)
+    command = commandArray[0]
+    args = commandArray[1..-1]
+    case command
+    when "help", "h", "?"
+        puts "summary (s)     Print a summary of code block execution rates."
+        puts "full (f)        Same as summary, but prints more information."
+        puts "source          Show the source for a code block."
+        puts "bytecode (b)    Show the bytecode for a code block, with counts."
+        puts "profiling (p)   Show the (internal) profiling data for a code block."
+        puts "display (d)     Display details for a code block."
+        puts "inlines         Show all inlining stacks that the code block was on."
+        puts "help (h)        Print this message."
+        puts "quit (q)        Quit."
+    when "quit", "q", "exit"
+        exit 0
+    when "summary", "s"
+        summary(:summary)
+    when "full", "f"
+        summary(:full)
+    when "source"
+        if args.length != 1
+            puts "Usage: source <code block hash>"
+            return
+        end
+        $bytecodes.each {
+            | bytecode |
+            if bytecode.matches(args[0])
+                puts bytecode.source
+            end
+        }
+    when "bytecode", "b"
+        if args.length != 1
+            puts "Usage: source <code block hash>"
+            return
+        end
+        
+        hash = args[0]
+        
+        countCols = 10 * $engines.size
+        machineCols = 10 * $engines.size
+        pad = 1
+        while (countCols + 1 + machineCols + pad) % 8 != 0
+            pad += 1
+        end
+        
+        $bytecodes.each {
+            | bytecodes |
+            next unless bytecodes.matches(hash)
+            puts(center("Source Counts", countCols) + " " + center("Machine Counts", machineCols) +
+                 (" " * pad) + center("Bytecode for #{bytecodes}", screenWidth - pad - countCols - 1 - machineCols))
+            puts(center("Base/DFG", countCols) + " " + center("Base/DFG", countCols))
+            bytecodes.each {
+                | bytecode |
+                if bytecode.shouldHaveCounts?
+                    countsString = $engines.map {
+                        | myEngine |
+                        bytecode.topExecutionCount(myEngine)
+                    }.join("/")
+                    machineString = $engines.map {
+                        | myEngine |
+                        bytecode.bottomExecutionCount(myEngine)
+                    }.join("/")
+                else
+                    countsString = ""
+                    machineString = ""
+                end
+                puts(center(countsString, countCols) + " " + center(machineString, machineCols) + (" " * pad) + bytecode.description.chomp)
+                bytecode.osrExits.each {
+                    | exit |
+                    puts(center("!!!!!", countCols) + " " + center("!!!!!", machineCols) + (" " * (pad + 10)) +
+                         "EXIT: in #{exit.compilation} due to #{exit.exitKind}, #{exit.count} times")
+                }
+            }
+        }
+    when "profiling", "p"
+        if args.length != 1
+            puts "Usage: profiling <code block hash>"
+            return
+        end
+        
+        hash = args[0]
+        
+        first = true
+        $compilations.each {
+            | compilation |
+            
+            compilation.profiledBytecodes.each {
+                | profiledBytecodes |
+                if profiledBytecodes.bytecodes.matches(hash)
+                    if first
+                        first = false
+                    else
+                        puts
+                    end
+                    
+                    puts "Compilation #{compilation}:"
+                    profiledBytecodes.header.each {
+                        | header |
+                        puts(" " * 6 + header)
+                    }
+                    profiledBytecodes.each {
+                        | bytecode |
+                        puts(" " * 8 + bytecode.description)
+                        profiledBytecodes.bytecodes.bytecode(bytecode.bytecodeIndex).osrExits.each {
+                            | exit |
+                            if exit.compilation == compilation
+                                puts(" !!!!!           EXIT: due to #{exit.exitKind}, #{exit.count} times")
+                            end
+                        }
+                    }
+                end
+            }
+        }
+    when "inlines"
+        if args.length != 1
+            puts "Usage: inlines <code block hash>"
+            return
+        end
+        
+        hash = args[0]
+        
+        $bytecodes.each {
+            | bytecodes |
+            next unless bytecodes.matches(hash)
+            
+            # FIXME: print something useful to say more about which code block this is.
+            
+            $compilations.each {
+                | compilation |
+                myOrigins = []
+                compilation.descriptions.each {
+                    | description |
+                    if description.origin.index {
+                            | myBytecode |
+                            bytecodes == myBytecode.bytecodes
+                        }
+                        myOrigins << description.origin
+                    end
+                }
+                myOrigins.uniq!
+                myOrigins.sort! {
+                    | a, b |
+                    result = 0
+                    [a.size, b.size].min.times {
+                        | index |
+                        result = a[index].bytecodeIndex <=> b[index].bytecodeIndex
+                        break if result != 0
+                    }
+                    result
+                }
+                
+                next if myOrigins.empty?
+
+                printArray = []
+                lastPrintStack = []
+                
+                def originToPrintStack(origin)
+                    (0...(origin.size - 1)).map {
+                        | index |
+                        "bc\##{origin[index].bytecodeIndex} --> #{origin[index + 1].bytecodes}"
+                    }
+                end
+                
+                def printStack(printArray, stack, lastStack)
+                    stillCommon = true
+                    stack.each_with_index {
+                        | entry, index |
+                        next if stillCommon and entry == lastStack[index]
+                        printArray << ("    " * (index + 1) + entry)
+                        stillCommon = false
+                    }
+                end
+                
+                myOrigins.each {
+                    | origin |
+                    currentPrintStack = originToPrintStack(origin)
+                    printStack(printArray, currentPrintStack, lastPrintStack)
+                    lastPrintStack = currentPrintStack
+                }
+
+                next if printArray.empty?
+                
+                puts "Compilation #{compilation}:"
+                printArray.each {
+                    | entry |
+                    puts entry
+                }
+            }
+        }
+    when "display", "d"
+        compilationIndex = nil
+        
+        case args.length
+        when 1
+            if args[0] == "*"
+                hash = nil
+            else
+                hash = args[0]
+            end
+            engine = nil
+        when 2
+            if mayBeHash(args[0])
+                hash = args[0]
+                engine = args[1]
+            else
+                engine = args[0]
+                hash = args[1]
+            end
+        else
+            puts "Usage: summary <code block hash> <engine>"
+            return
+        end
+        
+        if hash and hash =~ /-([0-9]+)-/
+            hash = $~.pre_match
+            engine = $~.post_match
+            compilationIndex = $1.to_i
+        end
+        
+        if engine and not $engines.index(engine)
+            pattern = Regexp.new(Regexp.escape(engine), "i")
+            trueEngine = nil
+            $engines.each {
+                | myEngine |
+                if myEngine =~ pattern
+                    trueEngine = myEngine
+                    break
+                end
+            }
+            unless trueEngine
+                puts "#{engine} is not a valid engine, try #{$engines.join(' or ')}."
+                return
+            end
+            engine = trueEngine
+        end
+        
+        actualCountCols = 13
+        sourceCountCols = 10 * $engines.size
+        
+        first = true
+        $compilations.each {
+            | compilation |
+            next if hash and not compilation.bytecode.matches(hash)
+            next if engine and compilation.engine != engine
+            next if compilationIndex and compilation.compilationIndex != compilationIndex
+            
+            if first
+                first = false
+            else
+                puts
+            end
+            
+            puts("Compilation #{compilation}:")
+            puts("    Num inlined: GetByIds: #{compilation.numInlinedGetByIds}  PutByIds: #{compilation.numInlinedPutByIds}  Calls: #{compilation.numInlinedCalls}")
+            puts(center("Actual Counts", actualCountCols) + " " + center("Source Counts", sourceCountCols) + " " + center("Disassembly in #{compilation.engine}", screenWidth - 1 - sourceCountCols - 1 - actualCountCols))
+            puts((" " * actualCountCols) + " " + center("Base/DFG", sourceCountCols))
+
+            lines = []
+
+            compilation.descriptions.each {
+                | description |
+                # FIXME: We should have a better way of detecting things like CountExecution nodes
+                # and slow path entries in the baseline JIT.
+                if description.description =~ /CountExecution\(/ and compilation.engine == "DFG"
+                    shouldShow = false
+                else
+                    shouldShow = true
+                end
+                if description.origin.empty? or not description.origin[-1].shouldHaveCounts? or (compilation.engine == "Baseline" and description.description =~ /^\s*\(S\)/)
+                    actualCountsString = ""
+                    sourceCountsString = ""
+                else
+                    actualCountsString = compilation.counter(description.origin).count.to_s
+                    sourceCountsString = $engines.map {
+                        | myEngine |
+                        description.origin[-1].topExecutionCount(myEngine)
+                    }.join("/")
+                end
+                description.description.split("\n").each {
+                    | line |
+                    lines << DescriptionLine.new(actualCountsString, sourceCountsString, line.chomp, shouldShow)
+                }
+            }
+            
+            exitPrefix = center("!!!!!", actualCountCols) + " " + center("!!!!!", sourceCountCols) + (" " * 25)
+            
+            lines.each_with_index {
+                | line, index |
+                codeAddress = line.codeAddress
+                if codeAddress
+                    list = compilation.osrExits[codeAddress]
+                    if list
+                        list.each {
+                            | exit |
+                            if exit.isWatchpoint
+                                exit.dumpForDisplay(exitPrefix)
+                            end
+                        }
+                    end
+                end
+                if line.shouldShow
+                    puts(center(line.actualCountsString, actualCountCols) + " " + center(line.sourceCountsString, sourceCountCols) + " " + line.disassembly)
+                end
+                if codeAddress
+                    # Find the next disassembly address.
+                    endIndex = index + 1
+                    endAddress = nil
+                    while endIndex < lines.size
+                        myAddress = lines[endIndex].codeAddress
+                        if myAddress
+                            endAddress = myAddress
+                            break
+                        end
+                        endIndex += 1
+                    end
+                    
+                    if endAddress
+                        list = compilation.osrExits[endAddress]
+                        if list
+                            list.each {
+                                | exit |
+                                unless exit.isWatchpoint
+                                    exit.dumpForDisplay(exitPrefix)
+                                end
+                            }
+                        end
+                    end
+                end
+            }
+        }
+    else
+        puts "Invalid command: #{command}"
+    end
+end
+
+if $stdin.tty?
+    executeCommand("full")
+end
+
+while commandLine = Readline.readline("> ", true)
+    executeCommand(*commandLine.split)
+end
+

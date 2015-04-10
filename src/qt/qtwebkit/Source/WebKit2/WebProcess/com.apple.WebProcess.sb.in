@@ -1,0 +1,315 @@
+(version 1)
+(deny default (with partial-symbolication))
+(allow system-audit file-read-metadata)
+#if __MAC_OS_X_VERSION_MIN_REQUIRED == 1070
+(allow ipc-posix-shm)
+#endif
+
+(import "system.sb")
+
+;; Utility functions for home directory relative path filters
+(define (home-regex home-relative-regex)
+  (regex (string-append "^" (regex-quote (param "HOME_DIR")) home-relative-regex)))
+
+(define (home-subpath home-relative-subpath)
+  (subpath (string-append (param "HOME_DIR") home-relative-subpath)))
+
+(define (home-literal home-relative-literal)
+  (literal (string-append (param "HOME_DIR") home-relative-literal)))
+
+(define (allow-read-directory-and-issue-read-extensions path)
+    (if path
+        (begin
+            (allow file-read* (subpath path))
+            (allow file-issue-extension (require-all (extension-class "com.apple.app-sandbox.read") (subpath path))))))
+
+#if __MAC_OS_X_VERSION_MIN_REQUIRED == 1070
+;; Low level networking. Defined in system.sb on newer OS versions.
+(define (system-network)
+  (allow file-read*
+         (literal "/Library/Preferences/com.apple.networkd.plist"))
+  (allow mach-lookup
+         (global-name "com.apple.SystemConfiguration.PPPController")
+         (global-name "com.apple.SystemConfiguration.SCNetworkReachability")
+         (global-name "com.apple.networkd"))
+  (allow network-outbound
+         (control-name "com.apple.netsrc")
+         (control-name "com.apple.network.statistics"))
+  (allow system-socket
+         (require-all (socket-domain AF_SYSTEM)
+                      (socket-protocol 2)) ; SYSPROTO_CONTROL
+         (socket-domain AF_ROUTE)))
+
+;; Low level graphics. Defined in system.sb on newer OS versions.
+(define (system-graphics)
+    (allow mach-lookup (global-name "com.apple.cvmsServ"))
+    (allow iokit-open
+        (iokit-connection "IOAccelerator")
+        (iokit-user-client-class "IOAccelerationUserClient")
+        (iokit-user-client-class "IOSurfaceRootUserClient")
+        (iokit-user-client-class "IOSurfaceSendRight")
+        (iokit-user-client-class "IOFramebufferSharedUserClient")
+        (iokit-user-client-class "AppleSNBFBUserClient")
+        (iokit-user-client-class "AGPMClient")
+        (iokit-user-client-class "AppleGraphicsControlClient")))
+#endif
+
+;; Read-only preferences and data
+(allow file-read*
+       ;; Basic system paths
+       (subpath "/Library/Dictionaries")
+       (subpath "/Library/Fonts")
+       (subpath "/Library/Frameworks")
+       (subpath "/Library/Managed Preferences")
+       (subpath "/Library/Speech/Synthesizers")
+       (regex #"^/private/etc/(hosts|group|passwd)$")
+
+       ;; System and user preferences
+       (literal "/Library/Preferences/.GlobalPreferences.plist")
+       (home-literal "/Library/Preferences/.GlobalPreferences.plist")
+       (home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.")
+       (home-regex #"/Library/Preferences/ByHost/com\.apple\.HIToolbox\.")
+       (home-regex #"/Library/Preferences/ByHost/com\.apple\.networkConnect\.")
+       (home-literal "/Library/Preferences/com.apple.ATS.plist")
+       (home-literal "/Library/Preferences/com.apple.DownloadAssessment.plist")
+       (home-literal "/Library/Preferences/com.apple.HIToolbox.plist")
+       (home-literal "/Library/Preferences/com.apple.LaunchServices.plist")
+       (home-literal "/Library/Preferences/com.apple.MultitouchSupport.plist") ;; FIXME: Remove when <rdar://problem/13011633> is fixed.
+       (home-literal "/Library/Preferences/com.apple.QTKit.plist")
+       (home-literal "/Library/Preferences/com.apple.WebFoundation.plist")
+       (home-literal "/Library/Preferences/com.apple.avfoundation.plist")
+       (home-literal "/Library/Preferences/com.apple.coremedia.plist")
+       (home-literal "/Library/Preferences/com.apple.speech.voice.prefs.plist")
+       (home-regex #"/Library/Preferences/com\.apple\.driver\.(AppleBluetoothMultitouch\.mouse|AppleBluetoothMultitouch\.trackpad|AppleHIDMouse)\.plist$")
+       (home-literal "/.CFUserTextEncoding")
+
+       ;; FIXME: This should be removed when <rdar://problem/8957845> is fixed.
+       (home-subpath "/Library/Fonts")
+
+       ;; FIXME: These should be removed when <rdar://problem/9217757> is fixed.
+       (home-subpath "/Library/Audio/Plug-Ins/Components")
+       (home-subpath "/Library/Preferences/QuickTime Preferences")
+       (home-literal "/Library/Caches/com.apple.coreaudio.components.plist")
+       (subpath "/Library/Audio/Plug-Ins/Components")
+       (subpath "/Library/Audio/Plug-Ins/HAL")
+       (subpath "/Library/Video/Plug-Ins")
+       (subpath "/Library/QuickTime")
+
+       (home-subpath "/Library/Dictionaries"))
+
+;; On-disk WebKit2 framework location, to account for debug installations outside of /System/Library/Frameworks,
+;; and to allow issuing extensions.
+(allow-read-directory-and-issue-read-extensions (param "WEBKIT2_FRAMEWORK_DIR"))
+
+;; Sandbox extensions
+(define (apply-read-and-issue-extension op path-filter)
+    (op file-read* path-filter)
+    (op file-issue-extension (require-all (extension-class "com.apple.app-sandbox.read") path-filter)))
+(define (apply-write-and-issue-extension op path-filter)
+    (op file-write* path-filter)
+    (op file-issue-extension (require-all (extension-class "com.apple.app-sandbox.read-write") path-filter)))
+(define (read-only-and-issue-extensions path-filter)
+    (apply-read-and-issue-extension allow path-filter))
+(define (read-write-and-issue-extensions path-filter)
+    (apply-read-and-issue-extension allow path-filter)
+    (apply-write-and-issue-extension allow path-filter))
+(read-only-and-issue-extensions (extension "com.apple.app-sandbox.read"))
+(read-write-and-issue-extensions (extension "com.apple.app-sandbox.read-write"))
+(allow mach-lookup (extension "com.apple.app-sandbox.mach")) ;; FIXME: Should be removed when <rdar://problem/13066206> is fixed.
+
+;; MediaAccessibility
+#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1090
+(allow file-read* (home-literal "/Library/Preferences/com.apple.mediaaccessibility.plist"))
+(allow file-read* file-write* (home-literal "/Library/Preferences/com.apple.mediaaccessibility.public.plist"))
+#endif
+
+#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1080
+(if (positive? (string-length (param "DARWIN_USER_CACHE_DIR")))
+    (allow file* (subpath (param "DARWIN_USER_CACHE_DIR"))))
+#else
+(if (positive? (string-length (param "DARWIN_USER_CACHE_DIR")))
+    (allow file* (subpath (string-append (param "DARWIN_USER_CACHE_DIR") "/mds"))))
+#endif
+
+(if (positive? (string-length (param "DARWIN_USER_TEMP_DIR")))
+    (allow file* (subpath (param "DARWIN_USER_TEMP_DIR"))))
+
+;; IOKit user clients
+(allow iokit-open
+       (iokit-user-client-class "AppleUpstreamUserClient")
+       (iokit-user-client-class "IOHIDParamUserClient")
+       (iokit-user-client-class "RootDomainUserClient")
+       (iokit-user-client-class "IOAudioControlUserClient")
+       (iokit-user-client-class "IOAudioEngineUserClient"))
+
+#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1080
+
+;; cookied.
+;; FIXME: Update for <rdar://problem/13642852>.
+(allow ipc-posix-shm-read-data
+    (ipc-posix-name "FNetwork.defaultStorageSession")
+    (ipc-posix-name-regex #"\.PrivateBrowsing-")
+    (ipc-posix-name-regex #"^Private WebKit Session-"))
+
+;; ColorSync
+;; FIXME: Remove names with underscores when possible (see <rdar://problem/13072721>).
+(allow ipc-posix-shm*
+    (ipc-posix-name "_CS_GSHMEMLOCK")
+    (ipc-posix-name "_CS_DSHMEMLOCK")
+    (ipc-posix-name "_CSGRAYPROFILE")
+    (ipc-posix-name "_CSRGBPROFILE")
+    (ipc-posix-name "_CSGENGPROFILE")
+    (ipc-posix-name "_CSGENRPROFILE")
+    (ipc-posix-name "com.apple.ColorSync.Gen.lock")
+    (ipc-posix-name "com.apple.ColorSync.Disp.lock")
+    (ipc-posix-name "com.apple.ColorSync.Gray2.2")
+    (ipc-posix-name "com.apple.ColorSync.sRGB")
+    (ipc-posix-name "com.apple.ColorSync.GenGray")
+    (ipc-posix-name "com.apple.ColorSync.GenRGB"))
+
+;; Audio
+(allow ipc-posix-shm-read* ipc-posix-shm-write-data
+    (ipc-posix-name-regex #"^AudioIO"))
+
+#endif
+
+;; Various services required by AppKit and other frameworks
+(allow mach-lookup
+       (global-name "com.apple.DiskArbitration.diskarbitrationd")
+       (global-name "com.apple.FileCoordination")
+       (global-name "com.apple.FontObjectsServer")
+       (global-name "com.apple.FontServer")
+       (global-name "com.apple.SystemConfiguration.configd")
+       (global-name "com.apple.SystemConfiguration.PPPController")
+       (global-name "com.apple.audio.VDCAssistant")
+       (global-name "com.apple.audio.audiohald")
+       (global-name "com.apple.audio.coreaudiod")
+       (global-name "com.apple.cookied")
+       (global-name "com.apple.dock.server")
+       (global-name "com.apple.system.opendirectoryd.api")
+       (global-name "com.apple.tccd")
+       (global-name "com.apple.tccd.system")
+       (global-name "com.apple.window_proxies")
+       (global-name "com.apple.windowserver.active")
+       (global-name "com.apple.cfnetwork.AuthBrokerAgent")
+       (global-name "com.apple.PowerManagement.control")
+       (global-name "com.apple.speech.speechsynthesisd")
+       (global-name "com.apple.speech.synthesis.console")
+
+#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1090
+       (global-name "com.apple.coreservices.launchservicesd")
+#endif
+)
+
+;; Security framework
+(allow mach-lookup
+       (global-name "com.apple.ocspd")
+       (global-name "com.apple.SecurityServer"))
+(allow file-read* file-write* (home-subpath "/Library/Keychains")) ;; FIXME: This should be removed when <rdar://problem/10479685> is fixed.
+(allow file-read* file-write* (subpath "/private/var/db/mds/system")) ;; FIXME: This should be removed when <rdar://problem/9538414> is fixed.
+(allow file-read*
+       (subpath "/Library/Keychains")
+       (subpath "/private/var/db/mds")
+       (literal "/private/var/db/DetachedSignatures")
+       (literal "/Library/Preferences/com.apple.crypto.plist")
+       (literal "/Library/Preferences/com.apple.security.plist")
+       (literal "/Library/Preferences/com.apple.security.common.plist")
+       (literal "/Library/Preferences/com.apple.security.revocation.plist")
+       (home-literal "/Library/Application Support/SyncServices/Local/ClientsWithChanges/com.apple.Keychain")
+       (home-literal "/Library/Preferences/com.apple.security.plist")
+       (home-literal "/Library/Preferences/com.apple.security.revocation.plist"))
+#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1080
+(allow ipc-posix-shm-read* ipc-posix-shm-write-data
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+#endif
+
+;; CoreFoundation. We don't import com.apple.corefoundation.sb, because it allows unnecessary access to pasteboard.
+(allow mach-lookup
+    (global-name-regex #"^com.apple.distributed_notifications")                                                       
+    (global-name "com.apple.CoreServices.coreservicesd"))
+(allow file-read-data
+    (literal "/dev/autofs_nowait")) ; Used by CF to circumvent automount triggers
+(allow ipc-posix-shm
+    (ipc-posix-name-regex #"^CFPBS:")) ; <rdar://problem/13757475>
+
+;; Graphics
+(system-graphics)
+
+;; Networking
+(system-network)
+(allow network-outbound
+       ;; Local mDNSResponder for DNS, arbitrary outbound TCP
+       (literal "/private/var/run/mDNSResponder")
+       (remote tcp))
+
+;; Needed for NSAttributedString, <rdar://problem/10844321>.
+(allow file-read*
+       (home-literal "/Library/Preferences/pbs.plist")
+       (home-literal "/Library/Preferences/com.apple.ServicesMenu.Services.plist"))
+(allow mach-lookup
+       (global-name "com.apple.pbs.fetch_services"))
+
+;; FIXME should be removed when <rdar://problem/9347205> + related radar in Safari is fixed
+(allow mach-lookup
+       (global-name "org.h5l.kcm")
+       (global-name "com.apple.system.logger")
+       (global-name "com.apple.system.notification_center"))
+(allow network-outbound
+       (remote udp))
+(allow file-read*
+        (home-subpath "/Library/Preferences/com.apple.Kerberos.plist")
+        (home-subpath "/Library/Preferences/com.apple.GSS.plist")
+        (home-subpath "/Library/Preferences/edu.mit.Kerberos")
+        (literal "/Library/Preferences/com.apple.Kerberos.plist")
+        (literal "/Library/Preferences/com.apple.GSS.plist")
+        (literal "/Library/Preferences/edu.mit.Kerberos")
+        (literal "/private/etc/krb5.conf")
+        (literal "/private/etc/services")
+        (literal "/private/etc/host"))
+
+(if (defined? 'vnode-type)
+        (deny file-write-create (vnode-type SYMLINK)))
+
+(deny file-read* file-write* (with no-log)
+#if __MAC_OS_X_VERSION_MIN_REQUIRED <= 1080
+       (home-literal "/Library/Caches/Cache.db") ;; <rdar://problem/9422957>
+#endif
+#if __MAC_OS_X_VERSION_MIN_REQUIRED == 1080
+       (home-subpath "/Library/Caches/com.apple.WebProcess") ;; <rdar://problem/12656814>
+#endif
+
+#if __MAC_OS_X_VERSION_MIN_REQUIRED == 1070
+       (subpath (string-append (param "DARWIN_USER_CACHE_DIR") "/com.nvidia.OpenGL")) ;; <rdar://problem/13402976>
+#endif
+
+       ;; FIXME: Should be removed after <rdar://problem/10463881> is fixed.
+       (home-literal "/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV2")
+       (home-literal "/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV2-journal"))
+
+;; Deny access needed for unnecessary NSApplication initialization.
+;; FIXME: This can be removed once <rdar://problem/13011633> is fixed.
+(deny file-read* (with no-log)
+       (home-literal "/Library/Preferences/com.apple.speech.recognition.AppleSpeechRecognition.prefs.plist")
+       (subpath "/Library/InputManagers")
+       (home-subpath "/Library/InputManagers")
+#if __MAC_OS_X_VERSION_MIN_REQUIRED == 1070
+       (literal (string-append (param "DARWIN_USER_CACHE_DIR") "/com.apple.IntlDataCache.le"))
+       (literal (string-append (param "DARWIN_USER_CACHE_DIR") "/com.apple.IntlDataCache.le.kbdx"))
+#endif
+       )
+(deny mach-lookup (with no-log)
+       (global-name "com.apple.coreservices.appleevents")
+       (global-name "com.apple.pasteboard.1")
+       (global-name "com.apple.speech.recognitionserver"))
+;; Also part of unnecessary NSApplication initialization, but we can't block access to these yet, see <rdar://problem/13869765>.
+(allow file-read*
+       (subpath "/Library/Components")
+       (subpath "/Library/Keyboard Layouts")
+       (subpath "/Library/Input Methods")
+       (home-subpath "/Library/Components")
+       (home-subpath "/Library/Keyboard Layouts")
+       (home-subpath "/Library/Input Methods"))
+
+#if __MAC_OS_X_VERSION_MIN_REQUIRED == 1070
+(deny mach-lookup (with no-log) (global-name "com.apple.tsm.uiserver")) ;; <rdar://problem/13902706>
+#endif

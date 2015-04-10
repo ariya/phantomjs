@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>FreeType-2.3.12 API Reference</title>
+<style type="text/css">
+  body { font-family: Verdana, Geneva, Arial, Helvetica, serif;
+         color: #000000;
+         background: #FFFFFF; }
+
+  p { text-align: justify; }
+  h1 { text-align: center; }
+  li { text-align: justify; }
+  td { padding: 0 0.5em 0 0.5em; }
+  td.left { padding: 0 0.5em 0 0.5em;
+            text-align: left; }
+
+  a:link { color: #0000EF; }
+  a:visited { color: #51188E; }
+  a:hover { color: #FF0000; }
+
+  span.keyword { font-family: monospace;
+                 text-align: left;
+                 white-space: pre;
+                 color: darkblue; }
+
+  pre.colored { color: blue; }
+
+  ul.empty { list-style-type: none; }
+</style>
+</head>
+<body>
+
+<table align=center><tr><td><font size=-1>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-1>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+<center><h1>FreeType-2.3.12 API Reference</h1></center>
+
+<center><h1>
+Font Formats
+</h1></center>
+<h2>Synopsis</h2>
+<table align=center cellspacing=5 cellpadding=0 border=0>
+<tr><td></td><td><a href="#FT_Get_X11_Font_Format">FT_Get_X11_Font_Format</a></td><td></td><td></td><td></td><td></td></tr>
+</table><br><br>
+
+<table align=center width="87%"><tr><td>
+<p>The single function in this section can be used to get the font format. Note that this information is not needed normally; however, there are special cases (like in PDF devices) where it is important to differentiate, in spite of FreeType's uniform API.</p>
+<p>This function is in the X11/xf86 namespace for historical reasons and in no way depends on that windowing system.</p>
+</td></tr></table><br>
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Get_X11_Font_Format">FT_Get_X11_Font_Format</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_XFREE86_H (freetype/ftxf86.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <span class="keyword">const</span> <span class="keyword">char</span>* )
+  <b>FT_Get_X11_Font_Format</b>( <a href="ft2-base_interface.html#FT_Face">FT_Face</a>  face );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Return a string describing the format of a given face, using values which can be used as an X11 FONT_PROPERTY. Possible values are &lsquo;TrueType&rsquo;, &lsquo;Type&nbsp;1&rsquo;, &lsquo;BDF&rsquo;, &lsquo;PCF&rsquo;, &lsquo;Type&nbsp;42&rsquo;, &lsquo;CID&nbsp;Type&nbsp;1&rsquo;, &lsquo;CFF&rsquo;, &lsquo;PFR&rsquo;, and &lsquo;Windows&nbsp;FNT&rsquo;.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>face</b></td><td>
+<p>Input face handle.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>Font format string. NULL in case of error.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+</body>
+</html>

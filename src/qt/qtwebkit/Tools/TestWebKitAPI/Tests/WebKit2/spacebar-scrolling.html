@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<script>
+    function textFieldContainsSpace()
+    {
+        return document.querySelector("input").value === " ";
+    }
+
+    function blurTextField()
+    {
+        document.querySelector("input").blur();
+    }
+
+    function isDocumentScrolled()
+    {
+        return scrollY !== 0;
+    }
+
+    function loaded()
+    {
+        document.querySelector("input").focus();
+    }
+
+    addEventListener("load", loaded);
+</script>
+<input>
+<div style="height: 3000px;"></div>

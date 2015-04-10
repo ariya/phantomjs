@@ -1,0 +1,54 @@
+//
+//  General.xcconfig
+//
+//  These are General configuration settings for the gtest framework and
+//  examples.
+//  This file is based on the Xcode Configuration files in:
+//  http://code.google.com/p/google-toolbox-for-mac/
+// 
+
+GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+
+ARCHS = $(ARCHS_STANDARD_32_64_BIT);
+
+HEADER_SEARCH_PATHS = $(BUILT_PRODUCTS_DIR)/usr/local/include $(WEBCORE_PRIVATE_HEADERS_DIR)/ForwardingHeaders ../ ../include/
+
+// Zerolink prevents link warnings so turn it off
+ZERO_LINK = NO
+
+// Prebinding considered unhelpful in 10.3 and later
+PREBINDING = NO
+
+// Strictest warning policy
+WARNING_CFLAGS = -Wall -Werror -Wendif-labels -Wnewline-eof -Wno-sign-compare -Wshadow
+
+// Work around Xcode bugs by using external strip. See:
+// http://lists.apple.com/archives/Xcode-users/2006/Feb/msg00050.html
+SEPARATE_STRIP = YES
+
+// Force C99 dialect
+GCC_C_LANGUAGE_STANDARD = c99
+
+// not sure why apple defaults this on, but it's pretty risky
+ALWAYS_SEARCH_USER_PATHS = NO
+
+// Turn on position dependent code for most cases (overridden where appropriate)
+GCC_DYNAMIC_NO_PIC = YES
+
+GCC_PREPROCESSOR_DEFINITIONS = $(GCC_PREPROCESSOR_DEFINITIONS) GTEST_HAS_TR1_TUPLE=0 GTEST_HAS_RTTI=0;
+
+CLANG_CXX_LIBRARY = libc++;
+
+TARGET_MAC_OS_X_VERSION_MAJOR = $(MAC_OS_X_VERSION_MAJOR);
+
+TARGETING_SAME_OS_X_VERSION = $(TARGETING_SAME_OS_X_VERSION_$(MAC_OS_X_VERSION_MAJOR)_$(TARGET_MAC_OS_X_VERSION_MAJOR));
+TARGETING_SAME_OS_X_VERSION_1070_1070 = YES;
+TARGETING_SAME_OS_X_VERSION_1080_1080 = YES;
+TARGETING_SAME_OS_X_VERSION_1090_1090 = YES;
+
+// Don't build against an SDK unless we're targeting an older OS version.
+SDKROOT = $(SDKROOT_TARGETING_SAME_OS_X_VERSION_$(TARGETING_SAME_OS_X_VERSION));
+SDKROOT_TARGETING_SAME_OS_X_VERSION_ = macosx;
+
+// VERSIONING BUILD SETTINGS (used in Info.plist)
+GTEST_VERSIONINFO_ABOUT =  © 2008 Google Inc.

@@ -1,0 +1,45 @@
+include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
+
+project                 = QtXml
+description             = Qt XML Reference Documentation
+url                     = http://qt-project.org/doc/qt-$QT_VER
+version                 = $QT_VERSION
+
+examplesinstallpath     = xml
+
+qhp.projects            = QtXml
+
+qhp.QtXml.file            = qtxml.qhp
+qhp.QtXml.namespace           = org.qt-project.qtxml.$QT_VERSION_TAG
+qhp.QtXml.virtualFolder       = qtxml
+qhp.QtXml.indexTitle          = Qt XML
+qhp.QtXml.indexRoot           =
+
+qhp.QtXml.filterAttributes    = qtxml $QT_VERSION qtrefdoc
+qhp.QtXml.customFilters.Qt.name = QtXml $QT_VERSION
+qhp.QtXml.customFilters.Qt.filterAttributes = qtxml $QT_VERSION
+
+qhp.QtXml.subprojects         = classes
+qhp.QtXml.subprojects.classes.title = C++ Classes
+qhp.QtXml.subprojects.classes.indexTitle = Qt XML C++ Classes
+qhp.QtXml.subprojects.classes.selectors = class fake:headerfile
+qhp.QtXml.subprojects.classes.sortPages = true
+
+tagfile                 = ../../../doc/qtxml/qtxml.tags
+
+depends                 += qtcore qtnetwork qtdoc
+
+headerdirs  += ..
+
+sourcedirs  += .. \
+               ../../../examples/xml/doc/src
+
+exampledirs += ../../../examples/xml \
+               ../ \
+               snippets
+
+imagedirs   += images \
+               ../../../examples/xml/images
+
+navigation.landingpage = "Qt XML"
+navigation.cppclassespage = "Qt XML C++ Classes"

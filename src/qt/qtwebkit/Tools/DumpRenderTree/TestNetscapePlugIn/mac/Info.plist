@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>TestNetscapePlugIn</string>
+	<key>CFBundleGetInfoString</key>
+	<string>420+, Copyright 2006-2009 Apple Inc.</string>
+	<key>CFBundleIconFile</key>
+	<string></string>
+	<key>CFBundleIdentifier</key>
+	<string>com.apple.testnetscapeplugin</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundlePackageType</key>
+	<string>BRPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>1.0</string>
+	<key>CFPlugInDynamicRegisterFunction</key>
+	<string></string>
+	<key>CFPlugInDynamicRegistration</key>
+	<string>NO</string>
+	<key>CFPlugInFactories</key>
+	<dict>
+		<key>00000000-0000-0000-0000-000000000000</key>
+		<string>MyFactoryFunction</string>
+	</dict>
+	<key>CFPlugInTypes</key>
+	<dict>
+		<key>00000000-0000-0000-0000-000000000000</key>
+		<array>
+			<string>00000000-0000-0000-0000-000000000000</string>
+		</array>
+	</dict>
+	<key>CFPlugInUnloadFunction</key>
+	<string></string>
+	<key>WebPluginDescription</key>
+	<string>Simple Netscape plug-in that handles test content for WebKit</string>
+	<key>WebPluginMIMETypes</key>
+	<dict>
+		<key>image/png</key>
+		<dict>
+			<key>WebPluginExtensions</key>
+			<array>
+				<string>png</string>
+			</array>
+			<key>WebPluginTypeDescription</key>
+			<string>PNG image</string>
+		</dict>
+		<key>application/x-webkit-test-netscape</key>
+		<dict>
+			<key>WebPluginExtensions</key>
+			<array>
+				<string>testnetscape</string>
+			</array>
+			<key>WebPluginTypeDescription</key>
+			<string>test netscape content</string>
+		</dict>
+	</dict>
+	<key>WebPluginName</key>
+	<string>WebKit Test PlugIn</string>
+</dict>
+</plist>

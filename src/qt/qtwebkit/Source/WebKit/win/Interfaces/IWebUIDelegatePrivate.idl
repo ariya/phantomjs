@@ -1,0 +1,125 @@
+/*
+ * Copyright (C) 2006, 2007, 2008, 2009, 2010 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+import "IWebGeolocationPolicyListener.idl";
+import "IWebSecurityOrigin.idl";
+import "IWebView.idl";
+#endif
+
+cpp_quote("#define WebEmbeddedViewAttributesKey TEXT(\"WebEmbeddedViewAttributesKey\")")
+cpp_quote("#define WebEmbeddedViewBaseURLKey TEXT(\"WebEmbeddedViewBaseURLKey\")")
+cpp_quote("#define WebEmbeddedViewContainingElementKey TEXT(\"WebEmbeddedViewContainingElementKey\")")
+cpp_quote("#define WebEmbeddedViewMIMETypeKey TEXT(\"WebEmbeddedViewMIMETypeKey\")")
+
+interface IWebEmbeddedView;
+interface IWebFrame;
+interface IWebGeolocationPolicyListener;
+interface IWebSecurityOrigin;
+interface IWebView;
+
+[
+    object,
+    oleautomation,
+    uuid(df3b4283-6868-4a1f-97f6-baf0b33f239c),
+    pointer_default(unique)
+]
+interface IWebUIDelegatePrivate : IUnknown
+{
+    HRESULT unused1();
+    HRESULT unused2();
+    HRESULT webViewScrolled([in] IWebView* sender);
+    HRESULT webViewAddMessageToConsole([in] IWebView* sender, [in] BSTR message, [in] int lineNumber, [in] BSTR url, [in] BOOL isError);
+    HRESULT webViewShouldInterruptJavaScript([in] IWebView* sender, [out, retval] BOOL* result);
+    HRESULT webViewReceivedFocus([in] IWebView* sender);
+    HRESULT webViewLostFocus([in] IWebView* sender, [in] OLE_HANDLE loseFocusToHWnd);
+    HRESULT doDragDrop([in] IWebView* sender, [in] IDataObject* dataObject, [in] IDropSource* dropSource, [in] DWORD okEffect, [out, retval] DWORD* performedEffect);
+    HRESULT webViewGetDlgCode([in] IWebView* sender, [in] UINT keyCode, [out, retval] LONG_PTR* code);
+    HRESULT webViewPainted([in] IWebView* sender);
+    HRESULT exceededDatabaseQuota([in] IWebView* sender, [in] IWebFrame* frame, [in] IWebSecurityOrigin* origin, [in] BSTR databaseIdentifier);
+    HRESULT embeddedViewWithArguments([in] IWebView* sender, [in] IWebFrame* frame, [in] IPropertyBag* arguments, [out, retval] IWebEmbeddedView** view);
+    HRESULT unused3();
+    HRESULT webViewClosing([in] IWebView* sender);
+    HRESULT webViewSetCursor([in] IWebView* sender, [in] OLE_HANDLE cursor);
+    HRESULT webViewDidInvalidate([in] IWebView* sender);
+}
+
+cpp_quote("#define WebWindowFeaturesXKey L\"x\"")
+cpp_quote("#define WebWindowFeaturesYKey L\"y\"")
+cpp_quote("#define WebWindowFeaturesWidthKey L\"width\"")
+cpp_quote("#define WebWindowFeaturesHeightKey L\"height\"")
+cpp_quote("#define WebWindowFeaturesMenuBarVisibleKey L\"menuBarVisible\"")
+cpp_quote("#define WebWindowFeaturesStatusBarVisibleKey L\"statusBarVisible\"")
+cpp_quote("#define WebWindowFeaturesToolBarVisibleKey L\"toolBarVisible\"")
+cpp_quote("#define WebWindowFeaturesScrollbarsVisibleKey L\"scrollbarsVisible\"")
+cpp_quote("#define WebWindowFeaturesResizableKey L\"resizable\"")
+cpp_quote("#define WebWindowFeaturesFullscreenKey L\"fullscreen\"")
+cpp_quote("#define WebWindowFeaturesDialogKey L\"dialog\"")
+
+[
+    object,
+    oleautomation,
+    uuid(b7d6a98e-9c4f-43f2-b6a7-0975a0b18421),
+    pointer_default(unique)
+]
+interface IWebUIDelegatePrivate2 : IWebUIDelegatePrivate
+{
+    // This function obsoletes IWebUIDelegate::createWebViewWithRequest and
+    // IWebUIDelegate::createModalDialog. Clients should determine whether to create a modal dialog
+    // based on whether WebWindowFeaturesDialogKey returns a TRUE value from the windowFeatures
+    // IPropertyBag. The keys of the windowFeatures IPropertyBag are the WebWindowFeatures*Key
+    // strings above.
+    HRESULT createWebViewWithRequest([in] IWebView* sender, [in] IWebURLRequest* request, [in] IPropertyBag* windowFeatures, [out, retval] IWebView** newWebView);
+
+    HRESULT drawBackground([in] IWebView* sender, [in] OLE_HANDLE hdc, [in] const RECT* dirtyRect);
+
+    HRESULT decidePolicyForGeolocationRequest([in] IWebView* sender, [in] IWebFrame* frame, [in] IWebSecurityOrigin* origin, [in] IWebGeolocationPolicyListener* listener);
+}
+
+[
+    object,
+    oleautomation,
+    uuid(e9834891-233b-48a0-984b-8f8a19abdd0f),
+    pointer_default(unique)
+]
+interface IWebUIDelegatePrivate3 : IWebUIDelegatePrivate2
+{
+    HRESULT didPressMissingPluginButton([in] IDOMElement*);
+}
+
+[
+    object,
+    oleautomation,
+    uuid(944e8e46-6d63-450f-b381-c5d68b80b727),
+    pointer_default(unique)
+]
+interface IWebUIDelegatePrivate4 : IWebUIDelegatePrivate3
+{
+    HRESULT supportsFullScreenForElement([in] IDOMElement*, [in] BOOL withKeyboard, [out, retval] BOOL* supports);
+    HRESULT enterFullScreenForElement([in] IDOMElement*);
+    HRESULT exitFullScreenForElement([in] IDOMElement*);
+}

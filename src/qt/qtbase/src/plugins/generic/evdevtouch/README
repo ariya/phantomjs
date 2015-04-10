@@ -1,0 +1,45 @@
+Generic plug-in for evdev multiple touch (ABS_MT) events.
+Supports protocol type A & B.
+Type B is supported both directly and via libmtdev.
+The protocol type will be detected automatically.
+
+libmtdev is automatically detected based on library availability. To disable it,
+pass -no-mtdev to configure.
+
+Single-touch devices reporting ABS_X and Y are supported too. Keep in
+mind however that the libudev-based device discovery may not be able
+to recognize such devices. If mouse events are sufficient, it may be
+better to use evdevmouse or tslib with such devices.
+
+To use this plugin, pass -plugin EvdevTouch on the command line.
+
+If automatic detection does not work, use -plugin
+EvdevTouch:/dev/input/eventN to explicitly set the device file
+name.
+
+By default the surface of the touch device is mapped to the entire
+screen. If this is not desired, pass force_window in the plugin
+specification as shown in the example above. This will cause mapping
+the touch surface to the active window instead. For example:
+./fingerpaint -plugin EvdevTouch:force_window
+
+Only touch events are generated, mouse events are not. Be aware however
+that ignored touch events will generate a mouse event from the first
+touch point by default. See AA_SynthesizeMouseForUnhandledTouchEvents.
+
+If no evdev events are read, X may be grabbing the device.
+Disable the synaptics driver from X or temporarily disable the device
+by running xinput set-prop <device> <device enabled property> 0.
+Use xinput list and xinput list-props to figure out the values.
+
+When not running on a windowing system (eglfs, kms, etc.) and having a
+touchpad, the evdevmouse and touch plugins can be combined to get both
+mouse and touch events:
+./app -platform kms -plugin EvdevTouch -plugin EvdevMouse
+
+If the input device cannot be accessed, set up a udev rule.
+For example:
+  sudo cp 70-qtouchscreen.rules /etc/udev/rules.d
+  sudo udevadm trigger --subsystem-match=input
+The sample udev rule matches any touchpad or touchscreen device.
+If there are multiple ones, specify the device manually as described above.

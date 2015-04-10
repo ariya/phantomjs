@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <comment>*********************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the QtWidgets module of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:LGPL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
+**
+**
+** $QT_END_LICENSE$
+**
+*********************************************************************</comment>
+ <class>QFileDialog</class>
+ <widget class="QDialog" name="QFileDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>521</width>
+    <height>316</height>
+   </rect>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
+  </property>
+  <layout class="QGridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="lookInLabel">
+     <property name="text">
+      <string>Look in:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="2">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QFileDialogComboBox" name="lookInCombo">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>50</width>
+         <height>0</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="backButton">
+       <property name="toolTip">
+        <string>Back</string>
+       </property>
+       <property name="accessibleName">
+        <string>Back</string>
+       </property>
+       <property name="accessibleDescription">
+        <string>Go back</string>
+       </property>
+       <property name="shortcut">
+        <string>Alt+Left</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="forwardButton">
+       <property name="toolTip">
+        <string>Forward</string>
+       </property>
+       <property name="accessibleName">
+        <string>Forward</string>
+       </property>
+       <property name="accessibleDescription">
+        <string>Go forward</string>
+       </property>
+       <property name="shortcut">
+        <string>Alt+Right</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="toParentButton">
+       <property name="toolTip">
+        <string>Parent Directory</string>
+       </property>
+       <property name="accessibleName">
+        <string>Parent Directory</string>
+       </property>
+       <property name="accessibleDescription">
+        <string>Go to the parent directory</string>
+       </property>
+       <property name="shortcut">
+        <string>Alt+Up</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="newFolderButton">
+       <property name="toolTip">
+        <string>Create New Folder</string>
+       </property>
+       <property name="accessibleName">
+        <string>Create New Folder</string>
+       </property>
+       <property name="accessibleDescription">
+        <string>Create a New Folder</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="listModeButton">
+       <property name="toolTip">
+        <string>List View</string>
+       </property>
+       <property name="accessibleName">
+        <string>List View</string>
+       </property>
+       <property name="accessibleDescription">
+        <string>Change to list view mode</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="detailModeButton">
+       <property name="toolTip">
+        <string>Detail View</string>
+       </property>
+       <property name="accessibleName">
+        <string>Detail View</string>
+       </property>
+       <property name="accessibleDescription">
+        <string>Change to detail view mode</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0" colspan="3">
+    <widget class="QSplitter" name="splitter">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QSidebar" name="sidebar">
+      <property name="accessibleName">
+       <string>Sidebar</string>
+      </property>
+      <property name="accessibleDescription">
+       <string>List of places and bookmarks</string>
+      </property>
+     </widget>
+     <widget class="QFrame" name="frame">
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QVBoxLayout">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QStackedWidget" name="stackedWidget">
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="page">
+          <layout class="QVBoxLayout">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QFileDialogListView" name="listView">
+             <property name="accessibleName">
+              <string>Files</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="page_2">
+          <layout class="QVBoxLayout">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QFileDialogTreeView" name="treeView">
+             <property name="accessibleName">
+              <string>Files</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="fileNameLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QFileDialogLineEdit" name="fileNameEdit">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>1</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2" rowspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="fileTypeLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Files of type:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QComboBox" name="fileTypeCombo">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QFileDialogTreeView</class>
+   <extends>QTreeView</extends>
+   <header>private/qfiledialog_p.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QFileDialogListView</class>
+   <extends>QListView</extends>
+   <header>private/qfiledialog_p.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QSidebar</class>
+   <extends>QListWidget</extends>
+   <header>private/qsidebar_p.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QFileDialogLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>private/qfiledialog_p.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QFileDialogComboBox</class>
+   <extends>QComboBox</extends>
+   <header>private/qfiledialog_p.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>lookInCombo</tabstop>
+  <tabstop>backButton</tabstop>
+  <tabstop>forwardButton</tabstop>
+  <tabstop>toParentButton</tabstop>
+  <tabstop>newFolderButton</tabstop>
+  <tabstop>listModeButton</tabstop>
+  <tabstop>detailModeButton</tabstop>
+  <tabstop>sidebar</tabstop>
+  <tabstop>treeView</tabstop>
+  <tabstop>listView</tabstop>
+  <tabstop>fileNameEdit</tabstop>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>fileTypeCombo</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,4 @@
+[Tokens]
+TOK_D = [abcd]
+TOK_B = [bc]
+TOK_A = a

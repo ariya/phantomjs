@@ -1,0 +1,39 @@
+//
+// Copyright (c) 2012 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+
+sampler2D tex : s0;
+
+uniform float4 mode : c0;
+
+// Passthrough Pixel Shader
+// Outputs texture 0 sampled at texcoord 0.
+float4 passthroughps(float4 texcoord : TEXCOORD0) : COLOR
+{
+	return tex2D(tex, texcoord.xy);
+};
+
+// Luminance Conversion Pixel Shader
+// Outputs sample(tex0, tc0).rrra.
+// For LA output (pass A) set C0.X = 1, C0.Y = 0.
+// For L output (A = 1) set C0.X = 0, C0.Y = 1.
+float4 luminanceps(float4 texcoord : TEXCOORD0) : COLOR
+{
+	float4 tmp = tex2D(tex, texcoord.xy);
+	tmp.w = tmp.w * mode.x + mode.y;
+	return tmp.xxxw;
+};
+
+// RGB/A Component Mask Pixel Shader
+// Outputs sample(tex0, tc0) with options to force RGB = 0 and/or A = 1.
+// To force RGB = 0, set C0.X = 0, otherwise C0.X = 1.
+// To force A = 1, set C0.Z = 0, C0.W = 1, otherwise C0.Z = 1, C0.W = 0.
+float4 componentmaskps(float4 texcoord : TEXCOORD0) : COLOR
+{
+	float4 tmp = tex2D(tex, texcoord.xy);
+	tmp.xyz = tmp.xyz * mode.x;
+	tmp.w = tmp.w * mode.z + mode.w;
+	return tmp;
+};

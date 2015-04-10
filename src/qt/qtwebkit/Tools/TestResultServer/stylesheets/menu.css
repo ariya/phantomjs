@@ -1,0 +1,9 @@
+body {
+  font-family: Verdana, Helvetica, sans-serif;
+}
+ul {
+  list-style: none;
+}
+li {
+  padding: 5px 0;
+}

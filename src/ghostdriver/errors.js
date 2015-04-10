@@ -1,7 +1,7 @@
 /*
 This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2014, Ivan De Marino <http://ivandemarino.me>
+Copyright (c) 2012-2014, Ivan De Marino <http://ivandemarino.me>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -122,30 +122,8 @@ exports.handleInvalidReqMissingCommandParameterEH = function(req, res) {
 
 //-------------------------------------------------------- Failed Command Errors
 //------ http://code.google.com/p/selenium/wiki/JsonWireProtocol#Failed_Commands
-exports.FAILED_CMD_STATUS = {
-    "SUCCESS"                       : "Success",
-    "NO_SUCH_ELEMENT"               : "NoSuchElement",
-    "NO_SUCH_FRAME"                 : "NoSuchFrame",
-    "UNKNOWN_COMMAND"               : "UnknownCommand",
-    "STALE_ELEMENT_REFERENCE"       : "StaleElementReference",
-    "ELEMENT_NOT_VISIBLE"           : "ElementNotVisible",
-    "INVALID_ELEMENT_STATE"         : "InvalidElementState",
-    "UNKNOWN_ERROR"                 : "UnknownError",
-    "ELEMENT_IS_NOT_SELECTABLE"     : "ElementIsNotSelectable",
-    "JAVA_SCRIPT_ERROR"             : "JavaScriptError",
-    "XPATH_LOOKUP_ERROR"            : "XPathLookupError",
-    "TIMEOUT"                       : "Timeout",
-    "NO_SUCH_WINDOW"                : "NoSuchWindow",
-    "INVALID_COOKIE_DOMAIN"         : "InvalidCookieDomain",
-    "UNABLE_TO_SET_COOKIE"          : "UnableToSetCookie",
-    "UNEXPECTED_ALERT_OPEN"         : "UnexpectedAlertOpen",
-    "NO_ALERT_OPEN_ERROR"           : "NoAlertOpenError",
-    "SCRIPT_TIMEOUT"                : "ScriptTimeout",
-    "INVALID_ELEMENT_COORDINATES"   : "InvalidElementCoordinates",
-    "IME_NOT_AVAILABLE"             : "IMENotAvailable",
-    "IME_ENGINE_ACTIVATION_FAILED"  : "IMEEngineActivationFailed",
-    "INVALID_SELECTOR"              : "InvalidSelector"
-};
+
+// Possible Failed Status Codes
 exports.FAILED_CMD_STATUS_CODES = {
     "Success"                   : 0,
     "NoSuchElement"             : 7,
@@ -170,6 +148,8 @@ exports.FAILED_CMD_STATUS_CODES = {
     "IMEEngineActivationFailed" : 31,
     "InvalidSelector"           : 32
 };
+
+// Possible Failed Status Code Names
 exports.FAILED_CMD_STATUS_CODES_NAMES       = [];
 exports.FAILED_CMD_STATUS_CODES_NAMES[0]    = "Success";
 exports.FAILED_CMD_STATUS_CODES_NAMES[7]    = "NoSuchElement";
@@ -194,6 +174,30 @@ exports.FAILED_CMD_STATUS_CODES_NAMES[30]   = "IMENotAvailable";
 exports.FAILED_CMD_STATUS_CODES_NAMES[31]   = "IMEEngineActivationFailed";
 exports.FAILED_CMD_STATUS_CODES_NAMES[32]   = "InvalidSelector";
 
+// Possible Failed Status Classnames
+exports.FAILED_CMD_STATUS_CLASSNAMES        = [];
+exports.FAILED_CMD_STATUS_CLASSNAMES[7]     = "org.openqa.selenium.NoSuchElementException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[8]     = "org.openqa.selenium.NoSuchFrameException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[9]     = "org.openqa.selenium.UnsupportedCommandException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[10]    = "org.openqa.selenium.StaleElementReferenceException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[11]    = "org.openqa.selenium.ElementNotVisibleException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[12]    = "org.openqa.selenium.InvalidElementStateException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[13]    = "org.openqa.selenium.WebDriverException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[15]    = "org.openqa.selenium.InvalidSelectorException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[17]    = "org.openqa.selenium.WebDriverException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[19]    = "org.openqa.selenium.InvalidSelectorException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[21]    = "org.openqa.selenium.TimeoutException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[23]    = "org.openqa.selenium.NoSuchWindowException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[24]    = "org.openqa.selenium.InvalidCookieDomainException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[25]    = "org.openqa.selenium.UnableToSetCookieException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[26]    = "org.openqa.selenium.UnhandledAlertException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[27]    = "org.openqa.selenium.NoAlertPresentException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[28]    = "org.openqa.selenium.WebDriverException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[29]    = "org.openqa.selenium.interactions.InvalidCoordinatesException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[30]    = "org.openqa.selenium.ImeNotAvailableException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[31]    = "org.openqa.selenium.ImeActivationFailedException";
+exports.FAILED_CMD_STATUS_CLASSNAMES[32]    = "org.openqa.selenium.InvalidSelectorException";
+
 var _failedCommandHandle = function(res) {
     // Generate response body
     var body = {
@@ -212,20 +216,20 @@ var _failedCommandHandle = function(res) {
 };
 
 // Failed Command Error Handler
-exports.createFailedCommandEH = function(errorName, errorMsg, req, session, className) {
+exports.createFailedCommandEH = function (errorCode, errorMsg, req, session) {
     var e = new Error();
 
-    e.name = errorName;
+    e.errorStatusCode = isNaN(errorCode) ? exports.FAILED_CMD_STATUS_CODES.UnknownError : errorCode;
+    e.name = exports.FAILED_CMD_STATUS_CODES_NAMES[e.errorStatusCode];
     e.message = JSON.stringify({ "errorMessage" : errorMsg, "request" : req });
-    e.errorStatusCode = exports.FAILED_CMD_STATUS_CODES[errorName] || 13; //< '13' Unkown Error
     e.errorSessionId = session.getId() || null;
-    e.errorClassName = className || "unknown";
+    e.errorClassName = exports.FAILED_CMD_STATUS_CLASSNAMES[e.errorStatusCode] || "unknown";
     e.errorScreenshot = (session.getCapabilities().takesScreenshot && session.getCurrentWindow() !== null) ?
         session.getCurrentWindow().renderBase64("png") : "";
     e.handle = _failedCommandHandle;
 
     return e;
 };
-exports.handleFailedCommandEH = function(errorName, errorMsg, req, res, session, className) {
-    exports.createFailedCommandEH(errorName, errorMsg, req, session, className).handle(res);
+exports.handleFailedCommandEH = function (errorCode, errorMsg, req, res, session) {
+    exports.createFailedCommandEH(errorCode, errorMsg, req, session).handle(res);
 };

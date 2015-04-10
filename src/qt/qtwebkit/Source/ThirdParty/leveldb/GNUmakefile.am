@@ -1,0 +1,128 @@
+if ENABLE_INDEXED_DATABASE
+noinst_LTLIBRARIES += \
+	libLevelDB.la
+endif
+
+libLevelDB_la_CXXFLAGS = $(global_cxxflags)
+libLevelDB_la_CFLAGS = $(global_cflags)
+libLevelDB_la_CPPFLAGS = \
+	$(global_cppflags) \
+	-fno-builtin-memcmp \
+	-I$(srcdir)/Source/ThirdParty/leveldb \
+	-I$(srcdir)/Source/ThirdParty/leveldb/include \
+	-DLEVELDB_PLATFORM_POSIX
+
+if OS_WIN32
+libLevelDB_la_CPPFLAGS += \
+	-DOS_WIN
+else
+libLevelDB_la_CPPFLAGS += \
+	-pthread
+endif
+
+if OS_LINUX
+libLevelDB_la_CPPFLAGS += \
+	-DOS_LINUX
+endif
+
+if OS_FREEBSD
+libLevelDB_la_CPPFLAGS += \
+	-DOS_FREEBSD
+endif
+
+if OS_DARWIN
+libLevelDB_la_CPPFLAGS += \
+	-DOS_MACOSX
+endif
+
+libLevelDB_la_SOURCES = \
+	Source/ThirdParty/leveldb/db/builder.cc\
+	Source/ThirdParty/leveldb/db/builder.h \
+	Source/ThirdParty/leveldb/db/c.cc \
+	Source/ThirdParty/leveldb/db/dbformat.cc \
+	Source/ThirdParty/leveldb/db/dbformat.h \
+	Source/ThirdParty/leveldb/db/db_impl.cc \
+	Source/ThirdParty/leveldb/db/db_impl.h \
+	Source/ThirdParty/leveldb/db/db_iter.cc \
+	Source/ThirdParty/leveldb/db/db_iter.h \
+	Source/ThirdParty/leveldb/db/filename.cc \
+	Source/ThirdParty/leveldb/db/filename.h \
+	Source/ThirdParty/leveldb/db/log_format.h \
+	Source/ThirdParty/leveldb/db/log_reader.cc \
+	Source/ThirdParty/leveldb/db/log_reader.h \
+	Source/ThirdParty/leveldb/db/log_writer.cc \
+	Source/ThirdParty/leveldb/db/log_writer.h \
+	Source/ThirdParty/leveldb/db/memtable.cc \
+	Source/ThirdParty/leveldb/db/memtable.h \
+	Source/ThirdParty/leveldb/db/repair.cc \
+	Source/ThirdParty/leveldb/db/skiplist.h \
+	Source/ThirdParty/leveldb/db/snapshot.h \
+	Source/ThirdParty/leveldb/db/table_cache.cc \
+	Source/ThirdParty/leveldb/db/table_cache.h \
+	Source/ThirdParty/leveldb/db/version_edit.cc \
+	Source/ThirdParty/leveldb/db/version_edit.h \
+	Source/ThirdParty/leveldb/db/version_set.cc \
+	Source/ThirdParty/leveldb/db/version_set.h \
+	Source/ThirdParty/leveldb/db/write_batch.cc \
+	Source/ThirdParty/leveldb/db/write_batch_internal.h \
+	Source/ThirdParty/leveldb/helpers/memenv/memenv.cc \
+	Source/ThirdParty/leveldb/helpers/memenv/memenv.h \
+	Source/ThirdParty/leveldb/include/leveldb/cache.h \
+	Source/ThirdParty/leveldb/include/leveldb/c.h \
+	Source/ThirdParty/leveldb/include/leveldb/comparator.h \
+	Source/ThirdParty/leveldb/include/leveldb/db.h \
+	Source/ThirdParty/leveldb/include/leveldb/env.h \
+	Source/ThirdParty/leveldb/include/leveldb/filter_policy.h \
+	Source/ThirdParty/leveldb/include/leveldb/iterator.h \
+	Source/ThirdParty/leveldb/include/leveldb/options.h \
+	Source/ThirdParty/leveldb/include/leveldb/slice.h \
+	Source/ThirdParty/leveldb/include/leveldb/status.h \
+	Source/ThirdParty/leveldb/include/leveldb/table_builder.h \
+	Source/ThirdParty/leveldb/include/leveldb/table.h \
+	Source/ThirdParty/leveldb/include/leveldb/write_batch.h \
+	Source/ThirdParty/leveldb/port/atomic_pointer.h \
+	Source/ThirdParty/leveldb/port/port_example.h \
+	Source/ThirdParty/leveldb/port/port.h \
+	Source/ThirdParty/leveldb/port/port_posix.cc \
+	Source/ThirdParty/leveldb/port/port_posix.h \
+	Source/ThirdParty/leveldb/port/thread_annotations.h \
+	Source/ThirdParty/leveldb/port/win/stdint.h \
+	Source/ThirdParty/leveldb/table/block_builder.cc \
+	Source/ThirdParty/leveldb/table/block_builder.h \
+	Source/ThirdParty/leveldb/table/block.cc \
+	Source/ThirdParty/leveldb/table/block.h \
+	Source/ThirdParty/leveldb/table/filter_block.cc \
+	Source/ThirdParty/leveldb/table/filter_block.h \
+	Source/ThirdParty/leveldb/table/format.cc \
+	Source/ThirdParty/leveldb/table/format.h \
+	Source/ThirdParty/leveldb/table/iterator.cc \
+	Source/ThirdParty/leveldb/table/iterator_wrapper.h \
+	Source/ThirdParty/leveldb/table/merger.cc \
+	Source/ThirdParty/leveldb/table/merger.h \
+	Source/ThirdParty/leveldb/table/table_builder.cc \
+	Source/ThirdParty/leveldb/table/table.cc \
+	Source/ThirdParty/leveldb/table/two_level_iterator.cc \
+	Source/ThirdParty/leveldb/table/two_level_iterator.h \
+	Source/ThirdParty/leveldb/util/arena.cc \
+	Source/ThirdParty/leveldb/util/arena.h \
+	Source/ThirdParty/leveldb/util/bloom.cc \
+	Source/ThirdParty/leveldb/util/cache.cc \
+	Source/ThirdParty/leveldb/util/coding.cc \
+	Source/ThirdParty/leveldb/util/coding.h \
+	Source/ThirdParty/leveldb/util/comparator.cc \
+	Source/ThirdParty/leveldb/util/crc32c.cc \
+	Source/ThirdParty/leveldb/util/crc32c.h \
+	Source/ThirdParty/leveldb/util/env.cc \
+	Source/ThirdParty/leveldb/util/env_posix.cc \
+	Source/ThirdParty/leveldb/util/filter_policy.cc \
+	Source/ThirdParty/leveldb/util/hash.cc \
+	Source/ThirdParty/leveldb/util/hash.h \
+	Source/ThirdParty/leveldb/util/histogram.cc \
+	Source/ThirdParty/leveldb/util/histogram.h \
+	Source/ThirdParty/leveldb/util/logging.cc \
+	Source/ThirdParty/leveldb/util/logging.h \
+	Source/ThirdParty/leveldb/util/mutexlock.h \
+	Source/ThirdParty/leveldb/util/options.cc \
+	Source/ThirdParty/leveldb/util/posix_logger.h \
+	Source/ThirdParty/leveldb/util/random.h \
+	Source/ThirdParty/leveldb/util/status.cc

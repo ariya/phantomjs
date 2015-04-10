@@ -1,0 +1,211 @@
+/*
+ * Copyright (C) 2012, Intel Corporation.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms and conditions of the GNU Lesser General Public License,
+ * version 2.1, as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin St
+ * - Fifth Floor, Boston, MA 02110-1301 USA
+ *
+ */
+
+group {
+    name: "webkit/widget/spinner";
+
+    images {
+       image: "widget/spinner/sp_bg.png" COMP;
+       image: "widget/spinner/sp_up_default.png" COMP;
+       image: "widget/spinner/sp_down_default.png" COMP;
+       image: "widget/spinner/sp_up_pressed.png" COMP;
+       image: "widget/spinner/sp_down_pressed.png" COMP;
+       image: "widget/spinner/sp_up_hover.png" COMP;
+       image: "widget/spinner/sp_down_hover.png" COMP;
+    }
+
+    script {
+        public isSpinup;
+        public isEnabled;
+        public isPressed;
+        public isHovered;
+
+        public show() {
+            if (get_int(isEnabled) == 1) {
+                set_state(PART:"up_bt", "default", 0.0);
+                set_state(PART:"down_bt", "default", 0.0);
+                if (get_int(isHovered) == 1) {
+                    if (get_int(isSpinup)) {
+                        set_state(PART:"up_bt", "hovered", 0.0);
+                        if (get_int(isPressed))
+                            set_state(PART:"up_bt", "pressed", 0.0);
+                    }
+                    else {
+                        set_state(PART:"down_bt", "hovered", 0.0);
+                        if (get_int(isPressed))
+                            set_state(PART:"down_bt", "pressed", 0.0);
+                    }
+                }
+            }
+            else {
+                set_state(PART:"up_bt", "disabled", 0.0);
+                set_state(PART:"down_bt", "disabled", 0.0);
+            }
+        }
+    }
+
+    parts {
+        part {
+            name: "bg";
+            type: IMAGE;
+            description {
+                state: "default" 0.0;
+                rel1 {
+                    relative: 0.0 0.0;
+                    offset: 0 6;
+                }
+                rel2 {
+                    relative: 1.0 1.0;
+                    offset: -2 -6;
+                }
+                image {
+                    normal: "widget/spinner/sp_bg.png";
+                    border: 1 0 0 0;
+                }
+            }
+        }
+
+        part {
+            name: "up_bt";
+            description {
+                state: "default" 0.0;
+                min: 9 7;
+                max: 9 7;
+                fixed: 1 1;
+                align: 0.5 0;
+                rel1.to: "bg";
+                rel2 {
+                    to: "bg";
+                    relative: 1.0 0.0;
+                }
+                image.normal: "widget/spinner/sp_up_default.png";
+            }
+            description {
+                state: "pressed" 0.0;
+                inherit: "default" 0.0;
+                image.normal: "widget/spinner/sp_up_pressed.png";
+            }
+            description {
+                state: "disabled" 0.0;
+                inherit: "default" 0.0;
+                color: 255 255 255 150;
+            }
+            description {
+                state: "hovered" 0.0;
+                inherit: "default" 0.0;
+                image.normal: "widget/spinner/sp_up_hover.png";
+            }
+        }
+
+        part {
+            name: "down_bt";
+            description {
+                state: "default" 0.0;
+                min: 9 7;
+                max: 9 7;
+                fixed: 1 1;
+                align: 0.5 1;
+                rel1 {
+                    to: "bg";
+                    relative: 0.0 1.0;
+                }
+                rel2.to: "bg";
+                image.normal: "widget/spinner/sp_down_default.png";
+            }
+            description {
+                state: "pressed" 0.0;
+                inherit: "default" 0.0;
+                image.normal: "widget/spinner/sp_down_pressed.png";
+            }
+            description {
+                state: "disabled" 0.0;
+                inherit: "default" 0.0;
+                color: 255 255 255 150;
+            }
+            description {
+                state: "hovered" 0.0;
+                inherit: "default" 0.0;
+                image.normal: "widget/spinner/sp_down_hover.png";
+            }
+        }
+
+        part {
+            name: "text_confinement";
+            type: RECT;
+            description {
+                state: "default" 0.0;
+                rel1 {
+                    relative: 0.0 0.0;
+                    offset: 0 0;
+                }
+                rel2 {
+                    relative: 1.0 1.0;
+                    offset: -18 0;
+                }
+            }
+        }
+    }
+
+    programs {
+        program {
+            name: "spinup";
+            signal: "spinup";
+            script {
+                set_int(isSpinup, 1);
+                show();
+            }
+        }
+
+        program {
+            name: "pressed";
+            signal: "pressed";
+            script {
+                set_int(isPressed, 1);
+                show();
+            }
+        }
+
+        program {
+            name: "enabled";
+            signal: "enabled";
+            script {
+                set_int(isEnabled, 1);
+                show();
+            }
+        }
+        program {
+            name: "hovered";
+            signal: "hovered";
+            script {
+                set_int(isHovered, 1);
+                show();
+            }
+        }
+        program {
+            name: "reset";
+            signal: "reset";
+            script {
+                set_int(isSpinup, 0);
+                set_int(isEnabled, 0);
+                set_int(isPressed, 0);
+                set_int(isHovered, 0);
+                show();
+            }
+        }
+    }
+}

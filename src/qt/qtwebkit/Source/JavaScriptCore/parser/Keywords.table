@@ -1,0 +1,57 @@
+# Main keywords.
+@begin mainTable 47
+
+# Types.
+null		NULLTOKEN
+true		TRUETOKEN
+false		FALSETOKEN
+
+# Keywords.
+break		BREAK
+case		CASE
+catch		CATCH
+const		CONSTTOKEN
+default		DEFAULT
+finally		FINALLY
+for		FOR
+instanceof	INSTANCEOF
+new		NEW
+var		VAR
+continue	CONTINUE
+function	FUNCTION
+return		RETURN
+void		VOIDTOKEN
+delete		DELETETOKEN
+if		IF
+this		THISTOKEN
+do		DO
+while		WHILE
+else		ELSE
+in		INTOKEN
+switch		SWITCH
+throw		THROW
+try		TRY
+typeof		TYPEOF
+with		WITH
+debugger	DEBUGGER
+
+# Reserved for future use.
+class           RESERVED
+enum            RESERVED
+export          RESERVED
+extends         RESERVED
+import          RESERVED
+super           RESERVED
+
+# Reserved for future use in strict code.
+implements      RESERVED_IF_STRICT
+interface       RESERVED_IF_STRICT
+let             RESERVED_IF_STRICT
+package         RESERVED_IF_STRICT
+private         RESERVED_IF_STRICT
+protected       RESERVED_IF_STRICT
+public          RESERVED_IF_STRICT
+static          RESERVED_IF_STRICT
+yield           RESERVED_IF_STRICT
+
+@end

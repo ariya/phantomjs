@@ -1,0 +1,188 @@
+#!/bin/bash
+
+# This script needs to be run with root rights.
+if [ $UID -ne 0 ]; then
+    sudo $0
+    exit 0
+fi
+
+function printNotSupportedMessageAndExit() {
+    echo
+    echo "Currently this script only works for distributions supporting apt-get and yum."
+    echo "Please add support for your distribution: http://webkit.org/b/110693"
+    echo
+    exit 1
+}
+
+function checkInstaller {
+    # apt-get - Debian based distributions
+    apt-get --version &> /dev/null
+    if [ $? -eq 0 ]; then
+        installDependenciesWithApt
+        exit 0
+    fi
+
+    # yum - Fedora
+    yum --version &> /dev/null
+    if [ $? -eq 0 ]; then
+        installDependenciesWithYum
+        exit 0
+    fi
+
+    printNotSupportedMessageAndExit
+}
+
+function installDependenciesWithApt {
+    # These are dependencies necessary for building WebKitGTK+.
+    apt-get install \
+        autoconf \
+        automake \
+        autopoint \
+        autotools-dev \
+        bison \
+        flex \
+        gail-3.0 \
+        gawk \
+        gnome-common \
+        gperf \
+        gtk-doc-tools \
+        intltool \
+        libatk1.0-dev \
+        libenchant-dev \
+        libfaad-dev \
+        libgail-3-dev \
+        libgail-dev \
+        libgeoclue-dev \
+        libgirepository1.0-dev \
+        libgl1-mesa-dev \
+        libgl1-mesa-glx \
+        libgnutls-dev \
+        libgudev-1.0-dev \
+        libicu-dev \
+        libjpeg62-dev \
+        libmpg123-dev \
+        libopus-dev \
+        libpango1.0-dev \
+        libpng12-dev \
+        libpulse-dev \
+        librsvg2-dev \
+        libsecret-1-dev \
+        libsqlite3-dev \
+        libtheora-dev \
+        libtool \
+        libvorbis-dev \
+        libwebp-dev \
+        libxslt1-dev \
+        libxt-dev \
+        libxtst-dev \
+        ruby
+
+    # These are dependencies necessary for running tests.
+    apt-get install \
+        apache2 \
+        curl \
+        libapache2-mod-bw \
+        libapache2-mod-php5 \
+        libgpg-error-dev \
+        pulseaudio-utils \
+        python-gi \
+        ruby
+
+    # These are dependencies necessary for building the jhbuild.
+    apt-get install \
+        gobject-introspection \
+        icon-naming-utils \
+        libegl1-mesa-dev \
+        libgcrypt11-dev \
+        libgpg-error-dev \
+        libp11-kit-dev \
+        libtiff4-dev \
+        libcroco3-dev \
+        ragel \
+        xutils-dev \
+        xtrans-dev \
+        libxfont-dev \
+        libpciaccess-dev \
+        x11proto-bigreqs-dev \
+        x11proto-gl-dev \
+        x11proto-input-dev \
+        x11proto-video-dev \
+        x11proto-scrnsaver-dev \
+        x11proto-resource-dev \
+        x11proto-xcmisc-dev \
+        x11proto-xf86dri-dev \
+        libxkbfile-dev
+}
+
+function installDependenciesWithYum {
+    # These are dependencies necessary for building WebKitGTK+.
+    yum install \
+        autoconf \
+        automake \
+        bison \
+        atk-devel \
+        cairo-devel \
+        enchant-devel \
+        flex \
+        fontconfig-devel \
+        freetype-devel \
+        gcc-c++ \
+        geoclue-devel \
+        gettext-devel \
+        gobject-introspection-devel \
+        gperf \
+        gstreamer1-devel \
+        gstreamer1-plugins-base-devel \
+        gtk2-devel \
+        gtk3-devel \
+        gtk-doc \
+        harfbuzz-devel \
+        libsoup-devel \
+        libicu-devel \
+        libjpeg-turbo-devel \
+        libpng-devel \
+        libsecret-devel \
+        libwebp-devel \
+        libxslt-devel \
+        libXt-devel \
+        libXtst-devel \
+        libgudev1-devel \
+        mesa-libGL-devel \
+        pcre-devel \
+        ruby \
+        sqlite-devel \
+        perl-Switch \
+        perl-version \
+        python-devel
+
+    # These are dependencies necessary for running tests.
+    yum install \
+        httpd \
+        curl \
+        mod_bw \
+        libgpg-error-devel \
+        pulseaudio-utils \
+        pygobject3-base \
+        ruby
+
+    # These are dependencies necessary for building the jhbuild.
+    yum install \
+        gobject-introspection \
+        icon-naming-utils \
+        libgcrypt-devel \
+        libgpg-error-devel \
+        libp11-devel \
+        libtiff-devel \
+        libcroco-devel \
+        mesa-libEGL-devel \
+        ragel \
+        xorg-x11-util-macros \
+        xorg-x11-xtrans-devel \
+        xorg-x11-proto-devel \
+        libXfont-devel \
+        libxkbfile-devel \
+        libpciaccess-devel
+}
+
+checkInstaller
+

@@ -1,0 +1,80 @@
+#!/usr/bin/env python
+# Copyright (C) 2012 Google Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# This script exports newly added tests to the W3C Web Performance WG's test
+# suite.
+#
+# You must have checked out the 'webperf' repository from https://dvcs.w3.org/hg/
+#
+# This script will export the LayoutTests/http/tests/w3c/submission directory
+# to a local 'webperf' repository.
+#
+# The main step in exporting the tests is updating all of the URLs to account
+# for the differences in directory layout.
+
+import os
+import shutil
+import sys
+
+if len(sys.argv) != 3:
+    print 'USAGE: %s path_to_webkit_checkout_root path_to_webperf_checkout_root' % sys.argv[0]
+    sys.exit(1)
+
+source_directory = os.path.join(sys.argv[1], 'LayoutTests', 'http', 'tests', 'w3c', 'webperf')
+destination_directory = os.path.join(sys.argv[2], 'tests')
+
+directories_to_copy = ['resources', 'submission']
+replacements = [
+        ('localhost:8000', 'www.w3c-test.org'),   # This is the alternate host for cross-server requests.
+        ('127.0.0.1:8000', 'w3c-test.org'),       # This is the primary test server.
+        ('w3c/webperf', 'webperf/tests'),         # We prepend /w3c to all of our paths.
+        ('/w3c/resources/testharness', '/resources/testharness'),
+        ('\n', '\r\n'),                           # Convert from *NIX format.
+]
+
+for directory_to_copy in directories_to_copy:
+    destination_subdirectory = os.path.join(destination_directory, directory_to_copy)
+    if not os.path.exists(destination_subdirectory):
+        os.makedirs(destination_subdirectory)
+    for root, dirs, files in os.walk(os.path.join(source_directory, directory_to_copy)):
+        root = os.path.relpath(root, source_directory)
+        for dirname in dirs:
+            destination_subdirectory = os.path.join(destination_directory, root, dirname)
+            if not os.path.exists(destination_subdirectory):
+                os.makedirs(destination_subdirectory)
+        for filename in files:
+            if filename.endswith('-expected.txt'):
+                continue
+            with open(os.path.join(source_directory, root, filename), 'r') as in_file:
+                with open(os.path.join(destination_directory, root, filename), 'w') as out_file:
+                    for line in in_file:
+                        for to_find, replace_with in replacements:
+                            line = line.replace(to_find, replace_with)
+                        out_file.write(line)
+                print 'Exported %s' % os.path.join(root, filename)

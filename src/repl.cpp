@@ -29,7 +29,7 @@
 
 #include "repl.h"
 
-#include <QDesktopServices>
+#include <QStandardPaths>
 #include <QTimer>
 #include <QDir>
 #include <QRegExp>
@@ -96,7 +96,7 @@ QStringList REPL::_enumerateCompletions(QObject *obj) const
     const int methodOffset = meta->methodOffset();
     const int methodCount = meta->methodCount();
     for (int i = methodOffset; i < methodCount; i++) {
-        const QString name = QString::fromLatin1(meta->method(i).signature());
+        const QString name = QString::fromLatin1(meta->method(i).methodSignature());
         // Ignore methods starting with underscores
         if (name.startsWith('_')) {
             continue;
@@ -134,11 +134,11 @@ REPL::REPL(QWebFrame *webframe, Phantom *parent)
     m_webframe = webframe;
     m_parentPhantom = parent;
     m_historyFilepath = QString("%1/%2").arg(
-                QDesktopServices::storageLocation(QDesktopServices::DataLocation),
+                QStandardPaths::writableLocation(QStandardPaths::DataLocation),
                 HISTORY_FILENAME).toLocal8Bit();
 
     // Ensure the location for the history file exists
-    QDir().mkpath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
 
     // Listen for Phantom exit(ing)
     connect(m_parentPhantom, SIGNAL(aboutToExit(int)), this, SLOT(stopLoop(int)));

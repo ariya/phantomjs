@@ -1,0 +1,164 @@
+Qt 5.1 introduces many new features and improvements as well as bugfixes
+over the 5.0.x series. For more details, refer to the online documentation
+included in this distribution. The documentation is also available online:
+
+  http://qt-project.org/doc/qt-5.1
+
+The Qt version 5.1 series is binary compatible with the 5.0.x series.
+Applications compiled for 5.0 will continue to run with 5.1.
+
+Some of the changes listed in this file include issue tracking numbers
+corresponding to tasks in the Qt Bug Tracker:
+
+  http://bugreports.qt-project.org/
+
+Each of these identifiers can be entered in the bug tracker to obtain more
+information about a particular change.
+
+****************************************************************************
+*                           General                                        *
+****************************************************************************
+
+General Improvements
+--------------------
+
+ - Q_PROPERTY gained a MEMBER attribute that let you associate a property to a
+   class member without requiring to explicitly writing a getter or a setter
+
+
+Third party components
+----------------------
+
+ -
+
+
+****************************************************************************
+*                   Important Behavior Changes                             *
+****************************************************************************
+
+- QtWidgets
+
+  * [QTBUG-8836] QAbstractItemView now allows manual deselect in
+    SingleSelection mode (with control modifier)
+
+- QtCore
+
+  * The serialization behavior for QDateTime has reverted to pre-Qt 5,
+    due to the issue mentioned in section 4 here:
+    http://lists.qt-project.org/pipermail/development/2013-March/010559.html
+
+    This means that the QDataStream version will be 14 with Qt 5.1.
+
+****************************************************************************
+*                          Library                                         *
+****************************************************************************
+
+QtCore
+------
+
+ - QRect:
+   * Added marginsAdded(), marginsRemoved() and operators +, -, +=, -=
+     taking a QMargins object allowing for conveniently adding or removing
+     margins.
+ - QMargins:
+   * Added operators for adding and subtracting QMargins objects,
+     multiplication and division for int/qreal and unary minus.
+
+ - QMessageAuthenticationCode
+    * New class for hash-based message authentication code added to QtCore.
+
+ - QRegularExpression
+    * It's now possible to know the names of the named capturing groups
+      inside the pattern string, as well as the numerical index of each
+      named capturing group.
+
+ - QPointer
+    * It is now possible to create a QPointer with a const templated type.
+
+ -
+
+QtGui
+-----
+
+ - QOffscreenSurface
+    * New class for rendering graphics using OpenGL in an arbitrary thread
+      without needing to use a hidden QWindow.
+
+
+QtNetwork
+---------
+
+ - QNetworkAccessManager / QNetworkReply:
+    * Add a new encrypted() signal so that applications can perform
+      additional checks on the certificate chain.
+ - QSslSocket:
+    * Support for sending intermediate certificates when QSslSocket is used
+      as a server, and when using client certificates.
+ - HTTPS internals:
+    * SSL sessions are re-used by default.
+ - QHostInfo:
+    * Allow QHostInfo::lookupHost() with no receiver to warm the DNS cache.
+
+
+QtSql
+-----
+This changelog as released was missing QtSql changes.
+Please refer to changes-5.2.0 for QtSql 5.1.0 changes.
+
+
+QtWidgets
+---------
+
+- QGraphicsView:
+  * Added function rubberBandRect() and signal rubberBandChanged.
+
+****************************************************************************
+*                          Database Drivers                                *
+****************************************************************************
+
+
+****************************************************************************
+*                      Platform Specific Changes                           *
+****************************************************************************
+
+Qt for Linux/X11
+----------------
+ -
+
+Qt for Windows
+--------------
+ -
+
+Qt for Mac OS X
+---------------
+ -
+
+Qt for Embedded Linux
+---------------------
+
+
+Qt for Windows CE
+-----------------
+
+
+****************************************************************************
+*                      Compiler Specific Changes                           *
+****************************************************************************
+
+
+****************************************************************************
+*                          Tools                                           *
+****************************************************************************
+
+- qmake
+
+  * Windows: The feature of finding the highest version number of LIBS
+    entries is turned off by default.
+    It can be turned on with "CONFIG += link_highest_lib_version".
+
+
+****************************************************************************
+*                          Plugins                                         *
+****************************************************************************
+
+

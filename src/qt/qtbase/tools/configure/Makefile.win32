@@ -1,0 +1,169 @@
+CORESRC = $(QTSRC)src\corelib
+TOOLSRC = $(QTSRC)tools
+CONFSRC = $(TOOLSRC)\configure
+
+PCH           = configure_pch.pch
+DEFINES       = -DUNICODE -DQT_NO_CODECS -DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT -DQT_NO_COMPRESS -DQT_NO_THREAD -DQT_NO_QOBJECT -DQT_NO_GEOM_VARIANT -D_CRT_SECURE_NO_DEPRECATE -DQT_BOOTSTRAPPED -DQT_BUILD_CONFIGURE -DCOMMERCIAL_VERSION
+INCPATH       = -I"..\..\include" -I"..\..\include\QtCore" -I"..\..\include\QtCore\$(QTVERSION)" -I"..\..\include\QtCore\$(QTVERSION)\QtCore" -I"$(TOOLSRC)\shared" -I"$(QTSRC)mkspecs\win32-msvc2008"
+CXXFLAGS_BARE = -nologo -Zm200 -Zc:wchar_t -MT -W3 -GR -EHsc -w34100 -w34189 $(EXTRA_CXXFLAGS) $(DEFINES) $(INCPATH)
+CXXFLAGS      = -FIconfigure_pch.h -Yuconfigure_pch.h -Fp$(PCH) -MP $(CXXFLAGS_BARE)
+LINK          = link
+LFLAGS        = /NOLOGO /DYNAMICBASE /NXCOMPAT /INCREMENTAL:NO /SUBSYSTEM:CONSOLE "/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" /MANIFEST /MANIFESTFILE:"configure.intermediate.manifest"
+LIBS          = ole32.lib advapi32.lib shell32.lib
+
+TARGET        = ..\..\configure.exe
+
+OBJECTS = \
+    main.obj \
+    configureapp.obj \
+    environment.obj \
+    tools.obj \
+    qarraydata.obj \
+    qbytearray.obj \
+    qbytearraymatcher.obj \
+    qhash.obj \
+    qlist.obj \
+    qlocale.obj \
+    qlocale_win.obj \
+    qlocale_tools.obj \
+    qvector.obj \
+    qutfcodec.obj \
+    qtextcodec.obj \
+    qglobal.obj \
+    qnumeric.obj \
+    qbuffer.obj \
+    qdatastream.obj \
+    qdir.obj \
+    qdiriterator.obj \
+    qfiledevice.obj \
+    qfile.obj \
+    qfileinfo.obj \
+    qabstractfileengine.obj \
+    qfilesystementry.obj \
+    qfilesystemengine.obj \
+    qfilesystemengine_win.obj \
+    qfilesystemiterator_win.obj \
+    qfsfileengine.obj \
+    qfsfileengine_win.obj \
+    qfsfileengine_iterator.obj \
+    qiodevice.obj \
+    qtextstream.obj \
+    qlogging.obj \
+    qtemporaryfile.obj \
+    qstandardpaths.obj \
+    qstandardpaths_win.obj \
+    qsystemlibrary.obj \
+    qbitarray.obj \
+    qdatetime.obj \
+    qmap.obj \
+    qregexp.obj \
+    qstring.obj \
+    qstring_compat.obj \
+    qstringlist.obj \
+    qvsnprintf.obj \
+    qvariant.obj \
+    qsystemerror.obj \
+    qmetatype.obj \
+    qmalloc.obj \
+    qxmlstream.obj \
+    qxmlutils.obj \
+    quuid.obj \
+    registry.obj \
+    configure_pch.obj
+
+$(TARGET): $(OBJECTS)
+	$(LINK) $(LFLAGS) /OUT:$(TARGET) @<<
+	  $(OBJECTS) $(LIBS)
+<<
+	mt.exe -nologo -manifest "configure.intermediate.manifest" -outputresource:$(TARGET);1
+
+clean:
+	-del *.obj
+	-del *.pch
+	-del configure.intermediate.manifest
+
+$(PCH): $(CONFSRC)\configure_pch.h
+	$(CXX) -c -Yc $(CXXFLAGS_BARE) -Fp$@ -Foconfigure_pch.obj -TP $**
+
+$(OBJECTS): $(PCH)
+
+main.obj: $(CONFSRC)\main.cpp $(CONFSRC)\configureapp.h $(PCH)
+configureapp.obj: $(CONFSRC)\configureapp.cpp $(CONFSRC)\configureapp.h $(CONFSRC)\environment.h $(CONFSRC)\tools.h $(PCH)
+environment.obj: $(CONFSRC)\environment.cpp $(CONFSRC)\environment.h $(PCH)
+tools.obj: $(CONFSRC)\tools.cpp $(CONFSRC)\tools.h $(PCH)
+registry.obj: $(TOOLSRC)\shared\windows\registry.cpp $(PCH)
+qarraydata.obj: $(CORESRC)\tools\qarraydata.cpp $(PCH)
+qbytearray.obj: $(CORESRC)\tools\qbytearray.cpp $(PCH)
+qbytearraymatcher.obj: $(CORESRC)\tools\qbytearraymatcher.cpp $(PCH)
+qhash.obj: $(CORESRC)\tools\qhash.cpp $(PCH)
+qlist.obj: $(CORESRC)\tools\qlist.cpp $(PCH)
+qlocale.obj: $(CORESRC)\tools\qlocale.cpp $(PCH)
+qlocale_win.obj: $(CORESRC)\tools\qlocale_win.cpp $(PCH)
+qlocale_tools.obj: $(CORESRC)\tools\qlocale_tools.cpp $(PCH)
+qvector.obj: $(CORESRC)\tools\qvector.cpp $(PCH)
+qutfcodec.obj: $(CORESRC)\codecs\qutfcodec.cpp $(PCH)
+qtextcodec.obj: $(CORESRC)\codecs\qtextcodec.cpp $(PCH)
+qglobal.obj: $(CORESRC)\global\qglobal.cpp $(PCH)
+qnumeric.obj: $(CORESRC)\global\qnumeric.cpp $(PCH)
+qbuffer.obj: $(CORESRC)\io\qbuffer.cpp $(PCH)
+qdatastream.obj: $(CORESRC)\io\qdatastream.cpp $(PCH)
+qdir.obj: $(CORESRC)\io\qdir.cpp $(PCH)
+qdiriterator.obj: $(CORESRC)\io\qdiriterator.cpp $(PCH)
+qfiledevice.obj: $(CORESRC)\io\qfiledevice.cpp $(PCH)
+qfile.obj: $(CORESRC)\io\qfile.cpp $(PCH)
+qfileinfo.obj: $(CORESRC)\io\qfileinfo.cpp $(PCH)
+qabstractfileengine.obj: $(CORESRC)\io\qabstractfileengine.cpp $(PCH)
+qfilesystementry.obj: $(CORESRC)\io\qfilesystementry.cpp $(PCH)
+qfilesystemengine.obj: $(CORESRC)\io\qfilesystemengine.cpp $(PCH)
+qfilesystemengine_win.obj: $(CORESRC)\io\qfilesystemengine_win.cpp $(PCH)
+qfilesystemiterator_win.obj: $(CORESRC)\io\qfilesystemiterator_win.cpp $(PCH)
+qfsfileengine.obj: $(CORESRC)\io\qfsfileengine.cpp $(PCH)
+qfsfileengine_win.obj: $(CORESRC)\io\qfsfileengine_win.cpp $(PCH)
+qfsfileengine_iterator.obj: $(CORESRC)\io\qfsfileengine_iterator.cpp $(PCH)
+qiodevice.obj: $(CORESRC)\io\qiodevice.cpp $(PCH)
+qtextstream.obj: $(CORESRC)\io\qtextstream.cpp $(PCH)
+qtemporaryfile.obj: $(CORESRC)\io\qtemporaryfile.cpp $(PCH)
+qstandardpaths.obj: $(CORESRC)\io\qstandardpaths.cpp $(PCH)
+qstandardpaths_win.obj: $(CORESRC)\io\qstandardpaths_win.cpp $(PCH)
+qsystemlibrary.obj: $(CORESRC)\plugin\qsystemlibrary.cpp $(PCH)
+qbitarray.obj: $(CORESRC)\tools\qbitarray.cpp $(PCH)
+qdatetime.obj: $(CORESRC)\tools\qdatetime.cpp $(PCH)
+qmap.obj: $(CORESRC)\tools\qmap.cpp $(PCH)
+qregexp.obj: $(CORESRC)\tools\qregexp.cpp $(PCH)
+qstring.obj: $(CORESRC)\tools\qstring.cpp $(PCH)
+qstringlist.obj: $(CORESRC)\tools\qstringlist.cpp $(PCH)
+qvsnprintf.obj: $(CORESRC)\tools\qvsnprintf.cpp $(PCH)
+qvariant.obj: $(CORESRC)\kernel\qvariant.cpp $(PCH)
+qsystemerror.obj: $(CORESRC)\kernel\qsystemerror.cpp $(PCH)
+qline.obj: $(CORESRC)\tools\qline.cpp $(PCH)
+qsize.obj: $(CORESRC)\tools\qsize.cpp $(PCH)
+qpoint.obj: $(CORESRC)\tools\qpoint.cpp $(PCH)
+qrect.obj: $(CORESRC)\tools\qrect.cpp $(PCH)
+qmetatype.obj: $(CORESRC)\kernel\qmetatype.cpp $(PCH)
+qmalloc.obj: $(CORESRC)\global\qmalloc.cpp $(PCH)
+qxmlstream.obj: $(CORESRC)\xml\qxmlstream.cpp $(PCH)
+qxmlutils.obj: $(CORESRC)\xml\qxmlutils.cpp $(PCH)
+quuid.obj: $(CORESRC)\plugin\quuid.cpp $(PCH)
+
+{$(CONFSRC)}.cpp{}.obj::
+	$(CXX) -c $(CXXFLAGS) $<
+{$(TOOLSRC)\shared\windows}.cpp{}.obj::
+	$(CXX) -c $(CXXFLAGS) $<
+{$(CORESRC)\tools}.cpp{}.obj::
+	$(CXX) -c $(CXXFLAGS) $<
+{$(CORESRC)\codecs}.cpp{}.obj::
+	$(CXX) -c $(CXXFLAGS) $<
+{$(CORESRC)\global}.cpp{}.obj::
+	$(CXX) -c $(CXXFLAGS) $<
+{$(CORESRC)\io}.cpp{}.obj::
+	$(CXX) -c $(CXXFLAGS) $<
+{$(CORESRC)\kernel}.cpp{}.obj::
+	$(CXX) -c $(CXXFLAGS) $<
+{$(CORESRC)\plugin}.cpp{}.obj::
+	$(CXX) -c $(CXXFLAGS) $<
+{$(CORESRC)\xml}.cpp{}.obj::
+	$(CXX) -c $(CXXFLAGS) $<
+
+# Make sure qstring_compat.obj isn't compiled with PCH enabled
+qstring_compat.obj: $(CORESRC)\tools\qstring_compat.cpp
+	$(CXX) -c $(CXXFLAGS_BARE) $(CORESRC)\tools\qstring_compat.cpp

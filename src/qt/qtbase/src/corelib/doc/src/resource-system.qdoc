@@ -1,0 +1,222 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page resources.html
+    \title The Qt Resource System
+    \brief A platform-independent mechanism for storing binary files in an application.
+
+    \keyword resource system
+
+    The Qt resource system is a platform-independent mechanism for
+    storing binary files in the application's executable. This is
+    useful if your application always needs a certain set of files
+    (icons, translation files, etc.) and you don't want to run the
+    risk of losing the files.
+
+    The resource system is based on tight cooperation between \l qmake,
+    \l rcc (Qt's resource compiler), and QFile.
+
+    \section1 Resource Collection Files (\c{.qrc})
+
+    The resources associated with an application are specified in a
+    \c .qrc file, an XML-based file format that lists files on the
+    disk and optionally assigns them a resource name that the
+    application must use to access the resource.
+
+    Here's an example \c .qrc file:
+
+    \quotefile resource-system/application.qrc
+
+    The resource files listed in the \c .qrc file are files that are
+    part of the application's source tree. The specified paths are
+    relative to the directory containing the \c .qrc file. Note that
+    the listed resource files must be located in the same directory as
+    the \c .qrc file, or one of its subdirectories.
+
+    Resource data can either be compiled into the binary and thus accessed
+    immediately in application code, or a binary resource can be created
+    and at a later point in application code registered with the resource
+    system.
+
+    By default, resources are accessible in the application under the
+    same file name as they have in the source tree, with a \c :/ prefix,
+    or by a \l{QUrl}{URL} with a \c qrc scheme.
+
+    For example, the file path \c :/images/cut.png or the URL
+    \c qrc:///images/cut.png would give access to the
+    \c cut.png file, whose location in the application's source tree
+    is \c images/cut.png. This can be changed using the \c file tag's
+    \c alias attribute:
+
+    \snippet code/doc_src_resources.qdoc 0
+
+    The file is then accessible as \c :/cut-img.png from the
+    application. It is also possible to specify a path prefix for all
+    files in the \c .qrc file using the \c qresource tag's \c prefix
+    attribute:
+
+    \snippet code/doc_src_resources.qdoc 1
+
+    In this case, the file is accessible as \c
+    :/myresources/cut-img.png.
+
+    Some resources need to change based on the user's locale,
+    such as translation files or icons. This is done by adding a \c lang
+    attribute to the \c qresource tag, specifying a suitable locale
+    string. For example:
+
+    \snippet code/doc_src_resources.qdoc 2
+
+    If the user's locale is French (i.e., QLocale::system().name() returns
+    "fr_FR"), \c :/cut.jpg becomes a reference to the \c cut_fr.jpg
+    image. For other locales, \c cut.jpg is used.
+
+    See the QLocale documentation for a description of the format to use
+    for locale strings.
+
+
+    \section2 External Binary Resources
+
+    For an external binary resource to be created you must create the resource
+    data (commonly given the \c .rcc extension) by passing the -binary switch to
+    \l rcc. Once the binary resource is created you can register the resource
+    with the QResource API.
+
+    For example, a set of resource data specified in a \c .qrc file can be
+    compiled in the following way:
+
+    \snippet code/doc_src_resources.qdoc 3
+
+    In the application, this resource would be registered with code like this:
+
+    \snippet code/doc_src_resources.cpp 4
+
+    \section2 Compiled-In Resources
+
+    For a resource to be compiled into the binary the \c .qrc file must be
+    mentioned in the application's \c .pro file so that \c qmake knows
+    about it. For example:
+
+    \snippet resource-system/application.pro 0
+
+    \c qmake will produce make rules to generate a file called \c
+    qrc_application.cpp that is linked into the application. This
+    file contains all the data for the images and other resources as
+    static C++ arrays of compressed binary data. The \c
+    qrc_application.cpp file is automatically regenerated whenever
+    the \c .qrc file changes or one of the files that it refers to
+    changes. If you don't use \c .pro files, you can either invoke
+    \c rcc manually or add build rules to your build system.
+
+    \image resources.png Building resources into an application
+
+    Currently, Qt always stores the data directly in the executable,
+    even on Windows and Mac OS X, where the operating system provides
+    native support for resources. This might change in a future Qt
+    release.
+
+    \section1 Compression
+
+    Resources are compressed by default (in the \c ZIP format). It is
+    possible to turn off compression. This can be useful if your
+    resources already contain a compressed format, such as \c .png
+    files. You do this by giving the \c {-no-compress} command line
+    argument.
+
+    \code
+        rcc -no-compress myresources.qrc
+    \endcode
+
+    \c rcc also gives you some control over the compression. You can
+    specify the compression level and the threshold level to consider
+    while compressing files, for example:
+
+    \code
+        rcc -compress 2 -threshold 3 myresources.qrc
+    \endcode
+
+    \section1 Using Resources in the Application
+
+    In the application, resource paths can be used in most places
+    instead of ordinary file system paths. In particular, you can
+    pass a resource path instead of a file name to the QIcon, QImage,
+    or QPixmap constructor:
+
+    \snippet resource-system/mainwindow.cpp 21
+
+    See the \l{mainwindows/application}{Application} example for an
+    actual application that uses Qt's resource system to store its
+    icons.
+
+    In memory, resources are represented by a tree of resource
+    objects. The tree is automatically built at startup and used by
+    QFile for resolving paths to resources. You can use a QDir initialized
+    with ":/" to navigate through the resource tree from the root.
+
+    Qt's resources support the concept of a search path list. If you then
+    refer to a resource with \c : instead of \c :/ as the prefix, the
+    resource will be looked up using the search path list. The search
+    path list is empty at startup; call QDir::addSearchPath() to
+    add paths to it.
+
+    \section1 Using Resources in a Library
+
+    If you have resources in a library, you need to force initialization
+    of your resources by calling \l Q_INIT_RESOURCE() with the base name
+    of the \c .qrc file. For example:
+
+    \snippet code/doc_src_resources.cpp 5
+
+    This ensures that the resources are linked into the final application
+    binary in the case of static linking. You should put the initialization
+    code close to where the resources are used in your library, so that
+    clients of your library will only link in the resources if they use
+    the feature of the library that depends on them.
+
+    Note: As the resource initializers generated by rcc are declared in the
+    global namespace, your calls to \l Q_INIT_RESOURCE() also need to be done
+    outside of any namespace.
+
+    If the library includes resources that are not used internally, but
+    instead exposed to clients of the library, the initialization needs
+    to happen in the application code. For example:
+
+    \snippet code/doc_src_resources.cpp 6
+
+    As before, this ensures that the resources are linked into the final
+    application binary in the case of static linking, but also triggers
+    loading of the library in the case of dynamic linking, such as plugins.
+
+    Similarly, if you must unload a set of resources explicitly
+    (because a plugin is being unloaded or the resources are not valid
+    any longer), you can force removal of your resources by calling
+    \l Q_CLEANUP_RESOURCE() with the same base name as above.
+
+    Note: The use of \l Q_INIT_RESOURCE() and \l Q_CLEANUP_RESOURCE() is
+    not necessary when the resource is built as part of the application.
+*/

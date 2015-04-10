@@ -1,0 +1,2 @@
+SOURCES = main.cpp
+CONFIG += CONSOLE

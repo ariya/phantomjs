@@ -1,0 +1,117 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/* These styles match Xcode 4's Default theme. */
+
+.cm-s-default,
+.syntax-highlighted {
+    color: black;
+
+    font-family: Menlo, monospace;
+    font-size: 11px;
+}
+
+.cm-s-default .cm-comment,
+.syntax-highlighted .css-comment,
+.syntax-highlighted .javascript-comment,
+.syntax-highlighted .html-comment {
+    color: rgb(0, 116, 0);
+}
+
+.cm-s-default .cm-tag,
+.cm-s-default .cm-atom,
+.cm-s-default .cm-keyword,
+.cm-s-default .cm-m-css.cm-meta,
+.cm-s-default .cm-m-css.cm-property,
+.cm-s-default .cm-m-css.cm-string-2,
+.cm-s-default .cm-m-javascript.cm-builtin,
+.syntax-highlighted .css-keyword,
+.syntax-highlighted .css-property,
+.syntax-highlighted .css-at-rule,
+.syntax-highlighted .css-important,
+.syntax-highlighted .javascript-keyword,
+.syntax-highlighted .html-tag {
+    color: rgb(170, 13, 145);
+}
+
+.cm-s-default .cm-number,
+.cm-s-default .cm-m-css.cm-atom,
+.syntax-highlighted .css-number,
+.syntax-highlighted .javascript-number {
+    color: rgb(28, 0, 207);
+}
+
+.cm-s-default .cm-def,
+.cm-s-default .cm-bracket,
+.cm-s-default .cm-operator,
+.cm-s-default .cm-qualifier,
+.cm-s-default .cm-variable,
+.cm-s-default .cm-variable-2,
+.cm-s-default .cm-variable-3,
+.cm-s-default .cm-m-css.cm-tag,
+.cm-s-default .cm-m-css.cm-builtin,
+.syntax-highlighted .css-selector,
+.syntax-highlighted .javascript-ident {
+    color: inherit;
+}
+
+.cm-s-default .cm-string,
+.syntax-highlighted .css-string,
+.syntax-highlighted .javascript-string,
+.syntax-highlighted .javascript-regexp,
+.syntax-highlighted .html-attribute-value {
+    color: rgb(196, 26, 22);
+}
+
+.cm-s-default .cm-m-xml.cm-meta,
+.syntax-highlighted .html-doctype {
+    color: rgb(192, 192, 192);
+}
+
+.cm-s-default .cm-m-xml.cm-attribute,
+.syntax-highlighted .html-attribute-name {
+    color: rgb(131, 108, 40);
+}
+
+.syntax-highlighted a {
+    color: rgb(14, 14, 255);
+}
+
+.cm-s-default .cm-link,
+.syntax-highlighted a {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.cm-s-default .cm-link:hover,
+.syntax-highlighted a:hover {
+    text-decoration: underline;
+}
+
+.supports-find-banner.showing-find-banner.syntax-highlighted .search-result,
+.supports-find-banner.showing-find-banner .syntax-highlighted .search-result {
+    background-color: rgba(235, 215, 38, 0.2);
+    border-bottom: 1px solid rgb(237, 202, 71);
+}

@@ -1,0 +1,109 @@
+Qt 4.3.5 is a bug-fix release. It maintains both forward and backward
+compatibility (source and binary) with Qt 4.3.0 through Qt 4.3.4.
+
+The Qt version 4.3 series is binary compatible with the 4.2.x, 4.1.x and
+4.0.x series. Applications compiled for Qt 4.0, 4.1 or 4.2 will continue to
+run with Qt 4.3.
+
+****************************************************************************
+*                           General                                        *
+****************************************************************************
+
+General Improvements
+--------------------
+
+    * [201242] Fixed an bug that caused bootstrapped tools (qmake,
+      moc, uic, and rcc) to crash or run into infinite loops.
+    * [190776] Fixed a bug that would generate invalid build keys in
+      some gcc compiler versions. Backported from Qt 4.4.
+
+- Legal
+
+    * This version updates the GPL Exception to version 1.2 in all
+      Open Source editions of Qt. This version is compatible with the
+      GPL version 3 and adds the LGPL version 3 to its list of
+      acceptable licenses.
+
+Third party components
+----------------------
+
+- libpng
+    * Security fix (CVE-2008-1382)
+
+Build System
+------------
+
+I18n
+----
+
+****************************************************************************
+*                           Library                                        *
+****************************************************************************
+
+General Improvements
+--------------------
+
+- QCalendarWidget
+    * Fixed handling of leap year while changing the date in calendar widget.
+
+- QComboBox
+    * [203827] Fixed problems caused by the line edit not being hidden for
+      a non-editable QComboBox.
+
+- QMdiArea
+    * [209615] Fixed an assert when removing a sub-window from one QMdiArea and
+      adding it to another QMdiArea.
+
+- QMdiSubWindow
+    * [192794] Fixed a bug where installed event filters were removed
+      when maximizing a window.
+
+- QPainter
+    * [204194] Fixed division-by-zero issue in raster paint engine when
+      calling drawLine with the same starting and ending point.
+    * [205443, 207147] Fixed floating point exception when drawing near-vertical
+      or near-horizontal lines in the raster paint engine.
+
+- QWizard
+    * [180397] Fixed crash resulting from AeroStyle being assumed even when
+      some of the required symbols were unresolved.
+    * [197953] QWizard no longer crashes on Windows if an accessibility
+      application (like Microsoft Narrator) is running.
+
+- QWorkspace
+    * [206368] Fixed a crash resulting from the icon in the title bar not
+      being deleted when deleting a sub-window.
+
+****************************************************************************
+*                          Database Drivers                                *
+****************************************************************************
+
+
+****************************************************************************
+*                               Examples                                   *
+****************************************************************************
+
+
+****************************************************************************
+*                      Platform Specific Changes                           *
+****************************************************************************
+
+X11
+---
+
+Windows
+-------
+
+- QRasterPaintEngine
+    * [198509] Fixed a resource leak which occured when QPainter::drawText()
+    was called.
+
+Mac OS X
+--------
+
+- QRasterPaintEngine
+    * [198924] Fixed a byte order problem when drawing QImages on an X11
+    server running on PPC Macs.
+
+Qtopia Core
+-----------

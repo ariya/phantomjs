@@ -1,0 +1,451 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2007, 2008, 2009, 2011, 2012, 2013 Apple Inc.  All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# This script attempts to find the point at which a regression (or progression)
+# of behavior occurred by searching WebKit nightly builds.
+
+# To override the location where the nightly builds are downloaded or the path
+# to the Safari web browser, create a ~/.bisect-buildsrc file with one or more of
+# the following lines (use "~/" to specify a path from your home directory):
+#
+# $branch = "branch-name";
+# $nightlyDownloadDirectory = "~/path/to/nightly/downloads";
+# $safariPath = "/path/to/Safari.app";
+
+use strict;
+
+use File::Basename;
+use File::Path;
+use File::Spec;
+use File::Temp qw(tempfile);
+use FindBin;
+use Getopt::Long;
+use Time::HiRes qw(usleep);
+
+use lib $FindBin::Bin;
+use webkitdirs qw(safariPathFromSafariBundle);
+
+sub createTempFile($);
+sub downloadNightly($$$);
+sub findMacOSXVersion();
+sub findNearestNightlyIndex(\@$$);
+sub findSafariVersion($);
+sub loadSettings();
+sub makeNightlyList($$$$);
+sub max($$) { return $_[0] > $_[1] ? $_[0] : $_[1]; }
+sub mountAndRunNightly($$$$);
+sub parseRevisions($$;$);
+sub printStatus($$$);
+sub printTracLink($$);
+sub promptForTest($);
+
+loadSettings();
+
+my %validBranches = map { $_ => 1 } qw(feature-branch trunk);
+my $branch = $Settings::branch;
+my $nightlyDownloadDirectory = $Settings::nightlyDownloadDirectory;
+my $safariPath = $Settings::safariPath;
+
+my @nightlies;
+
+my $isProgression;
+my $localOnly;
+my @revisions;
+my $sanityCheck;
+my $showHelp;
+my $testURL;
+
+# Fix up -r switches in @ARGV
+@ARGV = map { /^(-r)(.+)$/ ? ($1, $2) : $_ } @ARGV;
+
+my $result = GetOptions(
+    "b|branch=s"             => \$branch,
+    "d|download-directory=s" => \$nightlyDownloadDirectory,
+    "h|help"                 => \$showHelp,
+    "l|local!"               => \$localOnly,
+    "p|progression!"         => \$isProgression,
+    "r|revisions=s"          => \&parseRevisions,
+    "safari-path=s"          => \$safariPath,
+    "s|sanity-check!"        => \$sanityCheck,
+);
+$testURL = shift @ARGV;
+
+$branch = "feature-branch" if $branch eq "feature";
+if (!exists $validBranches{$branch}) {
+    print STDERR "ERROR: Invalid branch '$branch'\n";
+    $showHelp = 1;
+}
+
+if (!$result || $showHelp || scalar(@ARGV) > 0) {
+    print STDERR "Search WebKit nightly builds for changes in behavior.\n";
+    print STDERR "Usage: " . basename($0) . " [options] [url]\n";
+    print STDERR <<END;
+  [-b|--branch name]             name of the nightly build branch (default: trunk)
+  [-d|--download-directory dir]  nightly build download directory (default: ~/Library/Caches/WebKit-Nightlies)
+  [-h|--help]                    show this help message
+  [-l|--local]                   only use local (already downloaded) nightlies
+  [-p|--progression]             searching for a progression, not a regression
+  [-r|--revision M[:N]]          specify starting (and optional ending) revisions to search
+  [--safari-path path]           path to Safari application bundle (default: /Applications/Safari.app)
+  [-s|--sanity-check]            verify both starting and ending revisions before bisecting
+END
+    exit 1;
+}
+
+my $nightlyWebSite = "http://nightly.webkit.org";
+my $nightlyBuildsURLBase = $nightlyWebSite . File::Spec->catdir("/builds", $branch, "mac");
+my $nightlyFilesURLBase = $nightlyWebSite . File::Spec->catdir("/files", $branch, "mac");
+
+$nightlyDownloadDirectory = glob($nightlyDownloadDirectory) if $nightlyDownloadDirectory =~ /^~/;
+$safariPath = glob($safariPath) if $safariPath =~ /^~/;
+$safariPath = safariPathFromSafariBundle($safariPath) if $safariPath =~ m#\.app/*#;
+
+$nightlyDownloadDirectory = File::Spec->catdir($nightlyDownloadDirectory, $branch);
+if (! -d $nightlyDownloadDirectory) {
+    mkpath($nightlyDownloadDirectory, 0, 0755) || die "Could not create $nightlyDownloadDirectory: $!";
+}
+
+@nightlies = makeNightlyList($localOnly, $nightlyDownloadDirectory, findMacOSXVersion(), findSafariVersion($safariPath));
+
+my $startIndex = $revisions[0] ? findNearestNightlyIndex(@nightlies, $revisions[0], 'ceil') : 0;
+my $endIndex = $revisions[1] ? findNearestNightlyIndex(@nightlies, $revisions[1], 'floor') : $#nightlies;
+
+my $tempFile = createTempFile($testURL);
+
+if ($sanityCheck) {
+    my $didReproduceBug;
+
+    do {
+        printf "\nChecking starting revision r%s...\n",
+            $nightlies[$startIndex]->{rev};
+        downloadNightly($nightlies[$startIndex]->{file}, $nightlyFilesURLBase, $nightlyDownloadDirectory);
+        mountAndRunNightly($nightlies[$startIndex]->{file}, $nightlyDownloadDirectory, $safariPath, $tempFile);
+        $didReproduceBug = promptForTest($nightlies[$startIndex]->{rev});
+        $startIndex-- if $didReproduceBug < 0;
+    } while ($didReproduceBug < 0);
+    die "ERROR: Bug reproduced in starting revision!  Do you need to test an earlier revision or for a progression?"
+        if $didReproduceBug && !$isProgression;
+    die "ERROR: Bug not reproduced in starting revision!  Do you need to test an earlier revision or for a regression?"
+        if !$didReproduceBug && $isProgression;
+
+    do {
+        printf "\nChecking ending revision r%s...\n",
+            $nightlies[$endIndex]->{rev};
+        downloadNightly($nightlies[$endIndex]->{file}, $nightlyFilesURLBase, $nightlyDownloadDirectory);
+        mountAndRunNightly($nightlies[$endIndex]->{file}, $nightlyDownloadDirectory, $safariPath, $tempFile);
+        $didReproduceBug = promptForTest($nightlies[$endIndex]->{rev});
+        $endIndex++ if $didReproduceBug < 0;
+    } while ($didReproduceBug < 0);
+    die "ERROR: Bug NOT reproduced in ending revision!  Do you need to test a later revision or for a progression?"
+        if !$didReproduceBug && !$isProgression;
+    die "ERROR: Bug reproduced in ending revision!  Do you need to test a later revision or for a regression?"
+        if $didReproduceBug && $isProgression;
+}
+
+printStatus($nightlies[$startIndex]->{rev}, $nightlies[$endIndex]->{rev}, $isProgression);
+
+my %brokenRevisions = ();
+while (abs($endIndex - $startIndex) > 1) {
+    my $index = $startIndex + int(($endIndex - $startIndex) / 2);
+
+    my $didReproduceBug;
+    do {
+        if (exists $nightlies[$index]) {
+            my $buildsLeft = max(max(0, $endIndex - $index - 1), max(0, $index - $startIndex - 1));
+            my $plural = $buildsLeft == 1 ? "" : "s";
+            printf "\nChecking revision r%s (%d build%s left to test after this)...\n", $nightlies[$index]->{rev}, $buildsLeft, $plural;
+            downloadNightly($nightlies[$index]->{file}, $nightlyFilesURLBase, $nightlyDownloadDirectory);
+            mountAndRunNightly($nightlies[$index]->{file}, $nightlyDownloadDirectory, $safariPath, $tempFile);
+            $didReproduceBug = promptForTest($nightlies[$index]->{rev});
+        }
+        if ($didReproduceBug < 0) {
+            $brokenRevisions{$nightlies[$index]->{rev}} = $nightlies[$index]->{file};
+            delete $nightlies[$index];
+            $endIndex--;
+            if (scalar(keys %brokenRevisions) % 2 == 0) {
+                # Even tries to bisect to the left
+                $index = int(($startIndex + $index) / 2);
+            } else {
+                # Odd tries to bisect to the right
+                $index = int(($index + $endIndex) / 2);
+            }
+        }
+    } while ($didReproduceBug < 0);
+
+    if ($didReproduceBug && !$isProgression || !$didReproduceBug && $isProgression) {
+        $endIndex = $index;
+    } else {
+        $startIndex = $index;
+    }
+
+    print "\nBroken revisions skipped: r" . join(", r", keys %brokenRevisions) . "\n"
+        if scalar keys %brokenRevisions > 0;
+    printStatus($nightlies[$startIndex]->{rev}, $nightlies[$endIndex]->{rev}, $isProgression);
+}
+
+printTracLink($nightlies[$startIndex]->{rev}, $nightlies[$endIndex]->{rev});
+
+unlink $tempFile if $tempFile;
+
+exit 0;
+
+sub createTempFile($)
+{
+    my ($url) = @_;
+
+    return undef if !$url;
+
+    my ($fh, $tempFile) = tempfile(
+        basename($0) . "-XXXXXXXX",
+        DIR => File::Spec->tmpdir(),
+        SUFFIX => ".html",
+        UNLINK => 0,
+    );
+    print $fh "<meta http-equiv=\"refresh\" content=\"0; $url\">\n";
+    close($fh);
+
+    return $tempFile;
+}
+
+sub downloadNightly($$$)
+{
+    my ($filename, $urlBase, $directory) = @_;
+    my $path = File::Spec->catfile($directory, $filename);
+    if (! -f $path) {
+        print "Downloading $filename to $directory...\n";
+        `curl -# -o '$path' '$urlBase/$filename'`;
+    }
+}
+
+sub findMacOSXVersion()
+{
+    my $version;
+    open(SW_VERS, "-|", "/usr/bin/sw_vers") || die;
+    while (<SW_VERS>) {
+        $version = $1 if /^ProductVersion:\s+([^\s]+)/;
+    }
+    close(SW_VERS);
+    return $version;
+}
+
+sub findNearestNightlyIndex(\@$$)
+{
+    my ($nightlies, $revision, $round) = @_;
+
+    my $lowIndex = 0;
+    my $highIndex = $#{$nightlies};
+
+    return $highIndex if uc($revision) eq 'HEAD' || $revision >= $nightlies->[$highIndex]->{rev};
+    return $lowIndex if $revision <= $nightlies->[$lowIndex]->{rev};
+
+    while (abs($highIndex - $lowIndex) > 1) {
+        my $index = $lowIndex + int(($highIndex - $lowIndex) / 2);
+        if ($revision < $nightlies->[$index]->{rev}) {
+            $highIndex = $index;
+        } elsif ($revision > $nightlies->[$index]->{rev}) {
+            $lowIndex = $index;
+        } else {
+            return $index;
+        }
+    }
+
+    return ($round eq "floor") ? $lowIndex : $highIndex;
+}
+
+sub findSafariVersion($)
+{
+    my ($path) = @_;
+    my $versionPlist = File::Spec->catdir(dirname(dirname($path)), "version.plist");
+    my $version;
+    open(PLIST, "< $versionPlist") || die;
+    while (<PLIST>) {
+        if (m#^\s*<key>CFBundleShortVersionString</key>#) {
+            $version = <PLIST>;
+            $version =~ s#^\s*<string>([0-9.]+)[^<]*</string>\s*[\r\n]*#$1#;
+        }
+    }
+    close(PLIST);
+    return $version;
+}
+
+sub loadSettings()
+{
+    package Settings;
+
+    our $branch = "trunk";
+    our $nightlyDownloadDirectory = File::Spec->catdir($ENV{HOME}, "Library/Caches/WebKit-Nightlies");
+    our $safariPath = "/Applications/Safari.app";
+
+    my $rcfile = File::Spec->catdir($ENV{HOME}, ".bisect-buildsrc");
+    return if !-f $rcfile;
+
+    my $result = do $rcfile;
+    die "Could not parse $rcfile: $@" if $@;
+}
+
+sub makeNightlyList($$$$)
+{
+    my ($useLocalFiles, $localDirectory, $macOSXVersion, $safariVersion) = @_;
+    my @files;
+
+    if ($useLocalFiles) {
+        opendir(DIR, $localDirectory) || die "$!";
+        foreach my $file (readdir(DIR)) {
+            if ($file =~ /^WebKit-SVN-r([0-9]+)\.dmg$/) {
+                push(@files, +{ rev => $1, file => $file });
+            }
+        }
+        closedir(DIR);
+    } else {
+        open(NIGHTLIES, "curl -s $nightlyBuildsURLBase/all |") || die;
+
+        while (my $line = <NIGHTLIES>) {
+            chomp $line;
+            my ($revision, $timestamp, $url) = split(/,/, $line);
+            my $nightly = basename($url);
+            push(@files, +{ rev => $revision, file => $nightly });
+        }
+        close(NIGHTLIES);
+    }
+
+    if (eval "v$macOSXVersion" ge v10.5) {
+        if ($safariVersion eq "4 Public Beta") {
+            @files = grep { $_->{rev} >= 39682 } @files;
+        } elsif (eval "v$safariVersion" ge v3.2) {
+            @files = grep { $_->{rev} >= 37348 } @files;
+        } elsif (eval "v$safariVersion" ge v3.1) {
+            @files = grep { $_->{rev} >= 29711 } @files;
+        } elsif (eval "v$safariVersion" ge v3.0) {
+            @files = grep { $_->{rev} >= 25124 } @files;
+        } elsif (eval "v$safariVersion" ge v2.0) {
+            @files = grep { $_->{rev} >= 19594 } @files;
+        } else {
+            die "Requires Safari 2.0 or newer";
+        }
+    } elsif (eval "v$macOSXVersion" ge v10.4) {
+        if ($safariVersion eq "4 Public Beta") {
+            @files = grep { $_->{rev} >= 39682 } @files;
+        } elsif (eval "v$safariVersion" ge v3.2) {
+            @files = grep { $_->{rev} >= 37348 } @files;
+        } elsif (eval "v$safariVersion" ge v3.1) {
+            @files = grep { $_->{rev} >= 29711 } @files;
+        } elsif (eval "v$safariVersion" ge v3.0) {
+            @files = grep { $_->{rev} >= 19992 } @files;
+        } elsif (eval "v$safariVersion" ge v2.0) {
+            @files = grep { $_->{rev} >= 11976 } @files;
+        } else {
+            die "Requires Safari 2.0 or newer";
+        }
+    } else {
+        die "Requires Mac OS X 10.4 (Tiger) or 10.5 (Leopard)";
+    }
+
+    my $nightlycmp = sub { return $a->{rev} <=> $b->{rev}; };
+
+    return sort $nightlycmp @files;
+}
+
+sub mountAndRunNightly($$$$)
+{
+    my ($filename, $directory, $safari, $tempFile) = @_;
+    my $mountPath = "/Volumes/WebKit";
+    my $webkitApp = File::Spec->catfile($mountPath, "WebKit.app");
+    my $diskImage = File::Spec->catfile($directory, $filename);
+    my $devNull = File::Spec->devnull();
+
+    my $i = 0;
+    while (-e $mountPath) {
+        $i++;
+        usleep 100 if $i > 1;
+        `hdiutil detach '$mountPath' 2> $devNull`;
+        die "Could not unmount $diskImage at $mountPath" if $i > 100;
+    }
+    die "Can't mount $diskImage: $mountPath already exists!" if -e $mountPath;
+
+    print "Mounting disk image and running WebKit...\n";
+    `hdiutil attach '$diskImage'`;
+    $i = 0;
+    while (! -e $webkitApp) {
+        usleep 100;
+        $i++;
+        die "Could not mount $diskImage at $mountPath" if $i > 100;
+    }
+
+    my $frameworkPath;
+    if (-d "/Volumes/WebKit/WebKit.app/Contents/Frameworks") {
+        my $osXVersion = join('.', (split(/\./, findMacOSXVersion()))[0..1]);
+        $frameworkPath = "/Volumes/WebKit/WebKit.app/Contents/Frameworks/$osXVersion";
+    } else {
+        $frameworkPath = "/Volumes/WebKit/WebKit.app/Contents/Resources";
+    }
+
+    $tempFile ||= "";
+    `DYLD_FRAMEWORK_PATH=$frameworkPath WEBKIT_UNSET_DYLD_FRAMEWORK_PATH=YES $safari $tempFile`;
+
+    `hdiutil detach '$mountPath' 2> $devNull`;
+}
+
+sub parseRevisions($$;$)
+{
+    my ($optionName, $value, $ignored) = @_;
+
+    if ($value =~ /^r?([0-9]+|HEAD):?$/i) {
+        push(@revisions, $1);
+        die "Too many revision arguments specified" if scalar @revisions > 2;
+    } elsif ($value =~ /^r?([0-9]+):?r?([0-9]+|HEAD)$/i) {
+        $revisions[0] = $1;
+        $revisions[1] = $2;
+    } else {
+        die "Unknown revision '$value':  expected 'M' or 'M:N'";
+    }
+}
+
+sub printStatus($$$)
+{
+    my ($startRevision, $endRevision, $isProgression) = @_;
+    printf "\n%s: r%s  %s: r%s\n",
+        $isProgression ? "Fails" : "Works", $startRevision,
+        $isProgression ? "Works" : "Fails", $endRevision;
+}
+
+sub printTracLink($$)
+{
+    my ($startRevision, $endRevision) = @_;
+    printf("http://trac.webkit.org/log/trunk/?rev=%s&stop_rev=%s\n", $endRevision, $startRevision + 1);
+}
+
+sub promptForTest($)
+{
+    my ($revision) = @_;
+    print "Did the bug reproduce in r$revision (yes/no/broken)? ";
+    my $answer = <STDIN>;
+    return 1 if $answer =~ /^(1|y.*)$/i;
+    return -1 if $answer =~ /^(-1|b.*)$/i; # Broken
+    return 0;
+}
+

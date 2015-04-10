@@ -1,0 +1,10 @@
+CONFIG += qpa/basicunixfontdatabase
+contains(QT_CONFIG, fontconfig) {
+    DEFINES += Q_FONTCONFIGDATABASE
+    LIBS += -lfontconfig
+} else:!android {
+    fonts.path = $$[QT_INSTALL_LIBS]/fonts
+    fonts.files = $$QT_SOURCE_TREE/lib/fonts/*
+    INSTALLS += fonts
+}
+

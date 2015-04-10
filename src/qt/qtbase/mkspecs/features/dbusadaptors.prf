@@ -1,0 +1,4 @@
+dbus_type = adaptor
+qdbusxml2cpp_option = -a
+
+include(dbuscommon.pri)

@@ -1,0 +1,93 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \namespace QSql
+    \inmodule QtSql
+    \brief The QSql namespace contains miscellaneous identifiers used throughout
+    the Qt SQL module.
+
+    \ingroup database
+
+
+    \sa {Qt SQL}
+*/
+
+/*!
+    \enum QSql::Location
+
+    This enum type describes special SQL navigation locations:
+
+    \value BeforeFirstRow Before the first record.
+    \value AfterLastRow After the last record.
+
+    \sa QSqlQuery::at()
+*/
+
+/*!
+    \enum QSql::ParamTypeFlag
+
+    This enum is used to specify the type of a bind parameter.
+
+    \value In  The bind parameter is used to put data into the database.
+    \value Out  The bind parameter is used to receive data from the database.
+    \value InOut  The bind parameter is used to put data into the
+        database; it will be overwritten with output data on executing
+        a query.
+    \value Binary This must be OR'd with one of the other flags if
+           you want to indicate that the data being transferred is
+           raw binary data.
+*/
+
+/*!
+    \enum QSql::TableType
+
+    This enum type describes types of SQL tables.
+
+    \value Tables  All the tables visible to the user.
+    \value SystemTables  Internal tables used by the database.
+    \value Views  All the views visible to the user.
+    \value AllTables  All of the above.
+*/
+
+/*!
+    \enum QSql::NumericalPrecisionPolicy
+
+    Numerical values in a database can have precisions greater than their corresponding
+    C++ types. This enum lists the policies for representing such values in the application.
+
+    \value LowPrecisionInt32  Force 32bit integer values. In case of floating point numbers,
+                              the fractional part is silently discarded.
+    \value LowPrecisionInt64  Force 64bit integer values. In case of floating point numbers,
+                              the fractional part is silently discarded.
+    \value LowPrecisionDouble Force \c double values. This is the default policy.
+    \value HighPrecision      Strings will be used to preserve precision.
+
+    Note: The actual behaviour if an overflow occurs is driver specific. The Oracle database
+    just returns an error in this case.
+*/
+

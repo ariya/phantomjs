@@ -1,0 +1,146 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/* TODO: Move some of the documentation from QSharedDataPointer into this
+   document. */
+
+/*!
+    \group shared
+    \title Implicitly Shared Classes
+
+    These \l{Qt Core} classes provides a safe and efficient way of sharing and
+    manipulating data by \l{Implicit Sharing}{implicitly sharing} data.
+
+*/
+
+/*!
+    \page implicit-sharing.html
+    \title Implicit Sharing
+    \ingroup qt-basic-concepts
+
+    \brief Reference counting for fast copying.
+
+    \keyword implicit data sharing
+    \keyword implicit sharing
+    \keyword implicitly shared
+    \keyword reference counting
+    \keyword shared implicitly
+    \keyword shared classes
+
+    Many C++ classes in Qt use implicit data sharing to maximize
+    resource usage and minimize copying. Implicitly shared classes are
+    both safe and efficient when passed as arguments, because only a
+    pointer to the data is passed around, and the data is copied only
+    if and when a function writes to it, i.e., \e {copy-on-write}.
+
+    \tableofcontents
+
+    \section1 Overview
+
+    A shared class consists of a pointer to a shared data block that
+    contains a reference count and the data.
+
+    When a shared object is created, it sets the reference count to 1. The
+    reference count is incremented whenever a new object references the
+    shared data, and decremented when the object dereferences the shared
+    data. The shared data is deleted when the reference count becomes
+    zero.
+
+    \keyword deep copy
+    \keyword shallow copy
+
+    When dealing with shared objects, there are two ways of copying an
+    object. We usually speak about \e deep and \e shallow copies. A deep
+    copy implies duplicating an object. A shallow copy is a reference
+    copy, i.e. just a pointer to a shared data block. Making a deep copy
+    can be expensive in terms of memory and CPU. Making a shallow copy is
+    very fast, because it only involves setting a pointer and incrementing
+    the reference count.
+
+    Object assignment (with operator=()) for implicitly shared objects is
+    implemented using shallow copies.
+
+    The benefit of sharing is that a program does not need to duplicate
+    data unnecessarily, which results in lower memory use and less copying
+    of data. Objects can easily be assigned, sent as function arguments,
+    and returned from functions.
+
+    Implicit sharing mostly takes place behind the scenes;
+    the programmer rarely needs to worry about it. However, Qt's
+    container iterators have different behavior than those from
+    the STL. Read \l{Implicit sharing iterator problem}.
+
+    In multithreaded applications, implicit sharing takes place, as explained in
+    \l{Thread-Support in Qt Modules#Threads and Implicitly Shared Classes}
+    {Threads and Implicitly Shared Classes}.
+
+    When implementing your own implicitly shared classes, use the
+    QSharedData and QSharedDataPointer classes.
+
+    \section1 Implicit Sharing in Detail
+
+    Implicit sharing automatically detaches the object from a shared
+    block if the object is about to change and the reference count is
+    greater than one. (This is often called \e {copy-on-write} or
+    \e {value semantics}.)
+
+    An implicitly shared class has control of its internal data. In
+    any member functions that modify its data, it automatically detaches
+    before modifying the data. Notice, however, the special case with
+    container iterators; see \l{Implicit sharing iterator problem}.
+
+    The QPen class, which uses implicit sharing, detaches from the shared
+    data in all member functions that change the internal data.
+
+    Code fragment:
+    \snippet code/doc_src_groups.cpp 0
+
+
+    \section1 List of Classes
+
+    The classes listed below automatically detach from common data if
+    an object is about to be changed. The programmer will not even
+    notice that the objects are shared. Thus you should treat
+    separate instances of them as separate objects. They will always
+    behave as separate objects but with the added benefit of sharing
+    data whenever possible. For this reason, you can pass instances
+    of these classes as arguments to functions by value without
+    concern for the copying overhead.
+
+    Example:
+    \snippet code/doc_src_groups.cpp 1
+
+    In this example, \c p1 and \c p2 share data until QPainter::begin()
+    is called for \c p2, because painting a pixmap will modify it.
+
+    \warning Be careful with copying an implicitly shared container
+    (QMap, QVector, etc.) while you use
+    \l{STL-style iterators}{STL-style iterator}. See \l{Implicit sharing iterator problem}.
+
+    \keyword implicitly shared classes
+    \annotatedlist shared
+*/

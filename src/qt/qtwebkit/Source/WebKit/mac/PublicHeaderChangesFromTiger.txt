@@ -1,0 +1,32 @@
+This file lists changes to WebKit public header files that have been made since WebKit-412, which shipped with Mac OS X 10.4. All of these changes will have to be approved by the Apple API approval process, or rolled out, before Apple ships a new version of WebKit.
+
+When you make changes to public header files, please update this file, in the same general style as the ChangeLog file (new entries at top).
+===============================================
+
+2005-08-01  John Sullivan  <sullivan@apple.com>
+
+Removed -[DOMHTMLInputElement isTextField] from DOMExtensions.h. I changed it to _isTextField and put it in
+DOMPrivate.h instead, until we decide what we want to do about the public API.
+
+2005-07-22  John Sullivan  <sullivan@apple.com>
+
+Added -[DOMHTMLInputElement isTextField] to DOMExtensions.h (in WebCore, copied by build steps to WebKit).
+This is used by autocomplete code in Safari and could be moved there, but is a better fit in WebKit and
+is useful for developers.
+
+2005-06-22  John Sullivan  <sullivan@apple.com>
+
+Added the following values to the enum of WebMenuItem tags in WebUIDelegate.h:
+
+    WebMenuItemTagOpenWithDefaultApplication,
+    WebMenuItemPDFActualSize,
+    WebMenuItemPDFZoomIn,
+    WebMenuItemPDFZoomOut,
+    WebMenuItemPDFAutoSize,
+    WebMenuItemPDFSinglePage,
+    WebMenuItemPDFFacingPages,
+    WebMenuItemPDFContinuous,
+    WebMenuItemPDFNextPage,
+    WebMenuItemPDFPreviousPage,
+
+These are all used by the context menu for PDF documents.

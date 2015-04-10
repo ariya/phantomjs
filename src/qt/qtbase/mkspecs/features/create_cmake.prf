@@ -1,0 +1,291 @@
+#
+#  W A R N I N G
+#  -------------
+#
+# This file is not part of the Qt API.  It exists purely as an
+# implementation detail.  It may change from version to version
+# without notice, or even be removed.
+#
+# We mean it.
+#
+
+load(cmake_functions)
+
+# Several distros (ArchLinux, Fedora) have in the past installed libraries
+# in /lib(64)?, but are now moving to install libraries in /usr/lib(64)?/.
+# The /lib paths are made symlinks to the /usr/lib paths. If someone searching
+# for a Qt 5 package finds it in /lib/cmake/Qt5Core, although it has been
+# installed in /usr/lib/cmake/Qt5Core, relative paths to the includes and
+# executables will not work.
+# To work around this, we insert code into the generated config files to check
+# at cmake time whether package has been found via a symlink, and correct
+# that to an absolute path. This is only done for installations to
+# the /usr or / prefix.
+CMAKE_INSTALL_LIBS_DIR = $$cmakeTargetPath($$[QT_INSTALL_LIBS])
+contains(CMAKE_INSTALL_LIBS_DIR, ^(/usr)?/lib(64)?.*): CMAKE_USR_MOVE_WORKAROUND = $$CMAKE_INSTALL_LIBS_DIR
+
+CMAKE_MODULE_NAME = $$cmakeModuleName($${MODULE})
+
+split_incpath {
+    CMAKE_ADD_SOURCE_INCLUDE_DIRS = true
+    CMAKE_NO_PRIVATE_INCLUDES = true # Don't add private includes in the build dir which don't exist
+    CMAKE_SOURCE_INCLUDES = \
+        $$cmakeTargetPaths($$QT_MODULE_INCLUDE_BASE $$QT_MODULE_INCLUDE_BASE/Qt$${CMAKE_MODULE_NAME})
+    CMAKE_SOURCE_PRIVATE_INCLUDES = \
+        $$cmakeTargetPaths($$QT_MODULE_INCLUDE_BASE/Qt$${CMAKE_MODULE_NAME}/$$eval(QT.$${MODULE}.VERSION) \
+            $$QT_MODULE_INCLUDE_BASE/Qt$${CMAKE_MODULE_NAME}/$$eval(QT.$${MODULE}.VERSION)/Qt$${CMAKE_MODULE_NAME})
+
+    cmake_extra_source_includes.input = $$PWD/data/cmake/ExtraSourceIncludes.cmake.in
+    cmake_extra_source_includes.output = $$DESTDIR/cmake/Qt5$${CMAKE_MODULE_NAME}/ExtraSourceIncludes.cmake
+
+    !build_pass:QMAKE_SUBSTITUTES += \
+        cmake_extra_source_includes
+
+    cmake_qt5_module_files.files = \
+        $$cmake_extra_source_includes.output
+}
+
+CMAKE_INCLUDE_DIR = $$cmakeRelativePath($$[QT_INSTALL_HEADERS], $$[QT_INSTALL_PREFIX])
+contains(CMAKE_INCLUDE_DIR, "^\\.\\./.*") {
+    CMAKE_INCLUDE_DIR = $$[QT_INSTALL_HEADERS]/
+    CMAKE_INCLUDE_DIR_IS_ABSOLUTE = True
+}
+
+!exists($$first(QT.$${MODULE}_private.includes)): CMAKE_NO_PRIVATE_INCLUDES = true
+
+CMAKE_LIB_DIR = $$cmakeRelativePath($$[QT_INSTALL_LIBS], $$[QT_INSTALL_PREFIX])
+contains(CMAKE_LIB_DIR,"^\\.\\./.*") {
+    CMAKE_LIB_DIR = $$[QT_INSTALL_LIBS]/
+    CMAKE_LIB_DIR_IS_ABSOLUTE = True
+} else {
+    CMAKE_RELATIVE_INSTALL_LIBS_DIR = $$cmakeRelativePath($$[QT_INSTALL_PREFIX], $$[QT_INSTALL_LIBS])
+    # We need to go up another two levels because the CMake files are
+    # installed in $${CMAKE_LIB_DIR}/cmake/Qt5$${CMAKE_MODULE_NAME}
+    CMAKE_RELATIVE_INSTALL_DIR = "$${CMAKE_RELATIVE_INSTALL_LIBS_DIR}../../"
+}
+
+CMAKE_BIN_DIR = $$cmakeRelativePath($$[QT_HOST_BINS], $$[QT_INSTALL_PREFIX])
+contains(CMAKE_BIN_DIR, "^\\.\\./.*") {
+    CMAKE_BIN_DIR = $$[QT_HOST_BINS]/
+    CMAKE_BIN_DIR_IS_ABSOLUTE = True
+}
+
+CMAKE_PLUGIN_DIR = $$cmakeRelativePath($$[QT_INSTALL_PLUGINS], $$[QT_INSTALL_PREFIX])
+contains(CMAKE_PLUGIN_DIR, "^\\.\\./.*") {
+    CMAKE_PLUGIN_DIR = $$[QT_INSTALL_PLUGINS]/
+    CMAKE_PLUGIN_DIR_IS_ABSOLUTE = True
+}
+
+win32:!wince:!static:!staticlib {
+    CMAKE_DLL_DIR = $$cmakeRelativePath($$[QT_INSTALL_BINS], $$[QT_INSTALL_PREFIX])
+    contains(CMAKE_DLL_DIR, "^\\.\\./.*") {
+        CMAKE_DLL_DIR = $$[QT_INSTALL_BINS]/
+        CMAKE_DLL_DIR_IS_ABSOLUTE = True
+    }
+} else {
+    CMAKE_DLL_DIR = $$CMAKE_LIB_DIR
+    CMAKE_DLL_DIR_IS_ABSOLUTE = $$CMAKE_LIB_DIR_IS_ABSOLUTE
+}
+
+static|staticlib:CMAKE_STATIC_TYPE = true
+
+CMAKE_DEBUG_TYPE =
+CMAKE_RELEASE_TYPE =
+
+# Requirements:
+# * If Qt is configured with -debug, we're creating debug libraries and not
+#   release libraries, regardless of whether we're on a platform where
+#   debug_and_release is true.
+# * If Qt is configured with -release, we're creating release libraries and not
+#   debug libraries, regardless of whether we're on a platform where
+#   debug_and_release is true.
+# * If Qt is configured with neither -debug nor -release, and we are on a
+#   platform where debug_and_release is true, we're creating both
+#   debug and release libraries.
+# * If Qt is configured with -debug on a platform where debug_and_release is
+#   true, and 'make release' is subsequently invoked, CMake is only aware of
+#   the debug libraries at build time.
+
+equals(QMAKE_HOST.os, Windows): CMAKE_BIN_SUFFIX = ".exe"
+if(build_all|CONFIG(debug, debug|release)): CMAKE_DEBUG_TYPE = debug
+if(build_all|CONFIG(release, debug|release)): CMAKE_RELEASE_TYPE = release
+
+contains(CONFIG, plugin) {
+    !isEmpty(PLUGIN_EXTENDS):!equals(PLUGIN_EXTENDS, -) {
+        count(PLUGIN_EXTENDS, 1, greaterThan): \
+            error("Plugin declares to extend multiple modules. We don't handle that ...")
+        PLUGIN_MODULE_NAME = $$PLUGIN_EXTENDS
+    } else {
+        PLUGIN_MODULE_NAME =
+        for (mod, QT_MODULES) {
+            contains(QT.$${mod}.plugin_types, $$PLUGIN_TYPE) {
+                !isEmpty(PLUGIN_MODULE_NAME): \
+                    error("Multiple modules claim plugin type '$$PLUGIN_TYPE' ($$mod, in addition to $$PLUGIN_MODULE_NAME)")
+                PLUGIN_MODULE_NAME = $$mod
+                break()
+            }
+        }
+        isEmpty(PLUGIN_MODULE_NAME): error("No module claims plugin type '$$PLUGIN_TYPE'")
+    }
+
+    CMAKE_MODULE_NAME = $$cmakeModuleName($$PLUGIN_MODULE_NAME)
+
+    CMAKE_PLUGIN_NAME = $$PLUGIN_CLASS_NAME
+
+    win32 {
+        isEmpty(CMAKE_STATIC_TYPE): CMAKE_PlUGIN_EXT = .dll
+        else: CMAKE_PlUGIN_EXT = .lib
+
+        CMAKE_PLUGIN_LOCATION_RELEASE = $$PLUGIN_TYPE/$${TARGET}$${CMAKE_PlUGIN_EXT}
+        CMAKE_PLUGIN_LOCATION_DEBUG = $$PLUGIN_TYPE/$${TARGET}d$${CMAKE_PlUGIN_EXT}
+    } else {
+        mac {
+            isEmpty(CMAKE_STATIC_TYPE): CMAKE_PlUGIN_EXT = .dylib
+            else: CMAKE_PlUGIN_EXT = .a
+
+            CMAKE_PLUGIN_LOCATION_RELEASE = $$PLUGIN_TYPE/lib$${TARGET}$${CMAKE_PlUGIN_EXT}
+            CMAKE_PLUGIN_LOCATION_DEBUG = $$PLUGIN_TYPE/lib$${TARGET}$${CMAKE_PlUGIN_EXT}
+        } else {
+            isEmpty(CMAKE_STATIC_TYPE): CMAKE_PlUGIN_EXT = .so
+            else: CMAKE_PlUGIN_EXT = .a
+
+            CMAKE_PLUGIN_LOCATION_RELEASE = $$PLUGIN_TYPE/lib$${TARGET}$${CMAKE_PlUGIN_EXT}
+            CMAKE_PLUGIN_LOCATION_DEBUG = $$PLUGIN_TYPE/lib$${TARGET}$${CMAKE_PlUGIN_EXT}
+        }
+    }
+    cmake_target_file.input = $$PWD/data/cmake/Qt5PluginTarget.cmake.in
+    cmake_target_file.output = $$DESTDIR/../../$${CMAKE_LIB_DIR}cmake/Qt5$${CMAKE_MODULE_NAME}/Qt5$${CMAKE_MODULE_NAME}_$${PLUGIN_CLASS_NAME}.cmake
+
+    !build_pass:QMAKE_SUBSTITUTES += \
+      cmake_target_file
+
+    cmake_qt5_plugin_file.files = $$cmake_target_file.output
+    cmake_qt5_plugin_file.path = $$[QT_INSTALL_LIBS]/cmake/Qt5$${CMAKE_MODULE_NAME}
+    INSTALLS += cmake_qt5_plugin_file
+
+    return()
+}
+
+contains($$list(network sql widgets gui), $$MODULE): CMAKE_LOAD_PLUGINS = true
+
+unix:contains(QT_CONFIG, reduce_relocations):CMAKE_ADD_FPIE_FLAGS = "true"
+
+CMAKE_MKSPEC = $$[QMAKE_XSPEC]
+
+CMAKE_MODULE_DEPS = $$cmakeModuleList($$sort_depends(QT.$${MODULE}.depends, QT.))
+CMAKE_PARTIAL_MODULE_DEPS = $$replace(CMAKE_MODULE_DEPS, ";", ";Qt5::")
+!isEmpty(CMAKE_PARTIAL_MODULE_DEPS):CMAKE_QT5_MODULE_DEPS = "Qt5::$${CMAKE_PARTIAL_MODULE_DEPS}"
+
+CMAKE_QT_STEM = Qt$$eval(QT.$${MODULE}.MAJOR_VERSION)$${CMAKE_MODULE_NAME}$${QT_LIBINFIX}
+
+mac {
+    !isEmpty(CMAKE_STATIC_TYPE) {
+        CMAKE_LIB_FILE_LOCATION_DEBUG = lib$${CMAKE_QT_STEM}_debug.a
+        CMAKE_LIB_FILE_LOCATION_RELEASE = lib$${CMAKE_QT_STEM}.a
+
+        CMAKE_PRL_FILE_LOCATION_DEBUG = lib$${CMAKE_QT_STEM}_debug.prl
+        CMAKE_PRL_FILE_LOCATION_RELEASE = lib$${CMAKE_QT_STEM}.prl
+    } else {
+        CONFIG(qt_framework, qt_framework|qt_no_framework) {
+            CMAKE_LIB_FILE_LOCATION_DEBUG = Qt$${CMAKE_MODULE_NAME}$${QT_LIBINFIX}.framework/Qt$${CMAKE_MODULE_NAME}$${QT_LIBINFIX}
+            CMAKE_LIB_FILE_LOCATION_RELEASE = Qt$${CMAKE_MODULE_NAME}$${QT_LIBINFIX}.framework/Qt$${CMAKE_MODULE_NAME}$${QT_LIBINFIX}
+            CMAKE_BUILD_IS_FRAMEWORK = "true"
+        } else {
+            CMAKE_LIB_FILE_LOCATION_DEBUG = lib$${CMAKE_QT_STEM}_debug.$$eval(QT.$${MODULE}.VERSION).dylib
+            CMAKE_LIB_FILE_LOCATION_RELEASE = lib$${CMAKE_QT_STEM}.$$eval(QT.$${MODULE}.VERSION).dylib
+        }
+    }
+} else:win32 {
+    CMAKE_WINDOWS_BUILD = "true"
+    CMAKE_FIND_OTHER_LIBRARY_BUILD = "true"
+
+    CMAKE_LIB_FILE_LOCATION_DEBUG = $${CMAKE_QT_STEM}d.dll
+    CMAKE_LIB_FILE_LOCATION_RELEASE = $${CMAKE_QT_STEM}.dll
+
+    mingw {
+        CMAKE_WINMAIN_FILE_LOCATION_DEBUG = libqtmain$${QT_LIBINFIX}d.a
+        CMAKE_WINMAIN_FILE_LOCATION_RELEASE = libqtmain$${QT_LIBINFIX}.a
+
+        !isEmpty(CMAKE_STATIC_TYPE) {
+            CMAKE_STATIC_WINDOWS_BUILD = "true"
+            CMAKE_IMPLIB_FILE_LOCATION_DEBUG = lib$${CMAKE_QT_STEM}d.a
+            CMAKE_IMPLIB_FILE_LOCATION_RELEASE = lib$${CMAKE_QT_STEM}.a
+
+            CMAKE_PRL_FILE_LOCATION_DEBUG = lib$${CMAKE_QT_STEM}d.prl
+            CMAKE_PRL_FILE_LOCATION_RELEASE = lib$${CMAKE_QT_STEM}.prl
+        } else {
+            CMAKE_IMPLIB_FILE_LOCATION_DEBUG = lib$${CMAKE_QT_STEM}d.a
+            CMAKE_IMPLIB_FILE_LOCATION_RELEASE = lib$${CMAKE_QT_STEM}.a
+        }
+    } else {
+        CMAKE_WINMAIN_FILE_LOCATION_DEBUG = qtmain$${QT_LIBINFIX}d.lib
+        CMAKE_WINMAIN_FILE_LOCATION_RELEASE = qtmain$${QT_LIBINFIX}.lib
+
+        !isEmpty(CMAKE_STATIC_TYPE) {
+            CMAKE_STATIC_WINDOWS_BUILD = "true"
+            CMAKE_IMPLIB_FILE_LOCATION_DEBUG = $${CMAKE_QT_STEM}d.lib
+            CMAKE_IMPLIB_FILE_LOCATION_RELEASE = $${CMAKE_QT_STEM}.lib
+
+            CMAKE_PRL_FILE_LOCATION_DEBUG = $${CMAKE_QT_STEM}d.prl
+            CMAKE_PRL_FILE_LOCATION_RELEASE = $${CMAKE_QT_STEM}.prl
+        } else {
+            CMAKE_IMPLIB_FILE_LOCATION_DEBUG = $${CMAKE_QT_STEM}d.lib
+            CMAKE_IMPLIB_FILE_LOCATION_RELEASE = $${CMAKE_QT_STEM}.lib
+        }
+    }
+} else {
+    !isEmpty(CMAKE_STATIC_TYPE) {
+        CMAKE_LIB_FILE_LOCATION_DEBUG = lib$${CMAKE_QT_STEM}.a
+        CMAKE_LIB_FILE_LOCATION_RELEASE = lib$${CMAKE_QT_STEM}.a
+        CMAKE_PRL_FILE_LOCATION_DEBUG = lib$${CMAKE_QT_STEM}.prl
+        CMAKE_PRL_FILE_LOCATION_RELEASE = lib$${CMAKE_QT_STEM}.prl
+    } else {
+        CMAKE_LIB_FILE_LOCATION_DEBUG = lib$${CMAKE_QT_STEM}.so.$$eval(QT.$${MODULE}.VERSION)
+        CMAKE_LIB_FILE_LOCATION_RELEASE = lib$${CMAKE_QT_STEM}.so.$$eval(QT.$${MODULE}.VERSION)
+        CMAKE_LIB_SONAME = lib$${CMAKE_QT_STEM}.so.$$eval(QT.$${MODULE}.MAJOR_VERSION)
+    }
+}
+
+INSTALLS += cmake_qt5_module_files
+
+cmake_config_file.input = $$PWD/data/cmake/Qt5BasicConfig.cmake.in
+cmake_config_file.output = $$DESTDIR/cmake/Qt5$${CMAKE_MODULE_NAME}/Qt5$${CMAKE_MODULE_NAME}Config.cmake
+
+CMAKE_PACKAGE_VERSION = $$eval(QT.$${MODULE}.VERSION)
+
+cmake_config_version_file.input = $$PWD/data/cmake/Qt5ConfigVersion.cmake.in
+cmake_config_version_file.output = $$DESTDIR/cmake/Qt5$${CMAKE_MODULE_NAME}/Qt5$${CMAKE_MODULE_NAME}ConfigVersion.cmake
+
+!build_pass:QMAKE_SUBSTITUTES += \
+    cmake_config_file \
+    cmake_config_version_file
+
+cmake_qt5_module_files.files = \
+    $$cmake_config_file.output \
+    $$cmake_config_version_file.output
+
+cmake_extras_file.input = $$_PRO_FILE_PWD_/Qt5$${CMAKE_MODULE_NAME}ConfigExtras.cmake.in
+exists($$cmake_extras_file.input) {
+
+    CMAKE_MODULE_EXTRAS = "true"
+    cmake_extras_file.output = $$DESTDIR/cmake/Qt5$${CMAKE_MODULE_NAME}/Qt5$${CMAKE_MODULE_NAME}ConfigExtras.cmake
+
+    !build_pass:QMAKE_SUBSTITUTES += cmake_extras_file
+
+    cmake_qt5_module_files.files += \
+        $$cmake_extras_file.output
+}
+
+cmake_macros_file.input = $$_PRO_FILE_PWD_/Qt5$${CMAKE_MODULE_NAME}Macros.cmake
+exists($$cmake_macros_file.input) {
+    CMAKE_MODULE_MACROS = "true"
+
+    cmake_macros_file.output = $$DESTDIR/cmake/Qt5$${CMAKE_MODULE_NAME}/Qt5$${CMAKE_MODULE_NAME}Macros.cmake
+    cmake_macros_file.CONFIG = verbatim
+
+    !build_pass:QMAKE_SUBSTITUTES += cmake_macros_file
+
+    cmake_qt5_module_files.files += $$cmake_macros_file.output
+}
+
+cmake_qt5_module_files.path = $$[QT_INSTALL_LIBS]/cmake/Qt5$${CMAKE_MODULE_NAME}

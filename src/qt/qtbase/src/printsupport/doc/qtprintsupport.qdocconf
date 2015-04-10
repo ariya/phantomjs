@@ -1,0 +1,45 @@
+include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
+
+project                 = QtPrintSupport
+description             = Qt Print Support Reference Documentation
+url                     = http://qt-project.org/doc/qt-$QT_VER
+version                 = $QT_VERSION
+
+examplesinstallpath     = printsupport
+
+qhp.projects            = QtPrintSupport
+
+qhp.QtPrintSupport.file         = qtprintsupport.qhp
+qhp.QtPrintSupport.namespace           = org.qt-project.qtprintsupport.$QT_VERSION_TAG
+qhp.QtPrintSupport.virtualFolder       = qtprintsupport
+qhp.QtPrintSupport.indexTitle          = Qt Print Support
+qhp.QtPrintSupport.indexRoot           =
+
+qhp.QtPrintSupport.filterAttributes    = qtprintsupport $QT_VERSION qtrefdoc
+qhp.QtPrintSupport.customFilters.Qt.name = QtPrintSupport $QT_VERSION
+qhp.QtPrintSupport.customFilters.Qt.filterAttributes = qtprintsupport $QT_VERSION
+
+qhp.QtPrintSupport.subprojects         = classes
+qhp.QtPrintSupport.subprojects.classes.title = C++ Classes
+qhp.QtPrintSupport.subprojects.classes.indexTitle = Qt Print Support C++ Classes
+qhp.QtPrintSupport.subprojects.classes.selectors = class fake:headerfile
+qhp.QtPrintSupport.subprojects.classes.sortPages = true
+
+tagfile                 = ../../../doc/qtprintsupport/qtprintsupport.tags
+
+depends                 += qtcore qtgui qtwidgets qtdoc
+
+headerdirs  += ..
+
+sourcedirs  += ..
+
+exampledirs += ../ \
+               snippets
+
+excludedirs += ../../../examples/widgets/doc
+
+imagedirs   += images \
+               ../../widgets/doc/images \
+
+navigation.landingpage = "Qt Print Support"
+navigation.cppclassespage = "Qt Print Support C++ Classes"

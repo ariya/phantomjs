@@ -1,0 +1,225 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.network-graph-side {
+    position: relative;
+    height: 14px;
+    padding: 0 5px;
+    white-space: nowrap;
+    margin-top: 1px;
+    border-top: 1px solid transparent;
+    overflow: hidden;
+}
+
+.network-graph-bar-area {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 8px;
+    left: 9px;
+}
+
+.network-graph-label {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin: auto -7px;
+    height: 13px;
+    line-height: 13px;
+    font-size: 9px;
+    color: rgba(0, 0, 0, 0.75);
+    text-shadow: rgba(255, 255, 255, 0.25) 1px 0 0, rgba(255, 255, 255, 0.25) -1px 0 0, rgba(255, 255, 255, 0.333) 0 1px 0, rgba(255, 255, 255, 0.25) 0 -1px 0;
+    z-index: 150;
+    overflow: hidden;
+    text-align: center;
+    font-weight: bold;
+    opacity: 0;
+}
+
+.network-graph-side:hover .network-graph-label {
+    -webkit-transition: opacity 250ms ease-in-out;
+    opacity: 1;
+}
+
+.network-graph-label:empty {
+    display: none;
+}
+
+.network-graph-label.waiting {
+    margin-right: 5px;
+}
+
+.network-graph-label.before {
+    color: rgba(0, 0, 0, 0.7);
+    text-shadow: none;
+    text-align: right;
+    margin-right: 0px;
+}
+
+.network-graph-label.before::after {
+    display: inline-block;
+    margin-top: -2px;
+    padding-left: 2px;
+    vertical-align: 6px;
+    height: 5px;
+    width: 13px;
+    content: url(Images/NetworkBarLabelCalloutLeft.pdf);
+}
+
+.network-graph-label.after {
+    color: rgba(0, 0, 0, 0.7);
+    text-shadow: none;
+    text-align: left;
+    margin-left: -2px;
+}
+
+.network-graph-label.after::before {
+    display: inline-block;
+    margin-top: -2px;
+    padding-left: 2px;
+    vertical-align: 6px;
+    padding-right: 2px;
+    height: 5px;
+    width: 13px;
+    content: url(Images/NetworkBarLabelCalloutRight.pdf);
+}
+
+.network-graph-bar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin: auto -6px;
+    height: 0;
+    min-width: 13px;
+    opacity: 0.65;
+
+    border-image-source: -webkit-image-set(url(Images/NetworkBarGray.png) 1x, url(Images/NetworkBarGray@2x.png) 2x);
+    border-image-slice: 6 6 7 6 fill;
+    border-width: 6px 6px 7px 6px;
+}
+
+.network-graph-bar.waiting {
+    opacity: 0.35;
+}
+
+/* Resource categories */
+
+.resource-cached .network-graph-bar {
+    border-image-source: -webkit-image-set(url(Images/NetworkHollowBarGray.png) 1x, url(Images/NetworkHollowBarGray@2x.png) 2x);
+}
+
+.network-resource-type-document .network-graph-bar {
+    border-image-source: -webkit-image-set(url(Images/NetworkBarBlue.png) 1x, url(Images/NetworkBarBlue@2x.png) 2x);
+}
+
+.network-resource-type-document.resource-cached .network-graph-bar {
+    border-image-source: -webkit-image-set(url(Images/NetworkHollowBarBlue.png) 1x, url(Images/NetworkHollowBarBlue@2x.png) 2x);
+}
+
+.network-resource-type-stylesheet .network-graph-bar {
+    border-image-source: -webkit-image-set(url(Images/NetworkBarGreen.png) 1x, url(Images/NetworkBarGreen@2x.png) 2x);
+}
+
+.network-resource-type-stylesheet.resource-cached .network-graph-bar {
+    border-image-source: -webkit-image-set(url(Images/NetworkHollowBarGreen.png) 1x, url(Images/NetworkHollowBarGreen@2x.png) 2x);
+}
+
+.network-resource-type-image .network-graph-bar {
+    border-image-source: -webkit-image-set(url(Images/NetworkBarPurple.png) 1x, url(Images/NetworkBarPurple@2x.png) 2x);
+}
+
+.network-resource-type-image.resource-cached .network-graph-bar {
+    border-image-source: -webkit-image-set(url(Images/NetworkHollowBarPurple.png) 1x, url(Images/NetworkHollowBarPurple@2x.png) 2x);
+}
+
+.network-resource-type-font .network-graph-bar {
+    border-image-source: -webkit-image-set(url(Images/NetworkBarRed.png) 1x, url(Images/NetworkBarRed@2x.png) 2x);
+}
+
+.network-resource-type-font.resource-cached .network-graph-bar {
+    border-image-source: -webkit-image-set(url(Images/NetworkHollowBarRed.png) 1x, url(Images/NetworkHollowBarRed@2x.png) 2x);
+}
+
+.network-resource-type-script .network-graph-bar {
+    border-image-source: -webkit-image-set(url(Images/NetworkBarOrange.png) 1x, url(Images/NetworkBarOrange@2x.png) 2x);
+}
+
+.network-resource-type-script.resource-cached .network-graph-bar {
+    border-image-source: -webkit-image-set(url(Images/NetworkHollowBarOrange.png) 1x, url(Images/NetworkHollowBarOrange@2x.png) 2x);
+}
+
+.network-resource-type-xhr .network-graph-bar {
+    border-image-source: -webkit-image-set(url(Images/NetworkBarYellow.png) 1x, url(Images/NetworkBarYellow@2x.png) 2x);
+}
+
+.network-resource-type-xhr.resource-cached .network-graph-bar {
+    border-image-source: -webkit-image-set(url(Images/NetworkHollowBarYellow.png) 1x, url(Images/NetworkHollowBarYellow@2x.png) 2x);
+}
+
+.network-resource-type-other .network-graph-bar {
+    border-image-source: -webkit-image-set(url(Images/NetworkBarGray.png) 1x, url(Images/NetworkBarGray@2x.png) 2x);
+}
+
+.network-resource-type-other.resource-cached .network-graph-bar {
+    border-image-source: -webkit-image-set(url(Images/NetworkHollowBarGray.png) 1x, url(Images/NetworkHollowBarGray@2x.png) 2x);
+}
+
+/* Network graph style for a selected and focused data grid row */
+
+.data-grid:focus tr.selected .network-graph-bar {
+    opacity: 1;
+    margin: auto -7px;
+
+    border-image-slice: 6 7 7 7 fill;
+    border-width: 6px 7px 7px 7px;
+    border-image-source: -webkit-image-set(url(Images/NetworkBarWhiteFlat.png) 1x, url(Images/NetworkBarWhiteFlat@2x.png) 2x);
+}
+
+.data-grid:focus tr.selected .resource-cached .network-graph-bar {
+    border-image-source: -webkit-image-set(url(Images/NetworkBarWhiteFlat.png) 1x, url(Images/NetworkBarWhiteFlat@2x.png) 2x);
+}
+
+.data-grid:focus tr.selected .network-graph-bar.waiting {
+    opacity: 0.65;
+}
+
+.data-grid:focus tr.selected .network-graph-label {
+    color: rgb(56, 121, 217);
+    text-shadow: none;
+    opacity: 1;
+}
+
+.data-grid:focus tr.selected .network-graph-label.before,
+.data-grid:focus tr.selected .network-graph-label.after {
+    color: white;
+}
+
+.data-grid:focus tr.selected .network-graph-label.before::after {
+    content: url(Images/NetworkBarLabelCalloutWhiteLeft.pdf);
+}
+
+.data-grid:focus tr.selected .network-graph-label.after::before {
+    content: url(Images/NetworkBarLabelCalloutWhiteRight.pdf);
+}

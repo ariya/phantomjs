@@ -1,0 +1,8 @@
+cron:
+- description: collect the garbage
+  url: /gc
+  schedule: every 4 hours
+
+- description: Sync new queue logs up with unchanging data
+  url: /sync-queue-logs
+  schedule: every 10 minutes

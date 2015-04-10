@@ -1,0 +1,84 @@
+2013-06-14  Zan Dobersek  <zdobersek@igalia.com>
+
+        Unreviewed GTK build fix.
+
+        * GNUmakefile.am: Add the Freetype CFLAGS to the list of libPlatformGtk's CPPFLAGS. These are required as there are
+        specific build targets that end up including the HarfBuzz headers which are included in the Freetype CFLAGS variable.
+
+2013-06-12  Zan Dobersek  <zdobersek@igalia.com>
+
+        [GTK] Move more build targets for source code that's free of layer violations into libPlatform
+        https://bugs.webkit.org/show_bug.cgi?id=115936
+
+        Reviewed by Martin Robinson.
+
+        * GNUmakefile.am: Add additional Source/WebCore/platform subdirectories to the list of the directories
+        that are specific to the platform layer but still located in WebCore. Add Enchant and Freetype dependencies'
+        CFLAGS to the list of libPlatform CPPFLAGS. Add GStreamer dependency's CFLAGS to the list of libPlatformGtk
+        CPPFLAGS.
+
+2013-05-14  Zan Dobersek  <zdobersek@igalia.com>
+
+        [GTK] Move generated ColorData.cpp, WebKitFontFamilyNames.(cpp|h) build targets into libPlatform
+        https://bugs.webkit.org/show_bug.cgi?id=115921
+
+        Reviewed by Gustavo Noronha Silva.
+
+        * GNUmakefile.am: Move the ANGLE include directories under the new platform_cppflags variable,
+        adding the DerivedSources/Platform directory. Add the generated sources' build targets to libPlatform
+        under nodist_libPlatform_la_SOURCES. Add platform_cppflags to the list of libPlatformGtk CPPFLAGS.
+        Add generation rules for the ColorData.cpp and WebKitFontFamilyNames.(cpp|h) source files, now generated
+        into the DerivedSources/Platform directory.
+
+2013-05-14  Zan Dobersek  <zdobersek@igalia.com>
+
+        [GTK] libPlatform, libPlatformGtk must depend on the related GNUmakefiles
+        https://bugs.webkit.org/show_bug.cgi?id=115937
+
+        Reviewed by Martin Robinson.
+
+        * GNUmakefile.am: Set up an artifical dependency so that libPlatform and libPlatformGtk
+        libraries take into account any changes in this GNUmakefile.am and the GNUmakefile.list.am
+        located under Source/WebCore. The latter is included due to all the build targets for the
+        two libraries being listed there.
+
+2013-05-06  Zan Dobersek  <zdobersek@igalia.com>
+
+        [GTK] Move GeolocationProviderGeoclue into libPlatform
+        https://bugs.webkit.org/show_bug.cgi?id=115591
+
+        Reviewed by Martin Robinson.
+
+        * GNUmakefile.am: List the Source/WebCore/platform/geoclue directory under platform_webcore_cppflags.
+        Add Geoclue dependency CPPFLAGS to the list of libPlatform's CPPFLAGS.
+
+2013-04-24  Zan Dobersek  <zdobersek@igalia.com>
+
+        [GTK] Move image decoders, some other GStreamer, Cairo and Soup sources to libPlatform
+        https://bugs.webkit.org/show_bug.cgi?id=115050
+
+        Reviewed by Martin Robinson.
+
+        * GNUmakefile.am: Add the image-decoders directory and its subdirectories to the list of header inclusion directories.
+        List the Cairo, GStreamer and Libsoup cppflags under the cppflags libPlatform uses for compiling its sources.
+
+2013-04-22  Zan Dobersek  <zdobersek@igalia.com>
+
+        [GTK] Set up libPlatform.la
+        https://bugs.webkit.org/show_bug.cgi?id=114168
+
+        Reviewed by Martin Robinson.
+
+        * GNUmakefile.am: Set up the libPlatform.la static library to build the source files listed in platform_sources.
+        As with the libPlatformGtk.la library, only the Source/WebCore/platform and its subdirectories are allowed to be
+        searched for headers to include, providing a convenient way to detect any platform violations. These directories
+        are listed in the platform_webcore_cppflags variable.
+
+2013-04-05  Benjamin Poulain  <benjamin@webkit.org>
+
+        Fix GTK+ for real after r147712
+
+        Reviewed by Ryosuke Niwa.
+
+        * GNUmakefile.am: Added.
+        * Platform: Added.

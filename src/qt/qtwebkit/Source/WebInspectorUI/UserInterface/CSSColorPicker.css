@@ -1,0 +1,157 @@
+/*
+ * Copyright (C) 2011 Brian Grinstead All rights reserved.
+ * Copyright (C) 2013 Matt Holden <jftholden@yahoo.com>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1.  Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ * 2.  Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ * 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+ *     its contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.colorpicker-container {
+    top: 0;
+    left: 0;
+    padding: 5px;
+    width: 212px;
+    z-index: 10;
+}
+
+.colorpicker-fill-parent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.colorpicker-top {
+    position: relative;
+    width: 100%;
+    display: inline-block;
+}
+
+.colorpicker-color {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 160px;
+    border: 1px solid #D0D0D0;
+}
+
+.colorpicker-bottom span {
+    display: inline-block;
+}
+
+.colorpicker-text {
+    font-family: monospace;
+    font-size: 11px !important;
+}
+
+.colorpicker-color-text-value {
+    -webkit-user-select: text;
+    position: relative;
+    left: 3px;
+    top: -6px;
+    white-space: pre-wrap;
+}
+
+.colorpicker-hue {
+    position: absolute;
+    top: 0;
+    width: 30px;
+    right: 0;
+    bottom: 0;
+    -webkit-box-reflect: right -28px;
+}
+
+.colorpicker-fill {
+    /* Same as colorpicker-color width to force aspect ratio. */
+    margin-top: 160px;
+}
+
+.colorpicker-range-container {
+    position: relative;
+    padding-bottom: 5px;
+}
+
+.colorpicker-range-container * {
+    font-size: 11px;
+    vertical-align: middle;
+}
+
+.colorpicker-range-container label {
+    display: inline-block;
+    padding-right: 4px;
+}
+
+.colorpicker-range-container input {
+    margin: 3px 0 0 3px;
+    width: 137px;
+}
+
+.colorpicker-saturation {
+    background-image: -webkit-linear-gradient(left, white, rgba(204, 154, 129, 0));
+}
+
+.colorpicker-value {
+    background-image: -webkit-linear-gradient(bottom, black, rgba(204, 154, 129, 0));
+}
+
+.colorpicker-hue {
+    background: -webkit-linear-gradient(top, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+}
+
+.colorpicker-dragger {
+    border-radius: 5px;
+    height: 5px;
+    width: 5px;
+    border: 1px solid white;
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: black;
+}
+
+.colorpicker-slider {
+    position: absolute;
+    top: 0;
+    cursor: pointer;
+    border: 1px solid black;
+    height: 4px;
+    left: -1px;
+    right: -1px;
+}
+
+.colorpicker-container .swatch {
+    width: 20px;
+    height:20px;
+    margin: 0;
+}
+
+.colorpicker-container .swatch-inner {
+    height: 100%;
+    width:  100%;
+    display: inline-block;
+    border: 1px solid rgba(128, 128, 128, 0.6); 
+}

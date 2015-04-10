@@ -1,0 +1,50 @@
+include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
+
+project                 = QtCore
+description             = Qt Core Reference Documentation
+url                     = http://qt-project.org/doc/qt-$QT_VER
+version                 = $QT_VERSION
+
+examplesinstallpath     = core
+
+qhp.projects            = QtCore
+
+qhp.QtCore.file                = qtcore.qhp
+qhp.QtCore.namespace           = org.qt-project.qtcore.$QT_VERSION_TAG
+qhp.QtCore.virtualFolder       = qtcore
+qhp.QtCore.indexTitle          = Qt Core
+qhp.QtCore.indexRoot           =
+
+qhp.QtCore.filterAttributes    = qtcore $QT_VERSION qtrefdoc
+qhp.QtCore.customFilters.Qt.name = QtCore $QT_VERSION
+qhp.QtCore.customFilters.Qt.filterAttributes = qtcore $QT_VERSION
+qhp.QtCore.subprojects         = classes
+qhp.QtCore.subprojects.classes.title = C++ Classes
+qhp.QtCore.subprojects.classes.indexTitle = Qt Core C++ Classes
+qhp.QtCore.subprojects.classes.selectors = class fake:headerfile
+qhp.QtCore.subprojects.classes.sortPages = true
+
+tagfile                 = ../../../doc/qtcore/qtcore.tags
+
+depends                 += activeqt qtdbus qtgui qtwidgets qtnetwork qtdoc qtmacextras qtquick qtlinguist qtdesigner qtconcurrent qtxml qmake
+# depends               += qtqml # Qt namespace collides with QtQml::Qt, see QTBUG-38630
+
+headerdirs  += ..
+
+sourcedirs  += ..
+
+exampledirs += \
+               ../ \
+               snippets \
+               ../../../examples/threads/ \
+               ../../../examples/tools/ \
+               ../../../examples/ipc/ \
+               ../../../examples/json/ \
+               ../../../examples/network/dnslookup
+
+imagedirs   += images
+
+excludedirs += snippets
+
+navigation.landingpage = "Qt Core"
+navigation.cppclassespage = "Qt Core C++ Classes"

@@ -1,0 +1,411 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page dnd.html
+    \title Drag and Drop
+    \brief An overview of the drag and drop system provided by Qt.
+
+    \ingroup qt-gui-concepts
+
+    Drag and drop provides a simple visual mechanism which users can use
+    to transfer information between and within applications. Drag
+    and drop is similar in function to the clipboard's cut and paste
+    mechanism.
+
+    \tableofcontents
+
+    This document describes the basic drag and drop mechanism and
+    outlines the approach used to enable it in custom controls. Drag
+    and drop operations are also supported by many of Qt's controls,
+    such as the item views and graphics view framework, as well as
+    editing controls for Qt Widgets and Qt Quick. More information
+    about item views and graphics view is available in
+    \l{Using drag and drop with item views} and \l{Graphics View
+    Framework}.
+
+    \section1 Drag and Drop Classes
+
+    These classes deal with drag and drop and the necessary mime type
+    encoding and decoding.
+
+    \annotatedlist draganddrop
+
+    \section1 Configuration
+
+    The QStyleHints object provides some properties that are related
+    to drag and drop operations:
+
+    \list
+    \li \l{QStyleHints::startDragTime()} describes the amount of time in
+       milliseconds that the user must hold down a mouse button over an
+       object before a drag will begin.
+    \li \l{QStyleHints::startDragDistance()} indicates how far the user has to
+       move the mouse while holding down a mouse button before the movement
+       will be interpreted as dragging.
+    \li \l{QStyleHints::startDragVelocity()} indicates how fast (in pixels/second)
+       the user has to move the mouse to start a drag. A value of \c 0 means
+       that there is no such limit.
+    \endlist
+
+    These quantities provide sensible default values that are compliant with
+    the underlying windowing system for you to use if you
+    provide drag and drop support in your controls.
+
+    \section1 Drag and Drop in Qt Quick
+
+    The rest of the document focuses mainly on how to implement drag and drop
+    in C++. For using drag and drop inside a Qt Quick scene, please read the
+    documentation for the Qt Quick \l{Drag}, \l{DragEvent}, and \l{DropArea} items,
+    as well as the \l {Qt Quick Examples - Drag and Drop}{Qt Quick Drag and Drop} examples.
+
+    \section1 Dragging
+
+    To start a drag, create a QDrag object, and call its
+    exec() function. In most applications, it is a good idea to begin a drag
+    and drop operation only after a mouse button has been pressed and the
+    cursor has been moved a certain distance. However, the simplest way to
+    enable dragging from a widget is to reimplement the widget's
+    \l{QWidget::mousePressEvent()}{mousePressEvent()} and start a drag
+    and drop operation:
+
+    \snippet dragging/mainwindow.cpp 0
+    \dots 8
+    \snippet dragging/mainwindow.cpp 2
+
+    Although the user may take some time to complete the dragging operation,
+    as far as the application is concerned the exec() function is a blocking
+    function that returns with \l{Qt::DropActions}{one of several values}.
+    These indicate how the operation ended, and are described in more detail
+    below.
+
+    Note that the exec() function does not block the main event loop.
+
+    For widgets that need to distinguish between mouse clicks and drags, it
+    is useful to reimplement the widget's
+    \l{QWidget::mousePressEvent()}{mousePressEvent()} function to record to
+    start position of the drag:
+
+    \snippet draganddrop/dragwidget.cpp 6
+
+    Later, in \l{QWidget::mouseMoveEvent()}{mouseMoveEvent()}, we can determine
+    whether a drag should begin, and construct a drag object to handle the
+    operation:
+
+    \snippet draganddrop/dragwidget.cpp 7
+    \dots
+    \snippet draganddrop/dragwidget.cpp 8
+
+    This particular approach uses the \l QPoint::manhattanLength() function
+    to get a rough estimate of the distance between where the mouse click
+    occurred and the current cursor position. This function trades accuracy
+    for speed, and is usually suitable for this purpose.
+
+    \section1 Dropping
+
+    To be able to receive media dropped on a widget, call
+    \l{QWidget::setAcceptDrops()}{setAcceptDrops(true)} for the widget,
+    and reimplement the \l{QWidget::dragEnterEvent()}{dragEnterEvent()} and
+    \l{QWidget::dropEvent()}{dropEvent()} event handler functions.
+
+    For example, the following code enables drop events in the constructor of
+    a QWidget subclass, making it possible to usefully implement drop event
+    handlers:
+
+    \snippet dropevents/window.cpp 0
+    \dots
+    \snippet dropevents/window.cpp 1
+    \snippet dropevents/window.cpp 2
+
+    The dragEnterEvent() function is typically used to inform Qt about the
+    types of data that the widget accepts.
+    You must reimplement this function if you want to receive either
+    QDragMoveEvent or QDropEvent in your reimplementations of
+    \l{QWidget::dragMoveEvent()}{dragMoveEvent()} and
+    \l{QWidget::dropEvent()}{dropEvent()}.
+
+    The following code shows how \l{QWidget::dragEnterEvent()}{dragEnterEvent()}
+    can be reimplemented to
+    tell the drag and drop system that we can only handle plain text:
+
+    \snippet dropevents/window.cpp 3
+
+    The \l{QWidget::dropEvent()}{dropEvent()} is used to unpack dropped data
+    and handle it in way that is suitable for your application.
+
+    In the following code, the text supplied in the event is passed to a
+    QTextBrowser and a QComboBox is filled with the list of MIME types that
+    are used to describe the data:
+
+    \snippet dropevents/window.cpp 4
+
+    In this case, we accept the proposed action without checking what it is.
+    In a real world application, it may be necessary to return from the
+    \l{QWidget::dropEvent()}{dropEvent()} function without accepting the
+    proposed action or handling
+    the data if the action is not relevant. For example, we may choose to
+    ignore Qt::LinkAction actions if we do not support
+    links to external sources in our application.
+
+    \section2 Overriding Proposed Actions
+
+    We may also ignore the proposed action, and perform some other action on
+    the data. To do this, we would call the event object's
+    \l{QDropEvent::setDropAction()}{setDropAction()} with the preferred
+    action from Qt::DropAction before calling \l{QEvent::}{accept()}.
+    This ensures that the replacement drop action is used instead of the
+    proposed action.
+
+    For more sophisticated applications, reimplementing
+    \l{QWidget::dragMoveEvent()}{dragMoveEvent()} and
+    \l{QWidget::dragLeaveEvent()}{dragLeaveEvent()} will let you make
+    certain parts of your widgets sensitive to drop events, and give you more
+    control over drag and drop in your application.
+
+    \section2 Subclassing Complex Widgets
+
+    Certain standard Qt widgets provide their own support for drag and drop.
+    When subclassing these widgets, it may be necessary to reimplement
+    \l{QWidget::dragMoveEvent()}{dragMoveEvent()} in addition to
+    \l{QWidget::dragEnterEvent()}{dragEnterEvent()} and
+    \l{QWidget::dropEvent()}{dropEvent()} to prevent the base class from
+    providing default drag and drop handling, and to handle any special
+    cases you are interested in.
+
+    \section1 Drag and Drop Actions
+
+    In the simplest case, the target of a drag and drop action receives a
+    copy of the data being dragged, and the source decides whether to
+    delete the original. This is described by the \c CopyAction action.
+    The target may also choose to handle other actions, specifically the
+    \c MoveAction and \c LinkAction actions. If the source calls
+    QDrag::exec(), and it returns \c MoveAction, the source is responsible
+    for deleting any original data if it chooses to do so. The QMimeData
+    and QDrag objects created by the source widget \e{should not be deleted}
+    - they will be destroyed by Qt. The target is responsible for taking
+    ownership of the data sent in the drag and drop operation; this is
+    usually done by keeping references to the data.
+
+    If the target understands the \c LinkAction action, it should
+    store its own reference to the original information; the source
+    does not need to perform any further processing on the data. The
+    most common use of drag and drop actions is when performing a
+    Move within the same widget; see the section on \l{Drop Actions}
+    for more information about this feature.
+
+    The other major use of drag actions is when using a reference type
+    such as text/uri-list, where the dragged data are actually references
+    to files or objects.
+
+    \section1 Adding New Drag and Drop Types
+
+    Drag and drop is not limited to text and images. Any type of information
+    can be transferred in a drag and drop operation. To drag information
+    between applications, the applications must be able to indicate to each
+    other which data formats they can accept and which they can produce.
+    This is achieved using
+    \l{http://www.rfc-editor.org/rfc/rfc1341.txt}{MIME types}. The QDrag
+    object constructed by the source contains a list of MIME types that it
+    uses to represent the data (ordered from most appropriate to least
+    appropriate), and the drop target uses one of these to access the data.
+    For common data types, the convenience functions handle the MIME types
+    used transparently but, for custom data types, it is necessary to
+    state them explicitly.
+
+    To implement drag and drop actions for a type of information that is
+    not covered by the QDrag convenience functions, the first and most
+    important step is to look for existing formats that are appropriate:
+    The Internet Assigned Numbers Authority (\l{http://www.iana.org}{IANA})
+    provides a
+    \l{http://www.iana.org/assignments/media-types/}{hierarchical
+    list of MIME media types} at the Information Sciences Institute
+    (\l{http://www.isi.edu}{ISI}).
+    Using standard MIME types maximizes the interoperability of
+    your application with other software now and in the future.
+
+    To support an additional media type, simply set the data in the QMimeData
+    object with the \l{QMimeData::setData()}{setData()} function, supplying
+    the full MIME type and a QByteArray containing the data in the appropriate
+    format. The following code takes a pixmap from a label and stores it
+    as a Portable Network Graphics (PNG) file in a QMimeData object:
+
+    \snippet separations/finalwidget.cpp 0
+
+    Of course, for this case we could have simply used
+    \l{QMimeData::setImageData()}{setImageData()} instead to supply image data
+    in a variety of formats:
+
+    \snippet separations/finalwidget.cpp 1
+
+    The QByteArray approach is still useful in this case because it provides
+    greater control over the amount of data stored in the QMimeData object.
+
+    Note that custom datatypes used in item views must be declared as
+    \l{QMetaObject}{meta objects} and that stream operators for them
+    must be implemented.
+
+    \section1 Drop Actions
+
+    In the clipboard model, the user can \e cut or \e copy the source
+    information, then later paste it. Similarly in the drag and drop
+    model, the user can drag a \e copy of the information or they can drag
+    the information itself to a new place (\e moving it). The
+    drag and drop model has an additional complication for the programmer:
+    The program doesn't know whether the user wants to cut or copy the
+    information until the operation is complete. This often makes no
+    difference when dragging information between applications, but within
+    an application it is important to check which drop action was used.
+
+    We can reimplement the mouseMoveEvent() for a widget, and start a drag
+    and drop operation with a combination of possible drop actions. For
+    example, we may want to ensure that dragging always moves objects in
+    the widget:
+
+    \snippet draganddrop/dragwidget.cpp 7
+    \dots
+    \snippet draganddrop/dragwidget.cpp 8
+
+    The action returned by the exec() function may default to a
+    \c CopyAction if the information is dropped into another application
+    but, if it is dropped in another widget in the same application, we
+    may obtain a different drop action.
+
+    The proposed drop actions can be filtered in a widget's dragMoveEvent()
+    function. However, it is possible to accept all proposed actions in
+    the dragEnterEvent() and let the user decide which they want to accept
+    later:
+
+    \snippet draganddrop/dragwidget.cpp 0
+
+    When a drop occurs in the widget, the dropEvent() handler function is
+    called, and we can deal with each possible action in turn. First, we
+    deal with drag and drop operations within the same widget:
+
+    \snippet draganddrop/dragwidget.cpp 1
+
+    In this case, we refuse to deal with move operations. Each type of drop
+    action that we accept is checked and dealt with accordingly:
+
+    \snippet draganddrop/dragwidget.cpp 2
+    \snippet draganddrop/dragwidget.cpp 3
+    \snippet draganddrop/dragwidget.cpp 4
+    \dots
+    \snippet draganddrop/dragwidget.cpp 5
+
+    Note that we checked for individual drop actions in the above code.
+    As mentioned above in the section on
+    \l{#Overriding Proposed Actions}{Overriding Proposed Actions}, it is
+    sometimes necessary to override the proposed drop action and choose a
+    different one from the selection of possible drop actions.
+    To do this, you need to check for the presence of each action in the value
+    supplied by the event's \l{QDropEvent::}{possibleActions()}, set the drop
+    action with \l{QDropEvent::}{setDropAction()}, and call
+    \l{QEvent::}{accept()}.
+
+    \section1 Drop Rectangles
+
+    The widget's dragMoveEvent() can be used to restrict drops to certain parts
+    of the widget by only accepting the proposed drop actions when the cursor
+    is within those areas. For example, the following code accepts any proposed
+    drop actions when the cursor is over a child widget (\c dropFrame):
+
+    \snippet droprectangle/window.cpp 0
+
+    The dragMoveEvent() can also be used if you need to give visual
+    feedback during a drag and drop operation, to scroll the window, or
+    whatever is appropriate.
+
+    \section1 The Clipboard
+
+    Applications can also communicate with each other by putting data on
+    the clipboard. To access this, you need to obtain a QClipboard object
+    from the QApplication object:
+
+    \snippet ../widgets/widgets/charactermap/mainwindow.cpp 3
+
+    The QMimeData class is used to represent data that is transferred to and
+    from the clipboard. To put data on the clipboard, you can use the
+    setText(), setImage(), and setPixmap() convenience functions for common
+    data types. These functions are similar to those found in the QMimeData
+    class, except that they also take an additional argument that controls
+    where the data is stored: If \l{QClipboard::Mode}{Clipboard} is
+    specified, the data is placed on the clipboard; if
+    \l{QClipboard::Mode}{Selection} is specified, the data is placed in the
+    mouse selection (on X11 only). By default, data is put on the clipboard.
+
+    For example, we can copy the contents of a QLineEdit to the clipboard
+    with the following code:
+
+    \snippet ../widgets/widgets/charactermap/mainwindow.cpp 11
+
+    Data with different MIME types can also be put on the clipboard.
+    Construct a QMimeData object and set data with setData() function in
+    the way described in the previous section; this object can then be
+    put on the clipboard with the
+    \l{QClipboard::setMimeData()}{setMimeData()} function.
+
+    The QClipboard class can notify the application about changes to the
+    data it contains via its \l{QClipboard::dataChanged()}{dataChanged()}
+    signal. For example, we can monitor the clipboard by connecting this
+    signal to a slot in a widget:
+
+    \snippet clipboard/clipwindow.cpp 0
+
+    The slot connected to this signal can read the data on the clipboard
+    using one of the MIME types that can be used to represent it:
+
+    \snippet clipboard/clipwindow.cpp 1
+    \dots
+    \snippet clipboard/clipwindow.cpp 2
+
+    The \l{QClipboard::selectionChanged()}{selectionChanged()} signal can
+    be used on X11 to monitor the mouse selection.
+
+    \section1 Examples
+
+    \list
+    \li \l{draganddrop/draggableicons}{Draggable Icons}
+    \li \l{draganddrop/draggabletext}{Draggable Text}
+    \li \l{draganddrop/dropsite}{Drop Site}
+    \li \l{draganddrop/fridgemagnets}{Fridge Magnets}
+    \li \l{draganddrop/puzzle}{Drag and Drop Puzzle}
+    \endlist
+
+    \section1 Interoperating with Other Applications
+
+    On X11, the public \l{http://www.newplanetsoftware.com/xdnd/}{XDND
+    protocol} is used, while on Windows Qt uses the OLE standard, and
+    Qt for Mac OS X uses the Cocoa Drag Manager. On X11, XDND uses MIME,
+    so no translation is necessary. The Qt API is the same regardless of
+    the platform. On Windows, MIME-aware applications can communicate by
+    using clipboard format names that are MIME types. Already some
+    Windows applications use MIME naming conventions for their
+    clipboard formats. Internally, Qt uses QWindowsMime and
+    QMacPasteboardMime for translating proprietary clipboard formats
+    to and from MIME types.
+
+*/

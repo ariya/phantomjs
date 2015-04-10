@@ -1,0 +1,212 @@
+#!/usr/bin/env python
+# Copyright (C) 2011 Igalia S.L.
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+import common
+import glob
+import gtkdoc
+import logging
+import os.path
+import sys
+
+def configure_logging():
+    level = logging.DEBUG if '-v' in sys.argv else logging.INFO
+    logger = logging.getLogger('gtkdoc')
+    logger.setLevel(level)
+    handler = logging.StreamHandler()
+    handler.setLevel(level)
+    logger.addHandler(handler)
+    if level == logging.DEBUG:
+        handler.setFormatter(logging.Formatter('[%(asctime)s]  %(message)s'))
+    else:
+        handler.setFormatter(logging.Formatter('%(message)s'))
+
+
+def get_gtkdoc_module_paths(xref_dep_packages):
+    deps = []
+    html_dir = os.path.join('share', 'gtk-doc', 'html')
+
+    for package in xref_dep_packages:
+        prefix = common.prefix_of_pkg_config_file(package)
+        if prefix is None:
+            continue
+        for module in xref_dep_packages[package]:
+            deps.append(os.path.join(prefix, html_dir, module))
+
+    return deps
+
+
+def get_common_options():
+    # TODO: We should consider using an arguments parsing library if
+    # we need more of these complex ones.
+    virtual_root = ''
+    for argument in sys.argv:
+        if argument.startswith('--virtual-root='):
+            virtual_root = argument.split('=')[1]
+            break
+
+    return {
+        'decorator': 'WEBKIT_API',
+        'deprecation_guard': 'WEBKIT_DISABLE_DEPRECATED',
+        'library_path' : common.build_path('.libs'),
+        'virtual_root' : virtual_root,
+    }
+
+def get_common_xref_deps():
+    return {
+        'glib-2.0' : ['glib', 'gobject', 'gio'],
+        'libsoup-2.4' : ['libsoup-2.4'],
+        'gdk-pixbuf-2.0': ['gdk-pixbuf']
+    }
+
+def get_webkit2_options():
+    def derived_sources_path(*args):
+        return common.build_path(*(('DerivedSources', 'WebKit2') + args))
+    def src_path(*args):
+        return common.top_level_path(*(('Source', 'WebKit2', 'UIProcess', 'API', 'gtk') + args))
+    def injected_bundle_src_path(*args):
+        return common.top_level_path(*(('Source', 'WebKit2', 'WebProcess', 'InjectedBundle', 'API', 'gtk') + args))
+
+    xref_deps = get_common_xref_deps().copy()
+    xref_deps.update({
+        'gtk+-3.0' : ['gtk3', 'gdk3']
+    })
+
+    options = get_common_options().copy()
+    options.update({
+        'module_name' : 'webkit2gtk',
+        'doc_dir' : src_path('docs'),
+        'output_dir' : common.build_path('Documentation', 'webkit2gtk'),
+        'source_dirs' : [src_path(), derived_sources_path('webkit2gtk', 'webkit2'), injected_bundle_src_path()],
+        'cflags' : ' -I' + derived_sources_path('webkit2gtk', 'include') + \
+                   ' -I' + derived_sources_path('webkit2gtk') + \
+                   ' -I' + derived_sources_path('include') + \
+                   ' -I' + common.top_level_path('Source') + \
+                   ' -I' + src_path(),
+        'cross_reference_deps' : get_gtkdoc_module_paths(xref_deps),
+        'ignored_files': glob.glob(src_path('*Private.h')) + \
+                         glob.glob(injected_bundle_src_path('*Private.h')) + \
+                         glob.glob(src_path('*Client*')) + \
+                         glob.glob(src_path('WebKitGeolocationProvider.*')) + \
+                         glob.glob(src_path('WebKitTextChecker.*')) + \
+                         glob.glob(src_path('WebKitAuthenticationDialog.*')) + \
+                         glob.glob(src_path('WebKitWebViewBaseAccessible.*')) + \
+                         glob.glob(src_path('WebViewBaseInputMethodFilter.*')) + \
+                         glob.glob(derived_sources_path('webkit2gtk', 'webkit2', 'WebKitMarshal.*')) + \
+                         glob.glob(derived_sources_path('webkit2gtk', 'webkit2', 'WebKitEnumTypes.*')) + \
+                         glob.glob(src_path('tests/*.h'))
+    })
+    return options
+
+def get_webkit1_options(gtk_version):
+    def src_path(*args):
+        return common.top_level_path(*(('Source', 'WebKit', 'gtk') + args))
+
+    xref_deps = get_common_xref_deps().copy()
+    if gtk_version == 3:
+        xref_deps.update({
+                'gtk+-3.0' : ['gtk3', 'gdk3']
+        })
+    else:
+        xref_deps.update({
+                'gtk+-2.0' : ['gtk', 'gdk']
+        })
+
+    options = get_common_options().copy()
+    options.update({
+        'module_name' : 'webkitgtk',
+        'doc_dir' : src_path('docs'),
+        'output_dir' : common.build_path('Documentation', 'webkitgtk'),
+        'source_dirs' : [src_path('webkit'), common.build_path('Source', 'WebKit', 'gtk', 'webkit')],
+        'cflags' : ' -I' + common.build_path('WebKit', 'gtk') + \
+                   ' -I' + common.build_path('DerivedSources') + \
+                   ' -I' + src_path() + \
+                   ' -I' + common.top_level_path('Source') + \
+                   ' -I' + common.top_level_path('Source', 'JavaScriptCore', 'ForwardingHeaders'),
+        'cross_reference_deps' : get_gtkdoc_module_paths(xref_deps),
+        'ignored_files': glob.glob(src_path('webkit', '*private.*')) + \
+                         glob.glob(src_path('webkit', 'webkitauthenticationdialog.*')) + \
+                         glob.glob(src_path('webkit', 'webkitspellcheckerenchant.*'))
+    })
+    return options
+
+def print_missing_api(generator):
+    missing_api = generator.api_missing_documentation()
+    if not missing_api:
+        return
+    print("\nThe following API are missing documentation:")
+    for api in missing_api:
+        print("\t%s" % api)
+
+def generate_doc(generator):
+    generator.generate(html='--skip-html' not in sys.argv)
+    if generator.saw_warnings:
+        print_missing_api(generator)
+    return generator.saw_warnings
+
+configure_logging()
+
+# We need to add the JavaScriptCore build directory to the PKG_CONFIG_PATH
+# so that pkgconfig can properly resolve the libjavascriptcore dependency.
+pkg_config_path = os.environ.get("PKG_CONFIG_PATH")
+os.environ['PKG_CONFIG_PATH'] = common.build_path('Source', 'JavaScriptCore')
+if pkg_config_path:
+    os.environ['PKG_CONFIG_PATH'] += ':' + pkg_config_path
+
+# Newer versions of glib have deprecated g_type_init, so we need to disable
+# that warning when running gtkdoc-scanobj by overriding the CFLAGS we use
+# to compile it.
+cflags = os.environ.get('CFLAGS', '')
+cflags += ' -DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_32'
+os.environ['CFLAGS'] = cflags
+
+# Clang can be noisy, throwing unnecessary warnings for unused arguments.
+if os.environ.get('CC') == "clang":
+    os.environ['CFLAGS'] += ' -Qunused-arguments'
+
+saw_webkit1_warnings = saw_webkit2_warnings = False
+
+pkg_config_path = common.build_path('Source', 'WebKit', 'gtk', 'webkitgtk-3.0.pc')
+if not os.path.exists(pkg_config_path):
+    pkg_config_path = common.build_path('Source', 'WebKit', 'gtk', 'webkit-1.0.pc')
+if os.path.exists(pkg_config_path):
+    options = get_webkit1_options(common.gtk_version_of_pkg_config_file(pkg_config_path))
+    generator = gtkdoc.PkgConfigGTKDoc(pkg_config_path, options)
+    if '--rebase' not in sys.argv:
+        print("Generating WebKit1 documentation...")
+        saw_webkit1_warnings = generate_doc(generator)
+    else:
+        print("Rebasing WebKit1 documentation...")
+        try:
+            generator.rebase_installed_docs()
+        except Exception:
+            print("Rebase did not happen, likely no documentation is present.")
+
+# WebKit2 might not be enabled, so check for the pkg-config file before building documentation.
+pkg_config_path = common.build_path('Source', 'WebKit2', 'webkit2gtk-3.0.pc')
+if os.path.exists(pkg_config_path):
+    generator = gtkdoc.PkgConfigGTKDoc(pkg_config_path, get_webkit2_options())
+    if '--rebase' not in sys.argv:
+        print("\nGenerating WebKit2 documentation...")
+        saw_webkit2_warnings = generate_doc(generator)
+    else:
+        print("\nRebasing WebKit2 documentation...")
+        try:
+            generator.rebase_installed_docs()
+        except Exception:
+            print("Rebase did not happen, likely no documentation is present.")
+
+sys.exit(saw_webkit1_warnings or saw_webkit2_warnings)

@@ -1,0 +1,222 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
+/* We use an internal container to act as a vertical stack. */
+
+.layer-tree.panel .box-container {
+    height: 100%;
+    /* Let it stack its content as vertical boxes. */
+    display: -webkit-flex;
+    -webkit-flex-direction: column;
+}
+
+/* Hide the collapsed arrow from sections. */
+
+.layer-tree.panel .details-section > .header::before {
+    /* Don't show the collpased arrow. */
+    display: none;
+}
+
+.layer-tree.panel .details-section > .header {
+    /* Add a little padding since there's no arrow to show. */
+    padding-left: 4px;
+    /* Turn off mouse events so we can't click to toggle section. */
+    pointer-events: none;
+}
+
+.layer-tree.panel .details-section > .header > label {
+    /* Always show the options box. */
+    display: block !important;
+    /* Turn on events just for the <label> and <input>. */
+    pointer-events: all;
+}
+
+/* Customizing the DataGrid. */
+
+.layer-tree.panel .details-section.layer-children {
+    position: relative;
+    /* Use all available vertical space. */
+    -webkit-flex: 1;
+    /* Let children stack vertically. */
+    display: -webkit-flex;
+    -webkit-flex-direction: column;
+}
+
+.layer-tree.panel .details-section.layer-children > .content {
+    position: relative;
+    display: block;
+    /* Use all available vertical space. */
+    -webkit-flex: 1;
+}
+
+.layer-tree.panel .details-section.layer-children .group {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.layer-tree.panel .data-grid {
+    position: relative;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    /* Turn off the default borders, we want to snap to edges. */
+    border: none;
+}
+
+.layer-tree.panel .data-grid table.data {
+    background-size: 100% 44px;
+}
+
+.layer-tree.panel .data-container {
+    position: absolute;
+    /* Leave room for the data grid header. */
+    top: 16px;
+    /* Use all remaining vertical space in the container. */
+    bottom: 0;
+    /* Let the inline table content scroll, independently of the header. */
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.layer-tree.panel .data-container tr {
+    height: 22px;
+}
+
+.layer-tree.panel .data-container td > div {
+    display: -webkit-flex;
+    width: 100%;
+    height: 100%;
+    -webkit-align-items: center;
+    -webkit-justify-content: flex-end;
+}
+
+/* Customizing the DataGrid "node" cell. */
+
+.layer-tree.panel .data-container .name-column {
+    padding-right: 0;
+}
+
+.layer-tree.panel .data-container .name-column .icon {
+    vertical-align: top;
+    width: 16px;
+    height: 16px;
+    content: url(Images/DOMElement.pdf);
+}
+
+.layer-tree.panel .data-container tr.reflection .name-column .icon {
+    content: url(Images/Reflection.pdf);
+}
+
+.layer-tree.panel .data-container tr.pseudo-element .name-column .icon {
+    content: url(Images/PseudoElement.pdf);
+}
+
+.layer-tree.panel .data-container .name-column .label {
+    -webkit-flex: 1;
+    padding: 0 4px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.layer-tree.panel .data-container tr:hover .name-column .label {
+    padding-right: 0;
+}
+
+.layer-tree.panel .data-container .name-column .pseudo-element,
+.layer-tree.panel .data-container .name-column .reflection {
+    color: rgb(128, 128, 128);
+}
+
+.layer-tree.panel .data-container tr.selected .name-column .pseudo-element,
+.layer-tree.panel .data-container tr.selected .name-column .reflection {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.layer-tree.panel .data-container .go-to-arrow {
+    display: none;
+}
+
+.layer-tree.panel .data-container tr:hover .go-to-arrow {
+    display: block;
+}
+
+/* Bottom bar */
+
+.layer-tree.panel .bottom-bar {
+    position: relative;
+    height: 22px;
+    /* Let it stack its content as horizontal boxes. */
+    display: -webkit-flex;
+}
+
+.layer-tree.panel .bottom-bar > div {
+    padding: 4px;
+    box-sizing: border-box;
+
+    font-family: 'Lucida Grande', sans-serif;
+    font-size: 11px;
+    text-shadow: rgba(255, 255, 255, 0.5) 0 1px 0;
+
+    /* Ensure any overflowing text is trimmed. */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    /* Let all boxes have the same width. */
+    display: -webkit-flex;
+    -webkit-flex: 1;
+}
+
+.layer-tree.panel .layers-memory-label {
+    -webkit-justify-content: flex-end;
+}
+
+/* popover */
+
+.layer-tree-popover {
+    font-family: 'Lucida Grande', sans-serif;
+    font-size: 11px;
+    text-shadow: rgba(255, 255, 255, 0.5) 0 1px 0;
+
+    padding: 5px;
+}
+
+.layer-tree-popover p {
+    margin: 0;
+}
+
+.layer-tree-popover ul {
+    list-style-type: none;
+    margin: 10px 0 0 0;
+    padding-left: 10px;
+}
+
+.layer-tree-popover li {
+    line-height: 1.3em;
+}

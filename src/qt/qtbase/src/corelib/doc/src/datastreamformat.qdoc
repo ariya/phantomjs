@@ -1,0 +1,374 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page datastreamformat.html
+    \title Serializing Qt Data Types
+    \brief Representations of data types that can be serialized by QDataStream.
+
+    The \l QDataStream allows you to serialize some of the Qt data types.
+    The table below lists the data types that QDataStream can serialize
+    and how they are represented. The format described below is
+    \l{QDataStream::setVersion()}{version 13}.
+
+    It is always best to cast integers to a Qt integer type, such as
+    qint16 or quint32, when reading and writing. This ensures that
+    you always know exactly what size integers you are reading and
+    writing, no matter what the underlying platform and architecture
+    the application happens to be running on.
+
+    \table
+    \row \li bool
+         \li \list
+            \li boolean
+            \endlist
+    \row \li qint8
+         \li \list
+            \li signed byte
+            \endlist
+    \row \li qint16
+         \li \list
+            \li signed 16-bit integer
+            \endlist
+    \row \li qint32
+         \li \list
+            \li signed 32-bit integer
+            \endlist
+    \row \li qint64
+         \li \list
+            \li signed 64-bit integer
+            \endlist
+    \row \li quint8
+         \li \list
+            \li unsigned byte
+            \endlist
+    \row \li quint16
+         \li \list
+            \li unsigned 16-bit integer
+            \endlist
+    \row \li quint32
+         \li \list
+            \li unsigned 32-bit integer
+            \endlist
+    \row \li quint64
+         \li \list
+            \li unsigned 64-bit integer
+            \endlist
+    \row \li \c float
+         \li \list
+            \li 32-bit floating point number using the standard IEEE 754 format
+            \endlist
+    \row \li \c double
+         \li \list
+            \li 64-bit floating point number using the standard IEEE 754 format
+            \endlist
+    \row \li \c {const char *}
+         \li \list
+            \li The string length (quint32)
+            \li The string bytes, excluding the terminating 0
+            \endlist
+    \row \li QBitArray
+         \li \list
+            \li The array size (quint32)
+            \li The array bits, i.e. (size + 7)/8 bytes
+            \endlist
+    \row \li QBrush
+         \li \list
+            \li The brush style (quint8)
+            \li The brush color (QColor)
+            \li If style is CustomPattern, the brush pixmap (QPixmap)
+            \endlist
+    \row \li QByteArray
+         \li \list
+            \li If the byte array is null: 0xFFFFFFFF (quint32)
+            \li Otherwise: the array size (quint32) followed by the array bytes, i.e. size bytes
+            \endlist
+    \row \li \l QColor
+         \li \list
+            \li Color spec (qint8)
+            \li Alpha value (quint16)
+            \li Red value (quint16)
+            \li Green value (quint16)
+            \li Blue value (quint16)
+            \li Pad value (quint16)
+            \endlist
+    \row \li QCursor
+         \li \list
+            \li Shape ID (qint16)
+            \li If shape is BitmapCursor: The bitmap (QPixmap), mask (QPixmap), and hot spot (QPoint)
+            \endlist
+    \row \li QDate
+         \li \list
+            \li Julian day (quint32)
+            \endlist
+    \row \li QDateTime
+         \li \list
+            \li Date (QDate)
+            \li Time (QTime)
+            \li The \l{Qt::TimeSpec}{time spec} (quint8)
+            \endlist
+    \row \li QEasingCurve
+         \li \list
+            \li type (quint8)
+            \li func (quint64)
+            \li hasConfig (bool)
+            \li If hasConfig is true then these fields follow:
+            \li list
+                \li period (double)
+                \li amplitude (double)
+                \li overshoot (double)
+            \endlist
+    \row \li QFont
+         \li \list
+            \li The family (QString)
+            \li The point size (qint16)
+            \li The style hint (quint8)
+            \li The char set (quint8)
+            \li The weight (quint8)
+            \li The font bits (quint8)
+            \endlist
+    \row \li QHash<Key, T>
+         \li \list
+            \li The number of items (quint32)
+            \li For all items, the key (Key) and value (T)
+            \endlist
+    \row \li QIcon
+         \li \list
+            \li The number of pixmap entries (quint32)
+            \li For all pixmap entries:
+               \list
+               \li The pixmap (QPixmap)
+               \li The file name (QString)
+               \li The pixmap size (QSize)
+               \li The \l{QIcon::Mode}{mode} (quint32)
+               \li The \l{QIcon::State}{state} (quint32)
+               \endlist
+            \endlist
+    \row \li QImage
+         \li \list
+            \li If the image is null a "null image" marker is saved;
+            otherwise the image is saved in PNG or BMP format (depending
+            on the stream version). If you want control of the format,
+            stream the image into a QBuffer (using QImageIO) and stream
+            that.
+            \endlist
+    \row \li QKeySequence
+         \li \list
+            \li A QList<int>, where each integer is a key in the key sequence
+            \endlist
+    \row \li QLinkedList<T>
+         \li \list
+            \li The number of items (quint32)
+            \li The items (T)
+            \endlist
+    \row \li QList<T>
+         \li \list
+            \li The number of items (quint32)
+            \li The items (T)
+            \endlist
+    \row \li QMap<Key, T>
+         \li \list
+            \li The number of items (quint32)
+            \li For all items, the key (Key) and value (T)
+            \endlist
+    \row \li QMargins
+         \li \list
+            \li left (int)
+            \li top (int)
+            \li right (int)
+            \li bottom (int)
+            \endlist
+    \row \li QMatrix
+         \li \list
+            \li m11 (double)
+            \li m12 (double)
+            \li m21 (double)
+            \li m22 (double)
+            \li dx (double)
+            \li dy (double)
+            \endlist
+    \row \li QMatrix4x4
+         \li \list
+            \li m11 (float)
+            \li m12 (float)
+            \li m13 (float)
+            \li m14 (float)
+            \li m21 (float)
+            \li m22 (float)
+            \li m23 (float)
+            \li m24 (float)
+            \li m31 (float)
+            \li m32 (float)
+            \li m33 (float)
+            \li m34 (float)
+            \li m41 (float)
+            \li m42 (float)
+            \li m43 (float)
+            \li m44 (float)
+            \endlist
+    \row \li QPair<T1, T2>
+         \li \list
+            \li first (T1)
+            \li second (T2)
+            \endlist
+    \row \li QPalette
+         \li The disabled, active, and inactive color groups, each of which consists
+            of the following:
+            \list
+            \li foreground (QBrush)
+            \li button (QBrush)
+            \li light (QBrush)
+            \li midlight (QBrush)
+            \li dark (QBrush)
+            \li mid (QBrush)
+            \li text (QBrush)
+            \li brightText (QBrush)
+            \li buttonText (QBrush)
+            \li base (QBrush)
+            \li background (QBrush)
+            \li shadow (QBrush)
+            \li highlight (QBrush)
+            \li highlightedText (QBrush)
+            \li link (QBrush)
+            \li linkVisited (QBrush)
+            \endlist
+    \row \li QPen
+         \li \list
+            \li The pen styles (quint8)
+            \li The pen width (quint16)
+            \li The pen color (QColor)
+            \endlist
+    \row \li QPicture
+         \li \list
+            \li The size of the picture data (quint32)
+            \li The raw bytes of picture data (char)
+            \endlist
+    \row \li QPixmap
+         \li \list
+            \li Save it as a PNG image.
+            \endlist
+    \row \li QPoint
+         \li \list
+            \li The x coordinate (qint32)
+            \li The y coordinate (qint32)
+            \endlist
+    \row \li QQuaternion
+         \li \list
+            \li The scalar component (float)
+            \li The x coordinate (float)
+            \li The y coordinate (float)
+            \li The z coordinate (float)
+            \endlist
+    \row \li QRect
+         \li \list
+            \li left (qint32)
+            \li top (qint32)
+            \li right (qint32)
+            \li bottom (qint32)
+            \endlist
+    \row \li QRegExp
+         \li \list
+            \li The regexp pattern (QString)
+            \li Case sensitivity (quint8)
+            \li Regular expression syntax (quint8)
+            \li Minimal matching (quint8)
+            \endlist
+    \row \li QRegularExpression
+         \li \list
+            \li The regular expression pattern (QString)
+            \li The pattern options (quint32)
+            \endlist
+    \row \li QRegion
+         \li \list
+            \li The size of the data, i.e. 8 + 16 * (number of rectangles) (quint32)
+            \li 10 (qint32)
+            \li The number of rectangles (quint32)
+            \li The rectangles in sequential order (QRect)
+            \endlist
+    \row \li QSize
+         \li \list
+            \li width (qint32)
+            \li height (qint32)
+            \endlist
+    \row \li QString
+         \li \list
+            \li If the string is null: 0xFFFFFFFF (quint32)
+            \li Otherwise: The string length in bytes (quint32) followed by the data in UTF-16
+            \endlist
+    \row \li QTime
+         \li \list
+            \li Milliseconds since midnight (quint32)
+            \endlist
+    \row \li QTransform
+         \li \list
+            \li m11 (double)
+            \li m12 (double)
+            \li m13 (double)
+            \li m21 (double)
+            \li m22 (double)
+            \li m23 (double)
+            \li m31 (double)
+            \li m32 (double)
+            \li m33 (double)
+            \endlist
+    \row \li QUrl
+         \li \list
+            \li Holds an URL (QString)
+            \endlist
+    \row \li QVariant
+         \li \list
+            \li The type of the data (quint32)
+            \li The null flag (qint8)
+            \li The data of the specified type
+            \endlist
+    \row \li QVector2D
+         \li \list
+            \li the x coordinate (float)
+            \li the y coordinate (float)
+            \endlist
+    \row \li QVector3D
+         \li \list
+            \li the x coordinate (float)
+            \li the y coordinate (float)
+            \li the z coordinate (float)
+            \endlist
+    \row \li QVector4D
+         \li \list
+            \li the x coordinate (float)
+            \li the y coordinate (float)
+            \li the z coordinate (float)
+            \li the w coordinate (float)
+            \endlist
+    \row \li QVector<T>
+         \li \list
+            \li The number of items (quint32)
+            \li The items (T)
+            \endlist
+    \endtable
+
+    \sa {JSON Support in Qt}
+*/

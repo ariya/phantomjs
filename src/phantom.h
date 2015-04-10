@@ -33,7 +33,6 @@
 
 #include <QPointer>
 
-#include "csconverter.h"
 #include "filesystem.h"
 #include "encoding.h"
 #include "config.h"
@@ -48,11 +47,9 @@ class WebServer;
 class Phantom : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList args READ args)
     Q_PROPERTY(QVariantMap defaultPageSettings READ defaultPageSettings)
     Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
     Q_PROPERTY(QString outputEncoding READ outputEncoding WRITE setOutputEncoding)
-    Q_PROPERTY(QString scriptName READ scriptName)
     Q_PROPERTY(QVariantMap version READ version)
     Q_PROPERTY(QObject *page READ page)
     Q_PROPERTY(bool cookiesEnabled READ areCookiesEnabled WRITE setCookiesEnabled)
@@ -68,8 +65,6 @@ public:
     static Phantom *instance();
     virtual ~Phantom();
 
-    QStringList args() const;
-
     QVariantMap defaultPageSettings() const;
 
     QString outputEncoding() const;
@@ -80,8 +75,6 @@ public:
 
     QString libraryPath() const;
     void setLibraryPath(const QString &libraryPath);
-
-    QString scriptName() const;
 
     QVariantMap version() const;
 

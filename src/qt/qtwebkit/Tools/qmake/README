@@ -1,0 +1,78 @@
+The qmake build system
+======================
+
+Basic structure
+---------------
+
+The qmake build is split into three different file types:
+
+    * .pro files: These files represent top level targets that can be
+    built individually, or a collection of sub-targets used for
+    organizing the project.
+
+    * .pri files: These files are included from top level targets,
+    and represent 'implementation details' of how the target is built.
+
+    * .prf files: These files take care of generic build rules
+    that applies to all targets, or specific 'features' that can
+    be loaded on demand.
+
+The first two file types are spread throughout the source tree, while
+the .prf files are located in 'Tools/qmake/mkspecs/features' and will
+get loaded by qmake based on setting the QMAKEPATH environment variable.
+
+
+Root project file
+-----------------
+
+The root project file 'WebKit.pro' is handy both for loading WebKit
+in Qt Creator, and for building QtWebKit. Normally you will build
+using build-webkit, but you can also run qmake directly on the root
+project file. Just make sure to set QMAKEPATH first, so that the
+custom mkspecs are picked up.
+
+Feature files
+-------------
+
+Feature files (.prf files) are used in the following ways:
+
+    1. Every time qmake parses a project file, it will first load
+    a special feature file called 'defaults_pre.prf', then parse
+    the project file, and then load another special feature file
+    called 'defaults_post.prf'. We use these special files to set
+    default options that all project files use, expose a few handy
+    functions, and to post-process the build config based on what
+    the project file did.
+
+    2. Dependencies on other targets (libraries) are declared by
+    using CONFIG+=othertarget. This will add the correct include
+    paths and linker options to use the library.
+
+    3. Optional features can be enabled by passing CONFIG+=foo on
+    the command line when running qmake on the root project file,
+    (or by passing --make-args="CONFIG+=foo" to build-webkit). For
+    example 'CONFIG+=valgrind'.
+
+
+Derived sources
+---------------
+
+Some targets (JavaScriptCore, WebCore, etc) rely on generated files,
+(aka. derived sources). These must be generated before the real target
+is built. This is achieved by splitting the target up into two sub-
+projects, one for the derived sources and one for the real target,
+and telling qmake to build them in order using CONFIG += ordered.
+
+
+The WEBKIT variable
+-------------------
+
+The custom qmake variable 'WEBKIT' is used for signaling that a
+target depends in some way on other subproject of the WebKit
+project. For now this is limited to the set of intermediate
+libraries: wtf, javascriptcore, webcore, and webkit2.
+
+Adding a dependency results in additional include paths being
+available, and potentially linking to the library. This is
+decided by the build system based on conditions such as what
+kind of target is being built and the general build config.

@@ -1,0 +1,164 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page custom-types.html
+    \title Creating Custom Qt Types
+    \brief How to create and register new types with Qt.
+
+    \ingroup best-practices
+
+    \tableofcontents
+
+    \section1 Overview
+
+    When creating user interfaces with Qt, particularly those with specialized controls and
+    features, developers sometimes need to create new data types that can be used alongside
+    or in place of Qt's existing set of value types.
+
+    Standard types such as QSize, QColor and QString can all be stored in QVariant objects,
+    used as the types of properties in QObject-based classes, and emitted in signal-slot
+    communication.
+
+    In this document, we take a custom type and describe how to integrate it into Qt's object
+    model so that it can be stored in the same way as standard Qt types. We then show how to
+    register the custom type to allow it to be used in signals and slots connections.
+
+    \section1 Creating a Custom Type
+
+    Before we begin, we need to ensure that the custom type we are creating meets all the
+    requirements imposed by QMetaType. In other words, it must provide:
+
+    \list
+    \li a public default constructor,
+    \li a public copy constructor, and
+    \li a public destructor.
+    \endlist
+
+    The following \c Message class definition includes these members:
+
+    \snippet customtype/message.h custom type definition
+
+    The class also provides a constructor for normal use and two public member functions
+    that are used to obtain the private data.
+
+    \section1 Declaring the Type with QMetaType
+
+    The \c Message class only needs a suitable implementation in order to be usable.
+    However, Qt's type system will not be able to understand how to store, retrieve
+    and serialize instances of this class without some assistance. For example, we
+    will be unable to store \c Message values in QVariant.
+
+    The class in Qt responsible for custom types is QMetaType. To make the type known
+    to this class, we invoke the Q_DECLARE_METATYPE() macro on the class in the header
+    file where it is defined:
+
+    \snippet customtype/message.h custom type meta-type declaration
+
+    This now makes it possible for \c Message values to be stored in QVariant objects
+    and retrieved later. See the \l{Custom Type Example} for code that demonstrates
+    this.
+
+    The Q_DECLARE_METATYPE() macro also makes it possible for these values to be used as
+    arguments to signals, but \e{only in direct signal-slot connections}.
+    To make the custom type generally usable with the signals and slots mechanism, we
+    need to perform some extra work.
+
+    \section1 Creating and Destroying Custom Objects
+
+    Although the declaration in the previous section makes the type available for use
+    in direct signal-slot connections, it cannot be used for queued signal-slot
+    connections, such as those that are made between objects in different threads.
+    This is because the meta-object system does not know how to handle creation and
+    destruction of objects of the custom type at run-time.
+
+    To enable creation of objects at run-time, call the qRegisterMetaType() template
+    function to register it with the meta-object system. This also makes the type
+    available for queued signal-slot communication as long as you call it before you
+    make the first connection that uses the type.
+
+    The \l{Queued Custom Type Example} declares a \c Block class which is registered
+    in the \c{main.cpp} file:
+
+    \snippet queuedcustomtype/main.cpp main start
+    \dots
+    \snippet queuedcustomtype/main.cpp register meta-type for queued communications
+    \dots
+    \snippet queuedcustomtype/main.cpp main finish
+
+    This type is later used in a signal-slot connection in the \c{window.cpp} file:
+
+    \snippet queuedcustomtype/window.cpp Window constructor start
+    \dots
+    \snippet queuedcustomtype/window.cpp connecting signal with custom type
+    \dots
+    \snippet queuedcustomtype/window.cpp Window constructor finish
+
+    If a type is used in a queued connection without being registered, a warning will be
+    printed at the console; for example:
+
+    \code
+    QObject::connect: Cannot queue arguments of type 'Block'
+    (Make sure 'Block' is registered using qRegisterMetaType().)
+    \endcode
+
+    \section1 Making the Type Printable
+
+    It is often quite useful to make a custom type printable for debugging purposes,
+    as in the following code:
+
+    \snippet customtype/main.cpp printing a custom type
+
+    This is achieved by creating a streaming operator for the type, which is often
+    defined in the header file for that type:
+
+    \snippet customtype/message.h custom type streaming operator
+
+    The implementation for the \c Message type in the \l{Custom Type Example}
+    goes to some effort to make the printable representation as readable as
+    possible:
+
+    \snippet customtype/message.cpp custom type streaming operator
+
+    The output sent to the debug stream can, of course, be made as simple or as
+    complicated as you like. Note that the value returned by this function is
+    the QDebug object itself, though this is often obtained by calling the
+    maybeSpace() member function of QDebug that pads out the stream with space
+    characters to make it more readable.
+
+    \section1 Further Reading
+
+    The Q_DECLARE_METATYPE() macro and qRegisterMetaType() function documentation
+    contain more detailed information about their uses and limitations.
+
+    The \l{Custom Type Example}{Custom Type} and \l{Queued Custom Type Example}
+    {Queued Custom Type} examples show how to implement a custom type with the
+    features outlined in this document.
+
+    The \l{Debugging Techniques} document provides an overview of the debugging
+    mechanisms discussed above.
+*/

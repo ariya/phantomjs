@@ -1,0 +1,207 @@
+#!/usr/bin/python
+
+# Copyright (C) 2009 Apple Inc.  All rights reserved.
+# Copyright (C) 2012 Google Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import optparse
+import os
+import shutil
+import subprocess
+import sys
+import zipfile
+
+_buildDirectory = None
+
+
+def main():
+    parser = optparse.OptionParser("usage: %prog [options] [action]")
+    parser.add_option("--platform", dest="platform")
+    parser.add_option("--debug", action="store_const", const="debug", dest="configuration")
+    parser.add_option("--release", action="store_const", const="release", dest="configuration")
+
+    options, (action, ) = parser.parse_args()
+    if not options.platform:
+        parser.error("Platform is required")
+        return 1
+    if not options.configuration:
+        parser.error("Configuration is required")
+        return 1
+    if action not in ('archive', 'extract'):
+        parser.error("Action is required")
+        return 1
+
+    genericPlatform = options.platform.split('-', 1)[0]
+    if not determineWebKitBuildDirectory(genericPlatform, options.configuration):
+        print >> sys.stderr, "Could not determine build directory"
+        return 1
+
+    if action == 'archive':
+        return archiveBuiltProduct(options.configuration, genericPlatform, options.platform)
+    else:
+        return extractBuiltProduct(options.configuration, genericPlatform)
+
+
+def determineWebKitBuildDirectory(platform, configuration):
+    global _buildDirectory
+    _buildDirectory = subprocess.Popen(['perl', os.path.join(os.path.dirname(__file__), "..", "Scripts", "webkit-build-directory"),
+        "--" + platform, "--" + configuration, '--top-level'], stdout=subprocess.PIPE).communicate()[0].strip()
+    return _buildDirectory
+
+
+def removeDirectoryIfExists(thinDirectory):
+    if os.path.isdir(thinDirectory):
+        shutil.rmtree(thinDirectory)
+
+
+def copyBuildFiles(source, destination, patterns):
+    shutil.copytree(source, destination, ignore=shutil.ignore_patterns(*patterns))
+
+
+def createZipManually(directoryToZip, archiveFile):
+    archiveZip = zipfile.ZipFile(archiveFile, "w")
+
+    for path, dirNames, fileNames in os.walk(directoryToZip):
+        relativePath = os.path.relpath(path, directoryToZip)
+        for fileName in fileNames:
+            archiveZip.write(os.path.join(path, fileName), os.path.join(relativePath, fileName))
+
+    archiveZip.close()
+
+
+def createZip(directoryToZip, configuration, archiveConfigurationOnMac=False):
+    archiveDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "WebKitBuild"))
+    archiveFile = os.path.join(archiveDir, configuration + ".zip")
+
+    try:
+        os.unlink(archiveFile)
+    except OSError, e:
+        if e.errno != 2:
+            raise
+
+    if sys.platform == 'darwin':
+        if archiveConfigurationOnMac:
+            return subprocess.call(["ditto", "-c", "-k", "--keepParent", "--sequesterRsrc", directoryToZip, archiveFile])
+        return subprocess.call(["ditto", "-c", "-k", "--sequesterRsrc", directoryToZip, archiveFile])
+    elif sys.platform == 'cygwin':
+        return subprocess.call(["zip", "-r", archiveFile, "bin32"], cwd=directoryToZip)
+    elif sys.platform == 'win32':
+        createZipManually(directoryToZip, archiveFile)
+        return 0
+    elif sys.platform.startswith('linux'):
+        return subprocess.call(["zip", "-y", "-r", archiveFile, "."], cwd=directoryToZip)
+
+
+def archiveBuiltProduct(configuration, platform, fullPlatform):
+    assert platform in ('mac', 'win', 'qt', 'gtk', 'efl')
+
+    configurationBuildDirectory = os.path.join(_buildDirectory, configuration.title())
+
+    if platform == 'mac':
+        return createZip(configurationBuildDirectory, configuration, archiveConfigurationOnMac=True)
+    elif platform == 'win':
+        binDirectory = os.path.join(configurationBuildDirectory, "bin32")
+        thinDirectory = os.path.join(configurationBuildDirectory, "thin")
+        thinBinDirectory = os.path.join(thinDirectory, "bin32")
+
+        removeDirectoryIfExists(thinDirectory)
+        copyBuildFiles(binDirectory, thinBinDirectory, ['*.ilk'])
+        if createZip(thinDirectory, configuration):
+            return 1
+
+        shutil.rmtree(thinDirectory)
+
+    elif platform == 'qt' or platform == 'gtk' or platform == 'efl':
+        thinDirectory = os.path.join(configurationBuildDirectory, "thin")
+
+        removeDirectoryIfExists(thinDirectory)
+        os.mkdir(thinDirectory)
+
+        if platform == 'qt' or platform == 'efl':
+            neededDirectories = ["bin", "lib"]
+        elif platform == 'gtk':
+            neededDirectories = ["Programs", ".libs", "Libraries", "TestNetscapePlugin"]
+
+        for dirname in neededDirectories:
+            fromDir = os.path.join(configurationBuildDirectory, dirname, ".")
+            toDir = os.path.join(thinDirectory, dirname)
+            os.makedirs(toDir)
+            if subprocess.call('cp -R %s %s' % (fromDir, toDir), shell=True):
+                return 1
+
+        for root, dirs, files in os.walk(thinDirectory, topdown=False):
+            for name in files:
+                if name.endswith(".o"):
+                    os.remove(os.path.join(root, name))
+
+        if createZip(thinDirectory, configuration):
+            return 1
+
+def unzipArchive(directoryToExtractTo, configuration):
+    archiveDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "WebKitBuild"))
+    assert os.path.isdir(archiveDir)
+    archiveFile = os.path.join(archiveDir, configuration + ".zip")
+
+    if sys.platform == 'darwin':
+        if subprocess.call(["ditto", "-x", "-k", archiveFile, directoryToExtractTo]):
+            return 1
+    elif sys.platform == 'cygwin' or sys.platform.startswith('linux'):
+        if subprocess.call(["unzip", "-o", archiveFile], cwd=directoryToExtractTo):
+            return 1
+    elif sys.platform == 'win32':
+        archive = zipfile.ZipFile(archiveFile, "r")
+        archive.extractall(directoryToExtractTo)
+        archive.close()
+
+    os.unlink(archiveFile)
+
+
+def extractBuiltProduct(configuration, platform):
+    assert platform in ('mac', 'win', 'qt', 'gtk', 'efl')
+
+    archiveFile = os.path.join(_buildDirectory, configuration + ".zip")
+    configurationBuildDirectory = os.path.join(_buildDirectory, configuration.title())
+
+    removeDirectoryIfExists(configurationBuildDirectory)
+    os.makedirs(configurationBuildDirectory)
+
+    if platform == 'mac':
+        return unzipArchive(_buildDirectory, configuration)
+    elif platform == 'win':
+        binDirectory = os.path.join(configurationBuildDirectory, "bin32")
+        os.makedirs(binDirectory)
+
+        safariPath = subprocess.Popen('cygpath -w "$PROGRAMFILES"/Safari',
+                                      shell=True, stdout=subprocess.PIPE).communicate()[0].strip()
+
+        if subprocess.call('cp -R "%s"/*.dll "%s"/*.resources %s' % (safariPath, safariPath, binDirectory), shell=True):
+            return 1
+
+        return unzipArchive(configurationBuildDirectory, configuration)
+    elif platform == 'qt' or platform == 'gtk' or platform == 'efl':
+        print "Extracting", configurationBuildDirectory
+        return unzipArchive(configurationBuildDirectory, configuration)
+
+
+if __name__ == '__main__':
+    sys.exit(main())

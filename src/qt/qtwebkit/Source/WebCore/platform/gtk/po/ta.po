@@ -1,0 +1,2492 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Shantha kumar <shkumar@redhat.com>, 2013.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: http://bugs.webkit.org\n"
+"POT-Creation-Date: 2013-03-22 03:28+0000\n"
+"PO-Revision-Date: 2013-03-25 11:42+0530\n"
+"Last-Translator: Shantha kumar <shkumar@redhat.com>\n"
+"Language-Team: Tamil <>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 1.0\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#: ../ErrorsGtk.cpp:37
+msgid "Load request cancelled"
+msgstr "ஏற்றுதல் கோரிக்கை ரத்து செய்யப்பட்டது"
+
+#: ../ErrorsGtk.cpp:43
+msgid "Not allowed to use restricted network port"
+msgstr "தடுக்கப்பட்ட பிணைய முனையத்தைப் பயன்படுத்த அனுமதி இல்லை"
+
+#: ../ErrorsGtk.cpp:49
+msgid "URL cannot be shown"
+msgstr "URL ஐக் காண்பிக்க முடியாது"
+
+#: ../ErrorsGtk.cpp:55
+msgid "Frame load was interrupted"
+msgstr "ஃபிரேம் ஏற்றுதல் இடைமறிக்கப்பட்டது"
+
+#: ../ErrorsGtk.cpp:61
+msgid "Content with the specified MIME type cannot be shown"
+msgstr "குறிப்பிடப்பட்ட MIME வகையுள்ள உள்ளடக்கத்தைக் காண்பிக்க முடியாது"
+
+#: ../ErrorsGtk.cpp:67
+msgid "File does not exist"
+msgstr "கோப்பு இருப்பில் இல்லை."
+
+#: ../ErrorsGtk.cpp:73
+msgid "Plugin will handle load"
+msgstr "செருகுநிரல் ஏற்றுதலைக் கையாளும்"
+
+#: ../ErrorsGtk.cpp:85
+msgid "User cancelled the download"
+msgstr "பதிவிறக்கத்தை பயனர் ரத்து செய்துவிட்டார்"
+
+#: ../ErrorsGtk.cpp:105
+msgid "Printer not found"
+msgstr "அச்சுப்பொறி கண்டறியப்படவில்லை"
+
+#: ../ErrorsGtk.cpp:112
+msgid "Invalid page range"
+msgstr "தவறான பக்க வரம்பு"
+
+#: ../GtkAuthenticationDialog.cpp:171
+#, c-format
+msgid "The site %s:%i requests a username and password"
+msgstr "தளம் %s:%i பயனர் பெயரையும் கடவுச்சொலையும் கோருகிறது"
+
+#: ../GtkAuthenticationDialog.cpp:175
+msgid "_Remember password"
+msgstr "கடவுச்சொல்லை நினைவில் கொள் (_R)"
+
+#: ../GtkAuthenticationDialog.cpp:201
+msgid "Server message:"
+msgstr "சேவையக செய்தி:"
+
+#: ../GtkAuthenticationDialog.cpp:202 ../GtkAuthenticationDialog.cpp:210
+msgid "Username:"
+msgstr "பயனர்பெயர்:"
+
+#: ../GtkAuthenticationDialog.cpp:203 ../GtkAuthenticationDialog.cpp:211
+msgid "Password:"
+msgstr "கடவுச்சொல்:"
+
+#: ../LocalizedStringsGtk.cpp:56 ../LocalizedStringsGtk.cpp:61
+msgid "Submit"
+msgstr "சமர்ப்பி"
+
+#: ../LocalizedStringsGtk.cpp:66
+msgid "Reset"
+msgstr "மீட்டமை"
+
+#: ../LocalizedStringsGtk.cpp:71
+msgid "Details"
+msgstr "விவரம்"
+
+#: ../LocalizedStringsGtk.cpp:76
+msgid "This is a searchable index. Enter search keywords: "
+msgstr "இது ஒரு தேடக்கூடிய அட்டவணை. முக்கிய தேடல் சொற்களை உள்ளிடவும்: "
+
+#: ../LocalizedStringsGtk.cpp:81
+msgid "Choose File"
+msgstr "கோப்பை தேர்வு செய்யவும்"
+
+#: ../LocalizedStringsGtk.cpp:86
+msgid "Choose Files"
+msgstr "கோப்புகளை தேர்ந்தெடுக்கவும்"
+
+#: ../LocalizedStringsGtk.cpp:91 ../LocalizedStringsGtk.cpp:96
+msgid "(None)"
+msgstr "(எதுவுமில்லை)"
+
+#: ../LocalizedStringsGtk.cpp:101
+msgid "Open Link in New _Window"
+msgstr "இணைப்பினை புதிய சாளரத்தில் திறக்கவும்  (_W)"
+
+#: ../LocalizedStringsGtk.cpp:106
+msgid "_Download Linked File"
+msgstr "இணைந்த கோப்பைப் பதிவிறக்கு (_D)"
+
+#: ../LocalizedStringsGtk.cpp:111
+msgid "Copy Link Loc_ation"
+msgstr "இணைப்பின் இருப்பிடத்தை நகலெடு (_a)"
+
+#: ../LocalizedStringsGtk.cpp:116
+msgid "Open _Image in New Window"
+msgstr "படத்தை புதிய சாளரத்தில் திற (_I)"
+
+#: ../LocalizedStringsGtk.cpp:121
+msgid "Sa_ve Image As"
+msgstr "படத்தை இவ்வாறு சேமி (_v)"
+
+#: ../LocalizedStringsGtk.cpp:126
+msgid "Cop_y Image"
+msgstr "படத்தை நகலெடு (_y)"
+
+#: ../LocalizedStringsGtk.cpp:131
+msgid "Copy Image _Address"
+msgstr "படத்தின் முகவரியை நகலெடு (_A)"
+
+#: ../LocalizedStringsGtk.cpp:136
+msgid "Open _Video in New Window"
+msgstr "வீடியோவை புதிய சாளரத்தில் திற (_V)"
+
+#: ../LocalizedStringsGtk.cpp:141
+msgid "Open _Audio in New Window"
+msgstr "ஆடியோவை புதிய சாளரத்தில் திற (_A)"
+
+#: ../LocalizedStringsGtk.cpp:146
+msgid "Cop_y Video Link Location"
+msgstr "வீடியோ இணைப்பின் இருப்பிடத்தை நகலெடு (_y)"
+
+#: ../LocalizedStringsGtk.cpp:151
+msgid "Cop_y Audio Link Location"
+msgstr "ஆடியோ இணைப்பின் இருப்பிடத்தை நகலெடு (_y)"
+
+#: ../LocalizedStringsGtk.cpp:156
+msgid "_Toggle Media Controls"
+msgstr "மீடியா கட்டுப்பாடுகளை நிலைமாற்று (_T)"
+
+#: ../LocalizedStringsGtk.cpp:161
+msgid "Toggle Media _Loop Playback"
+msgstr "மீடியா லூப் பிளேபேக்கை நிலைமாற்று (_L)"
+
+#: ../LocalizedStringsGtk.cpp:166
+msgid "Switch Video to _Fullscreen"
+msgstr "வீடியோவை முழுத்திரைக்கு மாற்று (_F)"
+
+#: ../LocalizedStringsGtk.cpp:171
+msgid "_Play"
+msgstr "இயக்கு (_P)"
+
+#: ../LocalizedStringsGtk.cpp:176
+msgid "_Pause"
+msgstr "இடை நிறுத்து (_P)"
+
+#: ../LocalizedStringsGtk.cpp:181
+msgid "_Mute"
+msgstr "_M ஒலியை முடக்கு"
+
+#: ../LocalizedStringsGtk.cpp:186
+msgid "Open _Frame in New Window"
+msgstr "ஃபிரேமை புதிய சாளரத்தில் திற (_F)"
+
+#: ../LocalizedStringsGtk.cpp:209
+msgid "_Insert Unicode Control Character"
+msgstr "யூனிகோட் கட்டுப்பாட்டு வரியுரு _சொருகவும்"
+
+#: ../LocalizedStringsGtk.cpp:214
+msgid "Input _Methods"
+msgstr "உள்ளீட்பு _முறைகள்"
+
+#: ../LocalizedStringsGtk.cpp:237
+msgid "_Reload"
+msgstr "மீளேற்று (_R)"
+
+#: ../LocalizedStringsGtk.cpp:254
+msgid "No Guesses Found"
+msgstr "ஊகங்கள் இல்லை"
+
+#: ../LocalizedStringsGtk.cpp:259
+msgid "_Ignore Spelling"
+msgstr "எழுத்துக்கூட்டைப் புறக்கணி (_I)"
+
+#: ../LocalizedStringsGtk.cpp:264
+msgid "_Learn Spelling"
+msgstr "எழுத்துக்கூட்டைக் கற்றுக்கொள் (_L)"
+
+#: ../LocalizedStringsGtk.cpp:269
+msgid "_Search the Web"
+msgstr "வலையில் தேடு (_S)"
+
+#: ../LocalizedStringsGtk.cpp:274
+msgid "_Look Up in Dictionary"
+msgstr "அகராதியில் தேடு (_L)"
+
+#: ../LocalizedStringsGtk.cpp:279
+msgid "_Open Link"
+msgstr "இணைப்பை திற (_O)"
+
+#: ../LocalizedStringsGtk.cpp:284
+msgid "Ignore _Grammar"
+msgstr "இலக்கணத்தை புறக்கணி (_G)"
+
+#: ../LocalizedStringsGtk.cpp:289
+msgid "Spelling and _Grammar"
+msgstr "எழுத்துக்கூட்டு மற்றும் இலக்கணம் (_G)"
+
+#: ../LocalizedStringsGtk.cpp:294
+msgid "_Show Spelling and Grammar"
+msgstr "எழுத்துக்கூட்டு மற்றும் இலக்கணத்தைக் காண்பி (_S)"
+
+#: ../LocalizedStringsGtk.cpp:294
+msgid "_Hide Spelling and Grammar"
+msgstr "எழுத்துக்கூட்டு மற்றும் இலக்கணத்தை மறை (_H)"
+
+#: ../LocalizedStringsGtk.cpp:299
+msgid "_Check Document Now"
+msgstr "ஆவணத்தை இப்போது சோதிக்கவும் (_C)"
+
+#: ../LocalizedStringsGtk.cpp:304
+msgid "Check Spelling While _Typing"
+msgstr "தட்டச்சு செய்யும் போதே எழுத்துக்கூட்டை சரிபார்க்கவும் (_T)"
+
+#: ../LocalizedStringsGtk.cpp:309
+msgid "Check _Grammar With Spelling"
+msgstr "எழுத்துக்கூட்டுடன் இலக்கணத்தையும் சரிபார்க்கவும் (_G)"
+
+#: ../LocalizedStringsGtk.cpp:314
+msgid "_Font"
+msgstr "எழுத்துரு (_F)"
+
+#: ../LocalizedStringsGtk.cpp:337
+msgid "_Outline"
+msgstr "வெளிவரை (_O)"
+
+#: ../LocalizedStringsGtk.cpp:342
+msgid "Inspect _Element"
+msgstr "கூறை ஆய்வு செய் (_E )"
+
+#: ../LocalizedStringsGtk.cpp:347
+msgid "LRM _Left-to-right mark"
+msgstr "LRM இடமிருந்து-வலமாக குறி (_L)"
+
+#: ../LocalizedStringsGtk.cpp:352
+msgid "RLM _Right-to-left mark"
+msgstr "RLM வலமிருந்து-இடமாக குறி (_R)"
+
+#: ../LocalizedStringsGtk.cpp:357
+msgid "LRE Left-to-right _embedding"
+msgstr "LRE இடமிருந்து வலம் உட்பொதிவு(_e)"
+
+#: ../LocalizedStringsGtk.cpp:362
+msgid "RLE Right-to-left e_mbedding"
+msgstr "RLE வலமிருந்து இடம் உட்பொதிவு (_m)"
+
+#: ../LocalizedStringsGtk.cpp:367
+msgid "LRO Left-to-right _override"
+msgstr "LRO இடமிருந்து வலம் மேலாணை (_o)"
+
+#: ../LocalizedStringsGtk.cpp:372
+msgid "RLO Right-to-left o_verride"
+msgstr "RLO வலமிருந்து இடம் (_v)"
+
+#: ../LocalizedStringsGtk.cpp:377
+msgid "PDF _Pop directional formatting"
+msgstr "PDF _Pop திசையமைப்பு வடிவம்"
+
+#: ../LocalizedStringsGtk.cpp:382
+msgid "ZWS _Zero width space"
+msgstr "ZWS _Zero அகல இடைவெளி"
+
+#: ../LocalizedStringsGtk.cpp:387
+msgid "ZWJ Zero width _joiner"
+msgstr "ZWJ Zero width _joiner"
+
+#: ../LocalizedStringsGtk.cpp:392
+msgid "ZWNJ Zero width _non-joiner"
+msgstr "ZWNJ பூச்சிய அகல நான்-ஜாய்னர் (_n)"
+
+#: ../LocalizedStringsGtk.cpp:397
+msgid "No recent searches"
+msgstr "சமீபத்திய தேடல்கள் இல்லை"
+
+#: ../LocalizedStringsGtk.cpp:402
+msgid "Recent searches"
+msgstr "சமீபத்திய தேடல்கள்"
+
+#: ../LocalizedStringsGtk.cpp:407
+msgid "_Clear recent searches"
+msgstr "சமீபத்திய தேடல்களை அழி (_C)"
+
+#: ../LocalizedStringsGtk.cpp:412
+msgid "definition"
+msgstr "வரையறை"
+
+#: ../LocalizedStringsGtk.cpp:417
+msgid "term"
+msgstr "சொல்"
+
+#: ../LocalizedStringsGtk.cpp:422
+msgid "description"
+msgstr "விளக்கம்"
+
+#: ../LocalizedStringsGtk.cpp:427
+msgid "footer"
+msgstr "அடிக்குறிப்பு"
+
+#: ../LocalizedStringsGtk.cpp:432
+msgid "press"
+msgstr "அழுத்து"
+
+#: ../LocalizedStringsGtk.cpp:437
+msgid "select"
+msgstr "தேர்ந்தெடுக்கவும்"
+
+#: ../LocalizedStringsGtk.cpp:442
+msgid "activate"
+msgstr "செயல்படுத்து"
+
+#: ../LocalizedStringsGtk.cpp:447
+msgid "uncheck"
+msgstr "தேர்வுநீக்கு"
+
+#: ../LocalizedStringsGtk.cpp:452
+msgid "check"
+msgstr "சோதி"
+
+#: ../LocalizedStringsGtk.cpp:457
+msgid "jump"
+msgstr "தாவு"
+
+#: ../LocalizedStringsGtk.cpp:472
+msgid "Missing Plug-in"
+msgstr "செருகுநிரல் இல்லை"
+
+#: ../LocalizedStringsGtk.cpp:478
+msgid "Plug-in Failure"
+msgstr "செருகுநிரல் தோல்வியடைந்தது"
+
+#. FIXME: If this file gets localized, this should really be localized as one string with a wildcard for the number.
+#: ../LocalizedStringsGtk.cpp:502
+msgid " files"
+msgstr " கோப்புகள்"
+
+#: ../LocalizedStringsGtk.cpp:507
+msgid "Unknown"
+msgstr "தெரியாத"
+
+#: ../LocalizedStringsGtk.cpp:512
+#, c-format
+msgctxt "Title string for images"
+msgid "%s  (%dx%d pixels)"
+msgstr "%s  (%dx%d பிக்சல்கள்)"
+
+#: ../LocalizedStringsGtk.cpp:524
+msgid "Loading..."
+msgstr "ஏற்றுகிறது..."
+
+#: ../LocalizedStringsGtk.cpp:529
+msgid "Live Broadcast"
+msgstr "நேரலை ஒலிபரப்பு"
+
+#: ../LocalizedStringsGtk.cpp:535
+msgid "audio element controller"
+msgstr "ஆடியோ கூறு கட்டுப்படுத்தி"
+
+#: ../LocalizedStringsGtk.cpp:537
+msgid "video element controller"
+msgstr "வீடியோ கூறு கட்டுப்படுத்தி"
+
+#: ../LocalizedStringsGtk.cpp:539
+msgid "mute"
+msgstr "ஒலிதடு"
+
+#: ../LocalizedStringsGtk.cpp:541
+msgid "unmute"
+msgstr "ஒலியை இயக்கு"
+
+#: ../LocalizedStringsGtk.cpp:543
+msgid "play"
+msgstr "இயக்கு"
+
+#: ../LocalizedStringsGtk.cpp:545
+msgid "pause"
+msgstr "இடைநிறுத்து"
+
+#: ../LocalizedStringsGtk.cpp:547
+msgid "movie time"
+msgstr "மூவி நேரம்"
+
+#: ../LocalizedStringsGtk.cpp:549
+msgid "timeline slider thumb"
+msgstr "காலக்கோடு ஸ்லைடர் தம்ப்"
+
+#: ../LocalizedStringsGtk.cpp:551
+msgid "back 30 seconds"
+msgstr "30 வினாடி பின்னோக்கி"
+
+#: ../LocalizedStringsGtk.cpp:553
+msgid "return to realtime"
+msgstr "நிகழ்நேரத்திற்குத் திரும்பு"
+
+#: ../LocalizedStringsGtk.cpp:555
+msgid "elapsed time"
+msgstr "கடந்த நேரம்"
+
+#: ../LocalizedStringsGtk.cpp:557
+msgid "remaining time"
+msgstr "மீதமுள்ள நேரம்"
+
+#: ../LocalizedStringsGtk.cpp:559
+msgid "status"
+msgstr "நிலை "
+
+#: ../LocalizedStringsGtk.cpp:561
+msgid "enter fullscreen"
+msgstr "முழுத்திரைக்குச் செல்"
+
+#: ../LocalizedStringsGtk.cpp:563
+msgid "exit fullscreen"
+msgstr "முழுத்திரையிலிருந்து வெளியேறு"
+
+#: ../LocalizedStringsGtk.cpp:565
+msgid "fast forward"
+msgstr "விரைவு முன் நகர்வு"
+
+#: ../LocalizedStringsGtk.cpp:567
+msgid "fast reverse"
+msgstr "விரைவு பின் நகர்வு"
+
+#: ../LocalizedStringsGtk.cpp:569
+msgid "show closed captions"
+msgstr "மூடிய தலைப்புகளைக் காண்பி"
+
+#: ../LocalizedStringsGtk.cpp:571
+msgid "hide closed captions"
+msgstr "மூடிய தலைப்புகளை மறை"
+
+#: ../LocalizedStringsGtk.cpp:573
+msgid "media controls"
+msgstr "மீடியா கட்டுப்பாடுகள்"
+
+#: ../LocalizedStringsGtk.cpp:582
+msgid "audio element playback controls and status display"
+msgstr "ஆடியோ கூறு இயக்கக் கட்டுப்படுத்திகள் மற்றும் நிலைக் காட்சி"
+
+#: ../LocalizedStringsGtk.cpp:584
+msgid "video element playback controls and status display"
+msgstr "வீடியோ கூறு இயக்கக் கட்டுப்படுத்திகள் மற்றும் நிலைக் காட்சி"
+
+#: ../LocalizedStringsGtk.cpp:586
+msgid "mute audio tracks"
+msgstr "ஆடியோ டிராக்குகளை ஒலிதடு"
+
+#: ../LocalizedStringsGtk.cpp:588
+msgid "unmute audio tracks"
+msgstr "ஆடியோ டிராக்குகளின் ஒலியை இயக்கு"
+
+#: ../LocalizedStringsGtk.cpp:590
+msgid "begin playback"
+msgstr "இயக்கத்தைத் தொடங்கு"
+
+#: ../LocalizedStringsGtk.cpp:592
+msgid "pause playback"
+msgstr "இயக்கத்தை இடைநிறுத்து"
+
+#: ../LocalizedStringsGtk.cpp:594
+msgid "movie time scrubber"
+msgstr "மூவி நேர ஸ்க்ரபர்"
+
+#: ../LocalizedStringsGtk.cpp:596
+msgid "movie time scrubber thumb"
+msgstr "மூவி நேர ஸ்க்ரபர் தம்ப்"
+
+#: ../LocalizedStringsGtk.cpp:598
+msgid "seek movie back 30 seconds"
+msgstr "மூவியில் 30 வினாடி பின்னோக்கிச் செல்"
+
+#: ../LocalizedStringsGtk.cpp:600
+msgid "return streaming movie to real time"
+msgstr ""
+"ஸ்ட்ரீமிங் செய்யப்படும் மூவியை நிகழ் நேரத்திற்குத் திரும்பிக் கொண்டு செல்"
+
+#: ../LocalizedStringsGtk.cpp:602
+msgid "current movie time in seconds"
+msgstr "நடப்பு மூவி நேரம், வினாடிகளில்"
+
+#: ../LocalizedStringsGtk.cpp:604
+msgid "number of seconds of movie remaining"
+msgstr "மீதமுள்ள மூவியின் வினாடிகளின் எண்ணிக்கை"
+
+#: ../LocalizedStringsGtk.cpp:606
+msgid "current movie status"
+msgstr "நடப்பு மூவி நிலை"
+
+#: ../LocalizedStringsGtk.cpp:608
+msgid "seek quickly back"
+msgstr "விரைவாக பின்னகர்"
+
+#: ../LocalizedStringsGtk.cpp:610
+msgid "seek quickly forward"
+msgstr "விரைவாக முன் நகர்"
+
+#: ../LocalizedStringsGtk.cpp:612
+msgid "Play movie in fullscreen mode"
+msgstr "மூவியை முழுத்திரையில் இயக்கு"
+
+#: ../LocalizedStringsGtk.cpp:614
+msgid "Exit fullscreen mode"
+msgstr "முழுத்திரைப் பயன்முறையிலிருந்து வெளியேறு"
+
+#: ../LocalizedStringsGtk.cpp:616
+msgid "start displaying closed captions"
+msgstr "மூடிய தலைப்புகளைக் காண்பிக்கத் தொடங்கு"
+
+#: ../LocalizedStringsGtk.cpp:618
+msgid "stop displaying closed captions"
+msgstr "மூடிய தலைப்புகளைக் காண்பிப்பதை நிறுத்து"
+
+#: ../LocalizedStringsGtk.cpp:627
+msgid "indefinite time"
+msgstr "வரையறுக்கப்படா நேரம்"
+
+#: ../LocalizedStringsGtk.cpp:657
+msgid "value missing"
+msgstr "மதிப்பு இல்லை"
+
+#: ../LocalizedStringsGtk.cpp:693
+msgid "type mismatch"
+msgstr "வகை பொருத்தமில்லை"
+
+#: ../LocalizedStringsGtk.cpp:716
+msgid "pattern mismatch"
+msgstr "பேட்டன் பொருத்தமில்லை"
+
+#: ../LocalizedStringsGtk.cpp:721
+msgid "too long"
+msgstr "மிக நீளமாக உள்ளது"
+
+#: ../LocalizedStringsGtk.cpp:726
+msgid "range underflow"
+msgstr "வரம்பு பாய்ச்சலுக்குக் கீழ் உள்ளது"
+
+#: ../LocalizedStringsGtk.cpp:731
+msgid "range overflow"
+msgstr "வரம்பு பாய்ச்சலுக்கு அதிகமாக உள்ளது"
+
+#: ../LocalizedStringsGtk.cpp:736
+msgid "step mismatch"
+msgstr "படி பொருத்தமில்லை"
+
+#: ../LocalizedStringsGtk.cpp:741
+msgid "Unacceptable TLS certificate"
+msgstr "ஏற்றுக்கொள்ள முடியாத TLS சான்றிதழ்"
+
+#: ../LocalizedStringsGtk.cpp:758
+msgctxt "Closed Captions"
+msgid "Menu section heading for closed captions"
+msgstr "மூடிய தலைப்புகளுக்கான மெனு பிரிவு தலைப்பு"
+
+#: ../LocalizedStringsGtk.cpp:763
+msgctxt "Subtitles"
+msgid "Menu section heading for subtitles"
+msgstr "துணைத் தலைப்புகளுக்கான மெனு பிரிவு தலைப்பு"
+
+#: ../LocalizedStringsGtk.cpp:768
+msgctxt "Off"
+msgid "Menu item label for the track that represents disabling closed captions"
+msgstr ""
+"மூடிய தலைப்புகளை முடக்குவதைக் குறிக்கும் டிராக்குக்கான மெனு உருப்படி லேபிள்"
+
+#: ../LocalizedStringsGtk.cpp:773
+msgctxt "No label"
+msgid "Menu item label for a closed captions track that has no other name"
+msgstr "வேறு பெயரில்லாத மூடிய தலைப்புகள் டிராக்குக்கான மெனு உருப்படி லேபிள்"
+
+#: ../LocalizedStringsGtk.cpp:779
+msgctxt "Snapshotted Plug-In"
+msgid "Title of the label to show on a snapshotted plug-in"
+msgstr ""
+"ஸ்னாப்ஷாட் செய்யப்பட்ட செருகுநிரலில் காண்பிக்கப்பட வேண்டிய லேபிளின் தலைப்பு"
+
+#: ../LocalizedStringsGtk.cpp:784
+msgctxt "Click to restart"
+msgid "Subtitle of the label to show on a snapshotted plug-in"
+msgstr ""
+"ஸ்னாப்ஷாட் செய்யப்பட்ட செருகுநிரலில் காண்பிக்கப்பட வேண்டிய லேபிளின் "
+"துணைத்தலைப்பு"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:328
+msgid "Play"
+msgstr "இயக்கு"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:330
+msgid "Pause"
+msgstr "இடைநிறுத்து"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:410
+msgid "Play / Pause"
+msgstr "இயக்கு / இடைநிறுத்து"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:410
+msgid "Play or pause the media"
+msgstr "மீடியாவை இயக்கு அல்லது இடைநிறுத்து"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:416
+msgid "Time:"
+msgstr "நேரம்:"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:442
+msgid "Exit Fullscreen"
+msgstr "முழுத் திரையிலிருந்து வெளியேறு"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:442
+msgid "Exit from fullscreen mode"
+msgstr "முழுத்திரை பயன்முறையிலிருந்து வெளியேறு"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:276
+msgid "Network Request"
+msgstr "பிணையக் கோரிக்கை"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:277
+msgid "The network request for the URI that should be downloaded"
+msgstr "பதிவிறக்கப்பட வேண்டிய URI க்கான பிணையக் கோரிக்கை"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:291
+msgid "Network Response"
+msgstr "பிணைய பதிலளிப்பு"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:292
+msgid "The network response for the URI that should be downloaded"
+msgstr "பதிவிறக்கப்பட வேண்டிய URI க்கான பிணைய பதிலளிப்பு"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:306
+msgid "Destination URI"
+msgstr "இலக்கு URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:307
+msgid "The destination URI where to save the file"
+msgstr "கோப்பை சேமிக்க வேண்டிய இலக்கு URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:321
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:150
+msgid "Suggested Filename"
+msgstr "பரிந்துரைக்கப்படும் கோப்பு பெயர்"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:322
+msgid "The filename suggested as default when saving"
+msgstr "சேமிக்கும் போது முன்னிருப்பாக பரிந்துரைக்கப்படும் கோப்பு பெயர்"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:339
+msgid "Progress"
+msgstr "முன்னேற்றம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:340
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:171
+msgid "Determines the current progress of the download"
+msgstr "பதிவிறக்கத்தின் நடப்பு முன்னேற்றத்தைத் தீர்மானிக்கிறது"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:353
+msgid "Status"
+msgstr "நிலை"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:354
+msgid "Determines the current status of the download"
+msgstr "பதிவிறக்கத்தின் நடப்பு நிலையைத் தீர்மானிக்கிறது"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:369
+msgid "Current Size"
+msgstr "நடப்பு அளவு"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:370
+msgid "The length of the data already downloaded"
+msgstr "பதிவிறக்கி முடித்த தரவின் நீளம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:384
+msgid "Total Size"
+msgstr "மொத்த அளவு"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:385
+msgid "The total size of the file"
+msgstr "கோப்பின் மொத்த அளவு"
+
+#: ../../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:144
+#: ../../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:579
+msgid "Operation was cancelled"
+msgstr "செயல்பாடு ரத்து செய்யப்பட்டது"
+
+#: ../../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:253
+#: ../../../../WebKit/gtk/webkit/webkiticondatabase.cpp:148
+msgid "Path"
+msgstr "பாதை"
+
+#: ../../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:254
+#: ../../../../WebKit/gtk/webkit/webkiticondatabase.cpp:149
+msgid "The absolute path of the icon database folder"
+msgstr "சின்னம் தரவுத்தளக் கோப்புறையின் தனி பாதை"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:129
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:128
+msgid "MIME types filter"
+msgstr "MIME வகைகள் வடிப்பி"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:130
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:129
+msgid "The filter currently associated with the request"
+msgstr "கோரிக்கையுடன் இணைந்துள்ள நடப்பு வடிப்பி"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:145
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:142
+msgid "MIME types"
+msgstr "MIME வகைகள்"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:146
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:143
+msgid "The list of MIME types associated with the request"
+msgstr "கோரிக்கையுடன் இணைந்துள்ள MIME வகைகளின் பட்டியல்"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:161
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:157
+msgid "Select multiple files"
+msgstr "பல கோப்புகளைத் தேர்ந்தெடு"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:162
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:158
+msgid "Whether the file chooser should allow selecting multiple files"
+msgstr "கோப்பு தேர்வி பல கோப்புகளைத் தேர்ந்தெடுத்தலை அனுமதிக்க வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:177
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:171
+msgid "Selected files"
+msgstr "தேர்ந்தெடுக்கப்பட்ட கோப்புகள்"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:178
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:172
+msgid "The list of selected files associated with the request"
+msgstr "கோரிக்கையுடன் இணைந்துள்ள தேர்ந்தேடுத்த கோப்புகளின் பட்டியல்"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:175
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:152
+msgid "Context"
+msgstr "சூழல்"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:176
+msgid "Flags indicating the kind of target that received the event."
+msgstr "நிகழ்வைப் பெற்ற இலக்கின் வகையைக் குறிக்கும் கொடிகள்."
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:190
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:166
+msgid "Link URI"
+msgstr "இணைப்பு URI"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:191
+msgid "The URI to which the target that received the event points, if any."
+msgstr "நிகழ்வுப்புள்ளிகளைப் பெற்ற இலக்கு இருந்தால் அதற்கான URI."
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:204
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:205
+msgid "Image URI"
+msgstr "பட URI"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:205
+msgid ""
+"The URI of the image that is part of the target that received the event, if "
+"any."
+msgstr ""
+"நிகழ்வைப் பெற்ற இலக்கு ஏதேனும் இருந்தால் அதன் பகுதியாக உள்ள படத்தின் URI."
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:218
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:218
+msgid "Media URI"
+msgstr "மீடியா URI"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:219
+msgid ""
+"The URI of the media that is part of the target that received the event, if "
+"any."
+msgstr ""
+"நிகழ்வைப் பெற்ற இலக்கு ஏதேனும் இருந்தால் அதன் பகுதியாக உள்ள மீடியாவின் URI."
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:240
+msgid "Inner node"
+msgstr "உள் கனு"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:241
+msgid "The inner DOM node associated with the hit test result."
+msgstr "ஹிட் சோதனை முடிவுடன் இணைந்த DOM கனு."
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:254
+msgid "X coordinate"
+msgstr "X ஒருங்கமைப்பு"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:255
+msgid "The x coordinate of the event relative to the view's window."
+msgstr "காட்சியின் சாளரத்துடன் குறிப்பிலமைந்த நிகழ்வின் x ஆயத்தொலைவு."
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:268
+msgid "Y coordinate"
+msgstr "Y ஆயத்தொலைவு"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:269
+msgid "The y coordinate of the event relative to the view's window."
+msgstr "காட்சியின் சாளரத்துடன் குறிப்பிலமைந்த நிகழ்வின் y ஆயத்தொலைவு."
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:134
+#: ../../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:143
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:466
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:176
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:209
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3238
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIRequest.cpp:93
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:99
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:109
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:635
+msgid "URI"
+msgstr "URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:135
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIRequest.cpp:94
+msgid "The URI to which the request will be made."
+msgstr "கோரிக்கை மேற்கொள்ளப்படும் URI."
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:148
+#: ../../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:157
+msgid "Message"
+msgstr "செய்தி"
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:149
+msgid "The SoupMessage that backs the request."
+msgstr "கோரிக்கையை ஆதரித்துக்கொண்டிருக்கும் SoupMessage."
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:144
+msgid "The URI to which the response will be made."
+msgstr "பதிலளிப்பு செய்யப்படும் URI."
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:158
+msgid "The SoupMessage that backs the response."
+msgstr "பதிலளிப்பை ஆதரித்துக்கொண்டிருக்கும் SoupMessage."
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:171
+msgid "Suggested filename"
+msgstr "பரிந்துரைக்கப்படும் கோப்பு பெயர்"
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:172
+msgid "The suggested filename for the response."
+msgstr "பதிலளிப்புக்கு பரிந்துரைக்கப்படும் கோப்புப் பெயர்."
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:150
+msgid "Protocol"
+msgstr "நெறிமுறை"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:151
+msgid "The protocol of the security origin"
+msgstr "பாதுகாப்பு தொடக்கத்தின் நெறிமுறை"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:164
+msgid "Host"
+msgstr "ஹோஸ்ட்"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:165
+msgid "The host of the security origin"
+msgstr "பாதுகாப்பு தொடக்கத்தின் வழங்கி"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:178
+msgid "Port"
+msgstr "முனையம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:179
+msgid "The port of the security origin"
+msgstr "பாதுகாப்பு தொடக்கத்தின் முனையம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:192
+msgid "Web Database Usage"
+msgstr "வலை தரவுத்தள பயன்பாடு"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:193
+msgid "The cumulative size of all web databases in the security origin"
+msgstr "பாதுகாப்பு தொடக்கத்தில் உள்ள வலை தரவுத்தளத்தின் மொத்த அளவு"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:205
+msgid "Web Database Quota"
+msgstr "வலை தரவுத்தள ஒதுக்கீட்டளவு"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:206
+msgid "The web database quota of the security origin in bytes"
+msgstr "பாதுகாப்பு தொடக்கத்தின் தரவுத்தள ஒதுக்கீட்டளவு, பைட்டுகளில்"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:138
+msgid "Device Width"
+msgstr "சாதன அகலம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:139
+msgid "The width of the screen."
+msgstr "திரையின் அகலம்."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:160
+msgid "Device Height"
+msgstr "சாதன உயரம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:161
+msgid "The height of the screen."
+msgstr "திரையின் உயரம்."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:184
+msgid "Available Width"
+msgstr "கிடைக்கக்கூடிய அகலம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:185
+msgid "The width of the visible area."
+msgstr "கண்ணுக்குத் தெரியும் பகுதியின் அகலம்."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:208
+msgid "Available Height"
+msgstr "கிடைக்கக்கூடிய உயரம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:209
+msgid "The height of the visible area."
+msgstr "கண்ணுக்குத் தெரியும் பகுதியின் உயரம்."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:230
+msgid "Desktop Width"
+msgstr "டெஸ்க்டாப் அகலம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:231
+msgid ""
+"The width of viewport that works well for most web pages designed for "
+"desktop."
+msgstr ""
+"டெஸ்க்டாப் கணினிகளுக்கு என வடிவமைக்கப்பட்ட பெரும்பாலான வலைப்பக்கங்களுக்கு "
+"நன்கு தோதாக இருக்கக்கூடிய வியூபோர்ட்டின் அகலம்."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:253
+msgid "Device DPI"
+msgstr "சாதன DPI"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:254
+msgid "The number of dots per inch of the screen."
+msgstr "திரையின் ஒரு அங்குலத்திற்கான புள்ளிகளின் எண்ணிக்கை."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:272
+msgid "Width"
+msgstr "அகலம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:273
+msgid "The width of the viewport."
+msgstr "வியூபோர்ட்டின் அகலம்."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:291
+msgid "Height"
+msgstr "உயரம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:292
+msgid "The height of the viewport."
+msgstr "வியூபோர்ட்டின் உயரம்."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:310
+msgid "Initial Scale Factor"
+msgstr "தொடக்க அளவீட்டுக் காரணி"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:311
+msgid "The initial scale of the viewport."
+msgstr "வியூபோர்ட்டின் தொடக்க அளவீடு."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:329
+msgid "Minimum Scale Factor"
+msgstr "குறைந்தபட்ச அளவீட்டுக் காரணி"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:330
+msgid "The minimum scale of the viewport."
+msgstr "வியூபோர்ட்டின் குறைந்தபட்ச அளவீடு."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:348
+msgid "Maximum Scale Factor"
+msgstr "அதிகபட்ச அளவீட்டுக் காரணி"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:349
+msgid "The maximum scale of the viewport."
+msgstr "வியூபோர்ட்டின் அதிகபட்ச அளவீடு."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:367
+msgid "Device Pixel Ratio"
+msgstr "சாதன பிக்சல் விகிதம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:368
+msgid "The device pixel ratio of the viewport."
+msgstr "வியூபோர்ட்டின் சாதன பிக்சல் விகிதம்."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:386
+msgid "user-scalable"
+msgstr "பயனர் அளவீடு செய்யத்தக்கது"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:387
+msgid "User Scalable"
+msgstr "பயனர் அளவீடு செய்யத்தக்கது"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:388
+msgid "Determines whether or not the user can zoom in and out."
+msgstr ""
+"பயனரால் காட்சியைப் பெரிதாக்கவும் சிறிதாக்கவும் முடியுமா எனத் தீர்மானிக்கிறது."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:405
+msgid "valid"
+msgstr "இதுவரை செல்லுபடி"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:406
+msgid "Valid"
+msgstr "இதுவரை செல்லுபடி"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:407
+msgid "Determines whether or not the attributes are valid, and can be used."
+msgstr ""
+"பண்புக்கூறுகள் சரியானவையா இல்லையா என்றும் அவற்றைப் பயன்படுத்த முடியுமா "
+"என்றும் தீர்மானிக்கிறது."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:176
+msgid "Security Origin"
+msgstr "பாதுகாப்பு தொடக்கம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:177
+msgid "The security origin of the database"
+msgstr "தரவுத்தளத்தின் பாதுகாப்பு தொடக்கம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:190
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:452
+msgid "Name"
+msgstr "பெயர்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:191
+msgid "The name of the Web Database database"
+msgstr "Web Database தரவுத்தளத்தின் பெயர்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:204
+msgid "Display Name"
+msgstr "காட்சி பெயர்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:205
+msgid "The display name of the Web Storage database"
+msgstr "Web Storage தரவுத்தளத்தின் காட்சிப் பெயர்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:218
+msgid "Expected Size"
+msgstr "எதிர்பார்க்கப்படும் அளவு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:219
+msgid "The expected size of the Web Database database"
+msgstr "Web Database தரவுத்தளத்தின் எதிர்பார்க்கப்பட்ட அளவு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:231
+msgid "Size"
+msgstr "அளவு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:232
+msgid "The current size of the Web Database database"
+msgstr "Web Database தரவுத்தளத்தின் தற்போதைய அளவு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:244
+msgid "Filename"
+msgstr "கோப்புப்பெயர்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:245
+msgid "The absolute filename of the Web Storage database"
+msgstr "Web Storage தரவுத்தளத்தின் தனிப்பட்ட கோப்பு பெயர்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:453
+msgid "The name of the frame"
+msgstr "ஃபிரேமின் பெயர்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:459
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:144
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3224
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:591
+msgid "Title"
+msgstr "தலைப்பு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:460
+msgid "The document title of the frame"
+msgstr "ஃபிரேமின் ஆவணத் தலைப்பு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:467
+msgid "The current URI of the contents displayed by the frame"
+msgstr "ஃபிரேம் காண்பிக்கும் உள்ளடக்கத்தின் நடப்பு URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:498
+msgid "Horizontal Scrollbar Policy"
+msgstr "கிடைமட்ட சுருள் பட்டை கொள்கை"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:499
+msgid ""
+"Determines the current policy for the horizontal scrollbar of the frame."
+msgstr "ஃபிரேமின் நடப்பு கிடைமட்ட சுருள் பட்டை கொள்கையைத் தீர்மானிக்கிறது."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:516
+msgid "Vertical Scrollbar Policy"
+msgstr "செங்குத்து சுருள்பட்டை கொள்கை"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:517
+msgid "Determines the current policy for the vertical scrollbar of the frame."
+msgstr "ஃபிரேமின் நடப்பு செங்குத்து சுருள் பட்டை கொள்கையைத் தீர்மானிக்கிறது."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:145
+msgid "The title of the history item"
+msgstr "வரலாறு உருப்படியின் தலைப்பு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:160
+msgid "Alternate Title"
+msgstr "மாற்று தலைப்பு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:161
+msgid "The alternate title of the history item"
+msgstr "வரலாறு உருப்படியின் மாற்று தலைப்பு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:177
+msgid "The URI of the history item"
+msgstr "வரலாறு உருப்படியின் URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:192
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:163
+msgid "Original URI"
+msgstr "அசல் URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:193
+msgid "The original URI of the history item"
+msgstr "வரலாறு உருப்படியின் அசல் URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:208
+msgid "Last visited Time"
+msgstr "கடைசியாக பார்வையிட்ட நேரம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:209
+msgid "The time at which the history item was last visited"
+msgstr "வரலாறு உருப்படியைக் கடைசியாக பார்வையிட்ட நேரம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:273
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:154
+msgid "Web View"
+msgstr "வலைக் காட்சி"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:274
+msgid "The Web View that renders the Web Inspector itself"
+msgstr "வலை ஆய்வியைக் காட்சிப்படுத்தும் வலைக் காட்சி"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:287
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:122
+msgid "Inspected URI"
+msgstr "ஆய்வு செய்யப்பட்ட URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:288
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:123
+msgid "The URI that is currently being inspected"
+msgstr "தற்போது ஆய்வு செய்யப்படும் URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:304
+msgid "Enable JavaScript profiling"
+msgstr "ஜாவாஸ்கிரிப்ட் விவரத்தொகுப்பாக்கத்தை செயல்படுத்தல்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:305
+msgid "Profile the executed JavaScript."
+msgstr "செயல்படுத்திய ஜாவாஸ்கிரிப்ட்டை விவரத்தொகுப்பாக்கவும்."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:320
+msgid "Enable Timeline profiling"
+msgstr "டைம்லைன் விவரத்தொகுப்பாக்கத்தை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:321
+msgid "Profile the WebCore instrumentation."
+msgstr "WebCore கருவியாக்கத்தை விவரத்தொகுப்பாக்கவும்."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:148
+msgid "Reason"
+msgstr "காரணம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:149
+msgid "The reason why this navigation is occurring"
+msgstr "வழிசெலுத்தல் ஏற்படக் காரணம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:164
+msgid "The URI that was requested as the target for the navigation"
+msgstr "வழிசெலுத்தலுக்கான இலக்காக கோரப்பட்ட URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:178
+msgid "Button"
+msgstr "பொத்தான்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:179
+msgid "The button used to click"
+msgstr "கிளிக் செய்யப் பயன்படுத்தும் பொத்தான்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:194
+msgid "Modifier state"
+msgstr "மாற்றி நிலை"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:195
+msgid "A bitmask representing the state of the modifier keys"
+msgstr "மாற்றி விசைகளின் நிலையைக் குறிக்கும் பிட்மாஸ்க்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:210
+msgid "Target frame"
+msgstr "இலக்கு ஃபிரேம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:211
+msgid "The target frame for the navigation"
+msgstr "வழிசெலுத்தலுக்கான இலக்கு ஃபிரேம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebplugin.cpp:115
+msgid "Enabled"
+msgstr "செயலில் உள்ள"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebplugin.cpp:116
+msgid "Whether the plugin is enabled"
+msgstr "செருகு பொதி  செயல்படுத்தப்பட்டதா இல்லையா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:210
+msgid "The URI of the resource"
+msgstr "வளத்தின் uri"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:224
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:137
+msgid "MIME Type"
+msgstr "MIME வகை"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:225
+msgid "The MIME type of the resource"
+msgstr "வளத்தின் MIME வகை"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:239
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3373
+msgid "Encoding"
+msgstr "மறைகுறியீடு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:240
+msgid "The text encoding name of the resource"
+msgstr "வளத்தின் உரை குறியீடாக்கப் பெயர்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:255
+msgid "Frame Name"
+msgstr "ஃபிரேம் பெயர்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:256
+msgid "The frame name of the resource"
+msgstr "வளத்தின் ஃபிரேம் பெயர்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:150
+msgid "Default Encoding"
+msgstr "முன்னிருப்பு குறியீடாக்கம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:151
+msgid "The default encoding used to display text."
+msgstr "உரையைக் காண்பிக்கப் பயன்படும் முன்னிருப்பு குறியீடாக்கம்."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:159
+msgid "Cursive Font Family"
+msgstr "இணைந்த எழுத்துருக் குடும்பம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:160
+msgid "The default Cursive font family used to display text."
+msgstr ""
+"உரையைக் காண்பிக்கப் பயன்படும் முன்னிருப்பு இணைந்த எழுத்துருக் குடும்பம்."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:168
+msgid "Default Font Family"
+msgstr "முன்னிருப்பு எழுத்துருக் குடும்பம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:169
+msgid "The default font family used to display text."
+msgstr "உரையைக் காண்பிக்கப் பயன்படும் முன்னிருப்பு எழுத்துருக் குடும்பம்."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:177
+msgid "Fantasy Font Family"
+msgstr "ஃபேன்டஸி எழுத்துருக் குடும்பம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:178
+msgid "The default Fantasy font family used to display text."
+msgstr ""
+"உரையைக் காண்பிக்கப் பயன்படும் முன்னிருப்பு ஃபேன்டஸி எழுத்துருக் குடும்பம்."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:186
+msgid "Monospace Font Family"
+msgstr "மோனோஸ்பேஸ் எழுத்துருக் குடும்பம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:187
+msgid "The default font family used to display monospace text."
+msgstr ""
+"உரையைக் காண்பிக்கப் பயன்படும் முன்னிருப்பு மோனோஸ்பேஸ் எழுத்துருக் குடும்பம்."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:195
+msgid "Sans Serif Font Family"
+msgstr "சான் செரிஃப் எழுத்துருக் குடும்பம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:196
+msgid "The default Sans Serif font family used to display text."
+msgstr ""
+"உரையைக் காண்பிக்கப் பயன்படும் முன்னிருப்பு சான் செரிஃப் எழுத்துருக் "
+"குடும்பம்."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:204
+msgid "Serif Font Family"
+msgstr "செரிஃப் எழுத்துருக் குடும்பம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:205
+msgid "The default Serif font family used to display text."
+msgstr ""
+"உரையைக் காண்பிக்கப் பயன்படும் முன்னிருப்பு செரிஃப் எழுத்துருக் குடும்பம்."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:213
+msgid "Default Font Size"
+msgstr "முன்னிருப்பு எழுத்துரு அளவு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:214
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:717
+msgid "The default font size used to display text."
+msgstr "உரையைக் காண்பிக்கப் பயன்படும் முன்னிருப்பு எழுத்துரு அளவு."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:222
+msgid "Default Monospace Font Size"
+msgstr "முன்னிருப்பு மோனோஸ்பேஸ் எழுத்துரு அளவு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:223
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:731
+msgid "The default font size used to display monospace text."
+msgstr "மோனோஸ்பேஸ் உரையைக் காண்பிக்கப் பயன்படும் முன்னிருப்பு எழுத்துரு அளவு."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:231
+msgid "Minimum Font Size"
+msgstr "குறைந்தபட்ச எழுத்துரு அளவு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:232
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:746
+msgid "The minimum font size used to display text."
+msgstr "உரையைக் காண்பிக்கப் பயன்படும் குறைந்தபட்ச எழுத்துரு அளவு."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:240
+msgid "Minimum Logical Font Size"
+msgstr "குறைந்தபட்ச தருக்க எழுத்துரு அளவு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:241
+msgid "The minimum logical font size used to display text."
+msgstr "உரையைக் காண்பிக்கப் பயன்படும் குறைந்தபட்ச தருக்க எழுத்துரு அளவு."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:260
+msgid "Enforce 96 DPI"
+msgstr "96 DPI ஐ செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:261
+msgid "Enforce a resolution of 96 DPI"
+msgstr "96 DPI தெளிவுத்திறனைச் செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:269
+msgid "Auto Load Images"
+msgstr "படங்களை தானாக ஏற்று"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:270
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:458
+msgid "Load images automatically."
+msgstr "படங்களைத் தானாகவே ஏற்று."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:278
+msgid "Auto Shrink Images"
+msgstr "படங்களை தானாக சுருக்கு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:279
+msgid "Automatically shrink standalone images to fit."
+msgstr "தனிப் படங்களை பொருந்தும் வகையில் தானாகவே சுருக்கு."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:287
+msgid "Respect Image Orientation"
+msgstr "படத்தின் திசையமைவுக்கு மதிப்பளி"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:288
+msgid "Whether WebKit should respect image orientation."
+msgstr "WebKit பட திசையமைவுக்கு மதிப்பளிக்க வேண்டுமா."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:296
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:870
+msgid "Print Backgrounds"
+msgstr "பின்புலங்களை அச்சிடு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:297
+msgid "Whether background images should be printed."
+msgstr "பின்புலப் படங்களை அச்சிட வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:305
+msgid "Enable Scripts"
+msgstr "ஸ்கிரிப்ட்டுகளை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:306
+msgid "Enable embedded scripting languages."
+msgstr "உட்பொதிக்கப்பட்ட ஸ்கிரிப்ட்டிங் மொழிகளை செயல்படுத்து."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:314
+msgid "Enable Plugins"
+msgstr "செருகுநிரல்களை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:315
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:568
+msgid "Enable embedded plugin objects."
+msgstr "உட்பொதிக்கப்பட்ட செருகுநிரல் பொருள்களை செயல்படுத்து."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:323
+msgid "Resizable Text Areas"
+msgstr "அளவு மாற்றக்கூடிய உரைப் பகுதிகள்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:324
+msgid "Whether text areas are resizable."
+msgstr "உரைப் பகுதிகள் அளவு மாற்றக்கூடியதாக இருக்க வேண்டுமா."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:331
+msgid "User Stylesheet URI"
+msgstr "பயனர் Stylesheet URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:332
+msgid "The URI of a stylesheet that is applied to every page."
+msgstr "எல்லாப் பக்கங்களுக்கும் பயன்படுத்தப்படும் பாங்குத்தாளின் URI."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:347
+msgid "Zoom Stepping Value"
+msgstr "பெரிதாக்கல் அதிகரிப்பு மதிப்பு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:348
+msgid "The value by which the zoom level is changed when zooming in or out."
+msgstr ""
+"பெரிதாக்கும் போது அல்லது சிறிதாக்கும் போது உருப்பெருக்க அளவு எந்த மதிப்பில் "
+"மாற்றப்பட வேண்டும்."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:366
+msgid "Enable Developer Extras"
+msgstr "உருவாக்குவோர் கூடுதல் கருவிகளை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:367
+msgid "Enables special extensions that help developers"
+msgstr "உருவாக்குநர்களுக்கு உதவியான சிறப்பு நீட்டிப்புகளை செயல்படுத்தும்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:387
+msgid "Enable Private Browsing"
+msgstr "தனிப்பட்ட உலாவலை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:388
+msgid "Enables private browsing mode"
+msgstr "தனிப்பட்ட உலாவல் பயன்முறையை செயல்படுத்தும்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:403
+msgid "Enable Spell Checking"
+msgstr "எழுத்து பிழை திருத்தத்தை செயலாக்கு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:404
+msgid "Enables spell checking while typing"
+msgstr ""
+"தட்டச்சு செய்யும் போது எழுத்து பிழை திருத்தம் செய்யும் வசதியை செயல்படுத்தும்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:427
+msgid "Languages to use for spell checking"
+msgstr "எழுத்து பிழை திருத்தத்திற்குப் பயன்படுத்தும் மொழிகள்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:428
+msgid "Comma separated list of languages to use for spell checking"
+msgstr ""
+"எழுத்து பிழை திருத்தத்திற்குப் பயன்படுத்தும் மொழிகள், காற்புள்ளிகளால் "
+"பிரிக்கப்பட்ட பட்டியல்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:442
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:841
+msgid "Enable Caret Browsing"
+msgstr "காரட் உலாவலை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:443
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:842
+msgid "Whether to enable accessibility enhanced keyboard navigation"
+msgstr "அணுகல் தன்மை மேம்படுத்திய விசைப்பலகை வழிசெலுத்தலை செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:458
+msgid "Enable HTML5 Database"
+msgstr "HTML5 தரவுத்தளத்தை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:459
+msgid "Whether to enable HTML5 database support"
+msgstr "HTML5 தரவுத்தள ஆதரவை செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:474
+msgid "Enable HTML5 Local Storage"
+msgstr "HTML5 அக சேமிப்பை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:475
+msgid "Whether to enable HTML5 Local Storage support"
+msgstr "HTML5 அக சேமிப்பு ஆதரவை செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:490
+msgid "Local Storage Database Path"
+msgstr "அக சேமிப்பக தரவுத்தள பாதை"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:491
+msgid "The path to where HTML5 Local Storage databases are stored."
+msgstr "HTML5 அக சேமிப்பக தரவுத்தளங்கள் சேமிக்கப்படும் பாதை."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:505
+msgid "Enable XSS Auditor"
+msgstr "XSS ஆடிட்டரை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:506
+msgid "Whether to enable the XSS auditor"
+msgstr "XSS ஆடிட்டரை செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:524
+msgid "Enable Spatial Navigation"
+msgstr "இடவியல் வழிசெலுத்தலை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:525
+msgid "Whether to enable Spatial Navigation"
+msgstr "இடவியல் வழிசெலுத்தலை செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:543
+msgid "Enable Frame Flattening"
+msgstr "ஃபிரேம் ஃப்ளாட்டனிங்கை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:544
+msgid "Whether to enable Frame Flattening"
+msgstr "ஃபிரேம் ஃப்ளாட்டனிங்கை செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:561
+msgid "User Agent"
+msgstr "பயனர் ஏஜென்ட்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:562
+msgid "The User-Agent string used by WebKitGtk"
+msgstr "WebKitGtk பயன்படுத்தும் பயனர் ஏஜென்ட் சரம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:577
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:594
+msgid "JavaScript can open windows automatically"
+msgstr "ஜாவாஸ்கிரிப்ட்டால் தானாகவே சாளரங்களைத் திறக்க முடியும்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:578
+msgid "Whether JavaScript can open windows automatically"
+msgstr "ஜாவாஸ்கிரிப்ட்டால் தானாகவே சாளரங்களைத் திறக்க முடிய வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:592
+msgid "JavaScript can access Clipboard"
+msgstr "ஜாவாஸ்கிரிப்ட்டால் கிளிப்போர்டை அணுக முடியும்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:593
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:954
+msgid "Whether JavaScript can access Clipboard"
+msgstr "ஜாவாஸ்கிரிப்ட்டால் கிளிப்போர்டை அணுக முடிய வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:609
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:489
+msgid "Enable offline web application cache"
+msgstr "ஆஃப்லைன் வலை பயன்பாடு தேக்ககத்தைச் செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:610
+msgid "Whether to enable offline web application cache"
+msgstr "ஆஃப்லைன் வலை பயன்பாடு தேக்ககத்தைச் செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:635
+msgid "Editing behavior"
+msgstr "திருத்தல் செயல்நடத்தை"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:636
+msgid "The behavior mode to use in editing mode"
+msgstr "திருத்தல் பயன்முறையில் பயன்படுத்த வேண்டிய செயல்நடத்தைப் பயன்முறை"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:652
+msgid "Enable universal access from file URIs"
+msgstr "கோப்பு URIகளிலிருந்து ஒட்டுமொத்ஹ்த அணுகலை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:653
+msgid "Whether to allow universal access from file URIs"
+msgstr "கோப்பு URIகளிலிருந்து ஒட்டுமொத்ஹ்த அணுகலை செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:668
+msgid "Enable DOM paste"
+msgstr "DOM ஒட்டுதலை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:669
+msgid "Whether to enable DOM paste"
+msgstr "DOM ஒட்டுதலை செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:687
+msgid "Tab key cycles through elements"
+msgstr "டாப் விசை கூறுகளுக்கிடையே சுற்றி மாறும்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:688
+msgid "Whether the tab key cycles through elements on the page."
+msgstr ""
+"டாப் விசை பக்கத்திலுள்ள கூறுகளுக்கிடையே சுற்றி மாறும்படி இயங்க வேண்டுமா."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:710
+msgid "Enable Default Context Menu"
+msgstr "முன்னிருப்பு சூழல் மெனுவை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:711
+msgid ""
+"Enables the handling of right-clicks for the creation of the default context "
+"menu"
+msgstr ""
+"சூழல் மெனு உருவாக்கத்திற்கான வலதுகிளிக்குகளைக் கையாளுதலை செயல்படுத்தும்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:731
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1018
+msgid "Enable Site Specific Quirks"
+msgstr "தளம் சார்ந்த சிறப்பு செயல்கள்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:732
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1019
+msgid "Enables the site-specific compatibility workarounds"
+msgstr "தளங்களைச் சார்ந்த இணக்கத்தன்மை சரிசெய்தல் செயல்களை செயல்படுத்தும்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:754
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1039
+msgid "Enable page cache"
+msgstr "பக்க தேக்ககத்தை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:755
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1040
+msgid "Whether the page cache should be used"
+msgstr "பக்க தேக்ககத்தைப் பயன்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:775
+msgid "Auto Resize Window"
+msgstr "தானியங்கு சாளர அளவு மாற்றல்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:776
+msgid "Automatically resize the toplevel window when a page requests it"
+msgstr "ஒரு பக்கம் கோரும் போது, மேல் நிலை சாளரத்தை தானாக அளவு மாற்ற வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:808
+msgid "Enable Java Applet"
+msgstr "ஜாவா ஆப்லெட்டை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:809
+msgid "Whether Java Applet support through <applet> should be enabled"
+msgstr "<applet> வழியிலான ஜாவா ஆப்லெட் ஆதரவை செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:823
+msgid "Enable Hyperlink Auditing"
+msgstr "ஹைபர்லிங் ஆடிட்டிங் வசதியை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:824
+msgid "Whether <a ping> should be able to send pings"
+msgstr "<a ping> ஆல் பிங்குகளை அனுப்ப முடிய வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:832
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:857
+msgid "Enable Fullscreen"
+msgstr "முழுத்திரையை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:833
+msgid "Whether the Mozilla style API should be enabled."
+msgstr "மொஸில்லா பாணியிலான API  ஐ செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:848
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:904
+msgid "Enable WebGL"
+msgstr "செயலாக்கப்பட்டது"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:849
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:905
+msgid "Whether WebGL content should be rendered"
+msgstr "WebGL உள்ளடக்கம் காட்சியாக்கப்பட வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:865
+msgid "Enable accelerated compositing"
+msgstr "முடுக்கப்பட்ட கம்போசிட்டிங் வசதியை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:866
+msgid "Whether accelerated compositing should be enabled"
+msgstr "முடுக்கப்பட்ட கம்போசிட்டிங் வசதியை செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:884
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:889
+msgid "Enable WebAudio"
+msgstr "WebAudio வை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:885
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:890
+msgid "Whether WebAudio content should be handled"
+msgstr "WebAudio உள்ளடக்கம் கையாளப்பட வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:901
+msgid "WebKit prefetches domain names"
+msgstr "WebKit டொமைன் பெயர்களை முன்னதாகப் பெறும்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:902
+msgid "Whether WebKit prefetches domain names"
+msgstr "WebKit டொமைன் பெயர்களை முன்னதாகப் பெற் வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:920
+msgid "Enable Media Stream"
+msgstr "மீடியா ஸ்ட்ரீமை செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:921
+msgid "Whether Media Stream should be enabled"
+msgstr "மீடியா ஸ்ட்ரீமை செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:936
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1072
+msgid "Enable smooth scrolling"
+msgstr "சீரான உருட்டலை செயல்படுத்துக."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:937
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1073
+msgid "Whether to enable smooth scrolling"
+msgstr "சீஇராக உருட்டலை செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:955
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:970
+msgid "Media playback requires user gesture"
+msgstr "மீடியாவை இயக்க பயனரின் சைகை தேவை"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:956
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:971
+msgid "Whether media playback requires user gesture"
+msgstr "இயக்கத்திற்கு பயனரின் சைகை தேவையா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:972
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:985
+msgid "Media playback allows inline"
+msgstr "இன்லைனில் மீடியாவை இயக்க முடியும்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:973
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:986
+msgid "Whether media playback allows inline"
+msgstr "இன்லைனில் மீடியாவை இயக்க முடியுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:991
+msgid "Enable CSS shaders"
+msgstr "CSS ஷேடர்களை செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:992
+msgid "Whether to enable css shaders"
+msgstr "css ஷேடர்களை செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1007
+msgid "Enable display of insecure content"
+msgstr "பாதுகாப்பற்ற உள்ளடக்கத்தைக் காட்சிப்படுத்துவதைச் செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1008
+msgid "Whether non-HTTPS resources can display on HTTPS pages."
+msgstr "HTTPS பக்கங்களில் HTTPS அல்லாத வளங்களைக் காண்பிக்க வேண்டுமா."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1023
+msgid "Enable running of insecure content"
+msgstr "பாதுகாப்பற்ற உள்ளடக்கத்தை இயக்குவதைச் செயல்படுத்து"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1024
+msgid "Whether non-HTTPS resources can run on HTTPS pages."
+msgstr "HTTPS பக்கங்களில் HTTPS அல்லாத வளங்களை இயக்க வேண்டுமா."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:1314
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:425
+msgid "Select Files"
+msgstr "கோப்புகளை தேர்வு செய்க"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:1314
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:425
+msgid "Select File"
+msgstr "கோப்பைத் தேர்ந்தெடுக்கவும்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3225
+msgid "Returns the @web_view's document title"
+msgstr "@web_view இன் ஆவணத் தலைப்பை வழங்கும்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3239
+msgid "Returns the current URI of the contents displayed by the @web_view"
+msgstr "@web_view காண்பிக்கும் நடப்பு உள்ளடக்கத்தின் URI ஐ வழங்கும்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3252
+msgid "Copy target list"
+msgstr "இலக்கு பட்டியலை நகலெடு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3253
+msgid "The list of targets this web view supports for clipboard copying"
+msgstr ""
+"இந்த வலை காட்சி கிளிப்போர்டு நகலெடுத்தலை ஆதரிக்கும் இலக்குகளின் பட்டியல்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3266
+msgid "Paste target list"
+msgstr "இலக்கு பட்டியலை ஒட்டவும்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3267
+msgid "The list of targets this web view supports for clipboard pasting"
+msgstr "இந்த வலை காட்சி கிளிப்போர்டு ஒட்டுதலை ஆதரிக்கும் இலக்குகளின் பட்டியல்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3273
+msgid "Settings"
+msgstr "அமைப்புகள்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3274
+msgid "An associated WebKitWebSettings instance"
+msgstr "இணைந்த ஒரு WebKitWebSettings நேர்வு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3287
+#: ../../../../WebKit2/UIProcess/gtk/WebInspectorProxyGtk.cpp:92
+#: ../../../../WebKit2/UIProcess/gtk/WebInspectorProxyGtk.cpp:157
+msgid "Web Inspector"
+msgstr "வலை ஆய்வி"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3288
+msgid "The associated WebKitWebInspector instance"
+msgstr "இணைந்த ஒரு WebKitWebInspector நேர்வு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3301
+msgid "Viewport Attributes"
+msgstr "Viewport பண்புக்கூறுகள்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3302
+msgid "The associated WebKitViewportAttributes instance"
+msgstr "இணைந்த WebKitViewportAttributes நேர்வு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3322
+msgid "Editable"
+msgstr "தொகுக்கக்கூடியது"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3323
+msgid "Whether content can be modified by the user"
+msgstr "உள்ளடக்கம் பயனரால் திருத்தக்கூடியதாக இருக்க வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3329
+msgid "Transparent"
+msgstr "ஒளிபுகும்தன்மை"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3330
+msgid "Whether content has a transparent background"
+msgstr "உள்ளடக்கத்திற்கு ஒளிஊடுருவும் பின்புலம் அமைக்க வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3343
+msgid "Zoom level"
+msgstr "உருப்பெருக்க அளவு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3344
+msgid "The level of zoom of the content"
+msgstr "உள்ளடக்கத்தின் உருப்பெருக்க அளவு"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3359
+msgid "Full content zoom"
+msgstr "முழு உள்ளடக்க உருப்பெருக்கம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3360
+msgid "Whether the full content is scaled when zooming"
+msgstr "உருப்பெருக்கத்தின் போது முழு உள்ளடக்கமும் அளவு மாற்றப்பட வேண்டுமா"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3374
+msgid "The default encoding of the web view"
+msgstr "வலைக் காட்சியின் முன்னிருப்பு குறியீடாக்கம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3387
+msgid "Custom Encoding"
+msgstr "தனிப்பயன் குறியீடாக்கம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3388
+msgid "The custom encoding of the web view"
+msgstr "வலைக் காட்சியின் தனிப்பயன் குறியீடாக்கம்"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3440
+msgid "Icon URI"
+msgstr "சின்ன URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3441
+msgid "The URI for the favicon for the #WebKitWebView."
+msgstr "#WebKitWebView க்கான ஃபேவைக்கானின் URI."
+
+#: ../../../../WebKit2/Shared/Downloads/soup/DownloadSoup.cpp:89
+#, c-format
+msgid ""
+"Cannot determine destination URI for download with suggested filename %s"
+msgstr ""
+"பரிந்துரைக்கப்பட்ட கோப்புப் பெயரான %s ஐக் கொண்டுள்ள பதிவறக்குத்துக்கான "
+"இலக்கு URI ஐத் தீர்மானிக்க முடியவில்லை"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:139
+msgid "Destination"
+msgstr "இலக்கு"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:140
+msgid "The local URI to where the download will be saved"
+msgstr "பதிவிறக்கம் சேமிக்கப்படக்கூடிய உள் URI"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:152
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:122
+msgid "Response"
+msgstr "பதிலளிப்பு"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:153
+msgid "The response of the download"
+msgstr "பதிவிறக்கத்தின் பதில்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:170
+msgid "Estimated Progress"
+msgstr "கணிக்கப்பட்ட முன்னேற்றம்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:141
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:255
+#, c-format
+msgid "Unknown favicon for page %s"
+msgstr "பக்கம் %s க்கு தெரியாத ஃபேவைகான்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:147
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:251
+#, c-format
+msgid "Page %s does not have a favicon"
+msgstr "பக்கம் %s இல் ஃபேவைகான் இல்லை"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:247
+msgid "Favicons database not initialized yet"
+msgstr "இன்னும் ஃபேவைகான் தரவுத்தளம் தொடங்கப்படவில்லை"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:174
+msgid "Search text"
+msgstr "தேடல் உரை"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:175
+msgid "Text to search for in the view"
+msgstr "பார்வையில் தேட வேண்டிய உரை"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:187
+msgid "Search Options"
+msgstr "தேடல் விருப்பங்கள்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:188
+msgid "Search options to be used in the search operation"
+msgstr "தேடல் செயலில் பயன்படுத்துவதற்கான தேடல் விருப்பங்கள்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:201
+msgid "Maximum matches count"
+msgstr "அதிகபட்ச பொருத்தங்களின் எண்ணிக்கை"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:202
+msgid "The maximum number of matches in a given text to report"
+msgstr ""
+"கொடுக்கப்பட்ட ஒரு உரையில் அறிக்கையிடப்பட வேண்டிய அதிகபட்ச பொருத்தங்களின் "
+"எண்ணிக்கை"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:214
+msgid "WebView"
+msgstr "WebView"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:215
+msgid "The WebView associated with this find controller"
+msgstr "இந்தக் கண்டறி கன்ட்ரோலரில் இணைந்துள்ள WebView"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:153
+msgid "Flags with the context of the WebKitHitTestResult"
+msgstr "WebKitHitTestResult இன் சூழலைக் கொண்டுள்ள கொடிகள்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:167
+msgid "The link URI"
+msgstr "இணைப்பு URI"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:179
+msgid "Link Title"
+msgstr "இணைப்புத் தலைப்பு"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:180
+msgid "The link title"
+msgstr "இணைப்புத் தலைப்பு"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:192
+msgid "Link Label"
+msgstr "இணைப்பு லேபிள்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:193
+msgid "The link label"
+msgstr "இணைப்பு லேபிள்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:206
+msgid "The image URI"
+msgstr "படத்தின் URI"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:219
+msgid "The media URI"
+msgstr "மீடியா URI"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:105
+msgid "Navigation type"
+msgstr "வழிசெலுத்தல் வகை"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:106
+msgid "The type of navigation triggering this decision"
+msgstr "இந்த முடிவைத் தூண்டும் வழிசெலுத்தலின் வகை"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:123
+msgid "Mouse button"
+msgstr "சொடுக்கி பொத்தான்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:124
+msgid "The mouse button used if this decision was triggered by a mouse event"
+msgstr ""
+"முடிவானது ஒரு சொடுக்கி நிகழ்வால் தூண்டப்பட்டால் சொடுக்கி பொத்தான் "
+"பயன்படுத்தப்படுகிறது"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:140
+msgid "Mouse event modifiers"
+msgstr "சொடுக்கி நிகழ்வு மாற்றிகள்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:141
+msgid "The modifiers active if this decision was triggered by a mouse event"
+msgstr ""
+"முடிவானது ஒரு சொடுக்கி நிகழ்வால் தூண்டப்பட்டால் மாற்றிகள் செயலில் இருக்கும்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:154
+msgid "Navigation URI request"
+msgstr "வழிசெலுத்தல் URI கோரிக்கை"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:155
+msgid "The URI request that is associated with this navigation"
+msgstr "இந்த வழிசெலுத்தலுடன் தொடர்புடைய URI கோரிக்கை"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:170
+msgid "Frame name"
+msgstr "ஃபிரேம் பெயர்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:171
+msgid "The name of the new frame this navigation action targets"
+msgstr ""
+"இந்த வழிசெலுத்தல் செயல்பாடு இலக்காகக் கொண்டிருக்கும் புதிய ஃபிரேமின் பெயர்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:155
+msgid "The web view that will be printed"
+msgstr "அச்சிடப்படும் வலைப் பார்வை"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:167
+msgid "Print Settings"
+msgstr "அச்சிடும் அமைவுகள்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:168
+msgid "The initial print settings for the print operation"
+msgstr "அச்சிடுதல் செயல்பாட்டுக்கான தொடக்க அச்சிடுதல் அமைவுகள்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:179
+msgid "Page Setup"
+msgstr "பக்க அமைவு"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:180
+msgid "The initial page setup for the print operation"
+msgstr "அச்சிடுதல் செயல்பாட்டுக்கான தொடக்க பக்க அமைவுகள்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:91
+msgid "Response URI request"
+msgstr "பதிலளிப்பு URI கோரிக்கை"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:92
+msgid "The URI request that is associated with this policy decision"
+msgstr "இந்த கொள்கை முடிவுடன் தொடர்புடைய URI கோரிக்கை"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:105
+msgid "URI response"
+msgstr "URI பதிலளிப்பு"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:106
+msgid "The URI response that is associated with this policy decision"
+msgstr "இந்த கொள்கை முடிவுடன் தொடர்புடைய URI பதிலளிப்பு"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:442
+msgid "Enable JavaScript"
+msgstr "ஜாவாஸ்கிரிப்ட் ஐ செயல்படுத்தல்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:443
+msgid "Enable JavaScript."
+msgstr "JavaScript ஐ செயல்படுத்தல்."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:457
+msgid "Auto load images"
+msgstr "படங்களை தானாக ஏற்று"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:471
+msgid "Load icons ignoring image load setting"
+msgstr "பட ஏற்றல் அமைவுகளைப் புறக்கணித்து படவுருக்களை ஏற்று"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:472
+msgid "Whether to load site icons ignoring image load setting."
+msgstr "பட ஏற்றல் அமைவுகளைப் புறக்கணித்து தளத்தின் படவுருக்களை ஏற்ற வேண்டுமா."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:490
+msgid "Whether to enable offline web application cache."
+msgstr "ஆஃப்லைன் வலை பயன்பாடு தேக்ககத்தைச் செயல்படுத்த வேண்டுமா."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:506
+msgid "Enable HTML5 local storage"
+msgstr "HTML5 அக சேமிப்பை செயல்படுத்து"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:507
+msgid "Whether to enable HTML5 Local Storage support."
+msgstr "HTML5 அக சேமிப்பு ஆதரவை செயல்படுத்த வேண்டுமா."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:524
+msgid "Enable HTML5 database"
+msgstr "HTML5 தரவுத்தளத்தை செயல்படுத்து"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:525
+msgid "Whether to enable HTML5 database support."
+msgstr "HTML5 தரவுத்தள ஆதரவை செயல்படுத்த வேண்டுமா."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:538
+msgid "Enable XSS auditor"
+msgstr "XSS ஆடிட்டரை செயல்படுத்து"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:539
+msgid "Whether to enable the XSS auditor."
+msgstr "XSS ஆடிட்டரை செயல்படுத்த வேண்டுமா."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:554
+msgid "Enable frame flattening"
+msgstr "ஃபிரேம் ஃப்ளாட்டனிங்கை செயல்படுத்து"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:555
+msgid "Whether to enable frame flattening."
+msgstr "ஃபிரேம் ஃப்ளாட்டனிங்கை செயல்படுத்த வேண்டுமா."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:567
+msgid "Enable plugins"
+msgstr "செருகுநிரல்களை செயல்படுத்து"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:580
+msgid "Enable Java"
+msgstr "Java ஐ செயல்படுத்து"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:581
+msgid "Whether Java support should be enabled."
+msgstr "Java ஆதரவை செயல்படுத்த வேண்டுமா."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:595
+msgid "Whether JavaScript can open windows automatically."
+msgstr "ஜாவாஸ்கிரிப்ட்டால் தானாகவே சாளரங்களைத் திறக்க முடிய வேண்டுமா."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:610
+msgid "Enable hyperlink auditing"
+msgstr "ஹைபர்லிங் ஆடிட்டிங் வசதியை செயல்படுத்து"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:611
+msgid "Whether <a ping> should be able to send pings."
+msgstr "<a ping> ஆல் பிங்குகளை அனுப்ப முடிய வேண்டுமா."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:623
+msgid "Default font family"
+msgstr "முன்னிருப்பு எழுத்துருக் குடும்பம்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:624
+msgid ""
+"The font family to use as the default for content that does not specify a "
+"font."
+msgstr ""
+"ஒரு எழுத்துருவைக் குறிப்பிடாத உள்ளடக்கத்திற்கு முன்னிருப்பாக பயன்படுத்த "
+"வேண்டிய "
+"எழுத்துருக் குடும்பம்."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:637
+msgid "Monospace font family"
+msgstr "மோனோஸ்பேஸ் எழுத்துருக் குடும்பம்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:638
+msgid "The font family used as the default for content using monospace font."
+msgstr ""
+"மோனோஸ்பேஸ் எழுத்துருவைப் பயன்படுத்தும் உள்ளடக்கத்திற்கு முன்னிருப்பாக "
+"பயன்படுத்த வேண்டிய "
+"எழுத்துருக் குடும்பம்."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:650
+msgid "Serif font family"
+msgstr "செரிஃப் எழுத்துருக் குடும்பம்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:651
+msgid "The font family used as the default for content using serif font."
+msgstr ""
+"செரிஃப் எழுத்துருவைப் பயன்படுத்தும் உள்ளடக்கத்திற்கு முன்னிருப்பாக "
+"பயன்படுத்த வேண்டிய "
+"எழுத்துருக் குடும்பம்."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:663
+msgid "Sans-serif font family"
+msgstr "சான் செரிஃப் எழுத்துருக் குடும்பம்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:664
+msgid "The font family used as the default for content using sans-serif font."
+msgstr ""
+"சான் செரிஃப் எழுத்துருவைப் பயன்படுத்தும் உள்ளடக்கத்திற்கு முன்னிருப்பாக "
+"பயன்படுத்த வேண்டிய "
+"எழுத்துருக் குடும்பம்."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:676
+msgid "Cursive font family"
+msgstr "இணைந்த எழுத்துருக் குடும்பம்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:677
+msgid "The font family used as the default for content using cursive font."
+msgstr ""
+"இணைந்த செரிஃப் எழுத்துருவைப் பயன்படுத்தும் உள்ளடக்கத்திற்கு முன்னிருப்பாக "
+"பயன்படுத்த வேண்டிய "
+"எழுத்துருக் குடும்பம்."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:689
+msgid "Fantasy font family"
+msgstr "ஃபேன்டஸி எழுத்துருக் குடும்பம்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:690
+msgid "The font family used as the default for content using fantasy font."
+msgstr ""
+"ஃபேன்டசி எழுத்துருவைப் பயன்படுத்தும் உள்ளடக்கத்திற்கு முன்னிருப்பாக "
+"பயன்படுத்த வேண்டிய "
+"எழுத்துருக் குடும்பம்."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:702
+msgid "Pictograph font family"
+msgstr "பிக்ட்டோகிராஃப் எழுத்துருக் குடும்பம்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:703
+msgid "The font family used as the default for content using pictograph font."
+msgstr ""
+"பிக்ட்டோகிராஃப் எழுத்துருவைப் பயன்படுத்தும் உள்ளடக்கத்திற்கு முன்னிருப்பாக "
+"பயன்படுத்த வேண்டிய "
+"எழுத்துருக் குடும்பம்."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:716
+msgid "Default font size"
+msgstr "முன்னிருப்பு எழுத்துரு அளவு"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:730
+msgid "Default monospace font size"
+msgstr "முன்னிருப்பு மோனோஸ்பேஸ் எழுத்துரு அளவு"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:745
+msgid "Minimum font size"
+msgstr "குறைந்தபட்ச எழுத்துரு அளவு"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:758
+msgid "Default charset"
+msgstr "முன்னிருப்பு எழுத்துக்குறித் தொகுப்பு"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:759
+msgid ""
+"The default text charset used when interpreting content with unspecified "
+"charset."
+msgstr ""
+"எழுத்துக்குறித் தொகுப்பு குறிப்பிடப்படாத உள்ளடக்கத்தை புரிதல்விளக்கம் "
+"செய்யும் போது "
+"பயன்படுத்த வேண்டிய முன்னிருப்பு எழுத்துக்குறித் தொகுப்பு."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:772
+msgid "Enable private browsing"
+msgstr "தனிப்பட்ட உலாவலை செயல்படுத்து"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:773
+msgid "Whether to enable private browsing"
+msgstr "தனிப்பட்ட உலாவலை செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:785
+msgid "Enable developer extras"
+msgstr "உருவாக்குவோர் கூடுதல் கருவிகளை செயல்படுத்து"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:786
+msgid "Whether to enable developer extras"
+msgstr "உருவாக்குவோர் கூடுதல் கருவிகளை செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:798
+msgid "Enable resizable text areas"
+msgstr "அளவு மாற்றக்கூடிய உரைப் பகுதிகளைச் செயல்படுத்து"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:799
+msgid "Whether to enable resizable text areas"
+msgstr "அளவு மாற்றக்கூடிய உரைப் பகுதிகளைச் செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:814
+msgid "Enable tabs to links"
+msgstr "இணைப்புகளுக்கான தத்தல்களைச் செயல்படுத்து"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:815
+msgid "Whether to enable tabs to links"
+msgstr "இணைப்புகளுக்கான தத்தல்களைச் செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:828
+msgid "Enable DNS prefetching"
+msgstr "DNS முன்பெறுதலைச் செயல்படுத்து"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:829
+msgid "Whether to enable DNS prefetching"
+msgstr "DNS முன்பெறுதலைச் செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:858
+msgid "Whether to enable the Javascriipt Fullscreen API"
+msgstr "Javascriipt முழுத்திரை API ஐ செயல்படுத்த வேண்டுமா"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:871
+msgid "Whether background images should be drawn during printing"
+msgstr "அச்சிடும் போது பின்புல படங்களை வரைய வேண்டுமா"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:922
+msgid "Allow modal dialogs"
+msgstr "மட்டு உரையாடல்களை அனுமதி"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:923
+msgid "Whether it is possible to create modal dialogs"
+msgstr "மட்டு உரையாடல்களை உருவாக்க முடிய வேண்டுமா"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:938
+msgid "Zoom Text Only"
+msgstr "உரையை மட்டும் பெரிதாக்கு"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:939
+msgid "Whether zoom level of web view changes only the text size"
+msgstr "வலைப் பார்வையின் பெரிதாக்கல் அளவு உரை அளவை மட்டும் மாற்ற வேண்டுமா"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:953
+msgid "JavaScript can access clipboard"
+msgstr "ஜாவாஸ்கிரிப்ட்டால் கிளிப்போர்டை அணுக முடியும்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1000
+msgid "Draw compositing indicators"
+msgstr "தொகுக்கும் காட்டிகளை வரை"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1001
+msgid "Whether to draw compositing borders and repaint counters"
+msgstr "கரைகளையும் மறுவரைவு கவுன்ட்டர்களையும் வரைய வேண்டுமா"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1059
+msgid "User agent string"
+msgstr "பயனர் ஏஜென்ட் சரம்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1060
+msgid "The user agent string"
+msgstr "பயனர் ஏஜென்ட் சரம்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:100
+msgid "The URI for which the response was made."
+msgstr "பதிலளிப்பு செய்யப்பட்ட URI."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:111
+msgid "Status Code"
+msgstr "நிலை குறியீடு"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:112
+msgid "The status code of the response as returned by the server."
+msgstr "சேவையகம் வழங்கிய பதிலளிப்பின் நிலைக் குறியீடு."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:124
+msgid "Content Length"
+msgstr "உள்ளடக்கத்தின் நீளம்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:125
+msgid "The expected content length of the response."
+msgstr "பதிலளிப்பின் எதிர்பார்க்கப்படும் உள்ளடக்க நீளம்."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:138
+msgid "The MIME type of the response"
+msgstr "பதிலளிப்பின் MIME வகை"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:151
+msgid "The suggested filename for the URI response"
+msgstr "URI பதிலளிப்புக்கான பரிந்துரைக்கப்படும் கோப்புப் பெயர்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:134
+msgid "Attached Height"
+msgstr "இணைக்கப்பட்ட உயரம்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:135
+msgid "The height that the inspector view should have when it is attached"
+msgstr "ஆய்விப் பார்வை இணைக்கப்படும் போது இருக்க வேண்டிய அதன் உயரம்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:110
+msgid "The current active URI of the resource"
+msgstr "வளத்தின் தற்போதைய செயலில் உள்ள URI"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:123
+msgid "The response of the resource"
+msgstr "வளத்தின் பதிலளிப்பு"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:577
+msgid "Web Context"
+msgstr "வலைச் சூழல்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:578
+msgid "The web context for the view"
+msgstr "பார்வைக்கான வலை சூழல்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:592
+msgid "Main frame document title"
+msgstr "பிரதான ஃபிரேம் ஆவணத் தலைப்பு"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:610
+msgid "Estimated Load Progress"
+msgstr "கணிக்கப்பட்ட ஏற்றல் முன்னேற்றம்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:611
+msgid "An estimate of the percent completion for a document load"
+msgstr "ஒரு ஆவண ஏற்றத்திற்கான சதவீத நிறைவின் கணக்கீடு"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:623
+msgid "Favicon"
+msgstr "ஃபேவைகான்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:624
+msgid "The favicon associated to the view, if any"
+msgstr "இந்த பார்வையுடன் சம்பந்தப்பட்ட ஃபேவைகான் ஏதேனும் இருந்தால், அது"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:636
+msgid "The current active URI of the view"
+msgstr "பார்வையின் தற்போதைய செயலில் உள்ள URI"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:650
+msgid "The zoom level of the view content"
+msgstr "பார்வையின் உள்ளடக்கத்தின் உருப்பெருக்க அளவு"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:668
+msgid "Whether the view is loading a page"
+msgstr "பார்வையானது ஒரு பக்கத்தை ஏற்றுகிறதா"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:682
+msgid "The view mode to display the web view contents"
+msgstr "வலைப் பார்வை உள்ளடக்கத்தைக் காண்பிக்க வேண்டிய பார்வை பயன்முறை"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:2416
+msgid "An exception was raised in JavaScript"
+msgstr "JavaScript இல் ஒரு விலக்கு எழுப்பப்பட்டது"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:209
+msgid "Geometry"
+msgstr "வடிவவியல்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:210
+msgid "The size and position of the window on the screen."
+msgstr "திரையில் சாளரத்தின் அளவு மற்றும் இடநிலை."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:222
+msgid "Toolbar Visible"
+msgstr "கருவிப்பட்டி புலப்படும்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:223
+msgid "Whether the toolbar should be visible for the window."
+msgstr "சாளரத்திற்கு கருவிப்பட்டி பார்க்கக்கூடியதாக இருக்க வேண்டுமா."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:235
+msgid "Statusbar Visible"
+msgstr "நிலைப்பட்டி புலப்படும்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:236
+msgid "Whether the statusbar should be visible for the window."
+msgstr "சாளரத்திற்கு நிலைப்பட்டி தெரிய வேண்டுமா."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:248
+msgid "Scrollbars Visible"
+msgstr "உருட்டுப்பட்டிகள் புலப்படும்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:249
+msgid "Whether the scrollbars should be visible for the window."
+msgstr "சாளரத்திற்கு உருட்டுப்பட்டிகள் பார்க்கக்கூடியதாக இருக்க வேண்டுமா."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:261
+msgid "Menubar Visible"
+msgstr "மெனுப்பட்டி புலப்படும்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:262
+msgid "Whether the menubar should be visible for the window."
+msgstr "சாளரத்திற்கு மெனுப்பட்டி பார்க்கக்கூடியதாக இருக்க வேண்டுமா."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:274
+msgid "Locationbar Visible"
+msgstr "இருப்பிடப்பட்டி புலப்படும்"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:275
+msgid "Whether the locationbar should be visible for the window."
+msgstr "சாளரத்திற்கு இருப்பிடப்பட்டி பார்க்கக்கூடியதாக இருக்க வேண்டுமா."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:286
+msgid "Resizable"
+msgstr "அளவு மாற்றக்கூடியது"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:287
+msgid "Whether the window can be resized."
+msgstr "சாளரம் மறுஅளவு செய்யப்படக்கூடியதா."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:299
+msgid "Fullscreen"
+msgstr "முழுத்திரை"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:300
+msgid "Whether window will be displayed fullscreen."
+msgstr "சாளரம் முழுத்திரையாகக் காண்பிக்கப்படுமா."
+
+

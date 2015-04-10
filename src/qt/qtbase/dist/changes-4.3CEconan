@@ -1,0 +1,72 @@
+Changes for Qt/CE 4.3.x "Conan the Librarian" release.
+
+****************************************************************************
+*                           Features                                       *
+****************************************************************************
+
+- Added QtSql
+
+- Added QSqlite plugin
+
+- Added sql examples
+
+- Added 16bit painting engine
+
+- Added options to cetest
+
+- Added Windows Mobile 6 mkspecs
+
+****************************************************************************
+*                           Bug fixes                                      *
+****************************************************************************
+
+- cetest
+   * added -conf option to specify a qt.conf file to be deployed
+   * added -f option to specify a .pro file to be parsed
+   * copy in buffered mode
+   * deployment rules can use wildcard logic
+   * fixed a bug in debug/release parsing
+   * try to get results though unittest might have crashed
+
+- configure.exe
+   * fixed usage of c-runtime deployment on desktop win32 build
+   * new parameters for cross-compilation
+
+- QApplication 
+   * fixed minimal qfeature build configuration
+
+- QEventDispatcher
+   * fixed minimal qfeature build configuration
+
+- QFileDialog
+   * fixed internal handling of path separators
+   * fixed unexpected behaviour due to uninitialized memory
+
+- QFileSystemModel
+   * fixed different behaviour for Qt/CE
+
+- QFileSystemWatcher
+   * updated documentation
+
+- QtGui
+   * fixed floating point issues
+
+- QKeyMapper
+   * fixed short-cut algorithm
+   * fixed virtual key handling
+
+- QMessageBox
+   * fixed minimal qfeature build configuration
+
+- qmake.exe
+   * deployment rules can use wildcard logic
+
+- QTableView
+   * fixed style issue for header item
+
+- shadow build
+   * locate qglobal.h in correct directory
+
+- zlib
+   * fix build logic
+

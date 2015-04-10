@@ -1,0 +1,245 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+import "IWebError.idl";
+import "IWebDataSource.idl";
+#endif
+
+interface IWebError;
+interface IWebDataSource;
+
+/*!
+    @protocol WebDocumentView
+    @discussion Protocol implemented by the document view of WebFrameView
+
+    @protocol WebDocumentView <NSObject>
+*/
+[
+    object,
+    oleautomation,
+    uuid(0A6397A7-90FE-49a0-B9C1-44693DD779F7),
+    pointer_default(unique)
+]
+interface IWebDocumentView : IUnknown
+{
+    /*!
+        @method setDataSource:
+        @abstract Called when the corresponding data source has been created.
+        @param dataSource The corresponding data source.
+        - (void)setDataSource:(WebDataSource *)dataSource;
+    */
+    HRESULT setDataSource([in] IWebDataSource* dataSource);
+
+    /*!
+        @method dataSourceUpdated:
+        @abstract Called when the corresponding data source has received data.
+        @param dataSource The corresponding data source.
+        - (void)dataSourceUpdated:(WebDataSource *)dataSource;
+    */
+    HRESULT dataSourceUpdated([in] IWebDataSource* dataSource);
+
+    /*!
+        @method setNeedsLayout:
+        @discussion Called when WebKit has determined that the document view needs to layout.
+        This method should simply set a flag and call layout from drawRect if the flag is YES.
+        @param flag YES to cause a layout, no to not cause a layout.
+        - (void)setNeedsLayout:(BOOL)flag;
+    */
+    HRESULT setNeedsLayout([in] BOOL flag);
+
+    /*!
+        @method layout
+        @discussion Called when the document view must immediately layout. For simple views,
+        setting the frame is a sufficient implementation of this method.
+        - (void)layout;
+    */
+    HRESULT layout();
+
+    /*!
+        @method viewWillMoveToHostWindow:
+        @param hostWindow The host window for the document view.
+        @abstract Called before the host window is set on the parent web view.
+        - (void)viewWillMoveToHostWindow:(NSWindow *)hostWindow;
+    */
+    HRESULT viewWillMoveToHostWindow([in] OLE_HANDLE hwnd);
+
+    /*!
+        @method viewDidMoveToHostWindow
+        @abstract Called after the host window is set on the parent web view.
+        - (void)viewDidMoveToHostWindow;
+    */
+    HRESULT viewDidMoveToHostWindow();
+}
+
+/*!
+    @protocol WebDocumentSearching
+    @discussion Optional protocol for searching document view of WebFrameView. 
+    
+    @protocol WebDocumentSearching <NSObject>
+*/
+[
+    object,
+    oleautomation,
+    uuid(0213643B-8DF9-4ba4-9534-61D92CB75007),
+    pointer_default(unique)
+]
+interface IWebDocumentSearching : IUnknown
+{
+    /*!
+        @method searchFor:direction:caseSensitive:wrap:
+        @abstract Searches a document view for a string and highlights the string if it is found.
+        @param string The string to search for.
+        @param forward YES to search forward, NO to seach backwards.
+        @param caseFlag YES to for case-sensitive search, NO for case-insensitive search.
+        @param wrapFlag YES to wrap around, NO to avoid wrapping.
+        @result YES if found, NO if not found.
+        - (BOOL)searchFor:(NSString *)string direction:(BOOL)forward caseSensitive:(BOOL)caseFlag wrap:(BOOL)wrapFlag;
+    */
+    HRESULT searchFor([in] BSTR str, [in] BOOL forwardDirection, [in] BOOL caseSensitive, [in] BOOL wrap, [out, retval] BOOL* result);
+}
+
+/*!
+    @protocol WebDocumentText
+    @discussion Optional protocol for supporting text operations.
+
+    @protocol WebDocumentText <NSObject>
+*/
+[
+    object,
+    oleautomation,
+    uuid(B6282B92-6F31-4948-A3A0-89763C56BBBF),
+    pointer_default(unique)
+]
+interface IWebDocumentText : IUnknown
+{
+    /*!
+        @method supportsTextEncoding
+        @result YES if the document view support text encoding, NO if it doesn't.
+        - (BOOL)supportsTextEncoding;
+    */
+    HRESULT supportsTextEncoding([out, retval] BOOL* result);
+
+    /*!
+        @method string
+        @result String that represents the entire document.
+        - (NSString *)string;
+    */
+    HRESULT string([out, retval] BSTR* result);
+
+    /*!
+        @method selectedString
+        @result String that represents the current selection.
+        - (NSString *)selectedString;
+    */
+    HRESULT selectedString([out, retval] BSTR* result);
+
+    /*!
+        @method selectAll
+        @abstract Selects all the text in the document.
+        - (void)selectAll;
+    */
+    HRESULT selectAll();
+
+    /*!
+        @method deselectText
+        @abstract Causes a text selection to lose its selection.
+        - (void)deselectAll;
+    */
+    HRESULT deselectAll();
+}
+
+/*!
+    @protocol WebDocumentRepresentation
+    @discussion Protocol implemented by the document representation of a data source.
+
+    @protocol WebDocumentRepresentation <NSObject>
+*/
+[
+    object,
+    oleautomation,
+    uuid(3C9F6251-CFD8-447a-B429-6B6AE627436C),
+    pointer_default(unique)
+]
+interface IWebDocumentRepresentation : IUnknown
+{
+    /*!
+        @method setDataSource:
+        @abstract Called soon after the document representation is created.
+        @param dataSource The data source that is set.
+        - (void)setDataSource:(WebDataSource *)dataSource;
+    */
+    HRESULT setDataSource([in] IWebDataSource* dataSource);
+
+    /*!
+        @method receivedData:withDataSource:
+        @abstract Called when the data source has received data.
+        @param data The data that the data source has received.
+        @param dataSource The data source that has received data.
+        - (void)receivedData:(NSData *)data withDataSource:(WebDataSource *)dataSource;
+    */
+    HRESULT receivedData([in] IStream* data, [in] IWebDataSource* dataSource);
+
+    /*!
+        @method receivedError:withDataSource:
+        @abstract Called when the data source has received an error.
+        @param error The error that the data source has received.
+        @param dataSource The data source that has received the error.
+        - (void)receivedError:(NSError *)error withDataSource:(WebDataSource *)dataSource;
+    */
+    HRESULT receivedError([in] IWebError* error, [in] IWebDataSource* dataSource);
+
+    /*!
+        @method finishedLoadingWithDataSource:
+        @abstract Called when the data source has finished loading.
+        @param dataSource The datasource that has finished loading.
+        - (void)finishedLoadingWithDataSource:(WebDataSource *)dataSource;
+    */
+    HRESULT finishedLoadingWithDataSource([in] IWebDataSource* dataSource);
+
+    /*!
+        @method canProvideDocumentSource
+        @result Returns true if the representation can provide document source.
+        - (BOOL)canProvideDocumentSource;
+    */
+    HRESULT canProvideDocumentSource([out, retval] BOOL* result);
+
+    /*!
+        @method documentSource
+        @result Returns the textual source representation of the document.  For HTML documents
+        this is the original HTML source.
+        - (NSString *)documentSource;
+    */
+    HRESULT documentSource([out, retval] BSTR* source);
+
+    /*!
+        @method title
+        @result Return the title for the document.
+        - (NSString *)title;
+    */
+    HRESULT title([out, retval] BSTR* docTitle);
+}

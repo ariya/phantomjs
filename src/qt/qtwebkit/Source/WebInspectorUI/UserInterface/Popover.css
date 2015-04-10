@@ -1,0 +1,91 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.popover {
+    position: absolute;
+    min-width: 20px;
+    min-height: 20px;
+    box-sizing: border-box;
+    pointer-events: none;
+}
+
+.popover.arrow-up {
+    padding: 16px 5px 5px 5px;
+}
+
+.popover.arrow-right {
+    padding: 5px 16px 5px 5px;
+}
+
+.popover.arrow-down {
+    padding: 5px 5px 16px 5px;
+}
+
+.popover.arrow-left {
+    padding: 5px 5px 5px 16px;
+}
+
+.popover.fade-out {
+    -webkit-transition: opacity 350ms;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.popover > .container {
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    right: 5px;
+    bottom: 5px;
+
+    padding: 5px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    pointer-events: auto;
+}
+
+.popover > .container.center {
+    display: -webkit-flex;
+    -webkit-justify-content: center;
+    -webkit-align-items: center;
+}
+
+.popover.arrow-up > .container {
+    top: 16px;
+}
+
+.popover.arrow-right > .container {
+    right: 16px;
+}
+
+.popover.arrow-down > .container {
+    bottom: 16px;
+}
+
+.popover.arrow-left > .container {
+    left: 16px;
+}

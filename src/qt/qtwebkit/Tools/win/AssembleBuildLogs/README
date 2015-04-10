@@ -1,0 +1,10 @@
+The purpose of this project is to concatenate all the BuildLog.htm 
+output files from each project into a single output file.
+
+This is useful for compiling with VCExpress using command line build
+because VCExpress does not output any single unified build log for the
+whole solution. Thus, we need to rely on pieceing together build logs
+for each individual project.
+
+If any project is added to the solution it should be made sure that it 
+is added to the AssembleLogs.cmd script.

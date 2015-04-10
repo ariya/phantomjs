@@ -1,0 +1,633 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+/*!
+    \page qdoc-guide.html
+    \title Getting Started with QDoc
+    \nextpage Creating QDoc Configuration Files
+
+    Qt uses QDoc to generate its documentation set into HTML and DITA XML
+    formats. QDoc uses a set of configuration files to generate documentation
+    from QDoc comments. The comments have types called
+    \l{writing-topic-commands}{topics} that determine whether a comment is a
+    class documentation or a property documentation. A comment may also have
+    \l{writing-markup}{mark up} to enhance the layout and formatting of the
+    final output.
+
+    There are three essential materials for generating documentation with qdoc:
+    \list
+        \li \c QDoc binary
+        \li \c qdocconf configuration files
+        \li \c Documentation in \c C++, \c QML, and \c .qdoc files
+    \endlist
+
+    This section intends to cover the basic necessities for creating a
+    documentation set. Additionally, the guide presents special considerations
+    and options to documenting non-C++ API documentation as well as QML
+    documentation. Finally, the guide will provide a sample project
+    documentation and an example of a QML type documentation.
+
+    For specific QDoc information, consult the
+    \l{QDoc Manual}.
+    \section1 Chapters
+
+    \list 1
+    \li \l{Creating QDoc Configuration Files}
+    \li \l{Writing Documentation}
+    \li \l{Categories of Documentation}
+        \list
+        \li \l{C++ Documentation Style}
+        \li \l{QML Documentation Style}
+        \endlist
+    \li \l{QML Documentation Example}
+    \endlist
+
+*/
+
+/*!
+    \page qdoc-guide-conf.html
+    \title Creating QDoc Configuration Files
+    \previouspage Getting Started with QDoc
+    \nextpage Writing Documentation
+    To generate documentation, QDoc uses configuration files, with the
+    \c qdocconf extension, to store configuration settings.
+
+    The \l{The QDoc Configuration File} article covers the various configuration
+    variables in greater detail.
+
+    \section1 QDoc Configuration Files
+    QDoc's configuration settings can reside in a single \e qdocconf file, but
+    can also be in other qdocconf files. The \c {include(<filepath>)} command
+    allows configuration files to include other configuration files.
+
+    QDoc has two outputs, HTML documentation and documentation in DITA XML
+    format. The main distinction between the two outputs is that HTML
+    documentation needs to have its HTML styling information in the
+    configuration files. DITA XML documentation does not, and a separate process
+    can style the documentation in DITA at a later time. DITA XML is therefore
+    more flexible in allowing different styles to apply to the same information.
+
+    To run qdoc, the project configuration file is supplied as an argument.
+    \code
+    qdoc project.qdocconf
+    \endcode
+
+    The project configuration contains information that qdoc uses to create the
+    documentation.
+
+    \section2 Project Information
+
+    QDoc uses the \c project information to generate the documentation.
+    \code
+        project = QDoc Project
+        description = Sample QDoc project
+    \endcode
+
+    \target qdoc-input-output-dir
+    \section2 Input and Output Directories
+
+    Specifying the path to the source directories allow QDoc to find sources and
+    generate documentation.
+
+    \code
+        sourcedirs = <path to source code>
+        exampledirs = <path to examples directory>
+        imagedirs = <path to image directory>
+
+        sources.fileextensions = "*.cpp *.qdoc *.mm *.qml"
+        headers.fileextensions = "*.h *.ch *.h++ *.hh *.hpp *.hxx"
+        examples.fileextensions = "*.cpp *.h *.js *.xq *.svg *.xml *.ui *.qhp *.qhcp *.qml"
+        examples.imageextensions = "*.png *.jpeg *.jpg *.gif *.mng"
+    \endcode
+
+        QDoc will process headers and sources from the ones specified in the
+        \c fileextensions variable.
+
+    Likewise, QDoc needs the path to the output directory. The \c outputformats
+    variable determines the type of documentation. These variables should be
+    in separate configuration files to modularize the documentation build.
+    \code
+        outputdir  =    $SAMPLE_PROJECT/doc/html
+        outputformats = HTML
+    \endcode
+
+    QDoc can resolve the paths relative to the qdocconf file as well as
+    environment variables.
+
+    \note During each QDoc run, the output directory is deleted.
+    \section2 Extra Files
+
+    QDoc will output generated documentation into the directory specified in
+    the  \l{Input and Output Directories}{output} directory. It is also possible
+    to specify extra files that QDoc should export.
+
+    \code
+        extraimages.HTML = extraImage.png \
+                           extraImage2.png
+    \endcode
+
+    The \c extraImage.png and the \c extraImage2.png files will be copied to the
+    HTML output directory.
+
+    \section2 Qt Help Framework Configuration
+
+    QDoc will also export a \e {Qt Help Project} file, in a \c qhp file.
+    The qhp file is then used by the \c qhelpgenerator to package the
+    documentation into a \c qch file. Qt Creator and Qt Assistant reads the qch
+    file to display the documentation.
+
+    The \l {Creating Help Project Files} article covers the configuration
+    options.
+
+    \section2 HTML Configuration
+
+    QDoc has an HTML generator that will export a set of documentation into
+    HTML files using various configuration settings. QDoc will place the
+    generated documentation into the directory specified by the \c outputdir
+    variable.
+
+    \code
+        outputformats = HTML
+        outputdir =  <path to output directory>
+    \endcode
+
+    QDoc needs to know where the styles and templates for generating HTML
+    are located. Typically, the templates directory contains a \c scripts,
+    \c images, and a \c style directory, containing scripts and CSS files.
+
+    \code
+        HTML.templatedir = <path to templates>
+    \endcode
+
+    The main configuration variables are:
+    \code
+        HTML.postheader
+        HTML.postpostheader
+        HTML.postheader
+        HTML.footer
+
+        HTML.headerstyles
+        HTML.stylesheets = style.css \
+                           style1.css
+
+        HTML.scripts = script.js
+    \endcode
+
+    The \c{HTML.headerstyles} variable inserts the style information into the
+    HTML file and the \c{HTML.stylesheets} specifies which files QDoc should
+    copy into the output directory. As well, QDoc will embed the string
+    in the \c postheader, \c footer, and related variables into each HTML file.
+
+    The \l {HTML Specific Configuration Variables} article outlines the usage
+    of each variable.
+
+    \section2 DITA XML Configuration
+
+    DITA XML output is enabled using the \c outputformats variable. Unlike HTML
+    documentation, QDoc does not need HTML style templates for generating
+    documentation in DITA XML format.
+
+    \code
+        outputformats = DITAXML
+        outputdir
+    \endcode
+
+    \section2 Qt Index Reference
+    Documentation projects can link to Qt APIs and other articles by specifying
+    the path to the \c qt.index file. When qdoc generates the Qt Reference
+    Documentation, it will also generate an index file, containing the URLs to
+    the articles. Other projects can use the links in the index file so that
+    they can link to other articles and API documentation within Qt.
+
+    \code
+        indexes = $QT_INSTALL_DOCS/html/qt.index $OTHER_PROJECT/html/qt.index
+    \endcode
+    It is possible to specify multiple index files from several projects.
+
+    \section1 Macros and Other Configurations
+
+    Macros for substituting HTML characters exist and are helpful for generating
+    specific HTML-valid characters.
+
+    \code
+    macro.pi.HTML         = "&Pi;"
+    \endcode
+    The snippet code will replace any instances of \c{\\pi} with \c &Pi; in the
+    HTML file, which will appear as the Greek \pi symbol when viewed in
+    browsers.
+
+    \section2 QML Additions
+
+    QDoc is able to parse QML files for QDoc comments. QDoc will parse files
+    with the QML extension, \c{.qml}, if the extension type is included in the
+    \l{Input and Output Directories}{fileextensions} variable.
+
+    Also, the generated HTML files can have a prefix, specified in the QDoc
+    configuration file.
+    \code
+    outputprefixes = QML
+    outputprefixes.QML = uicomponents-
+    \endcode
+    The outputprefixes will, for example, prefix QML type HTML filenames.
+    \code
+    files:
+        uicomponents-button.html
+        uicomponents-scrollbar.html
+    \endcode
+
+*/
+
+/*!
+    \page qdoc-guide-writing.html
+    \title Writing Documentation
+    \previouspage Creating QDoc Configuration Files
+    \nextpage Categories of Documentation
+
+    \section1 QDoc Comments
+
+    Documentation is contained within qdoc \e comments, delimited by
+    \beginqdoc and \endqdoc comments. Note that these are valid comments
+    in C++, QML, and JavaScript.
+
+    QDoc will parse C++ and QML files to look for qdoc comments. To explicitly
+    omit a certain file type, omit it from the
+    \l{Input and Output Directories}{configuration} file.
+
+    \section1 QDoc Commands
+
+    QDoc uses \e commands to retrieve information about the documentation. \c
+    Topic commands determine the type of documentation element, the \c context
+    commands provide hints and information about a topic, and \c markup commands
+    provide information on how QDoc should format a piece of documentation.
+
+    \target writing-topic-commands
+    \section2 QDoc Topics
+    Each qdoc comment must have a \e topic type. A topic distinguishes it from
+    other topics. To specify a topic type, use one of the several
+    \l{Topic Commands}{topic commands}.
+
+    QDoc will collect similar topics and create a page for each one. For
+    example, all the enumerations, properties, functions, and class description
+    of a particular C++ class will reside in one page. A generic page is
+    specified using the \l{page-command}{\\page} command and the filename is the
+    argument.
+
+    Example of topic commands:
+    \list
+        \li \l{enum-command}{\\enum} - for enumeration documentation
+        \li \l{class-command}{\\class} - for C++ class documentation
+        \li \l{qmltype-command}{\\qmltype} - for QML type documentation
+        \li \l{page-command}{\\page} - for creating a page.
+    \endlist
+
+    The \l{page-command}{\\page} command is for creating articles that are not
+    part of source documentation. The command can also accept two arguments: the
+    file name of the article and the documentation type. The possible types are:
+    \list
+    \li \c howto
+    \li \c overview
+    \li \c tutorial
+    \li \c faq
+    \li \c article - \e default when there is no type
+    \endlist
+
+    \snippet examples/samples.qdocinc sample-faq
+
+    The \l{Topic Commands} page has information on all of the available topic
+    commands.
+
+    \target writing-context
+    \section2 Topic Contexts
+
+    Context commands give QDoc a hint about the \e context of the topic. For
+    example, if a C++ function is obsolete, then it should be marked obsolete
+    with the \l{obsolete-command}{\\obsolete} command. Likewise,
+    \l{nextpage-command}{page navigation} and \l{title-command}{page title} 
+    give extra page information to QDoc.
+
+    QDoc will create additional links or pages for these contexts. For example,
+    a group is created using the \l{group-command}{\\group} command and the
+    members have the \l{ingroup-command}{\\ingroup} command. The group name is
+    supplied as an argument.
+
+    The \l{Context Commands} page has a listing of all the available context
+    commands.
+
+    \target writing-markup
+    \section2 Documentation Markup
+
+    QDoc can do \e markup of text similar to other markup or
+    documentation tools. QDoc can mark a section of text in \b{bold},
+    when the text is marked up with the \l{b-command}{\\b} command.
+
+    \code
+        \b{This} text will be in \b{bold}.
+    \endcode
+
+    The \l{Markup Commands} page has a full listing of the available markup
+    commands.
+
+    \section1 Anatomy of Documentation
+
+    Essentially, for QDoc to create a page, there must be some essential
+    ingredients present.
+
+    \list
+        \li Assign a topic to a  QDoc comment - A comment could be a page, a
+        property documentation, a class documentation, or any of the available
+        \l{Topic Commands}{topic commands}.
+
+        \li Give the topic a context - QDoc can associate certain topics to other
+        pages such as associating obsolete functions when the documentation is
+        marked with \l{obsolete-command}{\\obsolete}.
+
+        \li Mark sections of the document with
+        \l{Markup Commands}{markup commands} - QDoc can create layouts and
+        format the documentation for the documentation.
+    \endlist
+
+    In Qt, the \l{QVector3D} class was documented with the following QDoc
+    comment:
+    \snippet examples/samples.qdocinc qvector3d-class
+
+    It has a constructor, \l{QVector3D::QVector3D()}, which was documented with
+    the following QDoc comment:
+    \snippet examples/samples.qdocinc qvector3d-function
+
+    The different comments may reside in different files and QDoc will collect
+    them depending on their topic and their context. The resulting documentation
+    from the snippets are generated into the \l{QVector3D} class documentation.
+
+    Note that if the documentation immediately precedes the function or class
+    in the source code, then it does not need to have a topic. QDoc will assume
+    that the documentation above the code is the documentation for that code.
+
+    An article is created using \l{page-command}{\\page} command. The first
+    argument is the HTML file that QDoc will create. The topic is supplemented
+    with context commands, the \l{title-command}{\\title} and
+    \l{nextpage-command}{\\nextpage} commands. There are several other
+    QDoc commands such as the \l{list-command}{\\list} command.
+    \snippet examples/samples.qdocinc sample-page
+
+    The section on \l{QDoc Topics}{topic commands} gives an overview on several
+    other topic types.
+
+
+*/
+
+/*!
+    \page qdoc-categories.html
+    \title Categories of Documentation
+    \previouspage Writing Documentation
+    \nextpage QML Documentation Example
+    \brief Describes the different types such as How-To's, Tutorials, Overviews,
+    Examples, and Class Documentation.
+
+    There are several types of predefined documentation \e categories or
+    \e types:
+    \list
+    \li How-To's
+    \li Tutorial
+    \li Overview
+    \li Article
+    \li FAQ (Frequently Asked Questions)
+    \li C++ API Documentation
+    \li QML Type Documentation
+    \li Code Example
+    \endlist
+
+    QDoc has the ability to format a page depending on the type. Further,
+    stylesheets can provide additional control on the display of each category.
+
+    \section1 API Documentation
+    QDoc excels in the creation of API documentation given a set of source code
+    and documentation in QDoc comments. Specifically, QDoc is aware of Qt's
+    architecture and can validate the existence of Qt C++ class, function, or
+    property documentation. QDoc gives warnings and errors if it cannot
+    associate a documentation with a code entity or if a code entity does not
+    have documentation.
+
+    In general, every Qt code entity such as properties, classes, methods,
+    signals, and enumerations have a corresponding
+    \l{qdoc-topics}{topic command}. QDoc will associate the documentation to the
+    source using C++ naming rules.
+
+    QDoc will parse the header files (typically \c .h files) to build a tree of
+    the class structures. Then QDoc will parse the source files and
+    documentation files to attach documentation to the class structure.
+    Afterwards, QDoc will generate a page for the class.
+
+    \note QDoc uses the header files to inform itself about the class and will
+    not properly process QDoc comments in header files.
+
+    \section2 Language Styles
+
+    To produce quality API documentation, the Qt API references follow a
+    particular language guidelines. While the contents of this page demonstrates
+    how to create API documentation, the style guidelines demonstrate how
+    the reference materials follow a consistent use of language.
+
+    \list
+    \li \l{C++ Documentation Style}
+    \li \l{QML Documentation Style}
+    \endlist
+
+    \keyword qml-documentation
+    \section2 Documenting QML Types
+
+    In the world of \l{Qt Quick}{QML}, there are additional entities we need to
+    document such as QML signals, attached properties, and QML methods.
+    Internally, they use Qt technologies, however, QML API documentation
+    requires different layout and naming conventions from the Qt C++ API
+    documentation.
+
+    A list of QML related QDoc commands:
+    \list
+    \li \l{qmlattachedproperty-command}{\\qmlattachedproperty}
+    \li \l{qmlattachedsignal-command}{\\qmlattachedsignal}
+    \li \l{qmlbasictype-command}{\\qmlbasictype}
+    \li \l{qmltype-command}{\\qmltype} - creates a QML type documentation
+    \li \l{qmlmethod-command}{\\qmlmethod}
+    \li \l{qmlproperty-command}{\\qmlproperty}
+    \li \l{qmlsignal-command}{\\qmlsignal}
+    \li \l{inherits-command}{\\inherits}
+    \li \l{qmlmodule-command}{\\qmlmodule}
+    \li \l{inqmlmodule-command}{\\inqmlmodule}
+    \li \l{instantiates-command}{\\instantiates}
+
+    \endlist
+
+    \note Remember to enable QML parsing by including the \c{*.qml} filetype in
+    the \l{qdoc-input-output-dir}{fileextension} variable.
+
+    To document a QML type, start by creating a QDoc comment that uses the
+    \l{qmltype-command} {\\qmltype} command as its topic command.
+
+    \section3 QML Parser
+
+    If your QML type is defined in a \e qml file, document it there.
+    If your QML type is represented by a C++ class, document it in the
+    \e cpp file for that C++ class and include an
+    \l{instantiates-command}{\\instantiates} command to specify the
+    name of the C++ class. Don't document a QML type in a \e{cpp} file
+    if the QML type is defined in a \e{qml} file.
+
+    When documenting a QML type in a \e{qml} file, place each QDoc
+    comment directly above the entity to which the comment applies.
+    For example, place the QDoc comment containing the \e{\\qmltype}
+    command (the topic comment) directly above the outer QML type in
+    the \e{qml} file. Place the comment for documenting a QML property
+    directly above the property declaration, and so on for QML signal
+    handlers and QML methods. Note that when documenting QML
+    properties in a \e{qml} file, you don't normally include the
+    \e{\\qmlproperty} command as a topic command (which you must do
+    when documenting QML types in \e{cpp} files), because the QML
+    parser automatically associates each QDoc comment with the next
+    QML declaration it parses. The same is true for QML signal handler
+    and QML method comments. But it is sometimes useful to include one
+    or more \e{\\qmlproperty} commands in the comment, e.g. when the
+    property type is another QML type and you want the user to only
+    use certain properties within that other QML type, but not all of
+    them. But when documenting a property that has an alias, place the
+    QDoc comment for it directly above the alias declaration. In these
+    cases, the QDoc comment \e must contain a \e{\\qmlproperty}
+    command, because that is the only way QDoc can know the type of
+    the aliased property.
+
+    When documenting a QML type in the \e cpp file of its
+    corresponding C++ class (if it has one), you normally place each
+    QDoc comment directly above the entity it documents. However, QDoc
+    does not use the QML parser to parse these files (the C++ parser
+    is used), so these QML QDoc comments can appear anywhere in the
+    \e{cpp} file. Note that QML QDoc comments in \e cpp files \e must
+    use the QML topic commands. i.e., the \l{qmltype-command}
+    {\\qmltype} command \e must appear in the QDoc comment for the
+    QML type, and a \l{qmlproperty-command} {\\qmlproperty} command \e
+    must appear in each QML property QDoc comment.
+
+    \section3 QML Modules
+
+    A QML type belongs to a \e module. The module
+    may include all the related types for a platform or contain a certain
+    version of \l{Qt Quick}. For example, the Qt Quick 2 QML types belong
+    to the Qt Quick 2 module while there is also a Qt Quick 1 module for the older
+    types introduced in Qt 4.
+
+    QML modules allow grouping QML types. The \l{qmltype-command}
+    {\\qmltype} topic command must have an \l{inqmlmodule-command}
+    {\\inqmlmodule} context command to relate the type to a QML
+    module. Similarly, a \l{qmlmodule-command}{\\qmlmodule} topic
+    command must exist in a separate \c{.qdoc} file to create the
+    overview page for the module. The overview page will list the
+    QML types of the QML module.
+
+    The links to the QML types must therefore also contain the module name.
+    For example, if a type called \c TabWidget is in the \c UIComponents
+    module, it must be linked as \c {UIComponents::TabWidget}.
+
+    The \l{componentset}{UIComponents} example demonstrates proper usage of
+    QDoc commands to document QML types and QML modules.
+
+    \section3 Read-only and Internal QML Properties
+
+    QDoc detects QML properties that are marked as \c readonly. Note that the
+    property must be initialized with a value.
+
+    \code
+        readonly property int sampleReadOnlyProperty: 0
+    \endcode
+    For example, the example \l{TabWidget} type has a fictitious read-only
+    property \c sampleReadOnlyProperty. Its declaration has the \c readonly
+    identifier and it has an initial value.
+
+    Properties and signals that are not meant for the public interface may
+    be marked with the \l{internal-command}{\\internal} command. QDoc will not
+    publish the documentation in the generated outputs.
+
+    \section1 Articles & Overviews
+    Articles and overviews are a style of writing best used for providing
+    summary detail on a topic or concept. It may introduce a technology or
+    discuss how a concept may be applied, but without discussing exact steps
+    in too much detail. However, this type of content could provide the entry
+    point for readers to find instructional and reference materials that do,
+    such as tutorials, examples and class documentation. An example of an
+    overview might be a product page, such as a top level discussion of
+    Qt Quick, individual modules, design principles, or tools.
+
+    To signify that a document is an article, you append the article keyword
+    to the \\page command:
+
+    \snippet examples/samples.qdocinc sample-overview
+
+    The \l{writing-topic-commands}{writing topic commands} section has a listing
+    of the available \\page command arguments.
+
+    \section1 Tutorials, How-To's, FAQ's
+
+    Tutorials, How-To's, and FAQ's are all instructional material, in that they
+    instruct or prescribe to the reader. Tutorials are content designed to guide
+    the reader along a progressive learning path for a concept or technology.
+    How-To's and FAQ's (\e{Frequently Asked Questions}) provide guidance by
+    presenting material in the form of answers to commonly asked topics.
+    How-To's and FAQ's are designed for easy reference and are not necessarily
+    presented in a linear progression.
+
+    To create these types, mark the pages by providing a \c type argument to the
+    \l{page-command}{\\page} command. The \c type argument is the second
+    argument, with the file name being the first.
+    \snippet examples/samples.qdocinc sample-faq
+
+    The \l{writing-topic-commands}{writing topic commands} section has a listing
+    of the available \\page command arguments.
+
+    \section1 Code Examples
+    Examples are an effective way to demonstrate practical usage of a given
+    technology or concept. When it comes to middleware this is usually in the
+    form of an application using simple code and clear explanations of what the
+    code is doing. Any module, API, project, pattern etc. should have at least
+    one good example.
+
+    An example may have an accompanying tutorial. The tutorial instructs and
+    describes the code, while the code example is the code content that users
+    may study. Code examples may have accompanying text that are not in the
+    tutorial.
+
+    QDoc will create a page containing the example code with a description
+    using the \l{example-command}{\\example} command.
+
+    \snippet examples/samples.qdocinc sample-example
+
+    QDoc will use the directory specified in the input
+    \l{Input and Output Directories}{exampledirs} variable to find the Qt
+    Project (\c .pro) file to generate the example files. The generated HTML
+    will have the filename, \c {declarative-ui-components-tabwidget.html}. QDoc
+    will also list all of the example code.
+
+    \note The example's project file must be the same as the
+    directory name.
+*/
+
+

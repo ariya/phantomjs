@@ -1,7 +1,8 @@
 describe("Files and Directories API", function() {
     var TEST_DIR = "testdir",
         TEST_FILE = "testfile",
-        START_CWD = fs.workingDirectory;
+        START_CWD = fs.workingDirectory,
+        system = require('system');
 
     it("should create a new temporary directory and change the Current Working Directory to it", function() {
         expect(fs.makeDirectory(TEST_DIR)).toBeTruthy();
@@ -24,9 +25,18 @@ describe("Files and Directories API", function() {
 
     it("should copy Content of the '/test/' Directory in a temporary directory, compare with the original and then remove", function() {
         var phantomLibraryPathListingLength = fs.list(phantom.libraryPath).length;
-        fs.copyTree(phantom.libraryPath, "/tmp/"+TEST_DIR);
-        expect(phantomLibraryPathListingLength === fs.list("/tmp/"+TEST_DIR).length);
-        fs.removeTree("/tmp/"+TEST_DIR);
+        var targetDirectory = '/tmp/';
+
+        if (system.os.name === 'windows') {
+            targetDirectory = system.env['TMP'];
+            if (targetDirectory.indexOf('\\', targetDirectory.length - '\\'.length) === -1) {
+                targetDirectory += '\\';
+            }
+        }
+
+        fs.copyTree(phantom.libraryPath, targetDirectory + TEST_DIR);
+        expect(phantomLibraryPathListingLength === fs.list(targetDirectory + TEST_DIR).length);
+        fs.removeTree(targetDirectory + TEST_DIR);
     });
 
     // TODO: test the actual functionality once we can create symlink.

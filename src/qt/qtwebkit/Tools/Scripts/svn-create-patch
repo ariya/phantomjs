@@ -1,0 +1,429 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2005, 2006 Apple Computer, Inc.  All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Extended "svn diff" script for WebKit Open Source Project, used to make patches.
+
+# Differences from standard "svn diff":
+#
+#   Uses the real diff, not svn's built-in diff.
+#   Always passes "-p" to diff so it will try to include function names.
+#   Handles binary files (encoded as a base64 chunk of text).
+#   Sorts the diffs alphabetically by text files, then binary files.
+#   Handles copied and moved files.
+#
+# Missing features:
+#
+#   Handle copied and moved directories.
+
+use strict;
+use warnings;
+
+use Config;
+use File::Basename;
+use File::Spec;
+use File::stat;
+use FindBin;
+use Getopt::Long;
+use lib $FindBin::Bin;
+use MIME::Base64;
+use POSIX qw(:errno_h);
+use Time::gmtime;
+use VCSUtils;
+
+sub binarycmp($$);
+sub diffOptionsForFile($);
+sub findBaseUrl($);
+sub findMimeType($;$);
+sub findModificationType($);
+sub findSourceFileAndRevision($);
+sub generateDiff($$);
+sub generateFileList($\%);
+sub hunkHeaderLineRegExForFile($);
+sub isBinaryMimeType($);
+sub manufacturePatchForAdditionWithHistory($);
+sub numericcmp($$);
+sub outputBinaryContent($);
+sub patchpathcmp($$);
+sub pathcmp($$);
+sub processPaths(\@);
+sub splitpath($);
+sub testfilecmp($$);
+
+$ENV{'LC_ALL'} = 'C';
+
+my $showHelp;
+my $ignoreChangelogs = 0;
+my $devNull = File::Spec->devnull();
+
+my $result = GetOptions(
+    "help"       => \$showHelp,
+    "ignore-changelogs"    => \$ignoreChangelogs
+);
+if (!$result || $showHelp) {
+    print STDERR basename($0) . " [-h|--help] [--ignore-changelogs] [svndir1 [svndir2 ...]]\n";
+    exit 1;
+}
+
+# Sort the diffs for easier reviewing.
+my %paths = processPaths(@ARGV);
+
+# Generate a list of files requiring diffs.
+my %diffFiles;
+for my $path (keys %paths) {
+    generateFileList($path, %diffFiles);
+}
+
+my $svnRoot = determineSVNRoot();
+my $prefix = chdirReturningRelativePath($svnRoot);
+
+# Generate the diffs, in an order chosen for ease of reviewing.
+for my $path (sort patchpathcmp values %diffFiles) {
+    generateDiff($path, $prefix);
+}
+
+exit 0;
+
+# Overall sort, considering multiple criteria.
+sub patchpathcmp($$)
+{
+    my ($a, $b) = @_;
+
+    # All binary files come after all non-binary files.
+    my $result = binarycmp($a, $b);
+    return $result if $result;
+
+    # All test files come after all non-test files.
+    $result = testfilecmp($a, $b);
+    return $result if $result;
+
+    # Final sort is a "smart" sort by directory and file name.
+    return pathcmp($a, $b);
+}
+
+# Sort so text files appear before binary files.
+sub binarycmp($$)
+{
+    my ($fileDataA, $fileDataB) = @_;
+    return $fileDataA->{isBinary} <=> $fileDataB->{isBinary};
+}
+
+sub diffOptionsForFile($)
+{
+    my ($file) = @_;
+
+    my $options = "uaNp";
+
+    if (my $hunkHeaderLineRegEx = hunkHeaderLineRegExForFile($file)) {
+        $options .= "F'$hunkHeaderLineRegEx'";
+    }
+
+    return $options;
+}
+
+sub findBaseUrl($)
+{
+    my ($infoPath) = @_;
+    my $baseUrl;
+    my $escapedInfoPath = escapeSubversionPath($infoPath);
+    open INFO, "svn info '$escapedInfoPath' |" or die;
+    while (<INFO>) {
+        if (/^URL: (.+?)[\r\n]*$/) {
+            $baseUrl = $1;
+        }
+    }
+    close INFO;
+    return $baseUrl;
+}
+
+sub findMimeType($;$)
+{
+    my ($file, $revision) = @_;
+    my $args = $revision ? "--revision $revision" : "";
+    my $escapedFile = escapeSubversionPath($file);
+    open PROPGET, "svn propget svn:mime-type $args '$escapedFile' |" or die;
+    my $mimeType = <PROPGET>;
+    close PROPGET;
+    # svn may output a different EOL sequence than $/, so avoid chomp.
+    if ($mimeType) {
+        $mimeType =~ s/[\r\n]+$//g;
+    }
+    return $mimeType;
+}
+
+sub findModificationType($)
+{
+    my ($stat) = @_;
+    my $fileStat = substr($stat, 0, 1);
+    my $propertyStat = substr($stat, 1, 1);
+    if ($fileStat eq "A" || $fileStat eq "R") {
+        my $additionWithHistory = substr($stat, 3, 1);
+        return $additionWithHistory eq "+" ? "additionWithHistory" : "addition";
+    }
+    return "modification" if ($fileStat eq "M" || $propertyStat eq "M");
+    return "deletion" if ($fileStat eq "D");
+    return undef;
+}
+
+sub findSourceFileAndRevision($)
+{
+    my ($file) = @_;
+    my $baseUrl = findBaseUrl(".");
+    my $sourceFile;
+    my $sourceRevision;
+    my $escapedFile = escapeSubversionPath($file);
+    open INFO, "svn info '$escapedFile' |" or die;
+    while (<INFO>) {
+        if (/^Copied From URL: (.+?)[\r\n]*$/) {
+            $sourceFile = File::Spec->abs2rel($1, $baseUrl);
+        } elsif (/^Copied From Rev: ([0-9]+)/) {
+            $sourceRevision = $1;
+        }
+    }
+    close INFO;
+    return ($sourceFile, $sourceRevision);
+}
+
+sub generateDiff($$)
+{
+    my ($fileData, $prefix) = @_;
+    my $file = File::Spec->catdir($prefix, $fileData->{path});
+    
+    if ($ignoreChangelogs && basename($file) eq "ChangeLog") {
+        return 0;
+    }
+    
+    my $patch = "";
+    if ($fileData->{modificationType} eq "additionWithHistory") {
+        manufacturePatchForAdditionWithHistory($fileData);
+    }
+
+    my $diffOptions = diffOptionsForFile($file);
+    my $escapedFile = escapeSubversionPath($file);
+    open DIFF, "svn diff --diff-cmd diff -x -$diffOptions '$escapedFile' |" or die;
+    while (<DIFF>) {
+        $patch .= $_;
+    }
+    close DIFF;
+    if (basename($file) eq "ChangeLog") {
+        my $changeLogHash = fixChangeLogPatch($patch);
+        $patch = $changeLogHash->{patch};   
+    }
+    print $patch;
+    if ($fileData->{isBinary}) {
+        print "\n" if ($patch && $patch =~ m/\n\S+$/m);
+        outputBinaryContent($file);
+    }
+}
+
+sub generateFileList($\%)
+{
+    my ($statPath, $diffFiles) = @_;
+    my %testDirectories = map { $_ => 1 } qw(LayoutTests);
+    my $escapedStatPath = escapeSubversionPath($statPath);
+    open STAT, "svn stat '$escapedStatPath' |" or die;
+    while (my $line = <STAT>) {
+        # svn may output a different EOL sequence than $/, so avoid chomp.
+        $line =~ s/[\r\n]+$//g;
+        my $stat;
+        my $path;
+        if (isSVNVersion16OrNewer()) {
+            $stat = substr($line, 0, 8);
+            $path = substr($line, 8);
+        } else {
+            $stat = substr($line, 0, 7);
+            $path = substr($line, 7);
+        }
+        next if -d $path;
+        my $modificationType = findModificationType($stat);
+        if ($modificationType) {
+            $diffFiles->{$path}->{path} = $path;
+            $diffFiles->{$path}->{modificationType} = $modificationType;
+            $diffFiles->{$path}->{isBinary} = isBinaryMimeType($path);
+            $diffFiles->{$path}->{isTestFile} = exists $testDirectories{(File::Spec->splitdir($path))[0]} ? 1 : 0;
+            if ($modificationType eq "additionWithHistory") {
+                my ($sourceFile, $sourceRevision) = findSourceFileAndRevision($path);
+                $diffFiles->{$path}->{sourceFile} = $sourceFile;
+                $diffFiles->{$path}->{sourceRevision} = $sourceRevision;
+            }
+        } else {
+            print STDERR $line, "\n";
+        }
+    }
+    close STAT;
+}
+
+sub hunkHeaderLineRegExForFile($)
+{
+    my ($file) = @_;
+
+    my $startOfObjCInterfaceRegEx = "@(implementation\\|interface\\|protocol)";
+    return "^[-+]\\|$startOfObjCInterfaceRegEx" if $file =~ /\.mm?$/;
+    return "^$startOfObjCInterfaceRegEx" if $file =~ /^(.*\/)?(mac|objc)\// && $file =~ /\.h$/;
+}
+
+sub isBinaryMimeType($)
+{
+    my ($file) = @_;
+    my $mimeType = findMimeType($file);
+    return 0 if (!$mimeType || substr($mimeType, 0, 5) eq "text/");
+    return 1;
+}
+
+sub manufacturePatchForAdditionWithHistory($)
+{
+    my ($fileData) = @_;
+    my $file = $fileData->{path};
+    print "Index: ${file}\n";
+    print "=" x 67, "\n";
+    my $sourceFile = $fileData->{sourceFile};
+    my $sourceRevision = $fileData->{sourceRevision};
+    print "--- ${file}\t(revision ${sourceRevision})\t(from ${sourceFile}:${sourceRevision})\n";
+    print "+++ ${file}\t(working copy)\n";
+    if ($fileData->{isBinary}) {
+        print "\nCannot display: file marked as a binary type.\n";
+        my $mimeType = findMimeType($file, $sourceRevision);
+        print "svn:mime-type = ${mimeType}\n\n";
+    } else {
+        my $escapedSourceFile = escapeSubversionPath($sourceFile);
+        print `svn cat ${escapedSourceFile} | diff -u $devNull - | tail -n +3`;
+    }
+}
+
+# Sort numeric parts of strings as numbers, other parts as strings.
+# Makes 1.33 come after 1.3, which is cool.
+sub numericcmp($$)
+{
+    my ($aa, $bb) = @_;
+
+    my @a = split /(\d+)/, $aa;
+    my @b = split /(\d+)/, $bb;
+
+    # Compare one chunk at a time.
+    # Each chunk is either all numeric digits, or all not numeric digits.
+    while (@a && @b) {
+        my $a = shift @a;
+        my $b = shift @b;
+        
+        # Use numeric comparison if chunks are non-equal numbers.
+        return $a <=> $b if $a =~ /^\d/ && $b =~ /^\d/ && $a != $b;
+
+        # Use string comparison if chunks are any other kind of non-equal string.
+        return $a cmp $b if $a ne $b;
+    }
+    
+    # One of the two is now empty; compare lengths for result in this case.
+    return @a <=> @b;
+}
+
+sub outputBinaryContent($)
+{
+    my ($path) = @_;
+    # Deletion
+    return if (! -e $path);
+    # Addition or Modification
+    my $buffer;
+    open BINARY, $path  or die;
+    while (read(BINARY, $buffer, 60*57)) {
+        print encode_base64($buffer);
+    }
+    close BINARY;
+    print "\n";
+}
+
+# Sort first by directory, then by file, so all paths in one directory are grouped
+# rather than being interspersed with items from subdirectories.
+# Use numericcmp to sort directory and filenames to make order logical.
+# Also include a special case for ChangeLog, which comes first in any directory.
+sub pathcmp($$)
+{
+    my ($fileDataA, $fileDataB) = @_;
+
+    my ($dira, $namea) = splitpath($fileDataA->{path});
+    my ($dirb, $nameb) = splitpath($fileDataB->{path});
+
+    return numericcmp($dira, $dirb) if $dira ne $dirb;
+    return -1 if $namea eq "ChangeLog" && $nameb ne "ChangeLog";
+    return +1 if $namea ne "ChangeLog" && $nameb eq "ChangeLog";
+    return numericcmp($namea, $nameb);
+}
+
+sub processPaths(\@)
+{
+    my ($paths) = @_;
+    return ("." => 1) if (!@{$paths});
+
+    my %result = ();
+
+    for my $file (@{$paths}) {
+        die "can't handle absolute paths like \"$file\"\n" if File::Spec->file_name_is_absolute($file);
+        die "can't handle empty string path\n" if $file eq "";
+        die "can't handle path with single quote in the name like \"$file\"\n" if $file =~ /'/; # ' (keep Xcode syntax highlighting happy)
+
+        my $untouchedFile = $file;
+
+        $file = canonicalizePath($file);
+
+        die "can't handle paths with .. like \"$untouchedFile\"\n" if $file =~ m|/\.\./|;
+
+        $result{$file} = 1;
+    }
+
+    return ("." => 1) if ($result{"."});
+
+    # Remove any paths that also have a parent listed.
+    for my $path (keys %result) {
+        for (my $parent = dirname($path); $parent ne '.'; $parent = dirname($parent)) {
+            if ($result{$parent}) {
+                delete $result{$path};
+                last;
+            }
+        }
+    }
+
+    return %result;
+}
+
+# Break up a path into the directory (with slash) and base name.
+sub splitpath($)
+{
+    my ($path) = @_;
+
+    my $pathSeparator = "/";
+    my $dirname = dirname($path) . $pathSeparator;
+    $dirname = "" if $dirname eq "." . $pathSeparator;
+
+    return ($dirname, basename($path));
+}
+
+# Sort so source code files appear before test files.
+sub testfilecmp($$)
+{
+    my ($fileDataA, $fileDataB) = @_;
+    return $fileDataA->{isTestFile} <=> $fileDataB->{isTestFile};
+}
+

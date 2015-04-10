@@ -1,0 +1,119 @@
+
+examples/application/application.cpp    1.14  agulbra  +32 -18
+
+  use QWhatsThis
+
+
+examples/application/application.cpp    1.15  warwick  +7 -6
+examples/application/application.h    1.5  warwick  +2 -1
+
+  Use persistent QPrinter.
+
+
+examples/dragdrop/dropsite.cpp    1.8  warwick  +44 -24
+
+  Improved usage #1.
+
+
+examples/dragdrop/dropsite.cpp    1.9  warwick  +36 -81
+examples/dragdrop/dropsite.h    1.4  warwick  +7 -9
+src/qt.pro    2.30  warwick  +2 -0
+src/kernel/qclipboard_x11.cpp    2.15  warwick  +10 -8
+src/kernel/qdnd_win.cpp    2.15  warwick  +1 -18
+src/kernel/qdnd_x11.cpp    2.33  warwick  +62 -67
+src/kernel/qdragobject.cpp    2.29  warwick  +73 -27
+src/kernel/qdragobject.h    2.16  warwick  +18 -12
+src/kernel/qdropsite.cpp    2.1  warwick  initial checkin
+src/kernel/qdropsite.h    2.1  warwick  initial checkin
+src/kernel/qwidget.h    2.52  warwick  +3 -2
+src/kernel/qwidget_win.cpp    2.60  warwick  +17 -7
+src/kernel/qwidget_x11.cpp    2.99  warwick  +22 -12
+src/kernel/qwindowdefs.h    2.25  warwick  +7 -3
+src/widgets/qlineedit.cpp    2.85  warwick  +3 -3
+
+  Don't declare MIME types for drop sites in advance, just enable drops.
+
+
+examples/examples.pro    2.9  agulbra  +1 -0
+
+  add dragdrop to examples makefile
+
+
+examples/movies/main.cpp    1.13  agulbra  +9 -2
+
+  add use of setFilters().  
+
+
+examples/splitter/splitter.cpp    1.1  paul  initial checkin
+examples/splitter/splitter.pro    1.1  paul  initial checkin
+
+  Simple QSplitter example
+
+
+src/dialogs/qprintdialog.cpp    2.29  warwick  +57 -60
+
+  Fixed QPrinter->QPrintDialog state-transfer bugs.
+
+
+src/kernel/qapplication_x11.cpp    2.142  agulbra  +7 -12
+src/kernel/qdnd_x11.cpp    2.37  agulbra  +22 -23
+src/kernel/qdragobject.cpp    2.32  agulbra  +5 -25
+src/kernel/qdragobject.h    2.19  agulbra  +1 -4
+
+  Completely reworked drag'n'drop.
+
+
+src/kernel/qimage.cpp    2.99  agulbra  +7 -6
+src/kernel/qimage.cpp    2.98  agulbra  +18 -14
+src/kernel/qmovie.cpp    1.38  agulbra  +8 -7
+src/kernel/qmovie.cpp    1.37  agulbra  +12 -3
+
+  discuss patent issues
+
+
+src/widgets/qlineedit.cpp    2.82  agulbra  +2 -3
+
+  reject drags that don't provide text/plain
+
+
+src/widgets/qlistview.cpp    2.122  warwick  +3 -3
+
+  Fix multiple-calls-to-setText() unreported bug.
+
+
+src/widgets/qlistview.cpp    2.123  paul  +16 -21
+src/widgets/qlistview.h    2.52  paul  +2 -2
+
+  Make setPixmap() override default pixmap
+
+
+src/widgets/qlistview.cpp    2.124  agulbra  +16 -17
+
+  adjust drawing of focus rectangle for trees
+
+
+src/widgets/qlistview.cpp    2.126  agulbra  +1 -2
+src/widgets/qlistview.cpp    2.125  agulbra  +6 -2
+
+  try even harder to not sort unless sorting is actually requested.
+
+
+src/widgets/qmultilinedit.cpp    2.95  agulbra  +4 -4
+
+  doc correction
+
+
+src/widgets/qsplitter.cpp    1.19  paul  +48 -45
+
+  fixing odds and ends after the API change
+
+
+src/widgets/qsplitter.cpp    1.23  warwick  +5 -4
+
+  Position internalsplitter in middle of mouse when dragging.
+
+
+src/widgets/qsplitter.cpp    1.24  warwick  +48 -45
+
+  Make bitmaps correspond to splitter dimensions.
+

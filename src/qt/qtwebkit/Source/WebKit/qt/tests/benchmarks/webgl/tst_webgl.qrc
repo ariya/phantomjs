@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/testcases">
+        <file>10000_triangles.html</file>
+    </qresource>
+</RCC>

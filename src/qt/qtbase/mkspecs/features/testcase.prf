@@ -1,0 +1,190 @@
+have_target {
+
+# qt_build_config.prf disables execptions for all Qt modules which don't
+# explicitly turn it on again, while the qmake default is to build with
+# exceptions. As we want tests to be built like 3rd party applications,
+# qt_build_config tells us to re-enable exceptions here.
+testcase_exceptions: CONFIG += exceptions
+
+check.files                =
+check.path                 = .
+
+# If the test ends up in a different directory, we should cd to that directory.
+TESTRUN_CWD = $$DESTDIR
+
+debug_and_release:debug_and_release_target {
+    # But in debug-and-release-target mode we don't want to cd into the debug/release
+    # directory (e.g. if the test goes to foo/release/tst_thing.exe, we want to do
+    # 'cd foo && release/tst_thing.exe', not 'cd foo/release && tst_thing.exe').
+
+    TESTRUN_CWD ~= s/(release|debug)$//
+    TEST_TARGET_DIR = $$relative_path($$absolute_path($$DESTDIR, $$OUT_PWD), $$absolute_path($$TESTRUN_CWD, $$OUT_PWD))
+}
+
+!isEmpty(TESTRUN_CWD):!contains(TESTRUN_CWD,^\\./?): \
+    check.commands = cd $$system_path($$TESTRUN_CWD) &&
+
+# Allow for a custom test runner script
+check.commands += $(TESTRUNNER)
+
+unix {
+    isEmpty(TEST_TARGET_DIR): TEST_TARGET_DIR = .
+
+    mac:app_bundle: \
+        check.commands += $${TEST_TARGET_DIR}/$(QMAKE_TARGET).app/Contents/MacOS/$(QMAKE_TARGET)
+    else: \
+        check.commands += $${TEST_TARGET_DIR}/$(QMAKE_TARGET)
+} else {
+    # Windows
+    !isEmpty(TEST_TARGET_DIR): TEST_TARGET_DIR = $${TEST_TARGET_DIR}$${QMAKE_DIR_SEP}
+    check.commands += $${TEST_TARGET_DIR}$(TARGET)
+}
+
+# Allow for custom arguments to tests
+check.commands += $(TESTARGS)
+
+# Add environment for non-installed builds
+qtAddTargetEnv(check.commands, QT)
+
+# If the test is marked as insignificant, discard the exit code
+insignificant_test:check.commands = -$${check.commands}
+
+QMAKE_EXTRA_TARGETS *= check
+
+!debug_and_release|build_pass {
+    check.depends = first
+} else {
+    check.CONFIG = recursive
+    # In debug and release mode, only run the test once.
+    # Run debug if that is the preferred config, release otherwise.
+    debug_and_release {
+        check.target = dummy_check
+        check.recurse_target = check
+        CONFIG(debug, debug|release) {
+            real_check.depends = debug-check
+            real_check.target = check
+            QMAKE_EXTRA_TARGETS += real_check
+        } else {
+            real_check.depends = release-check
+            real_check.target = check
+            QMAKE_EXTRA_TARGETS += real_check
+        }
+    }
+}
+
+!no_testcase_installs:!contains(INSTALLS, target) {
+    # Install tests unless no_testcase_installs is set, or there is already
+    # a `target' in INSTALLS.
+    #
+    # Tests are installed under a directory named after the target so that each
+    # test has its own directory for testdata etc.
+    #
+    load(resolve_target)
+    TARGET_BASENAME = $$basename(QMAKE_RESOLVED_TARGET)
+    target.path = $$[QT_INSTALL_TESTS]/$$TARGET_BASENAME
+    INSTALLS += target
+}
+
+contains(INSTALLS, target) {
+    # Install testdata and helpers as well, but only if we're actually installing the test.
+    #
+    # Testdata is installed relative to the directory containing the testcase
+    # binary itself, e.g. this:
+    #
+    #   CONFIG += testcase
+    #   TARGET = tst_qxmlreader
+    #
+    #   TESTDATA += testdata/test1.xml testdata/test2.xml
+    #
+    # ... will result in:
+    #
+    #   /usr/lib/qt5/tests/tst_qxmlreader/tst_qxmlreader
+    #   /usr/lib/qt5/tests/tst_qxmlreader/testdata/test1.xml
+    #   /usr/lib/qt5/tests/tst_qxmlreader/testdata/test2.xml
+    #   ...
+    #
+    for(file, TESTDATA) {
+        tnam = $$file
+        tnam ~= s,\\.\\.,dotdot,
+        tnam ~= s,[?*],wildcard,
+        tnam ~= s,[^A-Za-z0-9],_,
+        tdi = testdata_$$tnam
+        tdif = $${tdi}.files
+        tdip = $${tdi}.path
+
+        # TESTDATA consists of the files to install (source)...
+        $$tdif = $$file
+
+        # ... and the destination preserves the relative path.
+        # Strip any leading ../ from the testdata, so that installation does not escape
+        # the test's directory in the case of e.g.
+        #
+        #  TARGET   = ../tst_qprocess
+        #  TESTDATA = ../thing1 ../thing2
+        #
+        # The testdata should end up at $$[QT_INSTALL_TESTS]/tst_qprocess/thing1,
+        # rather than $$[QT_INSTALL_TESTS]/tst_qprocess/../thing1.
+        #
+        # Note that this does not guarantee the same relative path between test binary
+        # and testdata in the build and install tree, but should cover most cases.
+        #
+        file = $$replace(file, ^(\\.\\./)+, )
+        $$tdip = $${target.path}/$$dirname(file)
+
+        INSTALLS += $$tdi
+    }
+
+    # Install GENERATED_TESTDATA.
+    # Logic is copied from the TESTDATA installation, only difference being that
+    # INSTALL target is added with CONFIG = no_check_exist
+    for(file, GENERATED_TESTDATA) {
+        tnam = $$file
+        tnam ~= s,\\.\\.,dotdot,
+        tnam ~= s,[?*],wildcard,
+        tnam ~= s,[^A-Za-z0-9],_,
+        tdi = testdata_$$tnam
+        tdif = $${tdi}.files
+        tdip = $${tdi}.path
+        tdic = $${tdi}.CONFIG
+
+        $$tdif = $$file
+        $$tdic = no_check_exist
+
+        file = $$replace(file, ^(\\.\\./)+, )
+        $$tdip = $${target.path}/$$dirname(file)
+
+        INSTALLS += $$tdi
+    }
+
+    # TEST_HELPER_INSTALLS specifies additional test helper executables for installation.
+    #
+    # Typical usage is:
+    #
+    #   TEST_HELPER_INSTALLS += ../some/helper1 ../some/helper2
+    #
+    # Resulting in the test helpers being installed to:
+    #
+    #   $$[QT_INSTALL_TESTS]/$$TARGET/some/helper1
+    #   $$[QT_INSTALL_TESTS]/$$TARGET/some/helper2
+    #
+    win32: extension = .exe
+    for(test_helper, TEST_HELPER_INSTALLS) {
+        test_helper_dir = $$dirname(test_helper)
+        output = $$basename(test_helper_dir)
+        target = $$basename(test_helper)
+        targetName = $$replace(target, ' ', '_') # handle spaces in name
+        subTarget = $${targetName}.target
+        subInstall = $${targetName}_install
+        subConfig = $${subInstall}.CONFIG
+        subFiles = $${subInstall}.files
+        subPath = $${subInstall}.path
+        $$subTarget = $${output}/$${target}$${extension}
+        $$subFiles = $${OUT_PWD}/$${test_helper}$${extension}
+        $$subPath = $${target.path}/$${output}
+        $$subConfig += no_check_exist executable
+        INSTALLS += $${subInstall}
+    }
+}
+
+} # have_target
+

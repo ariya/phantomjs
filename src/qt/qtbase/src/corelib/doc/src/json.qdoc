@@ -1,0 +1,112 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \group json
+    \title JSON Support in Qt
+    \ingroup qt-basic-concepts
+    \brief An overview of JSON support in Qt.
+
+    \ingroup frameworks-technologies
+
+    \keyword JSON
+
+    Qt provides support for dealing with JSON data. JSON is a
+    format to encode object data derived from Javascript, but
+    now widely used as a data exchange format on the internet.
+
+    The JSON support in Qt provides an easy to use C++ API to parse,
+    modify and save JSON data. It also contains support for saving this
+    data in a binary format that is directly "mmap"-able and very fast to
+    access.
+
+    More details about the JSON data format can be found at \l{http://json.org}{json.org}
+    and in \l{http://tools.ietf.org/html/rfc4627}{RFC-4627}.
+
+    \tableofcontents
+
+    \section1 Overview
+
+    JSON is a format to store structured data. It has 6 basic data types:
+
+    \list
+    \li bool
+    \li double
+    \li string
+    \li array
+    \li object
+    \li null
+    \endlist
+
+    A value can have any of the above types. A boolean value is represented by the
+    strings true or false in JSON. JSON doesn't explicitly specify the valid range
+    for numbers, but the support in Qt is limited to the validity range and precision of
+    doubles. A string can be any valid unicode string. An array is a list of values, and an
+    object is a collection of key/value pairs. All keys in an object are strings, and
+    an object cannot contain any duplicate keys.
+
+    The text representation of JSON encloses arrays in square brackets ([ ... ]) and
+    objects in curly brackets ({ ... }). Entries in arrays and objects are separated by
+    commas. The separator between keys and values in an object is a colon (:).
+
+    A simple JSON document encoding a person, his/her age, address and phone numbers could
+    look like:
+
+    \code
+    {
+        "FirstName": "John",
+        "LastName": "Doe",
+        "Age": 43,
+        "Address": {
+            "Street": "Downing Street 10",
+            "City": "London",
+            "Country": "Great Britain"
+        },
+        "Phone numbers": [
+            "+44 1234567",
+            "+44 2345678"
+        ]
+    }
+    \endcode
+
+    The above example consists of an object with 5 key/value pairs. Two of the values are strings,
+    one is a number, one is another object and the last one an array.
+
+    A valid JSON document is either an array or an object, so a document always starts
+    with a square or curly bracket.
+
+    \sa {JSON Save Game Example}
+
+
+    \section1 The JSON Classes
+
+    All JSON classes are value based,
+    \l{Implicit Sharing}{implicitly shared classes}.
+
+    JSON support in Qt consists of these classes:
+
+*/

@@ -1,0 +1,27 @@
+#!/bin/sh
+
+FILE="$1"
+RES="$FILE"
+
+CUT_ARG="-b1"
+if [ `uname -s` = "QNX" ]; then
+    # QNX does not understand "-b1"
+    CUT_ARG="-c1"
+fi
+
+if [ `echo $FILE | cut $CUT_ARG` = "/" ]; then
+    true
+elif [ "$OSTYPE" = "msys" -a -z "${FILE##[a-zA-Z]:[/\\]*}" ]; then
+    true
+else
+    RES="$PWD/$FILE"
+fi
+RES=$RES/
+while true; do
+    nres=`echo "$RES" | sed "s,/[^/][^/]*/\.\./,/,g; s,/\./,/,g"`
+    test x"$nres" = x"$RES" && break
+    RES=$nres
+done
+RES=`echo "$RES" | sed "s,//,/,g; s,/$,,"`
+echo $RES #return
+

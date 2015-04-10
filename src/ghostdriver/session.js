@@ -1,7 +1,7 @@
 /*
 This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2014, Ivan De Marino <http://ivandemarino.me>
+Copyright (c) 2012-2014, Ivan De Marino <http://ivandemarino.me>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -40,6 +40,10 @@ ghostdriver.Session = function(desiredCapabilities) {
         LOG_TYPES           : {
             HAR                 : "har",
             BROWSER             : "browser"
+        },
+        PROXY_TYPES         : {
+            MANUAL              : "manual",
+            DIRECT              : "direct"
         }
     };
 
@@ -63,8 +67,8 @@ ghostdriver.Session = function(desiredCapabilities) {
         "acceptSslCerts" : false,           //< TODO
         "nativeEvents" : true,              //< TODO Only some commands are Native Events currently
         "proxy" : {                         //< TODO Support more proxy options - PhantomJS does allow setting from command line
-            "proxyType" : "direct"
-        }
+            "proxyType" : _const.PROXY_TYPES.DIRECT
+        },
     },
     _negotiatedCapabilities = {
         "browserName"               : _defaultCapabilities.browserName,
@@ -106,10 +110,38 @@ ghostdriver.Session = function(desiredCapabilities) {
     _inputs = ghostdriver.Inputs(),
     _capsPageSettingsPref = "phantomjs.page.settings.",
     _capsPageCustomHeadersPref = "phantomjs.page.customHeaders.",
+    _capsPageSettingsProxyPref = "proxy",
     _pageSettings = {},
+    _additionalPageSettings = {
+        userName: null,
+        password: null
+    },
     _pageCustomHeaders = {},
     _log = ghostdriver.logger.create("Session [" + _id + "]"),
-    k, settingKey, headerKey;
+    k, settingKey, headerKey, proxySettings;
+
+    var
+    /**
+     * Parses proxy JSON object and return proxy settings for phantom
+     *
+     * @param proxyCapability proxy JSON Object: @see https://code.google.com/p/selenium/wiki/DesiredCapabilities
+     */
+    _getProxySettingsFromCapabilities = function(proxyCapability) {
+        var proxySettings = {};
+        if (proxyCapability["proxyType"].toLowerCase() == _const.PROXY_TYPES.MANUAL) {      //< TODO: support other options
+            if (proxyCapability["httpProxy"] !== "null") {                                  //< TODO: support other proxy types
+                var urlParts = proxyCapability["httpProxy"].split(':');
+                proxySettings["ip"] = urlParts[0];
+                proxySettings["port"] = urlParts[1];
+                proxySettings["proxyType"] = "http";
+                proxySettings["user"] = "";
+                proxySettings["password"] = "";
+
+                return proxySettings;
+            }
+        }
+        return proxySettings;
+    };
 
     // Searching for `phantomjs.settings.* and phantomjs.customHeaders.*` in the Desired Capabilities and merging with the Negotiated Capabilities
     // Possible values for settings: @see https://github.com/ariya/phantomjs/wiki/API-Reference#wiki-webpage-settings.
@@ -128,6 +160,10 @@ ghostdriver.Session = function(desiredCapabilities) {
                 _negotiatedCapabilities[k] = desiredCapabilities[k];
                 _pageCustomHeaders[headerKey] = desiredCapabilities[k];
             }
+        }
+        if (k.indexOf(_capsPageSettingsProxyPref) === 0) {
+            proxySettings = _getProxySettingsFromCapabilities(desiredCapabilities[k]);
+            phantom.setProxy(proxySettings["ip"], proxySettings["port"], proxySettings["proxyType"], proxySettings["user"], proxySettings["password"]);
         }
     }
 
@@ -334,7 +370,7 @@ ghostdriver.Session = function(desiredCapabilities) {
         // 6. Applying Page settings received via capabilities
         for (k in _pageSettings) {
             // Apply setting only if really supported by PhantomJS
-            if (page.settings.hasOwnProperty(k)) {
+            if (page.settings.hasOwnProperty(k) || _additionalPageSettings.hasOwnProperty(k)) {
                 page.settings[k] = _pageSettings[k];
             }
         }
@@ -700,4 +736,3 @@ ghostdriver.Session = function(desiredCapabilities) {
         getLogTypes: _getLogTypes
     };
 };
-

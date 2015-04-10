@@ -1,0 +1,1075 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page 14-qdoc-commands-contextcommands.html
+    \previouspage Topic Commands
+    \contentspage QDoc Manual
+    \nextpage Document Navigation
+
+    \title Context Commands
+
+    The context commands provide information about the element being
+    documented that QDoc can't deduce on its own. For example:
+    \list
+    \li Is this class thread-safe?
+    \li Is this function reentrant?
+    \li Of which module is this class a member ?
+    \endlist
+
+    Context commands can appear anywhere in a QDoc comment,
+    but they are normally placed near the top of the comment, just
+    below the \l {Topic Commands} {topic} command.
+
+    \list
+      \li \l {compat-command}{\\compat},
+      \li \l {contentspage-command}{\\contentspage},
+      \li \l {indexpage-command}{\\indexpage},
+      \li \l {ingroup-command}{\\ingroup},
+      \li \l {inherits-command}{\\inherits},
+      \li \l {inmodule-command}{\\inmodule},
+      \li \l {internal-command}{\\internal},
+      \li \l {mainclass-command}{\\mainclass},
+      \li \l {nextpage-command}{\\nextpage},
+      \li \l {nonreentrant-command}{\\nonreentrant},
+      \li \l {obsolete-command}{\\obsolete},
+      \li \l {overload-command}{\\overload},
+      \li \l {preliminary-command}{\\preliminary},
+      \li \l {previouspage-command}{\\previouspage},
+      \li \l {reentrant-command}{\\reentrant},
+      \li \l {reimp-command}{\\reimp},
+      \li \l {relates-command}{\\relates},
+      \li \l {since-command}{\\since},
+      \li \l {startpage-command}{\\startpage},
+      \li \l {subtitle-command}{\\subtitle}
+      \li \l {threadsafe-command}{\\threadsafe},
+      \li \l {title-command}{\\title}
+    \endlist
+
+*/
+
+/*!
+    \page 15-qdoc-commands-navigation.html
+    \previouspage Context Commands
+    \contentspage QDoc Manual
+    \nextpage Reporting Status
+
+    \title Document Navigation
+
+    The navigation commands are for linking the pages of a document in
+    a meaningful sequence. Below is a sequence of QDoc comments that
+    shows a typical use of the navigation commands.
+
+    \section1 Example
+    \quotefile files/basicqt.qdoc.sample
+
+    QDoc renders the "Getting Started" page in \c{creatingdialogs.html}:
+
+    \quotation
+    \raw HTML
+        <table border="0" cellpadding="0" cellspacing="5" width="100%">
+
+        <tr>
+        <p>
+        [Previous: <a href="15-qdoc-commands-navigation.html#deadlink">
+        Basic Qt</a>]
+        [<a href="15-qdoc-commands-navigation.html#deadlink">Contents</a>]
+        [Next: <a href="15-qdoc-commands-navigation.html#deadlink">
+        Creating Dialogs</a>]
+        </p>
+
+        <h1 align="center">Getting Started<br /></h1>
+
+        <p>
+        This chapter shows how to combine basic C++ with the
+        functionality provided by Qt to create a few small graphical
+        interface (GUI) applications.
+        </p>
+
+        <p>
+        [Previous: <a href="15-qdoc-commands-navigation.html#deadlink">
+        Basic Qt</a>]
+        [<a href="15-qdoc-commands-navigation.html#deadlink">Contents</a>]
+        [Next: <a href="15-qdoc-commands-navigation.html#deadlink">
+        Creating Dialogs</a>]
+        </p>
+
+        </table>
+    \endraw
+    \endquotation
+
+    The \l {indexpage-command} {\\indexpage} and \l
+    {startpage-command} {\\startpage} commands create links to the
+    page's index page and start page. These links can be used by
+    browsers and search engines.
+
+    The index page is typically an alphabetical list of the document's
+    titles and topics, while the start page is the page considered by
+    the author to be the starting point of a multipage document.
+
+    The links are included in the generated HTML source code, but have
+    no visual effect on the documentation:
+
+    \code
+    <head>
+        ...
+        <link rel="index" href="index.html" />
+        <link rel="start" href="basicqt.html" />
+        ...
+    </head>
+    \endcode
+
+    \section1 Commands
+
+    \target previouspage-command
+    \section2 \\previouspage
+
+    The \\previouspage command links the current page to the previous
+    page in a sequence.a The command has two arguments, each enclosed
+    by curly braces: the first is the link target (the title of
+    the previous page), the second is the link text. If the page's
+    title is equivalent to the link text, the second argument can be
+    omitted.
+
+    The command must stand alone on its own line.
+
+    \target nextpage-command
+    \section2 \\nextpage
+
+    The \\nextpage command links the current page to the next page in
+    a sequence. The command follows the same syntax and argument
+    convention as the \l {previouspage-command} {\\previouspage}
+    command.
+
+    \target startpage-command
+    \section2 \\startpage
+
+    The \\startpage command specifies the first page of a sequence of
+    pages. The command must stand alone on its own line, and its
+    unique argument is the title of the first document.
+
+    QDoc will generate a link to the start page and include it in the
+    generated HTML file, but this has no visual effect on the
+    documentation. The generated link type tells browsers and search
+    engines which document is considered by the author to be the
+    starting point of the collection.
+
+    \target contentspage-command
+    \section2 \\contentspage
+
+    The \\contentspage command links the current page to a table of
+    contents page. The command follows the same syntax and argument
+    convention as the \l {previouspage-command} {\\previouspage}
+    command.
+
+    \target indexpage-command
+    \section2 \\indexpage
+
+    The \\indexpage command specifies an index page for the current
+    document. The command must stand alone on its own line, and its
+    unique argument is the title of the index document.
+
+    QDoc will generate a link to the index page and include it in the
+    generated HTML file, but this has no visual effect on the
+    documentation. The generated link type tells browsers and search
+    engines which document is considered by the author to be the
+    index page of the collection.
+*/
+
+
+/*!
+    \page 16-qdoc-commands-status.html
+    \previouspage Document Navigation
+    \contentspage QDoc Manual
+    \nextpage Thread Support
+
+    \title Reporting Status
+
+    These commands are for indicating that a documented element is
+    still under development, is becoming obsolete, is provided for
+    compatibility reasons, or is simply not to be included in the
+    public interface. The \l {since-command}{\\since} command is for
+    including information about the version when a function or class
+    first appeared.
+
+    \target compat-command
+    \section1 \\compat
+
+    The \\compat command is for indicating that a class or function is
+    part of the support library provided to keep old source code
+    working.
+
+    The command must stand on its own line.
+
+    Usually an equivalent function or class is provided as an
+    alternative.
+
+    If the command is used in the documentation of a class, the
+    command expands to a warning that the referenced class is part of
+    the support library. The warning is located at the top of the
+    documentation page.
+
+    \code
+    \beginqdoc
+        \class MyQt3SupportClass
+        \compat
+    \endqdoc
+    \endcode
+
+    QDoc renders this at the top of the MyQt3SupportClass class
+    reference page.
+
+    \quotation
+        \b {This class is part of the Qt 3 support
+        library.} It is provided to keep old source code
+        working. We strongly advise against using it in new
+        code. See the \l
+        {http://doc.qt.digia.com/4.0/porting4.html} {Porting
+        Guide} for more information.
+    \endquotation
+
+    If the command is used when documenting a function, QDoc will
+    create and link to a separate page documenting Qt 3 support
+    members when generating the reference documentation for the
+    associated class.
+
+    \code
+    \beginqdoc
+        \fn MyClass::MyQt3SupportMemberFunction
+        \compat
+
+        Use MyNewFunction() instead.
+    \endqdoc
+    \endcode
+
+    QDoc renders this in \c{myclass-qt3.html} as:
+
+    \quotation
+        \raw HTML
+        <h1>Qt 3 Support Members for MyClass</h1>
+        \endraw
+
+        \b {The following class members are part of the Qt 3
+        support layer.} They are provided to help you port old code to
+        Qt 4. We advise against using them in new code.
+
+        ...
+
+        \list
+            \li void MyQt3SupportMemberFunction()
+            \li ...
+        \endlist
+
+        \raw HTML
+        <hr />
+        <h2>Member Function Documentation</h2>
+        <h3>void MyQt3SupportMemberFunction ()</h3>
+        <p>Use MyNewFunction() instead.</p>
+        \endraw
+        ...
+    \endquotation
+
+    \target default-command
+    \section1 \\default
+
+    The \\default command is for marking a QML property as the
+    \l {default-properties}
+    {default property}. The word \span {class="newStuff"} {default} is shown in red in
+    the documentation of the property.
+
+    \code
+    / *!
+        \qmlproperty list<Change> State::changes
+        This property holds the changes to apply for this state.
+        \default
+
+        By default these changes are applied against the default state. If the state
+        extends another state, then the changes are applied against the state being
+        extended.
+    * /
+    \endcode
+
+    See how QDoc renders this property on the reference page for the
+    \l {State::changes}{State} type.
+
+    \target obsolete-command
+    \section1 \\obsolete
+
+    The \\obsolete command is for indicating that a function is being
+    deprecated, and it should no longer be used in new code. There is
+    no guarantee for how long it will remain in the library.
+
+    The command must stand on its own line.
+
+    When generating the reference documentation for a class, QDoc will
+    create and link to a separate page documenting its obsolete
+    functions. Usually an equivalent function is provided as an
+    alternative.
+
+    \code
+    / *!
+        \fn MyClass::MyObsoleteFunction
+        \obsolete
+
+        Use MyNewFunction() instead.
+    * /
+    \endcode
+
+    QDoc renders this in \c{myclass-obsolete.html} as:
+
+    \quotation
+        \raw HTML
+        <h1>Obsolete Members for MyClass</h1>
+        \endraw
+
+        \b {The following class members are obsolete.} They are
+        provided to keep old source code working. We strongly advise
+        against using them in new code.
+
+        ...
+
+        \list
+            \li void MyObsoleteFunction() \c (obsolete)
+            \li ...
+        \endlist
+
+        \raw HTML
+        <hr />
+        <h2>Member Function Documentation</h2>
+        <h3>void MyObsoleteFunction ()</h3>
+        <p>Use MyNewFunction() instead.</p>
+        \endraw
+        ...
+    \endquotation
+
+    \target internal-command
+    \section1 \\internal
+
+    The \\internal command indicates that the referenced
+    function is not part of the public interface.
+
+    The command must stand on its own line.
+
+    QDoc ignores the documentation as well as the documented item,
+    when generating the associated class reference documentation.
+
+    \code
+    / *!
+        \internal
+
+        Tries to find the decimal separator. If it can't find
+        it and the thousand delimiter is != '.' it will try to
+        find a '.';
+    * /
+    int QDoubleSpinBoxPrivate::findDelimiter
+            (const QString &str, int index) const
+    {
+        int dotindex = str.indexOf(delimiter, index);
+        if (dotindex == -1 && thousand != dot && delimiter != dot)
+            dotindex = str.indexOf(dot, index);
+        return dotindex;
+    }
+    \endcode
+
+    This function will not be included in the documentation.
+
+    \target preliminary-command
+    \section1 \\preliminary
+
+    The \\preliminary command is for indicating that a referenced
+    function is still under development.
+
+    The command must stand on its own line.
+
+    The \\preliminary command expands to a notification in the
+    function documentation, and marks the function as preliminary when
+    it appears in lists.
+
+    \code
+    / *!
+        \preliminary
+
+        Returns information about the joining properties of the
+        character (needed for certain languages such as
+        Arabic).
+    * /
+    QChar::Joining QChar::joining() const
+    {
+        return ::joining(*this);
+    }
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+        \raw HTML
+        <h3>
+        <a href="http://qt-project.org/doc/qt-5.0/qtcore/qchar.html#Joining-enum">Joining</a>
+        QChar::joining () const</h3>
+        \endraw
+
+        \b {This function is under development and
+        subject to change.}
+
+        Returns information about the joining properties of the
+        character (needed for certain languages such as
+        Arabic).
+    \endquotation
+
+    And the function's entry in QChar's list of functions will be
+    rendered as:
+
+    \quotation
+        \list
+        \li ...
+        \li Joining
+           \l {Joining-enum}
+              {joining}()
+           const   \c (preliminary)
+       \li ...
+       \endlist
+    \endquotation
+
+    \target since-command
+    \section1 \\since
+
+    The \\since command tells in which minor release
+    the associated functionality was added.
+
+    \code
+    / *!
+        \since 4.1
+
+        Returns an icon for \a standardIcon.
+
+        ...
+
+        \sa standardPixmap()
+    * /
+    QIcon QStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *option, const QWidget *widget) const
+    {
+    }
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+        \raw HTML
+        <h3>QIcon QStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *option, const QWidget *widget) const</h3>
+        \endraw
+
+        This function was introduced in Qt version 4.1
+
+        Returns an icon for \a standardIcon.
+
+        ...
+
+        See also \l {QStyle::standardPixmap()} {standardPixmap()}.
+    \endquotation
+
+    QDoc generates the "Qt" reference from the \l
+    {25-qdoc-configuration-derivedprojects.html#project} {\c project}
+    configuration variable. For that reason this reference will change
+    according to the current documentation project.
+
+    See also \l {project}
+    {\c project}.
+*/
+
+
+/*!
+    \page 17-qdoc-commands-thread.html
+    \previouspage Reporting Status
+    \contentspage QDoc Manual
+    \nextpage Relating Things
+
+    \title Thread Support
+
+    The thread support commands are for specifying the level of
+    support for multithreaded programming in a class or function.
+    There are three levels of support: \c threadsafe, \c reentrant and
+    \c nonreentrant.
+
+    The default is \c nonreentrant which means that the associated
+    class or function cannot be called by multiple threads. \c
+    Reentrant and \c threadsafe are levels primarily used for classes.
+
+    \c Reentrant means that all the functions in the referenced class
+    can be called simultaneously by multiple threads, provided that
+    each invocation of the functions reference unique data. While \c
+    threadsafe means that all the functions in the referenced class
+    can be called simultaneously by multiple threads even when each
+    invocation references shared data.
+
+    When a class is marked \l {reentrant-command} {\\reentrant} or \l
+    {threadsafe-command} {\\threadsafe}, functions in that class can
+    be marked \c nonreentrant using the \l {nonreentrant-command}
+    {\\nonreentrant} command.
+
+    \section1 Example
+
+    \target reentrant-example
+    \code
+    \beginqdoc
+        \class QLocale
+        \brief The QLocale class converts between numbers and their
+        string representations in various languages.
+
+        \reentrant
+        \ingroup i18n
+        \ingroup text
+        \mainclass
+
+        QLocale is initialized with a language/country pair in its
+        constructor and offers number-to-string and string-to-number
+        conversion functions similar to those in QString.
+
+        ...
+
+        \nonreentrant
+
+        Sets the global default locale to \a locale. These values are
+        used when a QLocale object is constructed with no
+        arguments. If this function is not called, the system's locale
+        is used.
+
+        \warning In a multithreaded application, the default locale
+        should be set at application startup, before any non-GUI
+        threads are created.
+
+        \sa system(), c()
+    \endqdoc
+    void QLocale::setDefault(const QLocale &locale)
+    {
+        default_d = locale.d;
+    }
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+        \raw HTML
+            <h1><center>QLocale Class Reference</center></h1>
+        \endraw
+
+        The QLocale class converts between numbers and their string
+        representations in various languages. More...
+
+        \code
+        #include <QLocale>
+        \endcode
+
+        \b {Note:} All the functions in this class are \l
+        {17-qdoc-commands-thread.html#reentrant} {reentrant}, except \l
+        {QLocale::setDefault()} {setDefault()}.
+
+        ...
+
+        \raw HTML
+            <hr />
+            <h2>Member Type Documentation</h2>
+        \endraw
+
+        ...
+
+        \raw HTML
+            <h3>void QLocale::setDefault ( const QLocale & locale ) </h3>
+        \endraw
+
+        Sets the global default locale to locale. These values are
+        used when a QLocale object is constructed with no
+        arguments. If this function is not called, the system's locale
+        is used.
+
+        \warning In a multithreaded application, the default locale
+        should be set at application startup, before any non-GUI
+        threads are created.
+
+        \warning This function is not reentrant.
+
+        See also \l {QLocale::system()} {system()} and \l
+        {QLocale::c()} {c()}.
+
+        ...
+    \endquotation
+
+    As shown above, QDoc generates a notification when a class is
+    declared reentrant, and lists the exceptions (the declared
+    nonreentrant functions). A link to the general documentation on \l
+    {17-qdoc-commands-thread.html#reentrant} {reentrancy and thread-safety} is
+    included. In addition a warning, "\b Warning: This function is
+    not reentrant.", is generated in the nonreentrant functions'
+    documentation.
+
+    QDoc will generate the same notification and warnings when a class
+    is declared threadsafe.
+
+    For more information see the general documentation on \l
+    {17-qdoc-commands-thread.html#reentrant} {reentrancy and thread-safety}.
+
+    \section1 Commands
+
+    \target threadsafe-command
+    \section2 \\threadsafe
+
+    The \\threadsafe command includes a line in the documentation to
+    indicate that the associated class or function is \e threadsafe
+    and can be called simultaneously by multiple threads, even when
+    separate invocations reference shared data.
+
+    The command must stand on its own line.
+
+    The documentation generated from this command will be similar to
+    the what is generated for the \l {reentrant-command} {\\reentrant}
+    command. See the example above in the \l {reentrant-example}
+    {introduction}.
+
+    See also \l{reentrant-command} {\\reentrant} and
+    \l{nonreentrant-command} {\\nonreentrant}.
+
+    \target reentrant-command
+    \section2 \\reentrant
+
+    The \\reentrant command indicates that the associated class or
+    function can be called simultaneously by multiple threads,
+    provided that each invocation references its own data. See the \l
+    {reentrant-example} {example} above.
+
+    The command must stand on its own line.
+
+    See also \l{nonreentrant-command} {\\nonreentrant} and
+    \l{threadsafe-command} {\\threadsafe}.
+
+    \target nonreentrant-command
+    \section2 \\nonreentrant
+
+    The \\nonreentrant command indicates that the associated class or
+    function cannot be called by multiple threads. Nonreentrant is the
+    default case.
+
+    The command must stand on its own line.
+
+    When a class is marked \l {reentrant-command} {\\reentrant} or \l
+    {threadsafe-command} {\\threadsafe}, functions in that class can
+    be marked \c nonreentrant using this command in the \l{fn-command}
+    {\\fn} comment of the functions to be excluded.
+
+    See also \l{reentrant-command} {\\reentrant} and
+    \l{threadsafe-command} {\\threadsafe}.
+*/
+
+    / *!
+
+/*!
+    \page 18-qdoc-commands-relating.html
+    \previouspage Thread Support
+    \contentspage QDoc Manual
+    \nextpage Grouping Things
+
+    \title Relating Things
+
+    The relating commands are for specifying how one documented
+    element relates to another documented element. Some examples:
+    \list
+    \li This function is an overload of another function.
+    \li This function is a reimplementation of another function.
+    \li This typedef is \e related to some class or header file.
+    \endlist
+
+    There is also a command for documenting that a QML type inherits
+    some other QML type.
+
+    \section1 Commands
+
+    \target inherits-command
+    \section2 \\inherits
+
+    The \\inherits command is for documenting that one QML type
+    inherits some other QML type. It must be included in the
+    inheriting element's \l{qmltype-command}{\\qmltype} comment.
+    The argument is the name of the inherited QML type.
+
+    \code
+    / *!
+        \qmltype PauseAnimation
+        \instantiates QDeclarativePauseAnimation
+        \ingroup qml-animation-transition
+        \since 4.7
+        \inherits Animation
+        \brief The PauseAnimation element provides a pause for an animation.
+
+        When used in a SequentialAnimation, PauseAnimation is a step
+        when nothing happens, for a specified duration.
+
+        A 500ms animation sequence, with a 100ms pause between two animations:
+
+        SequentialAnimation {
+            NumberAnimation { ... duration: 200 }
+            PauseAnimation { duration: 100 }
+            NumberAnimation { ... duration: 200 }
+        }
+
+        \sa {QML Animation and Transitions}, {declarative/animation/basics}{Animation basics example}
+    * /
+    \endcode
+
+    QDoc includes this line on the reference page for the
+    \l{http://qt-project.org/doc/qt-4.7/qml-pauseanimation.html} {PauseAnimation}
+    element:
+
+    \quotation
+        Inherits \l{http://qt-project.org/doc/qt-4.7/qml-animation.html} {Animation}
+    \endquotation
+
+    \target overload-command
+    \section2 \\overload
+
+    The \\overload command is for indicating that a function is a
+    secondary overload of its name.
+
+    The command must stand on its own line.
+
+    For a function name that is overloaded (except constructors), QDoc
+    expects one primary version of the function, and all the others
+    marked with the \b {\\overload command}. The primary version
+    should be fully documented. Each overload can have whatever extra
+    documentation you want to add for just that overloaded version.
+
+    From Qt 4.5, you can include the function name plus '()' as a
+    parameter to the \b{\\overload} command, which will include a
+    standard \e{This function overloads...}  line of text with a link
+    to the documentation for the primary version of the function.
+
+    \code
+    / *!
+        \overload addAction()
+
+        This convenience function creates a new action with an
+        \a icon and some \a text. The function adds the newly
+        created action to the menu's list of actions, and
+        returns it.
+
+        \sa QWidget::addAction()
+    * /
+    QAction *QMenu::addAction(const QIcon &icon, const QString &text)
+    {
+        QAction *ret = new QAction(icon, text, this);
+        addAction(ret);
+        return ret;
+    }
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+        \raw HTML
+        <h3><a href="http://qt-project.org/doc/qt-5.0/qtwidgets/qaction.html">QAction</a>
+        * QMenu::addAction ( const QIcon & <i>icon</i>,
+        const QString & <i>text</i> )
+        </h3>
+        \endraw
+
+    This function overloads \l {addAction} {addAction()}
+
+        This convenience function creates a new action with an
+        \e icon and some \e text. The function adds the newly
+        created action to the menu's list of actions, and
+        returns it.
+
+        See also
+        \l {addAction}
+        {QWidget::addAction}().
+    \endquotation
+
+    If you don't include the function name with the \b{\\overlaod}
+    command, then instead of the "This function overloads..." line
+    with the link to the documentation for the primary version, you
+    get the old standard line:
+
+    \quotation
+        This is an overloaded member function, provided for
+        convenience.
+    \endquotation.
+
+    \target reimp-command
+    \section2 \\reimp
+
+    The \\reimp command is for indicating that a function is a
+    reimplementation of a virtual function.
+
+    The command must stand on its own line.
+
+    QDoc will omit the reimplemented function from the class
+    reference.
+
+    \code
+    / *!
+        \reimp
+    * /
+    void QToolButton::nextCheckState()
+    {
+        Q_D(QToolButton);
+        if (!d->defaultAction)
+            QAbstractButton::nextCheckState();
+        else
+            d->defaultAction->trigger();
+    }
+    \endcode
+
+    This function will not be included in the documentation. Instead,
+    a link to the base function QAbstractButton::nextCheckState() will
+    appear in the documentation.
+
+    \target relates-command
+    \section2 \\relates
+
+    The \\relates command is for including the documentation of a
+    global element to some class or header file. The argument is a
+    class name or header file.
+
+    \code
+    / *!
+        \relates QChar
+
+        Reads a char from the stream \a in into char \a chr.
+
+        \sa {Format of the QDataStream operators}
+    * /
+    QDataStream &operator>>(QDataStream &in, QChar &chr)
+    {
+        quint16 u;
+        in >> u;
+        chr.unicode() = ushort(u);
+        return in;
+    }
+    \endcode
+
+    The documentation for this function will be included on the reference page
+    for class QChar.
+*/
+
+/*!
+    \page 19-qdoc-commands-grouping.html
+    \previouspage Relating Things
+    \contentspage QDoc Manual
+    \nextpage Naming Things
+
+    \title Grouping Things
+
+    The grouping commands relate classes to defined groups and
+    modules. The groups are used when generating lists of related
+    classes in the documentation, while the modules are elements of
+    Qt's structure.
+
+    \section1 Commands
+
+    \target mainclass-command
+    \section2 \\mainclass
+
+    The \\mainclass command relates the documented class to
+    a group called mainclasses.
+
+    The command must stand on its own line.
+
+    \code
+    / *!
+        \class QWidget qwidget.h
+        \brief The QWidget class is the base class of
+        all user interface objects.
+
+        \mainclass
+
+        ...
+    * /
+    \endcode
+
+    This will include the QWidget class in the \e mainclasses
+    group, which means, for example, that the class will appear on the
+    list created by calling the \l {generatelist-command}
+    {\\generatelist} command with the \c mainclasses argument:
+
+    \l http://doc.qt.digia.com/4.0/mainclasses.html
+
+    \note The Qt documentation no longer includes the \e mainclasses
+    page.
+
+    See also \l {generatelist-command} {\\generatelist}.
+
+    \target ingroup-command
+    \section2 \\ingroup
+
+    The \\ingroup command indicates that the given
+    overview or documented class belongs to a certain group of
+    related docmentation.
+
+    A class or overview may belong to many groups.
+
+    The \\ingroup command's argument is a group name, but note
+    that the command considers the rest of the line as part of
+    its argument. Make sure that the group name is followed by
+    a linebreak.
+
+    \code
+    / *!
+        \class QDir
+        \brief The QDir class provides access to directory
+               structures and their contents.
+
+        \ingroup io
+        ...
+    * /
+    \endcode
+
+    This will include the QDir class in the \c io group, which means,
+    for example, that QDir will appear on the list created by calling
+    the \l {group-command} {\\group} command with the \c io argument.
+
+    To list overviews that are related to a certain group, you must
+    generate the list explicitly using the \l {generatelist-command}
+    {\\generatelist} command with the \c related argument.
+
+    See also \l {group-command} {\\group}.
+
+    \target inmodule-command
+    \section2 \\inmodule
+
+    The \\inmodule command relates a class to the module specified by
+    the command's argument.
+
+    For the basic classes in Qt, a class's module is determined by its
+    location, namely its directory. However, for extensions like
+    ActiveQt and Qt Designer, a class must be related to a module
+    explicitly.
+
+    The command's argument is a module name, but note that the command
+    considers the rest of the line as part of its argument. Make sure
+    that the module name is followed by a linebreak.
+
+    \code
+    /*!
+        \class QDesignerTaskMenuExtension
+        \inmodule QtDesigner
+    * /
+    \endcode
+
+    This ensures that the QDesignerTaskMenuExtension class is included
+    in the Qt Designer module, which means, for example, that the
+    class will appear on the list created by calling the \l
+    {generatelist-command} {\\generatelist} command with the \c
+    {{classesbymodule QtDesigner}} argument.
+
+    See also \l {module-command} {\\module} and \l
+    {generatelist-command} {\\generatelist}.
+*/
+
+/*!
+    \page 20-qdoc-commands-namingthings.html
+    \previouspage Grouping Things
+    \contentspage QDoc Manual
+    \nextpage Markup Commands
+
+    \title Naming Things
+
+    In general, a title command considers everything that follows it
+    until the first line break as its argument. If the title is so
+    long it must span multiple lines, end each line (except the last
+    one) with a backslash.
+
+    \section1 Commands
+
+    \target title-command
+    \section2 \\title
+
+    The \\title command sets the title for a documentation page, or
+    allows you to override it.
+
+    \code
+    / *!
+        \page signalandslots.html
+
+        \title Signals & Slots
+
+        Signals and slots are used for communication between
+        objects. The signals and slots mechanism is a central
+        feature of Qt, and probably the part that differs most
+        from the features provided by other frameworks.
+
+        ...
+    * /
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+        \raw HTML
+            <h1><center>Signal and Slots</center></h1>
+        \endraw
+
+        Signals and slots are used for communication between
+        objects. The signals and slots mechanism is a central
+        feature of Qt and probably the part that differs most
+        from the features provided by other frameworks.
+        ...
+    \endquotation
+    See also \l {subtitle-command} {\\subtitle}.
+
+    \target subtitle-command
+    \section2 \\subtitle
+
+    The \\subtitle command sets a subtitle for a documentation page.
+
+    \code
+    \beginqdoc
+        \page qtopiacore-overview.html
+
+        \title Qtopia Core
+        \subtitle Qt for Embedded Linux
+
+        Qt/Embedded, the embedded Linux port of Qt, is a
+        complete and self-contained C++ GUI and platform
+        development tool for Linux-based embedded development.
+        ...
+    \endqdoc
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+        \raw HTML
+            <h1><center>Qtopia Core</center></h1>
+            <h2><center>Qt for Embedded Linux</center></h2>
+        \endraw
+
+        Qt/Embedded, the embedded Linux port of Qt, is a
+        complete and self-contained C++ GUI and platform
+        development tool for Linux-based embedded development.
+        ...
+    \endquotation
+
+    See also \l {title-command} {\\title}.
+
+*/

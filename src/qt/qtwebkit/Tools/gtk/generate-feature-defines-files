@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+
+import os
+import re
+import sys
+
+def read_feature_defines_override(feature_defines):
+    feature_defines_overriding_file = 'WebKitFeatureOverrides.txt'
+    if not os.path.exists(feature_defines_overriding_file):
+        return
+
+    print("The following feature defines were overriden:")
+    with open(feature_defines_overriding_file) as f:
+        match_iter = re.findall(r"((?:ENABLE_)\w+)=(0|1)", f.read())
+
+    for match in match_iter:
+        feature = match[0]
+        value = int(match[1])
+
+        if feature in feature_defines and value != feature_defines[feature]:
+            print("\t{0}: {1} => {2}".format(feature, feature_defines[feature], value))
+        feature_defines[feature] = value
+
+def write_file_if_contents_changed(filename, contents):
+    if os.path.exists(filename):
+        with open(filename, 'r') as f:
+            old_contents = f.read()
+        if old_contents == contents:
+            return
+    with open(filename, 'w') as f:
+        f.write(contents)
+
+def write_feature_defines_header(feature_defines):
+    contents = ''
+    for (feature, value) in feature_defines.items():
+        contents += '#define {0} {1}\n'.format(feature, value)
+    write_file_if_contents_changed("WebKitFeatures.h", contents)
+
+def write_flattened_feature_defines_file(feature_defines):
+    contents = ''
+    for (feature, value) in feature_defines.items():
+        contents += '{0}={1}\n'.format(feature, value)
+    write_file_if_contents_changed("WebKitFeatures.txt", contents)
+
+def generate_feature_defines_files(default_features):
+    build_dir = os.getcwd()
+    feature_defines = {}
+
+    for feature_define in default_features:
+        (feature, value) = feature_define.split("=")
+        feature_defines[feature] = int(value)
+
+    read_feature_defines_override(feature_defines)
+    write_feature_defines_header(feature_defines)
+    write_flattened_feature_defines_file(feature_defines)
+
+if __name__=='__main__':
+    generate_feature_defines_files(sys.argv[1:])

@@ -19,10 +19,6 @@ describe("require()", function() {
         require('system').platform.should.equal('phantomjs');
     });
 
-    it("loads CoffeeScript modules", function() {
-        require('./coffee_dummy').should.equal('require/coffee_dummy');
-    });
-
     it("doesn't expose CoffeeScript", function() {
         should.not.exist(window.CoffeeScript);
     });
@@ -60,7 +56,7 @@ describe("require()", function() {
         }).should.Throw("Cannot find module 'dummy_missing'");
     });
 
-    it("maintains proper .stack when module not found", function() {
+    xit("maintains proper .stack when module not found", function() {
         try {
             require('./not_found').requireNonExistent();
         } catch (e) {
@@ -68,7 +64,7 @@ describe("require()", function() {
         }
     });
 
-    it("maintains proper .stack when an error is thrown in module's exports", function() {
+    xit("maintains proper .stack when an error is thrown in module's exports", function() {
         try {
             require('./thrower').fn();
         } catch (e) {

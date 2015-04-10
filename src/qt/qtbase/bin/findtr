@@ -1,0 +1,229 @@
+#!/usr/bin/perl -w
+# vi:wrap:
+#############################################################################
+##
+## Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+## Contact: http://www.qt-project.org/legal
+##
+## This file is part of the translations of the Qt Toolkit.
+##
+## $QT_BEGIN_LICENSE:LGPL$
+## Commercial License Usage
+## Licensees holding valid commercial Qt licenses may use this file in
+## accordance with the commercial license agreement provided with the
+## Software or, alternatively, in accordance with the terms contained in
+## a written agreement between you and Digia.  For licensing terms and
+## conditions see http://qt.digia.com/licensing.  For further information
+## use the contact form at http://qt.digia.com/contact-us.
+##
+## GNU Lesser General Public License Usage
+## Alternatively, this file may be used under the terms of the GNU Lesser
+## General Public License version 2.1 as published by the Free Software
+## Foundation and appearing in the file LICENSE.LGPL included in the
+## packaging of this file.  Please review the following information to
+## ensure the GNU Lesser General Public License version 2.1 requirements
+## will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+##
+## In addition, as a special exception, Digia gives you certain additional
+## rights.  These rights are described in the Digia Qt LGPL Exception
+## version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+##
+## GNU General Public License Usage
+## Alternatively, this file may be used under the terms of the GNU
+## General Public License version 3.0 as published by the Free Software
+## Foundation and appearing in the file LICENSE.GPL included in the
+## packaging of this file.  Please review the following information to
+## ensure the GNU General Public License version 3.0 requirements will be
+## met: http://www.gnu.org/copyleft/gpl.html.
+##
+##
+## $QT_END_LICENSE$
+##
+#############################################################################
+
+# See Qt I18N documentation for usage information.
+
+use POSIX qw(strftime);
+
+$projectid='PROJECT VERSION';
+$datetime = strftime "%Y-%m-%d %X %Z", localtime;
+$charset='iso-8859-1';
+$translator='FULLNAME <EMAIL@ADDRESS>';
+$revision_date='YYYY-MM-DD';
+
+$real_mark = "tr";
+$noop_mark = "QT_TR_NOOP";
+$scoped_mark = "qApp->translate";
+$noop_scoped_mark = "QT_TRANSLATE_NOOP";
+
+$header=
+'# This is a Qt message file in .po format.  Each msgid starts with
+# a scope.  This scope should *NOT* be translated - eg. translating
+# from French to English, "Foo::Bar" would be translated to "Pub",
+# not "Foo::Pub".
+msgid ""
+msgstr ""
+"Project-Id-Version: '.$projectid.'\n"
+"POT-Creation-Date: '.$datetime.'\n"
+"PO-Revision-Date: '.$revision_date.'\n"
+"Last-Translator: '.$translator.'\n"
+"Content-Type: text/plain; charset='.$charset.'\n"
+
+';
+
+
+
+
+$scope = "";
+
+if ( $#ARGV < 0 ) {
+    print STDERR "Usage:  findtr sourcefile ...  >project.po\n";
+    exit 1;
+}
+
+
+sub outmsg {
+    my ($file, $line, $scope, $msgid) = @_;
+    # unesc
+    $msgid =~ s/$esc:$esc:$esc/::/gs;
+    $msgid =~ s|$esc/$esc/$esc|//|gs;
+
+    # Remove blank lines
+    $msgid =~ s/\n\n+/\n/gs;
+    $msgid = "\"\"\n$msgid" if $msgid =~ /\n/s;
+    print "#: $file:$line\n";
+    $msgid =~ s/^"//; #"emacs bug
+    print "msgid \"${scope}::$msgid\n";
+    #print "msgstr \"$msgid\n";
+    print "msgstr \"\"\n";
+    print "\n";
+}
+
+sub justlines {
+    my $l = @_;
+    $l =~ tr|\n||dc;
+    return $l;
+}
+
+print $header;
+
+
+foreach $file ( @ARGV ) {
+    next unless open( I, "< $file" );
+
+    $source = join( "", <I> );
+
+    # Find esc. Avoid bad case 1/// -> 1/1/1/1 -> ///1
+    $esc = 1;
+    while ( $source =~ m!(?:$esc/$esc/$esc)|(?:$esc///)
+	    |(?:$esc:$esc:$esc)|(?:$esc:\:\:)! ) {
+	$esc++;
+    }
+
+    # Hide quoted :: in practically all strings
+    $source =~ s/\"([^"\n]*)::([^"\n]*)\"/\"$1$esc:$esc:$esc$2\"/g;
+
+    # Hide quoted // in practically all strings
+    $source =~ s|\"([^"\n]*)//([^"\n]*)\"|\"$1$esc/$esc/$esc$2\"|g;
+
+
+    # strip comments -- does not handle "/*" in strings
+    while( $source =~ s|/\*(.*?)\*/|justlines($1)|ges ) { }
+    while( $source =~ s|//(.*?)\n|\n|g ) { }
+
+    while( $source =~ /
+	    (?:
+		# Some doublequotes are "escaped" to help vim syntax highlight
+
+		# $1 = scope; $2 = parameters etc.
+		(?:
+		    # Scoped function name ($1 is scope).
+		    (\w+)::(?:\w+)
+		    \s*
+		    # Parameters etc up to open-curly - no semicolons
+		    \(([^();]*)\)
+		    \s*
+		    (?:\{|:)
+		)
+	      |
+		# $3 - one-argument msgid
+		(?:\b
+		    # One of the marks
+		    (?:$real_mark|$noop_mark)
+		    \s*
+		    # The parameter
+		    \(\s*((?:"(?:[^"]|[^\\]\\")*"\s*)+)\)
+		)
+	      |
+		# $4,$5 - two-argument msgid
+		(?:\b
+		    # One of the scoped marks
+		    (?:$scoped_mark|$noop_scoped_mark)
+		    \s*
+		    # The parameters
+		    \(
+			# The scope parameter
+			\s*"([^\"]*)"
+			\s*,\s*
+			# The msgid parameter
+			\s*((?:\"(?:[^"]|[^\\]\\")*"\s*)+) #"emacs
+		    \)
+		)
+	      |
+		# $6,$7 - scoped one-argument msgid
+		(?:\b
+		    # The scope
+		    (\w+)::
+		    # One of the marks
+		    (?:$real_mark)
+		    \s*
+		    # The parameter
+		    \(\s*((?:"(?:[^"]|[^\\]\\")*"\s*)+)\)
+		)
+	    )/gsx )
+    {
+	@lines = split /^/m, "$`";
+	$line = @lines;
+	if ( defined( $1 ) ) {
+	    if ( $scope ne $1 ) {
+		$sc=$1;
+		$etc=$2;
+		# remove strings
+		$etc =~ s/"(?:[^"]|[^\\]\\")"//g;
+		# count ( and )
+		@open = split /\(/m, $etc;
+		@close = split /\)/m, $etc;
+		if ( $#open == $#close ) {
+		    $scope = $sc;
+		}
+	    }
+	    next;
+	}
+
+       	if ( defined( $3 ) ) {
+	    $this_scope = $scope;
+	    $msgid = $3;
+	} elsif ( defined( $4 ) ) {
+	    $this_scope = $4;
+	    $msgid = $5;
+	} elsif ( defined( $6 ) ) {
+	    $this_scope = $6;
+	    $msgid = $7;
+	} else {
+	    next;
+	}
+
+	$msgid =~ s/^\s*//;
+	$msgid =~ s/\s*$//;
+
+	# Might still be non-unique eg. tr("A" "B")  vs.  tr("A"  "B").
+
+	$location{"${this_scope}::${msgid}"} = "$file:$line";
+    }
+}
+
+for $scoped_msgid ( sort keys %location ) {
+    ($scope,$msgid) = $scoped_msgid =~ m/([^:]*)::(.*)/s;
+    ($file,$line) = $location{$scoped_msgid} =~ m/([^:]*):(.*)/s;
+    outmsg($file,$line,$scope,$msgid);
+}

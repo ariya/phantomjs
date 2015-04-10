@@ -1,0 +1,111 @@
+#
+#  W A R N I N G
+#  -------------
+#
+# This file is not part of the Qt API.  It exists purely as an
+# implementation detail.  It may change from version to version
+# without notice, or even be removed.
+#
+# We mean it.
+#
+
+load(qt_build_config)
+
+TEMPLATE = lib
+CONFIG += plugin
+
+if(win32|mac):!macx-xcode {
+    contains(QT_CONFIG, debug_and_release):CONFIG += debug_and_release
+    contains(QT_CONFIG, build_all):CONFIG += build_all
+}
+
+!no_cxx_module:isEmpty(CXX_MODULE) {
+    CXX_MODULE = $$TARGET
+    TARGET = declarative_$${TARGET}
+}
+isEmpty(TARGETPATH): TARGETPATH = $$eval(QT.$${CXX_MODULE}.name)
+
+# Insert the plugins URI into its meta data to enable usage
+# of static plugins in QtDeclarative:
+URI = $$replace(TARGETPATH, "/", ".")
+QMAKE_MOC_OPTIONS += -Muri=$$URI
+
+QMLTYPEFILE = $$_PRO_FILE_PWD_/plugins.qmltypes
+exists($$QMLTYPEFILE): QML_FILES += $$QMLTYPEFILE
+
+# Install rules
+
+load(qt_build_paths)
+
+qml1_target {
+    DESTDIR = $$MODULE_BASE_OUTDIR/imports/$$TARGETPATH
+    instbase = $$[QT_INSTALL_IMPORTS]
+} else {
+    DESTDIR = $$MODULE_BASE_OUTDIR/qml/$$TARGETPATH
+    instbase = $$[QT_INSTALL_QML]
+}
+
+target.path = $$instbase/$$TARGETPATH
+INSTALLS += target
+
+# Some final setup
+
+TARGET = $$qtLibraryTarget($$TARGET)
+
+load(qt_targets)
+load(qt_common)
+
+# plugins.qmltypes is used by Qt Creator for syntax highlighting and the QML code model.  It needs
+# to be regenerated whenever the QML elements exported by the plugin change.  This cannot be done
+# automatically at compile time because qmlplugindump does not support some QML features and it may
+# not be possible when cross-compiling.
+#
+# To regenerate run 'make qmltypes' which will update the plugins.qmltypes file in the source
+# directory.  Then review and commit the changes made to plugins.qmltypes.
+#
+!cross_compile {
+    build_pass|!debug_and_release {
+        isEmpty(IMPORT_VERSION) {
+            no_cxx_module {
+                IMPORT_VERSION = $$replace(MODULE_VERSION, ^(\\d+\\.\\d+).*, \\1)
+                isEmpty(IMPORT_VERSION): error("Must set IMPORT_VERSION")
+            } else {
+                IMPORT_VERSION = $$eval(QT.$${CXX_MODULE}.MAJOR_VERSION).$$eval(QT.$${CXX_MODULE}.MINOR_VERSION)
+            }
+        }
+
+        load(resolve_target)
+        qml1_target: \
+            qmlplugindump = qml1plugindump
+        else: \
+            qmlplugindump = qmlplugindump
+        qtPrepareTool(QMLPLUGINDUMP, $$qmlplugindump)
+        importpath.value =
+        for(qmod, QMAKEMODULES) {
+            qmod = $$section(qmod, /, 0, -3)/imports
+            qml1_target: qmod = $$qmod/QtDeclarative
+            exists($$qmod): importpath.value += $$shell_path($$qmod)
+        }
+        importpath.name = QML_IMPORT_PATH
+        importpath.value = $$unique(importpath.value)
+        qtAddToolEnv(QMLPLUGINDUMP, importpath)
+        TARGETPATHBASE = $$replace(TARGETPATH, \\.\\d+\$, )
+        qmltypes.target = qmltypes
+        qmltypes.commands = $$QMLPLUGINDUMP -nonrelocatable $$replace(TARGETPATHBASE, /, .) $$IMPORT_VERSION > $$QMLTYPEFILE
+        qmltypes.depends = $$QMAKE_RESOLVED_TARGET
+    } else {
+        qmltypes.CONFIG += recursive
+    }
+    QMAKE_EXTRA_TARGETS += qmltypes
+}
+
+load(qml_module)
+
+unix|mingw {
+    !isEmpty(_QMAKE_SUPER_CACHE_): \
+        lib_replace.match = $$dirname(_QMAKE_SUPER_CACHE_)/[^/][^/]*/lib
+    else: \
+        lib_replace.match = $$MODULE_BASE_OUTDIR
+    lib_replace.replace = $$[QT_INSTALL_LIBS/raw]
+    QMAKE_PRL_INSTALL_REPLACE += lib_replace
+}

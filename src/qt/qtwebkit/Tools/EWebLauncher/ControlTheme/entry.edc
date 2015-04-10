@@ -1,0 +1,143 @@
+/*
+ * Copyright (C) 2012 Samsung Electronics
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+collections {
+   group {
+      name: "control/entry/base/default";
+      styles {
+         style {
+            name: "entry_textblock_style";
+            base: "font=Roman font_size=14 color=#000000 wrap=mixed";
+         }
+      }
+      parts {
+         part {
+            name: "url.text";
+            type: TEXTBLOCK;
+            mouse_events: 1;
+            scale: 1;
+            entry_mode: EDITABLE;
+            multiline: 0;
+            source: "control/entry/selection/default"; // selection under
+            source4: "control/entry/cursor/default"; // cursor over
+            description {
+               state: "default" 0.0;
+               fixed: 1 0;
+               text {
+                  style: "entry_textblock_style";
+                  min: 0 1;
+               }
+            }
+         }
+      }
+      programs {
+         program {
+            name: "focus";
+            signal: "load";
+            source: "";
+            action: FOCUS_SET;
+            target: "url.text";
+         }
+      }
+   }
+
+   group {
+      name: "control/entry/cursor/default";
+      parts {
+         part {
+            name: "clip";
+            type: RECT;
+            mouse_events: 0;
+            scale: 1;
+            description {
+               state: "default" 0.0;
+               rel1.offset: -10 0;
+               rel2.offset: 9 9;
+               visible: 0;
+            }
+            description {
+               state: "focused" 0.0;
+               inherit: "default" 0.0;
+               visible: 1;
+            }
+         }
+         part {
+            name: "cursor";
+            type: RECT;
+            mouse_events: 0;
+            scale: 1;
+            clip_to: "clip";
+            description {
+               state: "default" 0.0;
+               min: 1 0;
+               fixed: 1 0;
+               align: 0.5 0.5;
+               visible: 1;
+               rel1 {
+                  relative: 0.0  0.0;
+                  offset: 0 2;
+               }
+               rel2 {
+                  relative: 0.0  1.0;
+                  offset: 0 -2;
+               }
+               color: 0 0 0 255; // cursor color
+            }
+         }
+      }
+      programs {
+         program {
+            name: "focused";
+            signal: "entry,action,focus";
+            source: "entry";
+            action: STATE_SET "focused" 0.0;
+            target: "clip";
+         }
+         program {
+            name: "unfocused";
+            signal: "entry,action,unfocus";
+            source: "entry";
+            action: STATE_SET "default" 0.0;
+            target: "clip";
+         }
+      }
+   }
+
+   group {
+      name: "control/entry/selection/default";
+      parts {
+         part {
+            name: "bg";
+            type: RECT;
+            scale: 1;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               color: 138 183 223 128;
+            }
+         }
+      }
+   }
+}

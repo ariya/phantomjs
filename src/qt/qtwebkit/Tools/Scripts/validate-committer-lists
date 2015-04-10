@@ -1,0 +1,289 @@
+#!/usr/bin/env python
+
+# Copyright (c) 2009, Google Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+# 
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# Checks Python's known list of committers against lists.webkit.org and SVN history.
+
+
+import logging
+import os
+import subprocess
+import re
+import urllib2
+from datetime import date, datetime, timedelta
+from optparse import OptionParser
+
+from webkitpy.common.config.committers import CommitterList
+from webkitpy.common.checkout.scm import Git
+from webkitpy.common.net.bugzilla import Bugzilla
+
+# WebKit includes a built copy of BeautifulSoup in Scripts/webkitpy
+# so this import should always succeed.
+from webkitpy.thirdparty.BeautifulSoup import BeautifulSoup
+
+_log = logging.getLogger(__name__)
+
+def print_list_if_non_empty(title, list_to_print):
+    if not list_to_print:
+        return
+    print # Newline before the list
+    print title
+    for item in list_to_print:
+        print item
+
+
+class CommitterListFromMailingList(object):
+    committers_list_url = "http://lists.webkit.org/mailman/roster/webkit-committers"
+    reviewers_list_url = "http://lists.webkit.org/mailman/roster/webkit-reviewers"
+
+    def _fetch_emails_from_page(self, url):
+        page = urllib2.urlopen(url)
+        soup = BeautifulSoup(page)
+
+        emails = []
+        # Grab the cells in the first column (which happens to be the bug ids).
+        for email_item in soup('li'):
+            email_link = email_item.find("a")
+            email = email_link.string.replace(" at ", "@") # The email is obfuscated using " at " instead of "@".
+            emails.append(email)
+        return emails
+
+    @staticmethod
+    def _commiters_not_found_in_email_list(committers, emails):
+        missing_from_mailing_list = []
+        for committer in committers:
+            for email in committer.emails:
+                if email in emails:
+                    break
+            else:
+                missing_from_mailing_list.append(committer)
+        return missing_from_mailing_list
+
+    @staticmethod
+    def _emails_not_found_in_committer_list(committers, emails):
+        email_to_committer_map = {}
+        for committer in committers:
+            for email in committer.emails:
+                email_to_committer_map[email] = committer
+
+        return filter(lambda email: not email_to_committer_map.get(email), emails)
+
+    def check_for_emails_missing_from_list(self, committer_list):
+        committer_emails = self._fetch_emails_from_page(self.committers_list_url)
+        list_name = "webkit-committers@lists.webkit.org"
+
+        missing_from_mailing_list = self._commiters_not_found_in_email_list(committer_list.committers(), committer_emails)
+        print_list_if_non_empty("Committers missing from %s:" % list_name, missing_from_mailing_list)
+
+        users_missing_from_committers = self._emails_not_found_in_committer_list(committer_list.committers(), committer_emails)
+        print_list_if_non_empty("Subcribers to %s missing from contributors.json:" % list_name, users_missing_from_committers)
+
+
+        reviewer_emails = self._fetch_emails_from_page(self.reviewers_list_url)
+        list_name = "webkit-reviewers@lists.webkit.org"
+
+        missing_from_mailing_list = self._commiters_not_found_in_email_list(committer_list.reviewers(), reviewer_emails)
+        print_list_if_non_empty("Reviewers missing from %s:" % list_name, missing_from_mailing_list)
+
+        missing_from_reviewers = self._emails_not_found_in_committer_list(committer_list.reviewers(), reviewer_emails)
+        print_list_if_non_empty("Subcribers to %s missing from reviewers in contributors.json:" % list_name, missing_from_reviewers)
+
+        missing_from_committers = self._emails_not_found_in_committer_list(committer_list.committers(), reviewer_emails)
+        print_list_if_non_empty("Subcribers to %s completely missing from contributors.json:" % list_name, missing_from_committers)
+
+
+class CommitterListFromGit(object):
+    login_to_email_address = {
+        'aliceli1' : 'alice.liu@apple.com',
+        'bdash' : 'mrowe@apple.com',
+        'bdibello' : 'bdibello@apple.com', # Bruce DiBello, only 4 commits: r10023, r9548, r9538, r9535
+        'cblu' : 'cblu@apple.com',
+        'cpeterse' : 'cpetersen@apple.com',
+        'eseidel' : 'eric@webkit.org',
+        'gdennis' : 'gdennis@webkit.org',
+        'goldsmit' : 'goldsmit@apple.com', # Debbie Goldsmith, only one commit r8839
+        'gramps' : 'gramps@apple.com',
+        'honeycutt' : 'jhoneycutt@apple.com',
+        'jdevalk' : 'joost@webkit.org',
+        'jens' : 'jens@apple.com',
+        'justing' : 'justin.garcia@apple.com',
+        'kali' : 'kali@apple.com', # Christy Warren, did BIDI work, 5 commits: r8815, r8802, r8801, r8791, r8773, r8603
+        'kjk' : 'kkowalczyk@gmail.com',
+        'kmccullo' : 'kmccullough@apple.com',
+        'kocienda' : 'kocienda@apple.com',
+        'lamadio' : 'lamadio@apple.com', # Lou Amadio, only 2 commits: r17949 and r17783
+        'lars' : 'lars@kde.org',
+        'lweintraub' : 'lweintraub@apple.com',
+        'lypanov' : 'lypanov@kde.org',
+        'mhay' : 'mhay@apple.com', # Mike Hay, 3 commits: r3813, r2552, r2548
+        'ouch' : 'ouch@apple.com', # John Louch
+        'pyeh' : 'patti@apple.com', # Patti Yeh, did VoiceOver work in WebKit
+        'rjw' : 'rjw@apple.com',
+        'seangies' : 'seangies@apple.com', # Sean Gies?, only 5 commits: r16600, r16592, r16511, r16489, r16484
+        'sheridan' : 'sheridan@apple.com', # Shelly Sheridan
+        'thatcher' : 'timothy@apple.com',
+        'tomernic' : 'timo@apple.com',
+        'trey' : 'trey@usa.net',
+        'tristan' : 'tristan@apple.com',
+        'vicki' : 'vicki@apple.com',
+        'voas' : 'voas@apple.com', # Ed Voas, did some Carbon work in WebKit
+        'zack' : 'zack@kde.org',
+        'zimmermann' : 'zimmermann@webkit.org',
+    }
+
+    def __init__(self):
+        self._last_commit_time_by_author_cache = {}
+
+    def _fetch_authors_and_last_commit_time_from_git_log(self):
+        last_commit_dates = {}
+        git_log_args = ['git', 'log', '--reverse', '--pretty=format:%ae %at']
+        process = subprocess.Popen(git_log_args, stdout=subprocess.PIPE)
+
+        # eric@webkit.org@268f45cc-cd09-0410-ab3c-d52691b4dbfc 1257090899
+        line_regexp = re.compile("^(?P<author>.+)@\S+ (?P<timestamp>\d+)$")
+        while True:
+            output_line = process.stdout.readline()
+            if output_line == '' and process.poll() != None:
+                return last_commit_dates
+
+            match_result = line_regexp.match(output_line)
+            if not match_result:
+                _log.error("Failed to match line: %s" % output_line)
+                exit(1)
+            last_commit_dates[match_result.group('author')] = float(match_result.group('timestamp'))
+
+    def _fill_in_emails_for_old_logins(self):
+        authors_missing_email = filter(lambda author: author.find('@') == -1, self._last_commit_time_by_author_cache)
+        authors_with_email = filter(lambda author: author.find('@') != -1, self._last_commit_time_by_author_cache)
+        prefixes_of_authors_with_email = map(lambda author: author.split('@')[0], authors_with_email)
+
+        for author in authors_missing_email:
+            # First check to see if we have a manual mapping from login to email.
+            author_email = self.login_to_email_address.get(author)
+
+            # Most old logins like 'darin' are now just 'darin@apple.com', so check for a prefix match if a manual mapping was not found.
+            if not author_email and author in prefixes_of_authors_with_email:
+                author_email_index = prefixes_of_authors_with_email.index(author)
+                author_email = authors_with_email[author_email_index]
+
+            if not author_email:
+                # No known email mapping, likely not an active committer.  We could log here.
+                continue
+
+            # _log.info("%s -> %s" % (author, author_email)) # For sanity checking.
+            no_email_commit_time = self._last_commit_time_by_author_cache.get(author)
+            email_commit_time = self._last_commit_time_by_author_cache.get(author_email)
+            # We compare the timestamps for extra sanity even though we could assume commits before email address were used for login are always going to be older.
+            if not email_commit_time or email_commit_time < no_email_commit_time:
+                self._last_commit_time_by_author_cache[author_email] = no_email_commit_time
+            del self._last_commit_time_by_author_cache[author]
+
+    def _last_commit_by_author(self):
+        if not self._last_commit_time_by_author_cache:
+            self._last_commit_time_by_author_cache = self._fetch_authors_and_last_commit_time_from_git_log()
+            self._fill_in_emails_for_old_logins()
+            del self._last_commit_time_by_author_cache['(no author)'] # The initial svn import isn't very useful.
+        return self._last_commit_time_by_author_cache
+
+    @staticmethod
+    def _print_three_column_row(widths, values):
+        print "%s%s%s" % (values[0].ljust(widths[0]), values[1].ljust(widths[1]), values[2])
+
+    def print_possibly_expired_committers(self, committer_list):
+        authors_and_last_commits = self._last_commit_by_author().items()
+        authors_and_last_commits.sort(lambda a,b: cmp(a[1], b[1]), reverse=True)
+        committer_cuttof = date.today() - timedelta(days=365)
+        column_widths = [13, 25]
+        print
+        print "Committers who have not committed within one year:"
+        self._print_three_column_row(column_widths, ("Last Commit", "Committer Email", "Committer Record"))
+        for (author, last_commit) in authors_and_last_commits:
+            last_commit_date = date.fromtimestamp(last_commit)
+            if committer_cuttof > last_commit_date:
+                committer_record = committer_list.committer_by_email(author)
+                self._print_three_column_row(column_widths, (str(last_commit_date), author, committer_record))
+
+    def print_committers_missing_from_committer_list(self, committer_list):
+        missing_from_contributors_json = []
+        last_commit_time_by_author = self._last_commit_by_author()
+        for author in last_commit_time_by_author:
+            if not committer_list.committer_by_email(author):
+                missing_from_contributors_json.append(author)
+
+        never_committed = []
+        for committer in committer_list.committers():
+            for email in committer.emails:
+                if last_commit_time_by_author.get(email):
+                    break
+            else:
+                never_committed.append(committer)
+
+        print_list_if_non_empty("Historical committers missing from contributors.json:", missing_from_contributors_json)
+        print_list_if_non_empty("Committers in contributors.json who have never committed:", never_committed)
+
+
+class CommitterListBugzillaChecker(object):
+    def __init__(self):
+        self._bugzilla = Bugzilla()
+
+    def _has_invalid_bugzilla_email(self, committer):
+        return not self._bugzilla.queries.fetch_logins_matching_substring(committer.bugzilla_email())
+
+    def print_committers_with_invalid_bugzilla_emails(self, committer_list):
+        print # Print a newline before we start hitting bugzilla (it logs about logging in).
+        print "Checking committer emails against bugzilla (this will take a long time)"
+        committers_with_invalid_bugzilla_email = filter(self._has_invalid_bugzilla_email, committer_list.committers())
+        print_list_if_non_empty("Committers with invalid bugzilla email:", committers_with_invalid_bugzilla_email)
+
+
+def main():
+    parser = OptionParser()
+    parser.add_option("-b", "--check-bugzilla-emails", action="store_true", help="Check the bugzilla_email for each committer against bugs.webkit.org")
+    (options, args) = parser.parse_args()
+
+    committer_list = CommitterList()
+    CommitterListFromMailingList().check_for_emails_missing_from_list(committer_list)
+ 
+    if not Git.in_working_directory("."):
+        print """\n\nWARNING: validate-committer-lists requires a git checkout.
+The following checks are disabled:
+ - List of committers ordered by last commit
+ - List of historical committers missing from contributors.json
+"""
+        return 1
+    svn_committer_list = CommitterListFromGit()
+    svn_committer_list.print_possibly_expired_committers(committer_list)
+    svn_committer_list.print_committers_missing_from_committer_list(committer_list)
+
+    if options.check_bugzilla_emails:
+        CommitterListBugzillaChecker().print_committers_with_invalid_bugzilla_emails(committer_list)
+
+
+if __name__ == "__main__":
+    main()

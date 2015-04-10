@@ -1,0 +1,50 @@
+// Copyright (C) 2009 Apple Inc. All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY APPLE INC. ``AS IS'' AND ANY
+// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE INC. OR
+// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+
+#include "FeatureDefines.xcconfig"
+#include "Version.xcconfig"
+
+JSVALUE_MODEL = $(JSVALUE_MODEL_$(CURRENT_ARCH));
+JSVALUE_MODEL_ = UNKNOWN_JSVALUE_MODEL;
+JSVALUE_MODEL_armv6 = 32_64;
+JSVALUE_MODEL_armv7 = 32_64;
+JSVALUE_MODEL_i386 = 32_64;
+JSVALUE_MODEL_ppc = 32_64;
+JSVALUE_MODEL_x86_64 = 64;
+
+// Prevent C++ standard library operator new, delete and their related exception types from being exported as weak symbols.
+OTHER_LDFLAGS_HIDE_SYMBOLS = -Wl,-unexported_symbol -Wl,__ZTISt9bad_alloc -Wl,-unexported_symbol -Wl,__ZTISt9exception -Wl,-unexported_symbol -Wl,__ZTSSt9bad_alloc -Wl,-unexported_symbol -Wl,__ZTSSt9exception -Wl,-unexported_symbol -Wl,__ZdlPvS_ -Wl,-unexported_symbol -Wl,__ZnwmPv -Wl,-all_load;
+OTHER_LDFLAGS_BASE = -lobjc -Wl,-Y,3 $(OTHER_LDFLAGS_HIDE_SYMBOLS);
+OTHER_LDFLAGS = $(OTHER_LDFLAGS_$(PLATFORM_NAME));
+OTHER_LDFLAGS_iphoneos = $(OTHER_LDFLAGS_BASE);
+OTHER_LDFLAGS_iphonesimulator = $(OTHER_LDFLAGS_iphoneos);
+OTHER_LDFLAGS_macosx = $(OTHER_LDFLAGS_BASE) -sub_library libobjc -framework CoreServices;
+GCC_PREFIX_HEADER = JavaScriptCorePrefix.h;
+GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+HEADER_SEARCH_PATHS = "${BUILT_PRODUCTS_DIR}/DerivedSources/JavaScriptCore" $(HEADER_SEARCH_PATHS);
+INFOPLIST_FILE = Info.plist;
+INSTALL_PATH = $(JAVASCRIPTCORE_FRAMEWORKS_DIR);
+DYLIB_INSTALL_NAME_BASE = $(NORMAL_JAVASCRIPTCORE_FRAMEWORKS_DIR);
+PRODUCT_NAME = JavaScriptCore;
+
+INSTALLHDRS_SCRIPT_PHASE = YES;

@@ -90,75 +90,77 @@ function copyInto(target, source) {
 }
 
 function definePageSignalHandler(page, handlers, handlerName, signalName) {
-    page.__defineSetter__(handlerName, function (f) {
-        // Disconnect previous handler (if any)
-        if (!!handlers[handlerName] && typeof handlers[handlerName].callback === "function") {
-            try {
-                this[signalName].disconnect(handlers[handlerName].callback);
-            } catch (e) {}
-        }
-
-        // Delete the previous handler
-        delete handlers[handlerName];
-
-        // Connect the new handler iff it's a function
-        if (typeof f === "function") {
-            // Store the new handler for reference
-            handlers[handlerName] = {
-                callback: f
+    Object.defineProperty(page, handlerName, {
+        set: function (f) {
+            // Disconnect previous handler (if any)
+            if (!!handlers[handlerName] && typeof handlers[handlerName].callback === "function") {
+                try {
+                    this[signalName].disconnect(handlers[handlerName].callback);
+                } catch (e) {}
             }
-            this[signalName].connect(f);
-        }
-    });
 
-    page.__defineGetter__(handlerName, function() {
-        return !!handlers[handlerName] && typeof handlers[handlerName].callback === "function" ?
-            handlers[handlerName].callback :
-            undefined;
+            // Delete the previous handler
+            delete handlers[handlerName];
+
+            // Connect the new handler iff it's a function
+            if (typeof f === "function") {
+                // Store the new handler for reference
+                handlers[handlerName] = {
+                    callback: f
+                }
+                this[signalName].connect(f);
+            }
+        },
+        get: function() {
+            return !!handlers[handlerName] && typeof handlers[handlerName].callback === "function" ?
+                handlers[handlerName].callback :
+                undefined;
+        }
     });
 }
 
 function definePageCallbackHandler(page, handlers, handlerName, callbackConstructor) {
-    page.__defineSetter__(handlerName, function(f) {
-        // Fetch the right callback object
-        var callbackObj = page[callbackConstructor]();
+    Object.defineProperty(page, handlerName, {
+        set: function(f) {
+            // Fetch the right callback object
+            var callbackObj = page[callbackConstructor]();
 
-        // Disconnect previous handler (if any)
-        var handlerObj = handlers[handlerName];
-        if (!!handlerObj && typeof handlerObj.callback === "function" && typeof handlerObj.connector === "function") {
-            try {
-                callbackObj.called.disconnect(handlerObj.connector);
-            } catch (e) {
-                console.log(e);
+            // Disconnect previous handler (if any)
+            var handlerObj = handlers[handlerName];
+            if (!!handlerObj && typeof handlerObj.callback === "function" && typeof handlerObj.connector === "function") {
+                try {
+                    callbackObj.called.disconnect(handlerObj.connector);
+                } catch (e) {
+                    console.log(e);
+                }
             }
+
+            // Delete the previous handler
+            delete handlers[handlerName];
+
+            // Connect the new handler iff it's a function
+            if (typeof f === "function") {
+                var connector = function() {
+                    // Callback will receive a "deserialized", normal "arguments" array
+                    callbackObj.returnValue = f.apply(this, arguments[0]);
+                };
+
+                // Store the new handler for reference
+                handlers[handlerName] = {
+                    callback: f,
+                    connector: connector
+                };
+
+                // Connect a new handler
+                callbackObj.called.connect(connector);
+            }
+        },
+        get: function() {
+            var handlerObj = handlers[handlerName];
+            return (!!handlerObj && typeof handlerObj.callback === "function" && typeof handlerObj.connector === "function") ?
+                handlers[handlerName].callback :
+                undefined;
         }
-
-        // Delete the previous handler
-        delete handlers[handlerName];
-
-        // Connect the new handler iff it's a function
-        if (typeof f === "function") {
-            var connector = function() {
-                // Callback will receive a "deserialized", normal "arguments" array
-                callbackObj.returnValue = f.apply(this, arguments[0]);
-            };
-
-            // Store the new handler for reference
-            handlers[handlerName] = {
-                callback: f,
-                connector: connector
-            };
-
-            // Connect a new handler
-            callbackObj.called.connect(connector);
-        }
-    });
-
-    page.__defineGetter__(handlerName, function() {
-        var handlerObj = handlers[handlerName];
-        return (!!handlerObj && typeof handlerObj.callback === "function" && typeof handlerObj.connector === "function") ?
-            handlers[handlerName].callback :
-            undefined;
     });
 }
 
@@ -368,8 +370,10 @@ function decorateNewPage(opts, page) {
             switch (argType) {
             case "object":      //< for type "object"
             case "array":       //< for type "array"
+                str += JSON.stringify(arg) + ","
+                break;
             case "date":        //< for type "date"
-                str += "JSON.parse(" + JSON.stringify(JSON.stringify(arg)) + "),"
+                str += "new Date(" + JSON.stringify(arg) + "),"
                 break;
             case "string":      //< for type "string"
                 str += quoteString(arg) + ',';
@@ -413,44 +417,6 @@ function decorateNewPage(opts, page) {
 
         this.evaluate.apply(this, args);
     };
-
-    /**
-     * get cookie jar for the page
-     */
-    page.__defineGetter__("cookieJar", function() {
-        return require("cookiejar").decorate(this.cookieJar());
-    });
-
-    /**
-     * set cookie jar for the page
-     */
-    page.__defineSetter__("cookieJar", function(cookieJar) {
-        this.setCookieJarFromQObject(cookieJar);
-    });
-
-    /**
-     * get cookies of the page
-     */
-    page.__defineGetter__("cookies", function() {
-        return this.cookies;
-    });
-
-    /**
-     * set cookies of the page
-     * @param []{...} cookies an array of cookies object with arguments in mozilla cookie format
-     *        cookies[0] = {
-     *            'name' => 'Cookie-Name',
-     *            'value' => 'Cookie-Value',
-     *            'domain' => 'foo.com',
-     *            'path' => 'Cookie-Path',
-     *            'expires' => 'Cookie-Expiration-Date',
-     *            'httponly' => true | false,
-     *            'secure' => true | false
-     *        };
-     */
-    page.__defineSetter__("cookies", function(cookies) {
-        this.setCookies(cookies);
-    });
 
     /**
      * upload a file

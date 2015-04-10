@@ -1,0 +1,267 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>FreeType-2.3.12 API Reference</title>
+<style type="text/css">
+  body { font-family: Verdana, Geneva, Arial, Helvetica, serif;
+         color: #000000;
+         background: #FFFFFF; }
+
+  p { text-align: justify; }
+  h1 { text-align: center; }
+  li { text-align: justify; }
+  td { padding: 0 0.5em 0 0.5em; }
+  td.left { padding: 0 0.5em 0 0.5em;
+            text-align: left; }
+
+  a:link { color: #0000EF; }
+  a:visited { color: #51188E; }
+  a:hover { color: #FF0000; }
+
+  span.keyword { font-family: monospace;
+                 text-align: left;
+                 white-space: pre;
+                 color: darkblue; }
+
+  pre.colored { color: blue; }
+
+  ul.empty { list-style-type: none; }
+</style>
+</head>
+<body>
+
+<table align=center><tr><td><font size=-1>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-1>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+<center><h1>FreeType-2.3.12 API Reference</h1></center>
+
+<center><h1>
+Glyph Variants
+</h1></center>
+<h2>Synopsis</h2>
+<table align=center cellspacing=5 cellpadding=0 border=0>
+<tr><td></td><td><a href="#FT_Face_GetCharVariantIndex">FT_Face_GetCharVariantIndex</a></td><td></td><td><a href="#FT_Face_GetVariantsOfChar">FT_Face_GetVariantsOfChar</a></td></tr>
+<tr><td></td><td><a href="#FT_Face_GetCharVariantIsDefault">FT_Face_GetCharVariantIsDefault</a></td><td></td><td><a href="#FT_Face_GetCharsOfVariant">FT_Face_GetCharsOfVariant</a></td></tr>
+<tr><td></td><td><a href="#FT_Face_GetVariantSelectors">FT_Face_GetVariantSelectors</a></td><td></td><td></td></tr>
+</table><br><br>
+
+<table align=center width="87%"><tr><td>
+<p>Many CJK characters have variant forms. They are a sort of grey area somewhere between being totally irrelevant and semantically distinct; for this reason, the Unicode consortium decided to introduce Ideographic Variation Sequences (IVS), consisting of a Unicode base character and one of 240 variant selectors (U+E0100-U+E01EF), instead of further extending the already huge code range for CJK characters.</p>
+<p>An IVS is registered and unique; for further details please refer to Unicode Technical Report #37, the Ideographic Variation Database. To date (October 2007), the character with the most variants is U+908A, having 8&nbsp;such IVS.</p>
+<p>Adobe and MS decided to support IVS with a new cmap subtable (format&nbsp;14). It is an odd subtable because it is not a mapping of input code points to glyphs, but contains lists of all variants supported by the font.</p>
+<p>A variant may be either &lsquo;default&rsquo; or &lsquo;non-default&rsquo;. A default variant is the one you will get for that code point if you look it up in the standard Unicode cmap. A non-default variant is a different glyph.</p>
+</td></tr></table><br>
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Face_GetCharVariantIndex">FT_Face_GetCharVariantIndex</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_FREETYPE_H (freetype/freetype.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_UInt">FT_UInt</a> )
+  <b>FT_Face_GetCharVariantIndex</b>( <a href="ft2-base_interface.html#FT_Face">FT_Face</a>   face,
+                               <a href="ft2-basic_types.html#FT_ULong">FT_ULong</a>  charcode,
+                               <a href="ft2-basic_types.html#FT_ULong">FT_ULong</a>  variantSelector );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Return the glyph index of a given character code as modified by the variation selector.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>face</b></td><td>
+<p>A handle to the source face object.</p>
+</td></tr>
+<tr valign=top><td><b>charcode</b></td><td>
+<p>The character code point in Unicode.</p>
+</td></tr>
+<tr valign=top><td><b>variantSelector</b></td><td>
+<p>The Unicode code point of the variation selector.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>The glyph index. 0&nbsp;means either &lsquo;undefined character code&rsquo;, or &lsquo;undefined selector code&rsquo;, or &lsquo;no variation selector cmap subtable&rsquo;, or &lsquo;current CharMap is not Unicode&rsquo;.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>If you use FreeType to manipulate the contents of font files directly, be aware that the glyph index returned by this function doesn't always correspond to the internal indices used within the file. This is done to ensure that value&nbsp;0 always corresponds to the &lsquo;missing glyph&rsquo;.</p>
+<p>This function is only meaningful if a) the font has a variation selector cmap sub table, and b) the current charmap has a Unicode encoding.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>since</b></em></td></tr><tr><td>
+<p>2.3.6</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Face_GetCharVariantIsDefault">FT_Face_GetCharVariantIsDefault</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_FREETYPE_H (freetype/freetype.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Int">FT_Int</a> )
+  <b>FT_Face_GetCharVariantIsDefault</b>( <a href="ft2-base_interface.html#FT_Face">FT_Face</a>   face,
+                                   <a href="ft2-basic_types.html#FT_ULong">FT_ULong</a>  charcode,
+                                   <a href="ft2-basic_types.html#FT_ULong">FT_ULong</a>  variantSelector );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Check whether this variant of this Unicode character is the one to be found in the &lsquo;cmap&rsquo;.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>face</b></td><td>
+<p>A handle to the source face object.</p>
+</td></tr>
+<tr valign=top><td><b>charcode</b></td><td>
+<p>The character codepoint in Unicode.</p>
+</td></tr>
+<tr valign=top><td><b>variantSelector</b></td><td>
+<p>The Unicode codepoint of the variation selector.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>1&nbsp;if found in the standard (Unicode) cmap, 0&nbsp;if found in the variation selector cmap, or -1 if it is not a variant.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>This function is only meaningful if the font has a variation selector cmap subtable.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>since</b></em></td></tr><tr><td>
+<p>2.3.6</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Face_GetVariantSelectors">FT_Face_GetVariantSelectors</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_FREETYPE_H (freetype/freetype.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_UInt32">FT_UInt32</a>* )
+  <b>FT_Face_GetVariantSelectors</b>( <a href="ft2-base_interface.html#FT_Face">FT_Face</a>  face );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Return a zero-terminated list of Unicode variant selectors found in the font.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>face</b></td><td>
+<p>A handle to the source face object.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>A pointer to an array of selector code points, or NULL if there is no valid variant selector cmap subtable.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>The last item in the array is&nbsp;0; the array is owned by the <a href="ft2-base_interface.html#FT_Face">FT_Face</a> object but can be overwritten or released on the next call to a FreeType function.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>since</b></em></td></tr><tr><td>
+<p>2.3.6</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Face_GetVariantsOfChar">FT_Face_GetVariantsOfChar</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_FREETYPE_H (freetype/freetype.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_UInt32">FT_UInt32</a>* )
+  <b>FT_Face_GetVariantsOfChar</b>( <a href="ft2-base_interface.html#FT_Face">FT_Face</a>   face,
+                             <a href="ft2-basic_types.html#FT_ULong">FT_ULong</a>  charcode );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Return a zero-terminated list of Unicode variant selectors found for the specified character code.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>face</b></td><td>
+<p>A handle to the source face object.</p>
+</td></tr>
+<tr valign=top><td><b>charcode</b></td><td>
+<p>The character codepoint in Unicode.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>A pointer to an array of variant selector code points which are active for the given character, or NULL if the corresponding list is empty.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>The last item in the array is&nbsp;0; the array is owned by the <a href="ft2-base_interface.html#FT_Face">FT_Face</a> object but can be overwritten or released on the next call to a FreeType function.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>since</b></em></td></tr><tr><td>
+<p>2.3.6</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Face_GetCharsOfVariant">FT_Face_GetCharsOfVariant</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_FREETYPE_H (freetype/freetype.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_UInt32">FT_UInt32</a>* )
+  <b>FT_Face_GetCharsOfVariant</b>( <a href="ft2-base_interface.html#FT_Face">FT_Face</a>   face,
+                             <a href="ft2-basic_types.html#FT_ULong">FT_ULong</a>  variantSelector );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Return a zero-terminated list of Unicode character codes found for the specified variant selector.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>face</b></td><td>
+<p>A handle to the source face object.</p>
+</td></tr>
+<tr valign=top><td><b>variantSelector</b></td><td>
+<p>The variant selector code point in Unicode.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>A list of all the code points which are specified by this selector (both default and non-default codes are returned) or NULL if there is no valid cmap or the variant selector is invalid.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>The last item in the array is&nbsp;0; the array is owned by the <a href="ft2-base_interface.html#FT_Face">FT_Face</a> object but can be overwritten or released on the next call to a FreeType function.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>since</b></em></td></tr><tr><td>
+<p>2.3.6</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+</body>
+</html>

@@ -1,0 +1,93 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.sidebar {
+    position: relative;
+
+    background-color: rgb(227, 231, 235);
+}
+
+.sidebar.collapsed {
+    width: 0 !important;
+    border: none !important;
+}
+
+body.window-inactive .sidebar {
+    background-color: rgb(231, 231, 231);
+}
+
+.sidebar > .panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    display: none;
+
+    overflow: hidden;
+
+    z-index: 0; /* Workaround so that scroll bars appear above position:sticky section headers. */
+}
+
+.sidebar > .panel.selected {
+    display: block;
+}
+
+.sidebar > .resizer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+
+    z-index: 100;
+
+    cursor: col-resize;
+}
+
+.sidebar.right > .resizer {
+    left: -3px;
+}
+
+.sidebar.left > .resizer {
+    right: -3px;
+}
+
+.sidebar.collapsed.right > .resizer {
+    left: -5px;
+}
+
+.sidebar.collapsed.left > .resizer {
+    right: -5px;
+}
+
+.sidebar.left {
+    border-right: 1px solid rgb(153, 153, 153);
+}
+
+.sidebar.right {
+    background-color: rgb(231, 231, 231);
+    border-left: 1px solid rgb(153, 153, 153);
+}

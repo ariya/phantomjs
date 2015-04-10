@@ -1,0 +1,328 @@
+/****************************************************************************
+**
+** Copyright (C) 2014 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com, author Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the QtCore module of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:LGPL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
+**
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \class QStringIterator
+    \since 5.3
+    \inmodule QtCore
+    \ingroup tools
+
+    \internal
+
+    \brief The QStringIterator class provides a Unicode-aware iterator over QString.
+
+    \reentrant
+
+    QStringIterator is a Java-like, bidirectional, const iterator over the contents of a
+    QString. Unlike QString's own iterators, which manage the individual UTF-16 code units,
+    QStringIterator is Unicode-aware: it will transparently handle the \e{surrogate pairs}
+    that may be present in a QString, and return the individual Unicode code points.
+
+    You can create a QStringIterator that iterates over a given
+    QString by passing the string to the QStringIterator's constructor:
+
+    \snippet code/src_corelib_tools_qstringiterator.cpp 0
+
+    A newly created QStringIterator will point before the first position in the
+    string. It is possible to check whether the iterator can be advanced by
+    calling hasNext(), and actually advance it (and obtain the next code point)
+    by calling next():
+
+    \snippet code/src_corelib_tools_qstringiterator.cpp 1
+
+    Similarly, the hasPrevious() and previous() functions can be used to iterate backwards.
+
+    The peekNext() and peekPrevious() functions will return the code point
+    respectively after and behind the iterator's current position, but unlike
+    next() and previous() they will not move the iterator.
+    Similarly, the advance() and recede() functions will move the iterator
+    respectively after and behind the iterator's current position, but they
+    will not return the code point the iterator has moved through.
+
+    \section1 Unicode handling
+
+    QString and all of its functions work in terms of UTF-16 code units. Unicode code points
+    that fall outside the Basic Multilingual Plane (U+10000 to U+10FFFF) will therefore
+    be represented by \e{surrogate pairs} in a QString, that is, a sequence of two
+    UTF-16 code units that encode a single code point.
+
+    QStringIterator will automatically handle surrogate pairs inside a QString,
+    and return the correctly decoded code point, while also moving the iterator by
+    the right amount of code units to match the decoded code points.
+
+    For instance:
+
+    \snippet code/src_corelib_tools_qstringiterator.cpp 2
+
+    If the iterator is not able to decode the next code point (or the previous
+    one, when iterating backwards), then it will return \c{0xFFFD}, that is,
+    Unicode's replacement character (see QChar::ReplacementCharacter).
+    It is possible to make QStringIterator return another value when it encounters
+    a decoding problem; please refer to the each function documentation for
+    more details.
+
+    \section1 Unchecked iteration
+
+    It is possible to optimize iterating over a QString contents by skipping
+    some checks. This is in general not safe to do, because a QString is allowed
+    to contain malformed UTF-16 data; however, if we can trust a given QString,
+    then we can use the optimized \e{unchecked} functions.
+
+    QStringIterator provides the \e{unchecked} counterparts for next(),
+    peekNext(), advance(), previous(), peekPrevious(), and recede():
+    they're called, respectively,
+    nextUnchecked(), peekNextUnchecked(), advanceUnchecked(),
+    previousUnchecked(), peekPreviousUnchecked(), recedeUnchecked().
+    The counterparts work exactly like the original ones,
+    but they're faster as they're allowed to make certain assumptions about
+    the string contents.
+
+    \note please be extremely careful when using QStringIterator's unchecked functions,
+    as using them on a string containing malformed data leads to undefined behavior.
+
+    \sa QString, QChar
+*/
+
+/*!
+    \fn QStringIterator::QStringIterator(const QString &string)
+
+    Constructs an iterator over the contents of \a string. The iterator will point
+    before the first position in the string.
+
+    The string \a string must remain valid while the iterator is being used.
+*/
+
+/*!
+    \fn QStringIterator::QStringIterator(const QChar *begin, const QChar *end)
+
+    Constructs an iterator which iterates over the range from \a begin to \a end.
+    The iterator will point before \a begin.
+
+    The range from \a begin to \a end must remain valid while the iterator is being used.
+*/
+
+/*!
+    \fn QString::const_iterator QStringIterator::position() const
+
+    Returns the current position of the iterator.
+*/
+
+/*!
+    \fn void QStringIterator::setPosition(QString::const_iterator position)
+
+    Sets the iterator's current position to \a position, which must be inside
+    of the iterable range.
+*/
+
+/*!
+    \fn bool QStringIterator::hasNext() const
+
+    Returns true if the iterator has not reached the end of the valid iterable range
+    and therefore can move forward; false otherwise.
+
+    \sa next()
+*/
+
+/*!
+    \fn void QStringIterator::advance()
+
+    Advances the iterator by one Unicode code point.
+
+    \note calling this function when the iterator is past the end of the iterable range
+    leads to undefined behavior.
+
+    \sa next(), hasNext()
+*/
+
+/*!
+    \fn void QStringIterator::advanceUnchecked()
+
+    Advances the iterator by one Unicode code point.
+
+    \note calling this function when the iterator is past the end of the iterable range
+    or on a QString containing malformed UTF-16 data leads to undefined behavior.
+
+    \sa advance(), next(), hasNext()
+*/
+
+/*!
+    \fn uint QStringIterator::peekNextUnchecked() const
+
+    Returns the Unicode code point that is immediately after the iterator's current
+    position. The current position is not changed.
+
+    \note calling this function when the iterator is past the end of the iterable range
+    or on a QString containing malformed UTF-16 data leads to undefined behavior.
+
+    \sa peekNext(), next(), hasNext()
+*/
+
+/*!
+    \fn uint QStringIterator::peekNext(uint invalidAs = QChar::ReplacementCharacter) const
+
+    Returns the Unicode code point that is immediately after the iterator's current
+    position. The current position is not changed.
+
+    If the iterator is not able to decode the UTF-16 data after the iterator's current
+    position, this function returns \a invalidAs (by default, QChar::ReplacementCharacter,
+    which corresponds to \c{U+FFFD}).
+
+    \note calling this function when the iterator is past the end of the iterable range
+    leads to undefined behavior.
+
+    \sa next(), hasNext()
+*/
+
+/*!
+    \fn uint QStringIterator::nextUnchecked()
+
+    Advances the iterator's current position by one Unicode code point,
+    and returns the Unicode code point that gets pointed by the iterator.
+
+    \note calling this function when the iterator is past the end of the iterable range
+    or on a QString containing malformed UTF-16 data leads to undefined behavior.
+
+    \sa next(), hasNext()
+*/
+
+/*!
+    \fn uint QStringIterator::next(uint invalidAs = QChar::ReplacementCharacter)
+
+    Advances the iterator's current position by one Unicode code point,
+    and returns the Unicode code point that gets pointed by the iterator.
+
+    If the iterator is not able to decode the UTF-16 data at the iterator's current
+    position, this function returns \a invalidAs (by default, QChar::ReplacementCharacter,
+    which corresponds to \c{U+FFFD}).
+
+    \note calling this function when the iterator is past the end of the iterable range
+    leads to undefined behavior.
+
+    \sa peekNext(), hasNext()
+*/
+
+
+/*!
+    \fn bool QStringIterator::hasPrevious() const
+
+    Returns true if the iterator is after the beginning of the valid iterable range
+    and therefore can move backwards; false otherwise.
+
+    \sa previous()
+*/
+
+/*!
+    \fn void QStringIterator::recede()
+
+    Moves the iterator back by one Unicode code point.
+
+    \note calling this function when the iterator is before the beginning of the iterable range
+    leads to undefined behavior.
+
+    \sa previous(), hasPrevious()
+*/
+
+/*!
+    \fn void QStringIterator::recedeUnchecked()
+
+    Moves the iterator back by one Unicode code point.
+
+    \note calling this function when the iterator is before the beginning of the iterable range
+    or on a QString containing malformed UTF-16 data leads to undefined behavior.
+
+    \sa recede(), previous(), hasPrevious()
+*/
+
+/*!
+    \fn uint QStringIterator::peekPreviousUnchecked() const
+
+    Returns the Unicode code point that is immediately before the iterator's current
+    position. The current position is not changed.
+
+    \note calling this function when the iterator is before the beginning of the iterable range
+    or on a QString containing malformed UTF-16 data leads to undefined behavior.
+
+    \sa previous(), hasPrevious()
+*/
+
+/*!
+    \fn uint QStringIterator::peekPrevious(uint invalidAs = QChar::ReplacementCharacter) const
+
+    Returns the Unicode code point that is immediately before the iterator's current
+    position. The current position is not changed.
+
+    If the iterator is not able to decode the UTF-16 data before the iterator's current
+    position, this function returns \a invalidAs (by default, QChar::ReplacementCharacter,
+    which corresponds to \c{U+FFFD}).
+
+    \note calling this function when the iterator is before the beginning of the iterable range
+    leads to undefined behavior.
+
+    \sa previous(), hasPrevious()
+*/
+
+/*!
+    \fn uint QStringIterator::previousUnchecked()
+
+    Moves the iterator's current position back by one Unicode code point,
+    and returns the Unicode code point that gets pointed by the iterator.
+
+    \note calling this function when the iterator is before the beginning of the iterable range
+    or on a QString containing malformed UTF-16 data leads to undefined behavior.
+
+    \sa previous(), hasPrevious()
+*/
+
+/*!
+    \fn uint QStringIterator::previous(uint invalidAs = QChar::ReplacementCharacter)
+
+    Moves the iterator's current position back by one Unicode code point,
+    and returns the Unicode code point that gets pointed by the iterator.
+
+    If the iterator is not able to decode the UTF-16 data at the iterator's current
+    position, this function returns \a invalidAs (by default, QChar::ReplacementCharacter,
+    which corresponds to \c{U+FFFD}).
+
+    \note calling this function when the iterator is before the beginning of the iterable range
+    leads to undefined behavior.
+
+    \sa peekPrevious(), hasPrevious()
+*/

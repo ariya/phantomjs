@@ -1,130 +1,186 @@
 #!/usr/bin/env bash
 
-COMPILE_JOBS=4
+set -e
 
+SILENT=
+
+# Defaults for choices between bundled/system libraries.
+if [[ $OSTYPE == darwin* ]]; then
+    # Fontconfig is not required on Darwin (we use Core Text for
+    # font enumeration) and is reported to not work correctly.
+    C_FONTCONFIG=' -no-fontconfig'
+
+    # Use mostly bundled libraries for Darwin.
+    C_FREETYPE=' -qt-freetype'
+    C_LIBPNG=' -qt-libpng'
+    C_LIBJPEG=' -qt-libjpeg'
+    C_ZLIB=' -qt-zlib'
+else
+    # Fontconfig is essential on non-Darwin Unix.  It is not bundled
+    # and links with the system freetype, so it is useless to avoid
+    # the system freetype or its dependencies.  It is also expected
+    # to be safe to use the system libjpeg on non-Darwin.
+    C_FONTCONFIG=' -fontconfig'
+    C_FREETYPE=' -system-freetype'
+    C_LIBPNG=' -system-libpng'
+    C_LIBJPEG=' -system-libjpeg'
+    C_ZLIB=' -system-zlib'
+fi
+
+# These libraries are somewhat more unstable and/or inconsistently
+# available; default to the bundled copies on all platforms.
+C_PCRE=' -qt-pcre'
+C_HARFBUZZ=' -qt-harfbuzz'
+C_SQLITE=' -qt-sql-sqlite'
+
+while [[ -n "$1" && "$1" == --* ]]; do
+    arg="$1"
+    shift
+    case "$arg" in
+        (--)
+            break
+            ;;
+
+        (--silent)
+            SILENT=' -silent'
+            ;;
+
+        (--qtdeps=system)
+            # Enable use of as many system libraries as possible.
+            C_FREETYPE=' -system-freetype'
+            C_LIBPNG=' -system-libpng'
+            C_LIBJPEG=' -system-libjpeg'
+            C_ZLIB=' -system-zlib'
+            C_HARFBUZZ=' -system-harfbuzz'
+            C_SQLITE=' -system-sqlite -sql-sqlite'
+
+            # Qt requires the char16_t PCRE library, -lpcre16, which is not
+            # present on some Linux distributions, so don't force it.
+            C_PCRE=''
+            ;;
+
+        (--qtdeps=bundled)
+            # Force use of as many bundled libraries as possible.
+            C_FREETYPE=' -qt-freetype'
+            C_LIBPNG=' -qt-libpng'
+            C_LIBJPEG=' -qt-libjpeg'
+            C_ZLIB=' -qt-zlib'
+            C_HARFBUZZ=' -qt-harfbuzz'
+            C_SQLITE=' -qt-sql-sqlite'
+            C_PCRE=' -qt-pcre'
+            ;;
+
+        (--freetype=system)  C_FREETYPE=' -system-freetype' ;;
+        (--freetype=bundled) C_FREETYPE=' -qt-freetype' ;;
+        (--libpng=system)    C_LIBPNG=' -system-libpng' ;;
+        (--libpng=bundled)   C_LIBPNG=' -qt-libpng' ;;
+        (--libjpeg=system)   C_LIBJPEG=' -system-libjpeg' ;;
+        (--libjpeg=bundled)  C_LIBJPEG=' -qt-libjpeg' ;;
+        (--zlib=system)      C_ZLIB=' -system-zlib' ;;
+        (--zlib=bundled)     C_ZLIB=' -qt-zlib' ;;
+        (--harfbuzz=system)  C_HARFBUZZ=' -system-harfbuzz' ;;
+        (--harfbuzz=bundled) C_HARFBUZZ=' -qt-harfbuzz' ;;
+        (--sqlite=system)    C_SQLITE=' -system-sqlite -sql-sqlite' ;;
+        (--sqlite=bundled)   C_SQLITE=' -qt-sql-sqlite' ;;
+        (--pcre=system)      C_PCRE=' -system-pcre' ;;
+        (--pcre=bundled)     C_PCRE=' -qt-pcre' ;;
+
+        (*)
+            printf 'preconfig.sh: unrecognized option: %s\n' "$arg" >&2
+            exit 2 ;;
+    esac
+done
+
+# Baseline Qt configuration.
 QT_CFG=''
 QT_CFG+=' -opensource'          # Use the open-source license
 QT_CFG+=' -confirm-license'     # Silently acknowledge the license confirmation
-QT_CFG+=' -v'                   # Makes it easier to see what header dependencies are missing
-QT_CFG+=' -static'
+QT_CFG+=' -v'                   # Reveal what header dependencies are missing
+QT_CFG+=' -static'              # No shared libraries
+QT_CFG+=' -qpa phantom'         # Default to our custom QPA platform
+QT_CFG+=' -release'             # Build only for release (no debugging support)
+QT_CFG+=' -nomake tools'        # Don't build the tools
+QT_CFG+=' -nomake examples'     # Don't build any examples
+QT_CFG+=' -no-compile-examples' # Seriously, don't build any examples
 
-if [[ $OSTYPE = darwin* ]]; then
-    QT_CFG+=' -arch x86'
-    QT_CFG+=' -cocoa'           # Cocoa only, ignore Carbon
-    QT_CFG+=' -no-dwarf2'
-else
-    QT_CFG+=' -system-freetype' # Freetype for text rendering
-    QT_CFG+=' -fontconfig'      # Fontconfig for better font matching
-    QT_CFG+=' -qpa'             # X11-less with QPA (aka Lighthouse)
+if [[ $OSTYPE == darwin* ]]; then
+    QT_CFG+=' -no-c++11'        # Build fails on mac right now with C++11
 fi
 
-QT_CFG+=' -release'             # Build only for release (no debugging support)
-QT_CFG+=' -fast'                # Accelerate Makefiles generation
-QT_CFG+=' -nomake demos'        # Don't build with the demos
-QT_CFG+=' -nomake docs'         # Don't generate the documentatio
-QT_CFG+=' -nomake examples'     # Don't build any examples
-QT_CFG+=' -nomake translations' # Ignore the translations
-QT_CFG+=' -nomake tools'        # Don't built the tools
-
-QT_CFG+=' -no-exceptions'       # Don't use C++ exception
-QT_CFG+=' -no-stl'              # No need for STL compatibility
-
-# Irrelevant Qt features
-QT_CFG+=' -no-libmng'
-QT_CFG+=' -no-libtiff'
-QT_CFG+=' -no-icu'
-
 # Unnecessary Qt modules
-QT_CFG+=' -no-declarative'
-QT_CFG+=' -no-multimedia'
 QT_CFG+=' -no-opengl'
 QT_CFG+=' -no-openvg'
-QT_CFG+=' -no-phonon'
-QT_CFG+=' -no-qt3support'
-QT_CFG+=' -no-script'
-QT_CFG+=' -no-scripttools'
-QT_CFG+=' -no-svg'
-QT_CFG+=' -no-xmlpatterns'
+QT_CFG+=' -no-egl'
+QT_CFG+=' -no-eglfs'
+QT_CFG+=' -no-sql-sqlite2'
 
 # Unnecessary Qt features
 QT_CFG+=' -D QT_NO_GRAPHICSVIEW'
 QT_CFG+=' -D QT_NO_GRAPHICSEFFECT'
-
-# Sets the default graphics system to the raster engine
-QT_CFG+=' -graphicssystem raster'
-
-# Unix
-QT_CFG+=' -no-dbus'             # Disable D-Bus feature
-QT_CFG+=' -no-glib'             # No need for Glib integration
-QT_CFG+=' -no-gstreamer'        # Turn off GStreamer support
-QT_CFG+=' -no-gtkstyle'         # Disable theming integration with Gtk+
-QT_CFG+=' -no-cups'             # Disable CUPs support
-QT_CFG+=' -no-sm'
-QT_CFG+=' -no-xinerama'
-QT_CFG+=' -no-xkb'
-
-# Use the bundled libraries, vs system-installed
-QT_CFG+=' -qt-libjpeg'
-QT_CFG+=' -qt-libpng'
-QT_CFG+=' -qt-zlib'
-
-# Explicitly compile with SSL support, so build will fail if headers are missing
-QT_CFG+=' -openssl'
-
-# Useless styles
 QT_CFG+=' -D QT_NO_STYLESHEET'
 QT_CFG+=' -D QT_NO_STYLE_CDE'
 QT_CFG+=' -D QT_NO_STYLE_CLEANLOOKS'
 QT_CFG+=' -D QT_NO_STYLE_MOTIF'
 QT_CFG+=' -D QT_NO_STYLE_PLASTIQUE'
+QT_CFG+=' -no-qml-debug'
 
-SILENT=''
+# Unnecessary Unix-specific features
+QT_CFG+=' -no-alsa'
+QT_CFG+=' -no-cups'
+QT_CFG+=' -no-dbus'
+QT_CFG+=' -no-directfb'
+QT_CFG+=' -no-evdev'
+QT_CFG+=' -no-glib'
+QT_CFG+=' -no-gtkstyle'
+QT_CFG+=' -no-kms'
+QT_CFG+=' -no-libudev'
+QT_CFG+=' -no-linuxfb'
+QT_CFG+=' -no-mtdev'
+QT_CFG+=' -no-nis'
+QT_CFG+=' -no-pulseaudio'
+QT_CFG+=' -no-sm'
+QT_CFG+=' -no-xcb'
+QT_CFG+=' -no-xcb-xlib'
+QT_CFG+=' -no-xinerama'
+QT_CFG+=' -no-xinput2'
+QT_CFG+=' -no-xkb'
+QT_CFG+=' -no-xrender'
 
-until [ -z "$1" ]; do
-    case $1 in
-        "--qt-config")
-            shift
-            QT_CFG+=" $1"
-            shift;;
-        "--jobs")
-            shift
-            COMPILE_JOBS=$1
-            shift;;
-        "--silent")
-            SILENT='-s'
-            QT_CFG+=" -silent"
-            shift;;
-        "--help")
-            echo "Usage: $0 [--qt-config CONFIG] [--jobs NUM]"
-            echo
-            echo "  --qt-config CONFIG          Specify extra config options to be used when configuring Qt"
-            echo "  --jobs NUM                  How many parallel compile jobs to use. Defaults to 4."
-            echo "  --silent                    Produce less verbose output."
-            echo
-            exit 0
-            ;;
-        *)
-            echo "Unrecognised option: $1"
-            exit 1;;
-    esac
-done
+# This is also unnecessary, but it's not possible to turn it off.
+#QT_CFG+=' -no-xlib'
 
-
-# For parallelizing the bootstrapping process, e.g. qmake and friends.
-export MAKEFLAGS=-j$COMPILE_JOBS
-
-if [ -z "$SILENT" ]; then
-    ./configure -prefix $PWD $QT_CFG
+# QtWebkit can only detect that system sqlite is in use if pkg-config
+# support is available in qmake.
+if [[ $C_SQLITE == *qt* ]]; then
+    QT_CFG+=' -no-pkg-config'
 else
-    echo "Setting up Qt. Please wait..."
-    ./configure -prefix $PWD $QT_CFG &> /dev/null
+    QT_CFG+=' -pkg-config'
 fi
 
-echo
-echo "Building Qt and WebKit. Please wait..."
-make -j$COMPILE_JOBS $SILENT
+# Explicitly compile with support for OpenSSL enabled, so the build
+# will fail if headers are missing.
+QT_CFG+=' -openssl -openssl-linked'
 
-# Build text codecs
-pushd src/plugins/codecs/
-make -j$COMPILE_JOBS $SILENT
-popd
+# ICU support in QtBase is reported to be unnecessary for Darwin.
+if [[ $OSTYPE != darwin* ]]; then
+    QT_CFG+=' -icu'
+fi
+
+# Configurable libraries.
+QT_CFG+="$C_FONTCONFIG"
+QT_CFG+="$C_FREETYPE"
+QT_CFG+="$C_LIBPNG"
+QT_CFG+="$C_LIBJPEG"
+QT_CFG+="$C_ZLIB"
+QT_CFG+="$C_PCRE"
+QT_CFG+="$C_HARFBUZZ"
+QT_CFG+="$C_SQLITE"
+
+# Qt's configure's idea of "silent" is still quite noisy.
+QT_CFG+="$SILENT"
+if [[ -n "$SILENT" ]]; then
+    exec >& /dev/null
+fi
+
+cd qtbase
+exec ./configure -prefix $PWD $QT_CFG "$@"

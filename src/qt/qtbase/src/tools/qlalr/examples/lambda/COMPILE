@@ -1,0 +1,3 @@
+qlalr lambda.g
+qmake
+make

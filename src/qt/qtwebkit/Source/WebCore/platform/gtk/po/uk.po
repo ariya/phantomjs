@@ -1,0 +1,2555 @@
+# This file is put in the public domain.
+#
+# Yuri Chornoivan <yurchor@ukr.net>, 2010, 2011.
+msgid ""
+msgstr ""
+"Project-Id-Version: webkit 1.1.22\n"
+"Report-Msgid-Bugs-To: http://bugs.webkit.org/\n"
+"POT-Creation-Date: 2013-03-15 17:34-0300\n"
+"PO-Revision-Date: 2011-08-19 11:25+0300\n"
+"Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
+"Language-Team: Ukrainian <translation@linux.org.ua>\n"
+"Language: uk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 1.2\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: ErrorsGtk.cpp:37
+msgid "Load request cancelled"
+msgstr "Запит щодо завантаження скасовано"
+
+#: ErrorsGtk.cpp:43
+msgid "Not allowed to use restricted network port"
+msgstr "Не можна використовувати мережевий порт з обмеженнями"
+
+#: ErrorsGtk.cpp:49
+msgid "URL cannot be shown"
+msgstr "Адресу не може бути показано"
+
+#: ErrorsGtk.cpp:55
+msgid "Frame load was interrupted"
+msgstr "Завантаження фрейма перервано"
+
+#: ErrorsGtk.cpp:61
+msgid "Content with the specified MIME type cannot be shown"
+msgstr "Дані з вказаним типом MIME не може бути показано"
+
+#: ErrorsGtk.cpp:67
+msgid "File does not exist"
+msgstr "Файла не існує"
+
+#: ErrorsGtk.cpp:73
+msgid "Plugin will handle load"
+msgstr "Завантаження буде виконане додатком"
+
+#: ErrorsGtk.cpp:85
+msgid "User cancelled the download"
+msgstr "Звантаження скасовано користувачем"
+
+#: ErrorsGtk.cpp:105
+msgid "Printer not found"
+msgstr ""
+
+#: ErrorsGtk.cpp:112
+#, fuzzy
+msgid "Invalid page range"
+msgstr "Увімкнути кеш сторінок"
+
+#: GtkAuthenticationDialog.cpp:171
+#, c-format
+msgid "The site %s:%i requests a username and password"
+msgstr ""
+
+#: GtkAuthenticationDialog.cpp:175
+msgid "_Remember password"
+msgstr "_Запам’ятати пароль"
+
+#: GtkAuthenticationDialog.cpp:201
+msgid "Server message:"
+msgstr "Повідомлення сервера:"
+
+#: GtkAuthenticationDialog.cpp:202 GtkAuthenticationDialog.cpp:210
+msgid "Username:"
+msgstr "Користувач:"
+
+#: GtkAuthenticationDialog.cpp:203 GtkAuthenticationDialog.cpp:211
+msgid "Password:"
+msgstr "Пароль:"
+
+#: LocalizedStringsGtk.cpp:56 LocalizedStringsGtk.cpp:61
+msgid "Submit"
+msgstr "Надіслати"
+
+#: LocalizedStringsGtk.cpp:66
+msgid "Reset"
+msgstr "Скинути"
+
+#: LocalizedStringsGtk.cpp:71
+msgid "Details"
+msgstr ""
+
+#: LocalizedStringsGtk.cpp:76
+msgid "This is a searchable index. Enter search keywords: "
+msgstr "Це покажчик з можливістю пошуку. Введіть ключові слова для пошуку: "
+
+#: LocalizedStringsGtk.cpp:81
+msgid "Choose File"
+msgstr "Виберіть файл"
+
+#: LocalizedStringsGtk.cpp:86
+#, fuzzy
+msgid "Choose Files"
+msgstr "Виберіть файл"
+
+#: LocalizedStringsGtk.cpp:91 LocalizedStringsGtk.cpp:96
+msgid "(None)"
+msgstr "(Немає)"
+
+#: LocalizedStringsGtk.cpp:101
+msgid "Open Link in New _Window"
+msgstr "Відкрити посилання у новому _вікні"
+
+#: LocalizedStringsGtk.cpp:106
+msgid "_Download Linked File"
+msgstr "_Звантажити пов’язаний файл"
+
+#: LocalizedStringsGtk.cpp:111
+msgid "Copy Link Loc_ation"
+msgstr "К_опіювати адресу посилання"
+
+#: LocalizedStringsGtk.cpp:116
+msgid "Open _Image in New Window"
+msgstr "Відкрити зо_браження у новому вікні"
+
+#: LocalizedStringsGtk.cpp:121
+msgid "Sa_ve Image As"
+msgstr "З_берегти зображення як"
+
+#: LocalizedStringsGtk.cpp:126
+msgid "Cop_y Image"
+msgstr "Коп_іювати зображення"
+
+#: LocalizedStringsGtk.cpp:131
+#, fuzzy
+msgid "Copy Image _Address"
+msgstr "Коп_іювати зображення"
+
+#: LocalizedStringsGtk.cpp:136
+msgid "Open _Video in New Window"
+msgstr "Відкрити зо_браження у новому вікні"
+
+#: LocalizedStringsGtk.cpp:141
+msgid "Open _Audio in New Window"
+msgstr "Відкрити _звук у новому вікні"
+
+#: LocalizedStringsGtk.cpp:146
+msgid "Cop_y Video Link Location"
+msgstr "Ко_піювати посилання на дані відео"
+
+#: LocalizedStringsGtk.cpp:151
+msgid "Cop_y Audio Link Location"
+msgstr "Коп_іювати посилання на звукові дані"
+
+#: LocalizedStringsGtk.cpp:156
+msgid "_Toggle Media Controls"
+msgstr "_Увімкнути/Вимкнути керування відтворенням"
+
+#: LocalizedStringsGtk.cpp:161
+msgid "Toggle Media _Loop Playback"
+msgstr "Увімкнути/Вимкнути _циклічне відтворення даних"
+
+#: LocalizedStringsGtk.cpp:166
+msgid "Switch Video to _Fullscreen"
+msgstr "Перемкнути перегляд у _повноекранний режим"
+
+#: LocalizedStringsGtk.cpp:171
+msgid "_Play"
+msgstr "_Відтворити"
+
+#: LocalizedStringsGtk.cpp:176
+msgid "_Pause"
+msgstr "П_ризупинити"
+
+#: LocalizedStringsGtk.cpp:181
+msgid "_Mute"
+msgstr "В_имкнути звук"
+
+#: LocalizedStringsGtk.cpp:186
+msgid "Open _Frame in New Window"
+msgstr "Відкрити _фрейм у новому вікні"
+
+#: LocalizedStringsGtk.cpp:209
+msgid "_Insert Unicode Control Character"
+msgstr "В_ставити керівний символ Unicode"
+
+#: LocalizedStringsGtk.cpp:214
+msgid "Input _Methods"
+msgstr "_Способи введення"
+
+#: LocalizedStringsGtk.cpp:237
+msgid "_Reload"
+msgstr "П_ерезавантажити"
+
+#: LocalizedStringsGtk.cpp:254
+msgid "No Guesses Found"
+msgstr "Не знайдено відповідників"
+
+#: LocalizedStringsGtk.cpp:259
+msgid "_Ignore Spelling"
+msgstr "П_ропустити слово"
+
+#: LocalizedStringsGtk.cpp:264
+msgid "_Learn Spelling"
+msgstr "_Додати слово"
+
+#: LocalizedStringsGtk.cpp:269
+msgid "_Search the Web"
+msgstr "_Шукати у інтернеті"
+
+#: LocalizedStringsGtk.cpp:274
+msgid "_Look Up in Dictionary"
+msgstr "Ш_укати у словнику"
+
+#: LocalizedStringsGtk.cpp:279
+msgid "_Open Link"
+msgstr "_Відкрити посилання"
+
+#: LocalizedStringsGtk.cpp:284
+msgid "Ignore _Grammar"
+msgstr "І_гнорувати граматику"
+
+#: LocalizedStringsGtk.cpp:289
+msgid "Spelling and _Grammar"
+msgstr "_Правопис і граматика"
+
+#: LocalizedStringsGtk.cpp:294
+msgid "_Show Spelling and Grammar"
+msgstr "По_казати перевірку правопису і граматики"
+
+#: LocalizedStringsGtk.cpp:294
+msgid "_Hide Spelling and Grammar"
+msgstr "С_ховати перевірку правопису і граматики"
+
+#: LocalizedStringsGtk.cpp:299
+msgid "_Check Document Now"
+msgstr "Пе_ревірити документ"
+
+#: LocalizedStringsGtk.cpp:304
+msgid "Check Spelling While _Typing"
+msgstr "Перевір_яти правопис під час введення"
+
+#: LocalizedStringsGtk.cpp:309
+msgid "Check _Grammar With Spelling"
+msgstr "Перевірити _граматику з правописом"
+
+#: LocalizedStringsGtk.cpp:314
+msgid "_Font"
+msgstr "_Шрифт"
+
+#: LocalizedStringsGtk.cpp:337
+msgid "_Outline"
+msgstr "_Обрис"
+
+#: LocalizedStringsGtk.cpp:342
+msgid "Inspect _Element"
+msgstr "Перевірити е_лемент"
+
+#: LocalizedStringsGtk.cpp:347
+msgid "LRM _Left-to-right mark"
+msgstr "LRM позначка з_ліва направо"
+
+#: LocalizedStringsGtk.cpp:352
+msgid "RLM _Right-to-left mark"
+msgstr "RLM позначка с_права наліво"
+
+#: LocalizedStringsGtk.cpp:357
+msgid "LRE Left-to-right _embedding"
+msgstr "LRE вс_тавка зліва направо"
+
+#: LocalizedStringsGtk.cpp:362
+msgid "RLE Right-to-left e_mbedding"
+msgstr "RLE вст_авка справа ліворуч"
+
+#: LocalizedStringsGtk.cpp:367
+msgid "LRO Left-to-right _override"
+msgstr "LRO п_ерезапис зліва праворуч"
+
+#: LocalizedStringsGtk.cpp:372
+msgid "RLO Right-to-left o_verride"
+msgstr "RLO пе_резапис справа ліворуч"
+
+#: LocalizedStringsGtk.cpp:377
+msgid "PDF _Pop directional formatting"
+msgstr "PDF _Вертикальне розташування"
+
+#: LocalizedStringsGtk.cpp:382
+msgid "ZWS _Zero width space"
+msgstr "ZWS Про_біл нульової ширини"
+
+#: LocalizedStringsGtk.cpp:387
+msgid "ZWJ Zero width _joiner"
+msgstr "ZWJ _Об’єднувач нульової ширини"
+
+#: LocalizedStringsGtk.cpp:392
+msgid "ZWNJ Zero width _non-joiner"
+msgstr "ZWNJ _Роз’єднувач нульової ширини"
+
+#: LocalizedStringsGtk.cpp:397
+msgid "No recent searches"
+msgstr "Немає нещодавніх пошуків"
+
+#: LocalizedStringsGtk.cpp:402
+msgid "Recent searches"
+msgstr "Нещодавні пошуки"
+
+#: LocalizedStringsGtk.cpp:407
+msgid "_Clear recent searches"
+msgstr "Сп_орожнити список пошуків"
+
+#: LocalizedStringsGtk.cpp:412
+msgid "definition"
+msgstr "визначення"
+
+#: LocalizedStringsGtk.cpp:417
+msgid "term"
+msgstr "термін"
+
+#: LocalizedStringsGtk.cpp:422
+#, fuzzy
+msgid "description"
+msgstr "визначення"
+
+#: LocalizedStringsGtk.cpp:427
+msgid "footer"
+msgstr ""
+
+#: LocalizedStringsGtk.cpp:432
+msgid "press"
+msgstr "натиснути"
+
+#: LocalizedStringsGtk.cpp:437
+msgid "select"
+msgstr "вибрати"
+
+#: LocalizedStringsGtk.cpp:442
+msgid "activate"
+msgstr "задіяти"
+
+#: LocalizedStringsGtk.cpp:447
+msgid "uncheck"
+msgstr "зняти позначку"
+
+#: LocalizedStringsGtk.cpp:452
+msgid "check"
+msgstr "позначити"
+
+#: LocalizedStringsGtk.cpp:457
+msgid "jump"
+msgstr "перейти"
+
+#: LocalizedStringsGtk.cpp:472
+msgid "Missing Plug-in"
+msgstr "Не виявлено додатка"
+
+#: LocalizedStringsGtk.cpp:478
+msgid "Plug-in Failure"
+msgstr "Помилка додатка"
+
+#: LocalizedStringsGtk.cpp:502
+msgid " files"
+msgstr " файлів"
+
+#: LocalizedStringsGtk.cpp:507
+msgid "Unknown"
+msgstr "Невідомо"
+
+#: LocalizedStringsGtk.cpp:524
+msgid "Loading..."
+msgstr "Завантаження..."
+
+#: LocalizedStringsGtk.cpp:529
+msgid "Live Broadcast"
+msgstr "Трансляція"
+
+#: LocalizedStringsGtk.cpp:535
+msgid "audio element controller"
+msgstr "керування звуковим елементом"
+
+#: LocalizedStringsGtk.cpp:537
+msgid "video element controller"
+msgstr "керування відеоелементом"
+
+#: LocalizedStringsGtk.cpp:539
+msgid "mute"
+msgstr "вимкнути звук"
+
+#: LocalizedStringsGtk.cpp:541
+msgid "unmute"
+msgstr "увімкнути звук"
+
+#: LocalizedStringsGtk.cpp:543
+msgid "play"
+msgstr "відтворити"
+
+#: LocalizedStringsGtk.cpp:545
+msgid "pause"
+msgstr "призупинити"
+
+#: LocalizedStringsGtk.cpp:547
+msgid "movie time"
+msgstr "час відтворення відео"
+
+#: LocalizedStringsGtk.cpp:549
+msgid "timeline slider thumb"
+msgstr "повзунок лінійки запису"
+
+#: LocalizedStringsGtk.cpp:551
+msgid "back 30 seconds"
+msgstr "назад на 30 секунд"
+
+#: LocalizedStringsGtk.cpp:553
+msgid "return to realtime"
+msgstr "повернутися до режиму реального часу"
+
+#: LocalizedStringsGtk.cpp:555
+msgid "elapsed time"
+msgstr "час, що минув"
+
+#: LocalizedStringsGtk.cpp:557
+msgid "remaining time"
+msgstr "час, що залишився:"
+
+#: LocalizedStringsGtk.cpp:559
+msgid "status"
+msgstr "стан"
+
+#: LocalizedStringsGtk.cpp:561
+#, fuzzy
+msgid "enter fullscreen"
+msgstr "повноекранний режим"
+
+#: LocalizedStringsGtk.cpp:563
+#, fuzzy
+msgid "exit fullscreen"
+msgstr "Звичайний режим"
+
+#: LocalizedStringsGtk.cpp:565
+msgid "fast forward"
+msgstr "повний вперед"
+
+#: LocalizedStringsGtk.cpp:567
+msgid "fast reverse"
+msgstr "повний назад"
+
+#: LocalizedStringsGtk.cpp:569
+msgid "show closed captions"
+msgstr "показати вбудовані субтитри"
+
+#: LocalizedStringsGtk.cpp:571
+msgid "hide closed captions"
+msgstr "приховати вбудовані субтитри"
+
+#: LocalizedStringsGtk.cpp:573
+#, fuzzy
+msgid "media controls"
+msgstr "_Увімкнути/Вимкнути керування відтворенням"
+
+#: LocalizedStringsGtk.cpp:582
+msgid "audio element playback controls and status display"
+msgstr "елементи керування відтворенням та показом стану аудіо"
+
+#: LocalizedStringsGtk.cpp:584
+msgid "video element playback controls and status display"
+msgstr "елементи керування відтворенням та показом стану відео"
+
+#: LocalizedStringsGtk.cpp:586
+msgid "mute audio tracks"
+msgstr "вимкнути звукові доріжки"
+
+#: LocalizedStringsGtk.cpp:588
+msgid "unmute audio tracks"
+msgstr "увімкнути звукові доріжки"
+
+#: LocalizedStringsGtk.cpp:590
+msgid "begin playback"
+msgstr "почати відтворення"
+
+#: LocalizedStringsGtk.cpp:592
+msgid "pause playback"
+msgstr "призупинити відтворення"
+
+#: LocalizedStringsGtk.cpp:594
+msgid "movie time scrubber"
+msgstr "зміна часу відтворення відео"
+
+#: LocalizedStringsGtk.cpp:596
+msgid "movie time scrubber thumb"
+msgstr "позначка пересування часом відтворення відео"
+
+#: LocalizedStringsGtk.cpp:598
+msgid "seek movie back 30 seconds"
+msgstr "перехід на 30 секунд назад"
+
+#: LocalizedStringsGtk.cpp:600
+msgid "return streaming movie to real time"
+msgstr "повернути відтворення потокового відео у режим реального часу"
+
+#: LocalizedStringsGtk.cpp:602
+msgid "current movie time in seconds"
+msgstr "поточний час відтворення відео у секундах"
+
+#: LocalizedStringsGtk.cpp:604
+msgid "number of seconds of movie remaining"
+msgstr "кількість секунд до завершення відтворення відео"
+
+#: LocalizedStringsGtk.cpp:606
+msgid "current movie status"
+msgstr "поточний стан відео"
+
+#: LocalizedStringsGtk.cpp:608
+msgid "seek quickly back"
+msgstr "швидке перемотування назад"
+
+#: LocalizedStringsGtk.cpp:610
+msgid "seek quickly forward"
+msgstr "швидке перемотування вперед"
+
+#: LocalizedStringsGtk.cpp:612
+msgid "Play movie in fullscreen mode"
+msgstr "Відтворити відео у повноекранному режимі"
+
+#: LocalizedStringsGtk.cpp:614
+#, fuzzy
+msgid "Exit fullscreen mode"
+msgstr "Вийти з повноекранного режиму"
+
+#: LocalizedStringsGtk.cpp:616
+msgid "start displaying closed captions"
+msgstr "почати показ вбудованих субтитрів"
+
+#: LocalizedStringsGtk.cpp:618
+msgid "stop displaying closed captions"
+msgstr "припинити показ вбудованих субтитрів"
+
+#: LocalizedStringsGtk.cpp:627
+msgid "indefinite time"
+msgstr "невизначений час"
+
+#: LocalizedStringsGtk.cpp:657
+msgid "value missing"
+msgstr "не вистачає значення"
+
+#: LocalizedStringsGtk.cpp:693
+msgid "type mismatch"
+msgstr "невідповідність типів"
+
+#: LocalizedStringsGtk.cpp:716
+msgid "pattern mismatch"
+msgstr "невідповідність шаблонів"
+
+#: LocalizedStringsGtk.cpp:721
+msgid "too long"
+msgstr "занадто довгий"
+
+#: LocalizedStringsGtk.cpp:726
+msgid "range underflow"
+msgstr "від’ємне переповнення діапазону"
+
+#: LocalizedStringsGtk.cpp:731
+msgid "range overflow"
+msgstr "переповнення діапазону"
+
+#: LocalizedStringsGtk.cpp:736
+msgid "step mismatch"
+msgstr "невідповідність кроків"
+
+#: LocalizedStringsGtk.cpp:741
+msgid "Unacceptable TLS certificate"
+msgstr ""
+
+#: ../graphics/gtk/FullscreenVideoControllerGtk.cpp:328
+msgid "Play"
+msgstr "Пуск"
+
+#: ../graphics/gtk/FullscreenVideoControllerGtk.cpp:330
+msgid "Pause"
+msgstr "Пауза"
+
+#: ../graphics/gtk/FullscreenVideoControllerGtk.cpp:410
+msgid "Play / Pause"
+msgstr "Старт / Пауза"
+
+#: ../graphics/gtk/FullscreenVideoControllerGtk.cpp:410
+msgid "Play or pause the media"
+msgstr "Відтворити або призупинити відтворення даних"
+
+#: ../graphics/gtk/FullscreenVideoControllerGtk.cpp:416
+msgid "Time:"
+msgstr "Час:"
+
+#: ../graphics/gtk/FullscreenVideoControllerGtk.cpp:442
+msgid "Exit Fullscreen"
+msgstr "Звичайний режим"
+
+#: ../graphics/gtk/FullscreenVideoControllerGtk.cpp:442
+msgid "Exit from fullscreen mode"
+msgstr "Вийти з повноекранного режиму"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:276
+msgid "Network Request"
+msgstr "Запит до мережі"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:277
+msgid "The network request for the URI that should be downloaded"
+msgstr "Запит до мережі щодо адреси URI, вміст за якою слід звантажити"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:291
+msgid "Network Response"
+msgstr "Відповідь мережі"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:292
+msgid "The network response for the URI that should be downloaded"
+msgstr "Відповідь мережі щодо адреси URI, вміст за якою слід звантажити"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:306
+msgid "Destination URI"
+msgstr "Адреса URI призначення"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:307
+msgid "The destination URI where to save the file"
+msgstr "Адреса URI призначення, за якою слід зберегти файл"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:321
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:150
+msgid "Suggested Filename"
+msgstr "Пропозиція щодо назви"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:322
+msgid "The filename suggested as default when saving"
+msgstr "Типова назва, яку програма пропонуватиме під час збереження"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:339
+msgid "Progress"
+msgstr "Поступ"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:340
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:171
+msgid "Determines the current progress of the download"
+msgstr "Визначає поточний поступ звантаження"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:353
+msgid "Status"
+msgstr "Стан"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:354
+msgid "Determines the current status of the download"
+msgstr "Визначає поточний стан звантаження"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:369
+msgid "Current Size"
+msgstr "Поточний розмір"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:370
+msgid "The length of the data already downloaded"
+msgstr "Об’єм вже звантажених даних"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:384
+msgid "Total Size"
+msgstr "Загальний розмір"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:385
+msgid "The total size of the file"
+msgstr "Загальний об’єм даних файла"
+
+#: ../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:144
+#: ../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:579
+msgid "Operation was cancelled"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:253
+#: ../../../WebKit/gtk/webkit/webkiticondatabase.cpp:148
+msgid "Path"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:254
+#: ../../../WebKit/gtk/webkit/webkiticondatabase.cpp:149
+#, fuzzy
+msgid "The absolute path of the icon database folder"
+msgstr "Абсолютна назва файла бази даних вебсховища"
+
+#: ../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:129
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:128
+#, fuzzy
+msgid "MIME types filter"
+msgstr "Тип MIME"
+
+#: ../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:130
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:129
+#, fuzzy
+msgid "The filter currently associated with the request"
+msgstr "Внутрішній вузол DOM, пов’язаний з результатом перевірки."
+
+#: ../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:145
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:142
+#, fuzzy
+msgid "MIME types"
+msgstr "Тип MIME"
+
+#: ../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:146
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:143
+#, fuzzy
+msgid "The list of MIME types associated with the request"
+msgstr "Внутрішній вузол DOM, пов’язаний з результатом перевірки."
+
+#: ../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:161
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:157
+msgid "Select multiple files"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:162
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:158
+msgid "Whether the file chooser should allow selecting multiple files"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:177
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:171
+#, fuzzy
+msgid "Selected files"
+msgstr " файлів"
+
+#: ../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:178
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:172
+#, fuzzy
+msgid "The list of selected files associated with the request"
+msgstr "Внутрішній вузол DOM, пов’язаний з результатом перевірки."
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:175
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:152
+msgid "Context"
+msgstr "Контекст"
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:176
+msgid "Flags indicating the kind of target that received the event."
+msgstr "Прапорці, які позначають тип призначення, яке отримує дані події."
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:190
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:166
+msgid "Link URI"
+msgstr "Адреса посилання"
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:191
+msgid "The URI to which the target that received the event points, if any."
+msgstr ""
+"Адреса, на яку вказує призначення, яке отримало повідомлення події, якщо "
+"така є."
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:204
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:205
+msgid "Image URI"
+msgstr "Адреса зображення"
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:205
+msgid ""
+"The URI of the image that is part of the target that received the event, if "
+"any."
+msgstr ""
+"Адреса зображення, яке є частиною призначення, що отримало повідомлення про "
+"подію, якщо така існує."
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:218
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:218
+msgid "Media URI"
+msgstr "Адреса даних"
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:219
+msgid ""
+"The URI of the media that is part of the target that received the event, if "
+"any."
+msgstr ""
+"Адреса даних, яке є частиною призначення, що отримало повідомлення про "
+"подію, якщо така існує."
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:240
+msgid "Inner node"
+msgstr "Внутрішній вузол"
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:241
+msgid "The inner DOM node associated with the hit test result."
+msgstr "Внутрішній вузол DOM, пов’язаний з результатом перевірки."
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:254
+msgid "X coordinate"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:255
+msgid "The x coordinate of the event relative to the view's window."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:268
+msgid "Y coordinate"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:269
+msgid "The y coordinate of the event relative to the view's window."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:134
+#: ../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:143
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:466
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:176
+#: ../../../WebKit/gtk/webkit/webkitwebresource.cpp:209
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3238
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIRequest.cpp:93
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:99
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:109
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:635
+msgid "URI"
+msgstr "URI"
+
+#: ../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:135
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIRequest.cpp:94
+msgid "The URI to which the request will be made."
+msgstr "Адреса, на яку буде надіслано запит."
+
+#: ../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:148
+#: ../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:157
+msgid "Message"
+msgstr "Повідомлення"
+
+#: ../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:149
+msgid "The SoupMessage that backs the request."
+msgstr "SoupMessage, яке супроводжує запит."
+
+#: ../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:144
+msgid "The URI to which the response will be made."
+msgstr "Адреса, на яку має бути спрямовано відповідь."
+
+#: ../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:158
+msgid "The SoupMessage that backs the response."
+msgstr "SoupMessage, яка супроводжує відповідь."
+
+#: ../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:171
+#, fuzzy
+msgid "Suggested filename"
+msgstr "Пропозиція щодо назви"
+
+#: ../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:172
+#, fuzzy
+msgid "The suggested filename for the response."
+msgstr "Назва кодування тексту ресурсу"
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:150
+msgid "Protocol"
+msgstr "Протокол"
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:151
+msgid "The protocol of the security origin"
+msgstr "Протокол походження захисту"
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:164
+msgid "Host"
+msgstr "Вузол"
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:165
+msgid "The host of the security origin"
+msgstr "Вузол походження захисту"
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:178
+msgid "Port"
+msgstr "Порт"
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:179
+msgid "The port of the security origin"
+msgstr "Порт походження захисту"
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:192
+msgid "Web Database Usage"
+msgstr "Використання інтернет-бази даних"
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:193
+msgid "The cumulative size of all web databases in the security origin"
+msgstr "Загальний розмір всіх інтернет-баз даних у походженні захисту"
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:205
+msgid "Web Database Quota"
+msgstr "Квота інтернет-баз даних"
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:206
+msgid "The web database quota of the security origin in bytes"
+msgstr "Квота інтернет-бази даних походження захисту у байтах"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:138
+msgid "Device Width"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:139
+#, fuzzy
+msgid "The width of the screen."
+msgstr "Адреса ресурсу"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:160
+msgid "Device Height"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:161
+#, fuzzy
+msgid "The height of the screen."
+msgstr "Адреса ресурсу"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:184
+msgid "Available Width"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:185
+#, fuzzy
+msgid "The width of the visible area."
+msgstr "Заголовок запису журналу"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:208
+msgid "Available Height"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:209
+#, fuzzy
+msgid "The height of the visible area."
+msgstr "Заголовок запису журналу"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:230
+msgid "Desktop Width"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:231
+msgid ""
+"The width of viewport that works well for most web pages designed for "
+"desktop."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:253
+msgid "Device DPI"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:254
+msgid "The number of dots per inch of the screen."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:272
+msgid "Width"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:273
+#, fuzzy
+msgid "The width of the viewport."
+msgstr "Заголовок запису журналу"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:291
+msgid "Height"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:292
+#, fuzzy
+msgid "The height of the viewport."
+msgstr "Заголовок запису журналу"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:310
+msgid "Initial Scale Factor"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:311
+#, fuzzy
+msgid "The initial scale of the viewport."
+msgstr "Загальний об’єм даних файла"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:329
+#, fuzzy
+msgid "Minimum Scale Factor"
+msgstr "Мінімальний розмір логічного шрифту"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:330
+#, fuzzy
+msgid "The minimum scale of the viewport."
+msgstr "Заголовок запису журналу"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:348
+msgid "Maximum Scale Factor"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:349
+#, fuzzy
+msgid "The maximum scale of the viewport."
+msgstr "Назва фрейма ресурсу"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:367
+msgid "Device Pixel Ratio"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:368
+msgid "The device pixel ratio of the viewport."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:386
+msgid "user-scalable"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:387
+msgid "User Scalable"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:388
+msgid "Determines whether or not the user can zoom in and out."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:405
+msgid "valid"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:406
+msgid "Valid"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:407
+msgid "Determines whether or not the attributes are valid, and can be used."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:176
+msgid "Security Origin"
+msgstr "Походження захисту"
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:177
+msgid "The security origin of the database"
+msgstr "Походження захисту бази даних"
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:190
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:452
+msgid "Name"
+msgstr "Назва"
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:191
+msgid "The name of the Web Database database"
+msgstr "Назва бази даних інтернет-баз даних"
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:204
+msgid "Display Name"
+msgstr "Показана назва"
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:205
+msgid "The display name of the Web Storage database"
+msgstr "Показана назва бази даних вебсховища"
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:218
+msgid "Expected Size"
+msgstr "Очікуваний розмір"
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:219
+msgid "The expected size of the Web Database database"
+msgstr "Очікуваний розмір бази даних інтернет-баз даних"
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:231
+msgid "Size"
+msgstr "Розмір"
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:232
+msgid "The current size of the Web Database database"
+msgstr "Поточний розмір бази даних інтернет-баз даних"
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:244
+msgid "Filename"
+msgstr "Назва файла"
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:245
+msgid "The absolute filename of the Web Storage database"
+msgstr "Абсолютна назва файла бази даних вебсховища"
+
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:453
+msgid "The name of the frame"
+msgstr "Назва фрейма"
+
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:459
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:144
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3224
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:591
+msgid "Title"
+msgstr "Заголовок"
+
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:460
+msgid "The document title of the frame"
+msgstr "Заголовок документа фрейма"
+
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:467
+msgid "The current URI of the contents displayed by the frame"
+msgstr "Поточна адреса URI даних, показаних у фреймі"
+
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:498
+msgid "Horizontal Scrollbar Policy"
+msgstr "Правила горизонтальної смужки гортання"
+
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:499
+msgid ""
+"Determines the current policy for the horizontal scrollbar of the frame."
+msgstr ""
+"Визначає поточні правила створення горизонтальної смужки гортання у фреймі."
+
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:516
+msgid "Vertical Scrollbar Policy"
+msgstr "Правила вертикальної смужки гортання"
+
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:517
+msgid "Determines the current policy for the vertical scrollbar of the frame."
+msgstr ""
+"Визначає поточні правила створення вертикальної смужки гортання у фреймі."
+
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:145
+msgid "The title of the history item"
+msgstr "Заголовок запису журналу"
+
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:160
+msgid "Alternate Title"
+msgstr "Альтернативний заголовок"
+
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:161
+msgid "The alternate title of the history item"
+msgstr "Альтернативний заголовок запису журналу"
+
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:177
+msgid "The URI of the history item"
+msgstr "Адреса URI запису журналу"
+
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:192
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:163
+msgid "Original URI"
+msgstr "Початкова адреса URI"
+
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:193
+msgid "The original URI of the history item"
+msgstr "Початкова адреса URI запису журналу"
+
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:208
+msgid "Last visited Time"
+msgstr "Час останнього відвідування"
+
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:209
+msgid "The time at which the history item was last visited"
+msgstr "Час, коли ви востаннє відвідували запис журналу"
+
+#: ../../../WebKit/gtk/webkit/webkitwebinspector.cpp:273
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:154
+msgid "Web View"
+msgstr "Веб-панель"
+
+#: ../../../WebKit/gtk/webkit/webkitwebinspector.cpp:274
+msgid "The Web View that renders the Web Inspector itself"
+msgstr "Веб-панель, на якій показано дані веб-інспектора"
+
+#: ../../../WebKit/gtk/webkit/webkitwebinspector.cpp:287
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:122
+msgid "Inspected URI"
+msgstr "Адреса URI, що перевіряється"
+
+#: ../../../WebKit/gtk/webkit/webkitwebinspector.cpp:288
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:123
+msgid "The URI that is currently being inspected"
+msgstr "Адреса URI, яку перевіряють"
+
+#: ../../../WebKit/gtk/webkit/webkitwebinspector.cpp:304
+msgid "Enable JavaScript profiling"
+msgstr "Увімкнути профілювання JavaScript"
+
+#: ../../../WebKit/gtk/webkit/webkitwebinspector.cpp:305
+msgid "Profile the executed JavaScript."
+msgstr "Створити профіль виконаного JavaScript."
+
+#: ../../../WebKit/gtk/webkit/webkitwebinspector.cpp:320
+msgid "Enable Timeline profiling"
+msgstr "Увімкнути профілювання Timeline"
+
+#: ../../../WebKit/gtk/webkit/webkitwebinspector.cpp:321
+msgid "Profile the WebCore instrumentation."
+msgstr "Профілювати інструментарій WebCore."
+
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:148
+msgid "Reason"
+msgstr "Підстава"
+
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:149
+msgid "The reason why this navigation is occurring"
+msgstr "Підстава цього переходу"
+
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:164
+msgid "The URI that was requested as the target for the navigation"
+msgstr "Адреса URI, на яку надійшов запит, як на адресу переходу"
+
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:178
+msgid "Button"
+msgstr "Кнопка"
+
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:179
+msgid "The button used to click"
+msgstr "Кнопка для натискання"
+
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:194
+msgid "Modifier state"
+msgstr "Стан модифікаторів"
+
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:195
+msgid "A bitmask representing the state of the modifier keys"
+msgstr "Бітова маска, що відповідає стану натискання клавіш-модифікаторів"
+
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:210
+msgid "Target frame"
+msgstr "Фрейм призначення"
+
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:211
+msgid "The target frame for the navigation"
+msgstr "Фрейм призначення під час переходу"
+
+#: ../../../WebKit/gtk/webkit/webkitwebplugin.cpp:115
+#, fuzzy
+msgid "Enabled"
+msgstr "Можна редагувати"
+
+#: ../../../WebKit/gtk/webkit/webkitwebplugin.cpp:116
+#, fuzzy
+msgid "Whether the plugin is enabled"
+msgstr "Чи слід використовувати кешування сторінок"
+
+#: ../../../WebKit/gtk/webkit/webkitwebresource.cpp:210
+#, fuzzy
+msgid "The URI of the resource"
+msgstr "Адреса ресурсу"
+
+#: ../../../WebKit/gtk/webkit/webkitwebresource.cpp:224
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:137
+msgid "MIME Type"
+msgstr "Тип MIME"
+
+#: ../../../WebKit/gtk/webkit/webkitwebresource.cpp:225
+msgid "The MIME type of the resource"
+msgstr "Тип MIME ресурсу"
+
+#: ../../../WebKit/gtk/webkit/webkitwebresource.cpp:239
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3373
+msgid "Encoding"
+msgstr "Кодування"
+
+#: ../../../WebKit/gtk/webkit/webkitwebresource.cpp:240
+msgid "The text encoding name of the resource"
+msgstr "Назва кодування тексту ресурсу"
+
+#: ../../../WebKit/gtk/webkit/webkitwebresource.cpp:255
+msgid "Frame Name"
+msgstr "Назва фрейма"
+
+#: ../../../WebKit/gtk/webkit/webkitwebresource.cpp:256
+msgid "The frame name of the resource"
+msgstr "Назва фрейма ресурсу"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:150
+msgid "Default Encoding"
+msgstr "Типове кодування"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:151
+msgid "The default encoding used to display text."
+msgstr "Типове кодування для показу тексту."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:159
+msgid "Cursive Font Family"
+msgstr "Гарнітура курсивного шрифту"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:160
+msgid "The default Cursive font family used to display text."
+msgstr "Типова гарнітура курсивного шрифту для показу текстових даних."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:168
+msgid "Default Font Family"
+msgstr "Типова гарнітура шрифту"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:169
+msgid "The default font family used to display text."
+msgstr "Типова гарнітура шрифту для показу текстових даних."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:177
+msgid "Fantasy Font Family"
+msgstr "Гарнітура декоративного шрифту"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:178
+msgid "The default Fantasy font family used to display text."
+msgstr "Типова гарнітура декоративного шрифту для показу текстових даних."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:186
+msgid "Monospace Font Family"
+msgstr "Гарнітура моноширинного шрифту"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:187
+msgid "The default font family used to display monospace text."
+msgstr "Типова гарнітура шрифту для показу моноширинних текстових даних."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:195
+msgid "Sans Serif Font Family"
+msgstr "Гарнітура шрифту без засічок"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:196
+msgid "The default Sans Serif font family used to display text."
+msgstr "Типова гарнітура без засічок шрифту для показу текстових даних."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:204
+msgid "Serif Font Family"
+msgstr "Гарнітура шрифту з засічками"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:205
+msgid "The default Serif font family used to display text."
+msgstr "Типова гарнітура шрифту з засічками для показу текстових даних."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:213
+msgid "Default Font Size"
+msgstr "Типовий розмір шрифту"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:214
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:717
+msgid "The default font size used to display text."
+msgstr "Типовий розмір символів шрифту для показу текстових даних."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:222
+msgid "Default Monospace Font Size"
+msgstr "Типовий розмір моноширинного шрифту"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:223
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:731
+msgid "The default font size used to display monospace text."
+msgstr ""
+"Типовий розмір символів шрифту для показу моноширинних текстових даних."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:231
+msgid "Minimum Font Size"
+msgstr "Мінімальний розмір шрифту"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:232
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:746
+msgid "The minimum font size used to display text."
+msgstr "Мінімальний розмір символів шрифту для показу текстових даних."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:240
+msgid "Minimum Logical Font Size"
+msgstr "Мінімальний розмір логічного шрифту"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:241
+msgid "The minimum logical font size used to display text."
+msgstr ""
+"Мінімальний розмір символів логічного шрифту для показу текстових даних."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:260
+msgid "Enforce 96 DPI"
+msgstr "Використовувати 96 т/д"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:261
+msgid "Enforce a resolution of 96 DPI"
+msgstr "Використовувати роздільну здатність 96 т/д"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:269
+msgid "Auto Load Images"
+msgstr "Автоматично завантажувати зображення"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:270
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:458
+msgid "Load images automatically."
+msgstr "Завантажувати зображення у автоматичному режимі"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:278
+msgid "Auto Shrink Images"
+msgstr "Автоматично стискати зображення"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:279
+msgid "Automatically shrink standalone images to fit."
+msgstr "Автоматично стискати окремі зображення відповідно до розмірів вікна."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:287
+msgid "Respect Image Orientation"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:288
+msgid "Whether WebKit should respect image orientation."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:296
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:870
+msgid "Print Backgrounds"
+msgstr "Друкувати тло"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:297
+msgid "Whether background images should be printed."
+msgstr "Чи слід друкувати зображення тла сторінки."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:305
+msgid "Enable Scripts"
+msgstr "Увімкнути скрипти"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:306
+msgid "Enable embedded scripting languages."
+msgstr "Увімкнути вбудовані до сторінок скрипти."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:314
+msgid "Enable Plugins"
+msgstr "Увімкнути додатки"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:315
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:568
+msgid "Enable embedded plugin objects."
+msgstr "Увімкнути вбудовані об’єкти додатків."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:323
+msgid "Resizable Text Areas"
+msgstr "Змінний розмір текстових полів"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:324
+msgid "Whether text areas are resizable."
+msgstr "Чи можлива зміна розмірів текстових полів."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:331
+msgid "User Stylesheet URI"
+msgstr "Адреса URI таблиці стилів користувача"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:332
+msgid "The URI of a stylesheet that is applied to every page."
+msgstr "Адреса URI таблиці стилів, яку буде застосовано до всіх сторінок."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:347
+msgid "Zoom Stepping Value"
+msgstr "Приріст масштабу"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:348
+msgid "The value by which the zoom level is changed when zooming in or out."
+msgstr ""
+"Значення приросту, на який змінюватиметься масштаб під час збільшення або "
+"зменшення."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:366
+msgid "Enable Developer Extras"
+msgstr "Увімкнути засоби розробки"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:367
+msgid "Enables special extensions that help developers"
+msgstr "Увімкнути особливі додатки, які допоможуть у розробці"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:387
+msgid "Enable Private Browsing"
+msgstr "Увімкнути конфіденційний перегляд"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:388
+msgid "Enables private browsing mode"
+msgstr "Увімкнути режим конфіденційного перегляду"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:403
+msgid "Enable Spell Checking"
+msgstr "Увімкнути перевірку орфографії"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:404
+msgid "Enables spell checking while typing"
+msgstr "Увімкнути перевірку правопису під час введення тексту"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:427
+msgid "Languages to use for spell checking"
+msgstr "Мови для перевірки правопису"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:428
+msgid "Comma separated list of languages to use for spell checking"
+msgstr "Список записів мов для перевірки правопису, відокремлених комами"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:442
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:841
+msgid "Enable Caret Browsing"
+msgstr "Увімкнути режим активного вказівника"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:443
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:842
+#, fuzzy
+msgid "Whether to enable accessibility enhanced keyboard navigation"
+msgstr ""
+"Вмикає або вимикає додаткові можливості керування вказівником за допомогою "
+"клавіатури"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:458
+msgid "Enable HTML5 Database"
+msgstr "Увімкнути базу даних HTML5"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:459
+msgid "Whether to enable HTML5 database support"
+msgstr "Чи слід вмикати підтримку бази даних HTML5"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:474
+msgid "Enable HTML5 Local Storage"
+msgstr "Увімкнути локальне сховище HTML5"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:475
+msgid "Whether to enable HTML5 Local Storage support"
+msgstr "Чи слід вмикати підтримку локального сховища HTML5"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:490
+msgid "Local Storage Database Path"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:491
+#, fuzzy
+msgid "The path to where HTML5 Local Storage databases are stored."
+msgstr "Чи слід вмикати підтримку локального сховища HTML5"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:505
+msgid "Enable XSS Auditor"
+msgstr "Увімкнути інструмент перевірки XSS"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:506
+msgid "Whether to enable the XSS auditor"
+msgstr "Чи слід вмикати інструмент перевірки XSS"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:524
+msgid "Enable Spatial Navigation"
+msgstr "Увімкнути просторову навігацію"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:525
+msgid "Whether to enable Spatial Navigation"
+msgstr "Чи слід вмикати просторову навігацію"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:543
+msgid "Enable Frame Flattening"
+msgstr "Увімкнути підбирання розмірів фреймів"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:544
+msgid "Whether to enable Frame Flattening"
+msgstr "Чи слід вмикати підбирання розмірів фреймів за вмістом"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:561
+msgid "User Agent"
+msgstr "Агент користувача"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:562
+msgid "The User-Agent string used by WebKitGtk"
+msgstr "Рядок User-Agent, який буде використано WebKitGtk"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:577
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:594
+msgid "JavaScript can open windows automatically"
+msgstr "JavaScript може відкривати вікна у автоматичному режимі"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:578
+msgid "Whether JavaScript can open windows automatically"
+msgstr "Чи можуть скрипти JavaScript відкривати вікна у автоматичному режимі"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:592
+msgid "JavaScript can access Clipboard"
+msgstr "JavaScript може отримувати доступ до буфера"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:593
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:954
+msgid "Whether JavaScript can access Clipboard"
+msgstr "Чи можуть скрипти JavaScript отримувати доступ до буфера обміну даними"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:609
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:489
+msgid "Enable offline web application cache"
+msgstr "Увімкнути автономний кеш веб-програм"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:610
+msgid "Whether to enable offline web application cache"
+msgstr ""
+"Чи слід вмикати кеш веб-програм, призначений для автономної роботи без мережі"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:635
+msgid "Editing behavior"
+msgstr "Поведінка під час редагування"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:636
+msgid "The behavior mode to use in editing mode"
+msgstr "Режим поведінки під час редагування"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:652
+msgid "Enable universal access from file URIs"
+msgstr "Увімкнути універсальний доступ з файлових адрес URI"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:653
+msgid "Whether to allow universal access from file URIs"
+msgstr "Чи слід дозволяти універсальний доступ з файлових адрес URI"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:668
+msgid "Enable DOM paste"
+msgstr "Увімкнути вставку DOM"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:669
+msgid "Whether to enable DOM paste"
+msgstr "Чи слід вмикати вставку DOM"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:687
+msgid "Tab key cycles through elements"
+msgstr "Циклічний перехід елементами за клавішею Tab"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:688
+msgid "Whether the tab key cycles through elements on the page."
+msgstr ""
+"Чи виконуватиметься циклічний перехід елементами сторінки у відповідь на "
+"натискання клавіші Tab."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:710
+msgid "Enable Default Context Menu"
+msgstr "Увімкнути типове контекстне меню"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:711
+msgid ""
+"Enables the handling of right-clicks for the creation of the default context "
+"menu"
+msgstr ""
+"Вмикає обробку клацання правою кнопкою миші для створення типового "
+"контекстного меню"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:731
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1018
+msgid "Enable Site Specific Quirks"
+msgstr "Увімкнути підтримку особливостей сайта"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:732
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1019
+msgid "Enables the site-specific compatibility workarounds"
+msgstr "Увімкнути специфічну для сайта зміну параметрів перегляду"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:754
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1039
+msgid "Enable page cache"
+msgstr "Увімкнути кеш сторінок"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:755
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1040
+msgid "Whether the page cache should be used"
+msgstr "Чи слід використовувати кешування сторінок"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:775
+msgid "Auto Resize Window"
+msgstr "Автоматична зміна розмірів вікна"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:776
+msgid "Automatically resize the toplevel window when a page requests it"
+msgstr ""
+"Автоматично змінювати розміри вікна верхнього рівня у відповідь на запит з "
+"боку сторінки"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:808
+msgid "Enable Java Applet"
+msgstr "Увімкнути аплет Java"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:809
+msgid "Whether Java Applet support through <applet> should be enabled"
+msgstr "Чи слід вмикати підтримку аплетів Java за допомогою теґу <applet>"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:823
+msgid "Enable Hyperlink Auditing"
+msgstr "Увімкнути перевірку гіперпосилань"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:824
+msgid "Whether <a ping> should be able to send pings"
+msgstr "Чи зможе <a ping> надсилати луна-імпульси (пінги)"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:832
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:857
+msgid "Enable Fullscreen"
+msgstr "Повноекранний режим"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:833
+msgid "Whether the Mozilla style API should be enabled."
+msgstr "Чи має бути увімкнено програмний інтерфейс у стилі Mozilla."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:848
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:904
+msgid "Enable WebGL"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:849
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:905
+#, fuzzy
+msgid "Whether WebGL content should be rendered"
+msgstr "Чи слід друкувати зображення тла сторінки."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:865
+#, fuzzy
+msgid "Enable accelerated compositing"
+msgstr "Увімкнути конфіденційний перегляд"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:866
+#, fuzzy
+msgid "Whether accelerated compositing should be enabled"
+msgstr "Чи має бути увімкнено програмний інтерфейс у стилі Mozilla."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:884
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:889
+#, fuzzy
+msgid "Enable WebAudio"
+msgstr "Увімкнути інструмент перевірки XSS"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:885
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:890
+#, fuzzy
+msgid "Whether WebAudio content should be handled"
+msgstr "Чи слід друкувати зображення тла сторінки."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:901
+msgid "WebKit prefetches domain names"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:902
+msgid "Whether WebKit prefetches domain names"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:920
+#, fuzzy
+msgid "Enable Media Stream"
+msgstr "Увімкнути вставку DOM"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:921
+#, fuzzy
+msgid "Whether Media Stream should be enabled"
+msgstr "Чи має бути увімкнено програмний інтерфейс у стилі Mozilla."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:936
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1072
+#, fuzzy
+msgid "Enable smooth scrolling"
+msgstr "Увімкнути режим активного вказівника"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:937
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1073
+#, fuzzy
+msgid "Whether to enable smooth scrolling"
+msgstr "Чи слід вмикати підбирання розмірів фреймів за вмістом"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:955
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:970
+msgid "Media playback requires user gesture"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:956
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:971
+msgid "Whether media playback requires user gesture"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:972
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:985
+msgid "Media playback allows inline"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:973
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:986
+msgid "Whether media playback allows inline"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:991
+#, fuzzy
+msgid "Enable CSS shaders"
+msgstr "Увімкнути інструмент перевірки XSS"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:992
+#, fuzzy
+msgid "Whether to enable css shaders"
+msgstr "Чи слід вмикати вставку DOM"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1007
+msgid "Enable display of insecure content"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1008
+msgid "Whether non-HTTPS resources can display on HTTPS pages."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1023
+msgid "Enable running of insecure content"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1024
+msgid "Whether non-HTTPS resources can run on HTTPS pages."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:1314
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:425
+msgid "Select Files"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:1314
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:425
+msgid "Select File"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3225
+msgid "Returns the @web_view's document title"
+msgstr "Повертає заголовок документа @web_view"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3239
+msgid "Returns the current URI of the contents displayed by the @web_view"
+msgstr "Повертає поточну адресу URI даних, показаних у @web_view"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3252
+msgid "Copy target list"
+msgstr "Список цілей копіювання"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3253
+msgid "The list of targets this web view supports for clipboard copying"
+msgstr ""
+"Список адрес-цілей, які можна скопіювати з цієї веб-панелі до буфера обміну "
+"даними"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3266
+msgid "Paste target list"
+msgstr "Список вставки цілей"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3267
+msgid "The list of targets this web view supports for clipboard pasting"
+msgstr ""
+"Список цілей, які можна вставити до цієї веб-панелі з буфера обміну даними"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3273
+msgid "Settings"
+msgstr "Параметри"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3274
+msgid "An associated WebKitWebSettings instance"
+msgstr "Пов’язаний екземпляр WebKitWebSettings"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3287
+#: ../../../WebKit2/UIProcess/gtk/WebInspectorProxyGtk.cpp:93
+#: ../../../WebKit2/UIProcess/gtk/WebInspectorProxyGtk.cpp:153
+msgid "Web Inspector"
+msgstr "Веб-ревізор"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3288
+msgid "The associated WebKitWebInspector instance"
+msgstr "Пов’язаний екземпляр WebKitWebInspector"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3301
+msgid "Viewport Attributes"
+msgstr "Атрибути поля перегляду"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3302
+msgid "The associated WebKitViewportAttributes instance"
+msgstr "Пов’язаний екземпляр WebKitViewportAttributes"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3322
+msgid "Editable"
+msgstr "Можна редагувати"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3323
+msgid "Whether content can be modified by the user"
+msgstr "Чи може користувач змінювати вміст"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3329
+msgid "Transparent"
+msgstr "Прозорий"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3330
+msgid "Whether content has a transparent background"
+msgstr "Чи має вміст прозоре тло"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3343
+msgid "Zoom level"
+msgstr "Масштабування"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3344
+msgid "The level of zoom of the content"
+msgstr "Масштабування вмісту"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3359
+msgid "Full content zoom"
+msgstr "Масштабування всього вмісту"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3360
+msgid "Whether the full content is scaled when zooming"
+msgstr "Чи слід вмикати масштабування всього вмісту"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3374
+msgid "The default encoding of the web view"
+msgstr "Типове кодування веб-панелі"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3387
+msgid "Custom Encoding"
+msgstr "Нетипове кодування"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3388
+msgid "The custom encoding of the web view"
+msgstr "Нетипове кодування веб-панелі"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3440
+msgid "Icon URI"
+msgstr "URI піктограми"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3441
+msgid "The URI for the favicon for the #WebKitWebView."
+msgstr "URI піктограми для #WebKitWebView."
+
+#: ../../../WebKit2/Shared/Downloads/soup/DownloadSoup.cpp:89
+#, c-format
+msgid ""
+"Cannot determine destination URI for download with suggested filename %s"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:139
+#, fuzzy
+msgid "Destination"
+msgstr "Адреса URI призначення"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:140
+#, fuzzy
+msgid "The local URI to where the download will be saved"
+msgstr "Адреса, на яку має бути спрямовано відповідь."
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:152
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:122
+#, fuzzy
+msgid "Response"
+msgstr "Відповідь мережі"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:153
+#, fuzzy
+msgid "The response of the download"
+msgstr "Визначає поточний поступ звантаження"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:170
+#, fuzzy
+msgid "Estimated Progress"
+msgstr "Поступ"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:141
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:255
+#, c-format
+msgid "Unknown favicon for page %s"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:147
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:251
+#, c-format
+msgid "Page %s does not have a favicon"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:247
+msgid "Favicons database not initialized yet"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:174
+#, fuzzy
+msgid "Search text"
+msgstr "_Шукати у інтернеті"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:175
+#, fuzzy
+msgid "Text to search for in the view"
+msgstr "Нетипове кодування веб-панелі"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:187
+msgid "Search Options"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:188
+msgid "Search options to be used in the search operation"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:201
+msgid "Maximum matches count"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:202
+#, fuzzy
+msgid "The maximum number of matches in a given text to report"
+msgstr "Назва фрейма ресурсу"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:214
+#, fuzzy
+msgid "WebView"
+msgstr "Веб-панель"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:215
+#, fuzzy
+msgid "The WebView associated with this find controller"
+msgstr "Внутрішній вузол DOM, пов’язаний з результатом перевірки."
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:153
+msgid "Flags with the context of the WebKitHitTestResult"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:167
+#, fuzzy
+msgid "The link URI"
+msgstr "Адреса посилання"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:179
+#, fuzzy
+msgid "Link Title"
+msgstr "Заголовок"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:180
+msgid "The link title"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:192
+msgid "Link Label"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:193
+msgid "The link label"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:206
+#, fuzzy
+msgid "The image URI"
+msgstr "Адреса зображення"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:219
+#, fuzzy
+msgid "The media URI"
+msgstr "Адреса даних"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:105
+msgid "Navigation type"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:106
+msgid "The type of navigation triggering this decision"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:123
+msgid "Mouse button"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:124
+msgid "The mouse button used if this decision was triggered by a mouse event"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:140
+msgid "Mouse event modifiers"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:141
+msgid "The modifiers active if this decision was triggered by a mouse event"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:154
+msgid "Navigation URI request"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:155
+#, fuzzy
+msgid "The URI request that is associated with this navigation"
+msgstr "Адреса URI, на яку надійшов запит, як на адресу переходу"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:170
+#, fuzzy
+msgid "Frame name"
+msgstr "Назва фрейма"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:171
+msgid "The name of the new frame this navigation action targets"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:155
+msgid "The web view that will be printed"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:167
+#, fuzzy
+msgid "Print Settings"
+msgstr "Параметри"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:168
+msgid "The initial print settings for the print operation"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:179
+msgid "Page Setup"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:180
+#, fuzzy
+msgid "The initial page setup for the print operation"
+msgstr "Загальний об’єм даних файла"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:91
+msgid "Response URI request"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:92
+msgid "The URI request that is associated with this policy decision"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:105
+msgid "URI response"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:106
+msgid "The URI response that is associated with this policy decision"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:442
+#, fuzzy
+msgid "Enable JavaScript"
+msgstr "Увімкнути скрипти"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:443
+#, fuzzy
+msgid "Enable JavaScript."
+msgstr "Увімкнути скрипти"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:457
+#, fuzzy
+msgid "Auto load images"
+msgstr "Автоматично завантажувати зображення"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:471
+msgid "Load icons ignoring image load setting"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:472
+msgid "Whether to load site icons ignoring image load setting."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:490
+#, fuzzy
+msgid "Whether to enable offline web application cache."
+msgstr ""
+"Чи слід вмикати кеш веб-програм, призначений для автономної роботи без мережі"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:506
+#, fuzzy
+msgid "Enable HTML5 local storage"
+msgstr "Увімкнути локальне сховище HTML5"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:507
+#, fuzzy
+msgid "Whether to enable HTML5 Local Storage support."
+msgstr "Чи слід вмикати підтримку локального сховища HTML5"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:524
+#, fuzzy
+msgid "Enable HTML5 database"
+msgstr "Увімкнути базу даних HTML5"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:525
+#, fuzzy
+msgid "Whether to enable HTML5 database support."
+msgstr "Чи слід вмикати підтримку бази даних HTML5"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:538
+#, fuzzy
+msgid "Enable XSS auditor"
+msgstr "Увімкнути інструмент перевірки XSS"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:539
+#, fuzzy
+msgid "Whether to enable the XSS auditor."
+msgstr "Чи слід вмикати інструмент перевірки XSS"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:554
+#, fuzzy
+msgid "Enable frame flattening"
+msgstr "Увімкнути підбирання розмірів фреймів"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:555
+#, fuzzy
+msgid "Whether to enable frame flattening."
+msgstr "Чи слід вмикати підбирання розмірів фреймів за вмістом"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:567
+#, fuzzy
+msgid "Enable plugins"
+msgstr "Увімкнути додатки"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:580
+#, fuzzy
+msgid "Enable Java"
+msgstr "Увімкнути аплет Java"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:581
+#, fuzzy
+msgid "Whether Java support should be enabled."
+msgstr "Чи має бути увімкнено програмний інтерфейс у стилі Mozilla."
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:595
+#, fuzzy
+msgid "Whether JavaScript can open windows automatically."
+msgstr "Чи можуть скрипти JavaScript відкривати вікна у автоматичному режимі"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:610
+#, fuzzy
+msgid "Enable hyperlink auditing"
+msgstr "Увімкнути перевірку гіперпосилань"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:611
+#, fuzzy
+msgid "Whether <a ping> should be able to send pings."
+msgstr "Чи зможе <a ping> надсилати луна-імпульси (пінги)"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:623
+#, fuzzy
+msgid "Default font family"
+msgstr "Типова гарнітура шрифту"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:624
+msgid ""
+"The font family to use as the default for content that does not specify a "
+"font."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:637
+#, fuzzy
+msgid "Monospace font family"
+msgstr "Гарнітура моноширинного шрифту"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:638
+#, fuzzy
+msgid "The font family used as the default for content using monospace font."
+msgstr "Типова гарнітура шрифту для показу моноширинних текстових даних."
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:650
+#, fuzzy
+msgid "Serif font family"
+msgstr "Гарнітура шрифту з засічками"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:651
+msgid "The font family used as the default for content using serif font."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:663
+#, fuzzy
+msgid "Sans-serif font family"
+msgstr "Гарнітура шрифту без засічок"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:664
+msgid "The font family used as the default for content using sans-serif font."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:676
+#, fuzzy
+msgid "Cursive font family"
+msgstr "Гарнітура курсивного шрифту"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:677
+msgid "The font family used as the default for content using cursive font."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:689
+#, fuzzy
+msgid "Fantasy font family"
+msgstr "Гарнітура декоративного шрифту"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:690
+msgid "The font family used as the default for content using fantasy font."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:702
+msgid "Pictograph font family"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:703
+msgid "The font family used as the default for content using pictograph font."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:716
+#, fuzzy
+msgid "Default font size"
+msgstr "Типовий розмір шрифту"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:730
+#, fuzzy
+msgid "Default monospace font size"
+msgstr "Типовий розмір моноширинного шрифту"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:745
+#, fuzzy
+msgid "Minimum font size"
+msgstr "Мінімальний розмір шрифту"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:758
+msgid "Default charset"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:759
+msgid ""
+"The default text charset used when interpreting content with unspecified "
+"charset."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:772
+#, fuzzy
+msgid "Enable private browsing"
+msgstr "Увімкнути конфіденційний перегляд"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:773
+#, fuzzy
+msgid "Whether to enable private browsing"
+msgstr "Чи слід вмикати підбирання розмірів фреймів за вмістом"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:785
+#, fuzzy
+msgid "Enable developer extras"
+msgstr "Увімкнути засоби розробки"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:786
+#, fuzzy
+msgid "Whether to enable developer extras"
+msgstr "Увімкнути засоби розробки"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:798
+#, fuzzy
+msgid "Enable resizable text areas"
+msgstr "Змінний розмір текстових полів"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:799
+#, fuzzy
+msgid "Whether to enable resizable text areas"
+msgstr "Чи слід вмикати підбирання розмірів фреймів за вмістом"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:814
+#, fuzzy
+msgid "Enable tabs to links"
+msgstr "Увімкнути додатки"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:815
+#, fuzzy
+msgid "Whether to enable tabs to links"
+msgstr "Чи слід вмикати підбирання розмірів фреймів за вмістом"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:828
+#, fuzzy
+msgid "Enable DNS prefetching"
+msgstr "Увімкнути перевірку орфографії"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:829
+#, fuzzy
+msgid "Whether to enable DNS prefetching"
+msgstr "Чи слід вмикати вставку DOM"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:858
+#, fuzzy
+msgid "Whether to enable the Javascriipt Fullscreen API"
+msgstr "Чи слід вмикати підбирання розмірів фреймів за вмістом"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:871
+#, fuzzy
+msgid "Whether background images should be drawn during printing"
+msgstr "Чи слід друкувати зображення тла сторінки."
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:922
+msgid "Allow modal dialogs"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:923
+msgid "Whether it is possible to create modal dialogs"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:938
+msgid "Zoom Text Only"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:939
+msgid "Whether zoom level of web view changes only the text size"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:953
+#, fuzzy
+msgid "JavaScript can access clipboard"
+msgstr "JavaScript може отримувати доступ до буфера"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1000
+msgid "Draw compositing indicators"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1001
+msgid "Whether to draw compositing borders and repaint counters"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1059
+#, fuzzy
+msgid "User agent string"
+msgstr "Агент користувача"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1060
+#, fuzzy
+msgid "The user agent string"
+msgstr "Рядок User-Agent, який буде використано WebKitGtk"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:100
+#, fuzzy
+msgid "The URI for which the response was made."
+msgstr "Адреса, на яку має бути спрямовано відповідь."
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:111
+#, fuzzy
+msgid "Status Code"
+msgstr "Стан"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:112
+msgid "The status code of the response as returned by the server."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:124
+msgid "Content Length"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:125
+#, fuzzy
+msgid "The expected content length of the response."
+msgstr "Назва кодування тексту ресурсу"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:138
+#, fuzzy
+msgid "The MIME type of the response"
+msgstr "Тип MIME ресурсу"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:151
+#, fuzzy
+msgid "The suggested filename for the URI response"
+msgstr "Назва кодування тексту ресурсу"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:134
+msgid "Attached Height"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:135
+msgid "The height that the inspector view should have when it is attached"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:110
+#, fuzzy
+msgid "The current active URI of the resource"
+msgstr "Адреса ресурсу"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:123
+#, fuzzy
+msgid "The response of the resource"
+msgstr "Назва фрейма ресурсу"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:577
+#, fuzzy
+msgid "Web Context"
+msgstr "Контекст"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:578
+#, fuzzy
+msgid "The web context for the view"
+msgstr "Заголовок запису журналу"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:592
+msgid "Main frame document title"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:610
+msgid "Estimated Load Progress"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:611
+msgid "An estimate of the percent completion for a document load"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:623
+msgid "Favicon"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:624
+#, fuzzy
+msgid "The favicon associated to the view, if any"
+msgstr "Внутрішній вузол DOM, пов’язаний з результатом перевірки."
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:636
+#, fuzzy
+msgid "The current active URI of the view"
+msgstr "Заголовок документа фрейма"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:650
+#, fuzzy
+msgid "The zoom level of the view content"
+msgstr "Масштабування вмісту"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:668
+#, fuzzy
+msgid "Whether the view is loading a page"
+msgstr "Чи слід використовувати кешування сторінок"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:682
+msgid "The view mode to display the web view contents"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:2416
+msgid "An exception was raised in JavaScript"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:209
+msgid "Geometry"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:210
+msgid "The size and position of the window on the screen."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:222
+msgid "Toolbar Visible"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:223
+#, fuzzy
+msgid "Whether the toolbar should be visible for the window."
+msgstr "Чи має бути увімкнено програмний інтерфейс у стилі Mozilla."
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:235
+msgid "Statusbar Visible"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:236
+#, fuzzy
+msgid "Whether the statusbar should be visible for the window."
+msgstr "Чи слід використовувати кешування сторінок"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:248
+msgid "Scrollbars Visible"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:249
+#, fuzzy
+msgid "Whether the scrollbars should be visible for the window."
+msgstr "Чи має бути увімкнено програмний інтерфейс у стилі Mozilla."
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:261
+msgid "Menubar Visible"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:262
+#, fuzzy
+msgid "Whether the menubar should be visible for the window."
+msgstr "Чи зможе <a ping> надсилати луна-імпульси (пінги)"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:274
+msgid "Locationbar Visible"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:275
+#, fuzzy
+msgid "Whether the locationbar should be visible for the window."
+msgstr "Чи зможе <a ping> надсилати луна-імпульси (пінги)"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:286
+#, fuzzy
+msgid "Resizable"
+msgstr "Змінний розмір текстових полів"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:287
+#, fuzzy
+msgid "Whether the window can be resized."
+msgstr "Чи можлива зміна розмірів текстових полів."
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:299
+#, fuzzy
+msgid "Fullscreen"
+msgstr "Звичайний режим"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:300
+msgid "Whether window will be displayed fullscreen."
+msgstr ""
+
+#~ msgid "Upload File"
+#~ msgstr "Вивантажити файл"
+
+#~ msgid "A username and password are being requested by the site %s"
+#~ msgstr "Надійшов запит від сайта %s щодо імені користувача і пароля"
+
+#~ msgctxt "Title string for images"
+#~ msgid "%s  (%dx%d pixels)"
+#~ msgstr "%s  (%d⨯%d пікселів)"

@@ -1,0 +1,47 @@
+namespace="EventTarget"
+
+AudioNode conditional=WEB_AUDIO
+AudioContext conditional=WEB_AUDIO
+AudioTrackList conditional=VIDEO_TRACK
+BatteryManager conditional=BATTERY_STATUS
+DedicatedWorkerGlobalScope conditional=WORKERS
+DOMApplicationCache
+DOMWindow
+EventSource
+FileReader conditional=BLOB
+FileWriter conditional=FILE_SYSTEM
+FontLoader conditional=FONT_LOAD_EVENTS
+IDBDatabase conditional=INDEXED_DATABASE
+IDBOpenDBRequest conditional=INDEXED_DATABASE
+IDBRequest conditional=INDEXED_DATABASE
+IDBTransaction conditional=INDEXED_DATABASE
+LocalMediaStream conditional=MEDIA_STREAM
+MediaKeySession conditional=ENCRYPTED_MEDIA_V2
+MediaController conditional=VIDEO
+MediaSource conditional=MEDIA_SOURCE
+MediaStream conditional=MEDIA_STREAM
+MediaStreamTrack conditional=MEDIA_STREAM
+MessagePort
+NetworkInfoConnection conditional=NETWORK_INFO
+Node
+Notification conditional=NOTIFICATIONS|LEGACY_NOTIFICATIONS
+Performance conditional=WEB_TIMING
+RTCDataChannel conditional=MEDIA_STREAM
+RTCDTMFSender conditional=MEDIA_STREAM
+RTCPeerConnection conditional=MEDIA_STREAM
+SharedWorker conditional=SHARED_WORKERS
+SharedWorkerGlobalScope conditional=SHARED_WORKERS
+SourceBufferList conditional=MEDIA_SOURCE
+SpeechRecognition conditional=SCRIPTED_SPEECH
+SpeechSynthesisUtterance conditional=SPEECH_SYNTHESIS
+SVGElementInstance conditional=SVG
+TextTrack conditional=VIDEO_TRACK
+TextTrackCue conditional=VIDEO_TRACK
+TextTrackList conditional=VIDEO_TRACK
+VideoTrackList conditional=VIDEO_TRACK
+WebKitNamedFlow
+WebSocket conditional=WEB_SOCKETS
+Worker conditional=WORKERS
+XMLHttpRequest
+XMLHttpRequestUpload
+

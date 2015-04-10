@@ -1,0 +1,101 @@
+Here is a list of changes in Qt from 0.91 to 0.92.  Also look out
+for a few new classes; QPrinter, QFileDialog, QDir and QFileInfo.
+
+
+QApplication:
+-------------
+  Use setMainWidget( x ), not exec( x ).
+
+QString:
+--------
+  upper(), lower(), stripWhiteSpace() and simplifyWhiteSpace() etc.
+  do NOT modify the string, instead they return a new string.
+
+QList and QVector:
+------------------
+  Changed argument in QList::toVector() from reference to pointer
+  Changed argument in QVector::toList() from reference to pointer
+  Removed QVector::apply()
+  Removed QList::apply()
+
+QPainter:
+---------
+  pen(), brush() and font() no longer returns references.
+  You cannot do this any longer:
+	QPainter p;
+	...
+        p.pen().setColor( red );
+	p.brush().setStyle( NoBrush );
+  Instead, set a new pen or brush:
+	p.setPen( red );
+	p.setBrush( NoBrush );
+  This enables us to do better optimization, particularly for complex
+  programs.
+
+QFile, QFileInfo (new):
+-----------------------
+  Removed QFile::setFileName, 
+  QFile::isRegular   => QFileInfo::isFile
+  QFile::isDirectory => QFileInfo::isDir
+  QFile::isSymLink   => QFileInfo::isSymLink
+
+Q2DMatrix/QWMatrix:
+---------
+  Q2DMatrix has been replaced with QWMatrix (qwmatrix.h)
+
+QPixmap:
+--------
+  enableImageCache() renamed to setOptimization().
+  Optimization is now default ON.  See doc for other optimization functions.
+
+QImage:
+-------
+  scanline() => scanLine()
+
+QLineEdit/QLCDNumber:
+---------------------
+  signal textChanged( char * ) => textChanged( const char * );
+  slot   display( char * )     => display( const char * )
+
+QCursor:
+--------
+    hourGlassCursor => waitCursor
+
+QButton and friends:
+--------------------
+    QIconButton removed, setPixmap() added to QButton to replace QIconButton
+
+QTableWidget:
+-------------
+    Renamed to QTableView (qtablevw.h)
+    Using int to identify rows and columns, not long.
+
+QRangeControl:
+--------------
+    Using int values, not long.
+
+QScrollBar:
+-----------
+    Using int values, not long.
+
+QListBox:
+---------
+    removed setStrList(), use clear(); insertStrList( ... , 0 ); instead 
+
+QColor:
+-------
+    setRGB => setRgb
+    getRGB => rgb
+    setHSV => setHsv
+    getHSV => hsv
+
+QFontMetrics and QFontInfo:
+---------------------------
+    Get font metrics from QWidget::fontMetrics() and QPainter::fontMetrics().
+    Get font info    from QWidget::fontInfo()    and QPainter::fontInfo().
+    The QFontMetrics(QFont) constructor no longer works.
+    We had to do these changes to support printing and Windows.
+
+
+There are more changes, left out because we consider them minor and
+uninteresting or because we forgot to mention them. :)

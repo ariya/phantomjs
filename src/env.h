@@ -40,7 +40,6 @@ class Env : public QObject
 public:
     static Env *instance();
 
-    void parse(const char ** envp);
     QVariantMap asVariantMap() const;
 
 private:

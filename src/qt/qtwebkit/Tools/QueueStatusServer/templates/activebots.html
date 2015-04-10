@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>WebKit Queues</title>
+<link type="text/css" rel="stylesheet" href="/stylesheets/dashboard.css" />
+<style>
+/* Override the generic table styles from dashboard.css */
+td {
+  text-align: left;
+}
+</style>
+</head>
+<body>
+<h1>WebKit Queues</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Bot</th><th>Queue</th><th>Last Message</th><th>Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for status in last_statuses %}
+        <tr>
+            <td><a href="/queue-status/{{status.queue_name}}/bots/{{status.bot_id}}">{{ status.bot_id }}</a></td>
+            <td><a href="/queue-status/{{status.queue_name}}">{{ status.queue_name }}</a></td>
+            <td>{{ status.message|force_escape|urlize|webkit_linkify|safe }}</td>
+            <td>{{ status.date|timesince }} ago</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>

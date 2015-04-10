@@ -1,0 +1,51 @@
+/*
+ * Copyright (C) 2006 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+[
+    Conditional=SVG
+] interface SVGTextContentElement : SVGGraphicsElement {
+    // lengthAdjust Types
+    const unsigned short LENGTHADJUST_UNKNOWN          = 0;
+    const unsigned short LENGTHADJUST_SPACING          = 1;
+    const unsigned short LENGTHADJUST_SPACINGANDGLYPHS = 2;
+
+    readonly attribute SVGAnimatedLength      textLength;
+    readonly attribute SVGAnimatedEnumeration lengthAdjust;
+
+    long getNumberOfChars();
+    float getComputedTextLength();
+    [RaisesException] float getSubStringLength([Default=Undefined,IsIndex] optional unsigned long offset, 
+                             [Default=Undefined,IsIndex] optional unsigned long length);
+    [RaisesException] SVGPoint getStartPositionOfChar([Default=Undefined,IsIndex] optional unsigned long offset);
+    [RaisesException] SVGPoint getEndPositionOfChar([Default=Undefined,IsIndex] optional unsigned long offset);
+    [RaisesException] SVGRect getExtentOfChar([Default=Undefined,IsIndex] optional unsigned long offset);
+    [RaisesException] float getRotationOfChar([Default=Undefined,IsIndex] optional unsigned long offset);
+    long getCharNumAtPosition([Default=Undefined] optional SVGPoint point);
+    [RaisesException] void selectSubString([Default=Undefined,IsIndex] optional unsigned long offset, 
+                         [Default=Undefined,IsIndex] optional unsigned long length);
+};
+
+// FIXME: SVGTextContentElement is not supposed to implement SVGExternalResourcesRequired.
+SVGTextContentElement implements SVGExternalResourcesRequired;

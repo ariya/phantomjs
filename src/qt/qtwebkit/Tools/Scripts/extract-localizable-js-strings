@@ -1,0 +1,158 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2013 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+# BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+use strict;
+
+@ARGV >= 1 or die "Usage: extract-localizable-js-strings <file to update> [ directory... ]\nDid you mean to run update-webkit-localizable-strings instead?\n";
+
+my $fileToUpdate = shift @ARGV;
+-f $fileToUpdate or die "Couldn't find file to update $fileToUpdate\n";
+
+my @directories = ();
+my @directoriesToSkip = ();
+if (@ARGV < 1) {
+    push(@directories, ".");
+} else {
+    for my $dir (@ARGV) {
+        if ($dir =~ /^-(.*)$/) {
+            push @directoriesToSkip, $1;
+        } else {
+            push @directories, $dir;
+        }
+    }
+}
+
+my $sawError = 0;
+
+my $keyCollisionCount = 0;
+
+my $quotedDirectoriesString = '"' . join('" "', @directories) . '"';
+for my $dir (@directoriesToSkip) {
+    $quotedDirectoriesString .= ' -path "' . $dir . '" -prune -o';
+}
+
+my @files = ( split "\n", `find $quotedDirectoriesString \\( -name "*.html" -o -name "*.js" \\)` );
+
+for my $file (sort @files) {
+    $file =~ s-^./--;
+
+    open SOURCE, $file or die "can't open $file\n";
+
+    while (<SOURCE>) {
+        chomp;
+
+        # Handle WebInspector strings. Prints a warning if a non-string literal is passed to WebInspector.UIString().
+        HandleUIString($1, $1, "", $file, $.) while s/WebInspector\.UIString\("([^"]+)"\)//;
+        print "$file:$.:WARNING: $&\n" while s/WebInspector\.UIString\(.*?\)//;
+
+        # Handle strings for other projects that also use this script.
+        HandleUIString($2, $2, "", $file, $.) while s/(\bclass="[^"]*l12n-tooltip[^"]*"[^>]*)title="([^"]+)"/$1/;
+        HandleUIString($1, $1, "", $file, $.) while s/\btitle="([^"]+)"([^>]*class="[^"]*l12n-tooltip[^"]*")/$2/;
+        HandleUIString($2, $2, "", $file, $.) while s/<(\w+)[^>]*\bclass="[^"]*l12n[^"]*"[^>]*>([^>]+)<\/\1>//;
+        HandleUIString($1, $1, "", $file, $.) while s/HTMLViewController\.UIString\("([^"]+)"\)//;
+        HandleUIString($1, $1, "", $file, $.) while s/\bgetLocalizedString\("([^"]+)"\)//;
+        HandleUIString($1, $1, "", $file, $.) while s/\blocalizedStrings\["([^"]+)"\]//;
+    }
+
+    close SOURCE;
+}
+
+my %stringByKey;
+my %commentByKey;
+my %fileByKey;
+my %lineByKey;
+
+sub HandleUIString
+{
+    my ($string, $key, $comment, $file, $line) = @_;
+    my $bad = 0;
+
+    if (grep { $_ == 0xFFFD } unpack "U*", $string) {
+        print "$file:$line:ERROR:string for translation has illegal UTF-8 -- most likely a problem with the Text Encoding of the source file\n";
+        $bad = 1;
+    }
+
+    if ($string ne $key && grep { $_ == 0xFFFD } unpack "U*", $key) {
+        print "$file:$line:ERROR:key has illegal UTF-8 -- most likely a problem with the Text Encoding of the source file\n";
+        $bad = 1;
+    }
+
+    if (grep { $_ == 0xFFFD } unpack "U*", $comment) {
+        print "$file:$line:ERROR:comment for translation has illegal UTF-8 -- most likely a problem with the Text Encoding of the source file\n";
+        $bad = 1;
+    }
+
+    if ($bad) {
+        $sawError = 1;
+        return;
+    }
+
+    if ($stringByKey{$key} && $stringByKey{$key} ne $string) {
+        print "$file:$line:encountered the same key, \"$key\", twice, with different strings\n";
+        print "$fileByKey{$key}:$lineByKey{$key}:previous occurrence\n";
+        $keyCollisionCount++;
+        return;
+    }
+
+    if ($commentByKey{$key} && $commentByKey{$key} ne $comment) {
+        print "$file:$line:encountered the same key, \"$key\", twice, with different comments\n";
+        print "$fileByKey{$key}:$lineByKey{$key}:previous occurrence\n";
+        $keyCollisionCount++;
+        return;
+    }
+
+    $fileByKey{$key} = $file;
+    $lineByKey{$key} = $line;
+    $stringByKey{$key} = $string;
+    $commentByKey{$key} = $comment;
+}
+
+print "\n" if $sawError;
+
+print "$keyCollisionCount key collisions\n" if $keyCollisionCount;
+
+if ($sawError) {
+    print "\nErrors encountered. Exiting without writing to $fileToUpdate.\n";
+    exit 1;
+}
+
+my $localizedStrings = "var localizedStrings = new Object;\n\n";
+
+for my $key (sort keys %commentByKey) {
+    $localizedStrings .= "localizedStrings[\"$key\"] = \"$stringByKey{$key}\";\n";
+}
+
+# Write out the strings file in UTF-16 with a BOM.
+utf8::decode($localizedStrings) if $^V ge v5.8;
+my $output = pack "n*", (0xFEFF, unpack "U*", $localizedStrings);
+
+if (-e "$fileToUpdate") {
+    open STRINGS, ">", "$fileToUpdate" or die;
+    print STRINGS $output;
+    close STRINGS;
+} else {
+    print "$fileToUpdate does not exist\n";
+    exit 1;
+}

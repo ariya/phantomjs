@@ -10,19 +10,20 @@ qrc_*
 *.swp
 *.pyc
 *.a
-debian/*.debhelper
-debian/files
-debian/*.log
-debian/*.substvars
-debian/*/
+/debian/*.debhelper
+/debian/files
+/debian/*.log
+/debian/*.substvars
+/debian/*/
 /deploy/qt-*.tar.gz
 /deploy/Qt-*
 /symbols
-src/qt/qtc-debugging-helper
+/src/qt/qtc-debugging-helper
+/src/phantomjs_plugin_import.cpp
 
 # ignore ctags
 /tags
-tools/dump_syms.app/
+/tools/dump_syms.app/
 
 # Ignore Visual Studio temporary files, build results, etc
 *.suo

@@ -34,8 +34,8 @@
 
 #include <QDir>
 #include <QFileInfo>
-#include <QWebPage>
-#include <QWebFrame>
+#include <QtWebKitWidgets/QWebPage>
+#include <QtWebKitWidgets/QWebFrame>
 #include <QNetworkProxy>
 
 #include "terminal.h"
@@ -56,6 +56,7 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "load-images", "Loads all inlined images: 'true' (default) or 'false'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "local-storage-path", "Specifies the location for offline local storage", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "local-storage-quota", "Sets the maximum size of the offline local storage (in KB)", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "local-url-access", "Allows use of 'file:///' URLs: 'true' (default) or 'false'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "local-to-remote-url-access", "Allows local content to access remote URL: 'true' or 'false' (default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "max-disk-cache-size", "Limits the size of the disk cache (in KB)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "output-encoding", "Sets the encoding for the terminal output, default is 'utf8'", QCommandLine::Optional },
@@ -65,9 +66,10 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "proxy-auth", "Provides authentication information for the proxy, e.g. ''-proxy-auth=username:password'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "proxy-type", "Specifies the proxy type, 'http' (default), 'none' (disable completely), or 'socks5'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "script-encoding", "Sets the encoding used for the starting script, default is 'utf8'", QCommandLine::Optional },
-    { QCommandLine::Option, '\0', "script-language", "Sets the script language instead of detecting it: 'javascript', 'coffeescript'", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "script-language", "Sets the script language instead of detecting it: 'javascript'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "web-security", "Enables web security, 'true' (default) or 'false'", QCommandLine::Optional },
-    { QCommandLine::Option, '\0', "ssl-protocol", "Sets the SSL protocol (supported protocols: 'SSLv3' (default), 'SSLv2', 'TLSv1', 'any')", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "ssl-protocol", "Selects a specific SSL protocol version to offer. Values (case insensitive): TLSv1.2, TLSv1.1, TLSv1.0, TLSv1 (same as v1.0), SSLv3, or ANY. Default is to offer all that Qt thinks are secure (SSLv3 and up). Not all values may be supported, depending on the system OpenSSL library.", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "ssl-ciphers", "Sets supported TLS/SSL ciphers. Argument is a colon-separated list of OpenSSL cipher names (macros like ALL, kRSA, etc. may not be used). Default matches modern browsers.", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-certificates-path", "Sets the location for custom CA certificates (if none set, uses system default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "webdriver", "Starts in 'Remote WebDriver mode' (embedded GhostDriver): '[[<IP>:]<PORT>]' (default '127.0.0.1:8910') ", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "webdriver-logfile", "File where to write the WebDriver's Log (default 'none') (NOTE: needs '--webdriver') ", QCommandLine::Optional },
@@ -84,7 +86,7 @@ static const struct QCommandLineConfigEntry flags[] =
 Config::Config(QObject *parent)
     : QObject(parent)
 {
-    m_cmdLine = new QCommandLine;
+    m_cmdLine = new QCommandLine(this);
 
     // We will handle --help and --version ourselves in phantom.cpp
     m_cmdLine->enableHelp(false);
@@ -246,6 +248,16 @@ bool Config::ignoreSslErrors() const
 void Config::setIgnoreSslErrors(const bool value)
 {
     m_ignoreSslErrors = value;
+}
+
+bool Config::localUrlAccessEnabled() const
+{
+    return m_localUrlAccessEnabled;
+}
+
+void Config::setLocalUrlAccessEnabled(const bool value)
+{
+    m_localUrlAccessEnabled = value;
 }
 
 bool Config::localToRemoteUrlAccessEnabled() const
@@ -534,6 +546,7 @@ void Config::resetToDefaults()
     m_diskCacheEnabled = false;
     m_maxDiskCacheSize = -1;
     m_ignoreSslErrors = false;
+    m_localUrlAccessEnabled = true;
     m_localToRemoteUrlAccessEnabled = false;
     m_outputEncoding = "UTF-8";
     m_proxyType = "http";
@@ -555,7 +568,26 @@ void Config::resetToDefaults()
     m_javascriptCanCloseWindows = true;
     m_helpFlag = false;
     m_printDebugMessages = false;
-    m_sslProtocol = "sslv3";
+    m_sslProtocol = "default";
+    // Default taken from Chromium 35.0.1916.153
+    m_sslCiphers = ("ECDHE-ECDSA-AES128-GCM-SHA256"
+                    ":ECDHE-RSA-AES128-GCM-SHA256"
+                    ":DHE-RSA-AES128-GCM-SHA256"
+                    ":ECDHE-ECDSA-AES256-SHA"
+                    ":ECDHE-ECDSA-AES128-SHA"
+                    ":ECDHE-RSA-AES128-SHA"
+                    ":ECDHE-RSA-AES256-SHA"
+                    ":ECDHE-ECDSA-RC4-SHA"
+                    ":ECDHE-RSA-RC4-SHA"
+                    ":DHE-RSA-AES128-SHA"
+                    ":DHE-DSS-AES128-SHA"
+                    ":DHE-RSA-AES256-SHA"
+                    ":AES128-GCM-SHA256"
+                    ":AES128-SHA"
+                    ":AES256-SHA"
+                    ":DES-CBC3-SHA"
+                    ":RC4-SHA"
+                    ":RC4-MD5");
     m_sslCertificatesPath.clear();
     m_webdriverIp = QString();
     m_webdriverPort = QString();
@@ -623,6 +655,7 @@ void Config::handleOption(const QString &option, const QVariant &value)
     booleanFlags << "disk-cache";
     booleanFlags << "ignore-ssl-errors";
     booleanFlags << "load-images";
+    booleanFlags << "local-url-access";
     booleanFlags << "local-to-remote-url-access";
     booleanFlags << "remote-debugger-autorun";
     booleanFlags << "web-security";
@@ -664,6 +697,10 @@ void Config::handleOption(const QString &option, const QVariant &value)
 
     if (option == "local-storage-quota") {
         setOfflineStorageDefaultQuota(value.toInt());
+    }
+
+    if (option == "local-url-access") {
+        setLocalUrlAccessEnabled(boolValue);
     }
 
     if (option == "local-to-remote-url-access") {
@@ -713,6 +750,9 @@ void Config::handleOption(const QString &option, const QVariant &value)
     if (option == "ssl-protocol") {
         setSslProtocol(value.toString());
     }
+    if (option == "ssl-ciphers") {
+        setSslCiphers(value.toString());
+    }
     if (option == "ssl-certificates-path") {
         setSslCertificatesPath(value.toString());
     }
@@ -753,6 +793,17 @@ QString Config::sslProtocol() const
 void Config::setSslProtocol(const QString& sslProtocolName)
 {
     m_sslProtocol = sslProtocolName.toLower();
+}
+
+QString Config::sslCiphers() const
+{
+    return m_sslCiphers;
+}
+
+void Config::setSslCiphers(const QString& sslCiphersName)
+{
+    // OpenSSL cipher strings are case sensitive.
+    m_sslCiphers = sslCiphersName;
 }
 
 QString Config::sslCertificatesPath() const

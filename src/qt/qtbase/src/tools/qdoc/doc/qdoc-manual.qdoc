@@ -1,0 +1,77 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page qdoc-index.html
+    \nextpage Introduction to QDoc
+
+    \title QDoc Manual
+
+    \list
+      \li \l {Introduction to QDoc}
+      \li \l {Getting Started with QDoc}
+      \li \l {Command Index}
+      \li \l {Topic Commands}
+      \li \l {Context Commands}
+        \list
+          \li \l {Document Navigation}
+          \li \l {Reporting Status}
+          \li \l {Thread Support}
+          \li \l {Relating Things}
+          \li \l {Grouping Things}
+          \li \l {Naming Things}
+        \endlist
+      \li \l{Markup Commands}
+        \list
+          \li \l {Text Markup}
+          \li \l {Document Structure}
+          \li \l {Including Code Inline}
+          \li \l {Including External Code}
+          \li \l {Creating Links}
+          \li \l {Including Images}
+          \li \l {Tables and Lists}
+          \li \l {Special Content}
+          \li \l {Miscellaneous}
+        \endlist
+      \li \l{Creating DITA Maps}
+      \li \l {The QDoc Configuration File}
+        \list
+          \li \l {Generic Configuration Variables}
+          \li \l {Creating Help Project Files}
+          \li \l {C++ Specific Configuration Variables}
+          \li \l {HTML Specific Configuration Variables}
+          \li \l {Supporting Derived Projects}
+          \li \l {Example Manifest Files}
+          \li \l {qtgui.qdocconf}
+          \li \l {minimum.qdocconf}
+          \li \l {Generating DITA XML Output}
+        \endlist
+    \endlist
+
+*/
+
+

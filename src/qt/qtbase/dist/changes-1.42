@@ -1,0 +1,71 @@
+Here is a list of user-visible changes in Qt from 1.41 to 1.42.  The
+usual bugfixes have been added.
+
+****************************************************************************
+* 			     New classes				   *
+****************************************************************************
+
+None.
+
+****************************************************************************
+*		       Enhancements from 1.41 to 1.42			   *
+****************************************************************************
+
+The Windows version now builds as a DLL.
+
+The file dialog has various UI tweaks.
+
+More sanity checks have been added.
+
+On X11, the postscript output from a few programs will be much smaller
+than it used to be.
+
+Windows 98 is now treated as a separate version of Windows, like NT
+and Windows 95.
+
+The keyboard interface of buttons groups/dialogs has been improved.
+
+QMultiLineEdit avoids flicker in some cicumstances where it would
+flicker up to now.
+
+****************************************************************************
+*               Changes that might affect runtime behavior                 *
+****************************************************************************
+
+QKeyEvent now behaves as documented: isAccepted() is TRUE by default
+where it would sometimes default to FALSE.  Some dialogs may depend on
+the bug.  The most likely symptom of such buggy dialogs is that the
+Enter/Return key does not work, and the most likely fix for such bugs
+is to insert "e->ignore();" at the start of keyPressEvent(QKeyEvent*e)
+in such dialogs.
+
+****************************************************************************
+*               Changes that might generate compile errors                 *
+*                        when compiling old code                           *
+****************************************************************************
+
+None
+
+****************************************************************************
+*               Type changes that might generate warnings:                 *
+****************************************************************************
+
+None
+
+****************************************************************************
+* 			Deprecated functions				   *
+****************************************************************************
+
+None.
+
+
+****************************************************************************
+*			 New global functions				   *
+****************************************************************************
+
+None.
+
+****************************************************************************
+*      New public/protected functions added to existing classes            *
+****************************************************************************
+

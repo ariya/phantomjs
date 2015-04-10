@@ -37,7 +37,7 @@ if (system.args.length < 3 || system.args.length > 5) {
     page.open(address, function (status) {
         if (status !== 'success') {
             console.log('Unable to load the address!');
-            phantom.exit();
+            phantom.exit(1);
         } else {
             window.setTimeout(function () {
                 page.render(output);

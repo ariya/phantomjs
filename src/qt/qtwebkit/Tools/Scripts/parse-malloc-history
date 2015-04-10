@@ -1,0 +1,177 @@
+#!/usr/bin/perl
+
+# Copyright (C) 2007 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Parses the callstacks in a file with malloc_history formatted content, sorting
+# based on total number of bytes allocated, and filtering based on command-line
+# parameters.
+
+use Getopt::Long;
+use File::Basename;
+
+use strict;
+use warnings;
+
+sub commify($);
+
+sub main()
+{
+    my $usage =
+        "Usage: " . basename($0) . " [options] malloc_history.txt\n" .
+        "  --grep-regexp        Include only call stacks that match this regular expression.\n" .
+        "  --byte-minimum       Include only call stacks with allocation sizes >= this value.\n" .
+        "  --merge-regexp       Merge all call stacks that match this regular expression.\n" .
+        "  --merge-depth        Merge all call stacks that match at this stack depth and above.\n";
+
+    my $grepRegexp = "";
+    my $byteMinimum = "";
+    my @mergeRegexps = ();
+    my $mergeDepth = "";
+    my $getOptionsResult = GetOptions(
+        "grep-regexp:s" => \$grepRegexp,
+        "byte-minimum:i" => \$byteMinimum,
+        "merge-regexp:s" => \@mergeRegexps,
+        "merge-depth:i" => \$mergeDepth
+    );
+    die $usage if (!$getOptionsResult || !scalar(@ARGV));
+
+    my @lines = ();
+    foreach my $fileName (@ARGV) {
+        open FILE, "<$fileName" or die "bad file: $fileName";
+        push(@lines, <FILE>);
+        close FILE;
+    }
+
+    my %callstacks = ();
+    my $byteCountTotal = 0;
+
+    for (my $i = 0; $i < @lines; $i++) {
+        my $line = $lines[$i];
+        my ($callCount, $byteCount);
+
+        # First try malloc_history format
+        #   6 calls for 664 bytes thread_ffffffff |0x0 | start
+        ($callCount, $byteCount) = ($line =~ /(\d+) calls for (\d+) bytes/);
+        
+        # Then try leaks format
+        #   Leak: 0x0ac3ca40  size=48
+        #   0x00020001 0x00000001 0x00000000 0x00000000     ................
+        #   Call stack: [thread ffffffff]: | 0x0 | start
+        if (!$callCount || !$byteCount) {
+            $callCount = 1;
+            ($byteCount) = ($line =~ /Leak: [x[:xdigit:]]*  size=(\d+)/);
+
+            if ($byteCount) {
+                while (!($line =~ "Call stack: ")) {
+                    $i++;
+                    $line = $lines[$i];
+                }
+            }
+        }
+        
+        # Then try LeakFinder format
+        # --------------- Key: 213813, 84 bytes ---------
+        # c:\cygwin\home\buildbot\webkit\opensource\webcore\rendering\renderarena.cpp(78): WebCore::RenderArena::allocate
+        # c:\cygwin\home\buildbot\webkit\opensource\webcore\rendering\renderobject.cpp(82): WebCore::RenderObject::operator new
+        if (!$callCount || !$byteCount) {
+            $callCount = 1;
+            ($byteCount) = ($line =~ /Key: (?:\d+), (\d+) bytes/);
+            if ($byteCount) {
+                $line = $lines[++$i];
+                my @tempStack;
+                while ($lines[$i+1] !~ /^(?:-|\d)/) {
+                    if ($line =~ /\): (.*)$/) {
+                        my $call = $1;
+                        $call =~ s/\r$//;
+                        unshift(@tempStack, $call);
+                    }
+                    $line = $lines[++$i];
+                }            
+                $line = join(" | ", @tempStack);
+            }
+        }
+        
+        # Then give up
+        next if (!$callCount || !$byteCount);
+        
+        $byteCountTotal += $byteCount;
+
+        next if ($grepRegexp && !($line =~ $grepRegexp));
+
+        my $callstackBegin = 0;
+        if ($mergeDepth) {
+            # count stack frames backwards from end of callstack
+            $callstackBegin = length($line);
+            for (my $pipeCount = 0; $pipeCount < $mergeDepth; $pipeCount++) {
+                my $rindexResult = rindex($line, "|", $callstackBegin - 1);
+                last if $rindexResult == -1;
+                $callstackBegin = $rindexResult;
+            }
+        } else {
+            # start at beginning of callstack
+            $callstackBegin = index($line, "|");
+        }
+
+        my $callstack = substr($line, $callstackBegin + 2); # + 2 skips "| "
+        for my $regexp (@mergeRegexps) {
+            if ($callstack =~ $regexp) {
+                $callstack = $regexp . "\n";
+                last;
+            }
+        }
+        
+        if (!$callstacks{$callstack}) {
+            $callstacks{$callstack} = {"callCount" => 0, "byteCount" => 0};
+        }
+
+        $callstacks{$callstack}{"callCount"} += $callCount;
+        $callstacks{$callstack}{"byteCount"} += $byteCount;
+    }
+
+    my $byteCountTotalReported = 0;
+    for my $callstack (sort { $callstacks{$b}{"byteCount"} <=> $callstacks{$a}{"byteCount"} } keys %callstacks) {
+        my $callCount = $callstacks{$callstack}{"callCount"};
+        my $byteCount = $callstacks{$callstack}{"byteCount"};
+        last if ($byteMinimum && $byteCount < $byteMinimum);
+
+        $byteCountTotalReported += $byteCount;
+        print commify($callCount) . " calls for " . commify($byteCount) . " bytes: $callstack\n";
+    }
+
+    print "total: " . commify($byteCountTotalReported) . " bytes (" . commify($byteCountTotal - $byteCountTotalReported) . " bytes excluded).\n";
+    return 0;
+}
+
+exit(main());
+
+# Copied from perldoc -- please excuse the style
+sub commify($)
+{
+    local $_  = shift;
+    1 while s/^([-+]?\d+)(\d{3})/$1,$2/;
+    return $_;
+}

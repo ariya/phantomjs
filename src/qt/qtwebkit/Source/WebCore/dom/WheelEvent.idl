@@ -1,0 +1,69 @@
+/*
+ * Copyright (C) 2006, 2007, 2010 Apple Inc. All rights reserved.
+ * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+[
+    ConstructorConditional=DOM4_EVENTS_CONSTRUCTOR,
+    ConstructorTemplate=Event
+] interface WheelEvent : MouseEvent {
+    const unsigned long              DOM_DELTA_PIXEL = 0x00;
+    const unsigned long              DOM_DELTA_LINE  = 0x01;
+    const unsigned long              DOM_DELTA_PAGE  = 0x02;
+
+    [InitializedByEventConstructor] readonly attribute long wheelDeltaX;
+    [InitializedByEventConstructor] readonly attribute long wheelDeltaY;
+    [InitializedByEventConstructor] readonly attribute unsigned long deltaMode;
+
+    readonly attribute long wheelDelta;
+
+    // WebKit Extension
+    readonly attribute boolean webkitDirectionInvertedFromDevice;
+
+#if defined(LANGUAGE_OBJECTIVE_C) && LANGUAGE_OBJECTIVE_C
+    readonly attribute boolean isHorizontal;
+#endif /* defined(LANGUAGE_OBJECTIVE_C) */
+
+#if !defined(LANGUAGE_JAVASCRIPT) || !LANGUAGE_JAVASCRIPT
+    void initWheelEvent([Default=Undefined] optional long wheelDeltaX,
+                        [Default=Undefined] optional long wheelDeltaY, 
+                        [Default=Undefined] optional DOMWindow view, 
+                        [Default=Undefined] optional long screenX,
+                        [Default=Undefined] optional long screenY,
+                        [Default=Undefined] optional long clientX,
+                        [Default=Undefined] optional long clientY,
+                        [Default=Undefined] optional boolean ctrlKey,
+                        [Default=Undefined] optional boolean altKey,
+                        [Default=Undefined] optional boolean shiftKey,
+                        [Default=Undefined] optional boolean metaKey);
+#endif /* !defined(LANGUAGE_JAVASCRIPT) */
+
+#if defined(LANGUAGE_JAVASCRIPT) && LANGUAGE_JAVASCRIPT
+    void initWebKitWheelEvent([Default=Undefined] optional long wheelDeltaX,
+                              [Default=Undefined] optional long wheelDeltaY, 
+                              [Default=Undefined] optional DOMWindow view, 
+                              [Default=Undefined] optional long screenX,
+                              [Default=Undefined] optional long screenY,
+                              [Default=Undefined] optional long clientX,
+                              [Default=Undefined] optional long clientY,
+                              [Default=Undefined] optional boolean ctrlKey,
+                              [Default=Undefined] optional boolean altKey,
+                              [Default=Undefined] optional boolean shiftKey,
+                              [Default=Undefined] optional boolean metaKey);
+#endif /* defined(LANGUAGE_JAVASCRIPT) */
+};

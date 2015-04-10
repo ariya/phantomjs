@@ -1,0 +1,49 @@
+/*
+ * Copyright (C) 2006, 2010 Apple Inc. All rights reserved.
+ * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+interface HTMLButtonElement : HTMLElement {
+    [Reflect] attribute boolean autofocus;
+    [Reflect] attribute boolean disabled;
+    readonly attribute HTMLFormElement form;
+    [Reflect, URL] attribute DOMString formAction;
+    [TreatNullAs=NullString] attribute DOMString formEnctype;
+    [TreatNullAs=NullString] attribute DOMString formMethod;
+    [Reflect] attribute boolean formNoValidate;
+    [Reflect] attribute DOMString formTarget;
+    [Reflect] attribute DOMString name;
+    [TreatNullAs=NullString] attribute DOMString type;
+    [Reflect] attribute DOMString value;
+
+    readonly attribute boolean willValidate;
+    readonly attribute ValidityState validity;
+    readonly attribute DOMString validationMessage;
+    boolean checkValidity();
+    void setCustomValidity([TreatNullAs=NullString, TreatUndefinedAs=NullString] DOMString error);
+
+    readonly attribute NodeList labels;
+
+#if defined(LANGUAGE_OBJECTIVE_C) && LANGUAGE_OBJECTIVE_C
+    [Reflect] attribute DOMString accessKey;
+#endif
+
+#if defined(LANGUAGE_OBJECTIVE_C) && LANGUAGE_OBJECTIVE_C
+    void click();
+#endif
+};

@@ -1,0 +1,127 @@
+CORESRC = $(QTSRC)src/corelib
+TOOLSRC = $(QTSRC)tools
+CONFSRC = $(TOOLSRC)/configure
+
+RAW_PCH       = configure_pch.h
+PCH           = $(RAW_PCH).gch/c++
+CXX           = g++
+DEFINES       = -DUNICODE -DQT_NO_DATASTREAM -DQT_NO_CODECS -DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT -DQT_NO_COMPRESS -DQT_NO_THREAD -DQT_NO_QOBJECT -DQT_NO_GEOM_VARIANT -D_CRT_SECURE_NO_DEPRECATE -DQT_BOOTSTRAPPED -DQT_BUILD_CONFIGURE -DCOMMERCIAL_VERSION
+INCPATH       = -I"../../include" -I"../../include/QtCore" -I"../../include/QtCore/$(QTVERSION)" -I"../../include/QtCore/$(QTVERSION)/QtCore" -I"$(TOOLSRC)/shared" -I"$(QTSRC)mkspecs/win32-g++"
+CXXFLAGS_BARE = -fno-rtti -fno-exceptions -mthreads -Wall -Wextra $(DEFINES) $(INCPATH)
+CXXFLAGS      = -include $(RAW_PCH) $(CXXFLAGS_BARE)
+LINK          = g++
+LFLAGS        = -Wl,-subsystem,console -mthreads
+LIBS          = -lole32 -ladvapi32 -luuid
+
+TARGET        = ../../configure.exe
+
+OBJECTS = \
+    main.o \
+    configureapp.o \
+    environment.o \
+    tools.o \
+    qarraydata.o \
+    qbytearray.o \
+    qbytearraymatcher.o \
+    qhash.o \
+    qlist.o \
+    qlocale.o \
+    qlocale_win.o \
+    qlocale_tools.o \
+    qvector.o \
+    qutfcodec.o \
+    qtextcodec.o \
+    qglobal.o \
+    qnumeric.o \
+    qbuffer.o \
+    qdatastream.o \
+    qdir.o \
+    qdiriterator.o \
+    qfiledevice.o \
+    qfile.o \
+    qfileinfo.o \
+    qabstractfileengine.o \
+    qfilesystementry.o \
+    qfilesystemengine.o \
+    qfilesystemengine_win.o \
+    qfilesystemiterator_win.o \
+    qfsfileengine.o \
+    qfsfileengine_win.o \
+    qfsfileengine_iterator.o \
+    qiodevice.o \
+    qtextstream.o \
+    qlogging.o \
+    qtemporaryfile.o \
+    qstandardpaths.o \
+    qstandardpaths_win.o \
+    qsystemlibrary.o \
+    qbitarray.o \
+    qdatetime.o \
+    qmap.o \
+    qregexp.o \
+    qstring.o \
+    qstring_compat.o \
+    qstringlist.o \
+    qvsnprintf.o \
+    qvariant.o \
+    qsystemerror.o \
+    qmetatype.o \
+    qmalloc.o \
+    qxmlstream.o \
+    qxmlutils.o \
+    quuid.o \
+    registry.o
+
+$(TARGET): $(OBJECTS)
+	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(LIBS)
+
+$(OBJECTS): $(PCH)
+
+# SHELL is the full path of sh.exe, unless
+# 1) it is found in the current directory
+# 2) it is not found at all
+# 3) it is overridden on the command line with an existing file
+# ... otherwise it is always sh.exe. Specifically, SHELL from the
+# environment has no effect.
+#
+# This check will fail if SHELL is explicitly set to a not
+# sh-compatible shell. This is not a problem, because configure.bat
+# will not do that.
+ifeq ($(SHELL), sh.exe)
+    ifeq ($(wildcard $(CURDIR)/sh.exe), )
+        SH = 0
+    else
+        SH = 1
+    endif
+else
+    SH = 1
+endif
+
+ifeq ($(SH), 1)
+    CHK_DIR_EXISTS = test -d
+    CHK_DIR_EXISTS_GLUE = ||
+    MKDIR = mkdir -p
+else
+    CHK_DIR_EXISTS = if not exist
+    CHK_DIR_EXISTS_GLUE =
+    MKDIR = md
+endif
+
+$(PCH): $(CONFSRC)/configure_pch.h
+	@$(CHK_DIR_EXISTS) $(RAW_PCH).gch $(CHK_DIR_EXISTS_GLUE) $(MKDIR) $(RAW_PCH).gch
+	$(CXX) -x c++-header -c $(CXXFLAGS_BARE) -o $@ $<
+
+VPATH = $(CONFSRC):$(TOOLSRC)/shared/windows:$(CORESRC)/global:$(CORESRC)/kernel:$(CORESRC)/tools:$(CORESRC)/codecs:$(CORESRC)/io:$(CORESRC)/xml:$(CORESRC)/plugin
+
+main.o: $(CONFSRC)/configureapp.h
+configureapp.o: $(CONFSRC)/configureapp.h $(CONFSRC)/environment.h $(CONFSRC)/tools.h
+environment.o: $(CONFSRC)/environment.h
+tools.o: $(CONFSRC)/tools.h
+
+# Make sure qstring_compat.obj isn't compiled with PCH enabled
+qstring_compat.o: $(CORESRC)/tools/qstring_compat.cpp
+	$(CXX) -c $(CXXFLAGS_BARE) -o $@ $<
+
+clean:
+	-rm -f *.o
+	-rm -rf *.gch

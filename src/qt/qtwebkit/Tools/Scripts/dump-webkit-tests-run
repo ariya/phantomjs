@@ -1,0 +1,52 @@
+#!/usr/bin/python
+import json
+import optparse
+import os
+import sys
+
+
+def main(argv):
+    parser = optparse.OptionParser(usage='%prog worker_number [path-to-stats.json]')
+    _, args = parser.parse_args(argv)
+
+    worker_number = int(args.pop(0))
+    if args:
+        if os.path.exists(args[0]):
+            with open(args[0], 'r') as fp:
+                trie = json.load(fp)
+        else:
+            print >> sys.stderr, "file not found: %s" % args[0]
+            sys.exit(1)
+    else:
+        trie = json.load(sys.stdin)
+
+    results = convert_trie_to_flat_paths(trie)
+    tests_run = []
+    for (test, result) in results.iteritems():
+        # Each result is a dict containing
+        # { 'results': [worker #, test # in worker, driver pid,
+        #   test time in msecs, test + compare time in msecs]}
+        if result['results'][0] == worker_number:
+            tests_run.append((test, result['results'][1]))
+
+    print "\n".join(t[0] for t in sorted(tests_run, key=lambda t: t[1]))
+
+
+def convert_trie_to_flat_paths(trie, prefix=None):
+    # Cloned from webkitpy.layout_tests.layout_package.json_results_generator
+    # so that this code can stand alone.
+    result = {}
+    for name, data in trie.iteritems():
+        if prefix:
+            name = prefix + "/" + name
+
+        if len(data) and not "results" in data:
+            result.update(convert_trie_to_flat_paths(data, name))
+        else:
+            result[name] = data
+
+    return result
+
+
+if __name__ ==  '__main__':
+    main(sys.argv[1:])

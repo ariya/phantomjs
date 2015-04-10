@@ -1,0 +1,8 @@
+<version value="5.3">
+    <ignore>
+        <file>AndroidManifest.xml</file>
+        <file>libs.xml</file>
+        <file>logo.png</file>
+        <file>icon.png</file>
+    </ignore>
+</version>

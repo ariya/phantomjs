@@ -1,0 +1,100 @@
+equals(MAKEFILE_GENERATOR, UNIX) {
+    QMAKE_MAKE = make
+} else:equals(MAKEFILE_GENERATOR, MINGW) {
+    !equals(QMAKE_HOST.os, Windows): \
+        QMAKE_MAKE = make
+    else: \
+        QMAKE_MAKE = mingw32-make
+} else:if(equals(MAKEFILE_GENERATOR, MSVC.NET)|equals(MAKEFILE_GENERATOR, MSBUILD)) {
+    QMAKE_MAKE = nmake
+} else {
+    error("Configure tests are not supported with the $$MAKEFILE_GENERATOR Makefile generator.")
+}
+
+# Ensure that a cache is present. If none was found on startup, this will create
+# one in the build directory of the project which loads this feature.
+cache()
+
+QMAKE_CONFIG_LOG = $$dirname(_QMAKE_CACHE_)/config.log
+QMAKE_CONFIG_TESTS_DIR = $$_PRO_FILE_PWD_/config.tests
+
+defineTest(qtRunLoggedCommand) {
+    msg = "+ $$1"
+    write_file($$QMAKE_CONFIG_LOG, msg, append)
+    system("$$1 >> \"$$QMAKE_CONFIG_LOG\" 2>&1")|return(false)
+    return(true)
+}
+
+# Try to build the test project in $$QMAKE_CONFIG_TESTS_DIR/$$1
+# ($$_PRO_FILE_PWD_/config.tests/$$1 by default).
+#
+# If the test passes, config_$$1 will be added to CONFIG.
+# The result is automatically cached. Use of cached results
+# can be suppressed by passing CONFIG+=recheck to qmake.
+#
+# Returns: true iff the test passes
+defineTest(qtCompileTest) {
+    positive = config_$$1
+    done = done_config_$$1
+
+    $$done:!recheck {
+        $$positive:return(true)
+        return(false)
+    }
+
+    log("Checking for $${1}... ")
+    msg = "executing config test $$1"
+    write_file($$QMAKE_CONFIG_LOG, msg, append)
+
+    test_dir = $$QMAKE_CONFIG_TESTS_DIR/$$1
+    test_out_dir = $$shadowed($$test_dir)
+    test_cmd_base = "cd $$system_quote($$system_path($$test_out_dir)) &&"
+
+    # Disable qmake features which are typically counterproductive for tests
+    qmake_configs = "\"CONFIG -= qt debug_and_release app_bundle lib_bundle\""
+
+    # On WinRT we need to change the entry point as we cannot create windows
+    # applications
+    winrt {
+        qmake_configs += " \"QMAKE_LFLAGS+=/ENTRY:main\""
+    }
+
+    # Clean up after previous run
+    exists($$test_out_dir/Makefile):qtRunLoggedCommand("$$test_cmd_base $$QMAKE_MAKE distclean")
+
+    mkpath($$test_out_dir)|error("Aborting.")
+
+    qtRunLoggedCommand("$$test_cmd_base $$system_quote($$system_path($$QMAKE_QMAKE)) $$qmake_configs $$shell_quote($$test_dir)") {
+        qtRunLoggedCommand("$$test_cmd_base $$QMAKE_MAKE") {
+            log("yes$$escape_expand(\\n)")
+            msg = "test $$1 succeeded"
+            write_file($$QMAKE_CONFIG_LOG, msg, append)
+
+            !$$positive {
+                CONFIG += $$positive
+                cache(CONFIG, add, positive)
+            }
+            !$$done {
+                CONFIG += $$done
+                cache(CONFIG, add, done)
+            }
+            export(CONFIG)
+            return(true)
+        }
+    }
+
+    log("no$$escape_expand(\\n)")
+    msg = "test $$1 FAILED"
+    write_file($$QMAKE_CONFIG_LOG, msg, append)
+
+    $$positive {
+        CONFIG -= $$positive
+        cache(CONFIG, sub, positive)
+    }
+    !$$done {
+        CONFIG += $$done
+        cache(CONFIG, add, done)
+    }
+    export(CONFIG)
+    return(false)
+}

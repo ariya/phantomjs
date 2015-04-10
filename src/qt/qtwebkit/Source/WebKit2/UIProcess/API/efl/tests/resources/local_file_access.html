@@ -1,0 +1,31 @@
+<html>
+<head>
+<script>
+function checkFrameLoaded()
+{
+    var myframe = document.getElementById('myframe');
+    var testWindow = myframe.contentWindow;
+    var state = null;
+    try { 
+        var state = testWindow.document.readyState;
+        if (state == "complete") {
+            document.title = "Frame loaded";
+            return;
+        }
+    } catch(e) {}
+    document.title = "Frame NOT loaded";
+}
+
+function loadFrame()
+{
+    var myframe = document.getElementById('myframe');
+    myframe.src = "default_test_page.html";
+
+    setTimeout("checkFrameLoaded()", 300);
+}
+</script>
+</head>
+<body onload="loadFrame()">
+<iframe id="myframe"></iframe>
+</body>
+</html>

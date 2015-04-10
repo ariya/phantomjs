@@ -1,0 +1,2 @@
+#define ANGLE_COMMIT_HASH "5bb7ec572d0a"
+#define ANGLE_COMMIT_HASH_SIZE 12

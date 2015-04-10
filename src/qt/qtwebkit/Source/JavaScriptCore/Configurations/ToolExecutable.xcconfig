@@ -1,0 +1,39 @@
+// Copyright (C) 2011, 2012 Apple Inc. All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY APPLE INC. ``AS IS'' AND ANY
+// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE INC. OR
+// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+
+INSTALL_PATH = $(INSTALL_PATH_$(PLATFORM_NAME));
+INSTALL_PATH_iphoneos = $(JAVASCRIPTCORE_FRAMEWORKS_DIR)/JavaScriptCore.framework/Resources;
+INSTALL_PATH_iphonesimulator = $(INSTALL_PATH_iphoneos);
+INSTALL_PATH_macosx = $(JAVASCRIPTCORE_FRAMEWORKS_DIR)/JavaScriptCore.framework/Versions/A/Resources;
+PRODUCT_NAME = $(TARGET_NAME);
+
+SKIP_INSTALL = $(SKIP_INSTALL_$(FORCE_TOOL_INSTALL));
+SKIP_INSTALL_ = YES;
+SKIP_INSTALL_NO = YES;
+SKIP_INSTALL_YES = NO;
+
+GCC_ENABLE_OBJC_GC = NO;
+CLANG_ENABLE_OBJC_ARC = $(CLANG_ENABLE_OBJC_ARC_$(CURRENT_ARCH));
+CLANG_ENABLE_OBJC_ARC_x86_64 = YES;
+CLANG_ENABLE_OBJC_ARC_armv7 = YES;
+CLANG_ENABLE_OBJC_ARC_armv7s = YES;

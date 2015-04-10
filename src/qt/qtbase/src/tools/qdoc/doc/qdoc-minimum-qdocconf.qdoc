@@ -1,0 +1,92 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+/*!
+\page qdoc-minimum-qdocconf.html
+\target minimal-qdocconf
+\title A minimal qdocconf file
+
+\brief Describes a minimal .qdocconf file
+
+Below you will find the full contents of qtgui.qdocconf. The subsequent section
+will discuss every statement in the qdocconf file.
+
+Each line from the qdocconf file is first quoted. Below each statement you will
+find the meaning.
+
+\code
+   #include(compat.qdocconf)
+   outputdir   = html
+   headerdirs  = .
+   sourcedirs  = .
+   exampledirs = .
+   imagedirs   = ./images
+\endcode
+
+\title Notes
+
+\code
+   #include(compat.qdocconf)
+\endcode
+
+For compatibility with older versions of Qt, it is recommended
+to include compat.qdocconf.
+
+\code
+   outputdir   = html
+\endcode
+
+QDoc will put the documentation generated in the html directory.
+
+\code
+   headerdirs  = .
+\endcode
+
+The header file associated with the \e .cpp source files can be found in the
+current directory.
+
+\code
+   sourcedirs  = .
+\endcode
+
+The current directory is the directory containing the source files: the \e .cpp
+and \e .qdoc files used in the documentation.
+
+\code
+   exampledirs = .
+\endcode
+
+The source code of the example files can be found in the current directory.
+
+\code
+   imagedirs   = ./images
+\endcode
+
+The image files can be found in the underlying directory "images".
+
+\note Please take care with this minimal qdocconf file.  Using it in the wrong directory
+could cause qdoc to include a large number of files.
+*/

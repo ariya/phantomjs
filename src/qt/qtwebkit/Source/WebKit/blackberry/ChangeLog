@@ -1,0 +1,2442 @@
+2013-07-17  Kangil Han  <kangil.han@samsung.com>
+
+        Use toHTMLMediaElement
+        https://bugs.webkit.org/show_bug.cgi?id=118727
+
+        Reviewed by Ryosuke Niwa.
+
+        To avoid direct use of static_cast, this patch uses toHTMLMediaElement for code cleanup.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::webContext):
+        (BlackBerry::WebKit::WebPage::notifyFullScreenVideoExited):
+        (BlackBerry::WebKit::WebPagePrivate::enterFullscreenForNode):
+        (BlackBerry::WebKit::WebPagePrivate::exitFullscreenForNode):
+
+2013-07-16  Kangil Han  <kangil.han@samsung.com>
+
+        Use toHTMLSelectElement and dismiss isHTMLSelectElement
+        https://bugs.webkit.org/show_bug.cgi?id=118714
+
+        Reviewed by Ryosuke Niwa.
+
+        To avoid direct use of static_cast, this patch introduces toHTMLIFrameElement for code cleanup.
+        Additionally, this patch removes isHTMLSelectElement because not all element subclasses can be checked by a combination of tag names.
+
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::didNodeOpenPopup):
+        (BlackBerry::WebKit::InputHandler::setPopupListIndex):
+        (BlackBerry::WebKit::InputHandler::setPopupListIndexes):
+
+2013-07-08  Jacky Jiang  <zhajiang@blackberry.com>
+
+        [BlackBerry] Block Zoom does not zoom in on narrow paragraphs properly
+        https://bugs.webkit.org/show_bug.cgi?id=118472
+
+        Reviewed by Rob Buis.
+        Internally reviewed Arvid Nilsson and Genevieve Mak.
+
+        JIRA 114653
+        For the narrow paragraphs on www.nytimes.com, the first best node for
+        block zoom under the point is deprecated due to the limits of maximum
+        block zoom scale(3) and default maximum WebPage zoom scale(4) and instead
+        it picks up an ancestor node which is wider so that it looks like doesn't
+        zoom in properly.
+        To fix that, enlarge the default maximum WebPage zoom scale slightly
+        and use maximumScale() instead of maxBlockZoomScale() so that we can
+        accept more nodes. And also we'll still clamp the new scale by
+        maxBlockZoomScale() when we block zoom the WebPage, in which way those
+        nodes can be showed in the center of the viewport and surrounded by a
+        few other nodes within the viewport which shows better user experience.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::maximumScale):
+        (BlackBerry::WebKit::WebPagePrivate::adjustedBlockZoomNodeForZoomAndExpandingRatioLimits):
+
+2013-07-01  Jochen Eisinger  <jochen@chromium.org>
+
+        Remove support for consumable user gestures
+        https://bugs.webkit.org/show_bug.cgi?id=118247
+
+        Reviewed by Geoffrey Garen.
+
+        * WebKitSupport/NotificationManager.cpp:
+        (BlackBerry::WebKit::NotificationManager::notificationClicked):
+
+2013-07-01  Kangil Han  <kangil.han@samsung.com>
+
+        Adopt toHTMLTextAreaElement for code cleanup
+        https://bugs.webkit.org/show_bug.cgi?id=118226
+
+        Reviewed by Andreas Kling.
+
+        To enhance readability, this patch adopts toHTMLTextAreaElement.
+        This also helps out to reduce duplicated use of static_cast.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::blockZoomRectForNode):
+        * WebKitSupport/DOMSupport.cpp:
+        (BlackBerry::WebKit::DOMSupport::isTextInputElement):
+        (BlackBerry::WebKit::DOMSupport::inputElementText):
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::elementType):
+        (BlackBerry::WebKit::InputHandler::boundingBoxForInputField):
+
+2013-06-29  Kangil Han  <kangil.han@samsung.com>
+
+        Adopt is/toHTMLOptGroupElement for code cleanup
+        https://bugs.webkit.org/show_bug.cgi?id=118213
+
+        Reviewed by Andreas Kling.
+
+        To enhance readability, this patch adopts is/toHTMLOptGroupElement.
+        This also helps out to reduce duplicated use of static_cast.
+
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::openSelectPopup):
+
+2013-06-29  Kangil Han  <kangil.han@samsung.com>
+
+        Adopt is/toHTMLOptionElement for code cleanup
+        https://bugs.webkit.org/show_bug.cgi?id=118212
+
+        Reviewed by Andreas Kling.
+
+        To enhance readability, this patch adopts is/toHTMLOptionElement.
+        This also helps out to reduce duplicated use of static_cast.
+
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::willOpenPopupForNode):
+        (BlackBerry::WebKit::InputHandler::didNodeOpenPopup):
+        (BlackBerry::WebKit::InputHandler::openSelectPopup):
+        (BlackBerry::WebKit::InputHandler::setPopupListIndexes):
+        * WebKitSupport/SelectPopupClient.cpp:
+        (BlackBerry::WebKit::SelectPopupClient::setValueAndClosePopup):
+
+2013-06-28  Kangil Han  <kangil.han@samsung.com>
+
+        Adopt is/toHTMLImageElement for code cleanup
+        https://bugs.webkit.org/show_bug.cgi?id=118182
+
+        Reviewed by Andreas Kling.
+
+        To enhance readability, this patch adopts is/toHTMLImageElement.
+        This also helps out to reduce duplicated use of static_cast.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::webContext):
+        (BlackBerry::WebKit::WebPagePrivate::blockZoomRectForNode):
+        (BlackBerry::WebKit::WebPage::blockZoom):
+        * WebKitSupport/FatFingers.cpp:
+        (BlackBerry::WebKit::FatFingers::isElementClickable):
+
+2013-06-27  Kangil Han  <kangil.han@samsung.com>
+
+        Adopt is/toHTMLInputElement for code cleanup
+        https://bugs.webkit.org/show_bug.cgi?id=118130
+
+        Reviewed by Antti Koivisto.
+
+        To enhance readability, this patch adopts is/toHTMLInputElement.
+        This also helps out to reduce duplicated use of static_cast.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::webContext):
+        (BlackBerry::WebKit::WebPagePrivate::blockZoomRectForNode):
+        * WebCoreSupport/CredentialTransformData.cpp:
+        (WebCore::CredentialTransformData::findPasswordFormFields):
+        * WebCoreSupport/EditorClientBlackBerry.cpp:
+        (WebCore::EditorClientBlackBerry::shouldSpellCheckFocusedField):
+        * WebKitSupport/DOMSupport.cpp:
+        (BlackBerry::WebKit::DOMSupport::isPasswordElement):
+        (BlackBerry::WebKit::DOMSupport::inputElementText):
+        (BlackBerry::WebKit::DOMSupport::isDateTimeInputField):
+        (BlackBerry::WebKit::DOMSupport::isColorInputField):
+        (BlackBerry::WebKit::DOMSupport::elementIdOrNameIndicatesNoAutocomplete):
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::elementType):
+        (BlackBerry::WebKit::InputHandler::setInputValue):
+        (BlackBerry::WebKit::InputHandler::extractedTextRequest):
+        (BlackBerry::WebKit::InputHandler::showTextInputTypeSuggestionBox):
+
+2013-06-27  Nima Ghanavatian  <nghanavatian@blackberry.com>
+
+        [BlackBerry] We should clear all markers when input changes a word
+        https://bugs.webkit.org/show_bug.cgi?id=118136
+        JIRA115313.
+
+        For the case where a letter is added to the middle of a misspelled word, we were
+        sending incorrect offsets to clear spelling markers. However, since this
+        expanded the current word, it overlaps entirely the previous spelling marker so
+        no issue is found. However, if the keypress is backspace, the incorrect range
+        is smaller, causing an overlap which recreates the marker over the last character.
+        Setting shouldEraseMarkersAfterChangeSelection to follow continuous spell checking,
+        which will clear all markers regardless of overlap.
+        This patch also sustains spelling markers after the user taps to move the caret onto
+        the word, which is a nice gain as it was asked for previously.
+
+        Reviewed by Rob Buis.
+
+        Internally Reviewed by Mike Fenton
+
+        * WebCoreSupport/EditorClientBlackBerry.cpp:
+        (WebCore::EditorClientBlackBerry::shouldEraseMarkersAfterChangeSelection):
+
+2013-06-26  Carlos Garcia Campos  <cargarcia@blackberry.com>
+
+        [BlackBerry] Handle testRunner.setCustomPolicyDelegate()
+        https://bugs.webkit.org/show_bug.cgi?id=117982
+
+        Reviewed by Rob Buis.
+
+        Take custom policy into account when deciding the policy for
+        navigation actions.
+
+        Fixes test fast/loader/onload-policy-ignore-for-frame.html.
+
+        * Api/DumpRenderTreeClient.h:
+        * WebCoreSupport/FrameLoaderClientBlackBerry.cpp:
+        (WebCore::FrameLoaderClientBlackBerry::dispatchDecidePolicyForNavigationAction):
+        If custom policy is enabled ignore the navigation action when it's
+        not permissive.
+
+2013-06-26  Kangil Han  <kangil.han@samsung.com>
+
+        Adopt is/toHTMLAreaElement for code cleanup
+        https://bugs.webkit.org/show_bug.cgi?id=117980
+
+        Reviewed by Antonio Gomes.
+
+        To enhance readibility, this patch adopts is/toHTMLAreaElement.
+        This also helps out to reduce duplicated use of static_cast.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::webContext):
+        * WebKitSupport/TouchEventHandler.cpp:
+        (BlackBerry::WebKit::elementForTapHighlight):
+
+2013-06-26  Jacky Jiang  <zhajiang@blackberry.com>
+
+        [BlackBerry] ASSERT(!m_tileMatrixNeedsUpdate) in BackingStorePrivate::render()
+        https://bugs.webkit.org/show_bug.cgi?id=118062
+
+        Reviewed by Rob Buis.
+        Internally reviewed by Jakob Petsovits.
+
+        JIRA426949
+        requestLayoutIfNeeded() can cause zoomAboutPoint() when the layout
+        is finished and make the tile matrix stale. We need requestLayoutIfNeeded()
+        before we updateTileMatrixIfNeeded() so that we can fix the ASSERT and
+        also pass the valid TileIndexList to render().
+
+        * Api/BackingStore.cpp:
+        (BlackBerry::WebKit::BackingStorePrivate::resumeScreenUpdates):
+        (BlackBerry::WebKit::BackingStorePrivate::render):
+
+2013-06-25  Kangil Han  <kangil.han@samsung.com>
+
+        Adopt is/toHTMLAnchorElement for code cleanup
+        https://bugs.webkit.org/show_bug.cgi?id=117973
+
+        Reviewed by Andreas Kling.
+
+        To enhance readibility, this patch adopts is/toHTMLAnchorElement.
+        This also helps out to reduce duplicated use of static_cast.
+
+        * WebKitSupport/FatFingers.cpp:
+        (BlackBerry::WebKit::FatFingers::isElementClickable):
+
+2013-06-24  Kangil Han  <kangil.han@samsung.com>
+
+        Adopt is/toHTMLFormElement for code cleanup
+        https://bugs.webkit.org/show_bug.cgi?id=117937
+
+        Reviewed by Andreas Kling.
+
+        This refers to http://src.chromium.org/viewvc/blink?view=revision&revision=152859
+
+        To enhance readibility, this patch adopts is/toHTMLFormElement.
+        This also helps out to reduce duplicated use of static_cast.
+
+        * WebCoreSupport/CredentialManager.cpp:
+        (WebCore::CredentialManager::autofillPasswordForms):
+
+2013-06-24  Jakob Petsovits  <jpetsovits@blackberry.com>
+
+        [BlackBerry] Only resume root layer commits for visible WebPages
+        https://bugs.webkit.org/show_bug.cgi?id=117956
+        https://jira.bbqnx.net/browse/BRWSR-12047
+        JIRA428381
+
+        Reviewed by George Staikos.
+
+        In r150629, the code from that change introduced to
+        suspend and resume root layer commits would not take into
+        account whether the page is actually visible.
+
+        Because application activation state is usually conveyed
+        to all or any WebPages, this would mean on transitioning
+        into an active application state, we were resuming
+        root layer commits that might have previously been
+        disabled for visibility reasons.
+
+        Fix this by going through a single function that knows
+        by itself whether to suspend or resume root layer commits,
+        so the calling code doesn't have a chance to get it wrong.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPage::setVisible):
+        (BlackBerry::WebKit::WebPagePrivate::notifyAppActivationStateChange):
+        (BlackBerry::WebKit::WebPagePrivate::updateRootLayerCommitEnabled):
+        * Api/WebPage_p.h:
+        (WebPagePrivate):
+
+2013-06-20  Nima Ghanavatian  <nghanavatian@blackberry.com>
+
+        [BlackBerry] Send the correct offsets for misspelled words.
+        https://bugs.webkit.org/show_bug.cgi?id=117846
+
+        JIRA116916.
+        When the caret is placed after a word, the offsets were calculated around
+        the proceeding space. As such, words that end a sentence worked correctly, but
+        midsentence words did not. The 'startOfWord' was calculated for the space ahead
+        and not for the word before it. Now finding the start of the word correctly and
+        calculating the end from there.
+
+        Reviewed by Rob Buis.
+
+        Internally reviewed by Genevieve Mak.
+
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::requestSpellingCheckingOptions):
+
+2013-06-20  Carlos Garcia Campos  <cgarcia@igalia.com>
+
+        [BlackBerry] Handle testRunner.setWillSendRequestReturnsNull() in DRT
+        https://bugs.webkit.org/show_bug.cgi?id=117827
+
+        Reviewed by Rob Buis.
+
+        Add DumpRenderTreeClient::willSendRequestForFrame() to handle
+        dispatchWillSendRequest() in DRT.
+
+        Fixes tests
+        fast/loader/onload-willSendRequest-null-for-script.html and
+        fast/loader/willSendRequest-null-for-preload.html.
+
+        * Api/DumpRenderTreeClient.h:
+        * WebCoreSupport/FrameLoaderClientBlackBerry.cpp:
+        (WebCore::FrameLoaderClientBlackBerry::dispatchWillSendRequest):
+
+2013-06-19  Jakob Petsovits  <jpetsovits@blackberry.com>
+
+        [BlackBerry] Prevent loss of tile buffers in BackingStorePrivate::render()
+        https://bugs.webkit.org/show_bug.cgi?id=117799
+        https://jira.bbqnx.net/browse/BRWSR-11712
+        JIRA413289
+
+        Reviewed by Carlos Garcia Campos.
+
+        Discovered by Xuefei Ren.
+
+        If, in rare cases, renderContents() returns false,
+        the for() loop in render() will take a tile buffer from
+        the surface pool but due to aborting the iteration early,
+        won't put it into the new tile map. In order to prevent
+        losing the buffer, we need to put it back into the
+        surface pool before continuing.
+
+        * Api/BackingStore.cpp:
+        (BlackBerry::WebKit::BackingStorePrivate::render):
+
+2013-06-17  Tiancheng Jiang  <tijiang@rim.com>
+
+        Cache FatFinger Text Result.
+        https://bugs.webkit.org/show_bug.cgi?id=107403.
+
+        Reviewed by Rob Buis.
+
+        Internally Reviewed by Genevieve Mak.
+        Cache the FatFinger text result for later use in TouchEventHandler.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::contextNode):
+        * WebKitSupport/SelectionHandler.cpp:
+        (BlackBerry::WebKit::SelectionHandler::selectAtPoint):
+        * WebKitSupport/TouchEventHandler.h:
+        (BlackBerry::WebKit::TouchEventHandler::cacheTextResult):
+        (TouchEventHandler):
+
+2013-06-14  Alberto Garcia  <agarcia@igalia.com>
+
+        [BlackBerry] Remove implementation of ContextMenu classes
+        https://bugs.webkit.org/show_bug.cgi?id=114860
+
+        Reviewed by Rob Buis.
+
+        This code is not being used so we can safely remove it.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::init):
+        * WebCoreSupport/ContextMenuClientBlackBerry.cpp: Removed.
+        * WebCoreSupport/ContextMenuClientBlackBerry.h: Removed.
+
+2013-06-14  Arvid Nilsson  <anilsson@rim.com>
+
+        [BlackBerry] LayerTiler fails to tile really big layers
+        https://bugs.webkit.org/show_bug.cgi?id=117211
+
+        Reviewed by Carlos Garcia Campos.
+
+        PR 273550
+
+        Adapt to changes in LayerCompositingThreadClient interface.
+
+        * Api/WebOverlay.cpp:
+        (BlackBerry::WebKit::WebOverlayLayerCompositingThreadClient::drawTextures):
+        * Api/WebOverlay_p.h:
+        (WebOverlayLayerCompositingThreadClient):
+
+2013-06-12  Leo Yang  <leoyang@rim.com>
+
+        [BlackBerry] Use RefPtr for HTMLInputElement inside CredentialTransformData
+        https://bugs.webkit.org/show_bug.cgi?id=117553
+
+        Reviewed by Carlos Garcia Campos.
+
+        In CredentialTransformData we should use RefPtr for
+        m_userNameElement, m_passwordElement and m_oldPasswordElement
+        because otherwise the elements could go away when the form
+        elements get destroyed.
+
+        Also add *const* for the parameter of CredentialTransformData::findPasswordFormFields().
+
+        No functionalities changed no new tests.
+
+        * WebCoreSupport/CredentialTransformData.cpp:
+        (WebCore::CredentialTransformData::findPasswordFormFields):
+        (WebCore::CredentialTransformData::locateSpecificPasswords):
+        * WebCoreSupport/CredentialTransformData.h:
+
+2013-06-12  Alberto Garcia  <agarcia@igalia.com>
+
+        [BlackBerry] Remove dead WebDOM code
+        https://bugs.webkit.org/show_bug.cgi?id=113370
+
+        Reviewed by Anders Carlsson.
+
+        BlackBerry PR 347565
+        Internally reviewed by Charles Wei.
+
+        * Api/WebPage.cpp:
+        * Api/WebPage.h:
+        * WebCoreSupport/AboutDataEnableFeatures.in:
+        * WebCoreSupport/FrameLoaderClientBlackBerry.cpp:
+
+2013-06-12  Jakob Petsovits  <jpetsovits@blackberry.com>
+
+        [BlackBerry] Smarter algorithm to determine the backingstore rect
+        https://bugs.webkit.org/show_bug.cgi?id=117451
+
+        JIRA115644
+        https://jira.bbqnx.net/browse/BRWSR-7028
+
+        Reviewed by Rob Buis.
+
+        So far, the backingstore tile geometry allocation was
+        pretty straightforward: We would start off from the
+        current viewport and append all available tiles into
+        the current scrolling direction from there.
+
+        This will usually work well enough, but has the downside
+        of discarding all the tiles in the opposite direction.
+        Also, tiles very close to the viewport will often get
+        discarded even if the user only scrolls very slowly.
+
+        This patch completely revamps the algorithm for
+        determining where the backingstore should be positioned.
+
+        The general idea is that we construct a "desired rect"
+        based on the viewport and inflate it into all four
+        directions according to the current scroll momentum.
+        This rectangle will be similarly large as a backingstore
+        tile geometry rectangle might be, by using the
+        approximate number of pixels that are available in the
+        given number of tiles.
+
+        The proportions for extending the rectangle from the
+        viewport are influenced by different factors, including
+        scroll momentum, viewport ratio, available space in the
+        overall contents rectangle, and natural bias for the
+        "down" direction.
+
+        In practice, this results in a backingstore that is
+        roughly evenly distributed around the viewport when no
+        movement is happening, and will gradually narrow down
+        and extend into the scroll direction at a higher momentum.
+
+        The final tile geometry is constructed by trying fit
+        the tiles into the desired rect in a way that maximizes
+        the area of its intersection. There are a few parameters
+        that can be tweaked, the ones in this patch seem to
+        handle most cases well enough to minimize checkerboarding.
+
+        As an additional bonus, a rectangle-based tiling strategy
+        can more easily be adopted for accelerated compositing,
+        which currently operates on a simpler algorithm that also
+        inflates the viewport but does not take scrolling into
+        account.
+
+        * Api/BackingStore.cpp:
+        (BlackBerry::WebKit::BackingStorePrivate::BackingStorePrivate):
+        (BlackBerry::WebKit::BackingStorePrivate::expandedContentsSize):
+        (WebKit):
+        (BlackBerry::WebKit::BackingStorePrivate::nonOverscrolled):
+        (BlackBerry::WebKit::BackingStorePrivate::enclosingTileRect):
+        (BlackBerry::WebKit::BackingStorePrivate::desiredBackingStoreRect):
+        (BlackBerry::WebKit::BackingStorePrivate::mergeDesiredBackingStoreRect):
+        (BlackBerry::WebKit::BackingStorePrivate::largestTileRectForDesiredRect):
+        (BlackBerry::WebKit::BackingStorePrivate::scrollBackingStore):
+        (BlackBerry::WebKit::BackingStorePrivate::createSurfaces):
+        * Api/BackingStore_p.h:
+        (BackingStorePrivate):
+
+2013-06-12  Zan Dobersek  <zdobersek@igalia.com>
+
+        Remove memoryInfoEnabled, quantizedMemoryInfoEnabled settings
+        https://bugs.webkit.org/show_bug.cgi?id=117512
+
+        Reviewed by Darin Adler.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::init): Remove the call to Settings::setMemoryInfoEnabled, the setting is being removed.
+
+2013-06-06  Genevieve Mak  <gmak@rim.com>
+
+        [BlackBerry] Crash in InRegionScrollerPrivate::clearDocumentData
+        https://bugs.webkit.org/show_bug.cgi?id=117317
+
+        Reviewed by Rob Buis.
+
+        PR #348994
+        Need to check the scrollableArea instead of asserting because in this case for the
+        selection subframe it is allowed to be null.
+
+        * Api/InRegionScroller.cpp:
+        (BlackBerry::WebKit::InRegionScrollerPrivate::clearDocumentData):
+
+2013-06-05  Bear Travis  <betravis@adobe.com>
+
+        [CSS Exclusions][CSS Shapes] Split CSS Exclusions & Shapes compile & runtime flags
+        https://bugs.webkit.org/show_bug.cgi?id=117172
+
+        Reviewed by Alexandru Chiculita.
+
+        Adding the CSS_SHAPES compile flag.
+
+        * WebCoreSupport/AboutDataEnableFeatures.in:
+
+2013-06-05  Genevieve Mak  <gmak@rim.com>
+
+        [BlackBerry] Deleting the pendingSelectionCandidate on the wrong thread causes an assert.
+        https://bugs.webkit.org/show_bug.cgi?id=117276
+
+        Reviewed by Rob Buis.
+
+        Reviewed Internally by Nima Ghanavatian.
+        PR #342399
+        Store and delete the selectionScrollView in webkit which is what we already do for
+        scrolling subframes.
+
+        * Api/InRegionScroller.cpp:
+        (BlackBerry::WebKit::InRegionScrollerPrivate::InRegionScrollerPrivate):
+        (BlackBerry::WebKit::InRegionScrollerPrivate::resetSelectionScrollView):
+        (WebKit):
+        (BlackBerry::WebKit::InRegionScrollerPrivate::clearDocumentData):
+        (BlackBerry::WebKit::InRegionScrollerPrivate::calculateInRegionScrollableAreasForPoint):
+        (BlackBerry::WebKit::InRegionScrollerPrivate::updateSelectionScrollView):
+        (BlackBerry::WebKit::InRegionScrollerPrivate::firstScrollableInRegionForNode):
+        * Api/InRegionScroller_p.h:
+        (InRegionScrollerPrivate):
+
+2013-06-05  Tiancheng Jiang  <tijiang@rim.com>
+
+        [BlackBerry] Make image clickable when it has anchor as parent node.
+        https://bugs.webkit.org/show_bug.cgi?id=117271
+
+        Reviewed by Rob Buis.
+
+        BlackBerry PR 345995
+        Internally Reviewed by Genevieve Mak.
+        * WebKitSupport/FatFingers.cpp:
+        (BlackBerry::WebKit::FatFingers::isElementClickable):
+
+2013-06-05  Mike Fenton  <mifenton@rim.com>
+
+        [BlackBerry] Selection handles are inverted on directional selections
+        https://bugs.webkit.org/show_bug.cgi?id=117269
+
+        Reviewed by Rob Buis.
+
+        PR 336178
+
+        Don't invert the handles leave them in the visual order.
+
+        Internally Reviewed by Nima Ghanavatian.
+
+        * WebKitSupport/SelectionHandler.cpp:
+        (BlackBerry::WebKit::SelectionHandler::selectionPositionChanged):
+
+2013-06-03  Andrew Lo  <anlo@rim.com>
+
+        [BlackBerry] Expose show debug borders setting through BlackBerry::WebKit::WebPage
+        https://bugs.webkit.org/show_bug.cgi?id=117167
+
+        Reviewed by Rob Buis.
+        Internally reviewed by Arvid Nilsson.
+
+        Add WebKit::WebPage API for setting whether to show accelerated compositing
+        debug borders.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPage::setShowDebugBorders):
+        (WebKit):
+        * Api/WebPage.h:
+
+2013-06-03  Mike Fenton  <mifenton@rim.com>
+
+        [BlackBerry] Selection handles are not cleared when displaying error pages.
+        https://bugs.webkit.org/show_bug.cgi?id=117158
+
+        Reviewed by Carlos Garcia Campos.
+
+        PR 342159.
+
+        Add explicit cancel of selection state when loading an error page
+        as it is not always cleared.
+
+        Internally Reviewed by Nima Ghanavatian.
+
+        * WebCoreSupport/FrameLoaderClientBlackBerry.cpp:
+        (WebCore::FrameLoaderClientBlackBerry::dispatchDidFailProvisionalLoad):
+
+2013-06-03  Mike Fenton  <mifenton@rim.com>
+
+        [BlackBerry] ROI details are not always cleared when using back navigation.
+        https://bugs.webkit.org/show_bug.cgi?id=117159
+
+        Reviewed by Carlos Garcia Campos.
+
+        PR 328557.
+
+        Secondary change to ensure when restoreViewState is triggered
+        ROI is reset.
+
+        Internally Reviewed by Nima Ghanavatian.
+
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::restoreViewState):
+
+2013-05-29  Otto Derek Cheung  <otcheung@rim.com>
+
+        [BlackBerry] Add more cellular technologies into the NetworkInfo enum
+        https://bugs.webkit.org/show_bug.cgi?id=116982
+
+        PR 340189
+        Reviewed by Rob Buis.
+
+        Provide more specific bandwidth speeds on different network
+        services our devices provide.
+
+        * WebCoreSupport/NetworkInfoClientBlackBerry.cpp:
+        (WebCore):
+        (WebCore::NetworkInfoClientBlackBerry::bandwidth):
+
+2013-05-29  Yong Li  <yoli@rim.com>
+
+        [BlackBerry] about:memory should use malloc_stats instead of mallinfo
+        https://bugs.webkit.org/show_bug.cgi?id=96420
+
+        Reviewed by Rob Buis.
+
+        PR 206297
+        Use mallopt to get malloc_stats.
+
+        * WebKitSupport/AboutData.cpp:
+        (BlackBerry::WebKit::mallocStats):
+        (BlackBerry::WebKit::memoryPage):
+        (BlackBerry::WebKit::MemoryTracker::updateMemoryPeaks):
+
+2013-05-29  Nima Ghanavatian  <nghanavatian@blackberry.com>
+
+        [BlackBerry] Notify client of selection deletion
+        https://bugs.webkit.org/show_bug.cgi?id=116843
+
+        Reviewed by Rob Buis.
+
+        Internally reviewed by Mike Fenton.
+
+        PR342106
+        Our change guard was preventing caret change notification to be sent to IMF.
+        This put us out of state when a selection was deleted because it is not a simple
+        single character deletion. Ensure that selection deletions always send a caret
+        update.
+
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::deleteSelection):
+        (BlackBerry::WebKit::InputHandler::deleteTextRelativeToCursor):
+        (BlackBerry::WebKit::InputHandler::deleteText):
+
+2013-05-29  Rob Buis  <rbuis@rim.com>
+
+        [BlackBerry] Use StringBuilder instead of + operator to build strings in AboutData
+        https://bugs.webkit.org/show_bug.cgi?id=116954
+
+        Reviewed by Carlos Garcia Campos.
+
+        PR 206152
+        Internally reviewed by Konrad Piascik
+
+        * WebKitSupport/AboutData.cpp:
+        (BlackBerry::WebKit::configPage):
+        (BlackBerry::WebKit::dumpJSCTypeCountSetToTableHTML):
+        (BlackBerry::WebKit::mallocStats):
+        (BlackBerry::WebKit::memoryPage):
+        (BlackBerry::WebKit::memoryPeaksToHtmlTable):
+        (BlackBerry::WebKit::memoryLivePage):
+
+2013-05-29  Jakob Petsovits  <jpetsovits@blackberry.com>
+
+        [BlackBerry] Use lazily-backed backingstore tiles
+        https://bugs.webkit.org/show_bug.cgi?id=116879
+        Internal PR 344523
+
+        Reviewed by Carlos Garcia Campos.
+        Informally reviewed by Arvid Nilsson and Mike Lattanzio.
+
+        As a consequence, also don't use fixed-size
+        shared pixmap buffers for these tiles anymore.
+
+        * WebKitSupport/AboutData.cpp:
+        (BlackBerry::WebKit::configPage):
+        * WebKitSupport/BackingStoreTile.cpp:
+        (BlackBerry::WebKit::TileBuffer::nativeBuffer):
+        * WebKitSupport/SurfacePool.cpp:
+        (BlackBerry::WebKit::SurfacePool::initialize):
+        * WebKitSupport/SurfacePool.h:
+        (SurfacePool):
+
+2013-05-29  Kent Tamura  <tkent@chromium.org>
+
+        Remove ENABLE_INPUT_MULTIPLE_FIELDS_UI.
+        https://bugs.webkit.org/show_bug.cgi?id=116796
+
+        Reviewed by Ryosuke Niwa.
+
+        * WebCoreSupport/AboutDataEnableFeatures.in:
+
+2013-05-28  Arvid Nilsson  <anilsson@rim.com>
+
+        [BlackBerry] Fix style issues in BlackBerry accelerated compositing backend
+        https://bugs.webkit.org/show_bug.cgi?id=116604
+
+        Reviewed by Carlos Garcia Campos.
+
+        Adapt to the removal of "get" prefix from getters in the WebKit- and
+        compositing-thread layer classes.
+
+        * Api/WebOverlay.cpp:
+        (BlackBerry::WebKit::WebOverlayPrivateCompositingThread::pixelViewportRect):
+        * Api/WebPageCompositor.cpp:
+        (BlackBerry::WebKit::WebPageCompositorPrivate::attachOverlays):
+        (BlackBerry::WebKit::WebPageCompositorPrivate::removeOverlay):
+        (BlackBerry::WebKit::WebPageCompositorPrivate::findFixedElementRect):
+
+2013-05-28  Andreas Kling  <akling@apple.com>
+
+        Document::setFocusedNode() should be setFocusedElement().
+        <http://webkit.org/b/116857>
+
+        Reviewed by Antti Koivisto.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::focusNodeRect):
+        (BlackBerry::WebKit::WebPagePrivate::contextNode):
+        (BlackBerry::WebKit::WebPagePrivate::clearFocusNode):
+        (BlackBerry::WebKit::WebPage::setNodeFocus):
+        * WebCoreSupport/EditorClientBlackBerry.cpp:
+        (WebCore::EditorClientBlackBerry::shouldSpellCheckFocusedField):
+        (WebCore::EditorClientBlackBerry::shouldChangeSelectedRange):
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::focusedNodeChanged):
+        * WebKitSupport/SelectionHandler.cpp:
+        (BlackBerry::WebKit::SelectionHandler::setCaretPosition):
+        (BlackBerry::WebKit::SelectionHandler::extendSelectionToFieldBoundary):
+        (BlackBerry::WebKit::SelectionHandler::updateOrHandleInputSelection):
+        (BlackBerry::WebKit::SelectionHandler::clipPointToVisibleContainer):
+        (BlackBerry::WebKit::SelectionHandler::inputNodeOverridesTouch):
+        (BlackBerry::WebKit::SelectionHandler::selectionPositionChanged):
+
+2013-05-28  Carlos Garcia Campos  <cgarcia@igalia.com>
+
+        Unreviewed. Fix BlackBerry debug build after r150756.
+
+        * WebKitSupport/PagePopup.cpp:
+        (BlackBerry::WebKit::PagePopup::writeDocument): Fix typo in
+        assert.
+
+2013-05-27  Nima Ghanavatian  <nghanavatian@blackberry.com>
+
+        [BlackBerry] Clear supression flag when caret changes aren't propogated through
+        https://bugs.webkit.org/show_bug.cgi?id=116840
+
+        Reviewed by Rob Buis.
+
+        Internally reviewed by Mike Fenton.
+
+        PR339965
+        We set and clear the flag upon every use. This leaves us vulnerable if
+        1. midway through processing the selection change event is dismissed and
+        2. we don't receive a TouchRelease event
+        One example of this is while dragging the FCC handle we start typing. To
+        safeguard against this, if the process change guard is set during a
+        selection change event, we send out to clear the flag status before returning.
+
+        * Api/WebPageClient.h:
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::selectionChanged):
+
+2013-05-27  Andy Chen  <andchen@blackberry.com>
+
+        [BlackBerry] Find-on-page should be able to convert the active match to selection when clearing all matches
+        https://bugs.webkit.org/show_bug.cgi?id=116837
+
+        Reviewed by Rob Buis.
+
+        PR 291903
+        Internally reviewed by Mike Fenton.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPage::findNextString):
+        * Api/WebPage.h:
+        * WebKitSupport/InPageSearchManager.cpp:
+        (BlackBerry::WebKit::InPageSearchManager::findNextString):
+        (BlackBerry::WebKit::InPageSearchManager::clearTextMatches):
+        * WebKitSupport/InPageSearchManager.h:
+        (InPageSearchManager):
+
+2013-05-27  Eli Fidler  <efidler@rim.com>
+
+        [BlackBerry] Fix subframe target added to new requests
+        https://bugs.webkit.org/show_bug.cgi?id=116602
+
+        Reviewed by Rob Buis.
+
+        In some cases we might be adding TargetIsMainFrame to a subframe
+        request causing an isMainFrame assert.
+
+        * WebCoreSupport/FrameLoaderClientBlackBerry.cpp:
+        (WebCore::FrameLoaderClientBlackBerry::dispatchWillSendRequest):
+        Check we are actually loading the main frame before setting
+        ResourceRequest::TargetIsMainFrame target.
+
+2013-05-27  Carlos Garcia Campos  <cgarcia@igalia.com>
+
+        [BlackBerry] REGRESSION(r150071): Animation performance issues in some websites with CSS transforms
+        https://bugs.webkit.org/show_bug.cgi?id=116724
+
+        Reviewed by Rob Buis.
+
+        Add another bool variable m_previousFrameDone to make sure we
+        don't start a new frame until the previous one has been done. Also
+        make sure we pass the animation start time to
+        serviceScriptedAnimations().
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::WebPagePrivate): Initialize
+        m_previousFrameDone and m_monotonicAnimationStartTime.
+        (BlackBerry::WebKit::WebPagePrivate::animationFrameChanged):
+        Return early if previous frame is not done. Otherwise set
+        m_previousFrameDone to false and save the animation start time.
+        (BlackBerry::WebKit::WebPagePrivate::serviceAnimations): Call
+        serviceScriptedAnimations() passing the saved animation start time
+        and reset m_animationScheduled and m_previousFrameDone.
+        (BlackBerry::WebKit::WebPagePrivate::handleServiceScriptedAnimationsOnMainThread):
+        Call WebPagePrivate::serviceAnimations().
+        * Api/WebPage_p.h:
+        (WebPagePrivate):
+
+2013-05-27  Carlos Garcia Campos  <cgarcia@igalia.com>
+
+        [BlackBerry] Remove encoding parameter from FrameLoaderClientBlackBerry::receivedData()
+        https://bugs.webkit.org/show_bug.cgi?id=116598
+
+        Reviewed by Rob Buis.
+
+        It's no longer needed since the encoder now checks the override encoding.
+
+        * WebCoreSupport/FrameLoaderClientBlackBerry.cpp:
+        (WebCore::FrameLoaderClientBlackBerry::committedLoad): Call
+        receivedData() passing the DocumentLoader instead of the text
+        encoding.
+        (WebCore::FrameLoaderClientBlackBerry::receivedData): Call
+        DocumentLoader::commitData() directly.
+        * WebCoreSupport/FrameLoaderClientBlackBerry.h:
+        (FrameLoaderClientBlackBerry):
+
+2013-05-27  Carlos Garcia Campos  <cgarcia@igalia.com>
+
+        [BlackBerry] Move PagePopup implementation to WebKitSupport
+        https://bugs.webkit.org/show_bug.cgi?id=116824
+
+        Reviewed by Rob Buis.
+
+        After r150434 PagePopup implementation in BlackBerry port is
+        independent from WebCore. The classes are now in the
+        BlackBerry::WebKit namespace so they can be moved from
+        WebCoresupport to WebKitSupport and renamed to remove the
+        BlackBerry suffix which is now redundant. Also, now that the
+        implementation is not shared, it can be simplified a bit more.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::WebPagePrivate): Update to
+        API changes.
+        (BlackBerry::WebKit::WebPage::initPopupWebView): Ditto.
+        (BlackBerry::WebKit::WebPagePrivate::openPagePopup): Ditto.
+        (BlackBerry::WebKit::WebPagePrivate::closePagePopup): Ditto.
+        (BlackBerry::WebKit::WebPagePrivate::hasOpenedPopup): Ditto.
+        * Api/WebPage.h:
+        (WebKit): Ditto.
+        * Api/WebPage_p.h:
+        (WebKit): Ditto.
+        (WebPagePrivate): Rename m_selectPopup as m_pagePopup, since it
+        can also point to a color picker or date picker page popup. Also
+        use RefPtr instead of raw pointer.
+        * WebKitSupport/ColorPickerClient.cpp: Renamed from Source/WebKit/blackberry/WebCoreSupport/ColorPickerClient.cpp.
+        (BlackBerry::WebKit::ColorPickerClient::ColorPickerClient):
+        (BlackBerry::WebKit::ColorPickerClient::generateHTML):
+        (BlackBerry::WebKit::ColorPickerClient::setValueAndClosePopup):
+        Return early if popup has been closed already.
+        (BlackBerry::WebKit::ColorPickerClient::didClosePopup):
+        * WebKitSupport/ColorPickerClient.h: Renamed from Source/WebKit/blackberry/WebCoreSupport/ColorPickerClient.h.
+        * WebKitSupport/DatePickerClient.cpp: Renamed from Source/WebKit/blackberry/WebCoreSupport/DatePickerClient.cpp.
+        (BlackBerry::WebKit::DatePickerClient::DatePickerClient):
+        (BlackBerry::WebKit::DatePickerClient::~DatePickerClient):
+        (BlackBerry::WebKit::DatePickerClient::generateHTML):
+        (BlackBerry::WebKit::DatePickerClient::setValueAndClosePopup):
+        Return early if popup has been closed already.
+        (BlackBerry::WebKit::DatePickerClient::didClosePopup):
+        (BlackBerry::WebKit::DatePickerClient::generateDateLabels):
+        * WebKitSupport/DatePickerClient.h: Renamed from Source/WebKit/blackberry/WebCoreSupport/DatePickerClient.h.
+        * WebKitSupport/PagePopup.cpp: Renamed from Source/WebKit/blackberry/WebCoreSupport/PagePopupBlackBerry.cpp.
+        (BlackBerry::WebKit::PagePopup::PagePopup):
+        (BlackBerry::WebKit::PagePopup::~PagePopup):
+        (BlackBerry::WebKit::PagePopup::initialize): Renamed as initialize
+        and made void, since it always returned true and the callers
+        ignored the return value.
+        (BlackBerry::WebKit::PagePopup::writeDocument): Renamed from
+        generateHTML for consistency with PagePopupClient::writeDocument()
+        and to avoid confusion with generateHTML method in the clients
+        that create the HTML contents but they don't write the document.
+        (BlackBerry::WebKit::PagePopup::setValueAndClosePopupCallback):
+        Make it static member of PagePopup since the JS object now holds a
+        reference of PagePopup instance as private data.
+        (BlackBerry::WebKit::popUpExtensionInitialize): Take a reference
+        of the PagePopup instance saved as private data of the JS object.
+        (BlackBerry::WebKit::popUpExtensionFinalize): Unref the PagePopup
+        instance saved as private data of the JS object.
+        (BlackBerry::WebKit::PagePopup::installDOMFunction): Instead of
+        saving the client as private data of the JS object using a wrapper
+        refcounted object, save the PagePopup instance that is now
+        refcounted and access the client from the PagePopup instance in
+        the callback.
+        (BlackBerry::WebKit::PagePopup::close): Renamed from closePagePopup
+        since PagePopup::closePagePopup was a bit redundant.
+        * WebKitSupport/PagePopup.h: Renamed from Source/WebKit/blackberry/WebCoreSupport/PagePopupBlackBerry.h.
+        (BlackBerry::WebKit::PagePopup::create): Static member to create
+        instances of PagePopup now that it's refcounted.
+        * WebKitSupport/PagePopupClient.cpp: Renamed from Source/WebKit/blackberry/WebCoreSupport/PagePopupBlackBerryClient.cpp.
+        (BlackBerry::WebKit::PagePopupClient::PagePopupClient):
+        (BlackBerry::WebKit::PagePopupClient::closePopup):
+        (BlackBerry::WebKit::PagePopupClient::didClosePopup):
+        (BlackBerry::WebKit::PagePopupClient::contentSize):
+        (BlackBerry::WebKit::PagePopupClient::writeDocument):
+        * WebKitSupport/PagePopupClient.h: Renamed from Source/WebKit/blackberry/WebCoreSupport/PagePopupBlackBerryClient.h.
+        * WebKitSupport/SelectPopupClient.cpp: Renamed from Source/WebKit/blackberry/WebCoreSupport/SelectPopupClient.cpp.
+        (BlackBerry::WebKit::SelectPopupClient::SelectPopupClient):
+        (BlackBerry::WebKit::SelectPopupClient::~SelectPopupClient):
+        (BlackBerry::WebKit::SelectPopupClient::generateHTML):
+        (BlackBerry::WebKit::SelectPopupClient::setValueAndClosePopup):
+        Return early if popup has been closed already.
+        (BlackBerry::WebKit::SelectPopupClient::didClosePopup):
+        (BlackBerry::WebKit::SelectPopupClient::notifySelectionChange):
+        * WebKitSupport/SelectPopupClient.h: Renamed from Source/WebKit/blackberry/WebCoreSupport/SelectPopupClient.h.
+
+2013-05-26  Jakob Petsovits  <jpetsovits@blackberry.com>
+
+        [BlackBerry] Make screen updates dependent on the existence of a drawing buffer.
+        https://bugs.webkit.org/show_bug.cgi?id=116539
+        Internal PR 330917
+
+        Reviewed by Carlos Garcia Campos.
+        Internally reviewed by Xiaobo Wang and Arvid Nilsson.
+
+        This reduces complexity by relying on the current state,
+        rather than the suspend counter, which in turn makes it
+        possible to simplify the code in setCompositor().
+
+        * Api/BackingStore.cpp:
+        (BlackBerry::WebKit::BackingStorePrivate::updateSuspendScreenUpdateState):
+        (BlackBerry::WebKit::BackingStorePrivate::createSurfaces):
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::setCompositor):
+
+2013-05-26  Kent Tamura  <tkent@chromium.org>
+
+        Remove ENABLE_CALENDAR_PICKER
+        https://bugs.webkit.org/show_bug.cgi?id=116795
+
+        Reviewed by Ryosuke Niwa.
+
+        * WebCoreSupport/AboutDataEnableFeatures.in:
+        The list was wrong. Blackberry port doesn't use CALENDAR_PICKER code.
+
+2013-05-26  Andreas Kling  <akling@apple.com>
+
+        FocusController::setFocusedNode() should be setFocusedElement().
+        <http://webkit.org/b/116780>
+
+        Reviewed by Antti Koivisto.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::clearFocusNode):
+        (BlackBerry::WebKit::WebPage::setNodeFocus):
+        * WebKitSupport/SelectionHandler.cpp:
+        (BlackBerry::WebKit::SelectionHandler::selectObject):
+
+2013-05-24  Anders Carlsson  <andersca@apple.com>
+
+        Remove PagePopup code
+        https://bugs.webkit.org/show_bug.cgi?id=116732
+
+        Reviewed by Andreas Kling.
+
+        * WebCoreSupport/AboutDataEnableFeatures.in:
+        Remove PAGE_POPUP.
+
+2013-05-24  Mike Fenton  <mifenton@rim.com>
+
+        [BlackBerry] Fix bad type warning in InputHandler log.
+        https://bugs.webkit.org/show_bug.cgi?id=116720
+
+        Reviewed by Carlos Garcia Campos.
+
+        Fix warning in inputLog string.
+
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::handleKeyboardInput):
+
+2013-05-24  Mike Fenton  <mifenton@rim.com>
+
+        [BlackBerry] Respect tabindex when using form controls.
+        https://bugs.webkit.org/show_bug.cgi?id=116676
+
+        Reviewed by Xan Lopez.
+
+        PR 337419.
+
+        Update form control navigation tracking to take tabindex
+        order into account when calculating next and previous nodes.
+
+        The order to follow is tab index 1 - N, followed by all items
+        without a tab index or tab index 0 in rendering order to match
+        with standard desktop behavior.
+
+        Internally Reviewed by Genevieve Mak and Nima Ghanavatian.
+
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::updateFormState):
+
+2013-05-24  Jeff Rogers  <jrogers@rim.com>
+
+        [BlackBerry] Remove SKIA leftovers from WebPage.cpp
+        https://bugs.webkit.org/show_bug.cgi?id=116656
+
+        Reviewed by Rob Buis.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::setLoadState):
+
+2013-05-23  Xiaobo Wang  <xiaobwang@blackberry.com>
+
+        [BlackBerry] Need to suspend/resume RootLayerCommit when the application becomes inactive/active
+        https://bugs.webkit.org/show_bug.cgi?id=115245
+
+        Reviewed by Rob Buis.
+
+        PR 330917.
+        Internally reviewed by Arvid Nilsson.
+
+        1. Suspend/resumeRootLayerCommit when notified app activation state
+        change.
+        2. Schedule root layer commit in resumeRootLayerCommit() to explicitly
+        start root layer commit timer, so that there's a commit even if
+        BackingStore got disabled/removed.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::notifyAppActivationStateChange):
+        (BlackBerry::WebKit::WebPagePrivate::resumeRootLayerCommit):
+
+2013-05-23  Andy Chen  <andchen@blackberry.com>
+
+        [BlackBerry] Need to forward the opener frame url to client when creating a new window
+        https://bugs.webkit.org/show_bug.cgi?id=116566
+
+        Reviewed by Rob Buis.
+
+        PR 337935
+        Internally reviewed by Arvid Nilsson.
+        When creating a new window, forward the opener frame url to client.
+
+        * Api/WebPageClient.h:
+        * WebCoreSupport/ChromeClientBlackBerry.cpp:
+        (WebCore::ChromeClientBlackBerry::createWindow):
+        * WebCoreSupport/FrameLoaderClientBlackBerry.cpp:
+        (WebCore::FrameLoaderClientBlackBerry::dispatchCreatePage):
+
+2013-05-23  Jakob Petsovits  <jpetsovits@blackberry.com>
+
+        [BlackBerry] Compositor API change: Don't pass the unused "viewport" parameter.
+        https://bugs.webkit.org/show_bug.cgi?id=116545
+        Internal PR 189775
+
+        Reviewed by Rob Buis.
+
+        Also change the name of the "documentContents" parameter
+        to the more descriptive "documentSrcRect".
+
+        * Api/WebPageCompositor.cpp:
+        (BlackBerry::WebKit::WebPageCompositorPrivate::render):
+        (BlackBerry::WebKit::WebPageCompositor::render):
+        * Api/WebPageCompositor.h:
+        * Api/WebPageCompositor_p.h:
+        (WebPageCompositorPrivate):
+
+2013-05-23  Ed Baker  <edbaker@blackberry.com>
+
+        [BlackBerry] The web context does not contain any link properties if the context node is an image enclosed by a link node
+        https://bugs.webkit.org/show_bug.cgi?id=116627
+
+        Reviewed by Xan Lopez.
+
+        PR #341084
+
+        If the context node has an image tag and an enclosing link node was detected then add the link properties to the context.
+
+        Internally Reviewed by Gen Mak.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::webContext):
+
+2013-05-23  Mike Fenton  <mifenton@rim.com>
+
+        [BlackBerry] Validate form data before doing direct submission.
+        https://bugs.webkit.org/show_bug.cgi?id=116674
+
+        Reviewed by Xan Lopez.
+
+        PR 314202.
+
+        Check validation of the input form before triggering direct submission.
+
+        Internally Reviewed by Nima Ghanavatian.
+
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::submitForm):
+
+2013-05-23  Rob Buis  <rbuis@rim.com>
+
+        [BlackBerry] Properly fill the ResourceError in FrameLoaderClientBlackBerry::cannotShowURLError
+        https://bugs.webkit.org/show_bug.cgi?id=116603
+
+        Reviewed by Xan Lopez.
+
+        PR 119789
+        Internally reviewed by Yong Li.
+
+        Provide a domain value for this ResourceError instance. Note that
+        this does not change behavior.
+
+        * WebCoreSupport/FrameLoaderClientBlackBerry.cpp:
+        (WebCore::FrameLoaderClientBlackBerry::didRestoreFromPageCache):
+
+2013-05-21  Carlos Garcia Campos  <cgarcia@igalia.com>
+
+        [BlackBerry] Make PagePopup implementation independent from WebCore
+        https://bugs.webkit.org/show_bug.cgi?id=116448
+
+        Reviewed by Anders Carlsson.
+
+        Add our own implementation of PagePopupClient and make all the
+        pickers inherit from it. Unused methods have been removed and
+        common implementation have been moved from the pickers to the
+        parent class.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::~WebPagePrivate): Destroy the
+        popup if there's one active.
+        (BlackBerry::WebKit::WebPagePrivate::setVisible): Call
+        closePagePopup() directly.
+        (BlackBerry::WebKit::WebPagePrivate::openPagePopup): Create a new
+        PagePopupBlackBerry for the given client.
+        (BlackBerry::WebKit::WebPagePrivate::closePagePopup): Close the
+        active popup if there's one.
+        (BlackBerry::WebKit::WebPagePrivate::hasOpenedPopup): Return
+        whether there's an active popup.
+        * Api/WebPage.h:
+        * Api/WebPage_p.h:
+        * WebCoreSupport/ChromeClientBlackBerry.cpp:
+        (WebCore::ChromeClientBlackBerry::chromeDestroyed): Remove
+        closePagePopup() call since this is now handled by
+        WebPagePrivate.
+        (WebCore::ChromeClientBlackBerry::hasOpenedPopup): Call
+        WebPagePrivate::hasOpenedPopup().
+        * WebCoreSupport/ChromeClientBlackBerry.h:
+        (ChromeClientBlackBerry):
+        * WebCoreSupport/ColorPickerClient.cpp:
+        (BlackBerry::WebKit::ColorPickerClient::ColorPickerClient):
+        (BlackBerry::WebKit::ColorPickerClient::didClosePopup):
+        * WebCoreSupport/ColorPickerClient.h:
+        (ColorPickerClient):
+        * WebCoreSupport/DatePickerClient.cpp:
+        (BlackBerry::WebKit::DatePickerClient::DatePickerClient):
+        (BlackBerry::WebKit::DatePickerClient::didClosePopup):
+        * WebCoreSupport/DatePickerClient.h:
+        (DatePickerClient):
+        * WebCoreSupport/PagePopupBlackBerry.cpp:
+        (BlackBerry::WebKit::PagePopupBlackBerry::PagePopupBlackBerry):
+        (BlackBerry::WebKit::PagePopupBlackBerry::closePopup):
+        * WebCoreSupport/PagePopupBlackBerry.h:
+        (PagePopupBlackBerry):
+        (BlackBerry::WebKit::PagePopupBlackBerry::SharedClientPointer::SharedClientPointer):
+        (BlackBerry::WebKit::PagePopupBlackBerry::SharedClientPointer::get):
+        (SharedClientPointer):
+        * WebCoreSupport/PagePopupBlackBerryClient.cpp: Added.
+        (BlackBerry::WebKit::PagePopupBlackBerryClient::PagePopupBlackBerryClient):
+        (BlackBerry::WebKit::PagePopupBlackBerryClient::closePopup):
+        (BlackBerry::WebKit::PagePopupBlackBerryClient::didClosePopup):
+        (BlackBerry::WebKit::PagePopupBlackBerryClient::contentSize):
+        (BlackBerry::WebKit::PagePopupBlackBerryClient::writeDocument):
+        * WebCoreSupport/PagePopupBlackBerryClient.h: Added.
+        (PagePopupBlackBerryClient):
+        (BlackBerry::WebKit::PagePopupBlackBerryClient::~PagePopupBlackBerryClient):
+        * WebCoreSupport/SelectPopupClient.cpp:
+        (BlackBerry::WebKit::SelectPopupClient::SelectPopupClient):
+        (BlackBerry::WebKit::SelectPopupClient::didClosePopup):
+        * WebCoreSupport/SelectPopupClient.h:
+        (SelectPopupClient):
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::openDatePopup): Do not call
+        closePagePopup() since this is already done by openPagePopup() and
+        use openPagePopup() from WebPagePrivate directly.
+        (BlackBerry::WebKit::InputHandler::openColorPopup): Ditto.
+        (BlackBerry::WebKit::InputHandler::openSelectPopup): Ditto.
+
+2013-05-20  Carlos Garcia Campos  <cgarcia@igalia.com>
+
+        [BlackBerry] Do not use skia in FrameLoaderClientBlackBerry::dispatchDidReceiveIcon()
+        https://bugs.webkit.org/show_bug.cgi?id=116302
+
+        Reviewed by Rob Buis.
+
+        TiledImage is now the NativeImage of the BlackBerry port.
+
+        * WebCoreSupport/FrameLoaderClientBlackBerry.cpp:
+        (WebCore::FrameLoaderClientBlackBerry::dispatchDidReceiveIcon):
+
+2013-05-19  Anders Carlsson  <andersca@apple.com>
+
+        Remove link prerendering code
+        https://bugs.webkit.org/show_bug.cgi?id=116415
+
+        Reviewed by Darin Adler.
+
+        This code was only used by Chromium and is dead now.
+
+        * WebCoreSupport/AboutDataEnableFeatures.in:
+
+2013-05-19  Anders Carlsson  <andersca@apple.com>
+
+        Remove ChromeClient::webView()
+        https://bugs.webkit.org/show_bug.cgi?id=116054
+
+        Reviewed by Andreas Kling.
+
+        This blatantly horrible layer violation was only used by the Chromium port; get rid of it.
+
+        * WebCoreSupport/ChromeClientBlackBerry.h:
+        (ChromeClientBlackBerry):
+
+2013-05-17  Carlos Garcia Campos  <cgarcia@igalia.com>
+
+        [BlackBerry] REGRESSION(r150060): Crash in LayerWebKitThread::updateTextureContents
+        https://bugs.webkit.org/show_bug.cgi?id=116305
+
+        Reviewed by Rob Buis.
+
+        PR 340537.
+        Internally reviewed by Arvid Nilsson.
+
+        Use updateLayoutAndStyleIfNeededRecursive() instead of
+        layoutIfNeeded() since we are about to draw in
+        rootLayerCommitTimerFired().
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::rootLayerCommitTimerFired):
+
+2013-05-17  Mike Fenton  <mifenton@rim.com>
+
+        [BlackBerry] Remove stale comment for select mouse handling.
+        https://bugs.webkit.org/show_bug.cgi?id=116309
+
+        Reviewed by Rob Buis.
+
+        PR 135935.
+
+        Remove a FIXME that has been invalidated by a change
+        to our touch -> mouse model.
+
+        Internally Rubberstamped by Genevieve Mak.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::handleMouseEvent):
+
+2013-05-17  Alberto Garcia  <agarcia@igalia.com>
+
+        [BlackBerry] DumpRenderTreeSupport: fix build in setMockDeviceOrientation()
+        https://bugs.webkit.org/show_bug.cgi?id=116298
+
+        Reviewed by Carlos Garcia Campos.
+
+        Pass the correct parameter to toDeviceOrientationClientMock()
+
+        * WebKitSupport/DumpRenderTreeSupport.cpp:
+        (DumpRenderTreeSupport::setMockDeviceOrientation):
+
+2013-05-16  Mike Fenton  <mifenton@rim.com>
+
+        [BlackBerry] Optimize caret bounds calculation when leaving an input field.
+        https://bugs.webkit.org/show_bug.cgi?id=116224
+
+        Reviewed by Rob Buis.
+
+        PR 340132.
+
+        If the caret is no longer active in the field, do not allow it
+        to go into the single line input logic and calculate the node
+        bounding box.
+
+        Internally Reviewed By Gen Mak
+
+        * WebKitSupport/SelectionHandler.cpp:
+        (BlackBerry::WebKit::SelectionHandler::caretPositionChanged):
+
+2013-05-16  Mary Wu  <mary.wu@torchmobile.com.cn>
+
+        [BlackBerry] Unable to download blob resource
+        https://bugs.webkit.org/show_bug.cgi?id=115888
+
+        Reviewed by Benjamin Poulain.
+
+        For blob resource (blob:http....), it's not suitable to go to NetworkStream
+        which don't handle "blob" protocol at all. since blob data already handled
+        in BlobResourceHandle, simply get the data out to download stream.
+
+        RIM bug 331086, internally reviewed by Charles Wei and Leo Yang.
+
+        * WebCoreSupport/FrameLoaderClientBlackBerry.cpp:
+        (WebCore::FrameLoaderClientBlackBerry::convertMainResourceLoadToDownload):
+
+2013-05-16  Andreas Kling  <akling@apple.com>
+
+        Page::chrome() should return a reference.
+        <http://webkit.org/b/116185>
+
+        Reviewed by Anders Carlsson.
+
+2013-05-13  Anders Carlsson  <andersca@apple.com>
+
+        Frame::editor() should return a reference
+        https://bugs.webkit.org/show_bug.cgi?id=116037
+
+        Reviewed by Darin Adler.
+
+        * WebCoreSupport/EditorClientBlackBerry.cpp:
+        (WebCore::EditorClientBlackBerry::shouldSpellCheckFocusedField):
+        (WebCore::EditorClientBlackBerry::handleKeyboardEvent):
+        * WebKitSupport/DOMSupport.cpp:
+        (BlackBerry::WebKit::DOMSupport::elementHasContinuousSpellCheckingEnabled):
+        * WebKitSupport/InPageSearchManager.cpp:
+        (BlackBerry::WebKit::InPageSearchManager::findAndMarkText):
+        (BlackBerry::WebKit::InPageSearchManager::scopeStringMatches):
+        * WebKitSupport/SelectionHandler.cpp:
+        (BlackBerry::WebKit::SelectionHandler::selectedText):
+
+2013-05-14  Carlos Garcia Campos  <cgarcia@igalia.com>
+
+        Remove WTF_USE_PLATFORM_STRATEGIES
+        https://bugs.webkit.org/show_bug.cgi?id=114431
+
+        Reviewed by Darin Adler.
+
+        * WebCoreSupport/AboutDataUseFeatures.in:
+
+2013-05-14  Tiancheng Jiang  <tijiang@rim.com>
+
+        [BlackBerry] Improve Fatfinger phase.
+        https://bugs.webkit.org/show_bug.cgi?id=107403
+
+        Reviewed by Rob Buis.
+
+        Internally reviewed by Genevieve Mak.
+        BlackBerry PR 324965.
+
+        Cache and reuse intersected nodes as long as hit position has not been
+        changed.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::hitTestResult):
+        * Api/WebPage_p.h:
+        (WebPagePrivate):
+        * WebKitSupport/FatFingers.cpp:
+        (BlackBerry::WebKit::FatFingers::findBestPoint):
+        (BlackBerry::WebKit::FatFingers::findIntersectingRegions):
+        (BlackBerry::WebKit::FatFingers::getNodesFromRect):
+        * WebKitSupport/FatFingers.h:
+
+2013-05-14  Andrew Lo  <anlo@rim.com>
+
+        [BlackBerry] Hook up frame render begin/end in PerformanceMonitor
+        https://bugs.webkit.org/show_bug.cgi?id=116110
+
+        Reviewed by Rob Buis.
+
+        Internally reviewed by Jeff Rogers, Jonathan Jiang.
+        Internal PR 299155.
+
+        Mark frame render begin & end for BlackBerry performance monitoring
+        in blitVisibleContents.
+
+        * Api/BackingStore.cpp:
+        (BlackBerry::WebKit::BackingStorePrivate::blitVisibleContents):
+
+2013-05-14  Carlos Garcia Campos  <cgarcia@igalia.com>
+
+        [BlackBerry] Use requestAnimationFrame for animations
+        https://bugs.webkit.org/show_bug.cgi?id=115896
+
+        Reviewed by Rob Buis.
+
+        Make WebPagePrivate a
+        BlackBerry::Platform::AnimationFrameRateClient and use it to
+        schedule animations.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::WebPagePrivate):
+        (BlackBerry::WebKit::WebPagePrivate::~WebPagePrivate):
+        (WebKit):
+        (BlackBerry::WebKit::WebPagePrivate::animationFrameChanged):
+        (BlackBerry::WebKit::WebPagePrivate::scheduleAnimation):
+        (BlackBerry::WebKit::WebPagePrivate::startRefreshAnimationClient):
+        (BlackBerry::WebKit::WebPagePrivate::stopRefreshAnimationClient):
+        (BlackBerry::WebKit::WebPagePrivate::handleServiceScriptedAnimationsOnMainThread):
+        * Api/WebPage_p.h:
+        (WebPagePrivate):
+        * WebCoreSupport/ChromeClientBlackBerry.cpp:
+        (WebCore):
+        (WebCore::ChromeClientBlackBerry::scheduleAnimation):
+        * WebCoreSupport/ChromeClientBlackBerry.h:
+        (ChromeClientBlackBerry):
+
+2013-05-14  Carlos Garcia Campos  <cgarcia@igalia.com>
+
+        [BlackBerry] Implement platform strategies
+        https://bugs.webkit.org/show_bug.cgi?id=112162
+
+        Reviewed by Rob Buis.
+
+        * Api/BlackBerryGlobal.cpp:
+        (BlackBerry::WebKit::globalInitialize): Initialize platform
+        strategies.
+        * WebCoreSupport/PlatformStrategiesBlackBerry.cpp: Added.
+        (PlatformStrategiesBlackBerry::initialize):
+        (PlatformStrategiesBlackBerry::PlatformStrategiesBlackBerry):
+        (PlatformStrategiesBlackBerry::createCookiesStrategy):
+        (PlatformStrategiesBlackBerry::createDatabaseStrategy):
+        (PlatformStrategiesBlackBerry::createLoaderStrategy):
+        (PlatformStrategiesBlackBerry::createPasteboardStrategy):
+        (PlatformStrategiesBlackBerry::createPluginStrategy):
+        (PlatformStrategiesBlackBerry::createSharedWorkerStrategy):
+        (PlatformStrategiesBlackBerry::createStorageStrategy):
+        (PlatformStrategiesBlackBerry::createVisitedLinkStrategy):
+        (PlatformStrategiesBlackBerry::cookiesForDOM):
+        (PlatformStrategiesBlackBerry::setCookiesFromDOM):
+        (PlatformStrategiesBlackBerry::cookiesEnabled):
+        (PlatformStrategiesBlackBerry::cookieRequestHeaderFieldValue):
+        (PlatformStrategiesBlackBerry::getRawCookies):
+        (PlatformStrategiesBlackBerry::deleteCookie):
+        (PlatformStrategiesBlackBerry::refreshPlugins):
+        (PlatformStrategiesBlackBerry::getPluginInfo):
+        (PlatformStrategiesBlackBerry::isLinkVisited):
+        (PlatformStrategiesBlackBerry::addVisitedLink):
+        * WebCoreSupport/PlatformStrategiesBlackBerry.h: Added.
+        (PlatformStrategiesBlackBerry):
+
+2013-05-14  Carlos Garcia Campos  <cgarcia@igalia.com>
+
+        [BlackBerry] Crash due to an assert in FrameView::doDeferredRepaints
+        https://bugs.webkit.org/show_bug.cgi?id=115412
+
+        Reviewed by Rob Buis.
+
+        PR 115412
+
+        The problem is that we are calling
+        updateLayoutAndStyleIfNeededRecursive() (because of
+        zoomToInitialScaleOnLoad) from ChomeClient::layoutUpdated()
+        callback which is not expected. It's expected to be called right
+        before painting, and not right after painting. Even if a new
+        layout is not done, updateLayoutAndStyleIfNeededRecursive() calls
+        flushDeferredRepaints() and it's possible that this is called in
+        the middle of a beginDeferredRepaints() and endDeferredRepaints()
+        apparently.
+        In general only BackingStore should call
+        updateLayoutAndStyleIfNeededRecursive before painting, and a simple
+        layout is enough in all other cases like resizing. This patch renames
+        requestLayoutIfNeeded as updateLayoutAndStyleIfNeededRecursive to
+        make more obvious what it does, and adds layoutIfNeeded that calls
+        layout. The former is used by the BackingStore and the latter by
+        WebPage.
+
+        * Api/BackingStore.cpp:
+        (BlackBerry::WebKit::BackingStorePrivate::resumeScreenUpdates):
+        (BlackBerry::WebKit::BackingStorePrivate::requestLayoutIfNeeded):
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::zoomAboutPoint):
+        (BlackBerry::WebKit::WebPagePrivate::updateLayoutAndStyleIfNeededRecursive):
+        (BlackBerry::WebKit::WebPagePrivate::layoutIfNeeded):
+        (WebKit):
+        (BlackBerry::WebKit::WebPagePrivate::overflowExceedsContentsSize):
+        (BlackBerry::WebKit::WebPagePrivate::zoomToInitialScaleOnLoad):
+        (BlackBerry::WebKit::WebPagePrivate::webContext):
+        (BlackBerry::WebKit::WebPagePrivate::zoomAnimationFinished):
+        (BlackBerry::WebKit::WebPagePrivate::setViewportSize):
+        (BlackBerry::WebKit::WebPage::setDefaultLayoutSize):
+        (BlackBerry::WebKit::WebPagePrivate::rootLayerCommitTimerFired):
+        * Api/WebPage_p.h:
+        (WebPagePrivate):
+
+2013-05-10  Laszlo Gombos  <l.gombos@samsung.com>
+
+        Remove USE(OS_RANDOMNESS)
+        https://bugs.webkit.org/show_bug.cgi?id=108095
+
+        Reviewed by Darin Adler.
+
+        Remove the USE(OS_RANDOMNESS) guard as it is turned on for all
+        ports.
+
+        * WebCoreSupport/AboutDataUseFeatures.in:
+
+2013-05-10  Jacky Jiang  <zhajiang@blackberry.com>
+
+        Fix some compiler warnings (miscellaneous)
+        https://bugs.webkit.org/show_bug.cgi?id=80790
+
+        Reviewed by Rob Buis.
+
+        Fix the following warnings for BlackBerry:
+        BackingStore.cpp:852:60: warning: suggest parentheses around '&&' within
+        '||' [-Wparentheses].
+        WebPage.cpp:2858:40: warning: suggest parentheses around assignment used
+        as truth value [-Wparentheses].
+        WebPage.cpp:2880:42: warning: suggest parentheses around assignment used
+        as truth value [-Wparentheses]
+
+        * Api/BackingStore.cpp:
+        (BlackBerry::WebKit::BackingStorePrivate::updateTilesAfterBackingStoreRectChange):
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::adjustRectOffsetForFrameOffset):
+        (BlackBerry::WebKit::WebPagePrivate::blockZoomRectForNode):
+
+2013-05-09  Mike Fenton  <mifenton@rim.com>
+
+        [BlackBerry] Style updates required based on new check-webkit-style
+        https://bugs.webkit.org/show_bug.cgi?id=115857
+
+        Reviewed by Rob Buis.
+
+        Update iInRegionScroller, WebKitTextCodec and WebPageCompositor
+        to match check-webkit-style updates.
+
+        * Api/InRegionScroller.cpp:
+        (BlackBerry::WebKit::InRegionScrollerPrivate::setScrollPositionCompositingThread):
+        * Api/InRegionScroller_p.h:
+        * Api/WebKitTextCodec.cpp:
+        (BlackBerry::WebKit::transcode):
+        * Api/WebPageCompositor.cpp:
+        (BlackBerry::WebKit::WebPageCompositor::render):
+        * Api/WebPageCompositor.h:
+        * Api/WebPageCompositor_p.h:
+        (WebPageCompositorPrivate):
+        * Api/WebSettings_p.h:
+
+2013-05-09  Max Feil  <mfeil@rim.com>
+
+        shouldUsePluginDocument() needs to be respected when a document is created
+        https://bugs.webkit.org/show_bug.cgi?id=110308
+
+        Reviewed by Rob Buis.
+
+        This patch implements shouldAlwaysUsePluginDocument() in the
+        BlackBerry frame loader client. It is called in several places
+        within WebCore to determine whether a PluginDocument should
+        be created.
+
+        * WebCoreSupport/FrameLoaderClientBlackBerry.cpp:
+        (WebCore::FrameLoaderClientBlackBerry::shouldAlwaysUsePluginDocument):
+        (WebCore):
+        (WebCore::FrameLoaderClientBlackBerry::createPlugin):
+        * WebCoreSupport/FrameLoaderClientBlackBerry.h:
+        (FrameLoaderClientBlackBerry):
+
+2013-05-09  Mike Fenton <mifenton@rim.com>
+
+        [BlackBerry] Style updates required based on new check-webkit-style
+        https://bugs.webkit.org/show_bug.cgi?id=115857
+
+        Reviewed by Rob Buis.
+
+        Update SelectionHandler to match check-webkit-style updates.
+
+        * WebKitSupport/SelectionHandler.cpp:
+        (BlackBerry::WebKit::shouldExtendSelectionInDirection):
+        (BlackBerry::WebKit::SelectionHandler::extendSelectionToFieldBoundary):
+        (BlackBerry::WebKit::SelectionHandler::updateOrHandleInputSelection):
+        (BlackBerry::WebKit::adjustCaretRects):
+        (BlackBerry::WebKit::SelectionHandler::clipPointToVisibleContainer):
+        (BlackBerry::WebKit::regionRectListContainsPoint):
+        * WebKitSupport/SelectionHandler.h:
+        (SelectionHandler):
+
+2013-05-09  Mike Fenton  <mifenton@rim.com>
+
+        [BlackBerry] Style updates required based on new check-webkit-style
+        https://bugs.webkit.org/show_bug.cgi?id=115857
+
+        Reviewed by Rob Buis.
+
+        Update WebPage and WebPageClient to match check-webkit-style updates.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::init):
+        (BlackBerry::WebKit::WebPage::executeJavaScriptInIsolatedWorld):
+        (BlackBerry::WebKit::WebPagePrivate::zoomAboutPoint):
+        (BlackBerry::WebKit::WebPagePrivate::calculateReflowedScrollPosition):
+        (BlackBerry::WebKit::WebPagePrivate::centerOfVisibleContentsRect):
+        (BlackBerry::WebKit::WebPage::assignFocus):
+        (BlackBerry::WebKit::WebPagePrivate::resumeBackingStore):
+        (BlackBerry::WebKit::WebPagePrivate::setViewportSize):
+        (BlackBerry::WebKit::WebPage::deleteTextRelativeToCursor):
+        (BlackBerry::WebKit::WebPage::addVisitedLink):
+        (BlackBerry::WebKit::WebPagePrivate::findPatternStringForUrl):
+        (BlackBerry::WebKit::WebPage::notifySwipeEvent):
+        (BlackBerry::WebKit::WebPage::notifyScreenPowerStateChanged):
+        (BlackBerry::WebKit::WebPagePrivate::commitRootLayerIfNeeded):
+        (BlackBerry::WebKit::WebPagePrivate::setRootLayerWebKitThread):
+        (BlackBerry::WebKit::WebPagePrivate::releaseLayerResourcesCompositingThread):
+        * Api/WebPageClient.h:
+        * Api/WebPage_p.h:
+
+2013-05-09  Mike Fenton  <mifenton@rim.com>
+
+
+        [BlackBerry] Style updates required based on new check-webkit-style
+        https://bugs.webkit.org/show_bug.cgi?id=115857
+
+        Reviewed by Rob Buis.
+
+        Update BackingStore to match check-webkit-style updates.
+
+        Internally reviewed by Jakob Petsovits.
+
+        * Api/BackingStore.cpp:
+        (BlackBerry::WebKit::bestDivisor):
+        (BlackBerry::WebKit::BackingStorePrivate::repaint):
+        (BlackBerry::WebKit::BackingStorePrivate::shouldMoveLeft):
+        (BlackBerry::WebKit::BackingStorePrivate::shouldMoveRight):
+        (BlackBerry::WebKit::BackingStorePrivate::shouldMoveUp):
+        (BlackBerry::WebKit::BackingStorePrivate::shouldMoveDown):
+        (BlackBerry::WebKit::BackingStorePrivate::canMoveLeft):
+        (BlackBerry::WebKit::BackingStorePrivate::canMoveRight):
+        (BlackBerry::WebKit::BackingStorePrivate::canMoveUp):
+        (BlackBerry::WebKit::BackingStorePrivate::canMoveDown):
+        (BlackBerry::WebKit::BackingStorePrivate::indexOfTile):
+        (BlackBerry::WebKit::BackingStorePrivate::clearAndUpdateTileOfNotRenderedRegion):
+        (BlackBerry::WebKit::BackingStorePrivate::scrollBackingStore):
+        (BlackBerry::WebKit::BackingStoreGeometry::originOfTile):
+        (BlackBerry::WebKit::BackingStore::repaint):
+        * Api/BackingStore_p.h:
+        (BackingStoreGeometry):
+
+2013-05-09  Mike Fenton  <mifenton@rim.com>
+
+        [BlackBerry] Style updates required based on new check-webkit-style
+        https://bugs.webkit.org/show_bug.cgi?id=115857
+
+        Reviewed by Rob Buis.
+
+        Update ChromeClientBlackBerry, CredentialManager, FrameLoaderClientBlackBerry,
+        GeolocationClientBlackBerry and IconDatabaseClientBlackberry to
+        match check-webkit-style updates.
+
+        * WebCoreSupport/ChromeClientBlackBerry.h:
+        (ChromeClientBlackBerry):
+        * WebCoreSupport/CredentialManager.h:
+        (CredentialManager):
+        * WebCoreSupport/CredentialTransformData.cpp:
+        * WebCoreSupport/FrameLoaderClientBlackBerry.h:
+        (WebCore::FrameLoaderClientBlackBerry::assignIdentifierToInitialRequest):
+        (FrameLoaderClientBlackBerry):
+        (WebCore::FrameLoaderClientBlackBerry::dispatchDidReceiveAuthenticationChallenge):
+        (WebCore::FrameLoaderClientBlackBerry::dispatchDidCancelAuthenticationChallenge):
+        (WebCore::FrameLoaderClientBlackBerry::dispatchDidReceiveContentLength):
+        (WebCore::FrameLoaderClientBlackBerry::dispatchDidFinishLoading):
+        (WebCore::FrameLoaderClientBlackBerry::dispatchDidFailLoading):
+        * WebCoreSupport/GeolocationClientBlackBerry.cpp:
+        (GeolocationClientBlackBerry::onLocationUpdate):
+        * WebCoreSupport/GeolocationClientBlackBerry.h:
+        (GeolocationClientBlackBerry):
+        * WebCoreSupport/IconDatabaseClientBlackBerry.cpp:
+        (WebCore::IconDatabaseClientBlackBerry::initIconDatabase):
+
+2013-05-09  Jacky Jiang  <zhajiang@blackberry.com>
+
+        Fix some compiler warnings (miscellaneous)
+        https://bugs.webkit.org/show_bug.cgi?id=80790
+
+        Reviewed by Rob Buis.
+
+        Fix the following warnings for BlackBerry:
+        InRegionScroller.cpp:286:39: warning: suggest parentheses around
+        assignment used as truth value [-Wparentheses].
+        InRegionScroller.cpp:349:39: warning: suggest parentheses around
+        assignment used as truth value [-Wparentheses].
+        InRegionScroller.cpp:456:82: warning: suggest parentheses around '&&'
+        within '||' [-Wparentheses].
+        InRegionScrollableArea.cpp:134:16: warning: suggest explicit braces to
+        avoid ambiguous 'else' [-Wparentheses].
+        SelectionHandler.cpp:390:109: warning: suggest parentheses around '&&'
+        within '||' [-Wparentheses].
+        SelectionOverlay.cpp:56:47: warning: comparison between signed and
+        unsigned integer expressions [-Wsign-compare].
+
+
+        * Api/InRegionScroller.cpp:
+        (BlackBerry::WebKit::InRegionScrollerPrivate::calculateInRegionScrollableAreasForPoint):
+        (BlackBerry::WebKit::InRegionScrollerPrivate::firstScrollableInRegionForNode):
+        (BlackBerry::WebKit::InRegionScrollerPrivate::canScrollRenderBox):
+        * WebKitSupport/InRegionScrollableArea.cpp:
+        (BlackBerry::WebKit::InRegionScrollableArea::InRegionScrollableArea):
+        * WebKitSupport/SelectionHandler.cpp:
+        (BlackBerry::WebKit::SelectionHandler::extendSelectionToFieldBoundary):
+        * WebKitSupport/SelectionOverlay.cpp:
+        (BlackBerry::WebKit::SelectionOverlay::draw):
+
+2013-05-09  Mike Fenton  <mifenton@rim.com>
+
+        [BlackBerry] Style updates required based on new check-webkit-style
+        https://bugs.webkit.org/show_bug.cgi?id=115857
+
+        Reviewed by Rob Buis.
+
+        Update ColorPickerClient and PagePopupBlackBerry
+        to match check-webkit-style updates.
+
+        * WebCoreSupport/ColorPickerClient.cpp:
+        (WebCore::ColorPickerClient::generateHTML):
+        * WebCoreSupport/PagePopupBlackBerry.cpp:
+        (WebCore::setValueAndClosePopupCallback):
+        (WebCore::PagePopupBlackBerry::installDOMFunction):
+
+2013-05-09  Alberto Garcia  <agarcia@igalia.com>
+
+        [BlackBerry] Upstream the input popups
+        https://bugs.webkit.org/show_bug.cgi?id=114608
+
+        Reviewed by Rob Buis.
+
+        This patch contains contributions from many members of the
+        BlackBerry WebKit team, including:
+
+        Chris Hutten-Czapski
+        David Hoon
+        Jessica Cao
+        Rob Buis
+        Tiancheng Jiang
+
+        * WebCoreSupport/ColorPickerClient.cpp:
+        (WebCore):
+        (WebCore::ColorPickerClient::generateHTML):
+        * WebCoreSupport/DatePickerClient.cpp:
+        (WebCore):
+        (WebCore::DatePickerClient::generateHTML):
+        (WebCore::DatePickerClient::generateDateLabels):
+        * WebCoreSupport/DatePickerClient.h:
+        (DatePickerClient):
+        * WebCoreSupport/SelectPopupClient.cpp:
+        (WebCore):
+        (WebCore::SelectPopupClient::generateHTML):
+
+2013-05-09  Mike Fenton  <mifenton@rim.com>
+
+        [BlackBerry] Style updates required based on new check-webkit-style
+        https://bugs.webkit.org/show_bug.cgi?id=115857
+
+        Reviewed by Rob Buis.
+
+        Update DOMSupport to match check-webkit-style updates.
+
+        * WebKitSupport/DOMSupport.cpp:
+        (BlackBerry::WebKit::DOMSupport::isTextInputElement):
+        (BlackBerry::WebKit::DOMSupport::isPasswordElement):
+        (BlackBerry::WebKit::DOMSupport::convertPointToFrame):
+
+2013-05-09  Xuefei Ren  <xren@blackberry.com>
+
+        [BLACKBERRY]fix regression in Webpage
+        and FrameLoaderClientBlackberry
+        https://bugs.webkit.org/show_bug.cgi?id=115843
+
+        Reviewed by Rob Buis.
+
+        Internally reviewed by Mary Wu.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPage::loadFile):
+        * WebCoreSupport/FrameLoaderClientBlackBerry.cpp:
+        (WebCore::FrameLoaderClientBlackBerry::startDownload):
+
+2013-05-09  Mike Fenton  <mifenton@rim.com>
+
+        [BlackBerry] Style updates required based on new check-webkit-style
+        https://bugs.webkit.org/show_bug.cgi?id=115857
+
+        Reviewed by Rob Buis.
+
+        Update FatFingers to match check-webkit-style updates.
+
+        * WebKitSupport/FatFingers.cpp:
+        (BlackBerry::WebKit::FatFingers::checkFingerIntersection):
+        (BlackBerry::WebKit::FatFingers::checkForClickableElement):
+        * WebKitSupport/FatFingers.h:
+        (FatFingersResult):
+
+2013-05-09  Mike Fenton  <mifenton@rim.com>
+
+        [BlackBerry] Style updates required based on new check-webkit-style
+        https://bugs.webkit.org/show_bug.cgi?id=115857
+
+        Reviewed by Rob Buis.
+
+        Update InRegionScrollableArea, TileIndexHash
+        and TouchEventHandler to match check-webkit-style updates.
+
+        * WebKitSupport/InRegionScrollableArea.cpp:
+        * WebKitSupport/TileIndexHash.h:
+        * WebKitSupport/TouchEventHandler.cpp:
+        (BlackBerry::WebKit::TouchEventHandler::drawTapHighlight):
+
+2013-05-09  Mike Fenton  <mifenton@rim.com>
+
+        [BlackBerry] Style updates required based on new check-webkit-style
+        https://bugs.webkit.org/show_bug.cgi?id=115857
+
+        Reviewed by Rob Buis.
+
+        Styles fixes required for InputHandler based on updated
+        check-webkit-style.
+
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::spellCheckingRequestProcessed):
+        (BlackBerry::WebKit::InputHandler::ensureFocusTextElementVisible):
+        (BlackBerry::WebKit::InputHandler::ensureFocusPluginElementVisible):
+        (BlackBerry::WebKit::InputHandler::setPopupListIndexes):
+        (BlackBerry::WebKit::InputHandler::firstSpanInString):
+        (BlackBerry::WebKit::InputHandler::setTextAttributes):
+        * WebKitSupport/InputHandler.h:
+
+2013-05-08  Eli Fidler  <efidler@blackberry.com>
+
+        [BlackBerry] Fix usage of BlackBerry::Platform::String
+        https://bugs.webkit.org/show_bug.cgi?id=115781
+
+        Reviewed by Rob Buis.
+
+        BlackBerry PRs 304193 and 327181
+        Internally Reviewed by Mike Lattanzio, Arvid Nilsson, Joe Mason, Jeff Rogers, and George Staikos
+
+        We currently have a problem where we're passing UTF-8 encoded data into
+        the char* constructors of BlackBerry::Platform::String. This means the string
+        thinks its data is not UTF-8.
+
+        * Api/JavaScriptVariant.cpp:
+        (BlackBerry::WebKit::JSValueRefToBlackBerryJavaScriptVariant):
+        * Api/WebKitTextCodec.cpp:
+        (BlackBerry::WebKit::base64Encode):
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPage::loadFile):
+        (BlackBerry::WebKit::WebPage::textEncoding):
+        (BlackBerry::WebKit::WebPage::textHasAttribute):
+        (BlackBerry::WebKit::WebPagePrivate::defaultUserAgent):
+        * Api/WebPage.h:
+        * Api/WebSettings.cpp:
+        (BlackBerry::WebKit::WebSettings::standardSettings):
+        * WebCoreSupport/FrameLoaderClientBlackBerry.cpp:
+        (WebCore::FrameLoaderClientBlackBerry::dispatchDidFinishLoad):
+        (WebCore::FrameLoaderClientBlackBerry::dispatchDidReceiveIcon):
+        * WebKitSupport/DefaultTapHighlight.cpp:
+        (WebKit):
+        (BlackBerry::WebKit::DefaultTapHighlight::draw):
+        (BlackBerry::WebKit::DefaultTapHighlight::hide):
+
+2013-05-08  Rob Buis  <rbuis@rim.com>
+
+        Fix some compiler warnings (miscellaneous)
+        https://bugs.webkit.org/show_bug.cgi?id=80790
+
+        Reviewed by Philip Rogers.
+
+        Get rid of the following warning for BlackBerry:
+
+        BackingStoreClient.cpp:54:21: warning: unused parameter 'parentFrame' [-Wunused-parameter]
+
+        by using ASSERT_UNUSED instead of ASSERT.
+
+        * WebKitSupport/BackingStoreClient.cpp:
+        (BlackBerry::WebKit::BackingStoreClient::create):
+
+2013-05-07  Xuefei Ren  <xren@blackberry.com>
+
+        Clean up load interface in WebPage
+        https://bugs.webkit.org/show_bug.cgi?id=115622
+        Reviewed by Rob Buis.
+
+        Internal PR:315535
+        Internal reviewed by  Mary Wu
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::load):
+        (BlackBerry::WebKit::WebPage::loadFile):
+        (BlackBerry::WebKit::WebPage::load):
+        * Api/WebPage.h:
+        * Api/WebPage_p.h:
+        (WebPagePrivate):
+        * WebCoreSupport/FrameLoaderClientBlackBerry.cpp:
+        (WebCore::FrameLoaderClientBlackBerry::startDownload):
+
+2013-05-07  Mike Fenton  <mifenton@rim.com>
+
+        [BlackBerry] Increase the padding size for caret based scrolling.
+        https://bugs.webkit.org/show_bug.cgi?id=115749
+
+        Reviewed by Rob Buis.
+
+        PR 322670.
+
+        Increasing the padding size for scrolling in order to optimize the
+        number of scrolls required during typing.
+
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::ensureFocusTextElementVisible):
+
+2013-05-07  Nima Ghanavatian  <nghanavatian@blackberry.com>
+
+        [BlackBerry] Maintain touch event state throughout processing
+        https://bugs.webkit.org/show_bug.cgi?id=115663
+
+        Reviewed by Rob Buis.
+
+        Internally reviewed by Otto Cheung and Genevieve Mak.
+
+        PR 297691
+        By maintaining our touch event state, we can get a better idea
+        of what triggered an update to selection and respond appropriately.
+        On touch press we set userTouchTriggered to give the UI thread
+        some context.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::WebPagePrivate):
+        (BlackBerry::WebKit::WebPagePrivate::handleMouseEvent):
+        (BlackBerry::WebKit::WebPage::setExtraPluginDirectory):
+        * Api/WebPage_p.h:
+        (WebPagePrivate):
+        * WebKitSupport/SelectionHandler.cpp:
+        (BlackBerry::WebKit::SelectionHandler::selectionPositionChanged):
+
+2013-05-07  Nima Ghanavatian  <nghanavatian@blackberry.com>
+
+        [BlackBerry] Read-only fields should not get keyboard focus
+        https://bugs.webkit.org/show_bug.cgi?id=115725
+
+        Reviewed by Rob Buis.
+
+        Internally reviewed by Mike Fenton.
+
+        PR332887
+        Prevent keyboard focus and FCC from displaying when the user taps on a
+        read-only field. Further, ensure form controls skip over these fields
+        with the next/previous buttons.
+
+        * WebKitSupport/DOMSupport.cpp:
+        (BlackBerry::WebKit::DOMSupport::elementIsReadOnly):
+        (DOMSupport):
+        * WebKitSupport/DOMSupport.h:
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::focusedNodeChanged):
+        (BlackBerry::WebKit::InputHandler::setInputModeEnabled):
+        (BlackBerry::WebKit::InputHandler::notifyClientOfKeyboardVisibilityChange):
+        (BlackBerry::WebKit::InputHandler::isActiveTextEdit):
+        (WebKit):
+        * WebKitSupport/InputHandler.h:
+
+2013-05-07  Nima Ghanavatian  <nghanavatian@blackberry.com>
+
+        [BlackBerry] Expand spellcheck logging
+        https://bugs.webkit.org/show_bug.cgi?id=115482
+
+        Reviewed by Rob Buis.
+
+        Internally reviewed by Mike Fenton.
+
+        Fix some build errors when SpellingLog was turned on and expand on the debug
+        statements to be more verbose. Set up timers and print the duration of each
+        iteration as we traverse the text to create a range to send out for checking.
+
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::spellCheckingRequestCancelled):
+        (BlackBerry::WebKit::InputHandler::spellCheckingRequestProcessed):
+        (BlackBerry::WebKit::InputHandler::setElementFocused):
+        (WebKit):
+        (BlackBerry::WebKit::InputHandler::spellCheckTextBlock):
+        * WebKitSupport/SpellingHandler.cpp:
+        (BlackBerry::WebKit::SpellingHandler::spellCheckTextBlock):
+        (BlackBerry::WebKit::SpellingHandler::parseBlockForSpellChecking):
+
+2013-05-06  Mike Lattanzio  <mlattanzio@blackberry.com>
+
+        [BlackBerry] Enable and Expose Text Autosizing through BlackBerry::WebKit::WebSettings
+        https://bugs.webkit.org/show_bug.cgi?id=113808
+
+        Reviewed by Rob Buis.
+
+        Create a WebSetting for text autosizing. The default is off.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::didChangeSettings):
+        * Api/WebSettings.cpp:
+        (WebKit):
+        (BlackBerry::WebKit::WebSettings::standardSettings):
+        (BlackBerry::WebKit::WebSettings::isTextAutosizingEnabled):
+        (BlackBerry::WebKit::WebSettings::setTextAutosizingEnabled):
+        * Api/WebSettings.h:
+
+2013-05-06  Nima Ghanavatian  <nghanavatian@blackberry.com>
+
+        [BlackBerry] Ensure document is attached before accessing its FrameSelection
+        https://bugs.webkit.org/show_bug.cgi?id=115565
+
+        Reviewed by Rob Buis.
+
+        Internally reviewed by Mike Fenton.
+
+        PR 312101
+        We need to make sure that the node and document
+        are attached before accessing the FrameSelection. This was
+        handled earlier but not all call paths were covered.
+
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::setElementUnfocused):
+        (BlackBerry::WebKit::InputHandler::isActiveTextEdit):
+        (WebKit):
+        * WebKitSupport/InputHandler.h:
+
+2013-05-06  Nima Ghanavatian  <nghanavatian@blackberry.com>
+
+        [BlackBerry] Do not spellcheck when composition is active.
+        https://bugs.webkit.org/show_bug.cgi?id=115562
+
+        Reviewed by Rob Buis.
+
+        Internally reviewed by Mike Fenton.
+
+        PR331344
+        Typing can trigger rechecking since layout changes. Ensure
+        extra work is only done when we need it, and that it won't
+        be triggered when composition is active. If the user hasn't
+        finished a word yet, it is likely future key events will be
+        arriving, so checking the string at this point is extraneous.
+
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::requestCheckingOfString):
+
+2013-05-06  Nima Ghanavatian  <nghanavatian@blackberry.com>
+
+        [BlackBerry] Reduce the spellcheck checking range
+        https://bugs.webkit.org/show_bug.cgi?id=115479
+
+        Reviewed by Rob Buis.
+
+        Internally reviewed by Mike Fenton.
+
+        PR332773
+        Previously we were spellchecking the entire field on focus. If relayouting
+        occurred we rechecked this region, which is very costly. Switch to check
+        only a small region around the caret in both cases, which should alleviate
+        much of the delays experienced in very large contenteditable fields. This
+        allows for faster key input response and less time processing these requests
+        on the WebKit thread.
+
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::requestCheckingOfString):
+        (BlackBerry::WebKit::InputHandler::spellCheckTextBlock):
+        * WebKitSupport/SpellingHandler.cpp:
+        (WebKit):
+        (BlackBerry::WebKit::SpellingHandler::spellCheckTextBlock):
+        * WebKitSupport/SpellingHandler.h:
+        (SpellingHandler):
+
+2013-05-06  Nima Ghanavatian  <nghanavatian@blackberry.com>
+
+        [BlackBerry] Use a more descriptive timer name
+        https://bugs.webkit.org/show_bug.cgi?id=115481
+
+        Reviewed by Rob Buis.
+
+        Internally reviewed by Mike Fenton.
+
+        Changing m_timer to m_iterationDelayTimer.
+
+        * WebKitSupport/SpellingHandler.cpp:
+        (BlackBerry::WebKit::SpellingHandler::SpellingHandler):
+        (BlackBerry::WebKit::SpellingHandler::spellCheckTextBlock):
+        (BlackBerry::WebKit::SpellingHandler::parseBlockForSpellChecking):
+        * WebKitSupport/SpellingHandler.h:
+        (SpellingHandler):
+
+2013-05-04  Nima Ghanavatian  <nghanavatian@blackberry.com>
+
+        [BlackBerry] Clean up unused spellcheck code
+        https://bugs.webkit.org/show_bug.cgi?id=115560
+
+        Reviewed by Benjamin Poulain.
+        Internally reviewed by Mike Lattanzio
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPage::setExtraPluginDirectory):
+        * Api/WebPage.h:
+        * WebKitSupport/InputHandler.cpp:
+        * WebKitSupport/InputHandler.h:
+        (InputHandler):
+
+2013-05-03  Jacky Jiang  <zhajiang@blackberry.com>
+
+        [BlackBerry] Page rendering scale is changed after go back and forward
+        https://bugs.webkit.org/show_bug.cgi?id=115573
+
+        Reviewed by Rob Buis.
+        Internally reviewed by Jeff Rogers.
+
+        PR: 326886
+        When navigating back from page A with viewport to page B without
+        viewport, we didn't call setViewMode(); therefore, we didn't change
+        the fixed layout size which was set by page A. In that case, WebCore
+        would just pick up page A's fixed layout size to layout page B which
+        caused this issue.
+        Expecting zoomToInitialScaleOnLoad() or other functions to setViewMode()
+        later is not a good way, because zoomToInitialScaleOnLoad() has never
+        been called in this case. So we should always call setViewMode() to set
+        fixed layout size when a new page is committed.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::setLoadState):
+
+2013-05-02  Genevieve Mak  <gmak@rim.com>
+
+        [BlackBerry] Cannot touch scroll readonly text input.
+        https://bugs.webkit.org/show_bug.cgi?id=115378
+
+        Reviewed by Rob Buis.
+
+        PR #332902
+        Reviewed Internally by Mike Fenton.
+        Forgot half the patch.
+        Node::rendererIsEditable() returns false if the input element has the readonly tag set.
+        Check the node type instead.
+
+        * Api/InRegionScroller.cpp:
+        (BlackBerry::WebKit::InRegionScrollerPrivate::canScrollRenderBox):
+
+2013-05-02  Iris Wu  <shuwu@blackberry.com>
+
+        [BlackBerry] Make scroll position adjustment work with pages with fixed position elements.
+        https://bugs.webkit.org/show_bug.cgi?id=115178
+
+        Reviewed by Rob Buis.
+
+        PR 308796
+        Debug build fix.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPage::fixedElementSizeDelta):
+
+2013-05-01  Iris Wu  <shuwu@blackberry.com>
+
+         [BlackBerry] Upstream smart selection
+         https://bugs.webkit.org/show_bug.cgi?id=111226
+
+        Reviewed by Rob Buis.
+
+        Calling userInterfaceViewportAccessor()->documentViewportRect() on WK thread
+        caused crash.
+        But viewport from webkitThreadViewportAccessor uses unadjusted size which is
+        wrong for email.
+        The solution here is to get actual viewport size on UI thread and then pass it
+        to WebKit::SelectionHandler.
+
+        PR 333763
+        Reviewed Internally By Jakob Petsovits.
+
+        * Api/InRegionScroller.cpp:
+        (BlackBerry::WebKit::InRegionScrollerPrivate::updateSelectionScrollView):
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPage::setSelectionDocumentViewportSize):
+        (WebKit):
+        * Api/WebPage.h:
+        * WebKitSupport/SelectionHandler.cpp:
+        (BlackBerry::WebKit::SelectionHandler::selectAtPoint):
+        (BlackBerry::WebKit::SelectionHandler::ensureSelectedTextVisible):
+        (BlackBerry::WebKit::SelectionHandler::selectionViewportRect):
+        * WebKitSupport/SelectionHandler.h:
+        (BlackBerry::WebKit::SelectionHandler::setSelectionViewportSize):
+        (BlackBerry::WebKit::SelectionHandler::setSelectionSubframeViewportRect):
+        (SelectionHandler):
+
+2013-04-30  Genevieve Mak  <gmak@rim.com>
+
+        [BlackBerry] Cannot touch scroll readonly text input.
+        https://bugs.webkit.org/show_bug.cgi?id=115378
+
+        Reviewed by Rob Buis.
+
+        PR #332902
+        Reviewed Internally by Mike Fenton.
+        Node::rendererIsEditable() returns false if the input element has the readonly tag set.
+        Check the node type instead.
+
+        * WebKitSupport/DOMSupport.cpp:
+        (BlackBerry::WebKit::DOMSupport::isShadowHostTextInputElement):
+        (DOMSupport):
+        * WebKitSupport/DOMSupport.h:
+        * WebKitSupport/InRegionScrollableArea.cpp:
+        (BlackBerry::WebKit::InRegionScrollableArea::InRegionScrollableArea):
+
+2013-04-29  Jakob Petsovits  <jpetsovits@blackberry.com>
+
+        [BlackBerry] Replace disappearing fillBuffer() API with graphics context drawing
+        https://bugs.webkit.org/show_bug.cgi?id=115360
+        Internal PR 303048.
+
+        Reviewed by Rob Buis.
+
+        Instead of using fillBuffer() to draw directly to the
+        target buffer, we now lock a Drawable on it and fill it
+        with PlatformGraphicsContext::addPredefinedPattern().
+
+        As a bonus, this also includes related clean-ups -
+        simpler checkerboard painting code, removal of
+        fillWindow(), clearWindow() and paintDefaultBackground(),
+        as well as getting rid of the DEBUG_CHECKERBOARD define
+        which has been useless for performance tracing purposes
+        for a while now.
+
+        * Api/BackingStore.cpp:
+        (BlackBerry::WebKit::BackingStorePrivate::blitVisibleContents):
+        * Api/BackingStore_p.h:
+
+2013-04-26  Nima Ghanavatian  <nghanavatian@blackberry.com>
+
+        [BlackBerry] Check for valid element in elementTouched
+        https://bugs.webkit.org/show_bug.cgi?id=115205
+
+        Reviewed by Rob Buis.
+
+        Internally reviewed by Genevieve Mak.
+
+        PR 331546
+        We might receive a null ptr from nodeAsElementIfApplicable which
+        is passed in here. Check to make sure it's valid before using.
+
+        * WebKitSupport/InputHandler.cpp:
+        (BlackBerry::WebKit::InputHandler::elementTouched):
+
+2013-04-26  Martin Robinson  <mrobinson@igalia.com>
+
+        Remove the remaining Skia #ifdefs
+        https://bugs.webkit.org/show_bug.cgi?id=114886
+
+        Reviewed by Benjamin Poulain.
+
+        * Api/WebPage.cpp: Remove Skia #ifdef references.
+        * WebCoreSupport/AboutDataUseFeatures.in: Ditto.
+
+2013-04-26  Mary Wu  <mary.wu@torchmobile.com.cn>
+
+        [BlackBerry] Should check if it's cached resource before download
+        https://bugs.webkit.org/show_bug.cgi?id=115101
+
+        Reviewed by Rob Buis.
+
+        Since main resource maybe cached, if user want to save the resource, we first check
+        if it's cached. If yes, don't need to initiate a fresh load again, but get the
+        cached resource data out to save.
+
+        RIM bug# 324003, internally reviewed by Charles Wei.
+
+        * WebCoreSupport/FrameLoaderClientBlackBerry.cpp:
+        (WebCore::FrameLoaderClientBlackBerry::convertMainResourceLoadToDownload):
+
+2013-04-26  Mary Wu  <mary.wu@torchmobile.com.cn>
+
+        [BlackBerry] Clean up load interface in WebPage
+        https://bugs.webkit.org/show_bug.cgi?id=113267
+
+        Reviewed by Rob Buis.
+
+        Remove unused loadExtended(), combine load() and download() api in WebPage.
+        RIM Bug# 315535, internally reviewed by Joe Mason.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPage::load):
+        * Api/WebPage.h:
+
+2013-04-25  Andrew Lo  <anlo@rim.com>
+
+        [BlackBerry] Selection overlay on non-composited iframes are incorrectly positioned.
+        https://bugs.webkit.org/show_bug.cgi?id=115197
+
+        Reviewed by Rob Buis.
+
+        When drawing the selection overlay, the rects to
+        paint when selecting text on non-composited sub-frames
+        need to be adjusted by the frame position.
+
+        * WebKitSupport/SelectionOverlay.cpp:
+        (BlackBerry::WebKit::SelectionOverlay::paintContents):
+
+2013-04-25  Andreas Kling  <akling@apple.com>
+
+        Remove ENABLE(PARSED_STYLE_SHEET_CACHING) and make it always-on.
+
+        Rubber-stamped by Anders Koivisto.
+
+        * WebCoreSupport/AboutDataEnableFeatures.in:
+
+2013-04-25  Iris Wu  <shuwu@blackberry.com>
+
+        [BlackBerry] Make scroll position adjustment work with pages with fixed position elements.
+        https://bugs.webkit.org/show_bug.cgi?id=115178
+
+        Reviewed by Rob Buis.
+
+        PR 308796
+
+        Currently the position WebPage::adjustDocumentScrollPosition adjusts is the top
+        left point of the viewport.
+        On the page with fixed position elements, we want it to adjust the position beneath
+        the fixed elements so it can be always visible.
+
+        The basic idea is:
+        1.  Detect if there are fixed position elements before going through ProximityDetector.
+        2.  If the fixed element exists, calculate its the size and the actual visible position
+            beneath it.
+        3.  Pass the position to ProximityDetector. Then according to the new position we get,
+            calculate the top left position of the viewport (final scroll position).
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPage::fixedElementSizeDelta):
+        (WebKit):
+        * Api/WebPage.h:
+        * Api/WebPageCompositor.cpp:
+        (BlackBerry::WebKit::WebPageCompositorPrivate::findFixedElementRect):
+        (WebKit):
+        * Api/WebPageCompositor_p.h:
+        (WebPageCompositorPrivate):
+
+2013-04-25  Mike Lattanzio  <mlattanzio@blackberry.com>
+
+        [BlackBerry] Enable balanced page group load deferrer behaviour.
+        https://bugs.webkit.org/show_bug.cgi?id=115189
+
+        Reviewed by Rob Buis.
+
+        Prevent a possible deadlock by enabling balanced deferrers.
+        Internally reviewed by: Joe Mason
+        PR 329986
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPagePrivate::init):
+
+2013-04-25  Joseph Pecoraro  <pecoraro@apple.com>
+
+        Web Inspector: ConsoleMessage should include line and column number where possible
+        https://bugs.webkit.org/show_bug.cgi?id=114929
+
+        Reviewed by Timothy Hatcher.
+
+        * Api/DumpRenderTreeClient.h:
+        * Api/WebPageClient.h:
+        * WebCoreSupport/ChromeClientBlackBerry.cpp:
+        (WebCore::ChromeClientBlackBerry::addMessageToConsole):
+        * WebCoreSupport/ChromeClientBlackBerry.h:
+        (ChromeClientBlackBerry):
+
+2013-04-25  Konrad Piascik  <kpiascik@blackberry.com>
+
+        [BlackBerry] Get rid of return in void method
+        https://bugs.webkit.org/show_bug.cgi?id=115186
+
+        Reviewed by Rob Buis.
+
+        * Api/WebPage.cpp:
+        (BlackBerry::WebKit::WebPage::setForcedTextEncoding):
+
+2013-04-24  Nima Ghanavatian  <nghanavatian@blackberry.com>
+
+        [BlackBerry] Do not clear focus on a node when tapping on form controls
+        https://bugs.webkit.org/show_bug.cgi?id=115055
+
+        Reviewed by Rob Buis.
+
+        Internally reviewed by Genevieve Mak.
+
+        PR316069
+        To allow for rich text editors to apply styles on an input field
+        or highlighted text, we must maintain focus on the current element
+        when tapping on form elements. Moving the code that clears this
+        context to trigger off TouchHold instead of TouchPress.
+
+        * WebKitSupport/TouchEventHandler.cpp:
+        (BlackBerry::WebKit::TouchEventHandler::doFatFingers):
+
+== Rolled over to ChangeLog-2013-04-24 ==

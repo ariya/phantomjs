@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ queue_name }} Charts</title>
+        <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+        <link type="text/css" rel="stylesheet" href="/stylesheets/charts.css" />
+        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+        <script type="text/javascript">
+            google.load('visualization', '1.0', {'packages':['corechart']});
+            google.setOnLoadCallback(function () {
+
+                function secondsToString(seconds) {
+                    var oneSecond = 1;
+                    var oneMinute = 60;
+                    var oneHour = oneMinute * 60;
+                    var oneDay = oneHour * 24;
+                    var oneYear = oneDay * 365.25;
+                    var unitArray = [
+                        [oneYear, "year"],
+                        [oneDay, "day"],
+                        [oneHour, "hour"],
+                        [oneMinute, "minute"],
+                        [oneSecond, "second"],
+                    ];
+                    var result = "";
+                    for (var i = 0; i < unitArray.length; i++) {
+                        var unit = unitArray[i][0];
+                        if (seconds >= unit) {
+                            if (result !== "") {
+                                result += " ";
+                            }
+                            var name = unitArray[i][1];
+                            var number = Math.floor(seconds/unit);
+                            result += number + " " + name + (number > 1 ? "s" : "");
+                            seconds %= unit;
+                        }
+                    }
+                    if (result === "") {
+                        return "0 seconds";
+                    }
+                    return result;
+                }
+
+                var data, chart, options;
+
+                var timeString = new Date({{ timestamp }} * 1000).toString();
+                var timestampDiv = document.getElementById("timestamp");
+                timestampDiv.innerHTML = "Viewing from " + timeString;
+
+                options = {
+                    legend: {position: "top"},
+                    hAxis: {
+                        title: "{{ time_unit_name|capfirst }} Ago",
+                        direction: -1,
+                        viewWindow: {
+                            min: {{ seconds_ago_min }} / {{ time_unit }},
+                            max: {{ seconds_ago_max }} / {{ time_unit }},
+                        },
+                        gridlines: {
+                            count: 9,
+                        },
+                    },
+                    vAxis: {
+                        viewWindow: {min: 0 },
+                    },
+                    lineWidth: 3,
+                };
+
+                // CHART 1
+                options.colors = ["green", "red", "orange"];
+                data = new google.visualization.DataTable();
+                data.addColumn("number", "<time>");
+                data.addColumn("number", "Patches Completed");
+                data.addColumn({type: "string", role: "tooltip"});
+                data.addColumn("number", "Patches Waiting");
+                data.addColumn({type: "string", role: "tooltip"});
+                data.addColumn("number", "Bots (visible to server)");
+                data.addColumn({type: "string", role: "tooltip"});
+                data.addRows([
+                    {% for queue_datum in queue_data %}
+                        [
+                            {{ queue_datum.seconds_ago }} / {{ time_unit }},
+                            {{ queue_datum.patches_completed }},
+                            "Patches Completed: " + {{ queue_datum.patches_completed }} + "\n" + secondsToString({{ queue_datum.seconds_ago }}) + " ago",
+                            {{ queue_datum.patches_waiting }},
+                            "Patches Waiting: " + {{ queue_datum.patches_waiting }} + "\n" + secondsToString({{ queue_datum.seconds_ago }}) + " ago",
+                            {{ queue_datum.bots_seen }},
+                            "Bots (visible to server): " + {{ queue_datum.bots_seen }} + "\n" + secondsToString({{ queue_datum.seconds_ago }}) + " ago",
+                        ],
+                    {% endfor %}
+                ]);
+                chart = new google.visualization.LineChart(document.getElementById('chart1'));
+                chart.draw(data, options);
+
+                // CHART 2
+                options.colors = ["blue", "purple"];
+                data = new google.visualization.DataTable();
+                data.addColumn("number", "<time>");
+                data.addColumn("number", "Status Updates");
+                data.addColumn({type: "string", role: "tooltip"});
+                data.addColumn("number", "Patch Retries");
+                data.addColumn({type: "string", role: "tooltip"});
+                data.addRows([
+                    {% for queue_datum in queue_data %}
+                        [
+                            {{ queue_datum.seconds_ago }} / {{ time_unit }},
+                            {{ queue_datum.status_update_count }},
+                            "Status Updates: " + {{ queue_datum.status_update_count }} + "\n" + secondsToString({{ queue_datum.seconds_ago }}) + " ago",
+                            {{ queue_datum.patch_retry_count }},
+                            "Patch Retries: " + {{ queue_datum.patch_retry_count }} + "\n" + secondsToString({{ queue_datum.seconds_ago }}) + " ago",
+                        ],
+                    {% endfor %}
+                ]);
+                chart = new google.visualization.LineChart(document.getElementById('chart2'));
+                chart.draw(data, options);
+
+                // CHART 3
+                options.colors = ["brown"];
+                options.vAxis.title = "Minutes";
+                data = new google.visualization.DataTable();
+                data.addColumn("number", "<time>");
+                data.addColumn("number", "Patch Processing Times");
+                data.addColumn({type: "string", role: "tooltip"});
+                data.addColumn({type: "number", role: "interval"});
+                data.addColumn({type: "number", role: "interval"});
+                data.addRows([
+                    {% for queue_datum in queue_data %}
+                        [
+                            {{ queue_datum.seconds_ago }} / {{ time_unit }},
+                            {{ queue_datum.patch_processing_med }} / 60,
+                            "Patch Processing Times\nMax: " + secondsToString({{ queue_datum.patch_processing_max }}) + "\nMedian: " + secondsToString({{ queue_datum.patch_processing_med }}) + "\nMin: " + secondsToString({{ queue_datum.patch_processing_min }}) + "\n" + secondsToString({{ queue_datum.seconds_ago }}) + " ago",
+                            {{ queue_datum.patch_processing_min }} / 60,
+                            {{ queue_datum.patch_processing_max }} / 60,
+                        ],
+                    {% endfor %}
+                ]);
+                chart = new google.visualization.LineChart(document.getElementById('chart3'));
+                chart.draw(data, options);
+
+                // CHART 4
+                options.colors = ["red"];
+                data = new google.visualization.DataTable();
+                data.addColumn("number", "<time>");
+                data.addColumn("number", "Patch Waiting Times");
+                data.addColumn({type: "string", role: "tooltip"});
+                data.addColumn({type: "number", role: "interval"});
+                data.addColumn({type: "number", role: "interval"});
+                data.addRows([
+                    {% for queue_datum in queue_data %}
+                        [
+                            {{ queue_datum.seconds_ago }} / {{ time_unit }},
+                            {{ queue_datum.patch_waiting_med }} / 60,
+                            "Patch Waiting Times\nMax: " + secondsToString({{ queue_datum.patch_waiting_max }}) + "\nMedian: " + secondsToString({{ queue_datum.patch_waiting_med }}) + "\nMin: " + secondsToString({{ queue_datum.patch_waiting_min }}) + "\n" + secondsToString({{ queue_datum.seconds_ago }}) + " ago",
+                            {{ queue_datum.patch_waiting_min }} / 60,
+                            {{ queue_datum.patch_waiting_max }} / 60,
+                        ],
+                    {% endfor %}
+                ]);
+                chart = new google.visualization.LineChart(document.getElementById('chart4'));
+                chart.draw(data, options);
+
+                function postPatchLink (selection) {
+                    if (selection.length > 0 && selection[0].row !== undefined) {
+                        var attachmentIdArray = [{% for patch_datum in patch_data %}{{ patch_datum.attachment_id }}, {% endfor %}];
+                        var attachmentId = attachmentIdArray[selection[0].row];
+                        var aTag = document.getElementById("selectedPatch");
+                        aTag.innerHTML = aTag.href = "//" + window.location.host + "/patch/" + attachmentId;
+                    }
+                }
+
+                // CHART 5
+                options.colors = ["brown", "red"];
+                options.hAxis.title = "{{ time_unit_name|capfirst }} Ago";
+                options.hAxis.viewWindow.min = {{ seconds_ago_min }} / {{ time_unit }};
+                options.hAxis.viewWindow.max = {{ seconds_ago_max }} / {{ time_unit }};
+                delete options.lineWidth;
+                data = new google.visualization.DataTable();
+                data.addColumn("number", "<time>");
+                data.addColumn("number", "Process Duration");
+                data.addColumn({type: "string", role: "tooltip"});
+                data.addColumn("number", "Wait Duration");
+                data.addColumn({type: "string", role: "tooltip"});
+                data.addRows([
+                    {% for patch_datum in patch_data %}
+                        [
+                            {{ patch_datum.seconds_ago }} / {{ time_unit }},
+                            {{ patch_datum.process_duration }},
+                            "Patch {{ patch_datum.attachment_id }}\n" + secondsToString({{ patch_datum.seconds_ago }}) + " ago",
+                            {{ patch_datum.wait_duration }},
+                            "Patch {{ patch_datum.attachment_id }}\n" + secondsToString({{ patch_datum.seconds_ago }}) + " ago",
+                        ],
+                    {% endfor %}
+                ]);
+                chart = new google.visualization.ScatterChart(document.getElementById('chart5'));
+                var chart5 = chart;
+                google.visualization.events.addListener(chart, "select", function () {postPatchLink(chart5.getSelection());});
+                chart.draw(data, options);
+
+                // CHART 6
+                options.colors = ["blue", "purple"];
+                delete options.vAxis.title;
+                data = new google.visualization.DataTable();
+                data.addColumn("number", "<time>");
+                data.addColumn("number", "Status Updates");
+                data.addColumn({type: "string", role: "tooltip"});
+                data.addColumn("number", "Retries");
+                data.addColumn({type: "string", role: "tooltip"});
+                data.addRows([
+                    {% for patch_datum in patch_data %}
+                        [
+                            {{ patch_datum.seconds_ago }} / {{ time_unit }},
+                            {{ patch_datum.status_update_count }},
+                            "Patch {{ patch_datum.attachment_id }}\n" + secondsToString({{ patch_datum.seconds_ago }}) + " ago",
+                            {{ patch_datum.retry_count }},
+                            "Patch {{ patch_datum.attachment_id }}\n" + secondsToString({{ patch_datum.seconds_ago }}) + " ago",
+                        ],
+                    {% endfor %}
+                ]);
+                chart = new google.visualization.ScatterChart(document.getElementById('chart6'));
+                var chart6 = chart;
+                google.visualization.events.addListener(chart, "select", function () {postPatchLink(chart6.getSelection());});
+                chart.draw(data, options);
+            });
+
+            function setURLParameter (parameterName, newValue) {
+                var split;
+                split = window.location.href.split("?");
+                var url, parameterArray;
+                url = split[0];
+                if (split.length > 1) {
+                    parameterArray = split[1].split("&");
+                } else {
+                    parameterArray = [];
+                }
+                var setParameter = false;
+                for (var i = 0; i < parameterArray.length; i++) {
+                    var currentParameterName = decodeURIComponent(parameterArray[i].split("=")[0]);
+                    if (currentParameterName === parameterName) {
+                        parameterArray[i] = encodeURIComponent(parameterName) + "=" + encodeURIComponent(newValue);
+                        setParameter = true;
+                        break;
+                    }
+                }
+                if (!setParameter) {
+                    parameterArray.push(encodeURIComponent(parameterName) + "=" + encodeURIComponent(newValue));
+                }console.log(parameterArray);
+                window.location.href = url + "?" + parameterArray.join("&");
+            }
+        </script>
+    </head>
+
+    <body>
+        <div class="choices">
+            {% for single_queue_name in all_queue_names %}
+                {% if single_queue_name == queue_name %}
+                    {{ queue_name }}
+                {% else %}
+                    {{ single_queue_name|force_escape|queue_charts_link:single_queue_name|safe }}
+                {% endif %}
+                {% if not forloop.last %} | {% endif %}
+            {% endfor %}
+        </div>
+        <h1>{{ queue_name }} Charts</h1>
+        <div>[{{ queue_name|force_escape|queue_status_link:"status"|safe }}]</div>
+        <div id="timestamp"></div>
+        <div class="choices">Viewing range:
+            {% for view_range_choice in view_range_choices %}
+                {% if view_range_choice.view_range == view_range %}
+                    {{ view_range_choice.name }}
+                {% else %}
+                    <a href="javascript:setURLParameter('view_range', {{ view_range_choice.view_range }})">{{ view_range_choice.name }}</a>
+                {% endif %}
+                {% if not forloop.last %} | {% endif %}
+            {% endfor %}
+        </div>
+        <div class="chart" id="chart1"></div>
+        <div class="chart" id="chart2"></div>
+        <div class="chart" id="chart3"></div>
+        <div class="chart" id="chart4"></div>
+        <div class="chart" id="chart5"></div>
+        <div class="chart" id="chart6"></div>
+        Selected patch: <a id="selectedPatch">(None)</div>
+    </body>
+</html>

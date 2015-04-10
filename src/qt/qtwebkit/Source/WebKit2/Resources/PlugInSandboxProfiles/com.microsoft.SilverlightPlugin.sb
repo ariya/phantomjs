@@ -1,0 +1,32 @@
+(allow iokit-open
+    (iokit-user-client-class "IOHIDLibUserClient")
+    (iokit-user-client-class "IOBluetoothHCIUserClient"))
+
+(shared-preferences-read
+    "com.microsoft.PlayReady"
+    "com.microsoft.autoupdate2")
+(shared-preferences-read-write "com.microsoft.silverlight")
+
+(allow file-write-create
+    (home-library-literal "/Application Support/Microsoft"))
+
+(allow file-read* file-write*
+    ;; Sigh, mode 777 in /Library.
+    (subpath "/Library/Application Support/Microsoft/PlayReady")
+    (home-library-subpath "/Application Support/Microsoft/PlayReady")
+    (home-library-subpath "/Application Support/Microsoft/Silverlight")
+    (home-library-subpath "/Caches/TemporaryItems"))
+
+(if (defined? 'semaphore-owner)
+    (allow ipc-posix-sem
+         (semaphore-owner same-sandbox))
+    (allow ipc-posix-sem
+         (ipc-posix-name "LC_Mutex")))
+
+;; FIXME: <rdar://problem/13636078>
+(allow ipc-posix-shm*
+    (ipc-posix-name-regex #"^CoreCLR_"))
+
+(allow network-bind (local ip))
+
+(webkit-printing)

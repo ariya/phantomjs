@@ -1,0 +1,34 @@
+var assert = require('../../assert');
+var webpage = require('webpage');
+var page = webpage.create();
+
+assert.typeOf(page.childFramesCount, 'function');
+assert.typeOf(page.childFramesName, 'function');
+assert.typeOf(page.clearMemoryCache, 'function');
+assert.typeOf(page.close, 'function');
+assert.typeOf(page.currentFrameName, 'function');
+assert.typeOf(page.deleteLater, 'function');
+assert.typeOf(page.destroyed, 'function');
+assert.typeOf(page.evaluate, 'function');
+assert.typeOf(page.initialized, 'function');
+assert.typeOf(page.injectJs, 'function');
+assert.typeOf(page.javaScriptAlertSent, 'function');
+assert.typeOf(page.javaScriptConsoleMessageSent, 'function');
+assert.typeOf(page.loadFinished, 'function');
+assert.typeOf(page.loadStarted, 'function');
+assert.typeOf(page.openUrl, 'function');
+assert.typeOf(page.release, 'function');
+assert.typeOf(page.render, 'function');
+assert.typeOf(page.resourceError, 'function');
+assert.typeOf(page.resourceReceived, 'function');
+assert.typeOf(page.resourceRequested, 'function');
+assert.typeOf(page.uploadFile, 'function');
+assert.typeOf(page.sendEvent, 'function');
+assert.typeOf(page.setContent, 'function');
+assert.typeOf(page.switchToChildFrame, 'function');
+assert.typeOf(page.switchToMainFrame, 'function');
+assert.typeOf(page.switchToParentFrame, 'function');
+
+assert.typeOf(page.addCookie, 'function');
+assert.typeOf(page.deleteCookie, 'function');
+assert.typeOf(page.clearCookies, 'function');

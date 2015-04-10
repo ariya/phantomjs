@@ -1,0 +1,85 @@
+/*
+ * Copyright (C) 2011 Google Inc.  All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+element1 {
+}
+
+element2 { }
+
+element3
+{
+}
+
+element4.p {
+}
+
+element5.p.q.r.s {
+}
+
+element6#p {
+}
+
+element7 element8 {
+}
+
+element9.p element10.q {
+}
+
+element11#p element12#q {
+}
+
+element13, element14 {
+}
+
+.p {
+}
+
+#p {
+
+}
+
+.p element15 #q element16.r element17#s {
+}
+
+element18:target {
+}
+
+element19 {
+    property1: 123
+}
+
+element20 {
+    property1: 123;
+}
+
+element21 {
+    property1: 123;
+    property2: 456;
+}
+
+element22 {
+    property1: 123;
+    /* comment */
+}
+
+/*
+elementInsideComment {
+    property1: 123;
+}
+*/

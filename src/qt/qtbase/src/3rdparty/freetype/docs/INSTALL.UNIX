@@ -1,0 +1,96 @@
+This  document contains  instructions  on how  to  build the  FreeType
+library on Unix  systems.  This also works for  emulations like Cygwin
+or MSys on Win32:
+
+
+  1. Ensure that you are using GNU Make
+  -------------------------------------
+
+    The FreeType build system  _exclusively_ works with GNU Make.  You
+    will  not be  able to  compile the  library with  the instructions
+    below using any other alternative (including BSD Make).
+
+    Check that you have GNU make by running the command:
+
+       make -v
+
+    This should dump some text that begins with:
+
+       GNU Make  <version number>
+       Copyright (C) <year> Free Software Foundation Inc.
+
+    Note that version  3.80 or higher is *required* or the  build will
+    fail.
+
+    It is also fine to have GNU Make under another name (e.g. 'gmake')
+    if you use the GNUMAKE variable as described below.
+
+    As  a  special exception,  'makepp'  can  also  be used  to  build
+    FreeType 2.  See the file docs/MAKEPP for details.
+
+
+  2. Regenerate the configure script if needed
+  --------------------------------------------
+
+    This only applies if you  are building a CVS snapshot or checkout,
+    *not* if you grabbed the sources of an official release.
+
+    You  need  to invoke  the  `autogen.sh'  script  in the  top-level
+    directory  in order  to  create the  `configure'  script for  your
+    platform.  Normally, this simply means typing:
+
+      sh autogen.sh
+
+    In case of problems, you  may need to install or upgrade Automake,
+    Autoconf or  Libtool.  See  README.CVS in the  top-level directory
+    for more information.
+
+
+  3. Build and install the library
+  --------------------------------
+
+    The following  should work  on all Unix  systems where  the `make'
+    command invokes GNU Make:
+
+      ./configure [options]
+      make
+      make install           (as root)
+
+    The default installation path  is `/usr/local'.  It can be changed
+    with the `--prefix=<path>' option.  Example:
+
+      ./configure --prefix=/usr
+
+    When using a different command to invoke GNU Make, use the GNUMAKE
+    variable.  For example,  if `gmake' is the command  to use on your
+    system, do something like:
+
+       GNUMAKE=gmake ./configure [options]
+       gmake
+       gmake install            (as root)
+
+    If  this still doesn't  work, there  must be  a problem  with your
+    system (e.g., you are using a very old version of GNU Make).
+
+    It  is possible  to  compile FreeType  in  a different  directory.
+    Assuming the FreeType source  files in directory `/src/freetype' a
+    compilation in directory `foo' works as follows:
+
+      cd foo
+      /src/freetype/configure [options]
+      make
+      make install
+
+----------------------------------------------------------------------
+
+Copyright 2003, 2004, 2005, 2006, 2007 by
+David Turner, Robert Wilhelm, and Werner Lemberg.
+
+This  file is  part of  the FreeType  project, and  may only  be used,
+modified,  and distributed  under the  terms of  the  FreeType project
+license,  LICENSE.TXT.  By  continuing to  use, modify,  or distribute
+this file you  indicate that you have read  the license and understand
+and accept it fully.
+
+
+--- end of INSTALL.UNIX ---

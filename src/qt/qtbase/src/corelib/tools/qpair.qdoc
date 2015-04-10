@@ -1,0 +1,230 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \class QPair
+    \inmodule QtCore
+    \brief The QPair class is a template class that stores a pair of items.
+
+    \ingroup tools
+
+    QPair\<T1, T2\> can be used in your application if the STL \c
+    pair type is not available. It stores one value of type T1 and
+    one value of type T2. It can be used as a return value for a
+    function that needs to return two values, or as the value type of
+    a \l{Container classes}{generic container}.
+
+    Here's an example of a QPair that stores one QString and one \c
+    double value:
+
+    \snippet code/doc_src_qpair.cpp 0
+
+    The components are accessible as public data members called \l
+    first and \l second. For example:
+
+    \snippet code/doc_src_qpair.cpp 1
+
+    QPair's template data types (T1 and T2) must be \l{assignable
+    data types}. You cannot, for example, store a QWidget as a value;
+    instead, store a QWidget *. A few functions have additional
+    requirements; these requirements are documented on a per-function
+    basis.
+
+    \sa {Container Classes}
+*/
+
+/*! \typedef QPair::first_type
+
+    The type of the first element in the pair (T1).
+
+    \sa first
+*/
+
+/*! \typedef QPair::second_type
+
+    The type of the second element in the pair (T2).
+
+    \sa second
+*/
+
+/*! \variable QPair::first
+
+    The first element in the pair.
+*/
+
+/*! \variable QPair::second
+
+    The second element in the pair.
+*/
+
+/*! \fn QPair::QPair()
+
+    Constructs an empty pair. The \c first and \c second elements are
+    initialized with \l{default-constructed value}s.
+*/
+
+/*!
+    \fn QPair::QPair(const T1 &value1, const T2 &value2)
+
+    Constructs a pair and initializes the \c first element with \a
+    value1 and the \c second element with \a value2.
+
+    \sa qMakePair()
+*/
+
+/*!
+    \fn QPair::QPair(const QPair<TT1, TT2> &p)
+    \since 5.2
+
+    Constructs a pair from the other pair \a p, of types TT1 and TT2. This
+    constructor will fail if \c first cannot be initialized from \c p.first or
+    if \c second cannot be initialized from \c p.second.
+
+    \sa qMakePair()
+*/
+
+/*!
+    \fn QPair &QPair::operator=(const QPair<TT1, TT2> &p)
+    \since 5.2
+
+    Copies the pair \a p onto this pair.
+
+    \sa qMakePair()
+*/
+
+/*! \fn bool operator==(const QPair<T1, T2> &p1, const QPair<T1, T2> &p2)
+
+    \relates QPair
+
+    Returns \c true if \a p1 is equal to \a p2; otherwise returns \c false.
+    Two pairs compare equal if their \c first data members compare
+    equal and if their \c second data members compare equal.
+
+    This function requires the T1 and T2 types to have an
+    implementation of \c operator==().
+*/
+
+/*! \fn bool operator!=(const QPair<T1, T2> &p1, const QPair<T1, T2> &p2)
+
+    \relates QPair
+
+    Returns \c true if \a p1 is not equal to \a p2; otherwise returns
+    false. Two pairs compare as not equal if their \c first data
+    members are not equal or if their \c second data members are not
+    equal.
+
+    This function requires the T1 and T2 types to have an
+    implementation of \c operator==().
+*/
+
+/*! \fn bool operator<(const QPair<T1, T2> &p1, const QPair<T1, T2> &p2)
+
+    \relates QPair
+
+    Returns \c true if \a p1 is less than \a p2; otherwise returns
+    false. The comparison is done on the \c first members of \a p1
+    and \a p2; if they compare equal, the \c second members are
+    compared to break the tie.
+
+    This function requires the T1 and T2 types to have an
+    implementation of \c operator<().
+*/
+
+/*! \fn bool operator>(const QPair<T1, T2> &p1, const QPair<T1, T2> &p2)
+
+    \relates QPair
+
+    Returns \c true if \a p1 is greater than \a p2; otherwise returns
+    false. The comparison is done on the \c first members of \a p1
+    and \a p2; if they compare equal, the \c second members are
+    compared to break the tie.
+
+    This function requires the T1 and T2 types to have an
+    implementation of \c operator<().
+*/
+
+/*! \fn bool operator<=(const QPair<T1, T2> &p1, const QPair<T1, T2> &p2)
+
+    \relates QPair
+
+    Returns \c true if \a p1 is less than or equal to \a p2; otherwise
+    returns \c false. The comparison is done on the \c first members of
+    \a p1 and \a p2; if they compare equal, the \c second members are
+    compared to break the tie.
+
+    This function requires the T1 and T2 types to have an
+    implementation of \c operator<().
+*/
+
+/*! \fn bool operator>=(const QPair<T1, T2> &p1, const QPair<T1, T2> &p2)
+
+    \relates QPair
+
+    Returns \c true if \a p1 is greater than or equal to \a p2;
+    otherwise returns \c false. The comparison is done on the \c first
+    members of \a p1 and \a p2; if they compare equal, the \c second
+    members are compared to break the tie.
+
+    This function requires the T1 and T2 types to have an
+    implementation of \c operator<().
+*/
+
+/*!
+    \fn QPair<T1, T2> qMakePair(const T1 &value1, const T2 &value2)
+
+    \relates QPair
+
+    Returns a QPair\<T1, T2\> that contains \a value1 and \a value2.
+    Example:
+
+    \snippet code/doc_src_qpair.cpp 2
+
+    This is equivalent to QPair<T1, T2>(\a value1, \a value2), but
+    usually requires less typing.
+*/
+
+/*! \fn QDataStream &operator>>(QDataStream &in, QPair<T1, T2> &pair)
+
+    \relates QPair
+
+    Reads a pair from stream \a in into \a pair.
+
+    This function requires the T1 and T2 types to implement \c operator>>().
+
+    \sa {Serializing Qt Data Types}
+*/
+
+/*! \fn QDataStream &operator<<(QDataStream &out, const QPair<T1, T2> &pair)
+
+    \relates QPair
+
+    Writes the pair \a pair to stream \a out.
+
+    This function requires the T1 and T2 types to implement \c operator<<().
+
+    \sa {Serializing Qt Data Types}
+*/

@@ -1,0 +1,15 @@
+Contains the header and sources files from selected xcb libraries:
+
+   libxcb-1.5 together with xcb-proto-1.6 (sync, xfixes, randr sources)
+   # libxkbcommon-x11 requires libxcb-xkb >= 1.10
+   libxcb-1.10 together with xcb-proto-1.10 (xkb sources)
+   libxcb-util-image-0.3.9
+   libxcb-util-keysyms-0.3.9
+   libxcb-util-renderutil-0.3.8
+   libxcb-util-wm-0.3.9
+
+The 'include' directory was obtained by compiling and installing all of the modules.
+They have been tested to run also with libxcb 1.5 (the oldest version we support).
+
+Use the -qt-xcb configure option to use the files instead of system xcb libraries.
+See src/plugins/platforms/xcb/README for details.

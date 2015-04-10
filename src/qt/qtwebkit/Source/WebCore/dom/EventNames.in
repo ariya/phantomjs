@@ -1,0 +1,61 @@
+namespace="Event"
+
+Event
+Events interfaceName=Event
+HTMLEvents interfaceName=Event
+BeforeLoadEvent
+CloseEvent
+CompositionEvent
+CustomEvent
+ErrorEvent
+FocusEvent
+HashChangeEvent
+KeyboardEvent
+KeyboardEvents interfaceName=KeyboardEvent
+MessageEvent
+MouseEvent
+MouseEvents interfaceName=MouseEvent
+MutationEvent
+MutationEvents interfaceName=MutationEvent
+OverflowEvent
+PageTransitionEvent
+PopStateEvent
+ProgressEvent
+TextEvent
+TransitionEvent
+UIEvent
+UIEvents interfaceName=UIEvent
+WebKitAnimationEvent
+WebKitTransitionEvent
+WheelEvent
+XMLHttpRequestProgressEvent
+AudioProcessingEvent conditional=WEB_AUDIO
+OfflineAudioCompletionEvent conditional=WEB_AUDIO
+MediaStreamEvent conditional=MEDIA_STREAM
+MediaStreamTrackEvent conditional=MEDIA_STREAM
+RTCIceCandidateEvent conditional=MEDIA_STREAM
+RTCDataChannelEvent conditional=MEDIA_STREAM
+RTCDTMFToneChangeEvent conditional=MEDIA_STREAM
+SpeechInputEvent conditional=INPUT_SPEECH
+SpeechRecognitionError conditional=SCRIPTED_SPEECH
+SpeechRecognitionEvent conditional=SCRIPTED_SPEECH
+SpeechSynthesisEvent conditional=SPEECH_SYNTHESIS
+WebGLContextEvent conditional=WEBGL
+StorageEvent
+SVGEvents interfaceName=Event, conditional=SVG
+SVGZoomEvent conditional=SVG
+SVGZoomEvents interfaceName=SVGZoomEvent, conditional=SVG
+IDBVersionChangeEvent conditional=INDEXED_DATABASE
+TouchEvent conditional=TOUCH_EVENTS, runtimeConditional=touchEnabled
+DeviceMotionEvent conditional=DEVICE_ORIENTATION
+DeviceOrientationEvent conditional=DEVICE_ORIENTATION
+DeviceProximityEvent conditional=PROXIMITY_EVENTS
+OrientationEvent interfaceName=Event, conditional=ORIENTATION_EVENTS
+MediaKeyEvent conditional=ENCRYPTED_MEDIA
+MediaKeyMessageEvent conditional=ENCRYPTED_MEDIA_V2
+MediaKeyNeededEvent conditional=ENCRYPTED_MEDIA_V2
+TrackEvent conditional=VIDEO_TRACK
+CSSFontFaceLoadEvent conditional=FONT_LOAD_EVENTS
+SecurityPolicyViolationEvent conditional=CSP_NEXT
+UIRequestEvent conditional=INDIE_UI
+

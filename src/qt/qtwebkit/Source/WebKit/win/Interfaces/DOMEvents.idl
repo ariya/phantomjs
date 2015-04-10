@@ -1,0 +1,478 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+import "DOMCore.idl";
+import "DOMWindow.idl";
+#endif
+
+interface IDOMEvent;
+interface IDOMEventException;
+interface IDOMEventTarget;
+interface IDOMKeyboardEvent;
+interface IDOMMouseEvent;
+interface IDOMMutationEvent;
+interface IDOMNode;
+interface IDOMOverflowEvent;
+interface IDOMUIEvent;
+interface IDOMWheelEvent;
+interface IDOMWindow;
+
+typedef long long DOMTimeStamp;
+
+[
+    object,
+    oleautomation,
+    uuid(7f8a0a96-f864-44fb-87fb-c5f03666e8e6),
+    pointer_default(unique)
+]
+interface IDOMEventListener : IDOMObject
+{
+    //void               handleEvent(Event evt);
+    HRESULT handleEvent([in] IDOMEvent* evt);
+}
+
+[
+    object,
+    oleautomation,
+    uuid(62343a9e-a779-4e91-818a-14fc178cf4c2),
+    pointer_default(unique)
+]
+interface IDOMEvent : IDOMObject
+{
+    // DOM PhaseType
+    const unsigned short DOMEVENT_CAPTURING_PHASE     = 1;
+    const unsigned short DOMEVENT_AT_TARGET           = 2;
+    const unsigned short DOMEVENT_BUBBLING_PHASE      = 3;
+
+    // Reverse-engineered from Netscape
+    const unsigned short DOMEVENT_MOUSEDOWN           = 1;
+    const unsigned short DOMEVENT_MOUSEUP             = 2;
+    const unsigned short DOMEVENT_MOUSEOVER           = 4;
+    const unsigned short DOMEVENT_MOUSEOUT            = 8;
+    const unsigned short DOMEVENT_MOUSEMOVE           = 16;
+    const unsigned short DOMEVENT_MOUSEDRAG           = 32;
+    const unsigned short DOMEVENT_CLICK               = 64;
+    const unsigned short DOMEVENT_DBLCLICK            = 128;
+    const unsigned short DOMEVENT_KEYDOWN             = 256;
+    const unsigned short DOMEVENT_KEYUP               = 512;
+    const unsigned short DOMEVENT_KEYPRESS            = 1024;
+    const unsigned short DOMEVENT_DRAGDROP            = 2048;
+    const unsigned short DOMEVENT_FOCUS               = 4096;
+    const unsigned short DOMEVENT_BLUR                = 8192;
+    const unsigned short DOMEVENT_SELECT              = 16384;
+    const unsigned short DOMEVENT_CHANGE              = 32768;
+
+    //readonly attribute DOMString        type;
+    HRESULT type([out, retval] BSTR* result);
+
+    //readonly attribute EventTarget      target;
+    HRESULT target([out, retval] IDOMEventTarget** result);
+
+    //readonly attribute EventTarget      currentTarget;
+    HRESULT currentTarget([out, retval] IDOMEventTarget** result);
+
+    //readonly attribute unsigned short   eventPhase;
+    HRESULT eventPhase([out, retval] unsigned short* result);
+
+    //readonly attribute boolean          bubbles;
+    HRESULT bubbles([out, retval] BOOL* result);
+
+    //readonly attribute boolean          cancelable;
+    HRESULT cancelable([out, retval] BOOL* result);
+
+    //readonly attribute DOMTimeStamp     timeStamp;
+    HRESULT timeStamp([out, retval] DOMTimeStamp* result);
+
+    //void               stopPropagation();
+    HRESULT stopPropagation();
+
+    //void               preventDefault();
+    HRESULT preventDefault();
+
+    //[OldStyleObjC] void initEvent(DOMString eventTypeArg, 
+    //                              boolean canBubbleArg, 
+    //                              boolean cancelableArg);
+    HRESULT initEvent([in] BSTR eventTypeArg, [in] BOOL canBubbleArg, [in] BOOL cancelableArg);
+}
+
+[
+    object,
+    oleautomation,
+    uuid(c7cf7d84-d755-40bc-b664-84bc79eff709),
+    pointer_default(unique)
+]
+interface IDOMEventTarget : IUnknown
+{
+    //void               addEventListener(DOMString type, 
+    //                                    EventListener listener, 
+    //                                    boolean useCapture);
+    HRESULT addEventListener([in] BSTR type, [in] IDOMEventListener* listener, [in] BOOL useCapture);
+
+    //void               removeEventListener(DOMString type, 
+    //                                       EventListener listener, 
+    //                                       boolean useCapture);
+    HRESULT removeEventListener([in] BSTR type, [in] IDOMEventListener* listener, [in] BOOL useCapture);
+
+    //boolean            dispatchEvent(Event event)
+    HRESULT dispatchEvent([in] IDOMEvent* event, [out, retval] BOOL* result);
+}
+
+[
+    object,
+    oleautomation,
+    uuid(55AAF192-68CD-409f-A551-89710DC7240A),
+    pointer_default(unique)
+]
+interface IDOMDocumentEvent : IUnknown
+{
+    //[RaisesException] Event              createEvent(DOMString eventType);
+    HRESULT createEvent([in] BSTR eventType, [out, retval] IDOMEvent** result);
+}
+
+[
+    object,
+    oleautomation,
+    uuid(76bc4e46-67df-40d3-89b0-a94dcc2ed507),
+    pointer_default(unique)
+]
+interface IDOMKeyboardEvent : IDOMUIEvent
+{
+    // KeyLocationCode
+    const unsigned long       DOMKEYBOARDEVENT_KEY_LOCATION_STANDARD      = 0x00;
+    const unsigned long       DOMKEYBOARDEVENT_KEY_LOCATION_LEFT          = 0x01;
+    const unsigned long       DOMKEYBOARDEVENT_KEY_LOCATION_RIGHT         = 0x02;
+    const unsigned long       DOMKEYBOARDEVENT_KEY_LOCATION_NUMPAD        = 0x03;
+
+    //readonly attribute DOMString        keyIdentifier;
+    HRESULT keyIdentifier([out, retval] BSTR* result);
+
+    //readonly attribute unsigned long    location;
+    HRESULT location([out, retval] unsigned long* result);
+
+    //readonly attribute unsigned long    keyLocation;
+    HRESULT keyLocation([out, retval] unsigned long* result);
+
+    //readonly attribute boolean          ctrlKey;
+    HRESULT ctrlKey([out, retval] BOOL* result);
+
+    //readonly attribute boolean          shiftKey;
+    HRESULT shiftKey([out, retval] BOOL* result);
+
+    //readonly attribute boolean          altKey;
+    HRESULT altKey([out, retval] BOOL* result);
+
+    //readonly attribute boolean          metaKey;
+    HRESULT metaKey([out, retval] BOOL* result);
+
+    //readonly attribute boolean          altGraphKey;
+    HRESULT altGraphKey([out, retval] BOOL* result);
+
+    //boolean getModifierState(DOMString keyIdentifierArg);
+    HRESULT getModifierState([in] BSTR keyIdentifierArg, [out, retval] BOOL* result);
+
+    // FIXME: this does not match the version in the DOM spec.
+    //void initKeyboardEvent(AtomicString type, 
+    //                       boolean canBubble, 
+    //                       boolean cancelable, 
+    //                       DOMWindow view, 
+    //                       DOMString keyIdentifier,
+    //                       unsigned long keyLocation,
+    //                       boolean ctrlKey,
+    //                       boolean altKey,
+    //                       boolean shiftKey,
+    //                       boolean metaKey,
+    //                       boolean altGraphKey);
+    HRESULT initKeyboardEvent([in] BSTR type, [in] BOOL canBubble, [in] BOOL cancelable, [in] IDOMWindow* view, [in] BSTR keyIdentifier, [in] unsigned long keyLocation, [in] BOOL ctrlKey, [in] BOOL altKey, [in] BOOL shiftKey, [in] BOOL metaKey, [in] BOOL graphKey);
+
+    // WebKit Extensions
+    //readonly attribute long             keyCode;
+    //HRESULT keyCode([out, retval] long* result);
+
+    //readonly attribute long             charCode;
+    //HRESULT charCode([out, retval] long* result);
+
+    //void initKeyboardEvent(AtomicString type, 
+    //                       boolean canBubble, 
+    //                       boolean cancelable, 
+    //                       DOMWindow view, 
+    //                       DOMString keyIdentifier,
+    //                       unsigned long keyLocation,
+    //                       boolean ctrlKey,
+    //                       boolean altKey,
+    //                       boolean shiftKey,
+    //                       boolean metaKey);
+}
+
+[
+    object,
+    oleautomation,
+    uuid(bdd97151-5f6a-4ba4-a902-9b008392eb54),
+    pointer_default(unique)
+]
+interface IDOMMouseEvent : IDOMUIEvent
+{
+    //readonly attribute long             screenX;
+    HRESULT screenX([out, retval] long* result);
+
+    //readonly attribute long             screenY;
+    HRESULT screenY([out, retval] long* result);
+
+    //readonly attribute long             clientX;
+    HRESULT clientX([out, retval] long* result);
+
+    //readonly attribute long             clientY;
+    HRESULT clientY([out, retval] long* result);
+
+    //readonly attribute boolean          ctrlKey;
+    HRESULT ctrlKey([out, retval] BOOL* result);
+
+    //readonly attribute boolean          shiftKey;
+    HRESULT shiftKey([out, retval] BOOL* result);
+
+    //readonly attribute boolean          altKey;
+    HRESULT altKey([out, retval] BOOL* result);
+
+    //readonly attribute boolean          metaKey;
+    HRESULT metaKey([out, retval] BOOL* result);
+
+    //readonly attribute unsigned short   button;
+    HRESULT button([out, retval] unsigned short* result);
+
+    //readonly attribute EventTarget      relatedTarget;
+    HRESULT relatedTarget([out, retval] IDOMEventTarget** result);
+
+    //[OldStyleObjC] void initMouseEvent(AtomicString type, 
+    //                                   boolean canBubble, 
+    //                                   boolean cancelable, 
+    //                                   DOMWindow view, 
+    //                                   long detail, 
+    //                                   long screenX, 
+    //                                   long screenY, 
+    //                                   long clientX, 
+    //                                   long clientY, 
+    //                                   boolean ctrlKey, 
+    //                                   boolean altKey, 
+    //                                   boolean shiftKey, 
+    //                                   boolean metaKey, 
+    //                                   unsigned short button, 
+    //                                   EventTarget relatedTarget);
+    HRESULT initMouseEvent([in] BSTR type, [in] BOOL canBubble, [in] BOOL cancelable, [in] IDOMWindow* view, [in] long detail, [in] long screenX, [in] long screenY, [in] long clientX, [in] long clientY, [in] BOOL ctrlKey, [in] BOOL altKey, [in] BOOL shiftKey, [in] BOOL metaKey, [in] unsigned short button, [in] IDOMEventTarget* relatedTarget);
+
+    // extensions
+    //readonly attribute long             offsetX;
+    HRESULT offsetX([out, retval] long* result);
+
+    //readonly attribute long             offsetY;
+    HRESULT offsetY([out, retval] long* result);
+
+    //readonly attribute long             x;
+    HRESULT x([out, retval] long* result);
+
+    //readonly attribute long             y;
+    HRESULT y([out, retval] long* result);
+
+    //readonly attribute Node             fromElement;
+    HRESULT fromElement([out, retval] IDOMNode** result);
+
+    //readonly attribute Node             toElement;
+    HRESULT toElement([out, retval] IDOMNode** result);
+}
+
+[
+    object,
+    oleautomation,
+    uuid(6345d228-ea67-48ee-93c8-ff6e9c6356e9),
+    pointer_default(unique)
+]
+interface IDOMMutationEvent : IDOMEvent
+{
+    // attrChangeType
+    const unsigned short DOMMUTATIONEVENT_MODIFICATION = 1;
+    const unsigned short DOMMUTATIONEVENT_ADDITION     = 2;
+    const unsigned short DOMMUTATIONEVENT_REMOVAL      = 3;
+
+    //readonly attribute Node           relatedNode;
+    HRESULT relatedNode([out, retval] IDOMNode** result);
+
+    //readonly attribute DOMString      prevValue;
+    HRESULT prevValue([out, retval] BSTR* result);
+
+    //readonly attribute DOMString      newValue;
+    HRESULT newValue([out, retval] BSTR* result);
+
+    //readonly attribute DOMString      attrName;
+    HRESULT attrName([out, retval] BSTR* result);
+
+    //readonly attribute unsigned short attrChange;
+    HRESULT attrChange([out, retval] unsigned short* result);
+
+    //[OldStyleObjC] void initMutationEvent(AtomicString type, 
+    //                                      boolean canBubble, 
+    //                                      boolean cancelable, 
+    //                                      Node relatedNode, 
+    //                                      DOMString prevValue, 
+    //                                      DOMString newValue, 
+    //                                      DOMString attrName, 
+    //                                      unsigned short attrChange);
+    HRESULT initMutationEvent([in] BSTR type, [in] BOOL canBubble, [in] BOOL cancelable, [in] IDOMNode* relatedNode, [in] BSTR prevValue, [in] BSTR newValue, [in] BSTR attrName, [in] unsigned short attrChange);
+}
+
+[
+    object,
+    oleautomation,
+    uuid(6048369e-e444-401b-950d-c9daef9384d2),
+    pointer_default(unique)
+]
+interface IDOMOverflowEvent : IDOMEvent
+{
+    const unsigned short DOMOVERFLOWEVENT_HORIZONTAL = 0;
+    const unsigned short DOMOVERFLOWEVENT_VERTICAL   = 1;
+    const unsigned short DOMOVERFLOWEVENT_BOTH       = 2;
+    
+    //readonly attribute unsigned short orient;
+    HRESULT orient([out, retval] unsigned short* result);
+
+    //readonly attribute boolean horizontalOverflow;
+    HRESULT horizontalOverflow([out, retval] BOOL* result);
+
+    //readonly attribute boolean verticalOverflow;
+    HRESULT verticalOverflow([out, retval] BOOL* result);
+}
+
+[
+    object,
+    oleautomation,
+    uuid(b928261d-7c9e-4156-af71-6f698bd97788),
+    pointer_default(unique)
+]
+interface IDOMUIEvent : IDOMEvent
+{
+    //readonly attribute DOMWindow            view;
+    HRESULT view([out, retval] IDOMWindow** result);
+
+    //readonly attribute long                 detail;
+    HRESULT detail([out, retval] long* result);
+
+    //[OldStyleObjC] void initUIEvent(AtomicString type, 
+    //                                boolean canBubble, 
+    //                                boolean cancelable, 
+    //                                DOMWindow view, 
+    //                                long detail);
+    HRESULT initUIEvent([in] BSTR type, [in] BOOL canBubble, [in] BOOL cancelable, [in] IDOMWindow* view, [in] long detail);
+
+    // extentsions
+    //readonly attribute long                 keyCode;
+    HRESULT keyCode([out, retval] long* result);
+
+    //readonly attribute long                 charCode;
+    HRESULT charCode([out, retval] long* result);
+
+    HRESULT unused1([out, retval] long* result);
+
+    HRESULT unused2([out, retval] long* result);
+
+    //readonly attribute long                 pageX;
+    HRESULT pageX([out, retval] long* result);
+
+    //readonly attribute long                 pageY;
+    HRESULT pageY([out, retval] long* result);
+
+    //readonly attribute long                 which;
+    HRESULT which([out, retval] long* result);
+}
+
+[
+    object,
+    oleautomation,
+    uuid(5404e6d9-a2bb-4c74-8070-ce9d2599bd00),
+    pointer_default(unique)
+]
+interface IDOMWheelEvent : IDOMUIEvent
+{
+    //readonly attribute long    screenX;
+    HRESULT screenX([out, retval] long* result);
+
+    //readonly attribute long    screenY;
+    HRESULT screenY([out, retval] long* result);
+
+    //readonly attribute long    clientX;
+    HRESULT clientX([out, retval] long* result);
+
+    //readonly attribute long    clientY;
+    HRESULT clientY([out, retval] long* result);
+
+    //readonly attribute boolean ctrlKey;
+    HRESULT ctrlKey([out, retval] BOOL* result);
+
+    //readonly attribute boolean shiftKey;
+    HRESULT shiftKey([out, retval] BOOL* result);
+
+    //readonly attribute boolean altKey;
+    HRESULT altKey([out, retval] BOOL* result);
+
+    //readonly attribute boolean metaKey;
+    HRESULT metaKey([out, retval] BOOL* result);
+
+    //readonly attribute long    wheelDelta;
+    HRESULT wheelDelta([out, retval] long* result);
+
+    //readonly attribute long    wheelDeltaX;
+    HRESULT wheelDeltaX([out, retval] long* result);
+
+    //readonly attribute long    wheelDeltaY;
+    HRESULT wheelDeltaY([out, retval] long* result);
+
+    // WebKit Extensions
+    //readonly attribute long    offsetX;
+    HRESULT offsetX([out, retval] long* result);
+
+    //readonly attribute long    offsetY;
+    HRESULT offsetY([out, retval] long* result);
+
+    //readonly attribute long    x;
+    HRESULT x([out, retval] long* result);
+
+    //readonly attribute long    y;
+    HRESULT y([out, retval] long* result);
+
+    //readonly attribute boolean isHorizontal;
+    HRESULT isHorizontal([out, retval] BOOL* result);
+
+    //void initWheelEvent(long wheelDeltaX,
+    //                    long wheelDeltaY, 
+    //                    DOMWindow view, 
+    //                    long screenX,
+    //                    long screenY,
+    //                    long clientX,
+    //                    long clientY,
+    //                    boolean ctrlKey,
+    //                    boolean altKey,
+    //                    boolean shiftKey,
+    //                    boolean metaKey);
+    HRESULT initWheelEvent([in] long wheelDeltaX, [in] long wheelDeltaY, [in] IDOMWindow* view, [in] long screenX, [in] long screenY, [in] long clientX, [in] long clientY, [in] BOOL ctrlKey, [in] BOOL altKey, [in] BOOL shiftKey, [in] BOOL metaKey);
+}

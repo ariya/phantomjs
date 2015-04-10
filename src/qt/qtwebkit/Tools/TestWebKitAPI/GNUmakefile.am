@@ -1,0 +1,375 @@
+noinst_LTLIBRARIES += \
+	Libraries/libTestWebKitAPIMain.la
+
+Libraries_libTestWebKitAPIMain_la_SOURCES = \
+	Tools/TestWebKitAPI/Test.h \
+	Tools/TestWebKitAPI/TestsController.cpp \
+	Tools/TestWebKitAPI/TestsController.h \
+	Tools/TestWebKitAPI/gtk/main.cpp
+
+# Use -isystem gcc flag so that gcc considers gtest headers as system headers.
+# We need this to avoid a lot of compile warnings due to -Wundef.
+# See http://code.google.com/p/googletest/issues/detail?id=258
+Libraries_libTestWebKitAPIMain_la_CPPFLAGS = \
+	-isystem $(srcdir)/Source/ThirdParty/gtest/include \
+	-I$(srcdir)/Tools/TestWebKitAPI \
+	-I$(srcdir)/Source/ThirdParty/gtest/include \
+	-I$(top_builddir)/DerivedSources/WebCore/include \
+	-I$(top_builddir)/DerivedSources/WebKit2/include \
+	$(global_cppflags) \
+	$(javascriptcore_cppflags) \
+	$(GTK_CFLAGS)
+
+noinst_PROGRAMS += \
+	Programs/TestWebKitAPI/TestWTF \
+	Programs/TestWebKitAPI/TestJavaScriptCore \
+	Programs/TestWebKitAPI/TestWebCore \
+	Programs/TestWebKitAPI/TestGtk
+
+if ENABLE_WEBKIT2
+noinst_PROGRAMS += \
+	Programs/TestWebKitAPI/TestWebKit2
+endif # ENABLE_WEBKIT2
+
+Programs_TestWebKitAPI_TestWTF_CPPFLAGS = \
+	$(Libraries_libTestWebKitAPIMain_la_CPPFLAGS) \
+	$(GLIB_LIBS) \
+	$(CAIRO_CFLAGS)
+
+Programs_TestWebKitAPI_TestWTF_CXXFLAGS = \
+	-DGTEST_HAS_RTTI=0 \
+	$(global_cxxflags)
+
+Programs_TestWebKitAPI_TestWTF_LDADD = \
+	Libraries/libTestWebKitAPIMain.la \
+	Libraries/libgtest.la \
+	libWTF.la \
+	$(GTK_LIBS) \
+	$(GLIB_LIBS)
+
+Programs_TestWebKitAPI_TestWTF_LDFLAGS = \
+	-no-install \
+	-no-fast-install
+
+Programs_TestWebKitAPI_TestWTF_SOURCES = \
+	Tools/TestWebKitAPI/Tests/WTF/AtomicString.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/CString.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/CheckedArithmeticOperations.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/Functional.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/HashMap.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/HashSet.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/IntegerToStringConversion.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/ListHashSet.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/MD5.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/MathExtras.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/MediaTime.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/MetaAllocator.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/RedBlackTree.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/SHA1.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/SaturatedArithmeticOperations.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/StringBuilder.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/StringHasher.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/StringImpl.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/StringOperators.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/TemporaryChange.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/Vector.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/VectorBasic.cpp \
+	Tools/TestWebKitAPI/Tests/WTF/VectorReverse.cpp \
+	Tools/TestWebKitAPI/WTFStringUtilities.h
+
+Programs_TestWebKitAPI_TestJavaScriptCore_CPPFLAGS = \
+	$(Libraries_libTestWebKitAPIMain_la_CPPFLAGS)
+
+Programs_TestWebKitAPI_TestJavaScriptCore_CXXFLAGS = \
+	-DGTEST_HAS_RTTI=0 \
+	$(global_cxxflags)
+
+Programs_TestWebKitAPI_TestJavaScriptCore_LDADD = \
+	Libraries/libTestWebKitAPIMain.la \
+	Libraries/libgtest.la \
+	libWTF.la \
+	$(GTK_LIBS)
+
+Programs_TestWebKitAPI_TestJavaScriptCore_LDFLAGS = \
+	-no-install \
+	-no-fast-install
+
+Programs_TestWebKitAPI_TestJavaScriptCore_SOURCES = \
+	Tools/TestWebKitAPI/Tests/JavaScriptCore/VMInspector.cpp
+
+webcore_layer_deps = \
+	libPlatform.la \
+	libPlatformGtk.la \
+	libWebCorePlatform.la \
+	libWebCoreGtk.la \
+	libWebCore.la \
+	libWebCoreModules.la
+if ENABLE_SVG
+webcore_layer_deps += \
+	libWebCoreSVG.la
+endif
+if ENABLE_INDEXED_DATABASE
+webcore_layer_deps += \
+	libLevelDB.la
+endif
+if USE_OPENGL
+webcore_layer_deps += \
+	libANGLE.la
+endif
+
+webcore_layer_archives = $(foreach lib, $(webcore_layer_deps), $(shell echo $(lib) | sed "s/\(.*\)\.la/.libs\/\1.a/"))
+
+WebCoreLayer.a: $(webcore_layer_deps)
+	$(AM_V_GEN)
+	$(AM_V_at)$(shell rm -f $@)
+	$(AM_V_at)$(foreach archive, $(webcore_layer_archives), $(shell ar t $(archive) | xargs -n50 ar cruT $@))
+
+DISTCLEANFILES += \
+	$(top_builddir)/WebCoreLayer.a
+
+Programs_TestWebKitAPI_TestWebCore_CPPFLAGS = \
+	$(Libraries_libTestWebKitAPIMain_la_CPPFLAGS) \
+	-I$(top_builddir)/DerivedSources/WebCore/include
+
+Programs_TestWebKitAPI_TestWebCore_CXXFLAGS = \
+	-DGTEST_HAS_RTTI=0 \
+	$(global_cxxflags)
+
+Programs_TestWebKitAPI_TestWebCore_LDADD = \
+	Libraries/libTestWebKitAPIMain.la \
+	Libraries/libgtest.la \
+	libjavascriptcoregtk-@WEBKITGTK_API_MAJOR_VERSION@.@WEBKITGTK_API_MINOR_VERSION@.la \
+	libWTF.la \
+	WebCoreLayer.a \
+	$(CAIRO_LIBS) \
+	$(CLUTTER_LIBS) \
+	$(FREETYPE_LIBS) \
+	$(GAMEPAD_LIBS) \
+	$(GEOCLUE_LIBS) \
+	$(GAIL_LIBS) \
+	$(GLIB_LIBS) \
+	$(GSTREAMER_LIBS) \
+	$(GTK_LIBS) \
+	$(JPEG_LIBS) \
+	$(LIBSECRET_LIBS) \
+	$(LIBSOUP_LIBS) \
+	$(LIBXML_LIBS) \
+	$(LIBXSLT_LIBS) \
+	$(OPENGL_LIBS) \
+	$(PANGO_LIBS) \
+	$(PNG_LIBS) \
+	$(SQLITE3_LIBS) \
+	$(UNICODE_LIBS) \
+	$(WEBP_LIBS) \
+	$(XRENDER_LIBS) \
+	$(XT_LIBS) \
+	$(ZLIB_LIBS)
+
+Programs_TestWebKitAPI_TestWebCore_LDFLAGS = \
+	-no-install \
+	-no-fast-install
+
+Programs_TestWebKitAPI_TestWebCore_SOURCES = \
+	Tools/TestWebKitAPI/Tests/WebCore/KURL.cpp \
+	Tools/TestWebKitAPI/Tests/WebCore/LayoutUnit.cpp
+
+Programs_TestWebKitAPI_TestGtk_CPPFLAGS = \
+	$(Programs_TestWebKitAPI_TestWTF_CPPFLAGS) \
+	$(platform_cppflags) \
+	$(platformgtk_cppflags) \
+	$(webcore_cppflags) \
+	$(webcoregtk_cppflags) \
+	$(FREETYPE_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(GTK_CFLAGS) \
+	$(LIBSOUP_CFLAGS)
+
+Programs_TestWebKitAPI_TestGtk_CXXFLAGS = \
+	-DGTEST_HAS_RTTI=0 \
+	$(global_cxxflags)
+
+Programs_TestWebKitAPI_TestGtk_LDADD = \
+	Libraries/libTestWebKitAPIMain.la \
+	Libraries/libgtest.la \
+	libjavascriptcoregtk-@WEBKITGTK_API_MAJOR_VERSION@.@WEBKITGTK_API_MINOR_VERSION@.la \
+	libPlatformGtk.la \
+	libWebCore.la \
+	libWebCoreGtk.la \
+	$(FREETYPE_LIBS) \
+	$(GLIB_LIBS) \
+	$(GTK_LIBS) \
+	$(LIBSOUP_LIBS)
+
+Programs_TestWebKitAPI_TestGtk_LDFLAGS = \
+	$(Programs_TestWebKitAPI_TestWTF_LDFLAGS)
+
+Programs_TestWebKitAPI_TestGtk_SOURCES = \
+	Source/WebCore/platform/graphics/IntRect.cpp \
+	Source/WebCore/platform/graphics/cairo/IntRectCairo.cpp \
+	Source/WebCore/platform/graphics/gtk/IntRectGtk.cpp \
+	Source/WebCore/platform/gtk/GtkInputMethodFilter.cpp \
+	Tools/TestWebKitAPI/config.h \
+	Tools/TestWebKitAPI/Tests/gtk/InputMethodFilter.cpp
+
+Programs_TestWebKitAPI_TestWebKit2_CPPFLAGS = \
+	$(Programs_TestWebKitAPI_TestWTF_CPPFLAGS) \
+	-I$(top_builddir)/DerivedSources/WebKit2/include \
+	$(FREETYPE_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(GTK_CFLAGS) \
+	$(LIBSOUP_CFLAGS)
+
+Programs_TestWebKitAPI_TestWebKit2_CXXFLAGS = \
+	-DGTEST_HAS_RTTI=0 \
+	$(global_cxxflags)
+
+Programs_TestWebKitAPI_TestWebKit2_LDADD = \
+	Libraries/libTestWebKitAPIMain.la \
+	Libraries/libgtest.la \
+	libjavascriptcoregtk-@WEBKITGTK_API_MAJOR_VERSION@.@WEBKITGTK_API_MINOR_VERSION@.la \
+	libwebkit2gtk-@WEBKITGTK_API_MAJOR_VERSION@.@WEBKITGTK_API_MINOR_VERSION@.la \
+	$(FREETYPE_LIBS) \
+	$(GLIB_LIBS) \
+	$(GTK_LIBS) \
+	$(LIBSOUP_LIBS)
+
+Programs_TestWebKitAPI_TestWebKit2_LDFLAGS = \
+	$(Programs_TestWebKitAPI_TestWTF_LDFLAGS)
+
+Programs_TestWebKitAPI_TestWebKit2_SOURCES = \
+	Tools/TestWebKitAPI/config.h \
+	Tools/TestWebKitAPI/gtk/PlatformUtilitiesGtk.cpp \
+	Tools/TestWebKitAPI/gtk/PlatformWebViewGtk.cpp \
+	Tools/TestWebKitAPI/JavaScriptTest.cpp \
+	Tools/TestWebKitAPI/JavaScriptTest.h \
+	Tools/TestWebKitAPI/PlatformUtilities.cpp \
+	Tools/TestWebKitAPI/PlatformUtilities.h \
+	Tools/TestWebKitAPI/PlatformWebView.h \
+	Tools/TestWebKitAPI/Tests/WebKit2/CanHandleRequest.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/CookieManager.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/DocumentStartUserScriptAlertCrash.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/DOMWindowExtensionBasic.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/DOMWindowExtensionNoCache.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/DownloadDecideDestinationCrash.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/EvaluateJavaScript.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/FailedLoad.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/Find.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/ForceRepaint.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/FrameMIMETypeHTML.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/FrameMIMETypePNG.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/GetInjectedBundleInitializationUserDataCallback.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/HitTestResultNodeHandle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/InjectedBundleBasic.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/InjectedBundleInitializationUserDataCallbackWins.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/LoadAlternateHTMLStringWithNonDirectoryURL.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/LoadCanceledNoServerRedirectCallback.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/LoadPageOnCrash.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/MouseMoveAfterCrash.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/ReloadPageAfterCrash.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/ResizeWindowAfterCrash.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/NewFirstVisuallyNonEmptyLayout.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/NewFirstVisuallyNonEmptyLayoutFails.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/NewFirstVisuallyNonEmptyLayoutForImages.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/NewFirstVisuallyNonEmptyLayoutFrames.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/PageLoadBasic.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/PageLoadDidChangeLocationWithinPageForFrame.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/ParentFrame.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/PreventEmptyUserAgent.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/PrivateBrowsingPushStateNoHistoryCallback.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/ResponsivenessTimerDoesntFireEarly.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/RestoreSessionStateContainingFormData.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/ShouldGoToBackForwardListItem.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/SpacebarScrolling.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/TerminateTwice.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/UserMessage.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/WillSendSubmitEvent.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/WKConnection.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/WKPageGetScaleFactorNotZero.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/WKPreferences.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/WKString.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/WKStringJSString.cpp
+
+if ENABLE_WEBKIT2
+noinst_LTLIBRARIES += \
+	Libraries/libTestWebKitAPIInjectedBundle.la
+endif # ENABLE_WEBKIT2
+
+Libraries_libTestWebKitAPIInjectedBundle_la_SOURCES = \
+	Tools/TestWebKitAPI/InjectedBundleController.cpp \
+	Tools/TestWebKitAPI/InjectedBundleController.h \
+	Tools/TestWebKitAPI/InjectedBundleMain.cpp \
+	Tools/TestWebKitAPI/InjectedBundleTest.h \
+	Tools/TestWebKitAPI/PlatformUtilities.cpp \
+	Tools/TestWebKitAPI/PlatformUtilities.h \
+	Tools/TestWebKitAPI/Tests/WebKit2/CanHandleRequest_Bundle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/DocumentStartUserScriptAlertCrash_Bundle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/DOMWindowExtensionBasic_Bundle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/DOMWindowExtensionNoCache_Bundle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/GetInjectedBundleInitializationUserDataCallback_Bundle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/HitTestResultNodeHandle_Bundle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/InjectedBundleBasic_Bundle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/InjectedBundleInitializationUserDataCallbackWins_Bundle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/LoadCanceledNoServerRedirectCallback_Bundle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/MouseMoveAfterCrash_Bundle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/NewFirstVisuallyNonEmptyLayout_Bundle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/NewFirstVisuallyNonEmptyLayoutFails_Bundle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/NewFirstVisuallyNonEmptyLayoutForImages_Bundle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/NewFirstVisuallyNonEmptyLayoutFrames_Bundle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/ParentFrame_Bundle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/ResponsivenessTimerDoesntFireEarly_Bundle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/ShouldGoToBackForwardListItem_Bundle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/UserMessage_Bundle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/WillSendSubmitEvent_Bundle.cpp \
+	Tools/TestWebKitAPI/Tests/WebKit2/WKConnection_Bundle.cpp \
+	Tools/TestWebKitAPI/gtk/InjectedBundleControllerGtk.cpp \
+	Tools/TestWebKitAPI/gtk/PlatformUtilitiesGtk.cpp
+
+Libraries_libTestWebKitAPIInjectedBundle_la_LDFLAGS = \
+	-rpath ${shell pwd}/$(top_builddir)/Libraries/.libs \
+	$(no_undefined) \
+	-avoid-version \
+	-module
+
+Libraries_libTestWebKitAPIInjectedBundle_la_CPPFLAGS = \
+	$(Libraries_libTestWebKitAPIMain_la_CPPFLAGS) \
+	-I$(top_builddir)/DerivedSources/InjectedBundle \
+	$(GTK_CFLAGS)
+
+Libraries_libTestWebKitAPIInjectedBundle_la_CXXFLAGS = \
+	-DGTEST_HAS_RTTI=0 \
+	$(global_cxxflags)
+
+Libraries_libTestWebKitAPIInjectedBundle_la_CFLAGS = \
+	$(global_cflags)
+
+
+stamp-testwebkitapi-webcore-forwarding-headers: $(WebKit2)/Scripts/generate-forwarding-headers.pl $(Programs_TestWebKitAPI_TestWebCore_SOURCES)
+	$(AM_V_GEN)$(PERL) $< $(srcdir)/Tools/TestWebKitAPI/Tests/WebCore $(GENSOURCES_WEBCORE)/include gtk \
+	&& echo timestamp > $(@F)
+
+stamp-testwebkitapi-webkit2-forwarding-headers: $(WebKit2)/Scripts/generate-forwarding-headers.pl $(Programs_TestWebKitAPI_TestWebKit2_SOURCES) $(Libraries_libTestWebKitAPIInjectedBundle_la_SOURCES)
+	$(AM_V_GEN)$(PERL) $< $(srcdir)/Tools/TestWebKitAPI $(GENSOURCES_WEBKIT2)/include gtk \
+	&& echo timestamp > $(@F)
+
+BUILT_SOURCES += $(top_builddir)/stamp-testwebkitapi-webcore-forwarding-headers
+if ENABLE_WEBKIT2
+BUILT_SOURCES += $(top_builddir)/stamp-testwebkitapi-webkit2-forwarding-headers
+endif # ENABLE_WEBKIT2
+
+
+EXTRA_DIST += \
+	Tools/TestWebKitAPI/Tests/WebKit2/18-characters.html \
+	Tools/TestWebKitAPI/Tests/WebKit2/file-with-anchor.html \
+	Tools/TestWebKitAPI/Tests/WebKit2/find.html \
+	Tools/TestWebKitAPI/Tests/WebKit2/icon.png \
+	Tools/TestWebKitAPI/Tests/WebKit2/lots-of-iframes.html \
+	Tools/TestWebKitAPI/Tests/WebKit2/lots-of-images.html \
+	Tools/TestWebKitAPI/Tests/WebKit2/lots-of-text.html \
+	Tools/TestWebKitAPI/Tests/WebKit2/mouse-move-listener.html \
+	Tools/TestWebKitAPI/Tests/WebKit2/push-state.html \
+	Tools/TestWebKitAPI/Tests/WebKit2/simple-accelerated-compositing.html \
+	Tools/TestWebKitAPI/Tests/WebKit2/simple-form.html \
+	Tools/TestWebKitAPI/Tests/WebKit2/simple.html \
+	Tools/TestWebKitAPI/Tests/WebKit2/simple-iframe.html \
+	Tools/TestWebKitAPI/Tests/WebKit2/simple-tall.html \
+	Tools/TestWebKitAPI/Tests/WebKit2/spacebar-scrolling.html

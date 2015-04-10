@@ -30,27 +30,9 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/* Takes in a QtCookieJar and decorates it with useful functions. */
+/* Only there for backwards compatibility. */
 function decorateCookieJar(jar) {
-
-    /* Allows one to add a cookie to the cookie jar from inside JavaScript */
-    jar.addCookie = function(cookie) {
-        jar.addCookieFromMap(cookie);
-    };
-
-    /* Getting and Setting jar.cookies gets and sets all the cookies in the
-     * cookie jar.
-     */
-    jar.__defineGetter__('cookies', function() {
-        return this.cookiesToMap();
-    });
-
-    jar.__defineSetter__('cookies', function(cookies) {
-            this.addCookiesFromMap(cookies);
-    });
-
     return jar;
-
 }
 
 /* Creates and decorates a new cookie jar.

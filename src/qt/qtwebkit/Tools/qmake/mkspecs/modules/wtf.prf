@@ -1,0 +1,9 @@
+# -------------------------------------------------------------------
+# Module file for WTF, used by targets that depend on WTF
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+WEBKIT.wtf.root_source_dir = $${ROOT_WEBKIT_DIR}/Source/WTF
+
+include($${WEBKIT.wtf.root_source_dir}/WTF.pri)

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# This file builds the ImageDiff executable, to run
+# on the host machine.
+
+which qmake-qt4 > /dev/null
+if [ $? -eq 0 ] ; then
+    qmake-qt4
+else
+    qmake
+fi
+make

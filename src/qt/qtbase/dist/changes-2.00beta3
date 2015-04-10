@@ -1,0 +1,35 @@
+Qt 2.0 Beta3 is not binary compatible with Beta2, this means that any
+programs linked with Beta2 must be recompiled.
+
+The most important fixes since Beta 2:
+
+platforms
+	64-bits, FreeBSD and gcc 2.7 fixes
+
+QLayoutIterator/QGLayoutIterator
+	The custom layout API has been changed: void removeCurrent()
+	has been replaced by QLayoutItem* takeCurrent().
+
+QLabel
+	The functions setMargin() and margin() have been renamed to
+	setIndent() and indent, to avoid collision with QFrame::setMargin().
+
+QAccel
+	Non-latin1 accelerators are now supported.
+
+QTranslator/findtr/msg2qm/mergetr
+	All reported bugs fixed and improvements made.
+
+Rich Text
+	Many improvements and fixes such as supressed warnings in the 
+	QBrowser example. Support for logical font sizes.
+
+QApplication
+	lastWindowClosed() now works with virtual desktops. Desktop settings
+	on Windows improved.
+
+QScrollView / QMultiLineEdit
+	Speedups with a new widget flag: WNorthWestGravity.
+
+QPopupMenu / QMenuBar
+	Speedups, less flicker.

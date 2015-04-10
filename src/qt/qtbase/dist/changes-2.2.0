@@ -1,0 +1,223 @@
+
+Qt 2.2 introduces new features as well as many improvements over the
+2.1.x series. This file will only give an overview of the main changes
+since version 2.1.  A complete list would simply be too large to be
+useful.  For more detail see the online documentation which is
+included in this distribution, and also available on
+http://qt.nokia.com/doc/
+
+The Qt version 2.2 series is binary compatible with the 2.1.x and
+2.0.x series - applications compiled for 2.0 or 2.1 will continue to
+run with 2.2.
+
+As with previous Qt releases, the API and functionality of Qt is
+completely portable between Microsoft Windows and X11.  It is also
+portable between Windows 95, 98, NT and 2000.
+
+****************************************************************************
+*			    Overview					   *
+****************************************************************************
+
+The greatest new feature in the 2.2 release is the Qt Designer, a
+visual GUI design tool. It makes it possible to cut down on
+development time even further through WYSIWYG dialog design. The
+designer makes use of improved runtime flexibility and a revised
+property system. Please see $QTDIR/doc/html/designer.html for a
+feature overview.
+
+Qt 2.2 integrates now fully on MS-Windows 2000.  This includes fade
+and scroll effects for popup windows and title bar gradients for MDI
+document windows in the MDI module. As with all Qt features, we
+provide the same visual effects on Unix/X11.
+
+Two new classes QAction and QActionGroup make it much easier to
+create sophisticated main windows for today's applications. A QAction
+abstracts a user interface action that can appear both in menus and
+tool bars.  An action group makes it easier to deal with groups of
+actions. It allows to add, remove or activate its children with a
+single call and provides "one of many" semantics for toggle
+actions. Changing an action's properties, for example using
+setEnabled(),setOn() or setText(), immediately shows up in all
+representations.
+
+Few people consider the original OSF Motif style the most elegant or
+flashy GUI style. Therefore several attempts have been made to come up
+with a slightly improved Motif-ish look and feel. One of them is the
+thinner CDE style, that was supported by Qt since version 2.0.  In the
+2.2 release, we now added support for SGI's very own Motif version on
+IRIX workstations.  With its more elegant bevelling of 3D elements and
+mouse-under highlight effects, it is quite appealing. For Linux users,
+we added a Motif plus style, that resembles the bevelling used by the
+GIMP toolkit (GTK+). Optionally, this style also does hovering
+highlight on buttons.
+
+Last but not least we added support for multi-threaded
+applications. The classes involved are QThread to start threads,
+QMutex to serialize them and QCondition to signal the occurrence of
+events between threads ("condition variables").
+
+Another major change was done regarding distribution. In order to
+address the steady growth of functionality in the Qt library, we
+split the source code into distinct modules that can be compiled
+in (or left out) separately. This also makes it possible for us to
+keep the cost of entry into the commercial Qt world as low as possible.
+
+The modules available in Qt 2.2 are:
+
+- Tools: platform-independent Non-GUI API for I/O, encodings, containers,
+    strings, time & date, and regular expressions.
+
+- Kernel: platform-independent GUI API, a complete window-system API.
+
+- Widgets: portable GUI controls.
+
+- Dialogs: ready-made common dialogs for selection of colors, files,
+    printers, fonts, and basic types, plus a wizard framework, message
+    boxes and progress indicator.
+
+- OpenGL 3D Graphics: integration of OpenGL with Qt, making it very
+    easy to use OpenGL rendering in a Qt application.
+
+- Network: advanced socket and server-socket handling plus
+    asynchronous DNS lookup.
+
+- Canvas: a highly optimized 2D graphic area.
+
+- Table:  a flexible and editable table widget
+
+- IconView: a powerful visualization widget similar to QListView and
+    QListBox. It contains optionally labelled pixmap items that the user
+    can select, drag around, rename, delete and more.
+
+- XML: a well-formed XML parser with SAX interface plus an
+    implementation of the DOM Level1
+
+- Workspace: a workspace window that can contain decorated document
+    windows for Multi Document Interfaces (MDI).
+
+
+Network, Canvas, Table and XML are entirely new modules.
+
+Below is a list of the major new features in existing classes as well
+as short descriptions of all new classes.
+
+
+****************************************************************************
+* 		New major features in existing classes			   *
+****************************************************************************
+
+QApplication: 	- "global strut", an adjustable minimum size for interactable
+		  control elements like the entries in a listbox, useful for
+		  touch-screens. Popup window effects ( setEffectEnabled() )
+		  and more threading support ( guiThreadTaken(), lock(),
+		  unlock(), locked() ).
+
+QCheckBox: 	- "tristate" is now a property.
+
+QClipboard: 	- text() supports subtypes.
+
+QComboBox: 	- "editable" is now a property that is changeable at runtime
+
+QDialog: 	- support for extensible dialogs ("More...") with
+		  setExtension() and setOrientation(). Optional size grip.
+
+QFont: 		- new functions styleStrategy() and  setStyleHint()
+
+QIconSet: 	- new constructor that takes both a small and a large pixmap
+
+QKeyEvent: 	- numeric keypad keys now set a Keypad flag
+
+QLabel: 	- support for scaled pixmap contents, "pixmap" as property
+
+QLayout:	- improved flexibility with setEnabled(), access to the
+		  laid out menu bar with menuBar().
+
+QListView: 	- "showSortIndicator" as property. New function
+		  QListViewItem::moveItem() to simplify drag and drop.
+
+QMovie: 	- new functions pushSpace(), pushData(), frameImage()
+
+QMultiLineEdit: - new functions pasteSubType() and copyAvailable()
+
+QObject: 	- new function normalizeSignalSlot(), tr() now supports a comment.
+
+QPicture: 	- streaming to and from QDataStream
+
+QPopupMenu: 	- new signal aboutToHide()
+
+QRegExp: 	- new functions setPattern() and find()
+
+QRegion: 	- new function setRects()
+
+QScrollView: 	- new property "staticBackground" to define a pixmap
+		  background that does not scroll with the contents.
+
+QStatusBar: 	- "sizeGripEnabled" as property
+
+QStyle: 	- themable menu bars with drawMenuBarItem(). New functions
+		  buttonMargin(), toolBarHandleExtent(), sliderThickness()
+
+QTabWidget: 	- new functions currentPageIndex(), setCurrentPage(), new
+		  signal currentChanged(). Similar extensions to QTabBar
+		  and QTabDialog
+
+QTranslator:	- new algorithmen for faster lookup. No more risk of
+		"hash collisions" when many translators are loaded.
+
+QVariant: 	- new subtype QSizePolicy. Necessary for QWidget's
+		   new sizePolicy property.
+
+QWidget: 	- new properties "sizePolicy", "ownPalette", "ownFont",
+		  "ownCursor" and "hidden". The size policy is now adjustable
+		  at runtime with setSizePolicy().  Added convenience slot
+		  setDisabled(). Fast geometry mapping functions mapTo() and
+		  mapFrom(). On X11, support for a new background mode
+		  X11ParentRelative.
+
+QWizard: 	- runtime changable titles with setTitle(), new signal
+		  selected()
+
+QWorkspace:	- support for more widget flags like WType_Tool. Titlebar
+		  blending effects on MS-Windows 98/2000.
+
+
+****************************************************************************
+*				New classes				   *
+****************************************************************************
+
+QAction 	- Abstracts a user interface action that can appear both in
+		  menus and tool bars. Changing an action's properties, for
+		  example using setEnabled(),setOn() or setText(),
+		  immediately shows up in all representations.
+
+QActionGroup 	- Combines actions to a group. An action group makes it easier
+		  to deal with groups of actions. It allows to add, remove or
+		  activate its children with a single call and provides
+		  "one of many" semantics for toggle actions.
+
+QDial		- A rounded rangecontrol (like a speedometer or
+		  potentiometer). Both API- and UI-wise the dial is very
+		  similar to a QSlider.
+
+QDom 		- [XML Module] DOM Level 1 Tree
+
+QMotifPlusStyle	- This class implements a Motif-ish look and feel with more
+		  sophisticated bevelling as used by the GIMP toolkit (GTK+)
+		  for Unix/X11.
+
+QMutex:		- Provides access serialization between threads.
+
+QSemaphore:	- A robust integer semaphore.  Another way of thread
+		  serialization.
+
+QThread 	- Baseclass for platform-independent threads.
+
+QWaitCondition 	- Provides signalling of the occurrence of events between
+		  threads ("condition variables")
+
+QCanvas 	- [Canvas Module] a highly optimized 2D graphic area.
+
+QTable 		- [Table Module] a flexible and editable table widget
+
+QXML 		- [XML Module] XML parser with SAX interface
+

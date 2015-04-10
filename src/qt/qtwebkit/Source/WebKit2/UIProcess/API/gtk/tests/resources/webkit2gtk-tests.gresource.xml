@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/webkit/webkit2gtk/tests/">
+    <file alias="link-title.js">Source/WebKit2/UIProcess/API/gtk/tests/resources/link-title.js</file>
+  </gresource>
+</gresources>

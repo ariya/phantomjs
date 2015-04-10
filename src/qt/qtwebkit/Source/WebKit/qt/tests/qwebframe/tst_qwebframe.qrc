@@ -1,0 +1,10 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/">
+<file alias="image.png">resources/image.png</file>
+<file alias="style.css">resources/style.css</file>
+<file alias="test1.html">resources/test1.html</file>
+<file alias="test2.html">resources/test2.html</file>
+<file alias="testiframe.html">resources/testiframe.html</file>
+<file alias="testiframe2.html">resources/testiframe2.html</file>
+</qresource>
+</RCC>

@@ -1,0 +1,73 @@
+Changes for Qt/CE 4.2.x "Ping" release.
+
+****************************************************************************
+*                           Features                                       *
+****************************************************************************
+
+- Added QtNetwork
+
+- Added QFEATURES system
+
+- Added more examples/demos
+
+- configure.exe
+    * additions for QFEATURES
+
+- Native look and feel
+    * click&hold opens context menu
+    * only allow single application launch, second startup changes to running instance
+    * added experimental Windows CE 6 support
+
+****************************************************************************
+*                           Bug fixes                                      *
+****************************************************************************
+
+- qmake
+    * fix Visual Studio project file generator for THUMB instructions
+
+- Styles
+    * removed big icon images to reduce library sizes
+
+- QColorDialog
+    * fix size issues for Windows CE
+
+- QDebug
+    * fix multiple output of lines when using Visual Studio
+
+- QFile
+    * fix creation/resolving links
+
+- QFontDatabase
+    * fix bug for multiple system fonts available on device
+
+- QFontEngine
+    * fix alignment issues for line edits
+
+- qgetenv/qputenv
+    * fix memory leak
+
+- QLocale
+    * fix timezone issues regarding standard SDK.
+
+- QMessageBox 
+    * fix OK button bug
+
+- QSessionManager
+    * fix id creation
+
+- QTabWidget
+    * fix positioning bug
+
+- QWidget
+    * fix size related bugs
+    * fix window-animation when switching between menus (WindowsCEStyle)
+
+- QWindowsCEStyle
+    * various fixes
+
+- QWindowsMobileStyle
+    * smartphone fixes
+
+- winmain module
+    * fix leak
+

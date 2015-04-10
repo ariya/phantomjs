@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>FreeType-2.3.12 API Reference</title>
+<style type="text/css">
+  body { font-family: Verdana, Geneva, Arial, Helvetica, serif;
+         color: #000000;
+         background: #FFFFFF; }
+
+  p { text-align: justify; }
+  h1 { text-align: center; }
+  li { text-align: justify; }
+  td { padding: 0 0.5em 0 0.5em; }
+  td.left { padding: 0 0.5em 0 0.5em;
+            text-align: left; }
+
+  a:link { color: #0000EF; }
+  a:visited { color: #51188E; }
+  a:hover { color: #FF0000; }
+
+  span.keyword { font-family: monospace;
+                 text-align: left;
+                 white-space: pre;
+                 color: darkblue; }
+
+  pre.colored { color: blue; }
+
+  ul.empty { list-style-type: none; }
+</style>
+</head>
+<body>
+
+<table align=center><tr><td><font size=-1>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-1>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+<center><h1>FreeType-2.3.12 API Reference</h1></center>
+
+<center><h1>
+LZW Streams
+</h1></center>
+<h2>Synopsis</h2>
+<table align=center cellspacing=5 cellpadding=0 border=0>
+<tr><td></td><td><a href="#FT_Stream_OpenLZW">FT_Stream_OpenLZW</a></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</table><br><br>
+
+<table align=center width="87%"><tr><td>
+<p>This section contains the declaration of LZW-specific functions.</p>
+</td></tr></table><br>
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Stream_OpenLZW">FT_Stream_OpenLZW</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_LZW_H (freetype/ftlzw.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Error">FT_Error</a> )
+  <b>FT_Stream_OpenLZW</b>( <a href="ft2-system_interface.html#FT_Stream">FT_Stream</a>  stream,
+                     <a href="ft2-system_interface.html#FT_Stream">FT_Stream</a>  source );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Open a new stream to parse LZW-compressed font files. This is mainly used to support the compressed &lsquo;*.pcf.Z&rsquo; fonts that come with XFree86.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>stream</b></td><td>
+<p>The target embedding stream.</p>
+</td></tr>
+<tr valign=top><td><b>source</b></td><td>
+<p>The source stream.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>FreeType error code. 0&nbsp;means success.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>The source stream must be opened <i>before</i> calling this function.</p>
+<p>Calling the internal function &lsquo;FT_Stream_Close&rsquo; on the new stream will <b>not</b> call &lsquo;FT_Stream_Close&rsquo; on the source stream. None of the stream objects will be released to the heap.</p>
+<p>The stream implementation is very basic and resets the decompression process each time seeking backwards is needed within the stream</p>
+<p>In certain builds of the library, LZW compression recognition is automatically handled when calling <a href="ft2-base_interface.html#FT_New_Face">FT_New_Face</a> or <a href="ft2-base_interface.html#FT_Open_Face">FT_Open_Face</a>. This means that if no font driver is capable of handling the raw compressed file, the library will try to open a LZW stream from it and re-open the face with it.</p>
+<p>This function may return &lsquo;FT_Err_Unimplemented_Feature&rsquo; if your build of FreeType was not compiled with LZW support.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+</body>
+</html>

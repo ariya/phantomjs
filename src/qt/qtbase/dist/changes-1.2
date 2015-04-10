@@ -1,0 +1,119 @@
+Here is a list of user-visible changes in Qt from 1.1 to 1.2.  As
+usual, we fixed some bugs, made some more speedups, and improved the
+documentation.
+
+
+****************************************************************************
+*               Changes that might affect runtime behavior                 *
+****************************************************************************
+
+QGridLayout::addWidget() and addMultiCellWidget(): The align parameter
+is now interpreted correctly. (Previously up/down and right/left were
+reversed.) If you have worked around this bug, your widgets may now be
+incorrectly aligned.
+
+QWidget: Every widget is now guaranteed move and resize events. The
+event is deferred until the first show(). This may cause problems in
+rare cases involving event filters.
+
+****************************************************************************
+*               Changes that might generate compile errors                 *
+*                        when compiling old code                           *
+****************************************************************************
+
+none
+
+****************************************************************************
+*               Type changes that might generate warnings:                 *
+****************************************************************************
+
+none
+
+****************************************************************************
+* 			Deprecated functions				   *
+****************************************************************************
+
+QApplication::setColorMode() and colorMode() will be obsoleted. Use
+setColorSpec() and colorSpec() instead.
+
+qchecksum() will be obsoleted. Please use qChecksum() instead.
+
+****************************************************************************
+* 			     New classes				   *
+****************************************************************************
+
+QSlider is a widget to input values from a range. If you have been
+using a standalone QScrollBar, you will probably want to switch to a
+QSlider.
+
+OpenGL/Mesa support: QGLWidget, QGLContext and QGLFormat. To use these
+classes you need to build the Qt/OpenGL library (qgl) in qt/opengl/src.
+
+****************************************************************************
+*		       Other changes from 1.1 to 1.2			   *
+****************************************************************************
+
+QApplication::setColorSpec() can specify private colormaps or
+non-default visuals
+
+New function QButton::setAutoRepeat().
+
+QComboBox: New function currentText(), two new insertion policies:
+AfterCurrent and BeforeCurrent.
+
+QCursor: added new global cursor blankCursor.
+
+QFont::key(), new function for caching.
+
+QFontMetrics::QFontMetrics( const QFont& ) new constructor gives
+fontmetrics directly for a font. This is much faster than using
+QWidget::fontMetrics() or QPainter::fontmetrics().
+
+QImage: image load/save functions:
+		QImage( const char *filename )
+		imageFormat(), load(), loadFromData(), save()
+		operator>>(), operator<<()
+	XPM support, QImage( const *xpm[] )
+	Alpha channel support: 
+		hasAlphaBuffer(), setAlphaBuffer()
+		createAlphaMask(), 
+	Automatic mask generaton: createHeuristicMask() 
+	Filling the entire image: fill()
+
+QLCDNumber now supports filled segments:
+	setSegmentStyle(), segmentStyle()
+
+QLabel now supports accellerated labels:
+	setBuddy(), buddy() and a  new constructor.
+
+QLineEdit new functions:
+	show/hide frame: setFrame(), frame()
+	password entry mode: setEchoMode(), echoMode()
+
+QMouseEvent: x() and y() convenience functions.
+
+QPainter: new constructor QPainter( const QPaintDevice* ) does automatic
+begin() and end(). New function	flush().
+
+QPixmap new functions:
+	serialNumber() for caching purposes.
+	selfMask()  QPixmap( const char *xpm[] )
+	createHeuristicMask()
+
+QPopupMenu: Added functions to enable checkmarks:
+	setCheckable(), isCheckable()
+
+QScrollBar: sizeHint() implemented.
+
+QTabBar now supports keyboard input. New function currentTab().
+
+QTabDialog: new function setOKButton().
+
+Added support for XFree86 on OS/2.
+
+New examples:
+	examples/tooltip demonstrates dynamic tooltips	
+	examples/table demonstrates QTableView
+	examples/hello is a different program
+
+examples/xshape has been removed.

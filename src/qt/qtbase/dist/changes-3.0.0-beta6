@@ -1,0 +1,272 @@
+Qt 3.0 Beta6 is not binary compatible with Beta5; any programs linked
+against Beta5 must be recompiled.
+
+Below you will find a description of general changes in the Qt
+Library, Qt Designer and Qt Assistant.  Followed by a detailed list of
+changes in the API.
+
+
+The Qt Library
+========================================
+
+QCom postponed
+--------------
+
+Previous Qt 3.0 betas introduced a module called QCom that provides a
+COM-like component system. The feedback we received on this module
+during the 3.0 beta phase has been mixed. Many users think this module
+lacks the intuitiveness and compactness that they have learned to
+expect from a Qt API. Therefore, we have made the difficult decision
+to withdraw the QCom API from the Qt 3.0 release. We will continue to
+develop this API until it is evolved enough for our customers, and
+will include the improved version in a later release.
+
+We apologize for any inconvenience the QCom API change has
+caused. This decision was made as part of our ongoing efforts to
+maintain the soundness and quality of Qt.
+
+Please note that the new plugin functionality in 3.0 will still be
+provided. This includes using custom widgets in Qt Designer, as well
+as runtime addition of styles, codecs, SQL drivers, and image format
+handlers. This functionality is now available through a substantially
+simplified API.
+
+Also also note that it will still be convenient to add custom plugin
+capabilities to Qt 3.0 applications, since the new QLibrary class will
+still be available. This class takes care of the low-level,
+platform-dependent issues regarding loading of DLLs and obtaining
+pointers to the functions exported by the DLLs.
+
+
+Qt Designer
+========================================
+
+ - Improvements to the Designer reference manual.
+
+ - Improved the C++ code indenter in the editor for numbers and
+   handling of parenthesis.
+
+
+Qt Assistant
+========================================
+
+ - Added a context menu with common commands.
+
+ - Allow multiple windows to be opened and added the common shortcut
+    that Shift+Click on a link opens the link in a new window.
+
+
+Qt Functions
+========================================
+
+QAccel
+------
+
+ - Try harder to ensure that accelerators continue to work when a top
+   level widget is reparented into another window.
+
+QColor
+-----
+
+ - X11 only: better heuristic to decide if you use black or white when a
+   color could not be allocated.
+ - win32 only: improve color allocation on 8bit displays, e.g. when
+   using a terminal server.
+
+QComboBox
+---------
+
+ - Added a new function to be able to set a custom line edit.
+
+New function:
+	virtual void setLineEdit( QLineEdit *edit );
+
+QCString
+--------
+
+ - Implemented a dummy out-of-line destructor for QCString to help the
+   compiler to optimize the number of conflicts as the location of a vtable
+   is now known.
+
+QCursor
+-------
+
+ - win32 only: Added a constructor that takes a platform specific handle.
+
+New function:
+	QCursor( HCURSOR ); (win32 only)
+
+QDateTime and QDateTimeEdit
+---------------------------
+
+ - win32 only: better handling of localization settings.
+
+QDockWindow
+-----------
+
+ - Remeber last size of an undocked window, so when it is docked and
+   undocked again, use this size again.
+
+QDom
+----
+
+ - Fixed an infinite loop in QDomDocument::toString().
+
+QFileDialog
+-----------
+
+ - Improved handling of "~" to make it work as a directory.
+
+QFileInfo
+---------
+
+ - win32 only: permissions respects the read-only attribute now.
+
+QIconView
+---------
+
+ - Added a function to find out whether an item in a view is currently
+   being renamed.
+ - Fixed a crash.
+
+New function:
+	bool isRenaming() const;
+
+QInputDialog
+------------
+
+ - Improved the handling of double input formats.
+
+QListView
+---------
+
+ - Added a function to find out whether an item in a view is currently
+   being renamed.
+ - Fixed a possible infinite loop.
+ - Improved spacing handling for columns that can show a sort indicator.
+
+New function:
+	bool isRenaming() const;
+
+QMainWindow
+-----------
+
+ - Make menuAboutToShow() protected to allow customized dock menus.
+ - Fixed spacing problem for menu bars.
+
+QMap
+----
+
+ - Fixed infinite looping in count( const Key& k ).
+
+QObject
+-------
+
+ - The slot deferredDelete() was renamed to deleteLater() to be more
+   intuitive. Code that used deferredDelete() has to be adjusted for the
+   new name.
+
+New function:
+	void deleteLater();
+
+QPainter
+--------
+
+ - Fixed bounding rectangle when printing richtext.
+ - Restore brush origin in QPainter::restore().
+
+QPixmap
+-------
+
+ - X11 with render extension only: better support for alpha blending:
+    - QPixmap::xForm() keeps now the alpha channel information
+    - alpha channel information is kept when copying QPixamps
+    - alpha blending works with QMovie
+    - tiling pixmaps with alpha channel works now
+
+QPrinter
+--------
+
+ - Unix only: fixed dashed line drawing when using high resolution
+   printing.
+ - Better printing detection on Irix.
+
+QRadioButton
+------------
+
+ - Fixed focus problem for radio buttons in a button group.
+
+QSqlCursor
+----------
+
+ - Fixed primeInsert() to work if the primary key of the edit buffer has
+   changed.
+ - Changing primary index keys now also works if the cursor's position
+   moved in the meantime.
+
+QStyle
+------
+
+ - Added a base value (CC_CustomBase) for custom defined primitives,
+   controls, etc. -- this allows custom widgets to use the new style
+   engine.
+ - Fixed spacing problem for custom menu items.
+ - Improved the look of the Motif plus and the SGI style.
+
+QTable
+------
+
+ - Fixed a crash when drag source is the current table editor widget.
+ - Fixed a bug that prevented having different colors in different cells.
+
+QTabletEvent
+------------
+
+ - Improved Watcom tablet support to allow multiple devices to be used.
+
+QTextEdit
+---------
+
+ - Better handling for font sizes in the font tag.
+ - Parse the qt tag again.
+ - Fixed text() for read-only documents.
+ - Improved right mouse button menu handling.
+ - New function to pass the position to the createPopupMenu() function for
+   improved flexibility.
+
+New function:
+	virtual QPopupMenu *createPopupMenu( const QPoint& pos );
+
+QThread
+-------
+
+ - Unix only: Make sure that the seconds and nano-seconds in the sleep
+   functions are within the limits.
+
+QUrlInfo
+--------
+
+ - Added the concept of invalid QUrlInfo objects. This is useful in
+   conjunction with QUrlOperator::info().
+
+New function:
+	bool isValid() const;
+
+QWizard
+-------
+
+ - Set the previous pages nextEnabled to TRUE if we add a page to the end
+   of a wizard.
+
+QWMatrix
+--------
+
+ - mapRect() returns always a valid QRect now.
+
+QWorkspace
+----------
+
+ - Update the titlebar when toggling shaded/non-shaded.
+ - Update the titlebar to be deactivated when the application's activation
+   status changes.
+ - Improve placement of document windows.

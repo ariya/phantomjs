@@ -1,0 +1,68 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2005, 2008, 2010, 2011, 2012 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+use strict;
+use FindBin;
+use lib $FindBin::Bin;
+use webkitdirs;
+
+my $productDir = shift @ARGV;
+$productDir = $ENV{BUILT_PRODUCTS_DIR} if !$productDir;
+
+chdirWebKit();
+
+my @librariesToCopy = (
+    "libWebKitSystemInterfaceLion.a",
+    "libWebKitSystemInterfaceMountainLion.a",
+    "libWebCoreSQLite3.a",
+);
+
+my $ranlib = `xcrun -find ranlib`;
+chomp $ranlib;
+foreach my $libName (@librariesToCopy) {
+    my $srcLib = "WebKitLibraries/" . $libName;
+    my $lib = "$productDir/" . $libName;
+    if (!-e $lib || -M $lib > -M $srcLib) {
+        print "Updating $lib\n";
+        system "ditto", $srcLib, $lib;
+        system $ranlib, $lib;
+    }
+}
+
+# FIXME: This code should be abstracted to not be copy/paste.
+my $srcHeader = "WebKitLibraries/WebKitSystemInterface.h";
+my $header = "$productDir/usr/local/include/WebKitSystemInterface.h";
+if (!-e $header || -M $header > -M $srcHeader) {
+    print "Updating $header\n";
+    system "mkdir", "-p", "$productDir/usr/local/include";
+    system "ditto", $srcHeader, $header;
+}
+
+my $srcHeaderDir = "WebKitLibraries/WebCoreSQLite3";
+my $headerDir = "$productDir/WebCoreSQLite3";
+if (!-e $headerDir || -M $headerDir > -M $srcHeaderDir) {
+    print "Updating $headerDir\n";
+    system "ditto", $srcHeaderDir, $headerDir;
+}

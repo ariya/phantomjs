@@ -1,0 +1,361 @@
+/*
+ * Copyright (C) 2006, 2007, 2011 Apple Inc. All rights reserved.
+ * Copyright (C) 2006, 2007 Samuel Weinig <sam@webkit.org>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+[
+    CustomToJSObject,
+    JSGenerateToNativeObject,
+    JSInlineGetOwnPropertySlot
+] interface Document : Node {
+
+    // DOM Level 1 Core
+    readonly attribute DocumentType doctype;
+    readonly attribute DOMImplementation implementation;
+    readonly attribute Element documentElement;
+
+    [ReturnNewObject, RaisesException] Element createElement([TreatNullAs=NullString,Default=Undefined] optional DOMString tagName);
+    DocumentFragment   createDocumentFragment();
+    [ReturnNewObject] Text createTextNode([Default=Undefined] optional DOMString data);
+    [ReturnNewObject] Comment createComment([Default=Undefined] optional DOMString data);
+    [ReturnNewObject, RaisesException] CDATASection createCDATASection([Default=Undefined] optional DOMString data);
+    [ObjCLegacyUnnamedParameters, ReturnNewObject, RaisesException] ProcessingInstruction createProcessingInstruction([Default=Undefined] optional DOMString target,
+                                                                                 [Default=Undefined] optional DOMString data);
+    [ReturnNewObject, RaisesException] Attr createAttribute([Default=Undefined] optional DOMString name);
+    [ReturnNewObject, RaisesException] EntityReference createEntityReference([Default=Undefined] optional DOMString name);
+    NodeList getElementsByTagName([Default=Undefined] optional DOMString tagname);
+
+    // Introduced in DOM Level 2:
+
+    [ObjCLegacyUnnamedParameters, ReturnNewObject, RaisesException] Node importNode([Default=Undefined] optional Node importedNode,
+                    optional boolean deep);
+    [ObjCLegacyUnnamedParameters, ReturnNewObject, RaisesException] Element createElementNS([TreatNullAs=NullString,Default=Undefined] optional DOMString namespaceURI,
+                            [TreatNullAs=NullString,Default=Undefined] optional DOMString qualifiedName);
+    [ObjCLegacyUnnamedParameters, ReturnNewObject, RaisesException] Attr createAttributeNS([TreatNullAs=NullString,Default=Undefined] optional DOMString namespaceURI,
+                                                                          [TreatNullAs=NullString,Default=Undefined] optional DOMString qualifiedName);
+    [ObjCLegacyUnnamedParameters] NodeList getElementsByTagNameNS([TreatNullAs=NullString,Default=Undefined] optional DOMString namespaceURI,
+                                                   [Default=Undefined] optional DOMString localName);
+    Element getElementById([Default=Undefined] optional DOMString elementId);
+
+    // DOM Level 3 Core
+
+    [TreatReturnedNullStringAs=Null] readonly attribute DOMString inputEncoding;
+
+    [TreatReturnedNullStringAs=Null] readonly attribute DOMString xmlEncoding;
+    [TreatReturnedNullStringAs=Null, TreatNullAs=NullString, SetterRaisesException] attribute DOMString xmlVersion;
+    [SetterRaisesException] attribute boolean xmlStandalone;
+
+    [RaisesException] Node               adoptNode([Default=Undefined] optional Node source);
+
+#if defined(LANGUAGE_OBJECTIVE_C) && LANGUAGE_OBJECTIVE_C || defined(LANGUAGE_GOBJECT) && LANGUAGE_GOBJECT
+    // document.documentURI was writable in DOM3 Core, but is read-only in DOM4
+    // (see http://www.w3.org/TR/2011/WD-dom-20110915/#document). We need to keep
+    // the writable version around for Objective C clients, but are moving to
+    // read-only for other clients.
+             [TreatReturnedNullStringAs=Null, TreatNullAs=NullString] attribute DOMString documentURI;
+#else
+    [TreatReturnedNullStringAs=Null] readonly attribute DOMString documentURI;
+#endif
+
+    // DOM Level 2 Events (DocumentEvents interface)
+
+    [RaisesException] Event              createEvent([Default=Undefined] optional DOMString eventType);
+
+    // DOM Level 2 Tranversal and Range (DocumentRange interface)
+
+    Range              createRange();
+
+    // DOM Level 2 Tranversal and Range (DocumentTraversal interface)
+
+    [ObjCLegacyUnnamedParameters, RaisesException] NodeIterator createNodeIterator([Default=Undefined] optional Node root,
+                                                   [Default=Undefined] optional unsigned long whatToShow,
+                                                   [Default=Undefined] optional NodeFilter filter,
+                                                   [Default=Undefined] optional boolean expandEntityReferences);
+    [ObjCLegacyUnnamedParameters, RaisesException] TreeWalker createTreeWalker([Default=Undefined] optional Node root,
+                                               [Default=Undefined] optional unsigned long whatToShow,
+                                               [Default=Undefined] optional NodeFilter filter,
+                                               [Default=Undefined] optional boolean expandEntityReferences);
+
+    // DOM Level 2 Abstract Views (DocumentView interface)
+
+    readonly attribute DOMWindow defaultView;
+
+    // DOM Level 2 Style (DocumentStyle interface)
+
+    readonly attribute StyleSheetList styleSheets;
+
+    // DOM Level 2 Style (DocumentCSS interface)
+
+    [ObjCLegacyUnnamedParameters] CSSStyleDeclaration getOverrideStyle([Default=Undefined] optional Element element,
+                                                        [Default=Undefined] optional DOMString pseudoElement);
+
+    // DOM Level 3 XPath (XPathEvaluator interface)
+    [ObjCLegacyUnnamedParameters, RaisesException] XPathExpression createExpression([Default=Undefined] optional DOMString expression,
+                                                    [Default=Undefined] optional XPathNSResolver resolver);
+    XPathNSResolver    createNSResolver(Node nodeResolver);
+    [ObjCLegacyUnnamedParameters, RaisesException] XPathResult evaluate([Default=Undefined] optional DOMString expression,
+                                                  [Default=Undefined] optional Node contextNode,
+                                                  [Default=Undefined] optional XPathNSResolver resolver,
+                                                  [Default=Undefined] optional unsigned short type,
+                                                  [Default=Undefined] optional XPathResult inResult);
+
+    // Common extensions
+    boolean            execCommand([Default=Undefined] optional DOMString command,
+                                   [Default=Undefined] optional boolean userInterface,
+                                   [TreatNullAs=NullString, TreatUndefinedAs=NullString, Default=Undefined] optional DOMString value);
+
+#if defined(LANGUAGE_OBJECTIVE_C) && LANGUAGE_OBJECTIVE_C
+    // FIXME: remove the these two versions once optional is implemented for Objective-C.
+    boolean            execCommand(DOMString command,
+                                   boolean userInterface);
+    boolean            execCommand(DOMString command);
+#endif
+
+    boolean            queryCommandEnabled([Default=Undefined] optional DOMString command);
+    boolean            queryCommandIndeterm([Default=Undefined] optional DOMString command);
+    boolean            queryCommandState([Default=Undefined] optional DOMString command);
+    boolean            queryCommandSupported([Default=Undefined] optional DOMString command);
+    DOMString          queryCommandValue([Default=Undefined] optional DOMString command);
+
+    // Moved down from HTMLDocument
+
+             [TreatNullAs=NullString] attribute DOMString title;
+    readonly attribute DOMString referrer;
+#if defined(LANGUAGE_JAVASCRIPT) && LANGUAGE_JAVASCRIPT
+    [TreatNullAs=NullString, SetterRaisesException] attribute DOMString domain;
+#else
+    readonly attribute DOMString domain;
+#endif
+    readonly attribute DOMString URL;
+
+    [TreatNullAs=NullString, GetterRaisesException, SetterRaisesException] attribute DOMString cookie;
+
+    [SetterRaisesException] attribute HTMLElement body;
+
+    readonly attribute HTMLHeadElement head;
+    readonly attribute HTMLCollection images;
+    readonly attribute HTMLCollection applets;
+    readonly attribute HTMLCollection links;
+    readonly attribute HTMLCollection forms;
+    readonly attribute HTMLCollection anchors;
+    readonly attribute DOMString lastModified;
+
+    NodeList getElementsByName([Default=Undefined] optional DOMString elementName);
+
+    [Conditional=MICRODATA] NodeList getItems([TreatNullAs=NullString, TreatUndefinedAs=NullString, Default=Undefined] optional DOMString typeNames);
+
+#if defined(LANGUAGE_JAVASCRIPT) && LANGUAGE_JAVASCRIPT
+             [Custom] attribute Location location;
+#endif
+
+    // IE extensions
+
+             [TreatReturnedNullStringAs=Undefined, TreatNullAs=NullString] attribute DOMString charset;
+    [TreatReturnedNullStringAs=Undefined] readonly attribute DOMString defaultCharset;
+    [TreatReturnedNullStringAs=Undefined] readonly attribute DOMString readyState;
+
+    Element            elementFromPoint([Default=Undefined] optional long x, 
+                                        [Default=Undefined] optional long y);
+    Range              caretRangeFromPoint([Default=Undefined] optional long x, 
+                                           [Default=Undefined] optional long y);
+
+    // Mozilla extensions
+#if defined(LANGUAGE_JAVASCRIPT) && LANGUAGE_JAVASCRIPT
+    DOMSelection       getSelection();
+#endif
+    [TreatReturnedNullStringAs=Null] readonly attribute DOMString characterSet;
+
+    // WebKit extensions
+
+    [TreatReturnedNullStringAs=Null] readonly attribute DOMString preferredStylesheetSet;
+             [TreatReturnedNullStringAs=Null, TreatNullAs=NullString] attribute DOMString selectedStylesheetSet;
+
+#if !defined(LANGUAGE_JAVASCRIPT) || !LANGUAGE_JAVASCRIPT
+    CSSStyleDeclaration createCSSStyleDeclaration();
+#endif
+
+#if defined(LANGUAGE_OBJECTIVE_C) && LANGUAGE_OBJECTIVE_C
+    // DOM Level 2 Style Interface
+    [ObjCLegacyUnnamedParameters, ObjCUseDefaultView] CSSStyleDeclaration getComputedStyle(Element element,
+                                                                  DOMString pseudoElement);
+
+    // WebKit extension
+    // FIXME: remove the first version once optional is implemented for Objective-C.
+    [ObjCUseDefaultView] CSSRuleList getMatchedCSSRules(Element element,
+                                              DOMString pseudoElement);
+    [ObjCUseDefaultView] CSSRuleList getMatchedCSSRules(Element element,
+                                              DOMString pseudoElement,
+                                              optional boolean authorOnly);
+                                              
+#endif
+
+#if !defined(LANGUAGE_CPP) || !LANGUAGE_CPP
+#if !defined(LANGUAGE_OBJECTIVE_C) || !LANGUAGE_OBJECTIVE_C
+    CanvasRenderingContext getCSSCanvasContext(DOMString contextId, DOMString name, long width, long height);
+#endif
+#endif
+
+    // HTML 5
+    NodeList getElementsByClassName([Default=Undefined] optional DOMString tagname);
+
+    readonly attribute DOMString compatMode;
+
+    // NodeSelector - Selector API
+    [RaisesException] Element querySelector(DOMString selectors);
+    [RaisesException] NodeList querySelectorAll(DOMString selectors);
+
+#if defined(ENABLE_FULLSCREEN_API) && ENABLE_FULLSCREEN_API
+    // Mozilla version
+    readonly attribute boolean webkitIsFullScreen;
+    readonly attribute boolean webkitFullScreenKeyboardInputAllowed;
+    readonly attribute Element webkitCurrentFullScreenElement;
+    void webkitCancelFullScreen();
+
+    // W3C version
+    readonly attribute boolean webkitFullscreenEnabled;
+    readonly attribute Element webkitFullscreenElement;
+    void webkitExitFullscreen();
+#endif
+
+    [Conditional=POINTER_LOCK] void webkitExitPointerLock();
+    [Conditional=POINTER_LOCK] readonly attribute Element webkitPointerLockElement;
+
+    [Conditional=CSS_REGIONS] DOMNamedFlowCollection webkitGetNamedFlows();
+
+#if defined(LANGUAGE_JAVASCRIPT) && LANGUAGE_JAVASCRIPT
+    [Conditional=FONT_LOAD_EVENTS] readonly attribute FontLoader fontloader;
+#endif
+
+#if !defined(LANGUAGE_OBJECTIVE_C) || !LANGUAGE_OBJECTIVE_C
+    // Event handler DOM attributes
+    [NotEnumerable] attribute EventListener onabort;
+    [NotEnumerable] attribute EventListener onblur;
+    [NotEnumerable] attribute EventListener onchange;
+    [NotEnumerable] attribute EventListener onclick;
+    [NotEnumerable] attribute EventListener oncontextmenu;
+    [NotEnumerable] attribute EventListener ondblclick;
+    [NotEnumerable] attribute EventListener ondrag;
+    [NotEnumerable] attribute EventListener ondragend;
+    [NotEnumerable] attribute EventListener ondragenter;
+    [NotEnumerable] attribute EventListener ondragleave;
+    [NotEnumerable] attribute EventListener ondragover;
+    [NotEnumerable] attribute EventListener ondragstart;
+    [NotEnumerable] attribute EventListener ondrop;
+    [NotEnumerable] attribute EventListener onerror;
+    [NotEnumerable] attribute EventListener onfocus;
+    [NotEnumerable] attribute EventListener oninput;
+    [NotEnumerable] attribute EventListener oninvalid;
+    [NotEnumerable] attribute EventListener onkeydown;
+    [NotEnumerable] attribute EventListener onkeypress;
+    [NotEnumerable] attribute EventListener onkeyup;
+    [NotEnumerable] attribute EventListener onload;
+    [NotEnumerable] attribute EventListener onmousedown;
+    [NotEnumerable] attribute EventListener onmouseenter;
+    [NotEnumerable] attribute EventListener onmouseleave;
+    [NotEnumerable] attribute EventListener onmousemove;
+    [NotEnumerable] attribute EventListener onmouseout;
+    [NotEnumerable] attribute EventListener onmouseover;
+    [NotEnumerable] attribute EventListener onmouseup;
+    [NotEnumerable] attribute EventListener onmousewheel;
+    [NotEnumerable] attribute EventListener onreadystatechange;
+    [NotEnumerable] attribute EventListener onscroll;
+    [NotEnumerable] attribute EventListener onselect;
+    [NotEnumerable] attribute EventListener onsubmit;
+
+    // [NotEnumerable] attribute EventListener oncanplay;
+    // [NotEnumerable] attribute EventListener oncanplaythrough;
+    // [NotEnumerable] attribute EventListener ondurationchange;
+    // [NotEnumerable] attribute EventListener onemptied;
+    // [NotEnumerable] attribute EventListener onended;
+    // [NotEnumerable] attribute EventListener onloadeddata;
+    // [NotEnumerable] attribute EventListener onloadedmetadata;
+    // [NotEnumerable] attribute EventListener onloadstart;
+    // [NotEnumerable] attribute EventListener onpause;
+    // [NotEnumerable] attribute EventListener onplay;
+    // [NotEnumerable] attribute EventListener onplaying;
+    // [NotEnumerable] attribute EventListener onprogress;
+    // [NotEnumerable] attribute EventListener onratechange;
+    // [NotEnumerable] attribute EventListener onseeked;
+    // [NotEnumerable] attribute EventListener onseeking;
+    // [NotEnumerable] attribute EventListener onshow;
+    // [NotEnumerable] attribute EventListener onstalled;
+    // [NotEnumerable] attribute EventListener onsuspend;
+    // [NotEnumerable] attribute EventListener ontimeupdate;
+    // [NotEnumerable] attribute EventListener onvolumechange;
+    // [NotEnumerable] attribute EventListener onwaiting;
+
+    // WebKit extensions
+    [NotEnumerable] attribute EventListener onbeforecut;
+    [NotEnumerable] attribute EventListener oncut;
+    [NotEnumerable] attribute EventListener onbeforecopy;
+    [NotEnumerable] attribute EventListener oncopy;
+    [NotEnumerable] attribute EventListener onbeforepaste;
+    [NotEnumerable] attribute EventListener onpaste;
+    [NotEnumerable] attribute EventListener onreset;
+    [NotEnumerable] attribute EventListener onsearch;
+    [NotEnumerable] attribute EventListener onselectstart;
+    [NotEnumerable] attribute EventListener onselectionchange;
+    [NotEnumerable,Conditional=TOUCH_EVENTS] attribute EventListener ontouchstart;
+    [NotEnumerable,Conditional=TOUCH_EVENTS] attribute EventListener ontouchmove;
+    [NotEnumerable,Conditional=TOUCH_EVENTS] attribute EventListener ontouchend;
+    [NotEnumerable,Conditional=TOUCH_EVENTS] attribute EventListener ontouchcancel;
+    [NotEnumerable, Conditional=FULLSCREEN_API] attribute EventListener onwebkitfullscreenchange;
+    [NotEnumerable, Conditional=FULLSCREEN_API] attribute EventListener onwebkitfullscreenerror;
+    [NotEnumerable, Conditional=POINTER_LOCK] attribute EventListener onwebkitpointerlockchange;
+    [NotEnumerable, Conditional=POINTER_LOCK] attribute EventListener onwebkitpointerlockerror;
+    [NotEnumerable, Conditional=CSP_NEXT] attribute EventListener onsecuritypolicyviolation;
+#endif
+
+#if defined(ENABLE_TOUCH_EVENTS) && ENABLE_TOUCH_EVENTS
+    [ReturnNewObject, RaisesException] Touch createTouch([Default=Undefined] optional DOMWindow window,
+                                                     [Default=Undefined] optional EventTarget target,
+                                                     [Default=Undefined] optional long identifier,
+                                                     [Default=Undefined] optional long pageX,
+                                                     [Default=Undefined] optional long pageY,
+                                                     [Default=Undefined] optional long screenX,
+                                                     [Default=Undefined] optional long screenY,
+                                                     [Default=Undefined] optional long webkitRadiusX,
+                                                     [Default=Undefined] optional long webkitRadiusY,
+                                                     [Default=Undefined] optional float webkitRotationAngle,
+                                                     [Default=Undefined] optional float webkitForce);
+    [ReturnNewObject, Custom, RaisesException] TouchList createTouchList();
+#endif
+
+#if defined(ENABLE_CUSTOM_ELEMENTS) && ENABLE_CUSTOM_ELEMENTS
+    [Conditional=CUSTOM_ELEMENTS, ImplementedAs=registerElement, CallWith=ScriptState, RaisesException] CustomElementConstructor webkitRegister(DOMString name, optional Dictionary options);
+    [ReturnNewObject, RaisesException] Element createElement(DOMString localName, [TreatNullAs=NullString] DOMString typeExtension);
+    [ReturnNewObject, RaisesException] Element createElementNS([TreatNullAs=NullString] DOMString namespaceURI, DOMString qualifiedName,
+                            [TreatNullAs=NullString] DOMString typeExtension);
+#endif
+
+#if defined(LANGUAGE_CPP) && LANGUAGE_CPP
+    // Extra WebCore methods exposed to allow compile-time casting in C++
+    boolean isHTMLDocument();
+#endif
+
+    // Page visibility API.
+    [Conditional=PAGE_VISIBILITY_API] readonly attribute DOMString visibilityState;
+    [Conditional=PAGE_VISIBILITY_API] readonly attribute boolean hidden;
+
+    // Security Policy API: http://dvcs.w3.org/hg/content-security-policy/raw-file/tip/csp-specification.dev.html#script-interfaces
+    [Conditional=CSP_NEXT] readonly attribute DOMSecurityPolicy securityPolicy;
+
+    // currentscript API: http://www.whatwg.org/specs/web-apps/current-work/multipage/dom.html#dom-document-currentscript
+    readonly attribute HTMLScriptElement currentScript;
+};
+

@@ -1,0 +1,53 @@
+.filtered-item-list-dialog > input {
+    font-size: 11px;
+    width: 100%;
+    height: 24px;
+}
+
+.filtered-item-list-dialog > div.progress {
+    position: absolute;
+    top: 35px;
+    left: 10px;
+    right: 10px;
+    height: 2px;
+}
+
+.filtered-item-list-dialog > div.container {
+    position: absolute;
+    top: 38px;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    overflow-y: auto;
+    border: 1px solid rgb(187, 187, 187);
+    background-color: white;
+}
+
+.filtered-item-list-dialog-item {
+    padding: 2px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    color: rgb(95, 95, 95);
+}
+
+.filtered-item-list-dialog-subtitle {
+    color: rgb(155, 155, 155);
+}
+
+.filtered-item-list-dialog-item.one-row .filtered-item-list-dialog-subtitle {
+    float: right;
+}
+
+.filtered-item-list-dialog-item.two-rows {
+    border-bottom: 1px solid rgb(235, 235, 235);
+}
+
+.filtered-item-list-dialog-item.selected {
+    background-color: rgb(224, 224, 224);
+}
+
+.filtered-item-list-dialog-item span.highlight {
+    color: black;
+    font-weight: bold;
+}

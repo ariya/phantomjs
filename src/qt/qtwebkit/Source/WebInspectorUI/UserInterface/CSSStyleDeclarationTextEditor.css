@@ -1,0 +1,161 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.css-style-text-editor {
+    background-color: white;
+    padding: 2px 0;
+}
+
+.css-style-text-editor > .CodeMirror {
+    height: auto;
+}
+
+.css-style-text-editor > .CodeMirror-scroll {
+    overflow: hidden;
+}
+
+.css-style-text-editor > .CodeMirror .CodeMirror-placeholder {
+    font-family: "Lucida Grande", sans-serif;
+    color: rgb(128, 128, 128);
+    padding: 0 5px 0 39px;
+    text-indent: -14px;
+}
+
+.css-style-text-editor > .CodeMirror pre {
+    padding: 1px 5px 1px 39px;
+    text-indent: -35px;
+}
+
+.css-style-text-editor > .CodeMirror pre * {
+    text-indent: 0;
+}
+
+.css-style-text-editor.read-only > .CodeMirror pre {
+    /* Compensate for the missing checkboxes so properties line up with editable styles that have checkboxes. */
+    text-indent: -14px;
+}
+
+.css-style-text-editor.read-only > .CodeMirror .CodeMirror-cursor {
+    display: none;
+}
+
+.css-style-text-editor > .CodeMirror .CodeMirror-lines pre span:not(.css-style-declaration-property):not(.CodeMirror-widget):not(.cm-comment):not(.cm-tab),
+.css-style-text-editor > .CodeMirror .CodeMirror-lines .css-style-declaration-property.disabled,
+.css-style-text-editor > .CodeMirror .CodeMirror-lines .css-style-declaration-property.invalid,
+.css-style-text-editor > .CodeMirror .CodeMirror-lines .css-style-declaration-property.other-vendor,
+.css-style-text-editor > .CodeMirror .CodeMirror-lines .css-style-declaration-property.not-inherited,
+.css-style-text-editor > .CodeMirror .CodeMirror-lines .css-style-declaration-property.overridden {
+    text-decoration: line-through;
+    -webkit-text-stroke-width: 0.000000000000001px; /* A hack to get a different line-through color. */
+    -webkit-text-stroke-color: rgba(0, 0, 0, 0.6);
+}
+
+.css-style-text-editor > .CodeMirror .CodeMirror-lines pre span:not(.css-style-declaration-property):not(.CodeMirror-widget):not(.cm-comment):not(.cm-tab),
+.css-style-text-editor > .CodeMirror .CodeMirror-lines .css-style-declaration-property.invalid {
+    -webkit-text-stroke-color: rgba(255, 0, 0, 0.6);
+}
+
+.css-style-text-editor > .CodeMirror .CodeMirror-lines .css-style-declaration-property.implicit,
+.css-style-text-editor > .CodeMirror .CodeMirror-lines .css-style-declaration-property.not-inherited {
+    opacity: 0.5;
+}
+
+.css-style-text-editor > .CodeMirror .CodeMirror-lines .editing-line .css-style-declaration-property.disabled,
+.css-style-text-editor > .CodeMirror .CodeMirror-lines .editing-line .css-style-declaration-property.other-vendor,
+.css-style-text-editor > .CodeMirror .CodeMirror-lines .editing-line .css-style-declaration-property.not-inherited,
+.css-style-text-editor > .CodeMirror .CodeMirror-lines .editing-line .css-style-declaration-property.overridden {
+    -webkit-text-stroke-color: rgba(0, 0, 0, 0.3);
+}
+
+.css-style-text-editor > .CodeMirror .CodeMirror-lines .editing-line span:not(.css-style-declaration-property):not(.CodeMirror-widget):not(.cm-comment):not(.cm-tab),
+.css-style-text-editor > .CodeMirror .CodeMirror-lines .editing-line .css-style-declaration-property.invalid {
+    text-decoration: none;
+}
+
+.css-style-text-editor > .CodeMirror .CodeMirror-lines input[type=checkbox] {
+    width: 10px;
+    height: 10px;
+    vertical-align: middle;
+    margin: 0 8px 0 3px;
+    visibility: hidden;
+}
+
+.css-style-text-editor > .CodeMirror .CodeMirror-lines .checkbox-placeholder {
+    display: inline-block;
+    width: 21px;
+}
+
+.css-style-text-editor > .CodeMirror .CodeMirror-lines input[type=checkbox]:not(:checked),
+.css-style-text-editor > .CodeMirror.CodeMirror-focused .CodeMirror-lines input[type=checkbox],
+.css-style-text-editor:hover > .CodeMirror .CodeMirror-lines input[type=checkbox] {
+    visibility: visible;
+}
+
+.css-style-text-editor > .CodeMirror .CodeMirror-lines .color-swatch {
+    display: inline-block;
+
+    margin-right: 3px;
+    vertical-align: -2px;
+
+    width: 1em;
+    height: 1em;
+
+    position: relative;
+
+    /* Make a checkered background for transparent colors to show against. */
+    background-image: -webkit-linear-gradient(top, rgb(204, 204, 204), rgb(204, 204, 204)),
+        -webkit-linear-gradient(top, rgb(204, 204, 204), rgb(204, 204, 204));
+    background-color: white;
+    background-size: calc(50% + 1px);
+    background-position: top left, bottom right;
+    background-repeat: no-repeat;
+
+    cursor: default;
+}
+
+.css-style-text-editor > .CodeMirror .CodeMirror-lines .color-swatch > span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    border: 1px solid rgba(64, 64, 64, 0.4);
+}
+
+.css-style-text-editor > .CodeMirror .CodeMirror-lines .color-swatch:hover > span {
+    border: 1px solid rgba(64, 64, 64, 0.8);
+}
+
+.css-style-text-editor > .CodeMirror .CodeMirror-lines .color-swatch:active > span {
+    border: 1px solid rgba(64, 64, 64, 1);
+}
+
+.css-style-text-editor > .CodeMirror .cm-link {
+    /* Style url(...) links as if they are strings. */
+    color: rgb(196, 26, 22);
+    text-decoration: inherit;
+    cursor: inherit;
+}

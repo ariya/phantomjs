@@ -1,0 +1,100 @@
+namespace="SVG"
+namespaceURI="http://www.w3.org/2000/svg"
+guardFactoryWith="ENABLE(SVG)"
+fallbackInterfaceName="SVGElement"
+
+a
+#if ENABLE_SVG_FONTS
+altGlyph
+altGlyphDef
+altGlyphItem
+#endif
+animate
+animateColor
+animateMotion
+animateTransform
+set
+circle
+clipPath
+#if 0
+color_profile
+#endif
+cursor
+defs
+desc
+ellipse
+#if ENABLE_FILTERS
+feBlend
+feColorMatrix
+feComponentTransfer
+feComposite
+feConvolveMatrix
+feDiffuseLighting
+feDisplacementMap
+feDistantLight
+feDropShadow
+feFlood
+feFuncA
+feFuncB
+feFuncG
+feFuncR
+feGaussianBlur
+feImage
+feMerge
+feMergeNode
+feMorphology
+feOffset
+fePointLight
+feSpecularLighting
+feSpotLight
+feTile
+feTurbulence
+filter
+#endif
+#if ENABLE_SVG_FONTS
+font
+font_face
+font_face_format
+font_face_name
+font_face_src
+font_face_uri
+#endif
+foreignObject
+g
+#if ENABLE_SVG_FONTS
+glyph
+glyphRef
+hkern interfaceName=SVGHKernElement
+#endif
+image
+line
+linearGradient
+marker
+mask
+metadata
+#if ENABLE_SVG_FONTS
+missing_glyph
+#endif
+mpath interfaceName=SVGMPathElement
+path
+pattern
+polygon
+polyline
+radialGradient
+rect
+script constructorNeedsCreatedByParser
+stop
+style constructorNeedsCreatedByParser
+svg interfaceName=SVGSVGElement
+switch
+symbol
+text
+textPath
+title
+tref interfaceName=SVGTRefElement
+tspan interfaceName=SVGTSpanElement
+use constructorNeedsCreatedByParser
+view
+#if ENABLE_SVG_FONTS
+vkern interfaceName=SVGVKernElement
+#endif

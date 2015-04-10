@@ -1,0 +1,108 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+import "DOMCore.idl";
+import "IWebResource.idl";
+#endif
+
+interface IWebResource;
+
+/*!
+    @class WebArchive
+    @discussion WebArchive represents a main resource as well as all the subresources and subframes associated with the main resource.
+    The main resource can be an entire web page, a portion of a web page, or some other kind of data such as an image.
+    This class can be used for saving standalone web pages, representing portions of a web page on the pasteboard, or any other
+    application where one class is needed to represent rich web content. 
+*/
+[
+    object,
+    oleautomation,
+    uuid(F07D5252-F66E-4a4d-B9DC-33BD11DCC138),
+    pointer_default(unique)
+]
+interface IWebArchive : IUnknown
+{
+    /*!
+        @method initWithMainResource:subresources:subframeArchives:
+        @abstract The initializer for WebArchive.
+        @param mainResource The main resource of the archive.
+        @param subresources The subresources of the archive (can be nil).
+        @param subframeArchives The archives representing the subframes of the archive (can be nil).
+        @result An initialized WebArchive.
+        - (id)initWithMainResource:(WebResource *)mainResource subresources:(NSArray *)subresources subframeArchives:(NSArray *)subframeArchives;
+    */
+    HRESULT initWithMainResource([in] IWebResource* mainResource, [in, size_is(cSubResources)] IWebResource** subResources, [in] int cSubResources, [in, size_is(cSubFrameArchives)] IWebArchive** subFrameArchives, [in] int cSubFrameArchives);
+
+    /*!
+        @method initWithData:
+        @abstract The initializer for creating a WebArchive from data.
+        @param data The data representing the archive. This can be obtained using WebArchive's data method.
+        @result An initialized WebArchive.
+        - (id)initWithData:(NSData *)data;
+    */
+    HRESULT initWithData([in] IStream* data);
+    
+    /*!
+        @method initWithData:
+        @abstract The initializer for creating a WebArchive from data.
+        @param data The data representing the archive. This can be obtained using WebArchive's data method.
+        @result An initialized WebArchive.
+        - (id)initWithData:(NSData *)data;
+    */
+    HRESULT initWithNode([in] IDOMNode* node);
+
+    /*!
+        @method mainResource
+        @result The main resource of the archive.
+        - (WebResource *)mainResource;
+    */
+    HRESULT mainResource([out, retval] IWebResource** resource);
+
+    /*!
+        @method subresources
+        @result The subresource of the archive (can be nil).
+        - (NSArray *)subresources;
+    */
+    HRESULT subResources([out, retval] IEnumVARIANT** enumResources);
+
+    /*!
+        @method subframeArchives
+        @result The archives representing the subframes of the archive (can be nil).
+        - (NSArray *)subframeArchives;
+    */
+    HRESULT subframeArchives([out, retval] IEnumVARIANT** enumSubframes);
+
+    /*!
+        @method data
+        @result The data representation of the archive.
+        @discussion The data returned by this method can be used to save a web archive to a file or to place a web archive on the pasteboard
+        using WebArchivePboardType. To create a WebArchive using the returned data, call initWithData:.
+        - (NSData *)data;
+    */
+    HRESULT data([out, retval] IStream** stream);
+}

@@ -1,598 +1,7 @@
-function checkClipRect(page, clipRect) {
-    expectHasProperty(page, 'clipRect');
-    it("should have clipRect with height "+clipRect.height, function () {
-        expect(page.clipRect.height).toEqual(clipRect.height);
-    });
-    it("should have clipRect with left "+clipRect.left, function () {
-        expect(page.clipRect.left).toEqual(clipRect.left);
-    });
-    it("should have clipRect with top "+clipRect.top, function () {
-        expect(page.clipRect.top).toEqual(clipRect.top);
-    });
-    it("should have clipRect with width "+clipRect.width, function () {
-        expect(page.clipRect.width).toEqual(clipRect.width);
-    });
-}
-
-function checkScrollPosition(page, scrollPosition) {
-    expectHasProperty(page, 'scrollPosition');
-    it("should have scrollPosition with left "+scrollPosition.left, function () {
-        expect(page.scrollPosition.left).toEqual(scrollPosition.left);
-    });
-    it("should have scrollPosition with top "+scrollPosition.top, function () {
-        expect(page.scrollPosition.top).toEqual(scrollPosition.top);
-    });
-}
-
-function checkViewportSize(page, viewportSize) {
-    expectHasProperty(page, 'viewportSize');
-    it("should have viewportSize with height "+viewportSize.height, function () {
-        expect(page.viewportSize.height).toEqual(viewportSize.height);
-    });
-    it("should have viewportSize with width "+viewportSize.width, function () {
-        expect(page.viewportSize.width).toEqual(viewportSize.width);
-    });
-}
-
-function checkPageCallback(page) {
-    it("should pass variables from/to window.callPhantom/page.onCallback", function() {
-        var msgA = "a",
-            msgB = "b",
-            result,
-            expected = msgA + msgB;
-        page.onCallback = function(a, b) {
-            return a + b;
-        };
-        result = page.evaluate(function(a, b) {
-            return callPhantom(a, b);
-        }, msgA, msgB);
-
-        expect(result).toEqual(expected);
-    });
-}
-
-function checkPageConfirm(page) {
-    it("should pass result from/to window.confirm/page.onConfirm", function() {
-        var msg = "message body",
-            result,
-            expected = true;
-        page.onConfirm = function(msg) {
-            return true;
-        };
-        result = page.evaluate(function(m) {
-            return window.confirm(m);
-        }, msg);
-
-        expect(result).toEqual(expected);
-    });
-}
-
-function checkPagePrompt(page) {
-    it("should pass result from/to window.prompt/page.onPrompt", function() {
-        var msg = "message",
-            value = "value",
-            result,
-            expected = "extra-value";
-        page.onPrompt = function(msg, value) {
-            return "extra-"+value;
-        };
-        result = page.evaluate(function(m, v) {
-            return window.prompt(m, v);
-        }, msg, value);
-
-        expect(result).toEqual(expected);
-    });
-}
-
-describe("WebPage constructor", function() {
-    it("should exist in window", function() {
-        expect(window.hasOwnProperty('WebPage')).toBeTruthy();
-    });
-
-    it("should be a function", function() {
-        expect(typeof window.WebPage).toEqual('function');
-    });
-});
-
 describe("WebPage object", function() {
     var page = new WebPage();
 
-    it("should be creatable", function() {
-        expect(typeof page).toEqual('object');
-        expect(page).toNotEqual(null);
-    });
-
-    it("should be able to get any signal handler that are currently set on it", function() {
-        page.onInitialized = undefined;
-        expect(page.onInitialized).toBeUndefined();
-        var onInitialized1 = function() { var x = "x"; };
-        page.onInitialized = onInitialized1;
-        expect(page.onInitialized).toEqual(onInitialized1);
-        var onInitialized2 = function() { var y = "y"; };
-        page.onInitialized = onInitialized2;
-        expect(page.onInitialized).toEqual(onInitialized2);
-        expect(page.onInitialized).toNotEqual(onInitialized1);
-        page.onInitialized = null;
-        // Will only allow setting to a function value, so setting it to `null` returns `undefined`
-        expect(page.onInitialized).toBeUndefined();
-        page.onInitialized = undefined;
-        expect(page.onInitialized).toBeUndefined();
-    });
-
-    it("should be able to get any callback handler that are currently set on it", function() {
-        page.onConfirm = undefined;
-        expect(page.onConfirm).toBeUndefined();
-        var onConfirmFunc1 = function() { return !"x"; };
-        page.onConfirm = onConfirmFunc1;
-        expect(page.onConfirm).toEqual(onConfirmFunc1);
-        var onConfirmFunc2 = function() { return !!"y"; };
-        page.onConfirm = onConfirmFunc2;
-        expect(page.onConfirm).toEqual(onConfirmFunc2);
-        expect(page.onConfirm).toNotEqual(onConfirmFunc1);
-        page.onConfirm = null;
-        // Will only allow setting to a function value, so setting it to `null` returns `undefined`
-        expect(page.onConfirm).toBeUndefined();
-        page.onConfirm = undefined;
-        expect(page.onConfirm).toBeUndefined();
-    });
-
-    it("should be able to get the error signal handler that is currently set on it (currently a special 1-off case)", function() {
-        page.onError = undefined;
-        expect(page.onError).toBeUndefined();
-        var onErrorFunc1 = function() { return !"x"; };
-        page.onError = onErrorFunc1;
-        expect(page.onError).toEqual(onErrorFunc1);
-        var onErrorFunc2 = function() { return !!"y"; };
-        page.onError = onErrorFunc2;
-        expect(page.onError).toEqual(onErrorFunc2);
-        expect(page.onError).toNotEqual(onErrorFunc1);
-        page.onError = null;
-        // Will only allow setting to a function value, so setting it to `null` returns `undefined`
-        expect(page.onError).toBeUndefined();
-        page.onError = undefined;
-        expect(page.onError).toBeUndefined();
-    });
-
-    checkPageCallback(page);
-    checkPageConfirm(page);
-    checkPagePrompt(page);
-
-    checkClipRect(page, {height:0,left:0,top:0,width:0});
-
-    expectHasPropertyString(page, 'content');
-    expectHasPropertyString(page, 'plainText');
-
-    expectHasPropertyString(page, 'libraryPath');
-    expectHasPropertyString(page, 'offlineStoragePath');
-    expectHasProperty(page, 'offlineStorageQuota');
-
-    it("should have objectName as 'WebPage'", function() {
-        expect(page.objectName).toEqual('WebPage');
-    });
-
-    expectHasProperty(page, 'paperSize');
-    it("should have paperSize as an empty object", function() {
-        expect(page.paperSize).toEqual({});
-    });
-
-    checkScrollPosition(page, {left:0,top:0});
-
-    expectHasProperty(page, 'settings');
-    it("should have non-empty settings", function() {
-        expect(page.settings).toNotEqual(null);
-        expect(page.settings).toNotEqual({});
-    });
-
-    expectHasProperty(page, 'customHeaders');
-    it("should have customHeaders as an empty object", function() {
-        expect(page.customHeaders).toEqual({});
-    });
-
-    expectHasProperty(page, 'zoomFactor');
-    it("should have zoomFactor of 1", function() {
-        expect(page.zoomFactor).toEqual(1.0);
-    });
-
-    expectHasProperty(page, 'event');
-    expectHasProperty(page, 'cookies');
-
-    checkViewportSize(page, {height:300,width:400});
-
-    expectHasFunction(page, 'deleteLater');
-    expectHasFunction(page, 'destroyed');
-    expectHasFunction(page, 'evaluate');
-    expectHasFunction(page, 'initialized');
-    expectHasFunction(page, 'injectJs');
-    expectHasFunction(page, 'javaScriptAlertSent');
-    expectHasFunction(page, 'javaScriptConsoleMessageSent');
-    expectHasFunction(page, 'loadFinished');
-    expectHasFunction(page, 'loadStarted');
-    expectHasFunction(page, 'openUrl');
-    expectHasFunction(page, 'release');
-    expectHasFunction(page, 'close');
-    expectHasFunction(page, 'render');
-    expectHasFunction(page, 'resourceReceived');
-    expectHasFunction(page, 'resourceRequested');
-    expectHasFunction(page, 'resourceError');
-    expectHasFunction(page, 'uploadFile');
-    expectHasFunction(page, 'sendEvent');
-    expectHasFunction(page, 'childFramesCount');
-    expectHasFunction(page, 'childFramesName');
-    expectHasFunction(page, 'switchToChildFrame');
-    expectHasFunction(page, 'switchToMainFrame');
-    expectHasFunction(page, 'switchToParentFrame');
-    expectHasFunction(page, 'currentFrameName');
-    expectHasFunction(page, 'addCookie');
-    expectHasFunction(page, 'deleteCookie');
-    expectHasFunction(page, 'clearCookies');
-    expectHasFunction(page, 'setContent');
-
-    it("should set content and location", function() {
-        runs(function() {
-            var expectedContent = "<html><body><div>Test div</div></body></html>";
-            var expectedLocation = "http://www.phantomjs.org/";
-            page.setContent(expectedContent, expectedLocation);
-            var actualLocation = page.evaluate(function(){
-                return window.location.href;
-            });
-            var actualContent = page.evaluate(function(){
-                return document.documentElement.textContent;
-            });
-            expect(expectedLocation).toEqual(actualLocation);
-            expect(expectedContent).toContain("Test div");
-        });
-    });
-
-    it("should handle keydown event", function() {
-        runs(function() {
-            page.evaluate(function() {
-                window.addEventListener('keydown', function(event) {
-                    window.loggedEvent = window.loggedEvent || {};
-                    window.loggedEvent.keydown = event;
-                }, false);
-            });
-            page.sendEvent('keydown', page.event.key.A);
-        });
-
-        waits(50);
-
-        runs(function() {
-            var event = page.evaluate(function() {
-                return window.loggedEvent.keydown;
-            });
-            expect(event.which).toEqual(page.event.key.A);
-        });
-    });
-
-    it("should handle keyup event", function() {
-        runs(function() {
-            page.evaluate(function() {
-                window.addEventListener('keyup', function(event) {
-                    window.loggedEvent = window.loggedEvent || {};
-                    window.loggedEvent.keyup = event;
-                }, false);
-            });
-            page.sendEvent('keyup', page.event.key.A);
-        });
-
-        waits(50);
-
-        runs(function() {
-            var event = page.evaluate(function() {
-                return window.loggedEvent.keyup;
-            });
-            expect(event.which).toEqual(page.event.key.A);
-        });
-    });
-
-    it("should handle keypress event", function() {
-        runs(function() {
-            page.evaluate(function() {
-                window.addEventListener('keypress', function(event) {
-                    window.loggedEvent = window.loggedEvent || {};
-                    window.loggedEvent.keypress = event;
-                }, false);
-            });
-            page.sendEvent('keypress', page.event.key.A);
-        });
-
-        waits(50);
-
-        runs(function() {
-            var event = page.evaluate(function() {
-                return window.loggedEvent.keypress;
-            });
-            expect(event.which).toEqual(page.event.key.A);
-        });
-    });
-
-    it("should handle keypress event with inputs", function() {
-        runs(function() {
-            page.content = '<input type="text">';
-            page.evaluate(function() {
-                document.querySelector('input').focus();
-            });
-            var getText = function() {
-                return page.evaluate(function() {
-                    return document.querySelector('input').value;
-                });
-            };
-            page.sendEvent('keypress', page.event.key.A);
-            expect(getText()).toEqual("A");
-            page.sendEvent('keypress', page.event.key.B);
-            expect(getText()).toEqual("AB");
-            page.sendEvent('keypress', page.event.key.Backspace);
-            expect(getText()).toEqual("A");
-        });
-    });
-
-    it("should handle keypress event of string with inputs", function() {
-        runs(function() {
-            page.content = '<input type="text">';
-            page.evaluate(function() {
-                document.querySelector('input').focus();
-            });
-            page.sendEvent('keypress', "ABCD");
-            // 0x02000000 is the Shift modifier.
-            page.sendEvent('keypress', page.event.key.Home, null, null,  0x02000000);
-            page.sendEvent('keypress', page.event.key.Delete);
-            var text = page.evaluate(function() {
-                return document.querySelector('input').value;
-            });
-            expect(text).toEqual("");
-        });
-    });
-
-    it("should handle key events with modifier keys", function() {
-        runs(function() {
-            page.content = '<input type="text">';
-            page.evaluate(function() {
-                document.querySelector('input').focus();
-            });
-            page.sendEvent('keypress', "ABCD");
-            var text = page.evaluate(function() {
-                return document.querySelector('input').value;
-            });
-            expect(text).toEqual("ABCD");
-        });
-    });
-
-    it("should send proper key codes for text", function () {
-        runs(function() {
-            page.content = '<input type="text">';
-            page.evaluate(function() {
-                document.querySelector('input').focus();
-            });
-            page.sendEvent('keypress', "ABCD");
-            // 0x02000000 is the Shift modifier.
-            page.sendEvent('keypress', page.event.key.Home, null, null,  0x02000000);
-            // 0x04000000 is the Control modifier.
-            page.sendEvent('keypress', 'x', null, null, 0x04000000);
-            var text = page.evaluate(function() {
-                return document.querySelector('input').value;
-            });
-            expect(text).toEqual("");
-            page.sendEvent('keypress', 'v', null, null, 0x04000000);
-            text = page.evaluate(function() {
-                return document.querySelector('input').value;
-            });
-            expect(text).toEqual("ABCD");
-        });
-    });
-
-    it("should handle keypress event of umlaut char with inputs", function() {
-        runs(function() {
-            page.content = '<input type="text">';
-            page.evaluate(function() {
-                document.querySelector('input').focus();
-            });
-            page.sendEvent('keypress', "ä");
-            var text = page.evaluate(function() {
-                return document.querySelector('input').value;
-            });
-            expect(text).toEqual("ä");
-        });
-    });
-
-    it("should handle mousedown event", function() {
-        runs(function() {
-            page.evaluate(function() {
-                window.addEventListener('mousedown', function(event) {
-                    window.loggedEvent = window.loggedEvent || {};
-                    window.loggedEvent.mousedown = event;
-                }, false);
-            });
-            page.sendEvent('mousedown', 42, 217);
-        });
-
-        runs(function() {
-            var event = page.evaluate(function() {
-                return window.loggedEvent.mousedown;
-            });
-            expect(event.clientX).toEqual(42);
-            expect(event.clientY).toEqual(217);
-        });
-    });
-
-    it("should handle mouseup event", function() {
-        runs(function() {
-            page.evaluate(function() {
-                window.addEventListener('mouseup', function(event) {
-                    window.loggedEvent = window.loggedEvent || {};
-                    window.loggedEvent.mouseup = event;
-                }, false);
-            });
-            page.sendEvent('mouseup', 14, 3);
-        });
-
-        waits(50);
-
-        runs(function() {
-            var event = page.evaluate(function() {
-                return window.loggedEvent.mouseup;
-            });
-            expect(event.clientX).toEqual(14);
-            expect(event.clientY).toEqual(3);
-        });
-    });
-
-    it("should handle mousemove event", function() {
-        runs(function() {
-            page.evaluate(function() {
-                window.addEventListener('mousemove', function(event) {
-                    window.loggedEvent = window.loggedEvent || {};
-                    window.loggedEvent.mousemove = event;
-                }, false);
-            });
-            page.sendEvent('mousemove', 14, 7);
-        });
-
-        waits(50);
-
-        runs(function() {
-            var event = page.evaluate(function() {
-                return window.loggedEvent.mousemove;
-            });
-            expect(event.clientX).toEqual(14);
-            expect(event.clientY).toEqual(7);
-        });
-    });
-
-
-    it("should handle click event", function() {
-        runs(function() {
-            page.evaluate(function() {
-                window.addEventListener('mousedown', function(event) {
-                    window.loggedEvent = window.loggedEvent || {};
-                    window.loggedEvent.mousedown = event;
-                }, false);
-                window.addEventListener('mouseup', function(event) {
-                    window.loggedEvent = window.loggedEvent || {};
-                    window.loggedEvent.mouseup = event;
-                }, false);
-            });
-            page.sendEvent('click', 42, 217);
-        });
-
-        waits(50);
-
-        runs(function() {
-            var event = page.evaluate(function() {
-                return window.loggedEvent;
-            });
-            expect(event.mouseup.clientX).toEqual(42);
-            expect(event.mouseup.clientY).toEqual(217);
-            expect(event.mousedown.clientX).toEqual(42);
-            expect(event.mousedown.clientY).toEqual(217);
-        });
-    });
-
-    it("should handle doubleclick event", function () {
-        runs(function () {
-            page.content = '<input id="doubleClickField" type="text" onclick="document.getElementById(\'doubleClickField\').value=\'clicked\';" ondblclick="document.getElementById(\'doubleClickField\').value=\'doubleclicked\';" oncontextmenu="document.getElementById(\'doubleClickField\').value=\'rightclicked\'; return false;" value="hello"/>';
-            var point = page.evaluate(function () {
-                var el = document.querySelector('input');
-                var rect = el.getBoundingClientRect();
-                return { x: rect.left + Math.floor(rect.width / 2), y: rect.top + (rect.height / 2) };
-            });
-            page.sendEvent('doubleclick', point.x, point.y);
-        });
-
-        waits(50);
-
-        runs(function () {
-            var text = page.evaluate(function () {
-                return document.querySelector('input').value;
-            });
-            expect(text).toEqual("doubleclicked");
-        });
-    });
-
-    it("should handle mousedown with modifier keys", function() {
-        runs(function() {
-            page.evaluate(function() {
-                window.addEventListener('mousedown', function(event) {
-                    window.loggedEvent = window.loggedEvent || {};
-                    window.loggedEvent.mousedown = event;
-                }, false);
-            });
-            page.sendEvent('mousedown', 100, 100, 'left', page.event.modifier.shift);
-        });
-
-        waits(50);
-
-        runs(function() {
-            var event = page.evaluate(function() {
-                return window.loggedEvent.mousedown;
-            });
-            expect(event.shiftKey).toEqual(true);
-        });
-    });
-
-    it("should handle mouseup with modifier keys", function() {
-        runs(function() {
-            page.evaluate(function() {
-                window.addEventListener('mouseup', function(event) {
-                    window.loggedEvent = window.loggedEvent || {};
-                    window.loggedEvent.mouseup = event;
-                }, false);
-            });
-            page.sendEvent('mouseup', 100, 100, 'left', page.event.modifier.shift);
-        });
-
-        waits(50);
-
-        runs(function() {
-            var event = page.evaluate(function() {
-                return window.loggedEvent.mouseup;
-            });
-            expect(event.shiftKey).toEqual(true);
-        });
-    });
-
-    it("should handle click with modifier keys", function() {
-        runs(function() {
-            page.evaluate(function() {
-                window.addEventListener('click', function(event) {
-                    window.loggedEvent = window.loggedEvent || {};
-                    window.loggedEvent.click = event;
-                }, false);
-            });
-            page.sendEvent('click', 100, 100, 'left', page.event.modifier.shift);
-        });
-
-        waits(50);
-
-        runs(function() {
-            var event = page.evaluate(function() {
-                return window.loggedEvent.click;
-            });
-            expect(event.shiftKey).toEqual(true);
-        });
-    });
-
-    it("should handle doubleclick with modifier keys", function() {
-        runs(function() {
-            page.evaluate(function() {
-                window.addEventListener('dblclick', function(event) {
-                    window.loggedEvent = window.loggedEvent || {};
-                    window.loggedEvent.dblclick = event;
-                }, false);
-            });
-            page.sendEvent('doubleclick', 100, 100, 'left', page.event.modifier.shift);
-        });
-
-        waits(50);
-
-        runs(function() {
-            var event = page.evaluate(function() {
-                return window.loggedEvent.dblclick;
-            });
-            expect(event.shiftKey).toEqual(true);
-        });
-    });
-
-    it("should handle file uploads", function() {
+    xit("should handle file uploads", function() {
         runs(function() {
             page.content = '<input type="file" id="file">\n' +
                            '<input type="file" id="file2" multiple>\n' +
@@ -630,101 +39,7 @@ describe("WebPage object", function() {
         });
     });
 
-    it("should support console.log with multiple arguments", function() {
-        var message;
-        runs(function() {
-            page.onConsoleMessage = function (msg) {
-                message = msg;
-            };
-        });
-
-        waits(50);
-
-        runs(function() {
-            page.evaluate(function () { console.log('answer', 42); });
-            expect(message).toEqual("answer 42");
-        });
-    });
-
-    it("should not load any NPAPI plugins (e.g. Flash)", function() {
-        runs(function() {
-            expect(page.evaluate(function () { return window.navigator.plugins.length; })).toEqual(0);
-        });
-    });
-
-    it("reports unhandled errors", function() {
-        var lastError = null;
-
-        var page = new require('webpage').create();
-        page.onError = function(message) { lastError = message; };
-
-        runs(function() {
-            page.evaluate(function() {
-                setTimeout(function() { referenceError(); }, 0);
-            });
-        });
-
-        waits(0);
-
-        runs(function() {
-            expect(lastError).toEqual("ReferenceError: Can't find variable: referenceError");
-
-            page.evaluate(function() { referenceError2(); });
-            expect(lastError).toEqual("ReferenceError: Can't find variable: referenceError2");
-
-            page.evaluate(function() { throw "foo"; });
-            expect(lastError).toEqual("foo");
-
-            page.evaluate(function() { throw Error("foo"); });
-            expect(lastError).toEqual("Error: foo");
-        });
-    });
-
-    it("doesn't report handled errors", function() {
-        var hadError    = false;
-        var caughtError = false;
-        var page        = require('webpage').create();
-
-        runs(function() {
-            page.onError = function() { hadError = true; };
-            page.evaluate(function() {
-                caughtError = false;
-
-                try {
-                    referenceError();
-                } catch(e) {
-                    caughtError = true;
-                }
-            });
-
-            expect(hadError).toEqual(false);
-            expect(page.evaluate(function() { return caughtError; })).toEqual(true);
-        });
-    });
-
-    it("reports the sourceURL and line of errors", function() {
-        runs(function() {
-            var e1, e2;
-
-            try {
-                referenceError();
-            } catch (e) {
-                e1 = e;
-            }
-
-            try {
-                referenceError();
-            } catch (e) {
-                e2 = e;
-            }
-
-            expect(e1.sourceURL).toMatch(/webpage-spec.js$/);
-            expect(e1.line).toBeGreaterThan(1);
-            expect(e2.line).toEqual(e1.line + 6);
-        });
-    });
-
-    it("reports the stack of errors", function() {
+    xit("reports the stack of errors", function() {
         var helperFile = "./fixtures/error-helper.js";
         phantom.injectJs(helperFile);
 
@@ -762,65 +77,6 @@ describe("WebPage object", function() {
             expect(stack[0].line).toEqual(7);
             expect(stack[0]["function"]).toEqual("bar");
         });
-    });
-
-    it("reports errors that occur in the main context", function() {
-        var error;
-        phantom.onError = function(e) { error = e; };
-
-        runs(function() {
-            setTimeout(function() { zomg(); }, 0);
-        });
-
-        waits(0);
-
-        runs(function() {
-            expect(error.toString()).toEqual("ReferenceError: Can't find variable: zomg");
-            phantom.onError = phantom.defaultErrorHandler;
-        });
-    });
-
-    it("should set custom headers properly", function() {
-        var server = require('webserver').create();
-        server.listen(12345, function(request, response) {
-            // echo received request headers in response body
-            response.write(JSON.stringify(request.headers));
-            response.close();
-        });
-
-        var url = "http://localhost:12345/foo/headers.txt?ab=cd";
-        var customHeaders = {
-            "Custom-Key" : "Custom-Value",
-            "User-Agent" : "Overriden-UA",
-            "Referer" : "Overriden-Referer"
-        };
-        page.customHeaders = customHeaders;
-
-        var handled = false;
-        runs(function() {
-            expect(handled).toEqual(false);
-            page.open(url, function (status) {
-                expect(status == 'success').toEqual(true);
-                handled = true;
-
-                var echoedHeaders = JSON.parse(page.plainText);
-                // console.log(JSON.stringify(echoedHeaders, null, 4));
-                // console.log(JSON.stringify(customHeaders, null, 4));
-
-                expect(echoedHeaders["Custom-Key"]).toEqual(customHeaders["Custom-Key"]);
-                expect(echoedHeaders["User-Agent"]).toEqual(customHeaders["User-Agent"]);
-                expect(echoedHeaders["Referer"]).toEqual(customHeaders["Referer"]);
-
-            });
-        });
-
-        waits(50);
-
-        runs(function() {
-            expect(handled).toEqual(true);
-            server.close();
-        });
-
     });
 
     it("should process request body properly for POST", function() {
@@ -890,8 +146,7 @@ describe("WebPage object", function() {
       });
     });
 
-    it("should return properly from a 401 status", function() {
-        var page = require('webpage').create();
+    xit("should return properly from a 401 status", function() {
         var server = require('webserver').create();
         server.listen(12345, function(request, response) {
             response.statusCode = 401;
@@ -993,7 +248,7 @@ describe("WebPage object", function() {
     });
 
 
-    it("should set valid cookie properly, then remove it", function() {
+    xit("should set valid cookie properly, then remove it", function() {
         var server = require('webserver').create();
         server.listen(12345, function(request, response) {
             // echo received request headers in response body
@@ -1186,68 +441,9 @@ describe("WebPage object", function() {
         });
     });
 
-    it("should pass variables to functions properly", function() {
-        var testPrimitiveArgs = function() {
-            var samples = [
-                true,
-                0,
-                "`~!@#$%^&*()_+-=[]\\{}|;':\",./<>?",
-                undefined,
-                null
-            ];
-            for (var i = 0; i < samples.length; i++) {
-                if (samples[i] !== arguments[i]) {
-                    console.log("FAIL");
-                }
-            }
-        };
-
-        var testComplexArgs = function() {
-            var samples = [
-                {a:true, b:0, c:"string"},
-                function() { return true; },
-                [true, 0, "string"],
-                /\d+\w*\//
-            ];
-            for (var i = 0; i < samples.length; i++) {
-                if (typeof samples[i] !== typeof arguments[i] ||
-                    samples[i].toString() !== arguments[i].toString()) {
-                    console.log("FAIL");
-                }
-            }
-        };
-
-        var message;
-        runs(function() {
-            page.onConsoleMessage = function (msg) {
-                message = msg;
-            };
-        });
-
-        waits(0);
-
-        runs(function() {
-            page.evaluate(function() {
-                console.log("PASS");
-            });
-            page.evaluate(testPrimitiveArgs,
-                true,
-                0,
-                "`~!@#$%^&*()_+-=[]\\{}|;':\",./<>?",
-                undefined,
-                null);
-            page.evaluate(testComplexArgs,
-                {a:true, b:0, c:"string"},
-                function() { return true; },
-                [true, 0, "string"],
-                /\d+\w*\//);
-            expect(message).toEqual("PASS");
-        });
-    });
-
     it('should open url using secure connection', function() {
         var page = require('webpage').create();
-        var url = 'https://www.google.com/m';
+        var url = 'https://httpbin.org/';
 
         var loaded = false, handled = false;
 
@@ -1268,114 +464,7 @@ describe("WebPage object", function() {
         });
     });
 
-    it('should handle resource request errors', function() {
-        var server = require('webserver').create();
-        var page = require('webpage').create();
-
-        server.listen(12345, function(request, response) {
-            if (request.url == '/notExistResource.png') {
-                response.statusCode = 404;
-                response.write('Not found!');
-                response.close();
-            } else {
-                response.statusCode = 200;
-                response.write('<html><body><img src="notExistResource.png"/></body></html>');
-                response.close();
-            }
-        });
-
-        var handled = false;
-
-        runs(function() {
-            page.onResourceError = function(errorData) {
-                expect(errorData['url']).toEqual('http://localhost:12345/notExistResource.png');
-                expect(errorData['errorCode']).toEqual(203);
-                expect(errorData['errorString']).toContain('notExistResource.png - server replied: Not Found');
-                handled = true;
-            };
-
-            page.open('http://localhost:12345', function(status) {
-                expect(status).toEqual('success');
-            });
-        });
-
-        waits(5000);
-
-        runs(function() {
-            expect(handled).toEqual(true);
-            page.close();
-            server.close();
-        });
-    });
-
-
-    it("should change a url request with an encoded query string", function() {
-        var page = new require('webpage').create();
-
-        var server = require('webserver').create();
-        server.listen(12345, function(request, response) {
-            // echo received request headers in response body
-            response.write(JSON.stringify(request.headers));
-            response.close();
-        });
-
-        var url = "http://localhost:12345/cdn-cgi/pe/bag?r%5B%5D=http%3A%2F%2Fwww.example.org%2Fcdn-cgi%2Fnexp%2Fabv%3D927102467%2Fapps%2Fabetterbrowser.js";
-
-        var handled = false;
-        runs(function() {
-            expect(handled).toEqual(false);
-
-            page.onResourceRequested = function(requestData, request) {
-                request.changeUrl(requestData.url);
-            };
-
-           page.onResourceReceived = function(data) {
-                if (data['stage'] === 'end') {
-                    expect(data.url).toEqual(url);
-                }
-           };
-
-           page.open(url, function (status) {
-                expect(status == 'success').toEqual(true);
-                handled = true;
-                server.close();
-            });
-        });
-    });
-
-
-    it('should able to abort a network request', function() {
-        var page = require('webpage').create();
-        var url = 'http://phantomjs.org';
-        var urlToBlockRexExp = /phantomjs-logo\.png$/i;
-
-        var handled = false;
-
-        page.onResourceRequested = function(requestData, request) {
-
-            if (urlToBlockRexExp.test(requestData['url'])) {
-                expect(typeof request).toEqual('object');
-                expect(typeof request.abort).toEqual('function');
-                request.abort();
-                handled = true;
-            }
-        };
-
-        runs(function() {
-            page.open(url, function(status) {
-                expect(status).toEqual('success');
-            });
-        });
-
-        waits(5000);
-
-        runs(function() {
-            page.close();
-            expect(handled).toBeTruthy();
-        });
-    });
-
-    it('should fail on secure connection to url with bad cert', function() {
+    xit('should fail on secure connection to url with bad cert', function() {
         var page = require('webpage').create();
         var url = 'https://tv.eurosport.com/';
         /* example from:
@@ -1398,80 +487,25 @@ describe("WebPage object", function() {
         });
     });
 
-    it('should change the url of the request', function() {
-        var page = require('webpage').create();
-        var url = 'http://phantomjs.org';
-        var urlToChange = 'http://phantomjs.org/img/phantomjs-logo.png';
-        var alternativeUrl = 'http://phantomjs.org/img/icon-release.png';
-
-        var handled = false;
-
-        runs(function() {
-            page.onResourceRequested = function(requestData, request) {
-                if (requestData['url'] == urlToChange) {
-                    expect(typeof request).toEqual('object');
-                    expect(typeof request.changeUrl).toEqual('function');
-                    request.changeUrl(alternativeUrl);
-                }
-            };
-
-            page.onResourceReceived = function(data) {
-                if (data['stage'] === 'end' && data['url'] == alternativeUrl) {
-                    handled = true;
-                }
-            };
-
-            page.open(url, function(status) {
-                expect(status).toEqual('success');
-            });
-        });
-
-        waits(3000);
-
-        runs(function() {
-            expect(handled).toBe(true);
-        });
-    });
-
-    it('should fire `onResourceReceived` callback when the resource error occured', function() {
-        var page = require('webpage').create();
-        var server = require('webserver').create();
-        var service = server.listen(12345, function (request, response) {
-            var code = parseInt(/^\/(\d+)$/.exec(request.url)[1], 10);
-            response.statusCode = code;
-            response.write("how");
-            response.close();
-        });
-        var handled = 0;
-
-        runs(function() {
-            page.onResourceReceived = function(res) {
-                handled++;
-            };
-
-            page.open('http://localhost:12345/400', function() {
-                server.close();
-            });
-        });
-
-        waits(5000);
-
-        runs(function() {
-            expect(handled).toEqual(2);
-            page.close();
-            server.close();
-        });
-    });
-
-    it("should interrupt a long-running JavaScript code", function() {
+    xit("should interrupt a long-running JavaScript code", function() {
         var page = new WebPage();
+        var longRunningScriptCalled = false;
+        var loadStatus;
 
         page.onLongRunningScript = function() {
             page.stopJavaScript();
+            longRunningScriptCalled = true;
         };
+        page.onError = function () {};
 
-        page.open('../test/webpage-spec-frames/forever.html', function(status) {
-            expect(status).toEqual('success');
+        runs(function() {
+            page.open('../test/webpage-spec-frames/forever.html',
+                      function(status) { loadStatus = status; });
+        });
+        waits(5000);
+        runs(function() {
+            expect(loadStatus).toEqual('success');
+            expect(longRunningScriptCalled).toBeTruthy();
         });
     });
 });
@@ -1482,18 +516,6 @@ describe("WebPage construction with options", function () {
             page = new WebPage(opts);
         expect(typeof page).toEqual('object');
         expect(page).toNotEqual(null);
-    });
-
-    describe("specifying clipRect", function() {
-        var opts = {
-            clipRect: {
-                height: 100,
-                left: 10,
-                top: 20,
-                width: 200
-            }
-        };
-        checkClipRect(new WebPage(opts), opts.clipRect);
     });
 
     describe("specifying onConsoleMessage", function() {
@@ -1554,16 +576,6 @@ describe("WebPage construction with options", function () {
         });
     });
 
-    describe("specifying scrollPosition", function () {
-        var opts = {
-            scrollPosition: {
-                left: 1,
-                top: 2
-            }
-        };
-        checkScrollPosition(new WebPage(opts), opts.scrollPosition);
-    });
-
     describe("specifying timeout", function () {
         var opts = {
             settings: {
@@ -1574,28 +586,6 @@ describe("WebPage construction with options", function () {
         it("should have timeout as "+opts.settings.timeout,function () {
             expect(page.settings.timeout).toEqual(opts.settings.timeout);
         });
-    });
-
-    describe("specifying userAgent", function () {
-        var opts = {
-            settings: {
-                userAgent: "PHANTOMJS-TEST-USER-AGENT"
-            }
-        };
-        var page = new WebPage(opts);
-        it("should have userAgent as '"+opts.settings.userAgent+"'",function () {
-            expect(page.settings.userAgent).toEqual(opts.settings.userAgent);
-        });
-    });
-
-    describe("specifying viewportSize", function () {
-        var opts = {
-            viewportSize: {
-                height: 100,
-                width: 200
-            }
-        };
-        checkViewportSize(new WebPage(opts), opts.viewportSize);
     });
 });
 
@@ -2006,7 +996,7 @@ describe("WebPage closing notification/alerting: closing propagation control", f
 });
 
 describe("WebPage 'onFilePicker'", function() {
-    it("should be able to set the file to upload when the File Picker is invoked (i.e. clicking on a 'input[type=file]')", function() {
+    xit("should be able to set the file to upload when the File Picker is invoked (i.e. clicking on a 'input[type=file]')", function() {
         var system = require('system'),
             fileToUpload = system.os.name === "windows" ? "C:\\Windows\\System32\\drivers\\etc\\hosts" : "/etc/hosts",
             server = require("webserver").create(),
@@ -2062,125 +1052,47 @@ describe("WebPage 'onFilePicker'", function() {
 
 describe('WebPage navigation events', function() {
     it('should navigate to relative url using window.location', function () {
-        var page = require("webpage").create();
-        var base = 'https://github.com';
-        var path = '/n1k0';
-        var expected = 'https://github.com/n1k0';
-        var isHandled = false;
-
-        runs(function() {
-            page.onNavigationRequested = function(url, navigationType, navigationLocked, isMainFrame) {
-                if (!page.testStarted) {
-                    return;
-                }
-
-                if (url === expected) {
-                    isHandled = true;
-                }
-            };
-
-            page.open(base, function(status) {
-                page.testStarted = true;
-
-                page.evaluate(function(path) {
-                    window.location = path;
-                }, path);
-            });
-        });
-
-        waits(10000);
-
-        runs(function() {
-            expect(isHandled).toEqual(true);
-        });
-    });
-});
-
-
-describe('WebPage repaint requests', function() {
-    it('should report when a repaint is requested, together with the area being repainted', function () {
-        var page = require("webpage").create();
-        var base = "https://github.com";
-        var isHandled = false;
-
-        runs(function() {
-            page.onRepaintRequested = function(x, y, width, height) {
-                isHandled = true;
-            };
-
-            page.open(base);
-        });
-
-        waits(3000);
-
-        runs(function() {
-            expect(isHandled).toEqual(true);
-        });
-    });
-});
-
-describe("WebPage loading/loadingProgress properties", function() {
-    var p = require("webpage").create();
-
-    it("should not be loading when page has just been created", function() {
-        expect(p.loading).toBeFalsy();
-        expect(p.loadingProgress).toEqual(0);
-    });
-
-    it("should be loading when 'page.open' is invoked", function() {
-        var s = require("webserver").create();
-
-        s.listen(12345, function(request, response) {
-            setTimeout(function() {
+        var server = require("webserver").create();
+        server.listen(12345, function(request, response) {
+            if (request.url === "/destination") {
                 response.statusCode = 200;
-                response.write('<html><body>Loaded!</body></html>');
-                response.close();
-            }, 200);
-        });
-
-        runs(function() {
-            p.open("http://localhost:12345");
-            expect(p.loading).toBeTruthy();
-            expect(p.loadingProgress).toBeGreaterThan(0);
-        });
-
-        waits(500);
-
-        runs(function() {
-            s.close();
-        });
-    });
-
-    it("should be completed when page is fully loaded", function() {
-        var s = require("webserver").create();
-
-        s.listen(12345, function(request, response) {
-            setTimeout(function() {
+                response.write("<html><body>SUCCESS</body></html>");
+            } else if (request.url === "/" || request.url === "") {
                 response.statusCode = 200;
-                response.write('<html><body>Loaded!</body></html>');
-                response.close();
-            }, 500);
+                response.write("<html><head><script>" +
+                               "setTimeout(function(){" +
+                               "document.body.innerHTML = 'FAIL';" +
+                               "}, 250);" +
+                               "</script></head><body>WAIT</body></html>");
+            } else {
+                response.statusCode = 404;
+                response.write("<html><body>ERROR</body></html>")
+            }
+            response.close();
         });
 
-        var loaded = false;
+        var page = require("webpage").create();
+        runs(function() {
+             page.open("http://localhost:12345/", function(status) {
+                 page.evaluate(function() {
+                     window.location = "/destination";
+                 });
+             });
+        });
+
+        waits(1000);
 
         runs(function() {
-            p.open("http://localhost:12345", function () {
-                loaded = true;
+            var status = page.evaluate(function() {
+                return document.body.innerHTML;
             });
-        });
-
-        waitsFor(function () {
-            return loaded;
-        }, 'Can not test loading progress' , 3000);
-
-        runs(function() {
-            expect(p.loading).toBeFalsy();
-            expect(p.loadingProgress).toEqual(100);
-            s.close();
+            expect(status).toEqual('SUCCESS');
+            expect(page.url).toEqual("http://localhost:12345/destination");
+            server.close();
         });
     });
 });
+
 
 describe("WebPage render image", function(){
     var TEST_FILE_DIR = "webpage-spec-renders/";
@@ -2221,7 +1133,7 @@ describe("WebPage render image", function(){
                 content = fs.read(TEST_FILE, "b");
 
                 fs.remove(TEST_FILE);
-            } catch (e) { console.log(e) }
+            } catch (e) { jasmine.fail(e) }
 
             // for PDF test
             if (format === "pdf") {
@@ -2245,27 +1157,19 @@ describe("WebPage render image", function(){
         }, "page to be rendered", 3000);
     }
 
-    it("should render PDF file", function(){
+    xit("should render PDF file", function(){
         render_test("pdf");
     });
 
-    it("should render PDF file with format option", function(){
+    xit("should render PDF file with format option", function(){
         render_test("pdf", { format: "pdf" });
     });
 
-    it("should render GIF file", function(){
-        render_test("gif");
-    });
-
-    it("should render GIF file with format option", function(){
-        render_test("gif", { format: "gif" });
-    });
-
-    it("should render PNG file", function(){
+    xit("should render PNG file", function(){
         render_test("png");
     });
 
-    it("should render PNG file with format option", function(){
+    xit("should render PNG file with format option", function(){
         render_test("png", { format: "png" });
     });
 
@@ -2279,106 +1183,5 @@ describe("WebPage render image", function(){
 
     runs(function() {
         p.close();
-    });
-});
-
-describe("WebPage network request headers handling", function() {
-    it("should add HTTP header to a network request", function() {
-        var page = require("webpage").create();
-        var server = require("webserver").create();
-        var isCustomHeaderPresented = false;
-
-        server.listen(12345, function(response) {
-            if (response.headers["CustomHeader"] && response.headers["CustomHeader"] === "CustomValue") {
-                isCustomHeaderPresented = true;
-            }
-        });
-
-        page.onResourceRequested = function(requestData, request) {
-            expect(typeof request.setHeader).toEqual("function");
-            request.setHeader("CustomHeader", "CustomValue");
-        };
-
-        runs(function() {
-            page.open("http://localhost:12345", function(status) {
-                expect(status).toEqual("success");
-            });
-        });
-
-        waitsFor(function() {
-            return isCustomHeaderPresented;
-        }, "isCustomHeaderPresented should be received", 3000);
-
-        runs(function() {
-            page.close();
-            server.close();
-        });
-    });
-
-    it("should remove HTTP header from a network request", function() {
-        var page = require("webpage").create();
-        page.customHeaders = {"CustomHeader": "CustomValue"};
-
-        var server = require("webserver").create();
-        var handled = false;
-
-        server.listen(12345, function(request) {
-            if (request.headers["CustomHeader"] == null) {
-                handled = true;
-            }
-        });
-
-        page.onResourceRequested = function(requestData, request) {
-            expect(typeof request.setHeader).toEqual("function");
-            request.setHeader("CustomHeader", null);
-        };
-
-        runs(function() {
-            page.open("http://localhost:12345", function(status) {
-                expect(status).toEqual("success");
-            });
-        });
-
-        waits(3000);
-
-        runs(function() {
-            expect(handled).toBeTruthy();
-            page.close();
-            server.close();
-        });
-    });
-
-    it("should set HTTP header value for a network request", function() {
-        var page = require("webpage").create();
-        page.customHeaders = {"CustomHeader": "CustomValue"};
-
-        var server = require("webserver").create();
-        var handled = false;
-
-        server.listen(12345, function(request) {
-            if (request.headers["CustomHeader"] &&
-                request.headers["CustomHeader"] === "ChangedCustomValue") {
-                handled = true;
-            }
-        });
-
-        page.onResourceRequested = function(requestData, request) {
-            expect(typeof request.setHeader).toEqual("function");
-            request.setHeader("CustomHeader", "ChangedCustomValue");
-        };
-
-        runs(function() {
-            page.open("http://localhost:12345", function(status) {
-                expect(status).toEqual("success");
-            });
-        });
-
-        waits(3000);
-
-        runs(function() {
-            expect(handled).toBeTruthy();
-            page.close();
-            server.close();
-        });
     });
 });

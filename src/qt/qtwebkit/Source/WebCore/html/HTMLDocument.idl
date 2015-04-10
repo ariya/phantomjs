@@ -1,0 +1,61 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc. All rights reserved.
+ * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+[
+    CustomNamedGetter,
+] interface HTMLDocument : Document {
+    [Custom] void open();
+    void close();
+    [Custom] void write([Default=Undefined] optional DOMString text);
+    [Custom] void writeln([Default=Undefined] optional DOMString text);
+
+    readonly attribute HTMLCollection embeds;
+    readonly attribute HTMLCollection plugins;
+    readonly attribute HTMLCollection scripts;
+
+    // Extensions
+
+#if defined(LANGUAGE_JAVASCRIPT) && LANGUAGE_JAVASCRIPT
+    // FIXME: This should eventually be available (if they are wanted) for all languages.
+    [Custom, Replaceable, Deletable] readonly attribute HTMLAllCollection all;
+#endif
+
+    void clear();
+
+    void captureEvents();
+    void releaseEvents();
+
+    readonly attribute long width;
+    readonly attribute long height;
+             [TreatNullAs=NullString] attribute DOMString dir;
+             [TreatNullAs=NullString] attribute DOMString designMode;
+    readonly attribute DOMString compatMode;
+
+    readonly attribute Element activeElement;
+    boolean hasFocus();
+
+    // Deprecated attributes
+             [TreatNullAs=NullString] attribute DOMString bgColor;
+             [TreatNullAs=NullString] attribute DOMString fgColor;
+             [TreatNullAs=NullString] attribute DOMString alinkColor;
+             [TreatNullAs=NullString] attribute DOMString linkColor;
+             [TreatNullAs=NullString] attribute DOMString vlinkColor;
+};
+

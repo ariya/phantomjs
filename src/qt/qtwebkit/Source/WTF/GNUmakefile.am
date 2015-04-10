@@ -1,0 +1,38 @@
+include $(srcdir)/Source/WTF/GNUmakefile.list.am
+
+noinst_LTLIBRARIES += \
+	libWTF.la
+
+libWTF_la_LDFLAGS = \
+	$(no_undefined)
+
+libWTF_la_SOURCES = \
+	$(wtf_sources)
+
+libWTF_la_LIBADD = \
+	$(UNICODE_LIBS) \
+	$(GLIB_LIBS) \
+	$(WINMM_LIBS) \
+	-lpthread
+
+if TARGET_WIN32
+# OwnPtrWin.cpp needs the symbols from gdi32 dll
+libWTF_la_LIBADD += -lgdi32
+endif
+
+libWTF_la_CXXFLAGS = \
+	$(global_cxxflags) \
+	$(libWTF_la_CFLAGS)
+
+libWTF_la_CFLAGS = \
+	-fstrict-aliasing \
+	-O3 \
+	$(global_cflags) \
+	$(GLIB_CFLAGS) \
+	$(UNICODE_CFLAGS)
+
+libWTF_la_CPPFLAGS = \
+	$(global_cppflags) \
+	-I$(srcdir)/Source \
+	-I$(srcdir)/Source/WTF \
+	-I$(srcdir)/Source/WTF/wtf

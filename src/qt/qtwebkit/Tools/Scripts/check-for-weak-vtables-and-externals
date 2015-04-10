@@ -1,0 +1,120 @@
+#!/usr/bin/perl
+
+# Copyright (C) 2006, 2007, 2008, 2010 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# "check-for-weak-vtables-and-externals" script for WebKit Open Source Project
+
+# Intended to be invoked from an Xcode build step to check if there are
+# any weak vtables or weak externals in a target.
+
+use warnings;
+use strict;
+
+use File::Basename;
+
+sub touch($);
+
+my $arch = $ENV{'CURRENT_ARCH'};
+my $configuration = $ENV{'CONFIGURATION'};
+my $target = $ENV{'TARGET_NAME'};
+my $variant = $ENV{'CURRENT_VARIANT'};
+my $coverageBuild = $ENV{'WEBKIT_COVERAGE_BUILD'};
+my $debugRoot = $ENV{'WEBKIT_DEBUG_ROOT'};
+
+$arch = $ENV{'NATIVE_ARCH'} if !$arch; # for Xcode 2.1, which does not have CURRENT_ARCH
+$variant = "normal" if !$variant; # for Xcode 2.1, which does not have CURRENT_VARIANT
+
+my $executablePath = "$ENV{'TARGET_BUILD_DIR'}/$ENV{'EXECUTABLE_PATH'}";
+
+my $buildTimestampPath = $ENV{'TARGET_TEMP_DIR'} . "/" . basename($0) . ".timestamp";
+my $buildTimestampAge = -M $buildTimestampPath;
+my $executablePathAge = -M $executablePath;
+
+my $sawError = 0;
+
+if (!defined $executablePathAge || !defined $buildTimestampAge || $executablePathAge < $buildTimestampAge) {
+    if (!open NM, "(nm -m '$executablePath' | c++filt | sed 's/^/STDOUT:/') 2>&1 |") {
+        print "ERROR: Could not open $executablePath\n";
+        $sawError = 1;
+        next;
+    }
+    my @weakVTableClasses = ();
+    my @weakExternalSymbols = ();
+    while (<NM>) {
+        if (/^STDOUT:/) {
+            # Ignore undefined, RTTI and typeinfo symbols.
+            next if /\bundefined\b/ or /\b__ZT[IS]/;
+
+            if (/weak external vtable for (.*)$/) {
+                push @weakVTableClasses, $1;
+            } elsif (/weak external (.*)$/) {
+                push @weakExternalSymbols, $1;
+            }
+        } else {
+            print STDERR if $_ ne "nm: no name list\n";
+        }
+    }
+    close NM;
+
+    my $shortName = $executablePath;
+    $shortName =~ s/.*\///;
+
+    if (@weakVTableClasses) {
+        print "ERROR: $shortName has a weak vtable in it ($executablePath)\n";
+        print "ERROR: Fix by making sure the first virtual function in each of these classes is not an inline:\n";
+        for my $class (sort @weakVTableClasses) {
+            print "ERROR: class $class\n";
+        }
+        $sawError = 1;
+    }
+
+    if (@weakExternalSymbols) {
+        print "ERROR: $shortName has a weak external symbol in it ($executablePath)\n";
+        print "ERROR: A weak external symbol is generated when a symbol is defined in multiple compilation units and is also marked as being exported from the library.\n";
+        print "ERROR: A common cause of weak external symbols is when an inline function is listed in the linker export file.\n";
+        for my $symbol (sort @weakExternalSymbols) {
+            print "ERROR: symbol $symbol\n";
+        }
+        $sawError = 1;
+    }
+}
+
+if ($sawError and !$coverageBuild) {
+    unlink $executablePath;
+    exit 1;
+}
+
+touch($buildTimestampPath);
+
+exit 0;
+
+sub touch($)
+{
+    my ($path) = @_;
+    open(TOUCH, ">", $path) or die "$!";
+    close(TOUCH);
+}

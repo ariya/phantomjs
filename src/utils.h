@@ -32,49 +32,47 @@
 #define UTILS_H
 
 #include <QtGlobal>
-#include <QWebFrame>
-#include <QFile>
-
-#include "csconverter.h"
 #include "encoding.h"
 
-#ifdef Q_OS_WIN32
-#include "client/windows/handler/exception_handler.h"
-#endif
+class QWebFrame;
 
-class QTemporaryFile;
 /**
  * Aggregate common utility functions.
- * Functions are static methods.
- * It's important to notice that, at the moment, this class can't be instantiated by design.
  */
-class Utils
-{
-public:
-    static void messageHandler(QtMsgType type, const char *msg);
-#ifdef Q_OS_WIN32
-    static bool exceptionHandler(const wchar_t* dump_path, const wchar_t* minidump_id, void* context, EXCEPTION_POINTERS* exinfo, MDRawAssertionInfo *assertion, bool succeeded);
-#else
-    static bool exceptionHandler(const char* dump_path, const char* minidump_id, void* context, bool succeeded);
-#endif    
-    static QVariant coffee2js(const QString &script);
-    static bool injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
-    static bool injectJsInFrame(const QString &jsFilePath, const QString &jsFileLanguage, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
-    static QString readResourceFileUtf8(const QString &resourceFilePath);
 
-    static bool loadJSForDebug(const QString &jsFilePath, const QString &jsFileLanguage, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool autorun = false);
-    static bool loadJSForDebug(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool autorun = false);
-    static void cleanupFromDebug();
+namespace Utils {
 
-    static bool printDebugMessages;
+void messageHandler(QtMsgType type,
+                    const QMessageLogContext &context,
+                    const QString &msg);
+extern bool printDebugMessages;
 
-private:
-    static QString findScript(const QString &jsFilePath, const QString& libraryPath);
-    static QString jsFromScriptFile(const QString& scriptPath, const QString& lang, const Encoding& enc);
-    Utils(); //< This class shouldn't be instantiated
+bool injectJsInFrame(const QString &jsFilePath,
+                     const QString &libraryPath,
+                     QWebFrame *targetFrame,
+                     const bool startingScript = false);
 
-    static QTemporaryFile* m_tempHarness; //< We want to make sure to clean up after ourselves
-    static QTemporaryFile* m_tempWrapper;
+bool injectJsInFrame(const QString &jsFilePath,
+                     const QString &jsFileLanguage,
+                     const Encoding &jsFileEnc,
+                     const QString &libraryPath,
+                     QWebFrame *targetFrame,
+                     const bool startingScript = false);
+
+ bool loadJSForDebug(const QString &jsFilePath,
+                     const QString &libraryPath,
+                     QWebFrame *targetFrame,
+                     const bool autorun = false);
+
+bool loadJSForDebug(const QString &jsFilePath,
+                    const QString &jsFileLanguage,
+                    const Encoding &jsFileEnc,
+                    const QString &libraryPath,
+                    QWebFrame *targetFrame,
+                    const bool autorun = false);
+
+QString readResourceFileUtf8(const QString &resourceFilePath);
+
 };
 
 #endif // UTILS_H
