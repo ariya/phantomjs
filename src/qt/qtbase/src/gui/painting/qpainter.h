@@ -448,6 +448,18 @@ public:
     inline void fillRect(const QRect &r, Qt::BrushStyle style);
     inline void fillRect(const QRectF &r, Qt::BrushStyle style);
 
+    inline void addAnchor(int x, int y, int w, int h, const QString &name);
+    inline void addAnchor(const QRect &r, const QString &name);
+    void addAnchor(const QRectF &r, const QString &name);
+
+    inline void addLink(int x, int y, int w, int h, const QString &anchor);
+    inline void addLink(const QRect &r, const QString &anchor);
+    void addLink(const QRectF &r, const QString &anchor);
+    
+    inline void addHyperlink(int x, int y, int w, int h, const QUrl &url);
+    inline void addHyperlink(const QRect &r, const QUrl &url);
+    void addHyperlink(const QRectF &r, const QUrl &url);
+
     void eraseRect(const QRectF &);
     inline void eraseRect(int x, int y, int w, int h);
     inline void eraseRect(const QRect &);
@@ -745,6 +757,35 @@ inline void QPainter::fillRect(const QRectF &r, Qt::BrushStyle style)
     fillRect(r, QBrush(style));
 }
 
+inline void QPainter::addAnchor(int x, int y, int w, int h, const QString &name) 
+{
+    addAnchor(QRectF(x, y, w, h), name);
+}
+
+inline void QPainter::addAnchor(const QRect &r, const QString &name)
+{
+    addAnchor(QRectF(r), name);
+}
+
+inline void QPainter::addLink(int x, int y, int w, int h, const QString &anchor)
+{
+    addLink(QRectF(x, y, w, h), anchor);
+}
+
+inline void QPainter::addLink(const QRect &r, const QString &anchor)
+{
+    addLink(QRectF(r), anchor);
+}
+
+inline void QPainter::addHyperlink(int x, int y, int w, int h, const QUrl &url)
+{
+    addHyperlink(QRectF(x, y, w, h), url);
+}
+
+inline void QPainter::addHyperlink(const QRect &r, const QUrl &url)
+{
+    addHyperlink(QRectF(r), url);
+}
 
 inline void QPainter::setBrushOrigin(int x, int y)
 {
