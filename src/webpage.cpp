@@ -55,6 +55,8 @@
 #include <QDebug>
 #include <QImageWriter>
 #include <QUuid>
+#include <QUrl>
+#include <QNetworkProxy>
 
 #include "phantom.h"
 #include "networkaccessmanager.h"
@@ -641,6 +643,21 @@ void WebPage::applySettings(const QVariantMap& def)
         m_networkAccessManager->setResourceTimeout(def[PAGE_SETTINGS_RESOURCE_TIMEOUT].toInt());
     }
 
+    if (def.contains(PAGE_SETTINGS_PROXY)) {
+        setProxy(def[PAGE_SETTINGS_PROXY].toString());
+    }
+}
+
+void WebPage::setProxy(const QString &proxyUrl)
+{
+    QUrl url(proxyUrl);
+    qDebug() << "Setting proxy to: "<< url.scheme() << url.host() << url.port();
+    QNetworkProxy::ProxyType type = QNetworkProxy::HttpProxy;
+    if (url.scheme() == "socks5") {
+        type = QNetworkProxy::Socks5Proxy;
+    }
+    QNetworkProxy proxy(type, url.host(), url.port(), url.userName(), url.password());
+    m_networkAccessManager->setProxy(proxy);
 }
 
 QString WebPage::userAgent() const
