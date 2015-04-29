@@ -501,6 +501,8 @@ public slots:
 
     void clearMemoryCache();
 
+    void setProxy(const QString& proxyUrl);
+
 signals:
     void initialized();
     void loadStarted();
