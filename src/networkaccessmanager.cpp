@@ -2,7 +2,7 @@
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
-  Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
+  Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>s
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -371,11 +371,7 @@ void NetworkAccessManager::handleStarted()
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
     if (!reply)
         return;
-    if (m_started.contains(reply))
-        return;
 
-    m_started += reply;
-    
     QVariantList headers;
     foreach (QByteArray headerName, reply->rawHeaderList()) {
         QVariantMap header;
@@ -385,7 +381,13 @@ void NetworkAccessManager::handleStarted()
     }
 
     QVariantMap data;
-    data["stage"] = "start";
+    if (!m_started.contains(reply)) {
+      m_started += reply;
+      data["stage"] = "start";
+    }
+    else {
+      data["stage"] = "data";
+    }
     data["id"] = m_ids.value(reply);
     data["url"] = reply->url().toEncoded().data();
     data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
