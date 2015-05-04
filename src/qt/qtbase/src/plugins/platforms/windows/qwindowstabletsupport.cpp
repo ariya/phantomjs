@@ -1,51 +1,45 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
 
 #include "qwindowstabletsupport.h"
+#include "qwindowsscaling.h"
 
 #ifndef QT_NO_TABLETEVENT
 
 #include "qwindowscontext.h"
 #include "qwindowskeymapper.h"
 #include "qwindowswindow.h"
+#include "qwindowsscreen.h"
 
 #include <qpa/qwindowsysteminterface.h>
 
@@ -275,6 +269,8 @@ static inline QTabletEvent::TabletDevice deviceType(const UINT cursorType)
 {
     if (((cursorType & 0x0006) == 0x0002) && ((cursorType & CursorTypeBitMask) != 0x0902))
         return QTabletEvent::Stylus;
+    if (cursorType == 0x4020) // Surface Pro 2 tablet device
+        return QTabletEvent::Stylus;
     switch (cursorType & CursorTypeBitMask) {
     case 0x0802:
         return QTabletEvent::Stylus;
@@ -347,7 +343,13 @@ QWindowsTabletDeviceData QWindowsTabletSupport::tabletInit(const quint64 uniqueI
 
 bool QWindowsTabletSupport::translateTabletProximityEvent(WPARAM /* wParam */, LPARAM lParam)
 {
-    const bool enteredProximity = LOWORD(lParam) != 0;
+    if (!LOWORD(lParam)) {
+        qCDebug(lcQpaTablet) << "leave proximity for device #" << m_currentDevice;
+        QWindowSystemInterface::handleTabletLeaveProximityEvent(m_devices.at(m_currentDevice).currentDevice,
+                                                                m_devices.at(m_currentDevice).currentPointerType,
+                                                                m_devices.at(m_currentDevice).uniqueId);
+        return true;
+    }
     PACKET proximityBuffer[1]; // we are only interested in the first packet in this case
     const int totalPacks = QWindowsTabletSupport::m_winTab32DLL.wTPacketsGet(m_context, 1, proximityBuffer);
     if (!totalPacks)
@@ -367,17 +369,11 @@ bool QWindowsTabletSupport::translateTabletProximityEvent(WPARAM /* wParam */, L
         m_devices.push_back(tabletInit(uniqueId, cursorType));
     }
     m_devices[m_currentDevice].currentPointerType = pointerType(currentCursor);
-    qCDebug(lcQpaTablet) << __FUNCTION__ << (enteredProximity ? "enter" : "leave")
-        << " proximity for device #" << m_currentDevice << m_devices.at(m_currentDevice);
-    if (enteredProximity) {
-        QWindowSystemInterface::handleTabletEnterProximityEvent(m_devices.at(m_currentDevice).currentDevice,
-                                                                m_devices.at(m_currentDevice).currentPointerType,
-                                                                m_devices.at(m_currentDevice).uniqueId);
-    } else {
-        QWindowSystemInterface::handleTabletLeaveProximityEvent(m_devices.at(m_currentDevice).currentDevice,
-                                                                m_devices.at(m_currentDevice).currentPointerType,
-                                                                m_devices.at(m_currentDevice).uniqueId);
-    }
+    qCDebug(lcQpaTablet) << "enter proximity for device #"
+        << m_currentDevice << m_devices.at(m_currentDevice);
+    QWindowSystemInterface::handleTabletEnterProximityEvent(m_devices.at(m_currentDevice).currentDevice,
+                                                            m_devices.at(m_currentDevice).currentPointerType,
+                                                            m_devices.at(m_currentDevice).uniqueId);
     return true;
 }
 
@@ -403,7 +399,8 @@ bool QWindowsTabletSupport::translateTabletPacketEvent()
     //    in which case we snap the position to the mouse position.
     // It seems there is no way to find out the mode programmatically, the LOGCONTEXT orgX/Y/Ext
     // area is always the virtual desktop.
-    const QRect virtualDesktopArea = QGuiApplication::primaryScreen()->virtualGeometry();
+    const QRect virtualDesktopArea
+        = QWindowsScaling::mapToNative(QGuiApplication::primaryScreen()->virtualGeometry());
 
     qCDebug(lcQpaTablet) << __FUNCTION__ << "processing " << packetCount
         << "target:" << QGuiApplicationPrivate::tabletPressTarget;
@@ -423,7 +420,7 @@ bool QWindowsTabletSupport::translateTabletPacketEvent()
         QPoint globalPos = globalPosF.toPoint();
 
         // Get Mouse Position and compare to tablet info
-        const QPoint mouseLocation = QWindowsCursor::mousePosition();
+        QPoint mouseLocation = QWindowsCursor::mousePosition();
 
         // Positions should be almost the same if we are in absolute
         // mode. If they are not, use the mouse location.
@@ -433,8 +430,7 @@ bool QWindowsTabletSupport::translateTabletPacketEvent()
         }
 
         if (!target)
-            if (QPlatformWindow *pw = QWindowsContext::instance()->findPlatformWindowAt(GetDesktopWindow(), globalPos, CWP_SKIPINVISIBLE | CWP_SKIPTRANSPARENT))
-                target = pw->window();
+            target = QWindowsScreen::windowAt(globalPos, CWP_SKIPINVISIBLE | CWP_SKIPTRANSPARENT);
         if (!target)
             continue;
 
@@ -458,14 +454,16 @@ bool QWindowsTabletSupport::translateTabletPacketEvent()
             // Z = sin(altitude)
             // X Tilt = arctan(X / Z)
             // Y Tilt = arctan(Y / Z)
-            const double radAzim = (packet.pkOrientation.orAzimuth / 10) * (M_PI / 180);
-            const double tanAlt = tan((abs(packet.pkOrientation.orAltitude / 10)) * (M_PI / 180));
+            const double radAzim = (packet.pkOrientation.orAzimuth / 10.0) * (M_PI / 180);
+            const double tanAlt = tan((abs(packet.pkOrientation.orAltitude / 10.0)) * (M_PI / 180));
 
             const double degX = atan(sin(radAzim) / tanAlt);
             const double degY = atan(cos(radAzim) / tanAlt);
             tiltX = int(degX * (180 / M_PI));
             tiltY = int(-degY * (180 / M_PI));
-            rotation = packet.pkOrientation.orTwist;
+            rotation = 360.0 - (packet.pkOrientation.orTwist / 10.0);
+            if (rotation > 180.0)
+                rotation -= 360.0;
         }
 
         if (QWindowsContext::verbose > 1)  {
@@ -477,8 +475,11 @@ bool QWindowsTabletSupport::translateTabletPacketEvent()
                 << tiltY << "tanP:" << tangentialPressure << "rotation:" << rotation;
         }
 
-        QWindowSystemInterface::handleTabletEvent(target, packet.pkButtons, localPos, globalPosF,
+        const QPointF localPosDip = QPointF(localPos / QWindowsScaling::factor());
+        const QPointF globalPosDip = globalPosF / qreal(QWindowsScaling::factor());
+        QWindowSystemInterface::handleTabletEvent(target, localPosDip, globalPosDip,
                                                   currentDevice, currentPointer,
+                                                  static_cast<Qt::MouseButtons>(packet.pkButtons),
                                                   pressureNew, tiltX, tiltY,
                                                   tangentialPressure, rotation, z,
                                                   m_devices.at(m_currentDevice).uniqueId,

@@ -45,11 +45,14 @@
 #include "qioswindow.h"
 #include "qiosbackingstore.h"
 #include "qiosscreen.h"
+#include "qiosplatformaccessibility.h"
 #include "qioscontext.h"
 #include "qiosclipboard.h"
 #include "qiosinputcontext.h"
 #include "qiostheme.h"
 #include "qiosservices.h"
+
+#include <QtGui/private/qguiapplication_p.h>
 
 #include <qpa/qplatformoffscreensurface.h>
 
@@ -61,12 +64,17 @@
 
 QT_BEGIN_NAMESPACE
 
+QIOSIntegration *QIOSIntegration::instance()
+{
+    return static_cast<QIOSIntegration *>(QGuiApplicationPrivate::platformIntegration());
+}
+
 QIOSIntegration::QIOSIntegration()
     : m_fontDatabase(new QCoreTextFontDatabase)
     , m_clipboard(new QIOSClipboard)
-    , m_inputContext(new QIOSInputContext)
-    , m_screen(new QIOSScreen(QIOSScreen::MainScreen))
+    , m_inputContext(0)
     , m_platformServices(new QIOSServices)
+    , m_accessibility(0)
 {
     if (![UIApplication sharedApplication]) {
         qWarning()
@@ -80,7 +88,17 @@ QIOSIntegration::QIOSIntegration()
     // Set current directory to app bundle folder
     QDir::setCurrent(QString::fromUtf8([[[NSBundle mainBundle] bundlePath] UTF8String]));
 
-    screenAdded(m_screen);
+    NSMutableArray *screens = [[[UIScreen screens] mutableCopy] autorelease];
+    if (![screens containsObject:[UIScreen mainScreen]]) {
+        // Fallback for iOS 7.1 (QTBUG-42345)
+        [screens insertObject:[UIScreen mainScreen] atIndex:0];
+    }
+
+    for (UIScreen *screen in screens)
+        addScreen(new QIOSScreen(screen));
+
+    // Depends on a primary screen being present
+    m_inputContext = new QIOSInputContext;
 
     m_touchDevice = new QTouchDevice;
     m_touchDevice->setType(QTouchDevice::TouchScreen);
@@ -101,11 +119,14 @@ QIOSIntegration::~QIOSIntegration()
     delete m_inputContext;
     m_inputContext = 0;
 
-    delete m_screen;
-    m_screen = 0;
+    foreach (QScreen *screen, QGuiApplication::screens())
+        delete screen->handle();
 
     delete m_platformServices;
     m_platformServices = 0;
+
+    delete m_accessibility;
+    m_accessibility = 0;
 }
 
 bool QIOSIntegration::hasCapability(Capability cap) const
@@ -227,6 +248,13 @@ void *QIOSIntegration::nativeResourceForWindow(const QByteArray &resource, QWind
 QTouchDevice *QIOSIntegration::touchDevice()
 {
     return m_touchDevice;
+}
+
+QPlatformAccessibility *QIOSIntegration::accessibility() const
+{
+    if (!m_accessibility)
+        m_accessibility = new QIOSPlatformAccessibility;
+    return m_accessibility;
 }
 
 QT_END_NAMESPACE

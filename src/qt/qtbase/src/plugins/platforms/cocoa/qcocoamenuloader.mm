@@ -87,7 +87,11 @@ void qt_mac_loadMenuNib(QCocoaMenuLoader *qtMenuLoader)
         return;
     }
     foreach (const QFileInfo &file, nibResource.entryInfoList()) {
-        QFile::copy(file.absoluteFilePath(), nibDir + QLatin1String("/") + file.fileName());
+        QFileInfo destinationFile(nibDir + QLatin1String("/") + file.fileName());
+        if (destinationFile.exists() && destinationFile.size() != file.size())
+            QFile::remove(destinationFile.absoluteFilePath());
+
+        QFile::copy(file.absoluteFilePath(), destinationFile.absoluteFilePath());
     }
 
     // Load and instantiate nib file from temp

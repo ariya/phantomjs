@@ -47,7 +47,6 @@ void startProcess()
 QProcess process;
 QStringList env = QProcess::systemEnvironment();
 env << "TMPDIR=C:\\MyApp\\temp"; // Add an environment variable
-env.replaceInStrings(QRegExp("^PATH=(.*)", Qt::CaseInsensitive), "PATH=\\1;C:\\Bin");
 process.setEnvironment(env);
 process.start("myapp");
 //! [0]
@@ -58,7 +57,6 @@ process.start("myapp");
 QProcess process;
 QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 env.insert("TMPDIR", "C:\\MyApp\\temp"); // Add an environment variable
-env.insert("PATH", env.value("Path") + ";C:\\Bin");
 process.setProcessEnvironment(env);
 process.start("myapp");
 //! [1]

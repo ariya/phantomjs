@@ -57,7 +57,7 @@ hb_ot_old_tag_from_script (hb_script_t script)
   }
 
   /* Else, just change first char to lowercase and return */
-  return ((hb_tag_t) script) | 0x20000000;
+  return ((hb_tag_t) script) | 0x20000000u;
 }
 
 static hb_script_t
@@ -70,13 +70,13 @@ hb_ot_old_tag_to_script (hb_tag_t tag)
 
   /* Any spaces at the end of the tag are replaced by repeating the last
    * letter.  Eg 'nko ' -> 'Nkoo' */
-  if (unlikely ((tag & 0x0000FF00) == 0x00002000))
-    tag |= (tag >> 8) & 0x0000FF00; /* Copy second letter to third */
-  if (unlikely ((tag & 0x000000FF) == 0x00000020))
-    tag |= (tag >> 8) & 0x000000FF; /* Copy third letter to fourth */
+  if (unlikely ((tag & 0x0000FF00u) == 0x00002000u))
+    tag |= (tag >> 8) & 0x0000FF00u; /* Copy second letter to third */
+  if (unlikely ((tag & 0x000000FFu) == 0x00000020u))
+    tag |= (tag >> 8) & 0x000000FFu; /* Copy third letter to fourth */
 
   /* Change first char to uppercase and return */
-  return (hb_script_t) (tag & ~0x20000000);
+  return (hb_script_t) (tag & ~0x20000000u);
 }
 
 static hb_tag_t
@@ -146,7 +146,7 @@ hb_ot_tags_from_script (hb_script_t  script,
 hb_script_t
 hb_ot_tag_to_script (hb_tag_t tag)
 {
-  if (unlikely ((tag & 0x000000FF) == '2'))
+  if (unlikely ((tag & 0x000000FFu) == '2'))
     return hb_ot_new_tag_to_script (tag);
 
   return hb_ot_old_tag_to_script (tag);
@@ -156,7 +156,7 @@ hb_ot_tag_to_script (hb_tag_t tag)
 /* hb_language_t */
 
 typedef struct {
-  char language[6];
+  char language[4];
   hb_tag_t tag;
 } LangTag;
 
@@ -763,12 +763,18 @@ static const LangTag ot_languages[] = {
 /*{"??",	HB_TAG('Z','H','P',' ')},*/	/* Chinese Phonetic */
 };
 
-static const LangTag ot_languages_zh[] = {
+typedef struct {
+  char language[8];
+  hb_tag_t tag;
+} LangTagLong;
+static const LangTagLong ot_languages_zh[] = {
   {"zh-cn",	HB_TAG('Z','H','S',' ')},	/* Chinese (China) */
   {"zh-hk",	HB_TAG('Z','H','H',' ')},	/* Chinese (Hong Kong) */
   {"zh-mo",	HB_TAG('Z','H','T',' ')},	/* Chinese (Macao) */
   {"zh-sg",	HB_TAG('Z','H','S',' ')},	/* Chinese (Singapore) */
-  {"zh-tw",	HB_TAG('Z','H','T',' ')} 	/* Chinese (Taiwan) */
+  {"zh-tw",	HB_TAG('Z','H','T',' ')},	/* Chinese (Taiwan) */
+  {"zh-hans",	HB_TAG('Z','H','S',' ')},	/* Chinese (Simplified) */
+  {"zh-hant",	HB_TAG('Z','H','T',' ')},	/* Chinese (Traditional) */
 };
 
 static int
@@ -800,7 +806,6 @@ hb_tag_t
 hb_ot_tag_from_language (hb_language_t language)
 {
   const char *lang_str, *s;
-  const LangTag *lang_tag;
 
   if (language == HB_LANGUAGE_INVALID)
     return HB_OT_TAG_DEFAULT_LANGUAGE;
@@ -822,11 +827,14 @@ hb_ot_tag_from_language (hb_language_t language)
   }
 
   /* Find a language matching in the first component */
-  lang_tag = (LangTag *) bsearch (lang_str, ot_languages,
-				  ARRAY_LENGTH (ot_languages), sizeof (LangTag),
-				  (hb_compare_func_t) lang_compare_first_component);
-  if (lang_tag)
-    return lang_tag->tag;
+  {
+    const LangTag *lang_tag;
+    lang_tag = (LangTag *) bsearch (lang_str, ot_languages,
+				    ARRAY_LENGTH (ot_languages), sizeof (LangTag),
+				    (hb_compare_func_t) lang_compare_first_component);
+    if (lang_tag)
+      return lang_tag->tag;
+  }
 
   /* Otherwise, check the Chinese ones */
   if (0 == lang_compare_first_component (lang_str, "zh"))
@@ -835,8 +843,9 @@ hb_ot_tag_from_language (hb_language_t language)
 
     for (i = 0; i < ARRAY_LENGTH (ot_languages_zh); i++)
     {
+      const LangTagLong *lang_tag;
       lang_tag = &ot_languages_zh[i];
-      if (lang_matches (lang_tag->language, lang_str))
+      if (lang_matches (lang_str, lang_tag->language))
 	return lang_tag->tag;
     }
 
@@ -849,7 +858,7 @@ hb_ot_tag_from_language (hb_language_t language)
     s = lang_str + strlen (lang_str);
   if (s - lang_str == 3) {
     /* Assume it's ISO-639-3 and upper-case and use it. */
-    return hb_tag_from_string (lang_str, s - lang_str) & ~0x20202000;
+    return hb_tag_from_string (lang_str, s - lang_str) & ~0x20202000u;
   }
 
   return HB_OT_TAG_DEFAULT_LANGUAGE;
@@ -868,21 +877,12 @@ hb_ot_tag_to_language (hb_tag_t tag)
       return hb_language_from_string (ot_languages[i].language, -1);
 
   /* If tag starts with ZH, it's Chinese */
-  if ((tag & 0xFFFF0000)  == 0x5A480000) {
+  if ((tag & 0xFFFF0000u)  == 0x5A480000u) {
     switch (tag) {
       case HB_TAG('Z','H','H',' '): return hb_language_from_string ("zh-hk", -1); /* Hong Kong */
-      default: {
-        /* Encode the tag... */
-	unsigned char buf[14] = "zh-x-hbot";
-	buf[9] = tag >> 24;
-	buf[10] = (tag >> 16) & 0xFF;
-	buf[11] = (tag >> 8) & 0xFF;
-	buf[12] = tag & 0xFF;
-	if (buf[12] == 0x20)
-	  buf[12] = '\0';
-	buf[13] = '\0';
-	return hb_language_from_string ((char *) buf, -1);
-      }
+      case HB_TAG('Z','H','S',' '): return hb_language_from_string ("zh-Hans", -1); /* Simplified */
+      case HB_TAG('Z','H','T',' '): return hb_language_from_string ("zh-Hant", -1); /* Traditional */
+      default: break; /* Fall through */
     }
   }
 

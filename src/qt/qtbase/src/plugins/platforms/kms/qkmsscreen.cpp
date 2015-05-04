@@ -1,44 +1,35 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-//#include <QDebug>
 
 #include "qkmsscreen.h"
 #include "qkmscursor.h"
@@ -52,6 +43,8 @@
 
 QT_BEGIN_NAMESPACE
 
+Q_LOGGING_CATEGORY(lcQpaScreen, "qt.qpa.kms.screen")
+
 //Fallback mode (taken from Wayland DRM demo compositor)
 static drmModeModeInfo builtin_1024x768 = {
     63500, //clock
@@ -63,18 +56,18 @@ static drmModeModeInfo builtin_1024x768 = {
     "1024x768"
 };
 
-QKmsScreen::QKmsScreen(QKmsDevice *device, int connectorId)
+QKmsScreen::QKmsScreen(QKmsDevice *device, const drmModeRes *resources, const drmModeConnector *connector)
     : m_device(device),
       m_current_bo(0),
       m_next_bo(0),
-      m_connectorId(connectorId),
+      m_connectorId(connector->connector_id),
       m_depth(32),
       m_format(QImage::Format_Invalid),
       m_eglWindowSurface(EGL_NO_SURFACE),
       m_modeSet(false)
 {
     m_cursor = new QKmsCursor(this);
-    initializeScreenMode();
+    initializeScreenMode(resources, connector);
 }
 
 QKmsScreen::~QKmsScreen()
@@ -114,14 +107,9 @@ QPlatformCursor *QKmsScreen::cursor() const
     return m_cursor;
 }
 
-void QKmsScreen::initializeScreenMode()
+void QKmsScreen::initializeScreenMode(const drmModeRes *resources, const drmModeConnector *connector)
 {
     //Determine optimal mode for screen
-    drmModeRes *resources = drmModeGetResources(m_device->fd());
-    if (!resources)
-        qFatal("drmModeGetResources failed");
-
-    drmModeConnector *connector = drmModeGetConnector(m_device->fd(), m_connectorId);
     drmModeModeInfo *mode = 0;
     for (int i = 0; i < connector->count_modes; ++i) {
         if (connector->modes[i].type & DRM_MODE_TYPE_PREFERRED) {
@@ -129,8 +117,12 @@ void QKmsScreen::initializeScreenMode()
             break;
         }
     }
-    if (!mode)
-        mode = &builtin_1024x768;
+    if (!mode) {
+        if (connector->count_modes > 0)
+            mode = &connector->modes[0];
+        else
+            mode = &builtin_1024x768;
+    }
 
     drmModeEncoder *encoder = drmModeGetEncoder(m_device->fd(), connector->encoders[0]);
     if (encoder == 0)
@@ -149,7 +141,7 @@ void QKmsScreen::initializeScreenMode()
     m_crtcId = resources->crtcs[i];
     m_mode = *mode;
     m_geometry = QRect(0, 0, m_mode.hdisplay, m_mode.vdisplay);
-    qDebug() << "kms initialized with geometry" << m_geometry;
+    qCDebug(lcQpaScreen) << "kms initialized with geometry" << m_geometry;
     m_depth = 32;
     m_format = QImage::Format_RGB32;
     m_physicalSize = QSizeF(connector->mmWidth, connector->mmHeight);
@@ -159,11 +151,9 @@ void QKmsScreen::initializeScreenMode()
                                       GBM_BO_FORMAT_XRGB8888,
                                       GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING);
 
-    qDebug() << "created gbm surface" << m_gbmSurface << m_mode.hdisplay << m_mode.vdisplay;
+    qCDebug(lcQpaScreen) << "created gbm surface" << m_gbmSurface << m_mode.hdisplay << m_mode.vdisplay;
     //Cleanup
     drmModeFreeEncoder(encoder);
-    drmModeFreeConnector(connector);
-    drmModeFreeResources(resources);
 }
 
 QSurfaceFormat QKmsScreen::tweakFormat(const QSurfaceFormat &format)
@@ -180,10 +170,11 @@ QSurfaceFormat QKmsScreen::tweakFormat(const QSurfaceFormat &format)
 void QKmsScreen::initializeWithFormat(const QSurfaceFormat &format)
 {
     EGLDisplay display = m_device->eglDisplay();
-    EGLConfig config = q_configFromGLFormat(display, tweakFormat(format), true);
+    EGLConfig config = q_configFromGLFormat(display, tweakFormat(format));
 
     m_eglWindowSurface = eglCreateWindowSurface(display, config, (EGLNativeWindowType)m_gbmSurface, NULL);
-    qDebug() << "created window surface";
+    qCDebug(lcQpaScreen) << "created window surface";
+    m_surfaceFormat = q_glFormatFromConfig(display, config);
 }
 
 void QKmsScreen::swapBuffers()

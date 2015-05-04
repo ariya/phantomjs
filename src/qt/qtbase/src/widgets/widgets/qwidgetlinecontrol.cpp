@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -187,6 +179,7 @@ void QWidgetLineControl::paste(QClipboard::Mode clipboardMode)
 */
 void QWidgetLineControl::commitPreedit()
 {
+#ifndef QT_NO_IM
     if (!composeMode())
         return;
 
@@ -198,6 +191,7 @@ void QWidgetLineControl::commitPreedit()
     setPreeditArea(-1, QString());
     m_textLayout.clearAdditionalFormats();
     updateDisplayText(/*force*/ true);
+#endif
 }
 
 
@@ -285,6 +279,23 @@ void QWidgetLineControl::clear()
     separate();
     finishChange(priorState, /*update*/false, /*edited*/false);
 }
+/*!
+    \internal
+
+    Undoes the previous operation.
+*/
+
+void QWidgetLineControl::undo()
+{
+    // Undo works only for clearing the line when in any of password the modes
+    if (m_echoMode == QLineEdit::Normal) {
+        internalUndo();
+        finishChange(-1, true);
+    } else {
+        cancelPasswordEchoTimer();
+        clear();
+    }
+}
 
 /*!
     \internal
@@ -355,8 +366,10 @@ void QWidgetLineControl::init(const QString &txt)
     m_text = txt;
     updateDisplayText();
     m_cursor = m_text.length();
-    if (const QPlatformTheme *theme = QGuiApplicationPrivate::platformTheme())
+    if (const QPlatformTheme *theme = QGuiApplicationPrivate::platformTheme()) {
         m_keyboardScheme = theme->themeHint(QPlatformTheme::KeyboardScheme).toInt();
+        m_passwordMaskDelay = theme->themeHint(QPlatformTheme::PasswordMaskDelay).toInt();
+    }
     // Generalize for X11
     if (m_keyboardScheme == QPlatformTheme::KdeKeyboardScheme
         || m_keyboardScheme == QPlatformTheme::GnomeKeyboardScheme
@@ -735,15 +748,15 @@ void QWidgetLineControl::internalSetText(const QString &txt, int pos, bool edite
 #ifndef QT_NO_ACCESSIBILITY
     if (changed) {
         if (oldText.isEmpty()) {
-            QAccessibleTextInsertEvent event(parent(), 0, txt);
+            QAccessibleTextInsertEvent event(accessibleObject(), 0, txt);
             event.setCursorPosition(m_cursor);
             QAccessible::updateAccessibility(&event);
         } else if (txt.isEmpty()) {
-            QAccessibleTextRemoveEvent event(parent(), 0, oldText);
+            QAccessibleTextRemoveEvent event(accessibleObject(), 0, oldText);
             event.setCursorPosition(m_cursor);
             QAccessible::updateAccessibility(&event);
         } else {
-            QAccessibleTextUpdateEvent event(parent(), 0, oldText, txt);
+            QAccessibleTextUpdateEvent event(accessibleObject(), 0, oldText, txt);
             event.setCursorPosition(m_cursor);
             QAccessible::updateAccessibility(&event);
         }
@@ -787,7 +800,7 @@ void QWidgetLineControl::internalInsert(const QString &s)
     if (m_echoMode == QLineEdit::Password) {
         if (m_passwordEchoTimer != 0)
             killTimer(m_passwordEchoTimer);
-        int delay = qGuiApp->styleHints()->passwordMaskDelay();
+        int delay = m_passwordMaskDelay;
 #ifdef QT_BUILD_INTERNAL
         if (m_passwordMaskDelayOverride >= 0)
             delay = m_passwordMaskDelayOverride;
@@ -801,7 +814,7 @@ void QWidgetLineControl::internalInsert(const QString &s)
     if (m_maskData) {
         QString ms = maskString(m_cursor, s);
 #ifndef QT_NO_ACCESSIBILITY
-        QAccessibleTextInsertEvent insertEvent(parent(), m_cursor, ms);
+        QAccessibleTextInsertEvent insertEvent(accessibleObject(), m_cursor, ms);
         QAccessible::updateAccessibility(&insertEvent);
 #endif
         for (int i = 0; i < (int) ms.length(); ++i) {
@@ -813,14 +826,14 @@ void QWidgetLineControl::internalInsert(const QString &s)
         m_cursor = nextMaskBlank(m_cursor);
         m_textDirty = true;
 #ifndef QT_NO_ACCESSIBILITY
-        QAccessibleTextCursorEvent event(parent(), m_cursor);
+        QAccessibleTextCursorEvent event(accessibleObject(), m_cursor);
         QAccessible::updateAccessibility(&event);
 #endif
     } else {
         int remaining = m_maxLength - m_text.length();
         if (remaining != 0) {
 #ifndef QT_NO_ACCESSIBILITY
-            QAccessibleTextInsertEvent insertEvent(parent(), m_cursor, s);
+            QAccessibleTextInsertEvent insertEvent(accessibleObject(), m_cursor, s);
             QAccessible::updateAccessibility(&insertEvent);
 #endif
             m_text.insert(m_cursor, s.left(remaining));
@@ -851,7 +864,7 @@ void QWidgetLineControl::internalDelete(bool wasBackspace)
         addCommand(Command((CommandType)((m_maskData ? 2 : 0) + (wasBackspace ? Remove : Delete)),
                    m_cursor, m_text.at(m_cursor), -1, -1));
 #ifndef QT_NO_ACCESSIBILITY
-        QAccessibleTextRemoveEvent event(parent(), m_cursor, m_text.at(m_cursor));
+        QAccessibleTextRemoveEvent event(accessibleObject(), m_cursor, m_text.at(m_cursor));
         QAccessible::updateAccessibility(&event);
 #endif
         if (m_maskData) {
@@ -892,7 +905,7 @@ void QWidgetLineControl::removeSelectedText()
                 addCommand (Command(RemoveSelection, i, m_text.at(i), -1, -1));
         }
 #ifndef QT_NO_ACCESSIBILITY
-        QAccessibleTextRemoveEvent event(parent(), m_selstart, m_text.mid(m_selstart, m_selend - m_selstart));
+        QAccessibleTextRemoveEvent event(accessibleObject(), m_selstart, m_text.mid(m_selstart, m_selend - m_selstart));
         QAccessible::updateAccessibility(&event);
 #endif
         if (m_maskData) {
@@ -1282,12 +1295,6 @@ void QWidgetLineControl::internalUndo(int until)
     cancelPasswordEchoTimer();
     internalDeselect();
 
-    // Undo works only for clearing the line when in any of password the modes
-    if (m_echoMode != QLineEdit::Normal) {
-        clear();
-        return;
-    }
-
     while (m_undoState && m_undoState > until) {
         Command& cmd = m_history[--m_undoState];
         switch (cmd.type) {
@@ -1382,7 +1389,7 @@ void QWidgetLineControl::emitCursorPositionChanged()
 #ifndef QT_NO_ACCESSIBILITY
         // otherwise we send a selection update which includes the cursor
         if (!hasSelectedText()) {
-            QAccessibleTextCursorEvent event(parent(), m_cursor);
+            QAccessibleTextCursorEvent event(accessibleObject(), m_cursor);
             QAccessible::updateAccessibility(&event);
         }
 #endif
@@ -1472,7 +1479,7 @@ void QWidgetLineControl::setCursorBlinkPeriod(int msec)
     if (m_blinkTimer) {
         killTimer(m_blinkTimer);
     }
-    if (msec && !m_readOnly) {
+    if (msec > 0 && !m_readOnly) {
         m_blinkTimer = startTimer(msec / 2);
         m_blinkStatus = 1;
     } else {
@@ -1613,6 +1620,13 @@ void QWidgetLineControl::processKeyEvent(QKeyEvent* event)
 
     if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
         if (hasAcceptableInput() || fixup()) {
+
+            QInputMethod *inputMethod = QApplication::inputMethod();
+            inputMethod->commit();
+            QWidget *lineEdit = qobject_cast<QWidget *>(parent());
+            if (!(lineEdit && lineEdit->inputMethodHints() & Qt::ImhMultiLine))
+                inputMethod->hide();
+
             emit accepted();
             emit editingFinished();
         }
@@ -1676,7 +1690,7 @@ void QWidgetLineControl::processKeyEvent(QKeyEvent* event)
         }
     }
     else if (event == QKeySequence::Cut) {
-        if (!isReadOnly()) {
+        if (!isReadOnly() && hasSelectedText()) {
             copy();
             del();
         }

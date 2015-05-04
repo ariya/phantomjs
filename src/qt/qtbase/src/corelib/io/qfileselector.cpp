@@ -5,35 +5,27 @@
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -50,10 +42,6 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QLocale>
 #include <QtCore/QDebug>
-
-#ifdef Q_OS_UNIX
-#include <sys/utsname.h>
-#endif
 
 QT_BEGIN_NAMESPACE
 
@@ -152,7 +140,7 @@ QFileSelectorPrivate::QFileSelectorPrivate()
     deployment step as an optimization. As selectors come with a performance cost, it is
     recommended to avoid their use in circumstances involving performance-critical code.
 
-    \section1 Adding selectors
+    \section1 Adding Selectors
 
     Selectors normally available are
     \list
@@ -170,7 +158,7 @@ QFileSelectorPrivate::QFileSelectorPrivate()
     future calls to select(). If the extra selectors list has been changed, calls to select() will
     use the new list and may return differently.
 
-    \section1 Conflict resolution when multiple selectors apply
+    \section1 Conflict Resolution when Multiple Selectors Apply
 
     When multiple selectors could be applied to the same file, the first matching selector is chosen.
     The order selectors are checked in are:
@@ -360,11 +348,17 @@ void QFileSelectorPrivate::updateSelectors()
 
 QStringList QFileSelectorPrivate::platformSelectors()
 {
+    // similar, but not identical to QSysInfo::osType
     QStringList ret;
 #if defined(Q_OS_WIN)
     ret << QStringLiteral("windows");
 #  if defined(Q_OS_WINCE)
     ret << QStringLiteral("wince");
+#  elif defined(Q_OS_WINRT)
+    ret << QStringLiteral("winrt");
+#    if defined(Q_OS_WINPHONE)
+    ret << QStringLiteral("winphone");
+#    endif
 #  endif
 #elif defined(Q_OS_UNIX)
     ret << QStringLiteral("unix");
@@ -385,9 +379,7 @@ QStringList QFileSelectorPrivate::platformSelectors()
     ret << QStringLiteral("osx");
 #    endif
 #  else
-    struct utsname u;
-    if (uname(&u) != -1)
-        ret << QString::fromLatin1(u.sysname).toLower();
+    ret << QSysInfo::kernelType();
 #  endif
 #endif
     return ret;

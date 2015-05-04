@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -137,41 +137,55 @@ void QCocoaScreen::updateGeometry()
         m_name = QString::fromUtf8([[localizedNames objectForKey:[[localizedNames allKeys] objectAtIndex:0]] UTF8String]);
     [deviceInfo release];
 
-    QWindowSystemInterface::handleScreenGeometryChange(screen(), geometry());
+    QWindowSystemInterface::handleScreenGeometryChange(screen(), geometry(), availableGeometry());
     QWindowSystemInterface::handleScreenLogicalDotsPerInchChange(screen(), m_logicalDpi.first, m_logicalDpi.second);
     QWindowSystemInterface::handleScreenRefreshRateChange(screen(), m_refreshRate);
-    QWindowSystemInterface::handleScreenAvailableGeometryChange(screen(), availableGeometry());
 }
 
 qreal QCocoaScreen::devicePixelRatio() const
 {
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7
-    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_7) {
-        NSScreen * screen = osScreen();
-        return qreal(screen ? [screen backingScaleFactor] : 1.0);
-    } else
-#endif
-    {
-        return 1.0;
-    }
+    NSScreen * screen = osScreen();
+    return qreal(screen ? [screen backingScaleFactor] : 1.0);
 }
 
 QWindow *QCocoaScreen::topLevelAt(const QPoint &point) const
 {
-    // Get a z-ordered list of windows. Iterate through it until
-    // we find a window which contains the point.
-    for (NSWindow *nsWindow in [NSApp orderedWindows]) {
-        QCocoaWindow *cocoaWindow = QCocoaIntegration::instance()->window(nsWindow);
+    NSPoint screenPoint = qt_mac_flipPoint(point);
+
+    // Search (hit test) for the top-level window. [NSWidow windowNumberAtPoint:
+    // belowWindowWithWindowNumber] may return windows that are not interesting
+    // to Qt. The search iterates until a suitable window or no window is found.
+    NSInteger topWindowNumber = 0;
+    QWindow *window = 0;
+    do {
+        // Get the top-most window, below any previously rejected window.
+        topWindowNumber = [NSWindow windowNumberAtPoint:screenPoint
+                                    belowWindowWithWindowNumber:topWindowNumber];
+
+        // Continue the search if the window does not belong to this process.
+        NSWindow *nsWindow = [NSApp windowWithWindowNumber:topWindowNumber];
+        if (nsWindow == 0)
+            continue;
+
+        // Continue the search if the window does not belong to Qt.
+        if (![nsWindow conformsToProtocol:@protocol(QNSWindowProtocol)])
+            continue;
+
+        id<QNSWindowProtocol> proto = static_cast<id<QNSWindowProtocol> >(nsWindow);
+        QCocoaWindow *cocoaWindow = proto.helper.platformWindow;
         if (!cocoaWindow)
             continue;
-        QWindow *window = cocoaWindow->window();
+        window = cocoaWindow->window();
+
+        // Continue the search if the window is not a top-level window.
         if (!window->isTopLevel())
              continue;
-        if (window->geometry().contains(point))
-            return window;
-    }
 
-    return QPlatformScreen::topLevelAt(point);
+        // Stop searching. The current window is the correct window.
+        break;
+    } while (topWindowNumber > 0);
+
+    return window;
 }
 
 extern CGContextRef qt_mac_cg_context(const QPaintDevice *pdev);
@@ -348,11 +362,15 @@ void QCocoaIntegration::updateScreens()
         return;
     QSet<QCocoaScreen*> remainingScreens = QSet<QCocoaScreen*>::fromList(mScreens);
     QList<QPlatformScreen *> siblings;
-    for (uint i = 0; i < [screens count]; i++) {
+    uint screenCount = [screens count];
+    for (uint i = 0; i < screenCount; i++) {
         NSScreen* scr = [screens objectAtIndex:i];
         CGDirectDisplayID dpy = [[[scr deviceDescription] objectForKey:@"NSScreenNumber"] unsignedIntValue];
         // If this screen is a mirror and is not the primary one of the mirror set, ignore it.
-        if (CGDisplayIsInMirrorSet(dpy)) {
+        // Exception: The NSScreen API has been observed to a return a screen list with one
+        // mirrored, non-primary screen when Qt is running as a startup item. Always use the
+        // screen if there's only one screen in the list.
+        if (screenCount > 1 && CGDisplayIsInMirrorSet(dpy)) {
             CGDirectDisplayID primary = CGDisplayMirrorsDisplay(dpy);
             if (primary != kCGNullDirectDisplay && primary != dpy)
                 continue;
@@ -407,13 +425,12 @@ bool QCocoaIntegration::hasCapability(QPlatformIntegration::Capability cap) cons
     case MultipleWindows:
     case ForeignWindows:
     case RasterGLSurface:
+    case ApplicationState:
         return true;
     default:
         return QPlatformIntegration::hasCapability(cap);
     }
 }
-
-
 
 QPlatformWindow *QCocoaIntegration::createPlatformWindow(QWindow *window) const
 {
@@ -423,7 +440,11 @@ QPlatformWindow *QCocoaIntegration::createPlatformWindow(QWindow *window) const
 #ifndef QT_NO_OPENGL
 QPlatformOpenGLContext *QCocoaIntegration::createPlatformOpenGLContext(QOpenGLContext *context) const
 {
-    return new QCocoaGLContext(context->format(), context->shareHandle());
+    QCocoaGLContext *glContext = new QCocoaGLContext(context->format(),
+                                                     context->shareHandle(),
+                                                     context->nativeHandle());
+    context->setNativeHandle(glContext->nativeHandle());
+    return glContext;
 }
 #endif
 
@@ -520,19 +541,6 @@ void QCocoaIntegration::setToolbar(QWindow *window, NSToolbar *toolbar)
 NSToolbar *QCocoaIntegration::toolbar(QWindow *window) const
 {
     return mToolbars.value(window);
-}
-
-void QCocoaIntegration::setWindow(NSWindow* nsWindow, QCocoaWindow *window)
-{
-    if (window == 0)
-        mWindows.remove(nsWindow);
-    else
-        mWindows.insert(nsWindow, window);
-}
-
-QCocoaWindow *QCocoaIntegration::window(NSWindow *window)
-{
-    return mWindows.value(window);
 }
 
 void QCocoaIntegration::clearToolbars()

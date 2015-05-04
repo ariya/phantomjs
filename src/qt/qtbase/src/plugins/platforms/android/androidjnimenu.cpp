@@ -5,35 +5,27 @@
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -46,15 +38,21 @@
 #include "qandroidplatformmenuitem.h"
 
 #include <QMutex>
-#include <QSet>
+#include <QPoint>
 #include <QQueue>
+#include <QRect>
+#include <QSet>
 #include <QWindow>
+#include <QtCore/private/qjnihelpers_p.h>
+#include <QtCore/private/qjni_p.h>
+
+QT_BEGIN_NAMESPACE
 
 using namespace QtAndroid;
 
 namespace QtAndroidMenu
 {
-    static QQueue<QAndroidPlatformMenu *> pendingContextMenus;
+    static QList<QAndroidPlatformMenu *> pendingContextMenus;
     static QAndroidPlatformMenu *visibleMenu = 0;
     static QMutex visibleMenuMutex(QMutex::Recursive);
 
@@ -64,8 +62,6 @@ namespace QtAndroidMenu
     static QMutex menuBarMutex(QMutex::Recursive);
 
     static jmethodID openContextMenuMethodID = 0;
-    static jmethodID closeContextMenuMethodID = 0;
-    static jmethodID resetOptionsMenuMethodID = 0;
 
     static jmethodID clearMenuMethodID = 0;
     static jmethodID addMenuItemMethodID = 0;
@@ -80,36 +76,36 @@ namespace QtAndroidMenu
 
     void resetMenuBar()
     {
-        AttachedJNIEnv env;
-        if (env.jniEnv)
-            env.jniEnv->CallStaticVoidMethod(applicationClass(), resetOptionsMenuMethodID);
+        QJNIObjectPrivate::callStaticMethod<void>(applicationClass(), "resetOptionsMenu");
     }
 
-    void showContextMenu(QAndroidPlatformMenu *menu, JNIEnv *env)
+    void openOptionsMenu()
+    {
+        QJNIObjectPrivate::callStaticMethod<void>(applicationClass(), "openOptionsMenu");
+    }
+
+    void showContextMenu(QAndroidPlatformMenu *menu, const QRect &anchorRect, JNIEnv *env)
     {
         QMutexLocker lock(&visibleMenuMutex);
-        if (visibleMenu) {
-            pendingContextMenus.enqueue(menu);
-        } else {
-            visibleMenu = menu;
-            menu->aboutToShow();
-            if (env) {
-                env->CallStaticVoidMethod(applicationClass(), openContextMenuMethodID);
-            } else {
-                AttachedJNIEnv aenv;
-                if (aenv.jniEnv)
-                    aenv.jniEnv->CallStaticVoidMethod(applicationClass(), openContextMenuMethodID);
-            }
+        if (QtAndroidPrivate::androidSdkVersion() > 10 &&
+                QtAndroidPrivate::androidSdkVersion() < 14 &&
+                anchorRect.isValid()) {
+            pendingContextMenus.clear();
+        } else if (visibleMenu) {
+            pendingContextMenus.append(visibleMenu);
         }
+
+        visibleMenu = menu;
+        menu->aboutToShow();
+        env->CallStaticVoidMethod(applicationClass(), openContextMenuMethodID, anchorRect.x(), anchorRect.y(), anchorRect.width(), anchorRect.height());
     }
 
     void hideContextMenu(QAndroidPlatformMenu *menu)
     {
         QMutexLocker lock(&visibleMenuMutex);
         if (visibleMenu == menu) {
-            AttachedJNIEnv env;
-            if (env.jniEnv)
-                env.jniEnv->CallStaticVoidMethod(applicationClass(), openContextMenuMethodID);
+            QJNIObjectPrivate::callStaticMethod<void>(applicationClass(), "closeContextMenu");
+            pendingContextMenus.clear();
         } else {
             pendingContextMenus.removeOne(menu);
         }
@@ -296,7 +292,7 @@ namespace QtAndroidMenu
             QAndroidPlatformMenuItem *item = static_cast<QAndroidPlatformMenuItem *>(menus.front()->menuItemForTag(menuId));
             if (item) {
                 if (item->menu()) {
-                    showContextMenu(item->menu(), env);
+                    showContextMenu(item->menu(), QRect(), env);
                 } else {
                     if (item->isCheckable())
                         item->setChecked(checked);
@@ -306,7 +302,7 @@ namespace QtAndroidMenu
         } else {
             QAndroidPlatformMenu *menu = static_cast<QAndroidPlatformMenu *>(visibleMenuBar->menuForTag(menuId));
             if (menu)
-                showContextMenu(menu, env);
+                showContextMenu(menu, QRect(), env);
         }
 
         return JNI_TRUE;
@@ -331,17 +327,30 @@ namespace QtAndroidMenu
         addAllMenuItemsToMenu(env, menu, visibleMenu);
     }
 
+    static void fillContextMenu(JNIEnv *env, jobject /*thiz*/, jobject menu)
+    {
+        env->CallVoidMethod(menu, clearMenuMethodID);
+        QMutexLocker lock(&visibleMenuMutex);
+        if (!visibleMenu)
+            return;
+
+        addAllMenuItemsToMenu(env, menu, visibleMenu);
+    }
+
     static jboolean onContextItemSelected(JNIEnv *env, jobject /*thiz*/, jint menuId, jboolean checked)
     {
         QMutexLocker lock(&visibleMenuMutex);
         QAndroidPlatformMenuItem * item = static_cast<QAndroidPlatformMenuItem *>(visibleMenu->menuItemForTag(menuId));
         if (item) {
             if (item->menu()) {
-                showContextMenu(item->menu(), env);
+                showContextMenu(item->menu(), QRect(), env);
             } else {
                 if (item->isCheckable())
                     item->setChecked(checked);
                 item->activated();
+                visibleMenu->aboutToHide();
+                visibleMenu = 0;
+                pendingContextMenus.clear();
             }
         }
         return JNI_TRUE;
@@ -352,10 +361,11 @@ namespace QtAndroidMenu
         QMutexLocker lock(&visibleMenuMutex);
         if (!visibleMenu)
             return;
+
         visibleMenu->aboutToHide();
         visibleMenu = 0;
         if (!pendingContextMenus.empty())
-            showContextMenu(pendingContextMenus.dequeue(), env);
+            showContextMenu(pendingContextMenus.takeLast(), QRect(), env);
     }
 
     static JNINativeMethod methods[] = {
@@ -363,6 +373,7 @@ namespace QtAndroidMenu
         {"onOptionsItemSelected", "(IZ)Z", (void *)onOptionsItemSelected},
         {"onOptionsMenuClosed", "(Landroid/view/Menu;)V", (void*)onOptionsMenuClosed},
         {"onCreateContextMenu", "(Landroid/view/ContextMenu;)V", (void *)onCreateContextMenu},
+        {"fillContextMenu", "(Landroid/view/Menu;)V", (void *)fillContextMenu},
         {"onContextItemSelected", "(IZ)Z", (void *)onContextItemSelected},
         {"onContextMenuClosed", "(Landroid/view/Menu;)V", (void*)onContextMenuClosed},
     };
@@ -404,9 +415,7 @@ namespace QtAndroidMenu
             return false;
         }
 
-        GET_AND_CHECK_STATIC_METHOD(openContextMenuMethodID, appClass, "openContextMenu", "()V");
-        GET_AND_CHECK_STATIC_METHOD(closeContextMenuMethodID, appClass, "closeContextMenu", "()V");
-        GET_AND_CHECK_STATIC_METHOD(resetOptionsMenuMethodID, appClass, "resetOptionsMenu", "()V");
+        GET_AND_CHECK_STATIC_METHOD(openContextMenuMethodID, appClass, "openContextMenu", "(IIII)V");
 
         jclass clazz;
         FIND_AND_CHECK_CLASS("android/view/Menu");
@@ -428,3 +437,5 @@ namespace QtAndroidMenu
         return true;
     }
 }
+
+QT_END_NAMESPACE

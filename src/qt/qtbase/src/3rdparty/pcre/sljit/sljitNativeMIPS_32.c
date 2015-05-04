@@ -52,7 +52,7 @@ static sljit_si load_immediate(struct sljit_compiler *compiler, sljit_si dst_ar,
 			FAIL_IF(push_inst(compiler, op_norm | S(src1) | T(src2) | D(dst), DR(dst))); \
 	}
 
-#define EMIT_SHIFT(op_imm, op_norm) \
+#define EMIT_SHIFT(op_imm, op_v) \
 	if (flags & SRC2_IMM) { \
 		if (op & SLJIT_SET_E) \
 			FAIL_IF(push_inst(compiler, op_imm | T(src1) | DA(EQUAL_FLAG) | SH_IMM(src2), EQUAL_FLAG)); \
@@ -61,16 +61,14 @@ static sljit_si load_immediate(struct sljit_compiler *compiler, sljit_si dst_ar,
 	} \
 	else { \
 		if (op & SLJIT_SET_E) \
-			FAIL_IF(push_inst(compiler, op_norm | S(src2) | T(src1) | DA(EQUAL_FLAG), EQUAL_FLAG)); \
+			FAIL_IF(push_inst(compiler, op_v | S(src2) | T(src1) | DA(EQUAL_FLAG), EQUAL_FLAG)); \
 		if (CHECK_FLAGS(SLJIT_SET_E)) \
-			FAIL_IF(push_inst(compiler, op_norm | S(src2) | T(src1) | D(dst), DR(dst))); \
+			FAIL_IF(push_inst(compiler, op_v | S(src2) | T(src1) | D(dst), DR(dst))); \
 	}
 
 static SLJIT_INLINE sljit_si emit_single_op(struct sljit_compiler *compiler, sljit_si op, sljit_si flags,
 	sljit_si dst, sljit_si src1, sljit_sw src2)
 {
-	sljit_si overflow_ra = 0;
-
 	switch (GET_OPCODE(op)) {
 	case SLJIT_MOV:
 	case SLJIT_MOV_UI:
@@ -138,30 +136,31 @@ static SLJIT_INLINE sljit_si emit_single_op(struct sljit_compiler *compiler, slj
 			return push_inst(compiler, XORI | SA(EQUAL_FLAG) | TA(EQUAL_FLAG) | IMM(1), EQUAL_FLAG);
 		}
 		/* Nearly all instructions are unmovable in the following sequence. */
-		FAIL_IF(push_inst(compiler, ADDU_W | S(src2) | TA(0) | D(TMP_REG1), DR(TMP_REG1)));
+		FAIL_IF(push_inst(compiler, ADDU | S(src2) | TA(0) | D(TMP_REG1), DR(TMP_REG1)));
 		/* Check zero. */
 		FAIL_IF(push_inst(compiler, BEQ | S(TMP_REG1) | TA(0) | IMM(5), UNMOVABLE_INS));
 		FAIL_IF(push_inst(compiler, ORI | SA(0) | T(dst) | IMM(32), UNMOVABLE_INS));
-		FAIL_IF(push_inst(compiler, ADDIU_W | SA(0) | T(dst) | IMM(-1), DR(dst)));
+		FAIL_IF(push_inst(compiler, ADDIU | SA(0) | T(dst) | IMM(-1), DR(dst)));
 		/* Loop for searching the highest bit. */
-		FAIL_IF(push_inst(compiler, ADDIU_W | S(dst) | T(dst) | IMM(1), DR(dst)));
+		FAIL_IF(push_inst(compiler, ADDIU | S(dst) | T(dst) | IMM(1), DR(dst)));
 		FAIL_IF(push_inst(compiler, BGEZ | S(TMP_REG1) | IMM(-2), UNMOVABLE_INS));
 		FAIL_IF(push_inst(compiler, SLL | T(TMP_REG1) | D(TMP_REG1) | SH_IMM(1), UNMOVABLE_INS));
 		if (op & SLJIT_SET_E)
-			return push_inst(compiler, ADDU_W | S(dst) | TA(0) | DA(EQUAL_FLAG), EQUAL_FLAG);
+			return push_inst(compiler, ADDU | S(dst) | TA(0) | DA(EQUAL_FLAG), EQUAL_FLAG);
 #endif
 		return SLJIT_SUCCESS;
 
 	case SLJIT_ADD:
 		if (flags & SRC2_IMM) {
 			if (op & SLJIT_SET_O) {
-				FAIL_IF(push_inst(compiler, SRL | T(src1) | DA(TMP_EREG1) | SH_IMM(31), TMP_EREG1));
-				if (src2 < 0)
-					FAIL_IF(push_inst(compiler, XORI | SA(TMP_EREG1) | TA(TMP_EREG1) | IMM(1), TMP_EREG1));
+				if (src2 >= 0)
+					FAIL_IF(push_inst(compiler, OR | S(src1) | T(src1) | DA(TMP_EREG1), TMP_EREG1));
+				else
+					FAIL_IF(push_inst(compiler, NOR | S(src1) | T(src1) | DA(TMP_EREG1), TMP_EREG1));
 			}
 			if (op & SLJIT_SET_E)
 				FAIL_IF(push_inst(compiler, ADDIU | S(src1) | TA(EQUAL_FLAG) | IMM(src2), EQUAL_FLAG));
-			if (op & SLJIT_SET_C) {
+			if (op & (SLJIT_SET_C | SLJIT_SET_O)) {
 				if (src2 >= 0)
 					FAIL_IF(push_inst(compiler, ORI | S(src1) | TA(ULESS_FLAG) | IMM(src2), ULESS_FLAG));
 				else {
@@ -172,45 +171,28 @@ static SLJIT_INLINE sljit_si emit_single_op(struct sljit_compiler *compiler, slj
 			/* dst may be the same as src1 or src2. */
 			if (CHECK_FLAGS(SLJIT_SET_E))
 				FAIL_IF(push_inst(compiler, ADDIU | S(src1) | T(dst) | IMM(src2), DR(dst)));
-			if (op & SLJIT_SET_O) {
-				FAIL_IF(push_inst(compiler, SRL | T(dst) | DA(OVERFLOW_FLAG) | SH_IMM(31), OVERFLOW_FLAG));
-				if (src2 < 0)
-					FAIL_IF(push_inst(compiler, XORI | SA(OVERFLOW_FLAG) | TA(OVERFLOW_FLAG) | IMM(1), OVERFLOW_FLAG));
-			}
 		}
 		else {
-			if (op & SLJIT_SET_O) {
+			if (op & SLJIT_SET_O)
 				FAIL_IF(push_inst(compiler, XOR | S(src1) | T(src2) | DA(TMP_EREG1), TMP_EREG1));
-				FAIL_IF(push_inst(compiler, SRL | TA(TMP_EREG1) | DA(TMP_EREG1) | SH_IMM(31), TMP_EREG1));
-				if (src1 != dst)
-					overflow_ra = DR(src1);
-				else if (src2 != dst)
-					overflow_ra = DR(src2);
-				else {
-					/* Rare ocasion. */
-					FAIL_IF(push_inst(compiler, ADDU | S(src1) | TA(0) | DA(TMP_EREG2), TMP_EREG2));
-					overflow_ra = TMP_EREG2;
-				}
-			}
 			if (op & SLJIT_SET_E)
 				FAIL_IF(push_inst(compiler, ADDU | S(src1) | T(src2) | DA(EQUAL_FLAG), EQUAL_FLAG));
-			if (op & SLJIT_SET_C)
+			if (op & (SLJIT_SET_C | SLJIT_SET_O))
 				FAIL_IF(push_inst(compiler, OR | S(src1) | T(src2) | DA(ULESS_FLAG), ULESS_FLAG));
 			/* dst may be the same as src1 or src2. */
 			if (CHECK_FLAGS(SLJIT_SET_E))
 				FAIL_IF(push_inst(compiler, ADDU | S(src1) | T(src2) | D(dst), DR(dst)));
-			if (op & SLJIT_SET_O) {
-				FAIL_IF(push_inst(compiler, XOR | S(dst) | TA(overflow_ra) | DA(OVERFLOW_FLAG), OVERFLOW_FLAG));
-				FAIL_IF(push_inst(compiler, SRL | TA(OVERFLOW_FLAG) | DA(OVERFLOW_FLAG) | SH_IMM(31), OVERFLOW_FLAG));
-			}
 		}
 
 		/* a + b >= a | b (otherwise, the carry should be set to 1). */
-		if (op & SLJIT_SET_C)
+		if (op & (SLJIT_SET_C | SLJIT_SET_O))
 			FAIL_IF(push_inst(compiler, SLTU | S(dst) | TA(ULESS_FLAG) | DA(ULESS_FLAG), ULESS_FLAG));
-		if (op & SLJIT_SET_O)
-			return push_inst(compiler, MOVN | SA(0) | TA(TMP_EREG1) | DA(OVERFLOW_FLAG), OVERFLOW_FLAG);
-		return SLJIT_SUCCESS;
+		if (!(op & SLJIT_SET_O))
+			return SLJIT_SUCCESS;
+		FAIL_IF(push_inst(compiler, SLL | TA(ULESS_FLAG) | DA(OVERFLOW_FLAG) | SH_IMM(31), OVERFLOW_FLAG));
+		FAIL_IF(push_inst(compiler, XOR | SA(TMP_EREG1) | TA(OVERFLOW_FLAG) | DA(OVERFLOW_FLAG), OVERFLOW_FLAG));
+		FAIL_IF(push_inst(compiler, XOR | S(dst) | TA(OVERFLOW_FLAG) | DA(OVERFLOW_FLAG), OVERFLOW_FLAG));
+		return push_inst(compiler, SLL | TA(OVERFLOW_FLAG) | DA(OVERFLOW_FLAG) | SH_IMM(31), OVERFLOW_FLAG);
 
 	case SLJIT_ADDC:
 		if (flags & SRC2_IMM) {
@@ -236,14 +218,13 @@ static SLJIT_INLINE sljit_si emit_single_op(struct sljit_compiler *compiler, slj
 		if (!(op & SLJIT_SET_C))
 			return SLJIT_SUCCESS;
 
-		/* Set TMP_EREG2 (dst == 0) && (ULESS_FLAG == 1). */
-		FAIL_IF(push_inst(compiler, SLTIU | S(dst) | TA(TMP_EREG2) | IMM(1), TMP_EREG2));
-		FAIL_IF(push_inst(compiler, AND | SA(TMP_EREG2) | TA(ULESS_FLAG) | DA(TMP_EREG2), TMP_EREG2));
+		/* Set ULESS_FLAG (dst == 0) && (ULESS_FLAG == 1). */
+		FAIL_IF(push_inst(compiler, SLTU | S(dst) | TA(ULESS_FLAG) | DA(ULESS_FLAG), ULESS_FLAG));
 		/* Set carry flag. */
-		return push_inst(compiler, OR | SA(TMP_EREG2) | TA(TMP_EREG1) | DA(ULESS_FLAG), ULESS_FLAG);
+		return push_inst(compiler, OR | SA(ULESS_FLAG) | TA(TMP_EREG1) | DA(ULESS_FLAG), ULESS_FLAG);
 
 	case SLJIT_SUB:
-		if ((flags & SRC2_IMM) && ((op & (SLJIT_SET_S | SLJIT_SET_U)) || src2 == SIMM_MIN)) {
+		if ((flags & SRC2_IMM) && ((op & (SLJIT_SET_U | SLJIT_SET_S)) || src2 == SIMM_MIN)) {
 			FAIL_IF(push_inst(compiler, ADDIU | SA(0) | T(TMP_REG2) | IMM(src2), DR(TMP_REG2)));
 			src2 = TMP_REG2;
 			flags &= ~SRC2_IMM;
@@ -251,40 +232,25 @@ static SLJIT_INLINE sljit_si emit_single_op(struct sljit_compiler *compiler, slj
 
 		if (flags & SRC2_IMM) {
 			if (op & SLJIT_SET_O) {
-				FAIL_IF(push_inst(compiler, SRL | T(src1) | DA(TMP_EREG1) | SH_IMM(31), TMP_EREG1));
-				if (src2 < 0)
-					FAIL_IF(push_inst(compiler, XORI | SA(TMP_EREG1) | TA(TMP_EREG1) | IMM(1), TMP_EREG1));
-				if (src1 != dst)
-					overflow_ra = DR(src1);
-				else {
-					/* Rare ocasion. */
-					FAIL_IF(push_inst(compiler, ADDU | S(src1) | TA(0) | DA(TMP_EREG2), TMP_EREG2));
-					overflow_ra = TMP_EREG2;
-				}
+				if (src2 >= 0)
+					FAIL_IF(push_inst(compiler, OR | S(src1) | T(src1) | DA(TMP_EREG1), TMP_EREG1));
+				else
+					FAIL_IF(push_inst(compiler, NOR | S(src1) | T(src1) | DA(TMP_EREG1), TMP_EREG1));
 			}
 			if (op & SLJIT_SET_E)
 				FAIL_IF(push_inst(compiler, ADDIU | S(src1) | TA(EQUAL_FLAG) | IMM(-src2), EQUAL_FLAG));
-			if (op & SLJIT_SET_C)
+			if (op & (SLJIT_SET_C | SLJIT_SET_O))
 				FAIL_IF(push_inst(compiler, SLTIU | S(src1) | TA(ULESS_FLAG) | IMM(src2), ULESS_FLAG));
 			/* dst may be the same as src1 or src2. */
 			if (CHECK_FLAGS(SLJIT_SET_E))
 				FAIL_IF(push_inst(compiler, ADDIU | S(src1) | T(dst) | IMM(-src2), DR(dst)));
 		}
 		else {
-			if (op & SLJIT_SET_O) {
+			if (op & SLJIT_SET_O)
 				FAIL_IF(push_inst(compiler, XOR | S(src1) | T(src2) | DA(TMP_EREG1), TMP_EREG1));
-				FAIL_IF(push_inst(compiler, SRL | TA(TMP_EREG1) | DA(TMP_EREG1) | SH_IMM(31), TMP_EREG1));
-				if (src1 != dst)
-					overflow_ra = DR(src1);
-				else {
-					/* Rare ocasion. */
-					FAIL_IF(push_inst(compiler, ADDU | S(src1) | TA(0) | DA(TMP_EREG2), TMP_EREG2));
-					overflow_ra = TMP_EREG2;
-				}
-			}
 			if (op & SLJIT_SET_E)
 				FAIL_IF(push_inst(compiler, SUBU | S(src1) | T(src2) | DA(EQUAL_FLAG), EQUAL_FLAG));
-			if (op & (SLJIT_SET_U | SLJIT_SET_C))
+			if (op & (SLJIT_SET_U | SLJIT_SET_C | SLJIT_SET_O))
 				FAIL_IF(push_inst(compiler, SLTU | S(src1) | T(src2) | DA(ULESS_FLAG), ULESS_FLAG));
 			if (op & SLJIT_SET_U)
 				FAIL_IF(push_inst(compiler, SLTU | S(src2) | T(src1) | DA(UGREATER_FLAG), UGREATER_FLAG));
@@ -293,16 +259,16 @@ static SLJIT_INLINE sljit_si emit_single_op(struct sljit_compiler *compiler, slj
 				FAIL_IF(push_inst(compiler, SLT | S(src2) | T(src1) | DA(GREATER_FLAG), GREATER_FLAG));
 			}
 			/* dst may be the same as src1 or src2. */
-			if (CHECK_FLAGS(SLJIT_SET_E | SLJIT_SET_S | SLJIT_SET_U | SLJIT_SET_C))
+			if (CHECK_FLAGS(SLJIT_SET_E | SLJIT_SET_U | SLJIT_SET_S | SLJIT_SET_C))
 				FAIL_IF(push_inst(compiler, SUBU | S(src1) | T(src2) | D(dst), DR(dst)));
 		}
 
-		if (op & SLJIT_SET_O) {
-			FAIL_IF(push_inst(compiler, XOR | S(dst) | TA(overflow_ra) | DA(OVERFLOW_FLAG), OVERFLOW_FLAG));
-			FAIL_IF(push_inst(compiler, SRL | TA(OVERFLOW_FLAG) | DA(OVERFLOW_FLAG) | SH_IMM(31), OVERFLOW_FLAG));
-			return push_inst(compiler, MOVZ | SA(0) | TA(TMP_EREG1) | DA(OVERFLOW_FLAG), OVERFLOW_FLAG);
-		}
-		return SLJIT_SUCCESS;
+		if (!(op & SLJIT_SET_O))
+			return SLJIT_SUCCESS;
+		FAIL_IF(push_inst(compiler, SLL | TA(ULESS_FLAG) | DA(OVERFLOW_FLAG) | SH_IMM(31), OVERFLOW_FLAG));
+		FAIL_IF(push_inst(compiler, XOR | SA(TMP_EREG1) | TA(OVERFLOW_FLAG) | DA(OVERFLOW_FLAG), OVERFLOW_FLAG));
+		FAIL_IF(push_inst(compiler, XOR | S(dst) | TA(OVERFLOW_FLAG) | DA(OVERFLOW_FLAG), OVERFLOW_FLAG));
+		return push_inst(compiler, SRL | TA(OVERFLOW_FLAG) | DA(OVERFLOW_FLAG) | SH_IMM(31), OVERFLOW_FLAG);
 
 	case SLJIT_SUBC:
 		if ((flags & SRC2_IMM) && src2 == SIMM_MIN) {
@@ -313,7 +279,7 @@ static SLJIT_INLINE sljit_si emit_single_op(struct sljit_compiler *compiler, slj
 
 		if (flags & SRC2_IMM) {
 			if (op & SLJIT_SET_C)
-				FAIL_IF(push_inst(compiler, SLTIU | S(src1) | TA(TMP_EREG1) | IMM(-src2), TMP_EREG1));
+				FAIL_IF(push_inst(compiler, SLTIU | S(src1) | TA(TMP_EREG1) | IMM(src2), TMP_EREG1));
 			/* dst may be the same as src1 or src2. */
 			FAIL_IF(push_inst(compiler, ADDIU | S(src1) | T(dst) | IMM(-src2), DR(dst)));
 		}
@@ -325,14 +291,10 @@ static SLJIT_INLINE sljit_si emit_single_op(struct sljit_compiler *compiler, slj
 		}
 
 		if (op & SLJIT_SET_C)
-			FAIL_IF(push_inst(compiler, MOVZ | SA(ULESS_FLAG) | T(dst) | DA(TMP_EREG1), TMP_EREG1));
+			FAIL_IF(push_inst(compiler, SLTU | S(dst) | TA(ULESS_FLAG) | DA(TMP_EREG2), TMP_EREG2));
 
 		FAIL_IF(push_inst(compiler, SUBU | S(dst) | TA(ULESS_FLAG) | D(dst), DR(dst)));
-
-		if (op & SLJIT_SET_C)
-			FAIL_IF(push_inst(compiler, ADDU | SA(TMP_EREG1) | TA(0) | DA(ULESS_FLAG), ULESS_FLAG));
-
-		return SLJIT_SUCCESS;
+		return (op & SLJIT_SET_C) ? push_inst(compiler, OR | SA(TMP_EREG1) | TA(TMP_EREG2) | DA(ULESS_FLAG), ULESS_FLAG) : SLJIT_SUCCESS;
 
 	case SLJIT_MUL:
 		SLJIT_ASSERT(!(flags & SRC2_IMM));

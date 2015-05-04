@@ -44,6 +44,8 @@
 
 #include "qmenu.h"
 #include "qmenubar.h"
+#include "qmenubar_p.h"
+#include "qmacnativewidget_mac.h"
 
 #include <QtCore/QDebug>
 #include <QtGui/QGuiApplication>
@@ -114,6 +116,23 @@ void QMenu::setAsDockMenu()
 
     \sa QMenu:setAsDockMenu()
 */
+
+void QMenuPrivate::moveWidgetToPlatformItem(QWidget *widget, QPlatformMenuItem* item)
+{
+    QMacNativeWidget *container = new QMacNativeWidget;
+    QObject::connect(platformMenu, SIGNAL(destroyed()), container, SLOT(deleteLater()));
+    container->resize(widget->sizeHint());
+    widget->setParent(container);
+
+    NSView *containerView = container->nativeView();
+    QWindow *containerWindow = container->windowHandle();
+    Qt::WindowFlags wf = containerWindow->flags();
+    containerWindow->setFlags(wf | Qt::SubWindow);
+    [(NSView *)widget->winId() setAutoresizingMask:NSViewWidthSizable];
+
+    item->setNativeContents((WId)containerView);
+    container->show();
+}
 
 #endif //QT_NO_MENU
 

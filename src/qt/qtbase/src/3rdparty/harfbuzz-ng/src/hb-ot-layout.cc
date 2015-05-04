@@ -327,9 +327,28 @@ hb_ot_layout_language_get_required_feature_index (hb_face_t    *face,
 						  unsigned int  language_index,
 						  unsigned int *feature_index)
 {
-  const OT::LangSys &l = get_gsubgpos_table (face, table_tag).get_script (script_index).get_lang_sys (language_index);
+  return hb_ot_layout_language_get_required_feature (face,
+						     table_tag,
+						     script_index,
+						     language_index,
+						     feature_index,
+						     NULL);
+}
 
-  if (feature_index) *feature_index = l.get_required_feature_index ();
+hb_bool_t
+hb_ot_layout_language_get_required_feature (hb_face_t    *face,
+					    hb_tag_t      table_tag,
+					    unsigned int  script_index,
+					    unsigned int  language_index,
+					    unsigned int *feature_index,
+					    hb_tag_t     *feature_tag)
+{
+  const OT::GSUBGPOS &g = get_gsubgpos_table (face, table_tag);
+  const OT::LangSys &l = g.get_script (script_index).get_lang_sys (language_index);
+
+  unsigned int index = l.get_required_feature_index ();
+  if (feature_index) *feature_index = index;
+  if (feature_tag) *feature_tag = g.get_feature_tag (index);
 
   return l.has_required_feature ();
 }
@@ -468,11 +487,12 @@ _hb_ot_layout_collect_lookups_features (hb_face_t      *face,
   if (!features)
   {
     unsigned int required_feature_index;
-    if (hb_ot_layout_language_get_required_feature_index (face,
-							  table_tag,
-							  script_index,
-							  language_index,
-							  &required_feature_index))
+    if (hb_ot_layout_language_get_required_feature (face,
+						    table_tag,
+						    script_index,
+						    language_index,
+						    &required_feature_index,
+						    NULL))
       _hb_ot_layout_collect_lookups_lookups (face,
 					     table_tag,
 					     required_feature_index,

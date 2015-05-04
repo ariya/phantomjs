@@ -45,7 +45,7 @@
 CustomStyle::CustomStyle()
 {
 //! [0]
-    QSpinBox *spinBox = qobject_cast<QSpinBox *>(widget);
+    const QSpinBox *spinBox = qobject_cast<const QSpinBox *>(widget);
     if (spinBox) {
 //! [0] //! [1]
     }

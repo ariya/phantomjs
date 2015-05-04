@@ -1,0 +1,477 @@
+From bd27c33a4a7c48bd14b9b6c18c8cdce1c3aae155 Mon Sep 17 00:00:00 2001
+From: Andrew Knight <andrew.knight@theqtcompany.com>
+Date: Fri, 14 Nov 2014 10:53:40 +0200
+Subject: [PATCH] General fixes for ANGLE 2.1
+
+- Fix commit.h include (use hard-coded version)
+- Fix export mismatch in libEGL.cpp and libGLESv2.cpp
+- Normalize all precompiled shader names and includes
+- Remove third-party event tracing; it was hardly used in ANGLE
+  and not enabled in Qt builds anyway.
+
+Change-Id: I22254aed62e89a26756ca0784bae95909189c0f9
+---
+ src/3rdparty/angle/src/commit.h                    |  6 +-
+ src/3rdparty/angle/src/common/version.h            |  2 +-
+ .../src/common/winrt/CoreWindowNativeWindow.cpp    |  2 +-
+ src/3rdparty/angle/src/libEGL/libEGL.cpp           |  3 +
+ src/3rdparty/angle/src/libGLESv2/libGLESv2.cpp     |  4 ++
+ src/3rdparty/angle/src/libGLESv2/libGLESv2.def     |  3 -
+ .../src/libGLESv2/renderer/d3d/HLSLCompiler.cpp    |  3 -
+ .../src/libGLESv2/renderer/d3d/d3d11/Blit11.cpp    | 66 +++++++++++-----------
+ .../src/libGLESv2/renderer/d3d/d3d11/Clear11.cpp   | 12 ++--
+ .../renderer/d3d/d3d11/PixelTransfer11.cpp         | 10 ++--
+ .../libGLESv2/renderer/d3d/d3d11/SwapChain11.cpp   |  4 +-
+ .../renderer/d3d/d3d11/shaders/Clear11.hlsl        |  4 ++
+ .../src/libGLESv2/renderer/d3d/d3d9/Blit9.cpp      | 20 +++----
+ .../src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp  | 12 ----
+ .../libGLESv2/renderer/d3d/d3d9/shaders/Blit.ps    |  6 +-
+ .../libGLESv2/renderer/d3d/d3d9/shaders/Blit.vs    |  4 +-
+ 16 files changed, 76 insertions(+), 85 deletions(-)
+
+diff --git a/src/3rdparty/angle/src/commit.h b/src/3rdparty/angle/src/commit.h
+index 4c89a65..08fc893 100644
+--- a/src/3rdparty/angle/src/commit.h
++++ b/src/3rdparty/angle/src/commit.h
+@@ -7,8 +7,6 @@
+ //   This is a default commit hash header, when git is not available.
+ //
+ 
+-#define ANGLE_COMMIT_HASH "unknown hash"
++#define ANGLE_COMMIT_HASH "30d6c255d238"
+ #define ANGLE_COMMIT_HASH_SIZE 12
+-#define ANGLE_COMMIT_DATE "unknown date"
+-
+-#define ANGLE_DISABLE_PROGRAM_BINARY_LOAD
++#define ANGLE_COMMIT_DATE "2014-11-13 17:37:03 +0000"
+diff --git a/src/3rdparty/angle/src/common/version.h b/src/3rdparty/angle/src/common/version.h
+index d9148d1..f01e024 100644
+--- a/src/3rdparty/angle/src/common/version.h
++++ b/src/3rdparty/angle/src/common/version.h
+@@ -1,4 +1,4 @@
+-#include "id/commit.h"
++#include "../commit.h"
+ 
+ #define ANGLE_MAJOR_VERSION 2
+ #define ANGLE_MINOR_VERSION 1
+diff --git a/src/3rdparty/angle/src/common/winrt/CoreWindowNativeWindow.cpp b/src/3rdparty/angle/src/common/winrt/CoreWindowNativeWindow.cpp
+index 0de16f4..0e63fa5 100644
+--- a/src/3rdparty/angle/src/common/winrt/CoreWindowNativeWindow.cpp
++++ b/src/3rdparty/angle/src/common/winrt/CoreWindowNativeWindow.cpp
+@@ -184,4 +184,4 @@ long ConvertDipsToPixels(float dips)
+     static const float dipsPerInch = 96.0f;
+     return lround((dips * GetLogicalDpi() / dipsPerInch));
+ }
+-}
+\ No newline at end of file
++}
+diff --git a/src/3rdparty/angle/src/libEGL/libEGL.cpp b/src/3rdparty/angle/src/libEGL/libEGL.cpp
+index 851b723..6110698 100644
+--- a/src/3rdparty/angle/src/libEGL/libEGL.cpp
++++ b/src/3rdparty/angle/src/libEGL/libEGL.cpp
+@@ -6,6 +6,9 @@
+ 
+ // libEGL.cpp: Implements the exported EGL functions.
+ 
++#undef EGLAPI
++#define EGLAPI
++
+ #include <exception>
+ 
+ #include "common/debug.h"
+diff --git a/src/3rdparty/angle/src/libGLESv2/libGLESv2.cpp b/src/3rdparty/angle/src/libGLESv2/libGLESv2.cpp
+index 2306168..587950a 100644
+--- a/src/3rdparty/angle/src/libGLESv2/libGLESv2.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/libGLESv2.cpp
+@@ -6,6 +6,10 @@
+ 
+ // libGLESv2.cpp: Implements the exported OpenGL ES 2.0 functions.
+ 
++#undef GL_APICALL
++#define GL_APICALL
++#define GL_GLEXT_PROTOTYPES
++
+ #include "common/version.h"
+ #include "common/utilities.h"
+ 
+diff --git a/src/3rdparty/angle/src/libGLESv2/libGLESv2.def b/src/3rdparty/angle/src/libGLESv2/libGLESv2.def
+index 88dceb3..33557eb 100644
+--- a/src/3rdparty/angle/src/libGLESv2/libGLESv2.def
++++ b/src/3rdparty/angle/src/libGLESv2/libGLESv2.def
+@@ -294,6 +294,3 @@ EXPORTS
+     glBindTexImage                  @158 NONAME
+     glCreateRenderer                @177 NONAME
+     glDestroyRenderer               @178 NONAME
+-
+-    ; Setting up TRACE macro callbacks
+-    SetTraceFunctionPointers        @284
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/HLSLCompiler.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/HLSLCompiler.cpp
+index 5c44fe0..bfeaf51 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/HLSLCompiler.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/HLSLCompiler.cpp
+@@ -11,8 +11,6 @@
+ #include "common/features.h"
+ #include "common/utilities.h"
+ 
+-#include "third_party/trace_event/trace_event.h"
+-
+ // Definitions local to the translation unit
+ namespace
+ {
+@@ -120,7 +118,6 @@ HLSLCompiler::~HLSLCompiler()
+ 
+ bool HLSLCompiler::initialize()
+ {
+-    TRACE_EVENT0("gpu", "initializeCompiler");
+ #if !defined(ANGLE_ENABLE_WINDOWS_STORE)
+ #if defined(ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES)
+     // Find a D3DCompiler module that had already been loaded based on a predefined list of versions.
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Blit11.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Blit11.cpp
+index 8ed1650..91e7552 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Blit11.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Blit11.cpp
+@@ -13,39 +13,39 @@
+ #include "libGLESv2/main.h"
+ #include "libGLESv2/formatutils.h"
+ 
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthrough2d11vs.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughdepth2d11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgba2d11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgba2dui11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgba2di11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgb2d11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgb2dui11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgb2di11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrg2d11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrg2dui11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrg2di11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughr2d11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughr2dui11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughr2di11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughlum2d11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughlumalpha2d11ps.h"
+-
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthrough3d11vs.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthrough3d11gs.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgba3d11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgba3dui11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgba3di11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgb3d11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgb3dui11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgb3di11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrg3d11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrg3dui11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrg3di11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughr3d11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughr3dui11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughr3di11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughlum3d11ps.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughlumalpha3d11ps.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthrough2dvs.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughdepth2dps.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgba2dps.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgba2duips.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgba2dips.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgb2dps.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgb2duips.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgb2dips.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrg2dps.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrg2duips.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrg2dips.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughr2dps.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughr2duips.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughr2dips.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughlum2dps.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughlumalpha2dps.h"
++
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthrough3dvs.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthrough3dgs.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgba3dps.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgba3duips.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgba3dips.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgb3dps.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgb3duips.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgb3dips.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrg3dps.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrg3duips.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrg3dips.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughr3dps.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughr3duips.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughr3dips.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughlum3dps.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughlumalpha3dps.h"
+ 
+ #include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/swizzlef2dps.h"
+ #include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/swizzlei2dps.h"
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Clear11.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Clear11.cpp
+index 12905d0..4630762 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Clear11.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Clear11.cpp
+@@ -15,14 +15,14 @@
+ #include "libGLESv2/FramebufferAttachment.h"
+ 
+ // Precompiled shaders
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/clearfloat11vs.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/clearfloat11ps.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/clearfloatvs.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/clearfloatps.h"
+ 
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/clearuint11vs.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/clearuint11ps.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/clearuintvs.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/clearuintps.h"
+ 
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/clearsint11vs.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/clearsint11ps.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/clearsintvs.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/clearsintps.h"
+ 
+ namespace rx
+ {
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/PixelTransfer11.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/PixelTransfer11.cpp
+index 1bc2bd8..a4072d8 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/PixelTransfer11.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/PixelTransfer11.cpp
+@@ -22,11 +22,11 @@
+ #include "libGLESv2/Context.h"
+ 
+ // Precompiled shaders
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/buffertotexture11_vs.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/buffertotexture11_gs.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/buffertotexture11_ps_4f.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/buffertotexture11_ps_4i.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/buffertotexture11_ps_4ui.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/buffertotexturevs.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/buffertotexturegs.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/buffertotexture_4fps.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/buffertotexture_4ips.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/buffertotexture_4uips.h"
+ 
+ namespace rx
+ {
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/SwapChain11.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/SwapChain11.cpp
+index 3fcacf6..834b7bd 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/SwapChain11.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/SwapChain11.cpp
+@@ -12,8 +12,8 @@
+ #include "libGLESv2/renderer/d3d/d3d11/Renderer11.h"
+ 
+ // Precompiled shaders
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthrough2d11vs.h"
+-#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgba2d11ps.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthrough2dvs.h"
++#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgba2dps.h"
+ 
+ #include "common/features.h"
+ #include "common/NativeWindow.h"
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/shaders/Clear11.hlsl b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/shaders/Clear11.hlsl
+index 6deef2b..b4cf380 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/shaders/Clear11.hlsl
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/shaders/Clear11.hlsl
+@@ -13,10 +13,12 @@ struct PS_OutputFloat
+     float4 color1 : SV_TARGET1;
+     float4 color2 : SV_TARGET2;
+     float4 color3 : SV_TARGET3;
++#if SM4
+     float4 color4 : SV_TARGET4;
+     float4 color5 : SV_TARGET5;
+     float4 color6 : SV_TARGET6;
+     float4 color7 : SV_TARGET7;
++#endif
+ };
+ 
+ PS_OutputFloat PS_ClearFloat(in float4 inPosition : SV_POSITION, in float4 inColor : COLOR)
+@@ -26,10 +28,12 @@ PS_OutputFloat PS_ClearFloat(in float4 inPosition : SV_POSITION, in float4 inCol
+     outColor.color1 = inColor;
+     outColor.color2 = inColor;
+     outColor.color3 = inColor;
++#if SM4
+     outColor.color4 = inColor;
+     outColor.color5 = inColor;
+     outColor.color6 = inColor;
+     outColor.color7 = inColor;
++#endif
+     return outColor;
+ }
+ 
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Blit9.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Blit9.cpp
+index d4fcd17..2ca7a9c 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Blit9.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Blit9.cpp
+@@ -27,20 +27,20 @@ namespace
+ 
+ const BYTE* const g_shaderCode[] =
+ {
+-    g_vs20_standardvs,
+-    g_vs20_flipyvs,
+-    g_ps20_passthroughps,
+-    g_ps20_luminanceps,
+-    g_ps20_componentmaskps
++    g_vs20_VS_standard,
++    g_vs20_VS_flipy,
++    g_ps20_PS_passthrough,
++    g_ps20_PS_luminance,
++    g_ps20_PS_componentmask
+ };
+ 
+ const size_t g_shaderSize[] =
+ {
+-    sizeof(g_vs20_standardvs),
+-    sizeof(g_vs20_flipyvs),
+-    sizeof(g_ps20_passthroughps),
+-    sizeof(g_ps20_luminanceps),
+-    sizeof(g_ps20_componentmaskps)
++    sizeof(g_vs20_VS_standard),
++    sizeof(g_vs20_VS_flipy),
++    sizeof(g_ps20_PS_passthrough),
++    sizeof(g_ps20_PS_luminance),
++    sizeof(g_ps20_PS_componentmask)
+ };
+ }
+ 
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp
+index 3bac4ba..82963ec 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp
+@@ -42,8 +42,6 @@
+ #include "common/features.h"
+ #include "common/utilities.h"
+ 
+-#include "third_party/trace_event/trace_event.h"
+-
+ #include <sstream>
+ 
+ // Can also be enabled by defining FORCE_REF_RAST in the project's predefined macros
+@@ -185,7 +183,6 @@ EGLint Renderer9::initialize()
+         return EGL_NOT_INITIALIZED;
+     }
+ 
+-    TRACE_EVENT0("gpu", "GetModuleHandle_d3d9");
+     mD3d9Module = GetModuleHandle(TEXT("d3d9.dll"));
+ 
+     if (mD3d9Module == NULL)
+@@ -202,14 +199,12 @@ EGLint Renderer9::initialize()
+     // desktop. Direct3D9Ex is available in Windows Vista and later if suitable drivers are available.
+     if (ANGLE_D3D9EX == ANGLE_ENABLED && Direct3DCreate9ExPtr && SUCCEEDED(Direct3DCreate9ExPtr(D3D_SDK_VERSION, &mD3d9Ex)))
+     {
+-        TRACE_EVENT0("gpu", "D3d9Ex_QueryInterface");
+         ASSERT(mD3d9Ex);
+         mD3d9Ex->QueryInterface(__uuidof(IDirect3D9), reinterpret_cast<void**>(&mD3d9));
+         ASSERT(mD3d9);
+     }
+     else
+     {
+-        TRACE_EVENT0("gpu", "Direct3DCreate9");
+         mD3d9 = Direct3DCreate9(D3D_SDK_VERSION);
+     }
+ 
+@@ -228,7 +223,6 @@ EGLint Renderer9::initialize()
+ 
+     // Give up on getting device caps after about one second.
+     {
+-        TRACE_EVENT0("gpu", "GetDeviceCaps");
+         for (int i = 0; i < 10; ++i)
+         {
+             result = mD3d9->GetDeviceCaps(mAdapter, mDeviceType, &mDeviceCaps);
+@@ -263,7 +257,6 @@ EGLint Renderer9::initialize()
+     }
+ 
+     {
+-        TRACE_EVENT0("gpu", "GetAdapterIdentifier");
+         mD3d9->GetAdapterIdentifier(mAdapter, 0, &mAdapterIdentifier);
+     }
+ 
+@@ -300,7 +293,6 @@ EGLint Renderer9::initialize()
+     static const TCHAR className[] = TEXT("STATIC");
+ 
+     {
+-        TRACE_EVENT0("gpu", "CreateWindowEx");
+         mDeviceWindow = CreateWindowEx(WS_EX_NOACTIVATE, className, windowName, WS_DISABLED | WS_POPUP, 0, 0, 1, 1, HWND_MESSAGE, NULL, GetModuleHandle(NULL), NULL);
+     }
+ 
+@@ -308,7 +300,6 @@ EGLint Renderer9::initialize()
+     DWORD behaviorFlags = D3DCREATE_FPU_PRESERVE | D3DCREATE_NOWINDOWCHANGES;
+ 
+     {
+-        TRACE_EVENT0("gpu", "D3d9_CreateDevice");
+         result = mD3d9->CreateDevice(mAdapter, mDeviceType, mDeviceWindow, behaviorFlags | D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_PUREDEVICE, &presentParameters, &mDevice);
+     }
+     if (result == D3DERR_OUTOFVIDEOMEMORY || result == E_OUTOFMEMORY || result == D3DERR_DEVICELOST)
+@@ -318,7 +309,6 @@ EGLint Renderer9::initialize()
+ 
+     if (FAILED(result))
+     {
+-        TRACE_EVENT0("gpu", "D3d9_CreateDevice2");
+         result = mD3d9->CreateDevice(mAdapter, mDeviceType, mDeviceWindow, behaviorFlags | D3DCREATE_SOFTWARE_VERTEXPROCESSING, &presentParameters, &mDevice);
+ 
+         if (FAILED(result))
+@@ -330,13 +320,11 @@ EGLint Renderer9::initialize()
+ 
+     if (mD3d9Ex)
+     {
+-        TRACE_EVENT0("gpu", "mDevice_QueryInterface");
+         result = mDevice->QueryInterface(__uuidof(IDirect3DDevice9Ex), (void**)&mDeviceEx);
+         ASSERT(SUCCEEDED(result));
+     }
+ 
+     {
+-        TRACE_EVENT0("gpu", "ShaderCache initialize");
+         mVertexShaderCache.initialize(mDevice);
+         mPixelShaderCache.initialize(mDevice);
+     }
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/shaders/Blit.ps b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/shaders/Blit.ps
+index dc357d0..eb43eb3 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/shaders/Blit.ps
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/shaders/Blit.ps
+@@ -11,7 +11,7 @@ uniform float4 add  : c1;
+ 
+ // Passthrough Pixel Shader
+ // Outputs texture 0 sampled at texcoord 0.
+-float4 passthroughps(float4 texcoord : TEXCOORD0) : COLOR
++float4 PS_passthrough(float4 texcoord : TEXCOORD0) : COLOR
+ {
+     return tex2D(tex, texcoord.xy);
+ };
+@@ -19,7 +19,7 @@ float4 passthroughps(float4 texcoord : TEXCOORD0) : COLOR
+ // Luminance Conversion Pixel Shader
+ // Performs a mad operation using the LA data from the texture with mult.xw and add.xw.
+ // Returns data in the form of llla
+-float4 luminanceps(float4 texcoord : TEXCOORD0) : COLOR
++float4 PS_luminance(float4 texcoord : TEXCOORD0) : COLOR
+ {
+     return (tex2D(tex, texcoord.xy).xw * mult.xw + add.xw).xxxy;
+ };
+@@ -27,7 +27,7 @@ float4 luminanceps(float4 texcoord : TEXCOORD0) : COLOR
+ // RGB/A Component Mask Pixel Shader
+ // Performs a mad operation using the texture's RGBA data with mult.xyzw and add.xyzw.
+ // Returns data in the form of rgba
+-float4 componentmaskps(float4 texcoord : TEXCOORD0) : COLOR
++float4 PS_componentmask(float4 texcoord : TEXCOORD0) : COLOR
+ {
+     return tex2D(tex, texcoord.xy) * mult + add;
+ };
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/shaders/Blit.vs b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/shaders/Blit.vs
+index 3a36980..3bd611b 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/shaders/Blit.vs
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/shaders/Blit.vs
+@@ -17,7 +17,7 @@ uniform float4 halfPixelSize : c0;
+ // Outputs the homogenous position as-is.
+ // Outputs a tex coord with (0,0) in the upper-left corner of the screen and (1,1) in the bottom right.
+ // C0.X must be negative half-pixel width, C0.Y must be half-pixel height. C0.ZW must be 0.
+-VS_OUTPUT standardvs(in float4 position : POSITION)
++VS_OUTPUT VS_standard(in float4 position : POSITION)
+ {
+     VS_OUTPUT Out;
+ 
+@@ -32,7 +32,7 @@ VS_OUTPUT standardvs(in float4 position : POSITION)
+ // Outputs the homogenous position as-is.
+ // Outputs a tex coord with (0,1) in the upper-left corner of the screen and (1,0) in the bottom right.
+ // C0.XY must be the half-pixel width and height. C0.ZW must be 0.
+-VS_OUTPUT flipyvs(in float4 position : POSITION)
++VS_OUTPUT VS_flipy(in float4 position : POSITION)
+ {
+     VS_OUTPUT Out;
+ 
+-- 
+1.9.4.msysgit.1
+

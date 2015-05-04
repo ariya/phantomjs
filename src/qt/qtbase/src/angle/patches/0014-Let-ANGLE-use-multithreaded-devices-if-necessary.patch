@@ -1,0 +1,69 @@
+From 5b3bc73210ed1847d9bd7a94f06cc0d5de8e0b89 Mon Sep 17 00:00:00 2001
+From: Michael Bruning <michael.bruning@digia.com>
+Date: Thu, 13 Nov 2014 15:40:10 +0200
+Subject: [PATCH 14/16] Let ANGLE use multithreaded devices if necessary.
+
+This is needed to prevent lock-ups in application that use ANGLE from
+multiple threads, as e.g. QtWebEngine based applications do.
+
+The environment variable QT_D3DCREATE_MULTITHREADED is used to
+communicate this from the QtWebEngine module.
+
+Change-Id: Ibd5a5c75eb68af567d420d9a35efb3490c93b27c
+---
+ src/3rdparty/angle/src/common/platform.h                       |  1 +
+ .../angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp      | 10 ++++++++++
+ .../angle/src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp        |  4 ++++
+ 3 files changed, 15 insertions(+)
+
+diff --git a/src/3rdparty/angle/src/common/platform.h b/src/3rdparty/angle/src/common/platform.h
+index 0065ec7..8b2190d 100644
+--- a/src/3rdparty/angle/src/common/platform.h
++++ b/src/3rdparty/angle/src/common/platform.h
+@@ -57,6 +57,7 @@
+ 
+ #   if defined(ANGLE_ENABLE_D3D11)
+ #       include <d3d10_1.h>
++#       include <d3d10.h>
+ #       include <d3d11.h>
+ #       include <d3d11_1.h>
+ #       include <dxgi.h>
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp
+index f6ba930..46b9984 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp
+@@ -258,6 +258,16 @@ EGLint Renderer11::initialize()
+     }
+ 
+ #if !defined(ANGLE_ENABLE_WINDOWS_STORE)
++    static wchar_t *qt_d3dcreate_multihreaded_var = _wgetenv(L"QT_D3DCREATE_MULTITHREADED");
++    if (qt_d3dcreate_multihreaded_var && wcsstr(qt_d3dcreate_multihreaded_var, L"1"))
++    {
++        ID3D10Multithread *multithread;
++        result = mDevice->QueryInterface(IID_PPV_ARGS(&multithread));
++        ASSERT(SUCCEEDED(result));
++        result = multithread->SetMultithreadProtected(true);
++        ASSERT(SUCCEEDED(result));
++        multithread->Release();
++    }
+ #if !ANGLE_SKIP_DXGI_1_2_CHECK
+     // In order to create a swap chain for an HWND owned by another process, DXGI 1.2 is required.
+     // The easiest way to check is to query for a IDXGIDevice2.
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp
+index 82963ec..4c552b2 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp
+@@ -299,6 +299,10 @@ EGLint Renderer9::initialize()
+     D3DPRESENT_PARAMETERS presentParameters = getDefaultPresentParameters();
+     DWORD behaviorFlags = D3DCREATE_FPU_PRESERVE | D3DCREATE_NOWINDOWCHANGES;
+ 
++    static wchar_t *qt_d3dcreate_multihreaded_var = _wgetenv(L"QT_D3DCREATE_MULTITHREADED");
++    if (qt_d3dcreate_multihreaded_var && wcsstr(qt_d3dcreate_multihreaded_var, L"1"))
++        behaviorFlags |= D3DCREATE_MULTITHREADED;
++
+     {
+         result = mD3d9->CreateDevice(mAdapter, mDeviceType, mDeviceWindow, behaviorFlags | D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_PUREDEVICE, &presentParameters, &mDevice);
+     }
+-- 
+1.9.4.msysgit.1
+

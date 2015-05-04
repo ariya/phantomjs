@@ -7,7 +7,7 @@ and semantics are as close as possible to those of the Perl 5 language (but see
 below for why this module is different).
 
                        Written by Philip Hazel
-           Copyright (c) 1997-2013 University of Cambridge
+           Copyright (c) 1997-2014 University of Cambridge
 
 -----------------------------------------------------------------------------
 Redistribution and use in source and binary forms, with or without
@@ -1473,7 +1473,7 @@ for (;;)
           goto ANYNL01;
 
           case CHAR_CR:
-          if (ptr + 1 < end_subject && RAWUCHARTEST(ptr + 1) == CHAR_LF) ncount = 1;
+          if (ptr + 1 < end_subject && UCHAR21TEST(ptr + 1) == CHAR_LF) ncount = 1;
           /* Fall through */
 
           ANYNL01:
@@ -1742,7 +1742,7 @@ for (;;)
           goto ANYNL02;
 
           case CHAR_CR:
-          if (ptr + 1 < end_subject && RAWUCHARTEST(ptr + 1) == CHAR_LF) ncount = 1;
+          if (ptr + 1 < end_subject && UCHAR21TEST(ptr + 1) == CHAR_LF) ncount = 1;
           /* Fall through */
 
           ANYNL02:
@@ -2012,7 +2012,7 @@ for (;;)
           goto ANYNL03;
 
           case CHAR_CR:
-          if (ptr + 1 < end_subject && RAWUCHARTEST(ptr + 1) == CHAR_LF) ncount = 1;
+          if (ptr + 1 < end_subject && UCHAR21TEST(ptr + 1) == CHAR_LF) ncount = 1;
           /* Fall through */
 
           ANYNL03:
@@ -2210,7 +2210,7 @@ for (;;)
           if ((md->moptions & PCRE_PARTIAL_HARD) != 0)
             reset_could_continue = TRUE;
           }
-        else if (RAWUCHARTEST(ptr + 1) == CHAR_LF)
+        else if (UCHAR21TEST(ptr + 1) == CHAR_LF)
           {
           ADD_NEW_DATA(-(state_offset + 1), 0, 1);
           }
@@ -3466,7 +3466,7 @@ for (;;)
 
     if (((options | re->options) & PCRE_NO_START_OPTIMIZE) == 0)
       {
-      /* Advance to a known first char. */
+      /* Advance to a known first pcre_uchar (i.e. data item) */
 
       if (has_first_char)
         {
@@ -3474,12 +3474,12 @@ for (;;)
           {
           pcre_uchar csc;
           while (current_subject < end_subject &&
-                 (csc = RAWUCHARTEST(current_subject)) != first_char && csc != first_char2)
+                 (csc = UCHAR21TEST(current_subject)) != first_char && csc != first_char2)
             current_subject++;
           }
         else
           while (current_subject < end_subject &&
-                 RAWUCHARTEST(current_subject) != first_char)
+                 UCHAR21TEST(current_subject) != first_char)
             current_subject++;
         }
 
@@ -3509,36 +3509,26 @@ for (;;)
           ANYCRLF, and we are now at a LF, advance the match position by one
           more character. */
 
-          if (RAWUCHARTEST(current_subject - 1) == CHAR_CR &&
+          if (UCHAR21TEST(current_subject - 1) == CHAR_CR &&
                (md->nltype == NLTYPE_ANY || md->nltype == NLTYPE_ANYCRLF) &&
                current_subject < end_subject &&
-               RAWUCHARTEST(current_subject) == CHAR_NL)
+               UCHAR21TEST(current_subject) == CHAR_NL)
             current_subject++;
           }
         }
 
-      /* Or to a non-unique first char after study */
+      /* Advance to a non-unique first pcre_uchar after study */
 
       else if (start_bits != NULL)
         {
         while (current_subject < end_subject)
           {
-          register pcre_uint32 c = RAWUCHARTEST(current_subject);
+          register pcre_uint32 c = UCHAR21TEST(current_subject);
 #ifndef COMPILE_PCRE8
           if (c > 255) c = 255;
 #endif
-          if ((start_bits[c/8] & (1 << (c&7))) == 0)
-            {
-            current_subject++;
-#if defined SUPPORT_UTF && defined COMPILE_PCRE8
-            /* In non 8-bit mode, the iteration will stop for
-            characters > 255 at the beginning or not stop at all. */
-            if (utf)
-              ACROSSCHAR(current_subject < end_subject, *current_subject,
-                current_subject++);
-#endif
-            }
-          else break;
+          if ((start_bits[c/8] & (1 << (c&7))) != 0) break;
+          current_subject++;
           }
         }
       }
@@ -3557,19 +3547,20 @@ for (;;)
       /* If the pattern was studied, a minimum subject length may be set. This
       is a lower bound; no actual string of that length may actually match the
       pattern. Although the value is, strictly, in characters, we treat it as
-      bytes to avoid spending too much time in this optimization. */
+      in pcre_uchar units to avoid spending too much time in this optimization.
+      */
 
       if (study != NULL && (study->flags & PCRE_STUDY_MINLEN) != 0 &&
           (pcre_uint32)(end_subject - current_subject) < study->minlength)
         return PCRE_ERROR_NOMATCH;
 
-      /* If req_char is set, we know that that character must appear in the
-      subject for the match to succeed. If the first character is set, req_char
-      must be later in the subject; otherwise the test starts at the match
-      point. This optimization can save a huge amount of work in patterns with
-      nested unlimited repeats that aren't going to match. Writing separate
-      code for cased/caseless versions makes it go faster, as does using an
-      autoincrement and backing off on a match.
+      /* If req_char is set, we know that that pcre_uchar must appear in the
+      subject for the match to succeed. If the first pcre_uchar is set,
+      req_char must be later in the subject; otherwise the test starts at the
+      match point. This optimization can save a huge amount of work in patterns
+      with nested unlimited repeats that aren't going to match. Writing
+      separate code for cased/caseless versions makes it go faster, as does
+      using an autoincrement and backing off on a match.
 
       HOWEVER: when the subject string is very, very long, searching to its end
       can take a long time, and give bad performance on quite ordinary
@@ -3589,7 +3580,7 @@ for (;;)
             {
             while (p < end_subject)
               {
-              register pcre_uint32 pp = RAWUCHARINCTEST(p);
+              register pcre_uint32 pp = UCHAR21INCTEST(p);
               if (pp == req_char || pp == req_char2) { p--; break; }
               }
             }
@@ -3597,18 +3588,18 @@ for (;;)
             {
             while (p < end_subject)
               {
-              if (RAWUCHARINCTEST(p) == req_char) { p--; break; }
+              if (UCHAR21INCTEST(p) == req_char) { p--; break; }
               }
             }
 
-          /* If we can't find the required character, break the matching loop,
+          /* If we can't find the required pcre_uchar, break the matching loop,
           which will cause a return or PCRE_ERROR_NOMATCH. */
 
           if (p >= end_subject) break;
 
-          /* If we have found the required character, save the point where we
+          /* If we have found the required pcre_uchar, save the point where we
           found it, so that we don't search again next time round the loop if
-          the start hasn't passed this character yet. */
+          the start hasn't passed this point yet. */
 
           req_char_ptr = p;
           }
@@ -3665,9 +3656,9 @@ for (;;)
   not contain any explicit matches for \r or \n, and the newline option is CRLF
   or ANY or ANYCRLF, advance the match position by one more character. */
 
-  if (RAWUCHARTEST(current_subject - 1) == CHAR_CR &&
+  if (UCHAR21TEST(current_subject - 1) == CHAR_CR &&
       current_subject < end_subject &&
-      RAWUCHARTEST(current_subject) == CHAR_NL &&
+      UCHAR21TEST(current_subject) == CHAR_NL &&
       (re->flags & PCRE_HASCRORLF) == 0 &&
         (md->nltype == NLTYPE_ANY ||
          md->nltype == NLTYPE_ANYCRLF ||

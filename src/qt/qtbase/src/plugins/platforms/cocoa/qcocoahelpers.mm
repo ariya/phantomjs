@@ -97,13 +97,10 @@ CGImageRef qt_mac_toCGImage(const QImage &inImage)
     if (inImage.isNull())
         return 0;
 
-    QImage image = (inImage.depth() == 32) ? inImage : inImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    QImage image = inImage;
 
     uint cgflags = kCGImageAlphaNone;
     switch (image.format()) {
-    case QImage::Format_ARGB32_Premultiplied:
-        cgflags = kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host;
-        break;
     case QImage::Format_ARGB32:
         cgflags = kCGImageAlphaFirst | kCGBitmapByteOrder32Host;
         break;
@@ -123,7 +120,11 @@ CGImageRef qt_mac_toCGImage(const QImage &inImage)
         cgflags = kCGImageAlphaNoneSkipLast | kCGBitmapByteOrder32Big;
         break;
     default:
-        Q_ASSERT(false); // Should never be reached.
+        // Everything not recognized explicitly is converted to ARGB32_Premultiplied.
+        image = inImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+        // no break;
+    case QImage::Format_ARGB32_Premultiplied:
+        cgflags = kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host;
         break;
     }
 
@@ -225,6 +226,24 @@ QColor qt_mac_toQColor(const NSColor *color)
     return qtColor;
 }
 
+QColor qt_mac_toQColor(CGColorRef color)
+{
+    QColor qtColor;
+    CGColorSpaceModel model = CGColorSpaceGetModel(CGColorGetColorSpace(color));
+    const CGFloat *components = CGColorGetComponents(color);
+    if (model == kCGColorSpaceModelRGB) {
+        qtColor.setRgbF(components[0], components[1], components[2], components[3]);
+    } else if (model == kCGColorSpaceModelCMYK) {
+        qtColor.setCmykF(components[0], components[1], components[2], components[3]);
+    } else if (model == kCGColorSpaceModelMonochrome) {
+        qtColor.setRgbF(components[0], components[0], components[0], components[1]);
+    } else {
+        // Colorspace we can't deal with.
+        qWarning("Qt: qt_mac_toQColor: cannot convert from colorspace model: %d", model);
+        Q_ASSERT(false);
+    }
+    return qtColor;
+}
 
 // Use this method to keep all the information in the TextSegment. As long as it is ordered
 // we are in OK shape, and we can influence that ourselves.
@@ -485,6 +504,18 @@ QString qt_mac_removeMnemonics(const QString &original)
             --l;
             if (l == 0)
                 break;
+        } else if (original.at(currPos) == QLatin1Char('(') && l >= 4 &&
+                   original.at(currPos + 1) == QLatin1Char('&') &&
+                   original.at(currPos + 2) != QLatin1Char('&') &&
+                   original.at(currPos + 3) == QLatin1Char(')')) {
+            /* remove mnemonics its format is "\s*(&X)" */
+            int n = 0;
+            while (finalDest > n && returnText.at(finalDest - n - 1).isSpace())
+                ++n;
+            finalDest -= n;
+            currPos += 4;
+            l -= 4;
+            continue;
         }
         returnText[finalDest] = original.at(currPos);
         ++currPos;
@@ -743,16 +774,7 @@ bool qt_mac_execute_apple_script(const QString &script, AEDesc *ret)
 
 QString qt_mac_removeAmpersandEscapes(QString s)
 {
-    int i = 0;
-    while (i < s.size()) {
-        ++i;
-        if (s.at(i-1) != QLatin1Char('&'))
-            continue;
-        if (i < s.size() && s.at(i) == QLatin1Char('&'))
-            ++i;
-        s.remove(i-1,1);
-    }
-    return s.trimmed();
+    return qt_mac_removeMnemonics(s).trimmed();
 }
 
 /*! \internal

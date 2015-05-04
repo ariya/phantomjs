@@ -1,80 +1,43 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Copyright (C) 2012 Intel Corporation
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the FOO module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
 
 #define QGLOBAL_H
-#include "../../src/corelib/global/qprocessordetection.h"
+#include "../../src/corelib/global/archdetect.cpp"
 #include <stdio.h>
 
 extern const char msg[];
-const char msg[] = "==Qt=magic=Qt== Architecture:"
-
-#if defined(Q_PROCESSOR_ALPHA)
-"alpha"
-#elif defined(Q_PROCESSOR_ARM)
-"arm"
-#elif defined(Q_PROCESSOR_AVR32)
-"avr32"
-#elif defined(Q_PROCESSOR_BLACKFIN)
-"bfin"
-#elif defined(Q_PROCESSOR_X86_32)
-"i386"
-#elif defined(Q_PROCESSOR_X86_64)
-"x86_64"
-#elif defined(Q_PROCESSOR_IA64)
-"ia64"
-#elif defined(Q_PROCESSOR_MIPS)
-"mips"
-#elif defined(Q_PROCESSOR_POWER)
-"power"
-#elif defined(Q_PROCESSOR_S390)
-"s390"
-#elif defined(Q_PROCESSOR_SH)
-"sh"
-#elif defined(Q_PROCESSOR_SPARC)
-"sparc"
-#else
-"unknown"
-#endif
-                   ;
+const char msg[] = "==Qt=magic=Qt== Architecture:" ARCH_PROCESSOR;
 
 extern const char msg2[];
 const char msg2[] = "==Qt=magic=Qt== Sub-architecture:"
@@ -114,6 +77,14 @@ const char msg2[] = "==Qt=magic=Qt== Sub-architecture:"
 // AVX512 Conflict Detection, Intel Xeon Phi codename "Knights Landing"
 " avx512cd"
 #endif
+#ifdef __AVX512DQ__
+// AVX512 Double & Quadword, future Intel Xeon processor
+" avx512dq"
+#endif
+#ifdef __AVX512BW__
+// AVX512 Byte & Word, future Intel Xeon processor
+" avx512bw"
+#endif
 #ifdef __AVX512ER__
 // AVX512 Exponentiation & Reciprocal, Intel Xeon Phi codename "Knights Landing"
 " avx512ef"
@@ -121,6 +92,10 @@ const char msg2[] = "==Qt=magic=Qt== Sub-architecture:"
 #ifdef __AVX512PF__
 // AVX512 Prefetch, Intel Xeon Phi codename "Knights Landing"
 " avx512pf"
+#endif
+#ifdef __AVX512VL__
+// AVX512 Vector Length, future Intel Xeon processor
+" avx512vl"
 #endif
 #ifdef __BMI__
 // Bit Manipulation Instructions 1, Intel Core 4th Generation ("Haswell"), AMD "Bulldozer 2"

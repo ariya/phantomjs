@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -43,8 +35,9 @@
 #include "qcoreapplication.h"
 #include "qcoreapplication_p.h"
 
-#include "qmutex.h"
-#include "qset.h"
+#include "qbasicatomic.h"
+
+#include <limits>
 
 QT_BEGIN_NAMESPACE
 
@@ -183,6 +176,7 @@ QT_BEGIN_NAMESPACE
     \value MouseMove                        Mouse move (QMouseEvent).
     \value MouseTrackingChange              The mouse tracking state has changed.
     \value Move                             Widget's position changed (QMoveEvent).
+    \value NativeGesture                    The system has detected a gesture (QNativeGestureEvent).
     \value OrientationChange                The screens orientation has changes (QScreenOrientationChangeEvent)
     \value Paint                            Screen update necessary (QPaintEvent).
     \value PaletteChange                    Palette of the widget changed.
@@ -192,6 +186,7 @@ QT_BEGIN_NAMESPACE
     \value Polish                           The widget is polished.
     \value PolishRequest                    The widget should be polished.
     \value QueryWhatsThis                   The widget should accept the event if it has "What's This?" help.
+    \value ReadOnlyChange                   Widget's read-only state has changed (since Qt 5.4).
     \value RequestSoftwareInputPanel        A widget wants to open a software input panel (SIP).
     \value Resize                           Widget's size changed (QResizeEvent).
     \value ScrollPrepare                    The object needs to fill in its geometry information (QScrollPrepareEvent).
@@ -275,6 +270,7 @@ QT_BEGIN_NAMESPACE
     \omitvalue FutureCallOut
     \omitvalue NativeGesture
     \omitvalue WindowChangeInternal
+    \omitvalue ScreenChangeInternal
 */
 
 /*!
@@ -389,13 +385,71 @@ QEvent::~QEvent()
     The return value of this function is not defined for paint events.
 */
 
-class QEventUserEventRegistration
-{
-public:
-    QMutex mutex;
-    QSet<int> set;
+namespace {
+template <size_t N>
+struct QBasicAtomicBitField {
+    enum {
+        BitsPerInt = std::numeric_limits<uint>::digits,
+        NumInts = (N + BitsPerInt - 1) / BitsPerInt,
+        NumBits = N
+    };
+
+    // This atomic int points to the next (possibly) free ID saving
+    // the otherwise necessary scan through 'data':
+    QBasicAtomicInteger<uint> next;
+    QBasicAtomicInteger<uint> data[NumInts];
+
+    bool allocateSpecific(int which) Q_DECL_NOTHROW
+    {
+        QBasicAtomicInteger<uint> &entry = data[which / BitsPerInt];
+        const uint old = entry.load();
+        const uint bit = 1U << (which % BitsPerInt);
+        return !(old & bit) // wasn't taken
+            && entry.testAndSetRelaxed(old, old | bit); // still wasn't taken
+
+        // don't update 'next' here - it's unlikely that it will need
+        // to be updated, in the general case, and having 'next'
+        // trailing a bit is not a problem, as it is just a starting
+        // hint for allocateNext(), which, when wrong, will just
+        // result in a few more rounds through the allocateNext()
+        // loop.
+    }
+
+    int allocateNext() Q_DECL_NOTHROW
+    {
+        // Unroll loop to iterate over ints, then bits? Would save
+        // potentially a lot of cmpxchgs, because we can scan the
+        // whole int before having to load it again.
+
+        // Then again, this should never execute many iterations, so
+        // leave like this for now:
+        for (uint i = next.load(); i < NumBits; ++i) {
+            if (allocateSpecific(i)) {
+                // remember next (possibly) free id:
+                const uint oldNext = next.load();
+                next.testAndSetRelaxed(oldNext, qMax(i + 1, oldNext));
+                return i;
+            }
+        }
+        return -1;
+    }
 };
-Q_GLOBAL_STATIC(QEventUserEventRegistration, userEventRegistrationHelper)
+
+} // unnamed namespace
+
+typedef QBasicAtomicBitField<QEvent::MaxUser - QEvent::User + 1> UserEventTypeRegistry;
+
+static UserEventTypeRegistry userEventTypeRegistry;
+
+static inline int registerEventTypeZeroBased(int id) Q_DECL_NOTHROW
+{
+    // if the type hint hasn't been registered yet, take it:
+    if (id < UserEventTypeRegistry::NumBits && id >= 0 && userEventTypeRegistry.allocateSpecific(id))
+        return id;
+
+    // otherwise, ignore hint:
+    return userEventTypeRegistry.allocateNext();
+}
 
 /*!
     \since 4.4
@@ -410,30 +464,10 @@ Q_GLOBAL_STATIC(QEventUserEventRegistration, userEventRegistrationHelper)
     Returns -1 if all available values are already taken or the
     program is shutting down.
 */
-int QEvent::registerEventType(int hint)
+int QEvent::registerEventType(int hint) Q_DECL_NOTHROW
 {
-    QEventUserEventRegistration *userEventRegistration
-        = userEventRegistrationHelper();
-    if (!userEventRegistration)
-        return -1;
-
-    QMutexLocker locker(&userEventRegistration->mutex);
-
-    // if the type hint hasn't been registered yet, take it
-    if (hint >= QEvent::User && hint <= QEvent::MaxUser && !userEventRegistration->set.contains(hint)) {
-        userEventRegistration->set.insert(hint);
-        return hint;
-    }
-
-    // find a free event type, starting at MaxUser and decreasing
-    int id = QEvent::MaxUser;
-    while (userEventRegistration->set.contains(id) && id >= QEvent::User)
-        --id;
-    if (id >= QEvent::User) {
-        userEventRegistration->set.insert(id);
-        return id;
-    }
-    return -1;
+    const int result = registerEventTypeZeroBased(QEvent::MaxUser - hint);
+    return result < 0 ? -1 : QEvent::MaxUser - result ;
 }
 
 /*!

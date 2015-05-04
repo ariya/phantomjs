@@ -501,17 +501,6 @@
     \sa operator=()
 */
 
-/*!
-    \fn QMutableListIterator::~QMutableListIterator()
-    \fn QMutableLinkedListIterator::~QMutableLinkedListIterator()
-    \fn QMutableVectorIterator::~QMutableVectorIterator()
-    \fn QMutableSetIterator::~QMutableSetIterator()
-
-    Destroys the iterator.
-
-    \sa operator=()
-*/
-
 /*! \fn QMutableListIterator &QMutableListIterator::operator=(QList<T> &list)
     \fn QMutableLinkedListIterator &QMutableLinkedListIterator::operator=(QLinkedList<T> &list)
     \fn QListIterator &QListIterator::operator=(const QList<T> &list)
@@ -1117,15 +1106,6 @@
 
     Constructs an iterator for traversing \a hash. The iterator is
     set to be at the front of the hash (before the first item).
-
-    \sa operator=()
-*/
-
-/*!
-    \fn QMutableMapIterator::~QMutableMapIterator()
-    \fn QMutableHashIterator::~QMutableHashIterator()
-
-    Destroys the iterator.
 
     \sa operator=()
 */

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the qmake application of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -411,6 +403,21 @@ QString VcprojGenerator::retrievePlatformToolSet() const
     default:
         return QString();
     }
+}
+
+bool VcprojGenerator::isStandardSuffix(const QString &suffix) const
+{
+    if (!project->values("QMAKE_APP_FLAG").isEmpty()) {
+        if (suffix.compare("exe", Qt::CaseInsensitive) == 0)
+            return true;
+    } else if (project->isActiveConfig("shared")) {
+        if (suffix.compare("dll", Qt::CaseInsensitive) == 0)
+            return true;
+    } else {
+        if (suffix.compare("lib", Qt::CaseInsensitive) == 0)
+            return true;
+    }
+    return false;
 }
 
 ProStringList VcprojGenerator::collectDependencies(QMakeProject *proj, QHash<QString, QString> &projLookup,
@@ -902,7 +909,7 @@ void VcprojGenerator::initProject()
     initResourceFiles();
     initExtraCompilerOutputs();
     if (vcProject.Configuration.WinRT) {
-        if (vcProject.Configuration.WinPhone
+        if (vcProject.Configuration.WinPhone80
                 && vcProject.Configuration.ConfigurationType == typeApplication)
             initWMAppManifest();
     }
@@ -960,6 +967,7 @@ void VcprojGenerator::initConfiguration()
     // - Do this first since main configuration elements may need
     // - to know of certain compiler/linker options
     VCConfiguration &conf = vcProject.Configuration;
+    conf.suppressUnknownOptionWarnings = project->isActiveConfig("suppress_vcproj_warnings");
     conf.CompilerVersion = which_dotnet_version(project->first("MSVC_VER").toLatin1());
 
     initCompilerTool();
@@ -1000,18 +1008,19 @@ void VcprojGenerator::initConfiguration()
     if (conf.CompilerVersion >= NET2010) {
         conf.PlatformToolSet = retrievePlatformToolSet();
 
-        // The target name could have been changed.
-        conf.PrimaryOutput = project->first("TARGET").toQString();
-        if (!conf.PrimaryOutput.isEmpty() && project->first("TEMPLATE") == "vclib"
-                && project->isActiveConfig("shared")) {
-            conf.PrimaryOutput.append(project->first("TARGET_VERSION_EXT").toQString());
-        }
+        const QFileInfo targetInfo = fileInfo(project->first("MSVCPROJ_TARGET").toQString());
+        conf.PrimaryOutput = targetInfo.completeBaseName();
+
+        const QString targetSuffix = targetInfo.suffix();
+        if (!isStandardSuffix(targetSuffix))
+            conf.PrimaryOutputExtension = '.' + targetSuffix;
     }
 
     if (conf.CompilerVersion >= NET2012) {
         conf.WinRT = project->isActiveConfig("winrt");
         if (conf.WinRT) {
             conf.WinPhone = project->isActiveConfig("winphone");
+            conf.WinPhone80 = project->first("WINTARGET_VER") == "WP80";
             // Saner defaults
             conf.compiler.UsePrecompiledHeader = pchNone;
             conf.compiler.CompileAsWinRT = _False;
@@ -1168,7 +1177,7 @@ void VcprojGenerator::initResourceTool()
     // to add it for the compiler) However, the resource tool does not do this.
     if(project->isActiveConfig("debug"))
         conf.resource.PreprocessorDefinitions += "_DEBUG";
-    if(project->isActiveConfig("staticlib"))
+    if (conf.CompilerVersion < NET2010 && project->isActiveConfig("staticlib"))
         conf.resource.ResourceOutputFileName = "$(OutDir)\\$(InputName).res";
 }
 
@@ -1352,7 +1361,6 @@ void VcprojGenerator::initDeploymentTool()
         if (conf.WinRT) {
             vcProject.DeploymentFiles.Project = this;
             vcProject.DeploymentFiles.Config = &(vcProject.Configuration);
-            vcProject.DeploymentFiles.CustomBuild = none;
         }
     }
 }
@@ -1391,7 +1399,6 @@ void VcprojGenerator::initRootFiles()
 
     vcProject.RootFiles.Project = this;
     vcProject.RootFiles.Config = &(vcProject.Configuration);
-    vcProject.RootFiles.CustomBuild = none;
 }
 
 void VcprojGenerator::initSourceFiles()
@@ -1404,7 +1411,6 @@ void VcprojGenerator::initSourceFiles()
 
     vcProject.SourceFiles.Project = this;
     vcProject.SourceFiles.Config = &(vcProject.Configuration);
-    vcProject.SourceFiles.CustomBuild = none;
 }
 
 void VcprojGenerator::initHeaderFiles()
@@ -1456,7 +1462,6 @@ void VcprojGenerator::initLexYaccFiles()
 
     vcProject.LexYaccFiles.Project = this;
     vcProject.LexYaccFiles.Config = &(vcProject.Configuration);
-    vcProject.LexYaccFiles.CustomBuild = lexyacc;
 }
 
 void VcprojGenerator::initTranslationFiles()
@@ -1470,7 +1475,6 @@ void VcprojGenerator::initTranslationFiles()
 
     vcProject.TranslationFiles.Project = this;
     vcProject.TranslationFiles.Config = &(vcProject.Configuration);
-    vcProject.TranslationFiles.CustomBuild = none;
 }
 
 void VcprojGenerator::initFormFiles()
@@ -1479,13 +1483,9 @@ void VcprojGenerator::initFormFiles()
     vcProject.FormFiles.ParseFiles = _False;
     vcProject.FormFiles.Filter = "ui";
     vcProject.FormFiles.Guid = _GUIDFormFiles;
-
     vcProject.FormFiles.addFiles(project->values("FORMS"));
-    vcProject.FormFiles.addFiles(project->values("FORMS3"));
-
     vcProject.FormFiles.Project = this;
     vcProject.FormFiles.Config = &(vcProject.Configuration);
-    vcProject.FormFiles.CustomBuild = none;
 }
 
 void VcprojGenerator::initResourceFiles()
@@ -1535,14 +1535,12 @@ void VcprojGenerator::initResourceFiles()
 
     vcProject.ResourceFiles.Project = this;
     vcProject.ResourceFiles.Config = &(vcProject.Configuration);
-    vcProject.ResourceFiles.CustomBuild = none;
 }
 
 void VcprojGenerator::initExtraCompilerOutputs()
 {
     ProStringList otherFilters;
     otherFilters << "FORMS"
-                 << "FORMS3"
                  << "GENERATED_FILES"
                  << "GENERATED_SOURCES"
                  << "HEADERS"
@@ -1613,7 +1611,6 @@ void VcprojGenerator::initExtraCompilerOutputs()
         }
         extraCompile.Project = this;
         extraCompile.Config = &(vcProject.Configuration);
-        extraCompile.CustomBuild = none;
 
         vcProject.ExtraCompilersFiles.append(extraCompile);
     }
@@ -1691,7 +1688,6 @@ void VcprojGenerator::initOld()
             inc = QString("\"%1\"").arg(inc); // Quote all paths if not quoted already
         project->values("MSVCPROJ_INCPATH").append("-I" + inc);
     }
-    project->values("MSVCPROJ_INCPATH").append("-I" + specdir());
 
     QString dest = Option::fixPathToTargetOS(project->first("TARGET").toQString()) + project->first("TARGET_EXT");
     project->values("MSVCPROJ_TARGET") = ProStringList(dest);

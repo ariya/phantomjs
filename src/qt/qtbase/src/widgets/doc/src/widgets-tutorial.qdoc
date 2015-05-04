@@ -36,9 +36,9 @@
 
     Widgets are the basic building blocks for graphical user interface
     (GUI) applications built with Qt. Each GUI component (e.g.
-    buttons, labels, text editor) is a \l{QWidget}{widget} that is
+    buttons, labels, text editors) is a \l{QWidget}{widget} that is
     placed somewhere within a user interface window, or is displayed
-    as an independent window. Each type of widge is provided by a
+    as an independent window. Each type of widget is provided by a
     subclass of QWidget, which is itself a subclass of QObject.
 
     QWidget is not an abstract class. It can be used as a container
@@ -49,12 +49,12 @@
     As with \l{QObject}s, \l{QWidget}s can be created with parent
     objects to indicate ownership, ensuring that objects are deleted
     when they are no longer used. With widgets, these parent-child
-    relationships have an additional meaning: Each child widget is
+    relationships have an additional meaning: each child widget is
     displayed within the screen area occupied by its parent widget.
     This means that when you delete a window widget, all the child
     widgets it contains are also deleted.
 
-    \section1 Writing a main Function
+    \section1 Writing a Main Function
 
     Many of the GUI examples provided with Qt follow the pattern of
     having a \c{main.cpp} file, which contains the standard code to
@@ -72,7 +72,7 @@
     function returns. Finally, \c{main()} returns the value returned
     by QApplication::exec().
 
-    \section1 Simple widget examples
+    \section1 Simple Widget Examples
 
     Each of theses simple widget examples is written entirely within
     the \c main() function.
@@ -87,7 +87,7 @@
     \li \l {tutorials/widgets/nestedlayouts} {Nested layouts}
     \endlist
 
-    \section1 Real world widget examples
+    \section1 Real World Widget Examples
 
     In these \l{Qt Widgets Examples} {more advanced examples}, the code
     that creates the widgets and layouts is stored in other files. For

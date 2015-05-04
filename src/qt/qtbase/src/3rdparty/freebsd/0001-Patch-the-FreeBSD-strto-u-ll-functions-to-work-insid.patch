@@ -1,0 +1,149 @@
+From 81a2d1a38becdeed2cd8b963e190aedf197e39c6 Mon Sep 17 00:00:00 2001
+From: Thiago Macieira <thiago.macieira@intel.com>
+Date: Thu, 2 Oct 2014 22:03:19 -0700
+Subject: [PATCH 1/1] Patch the FreeBSD strto(u)ll functions to work inside
+ QtCore
+
+Changes:
+ - remove the #includes and the SCCSID
+ - rename from strtoxx_l to qt_strtoxx (merging the two functions)
+ - remove __restrict
+ - remove the locale_t parameter and use ascii_isspace instead of isspace_l
+
+Change-Id: I1e522e12da90eb35eefcf4025102dc11b22c60a5
+---
+ src/3rdparty/freebsd/strtoll.c  | 27 +++++----------------------
+ src/3rdparty/freebsd/strtoull.c | 27 +++++----------------------
+ 2 files changed, 10 insertions(+), 44 deletions(-)
+
+diff --git a/src/3rdparty/freebsd/strtoll.c b/src/3rdparty/freebsd/strtoll.c
+index 16a8196..0ded267 100644
+--- a/src/3rdparty/freebsd/strtoll.c
++++ b/src/3rdparty/freebsd/strtoll.c
+@@ -32,18 +32,6 @@
+  * SUCH DAMAGE.
+  */
+ 
+-#if defined(LIBC_SCCS) && !defined(lint)
+-static char sccsid[] = "@(#)strtoq.c	8.1 (Berkeley) 6/4/93";
+-#endif /* LIBC_SCCS and not lint */
+-#include <sys/cdefs.h>
+-__FBSDID("$FreeBSD$");
+-
+-#include <limits.h>
+-#include <errno.h>
+-#include <ctype.h>
+-#include <stdlib.h>
+-#include "xlocale_private.h"
+-
+ /*
+  * Convert a string to a long long integer.
+  *
+@@ -51,15 +39,15 @@ __FBSDID("$FreeBSD$");
+  * alphabets and digits are each contiguous.
+  */
+ long long
+-strtoll_l(const char * __restrict nptr, char ** __restrict endptr, int base,
+-		locale_t locale)
++qt_strtoll(const char * nptr, char **endptr, int base)
+ {
+ 	const char *s;
+ 	unsigned long long acc;
+ 	char c;
+ 	unsigned long long cutoff;
+ 	int neg, any, cutlim;
+-	FIX_LOCALE(locale);
+ 
+ 	/*
+ 	 * Skip white space and pick up leading +/- sign if any.
+@@ -69,7 +55,7 @@ strtoll_l(const char * __restrict nptr, char ** __restrict endptr, int base,
+ 	s = nptr;
+ 	do {
+ 		c = *s++;
+-	} while (isspace_l((unsigned char)c, locale));
++	} while (ascii_isspace(c));
+ 	if (c == '-') {
+ 		neg = 1;
+ 		c = *s++;
+@@ -141,13 +127,8 @@ strtoll_l(const char * __restrict nptr, char ** __restrict endptr, int base,
+ noconv:
+ 		errno = EINVAL;
+ 	} else if (neg)
+-		acc = -acc;
++		acc = (unsigned long long) -(long long)acc;
+ 	if (endptr != NULL)
+ 		*endptr = (char *)(any ? s - 1 : nptr);
+ 	return (acc);
+ }
+-long long
+-strtoll(const char * __restrict nptr, char ** __restrict endptr, int base)
+-{
+-	return strtoll_l(nptr, endptr, base, __get_locale());
+-}
+diff --git a/src/3rdparty/freebsd/strtoull.c b/src/3rdparty/freebsd/strtoull.c
+index dc40e0e..cb04adb 100644
+--- a/src/3rdparty/freebsd/strtoull.c
++++ b/src/3rdparty/freebsd/strtoull.c
+@@ -32,18 +32,6 @@
+  * SUCH DAMAGE.
+  */
+ 
+-#if defined(LIBC_SCCS) && !defined(lint)
+-static char sccsid[] = "@(#)strtouq.c	8.1 (Berkeley) 6/4/93";
+-#endif /* LIBC_SCCS and not lint */
+-#include <sys/cdefs.h>
+-__FBSDID("$FreeBSD$");
+-
+-#include <limits.h>
+-#include <errno.h>
+-#include <ctype.h>
+-#include <stdlib.h>
+-#include "xlocale_private.h"
+-
+ /*
+  * Convert a string to an unsigned long long integer.
+  *
+@@ -51,15 +39,15 @@ __FBSDID("$FreeBSD$");
+  * alphabets and digits are each contiguous.
+  */
+ unsigned long long
+-strtoull_l(const char * __restrict nptr, char ** __restrict endptr, int base,
+-		locale_t locale)
++qt_strtoull(const char * nptr, char **endptr, int base)
+ {
+ 	const char *s;
+ 	unsigned long long acc;
+ 	char c;
+ 	unsigned long long cutoff;
+ 	int neg, any, cutlim;
+-	FIX_LOCALE(locale);
+ 
+ 	/*
+ 	 * See strtoq for comments as to the logic used.
+@@ -67,7 +53,7 @@ strtoull_l(const char * __restrict nptr, char ** __restrict endptr, int base,
+ 	s = nptr;
+ 	do {
+ 		c = *s++;
+-	} while (isspace_l((unsigned char)c, locale));
++	} while (ascii_isspace(c));
+ 	if (c == '-') {
+ 		neg = 1;
+ 		c = *s++;
+@@ -119,13 +105,8 @@ strtoull_l(const char * __restrict nptr, char ** __restrict endptr, int base,
+ noconv:
+ 		errno = EINVAL;
+ 	} else if (neg)
+-		acc = -acc;
++		acc = (unsigned long long) -(long long)acc;
+ 	if (endptr != NULL)
+ 		*endptr = (char *)(any ? s - 1 : nptr);
+ 	return (acc);
+ }
+-unsigned long long
+-strtoull(const char * __restrict nptr, char ** __restrict endptr, int base)
+-{
+-	return strtoull_l(nptr, endptr, base, __get_locale());
+-}
+-- 
+1.8.4.5
+

@@ -84,7 +84,7 @@
 
     \annotatedlist appearance
 
-    \section1 The QStyle implementation
+    \section1 The QStyle Implementation
 
     The API of QStyle contains functions that draw the widgets, static
     helper functions to do common and difficult tasks (e.g.,

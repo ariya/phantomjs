@@ -137,7 +137,8 @@ bootstrap { #Qt code
     unix {
         SOURCES += qfilesystemengine_unix.cpp qfilesystemiterator_unix.cpp qfsfileengine_unix.cpp
         mac {
-          SOURCES += qcore_mac.cpp qsettings_mac.cpp qlocale_mac.mm
+          SOURCES += qcore_mac.cpp qsettings_mac.cpp
+          OBJECTIVE_SOURCES += qlocale_mac.mm
           LIBS += -framework ApplicationServices
         } else {
           SOURCES += qlocale_unix.cpp
@@ -158,7 +159,7 @@ bootstrap { #Qt code
         QT_BOOTSTRAPPED \
         QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_NO_COMPONENT QT_NO_COMPRESS \
         QT_NO_THREAD QT_NO_QOBJECT QT_NO_GEOM_VARIANT QT_NO_DATASTREAM \
-        QT_CRYPTOGRAPHICHASH_ONLY_SHA1 QT_JSON_READONLY
+        QT_CRYPTOGRAPHICHASH_ONLY_SHA1 QT_JSON_READONLY QT_NO_STANDARDPATHS
 
     INCLUDEPATH += \
         $$QT.core.includes $$QT.core_private.includes \

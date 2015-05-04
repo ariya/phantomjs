@@ -64,6 +64,25 @@
 
 QT_BEGIN_NAMESPACE
 
+namespace {
+class RaiiAutoreleasePool
+{
+    Q_DISABLE_COPY(RaiiAutoreleasePool)
+
+public:
+    RaiiAutoreleasePool()
+        : pool([[NSAutoreleasePool alloc] init])
+    {}
+
+    ~RaiiAutoreleasePool()
+    { [pool release]; }
+
+private:
+    NSAutoreleasePool *pool;
+};
+#define Q_AUTORELEASE_POOL(pool) RaiiAutoreleasePool pool; Q_UNUSED(pool);
+}
+
 static void callBackFunction(ConstFSEventStreamRef streamRef,
                              void *clientCallBackInfo,
                              size_t numEvents,
@@ -71,6 +90,8 @@ static void callBackFunction(ConstFSEventStreamRef streamRef,
                              const FSEventStreamEventFlags eventFlags[],
                              const FSEventStreamEventId eventIds[])
 {
+    Q_AUTORELEASE_POOL(pool)
+
     char **paths = static_cast<char **>(eventPaths);
     QFseventsFileSystemWatcherEngine *engine = static_cast<QFseventsFileSystemWatcherEngine *>(clientCallBackInfo);
     engine->processEvent(streamRef, numEvents, paths, eventFlags, eventIds);
@@ -128,6 +149,7 @@ bool QFseventsFileSystemWatcherEngine::checkDir(DirsByName::iterator &it)
         }
         if (dirChanged)
             emit emitDirectoryChanged(info.origPath, false);
+        ++it;
     }
 
     return needsRestart;
@@ -283,6 +305,7 @@ void QFseventsFileSystemWatcherEngine::doEmitDirectoryChanged(const QString path
 
 void QFseventsFileSystemWatcherEngine::restartStream()
 {
+    Q_AUTORELEASE_POOL(pool)
     QMutexLocker locker(&lock);
     stopStream();
     startStream();
@@ -313,6 +336,8 @@ QFseventsFileSystemWatcherEngine::QFseventsFileSystemWatcherEngine(QObject *pare
 
 QFseventsFileSystemWatcherEngine::~QFseventsFileSystemWatcherEngine()
 {
+    Q_AUTORELEASE_POOL(pool)
+
     if (stream)
         FSEventStreamStop(stream);
 
@@ -327,6 +352,8 @@ QStringList QFseventsFileSystemWatcherEngine::addPaths(const QStringList &paths,
                                                        QStringList *files,
                                                        QStringList *directories)
 {
+    Q_AUTORELEASE_POOL(pool)
+
     if (stream) {
         DEBUG("Flushing, last id is %llu", FSEventStreamGetLatestEventId(stream));
         FSEventStreamFlushSync(stream);
@@ -413,6 +440,8 @@ QStringList QFseventsFileSystemWatcherEngine::removePaths(const QStringList &pat
                                                           QStringList *files,
                                                           QStringList *directories)
 {
+    Q_AUTORELEASE_POOL(pool)
+
     QMutexLocker locker(&lock);
 
     bool needsRestart = false;
@@ -468,6 +497,7 @@ QStringList QFseventsFileSystemWatcherEngine::removePaths(const QStringList &pat
 bool QFseventsFileSystemWatcherEngine::startStream()
 {
     Q_ASSERT(stream == 0);
+    Q_AUTORELEASE_POOL(pool)
     if (stream) // This shouldn't happen, but let's be nice and handle it.
         stopStream();
 
@@ -488,7 +518,6 @@ bool QFseventsFileSystemWatcherEngine::startStream()
         NULL
     };
     const CFAbsoluteTime latency = .5; // in seconds
-    FSEventStreamCreateFlags flags = kFSEventStreamCreateFlagWatchRoot;
 
     // Never start with kFSEventStreamEventIdSinceNow, because this will generate an invalid
     // soft-assert in FSEventStreamFlushSync in CarbonCore when no event occurred.
@@ -500,7 +529,7 @@ bool QFseventsFileSystemWatcherEngine::startStream()
                                  reinterpret_cast<CFArrayRef>(pathsToWatch),
                                  lastReceivedEvent,
                                  latency,
-                                 flags);
+                                 FSEventStreamCreateFlags(0));
 
     if (!stream) {
         DEBUG() << "Failed to create stream!";

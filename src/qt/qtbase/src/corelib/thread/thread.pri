@@ -50,6 +50,11 @@ win32:SOURCES += thread/qmutex_win.cpp \
                  thread/qthread_win.cpp \
 		 thread/qwaitcondition_win.cpp
 
+winrt {
+    SOURCES -= thread/qthread_win.cpp
+    SOURCES += thread/qthread_winrt.cpp
+}
+
 integrity:SOURCES += thread/qmutex_unix.cpp \
                 thread/qthread_unix.cpp \
 		thread/qwaitcondition_unix.cpp

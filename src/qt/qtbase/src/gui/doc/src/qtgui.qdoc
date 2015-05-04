@@ -68,7 +68,7 @@
     higher level API's, like Qt Quick, that are much more suitable
     than the enablers found in the Qt GUI module.
 
-    \section1 Getting started
+    \section1 Getting Started
 
     To include the definitions of the module's classes, use the
     following directive:
@@ -170,7 +170,7 @@
 
 
 
-    \section1 Qt GUI prior to Qt 5.0
+    \section1 Qt GUI Prior to Qt 5.0
 
     Prior to Qt 5.0, the Qt GUI module was the monolithic container
     for all things relating to graphical user interfaces in Qt, and

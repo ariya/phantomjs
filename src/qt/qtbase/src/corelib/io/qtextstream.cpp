@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -93,8 +85,8 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
 
     \li Chunk by chunk, by calling readLine() or readAll().
 
-    \li Word by word. QTextStream supports streaming into QStrings,
-    QByteArrays and char* buffers. Words are delimited by space, and
+    \li Word by word. QTextStream supports streaming into \l {QString}s,
+    \l {QByteArray}s and char* buffers. Words are delimited by space, and
     leading white space is automatically skipped.
 
     \li Character by character, by streaming into QChar or char types.
@@ -166,7 +158,7 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
     parameter: qSetFieldWidth(), qSetPadChar(), and
     qSetRealNumberPrecision().
 
-    \sa QDataStream, QIODevice, QFile, QBuffer, QTcpSocket, {Codecs Example}
+    \sa QDataStream, QIODevice, QFile, QBuffer, QTcpSocket, {Text Codecs Example}
 */
 
 /*! \enum QTextStream::RealNumberNotation
@@ -569,7 +561,9 @@ void QTextStreamPrivate::flushWriteBuffer()
 #endif
 
     // convert from unicode to raw data
-    QByteArray data = codec->fromUnicode(writeBuffer.data(), writeBuffer.size(), &writeConverterState);
+    // codec might be null if we're already inside global destructors (QTestCodec::codecForLocale returned null)
+    QByteArray data = Q_LIKELY(codec) ? codec->fromUnicode(writeBuffer.data(), writeBuffer.size(), &writeConverterState)
+                                      : writeBuffer.toLatin1();
 #else
     QByteArray data = writeBuffer.toLocal8Bit();
 #endif
@@ -1537,7 +1531,7 @@ bool QTextStream::atEnd() const
     QString. Avoid this function when working on large files, as it
     will consume a significant amount of memory.
 
-    Calling readLine() is better if you do not know how much data is
+    Calling \l {QTextStream::readLine()}{readLine()} is better if you do not know how much data is
     available.
 
     \sa readLine()
@@ -1562,9 +1556,9 @@ QString QTextStream::readAll()
     The returned line has no trailing end-of-line characters ("\\n"
     or "\\r\\n"), so calling QString::trimmed() is unnecessary.
 
-    If the stream has read to the end of the file, readLine() will return a
-    null QString. For strings, or for devices that support it, you can
-    explicitly test for the end of the stream using atEnd().
+    If the stream has read to the end of the file, \l {QTextStream::readLine()}{readLine()}
+    will return a null QString. For strings, or for devices that support it,
+    you can explicitly test for the end of the stream using atEnd().
 
     \sa readAll(), QIODevice::readLine()
 */
@@ -2201,7 +2195,7 @@ void QTextStreamPrivate::putNumber(qulonglong number, bool negative)
 
     // add thousands group separators. For backward compatibility we
     // don't add a group separator for C locale.
-    if (locale != QLocale::c())
+    if (locale != QLocale::c() && !locale.numberOptions().testFlag(QLocale::OmitGroupSeparator))
         flags |= QLocaleData::ThousandsGroup;
 
     const QLocaleData *dd = locale.d->m_data;
@@ -2412,6 +2406,8 @@ QTextStream &QTextStream::operator<<(double f)
         flags |= QLocaleData::CapitalEorX;
     if (numberFlags() & ForcePoint)
         flags |= QLocaleData::Alternate;
+    if (locale() != QLocale::c() && !(locale().numberOptions() & QLocale::OmitGroupSeparator))
+        flags |= QLocaleData::ThousandsGroup;
 
     const QLocaleData *dd = d->locale.d->m_data;
     QString num = dd->doubleToString(f, d->params.realNumberPrecision, form, -1, flags);
@@ -2794,7 +2790,7 @@ QTextStream &endl(QTextStream &stream)
 /*!
     \relates QTextStream
 
-    Calls QTextStream::flush() on \a stream and returns \a stream.
+    Calls \l{QTextStream::flush()}{flush()} on \a stream and returns \a stream.
 
     \sa endl(), reset(), {QTextStream manipulators}
 */
@@ -2820,7 +2816,7 @@ QTextStream &reset(QTextStream &stream)
 /*!
     \relates QTextStream
 
-    Calls skipWhiteSpace() on \a stream and returns \a stream.
+    Calls \l {QTextStream::}{skipWhiteSpace()} on \a stream and returns \a stream.
 
     \sa {QTextStream manipulators}
 */

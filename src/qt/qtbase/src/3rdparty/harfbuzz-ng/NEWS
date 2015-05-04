@@ -1,3 +1,122 @@
+Overview of changes leading to 0.9.32
+Thursday, July 17, 2014
+=====================================
+
+- Apply Arabic shaping features in spec order exactly.
+- Another fix for Mongolian free variation selectors.
+- For non-Arabic scripts in Arabic shaper apply 'rlig' and 'calt'
+  together.
+- Minor adjustment to U+FFFD logic.
+- Fix hb-coretext build.
+
+
+Overview of changes leading to 0.9.31
+Wednesday, July 16, 2014
+=====================================
+
+- Only accept valid UTF-8/16/32; we missed many cases before.
+- Better shaping of invalid UTF-8/16/32.  Falls back to
+  U+FFFD REPLACEMENT CHARACTER now.
+- With all changes in this release, the buffer will contain fully
+  valid Unicode after hb_buffer_add_utf8/16/32 no matter how
+  broken the input is.  This can be overriden though.  See below.
+- Fix Mongolian Variation Selectors for fonts without GDEF.
+- Fix minor invalid buffer access.
+- Accept zh-Hant and zh-Hans language tags.  hb_ot_tag_to_language()
+  now uses these instead of private tags.
+- Build fixes.
+- New API:
+  * hb_buffer_add_codepoints().  This does what hb_buffer_add_utf32()
+    used to do, ie. no validity check on the input at all.  add_utf32
+    now replaces invalid Unicode codepoints with the replacement
+    character (see below).
+  * hb_buffer_set_replacement_codepoint()
+  * hb_buffer_get_replacement_codepoint()
+    Previously, in hb_buffer_add_utf8 and hb_buffer_add_utf16, when
+    we detected broken input, we replaced that with (hb_codepoint_t)-1.
+    This has changed to use U+FFFD now, but can be changed using these
+    new API.
+
+
+Overview of changes leading to 0.9.30
+Wednesday, July 9, 2014
+=====================================
+
+- Update to Unicode 7.0.0:
+  * New scripts Manichaean and Psalter Pahlavi are shaped using
+    Arabic shaper.
+  * All the other new scripts to through the generic shaper for
+    now.
+- Minor Indic improvements.
+- Fix graphite2 backend cluster mapping [crasher!]
+- API changes:
+  * New HB_SCRIPT_* values for Unicode 7.0 scripts.
+  * New function hb_ot_layout_language_get_required_feature().
+- Build fixes.
+
+
+Overview of changes leading to 0.9.29
+Thursday, May 29, 2014
+=====================================
+
+- Implement cmap in hb-ot-font.h.  No variation-selectors yet.
+- Myanmar: Allow MedialYa+Asat.
+- Various Indic fixes:
+  * Support most characters in Extended Devanagary and Vedic
+    Unicode blocks.
+  * Allow digits and a some punctuation as consonant placeholders.
+- Build fixes.
+
+
+Overview of changes leading to 0.9.28
+Monday, April 28, 2014
+=====================================
+
+- Unbreak old-spec Indic shaping. (bug 76705)
+- Fix shaping of U+17DD and U+0FC6.
+- Add HB_NO_MERGE_CLUSTERS build option.  NOT to be enabled by default
+  for shipping libraries.  It's an option for further experimentation
+  right now.  When we are sure how to do it properly, we will add
+  public run-time API for the functionality.
+- Build fixes.
+
+
+Overview of changes leading to 0.9.27
+Tuesday, March 18, 2014
+=====================================
+
+- Don't use "register" storage class specifier
+- Wrap definition of free_langs() with HAVE_ATEXIT
+- Add coretext_aat shaper and hb_coretext_face_create() constructor
+- If HAVE_ICU_BUILTIN is defined, use hb-icu Unicode callbacks
+- Add Myanmar test case from OpenType Myanmar spec
+- Only do fallback Hebrew composition if no GPOS 'mark' available
+- Allow bootstrapping without gtk-doc
+- Use AM_MISSING_PROG for ragel and git
+- Typo in ucdn's Makefile.am
+- Improve MemoryBarrier() implementation
+
+
+Overview of changes leading to 0.9.26
+Thursday, January 30, 2014
+=====================================
+
+- Misc fixes.
+- Fix application of 'rtlm' feature.
+- Automatically apply frac/numr/dnom around U+2044 FRACTION SLASH.
+- New header: hb-ot-shape.h
+- Uniscribe: fix scratch-buffer accounting.
+- Reorder Tai Tham SAKOT to after tone-marks.
+- Add Hangul shaper.
+- New files:
+  hb-ot-shape-complex-hangul.cc
+  hb-ot-shape-complex-hebrew.cc
+  hb-ot-shape-complex-tibetan.cc
+- Disable 'cswh' feature in Arabic shaper.
+- Coretext: better handle surrogate pairs.
+- Add HB_TAG_MAX and _HB_SCRIPT_MAX_VALUE.
+
+
 Overview of changes leading to 0.9.25
 Wednesday, December 4, 2013
 =====================================

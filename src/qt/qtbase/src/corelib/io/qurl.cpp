@@ -1,40 +1,32 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Copyright (C) 2012 Intel Corporation.
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -364,6 +356,29 @@
 */
 
 /*!
+    \enum QUrl::UserInputResolutionOption
+    \since 5.4
+
+    The user input resolution options define how fromUserInput() should
+    interpret strings that could either be a relative path or the short
+    form of a HTTP URL. For instance \c{file.pl} can be either a local file
+    or the URL \c{http://file.pl}.
+
+    \value DefaultResolution  The default resolution mechanism is to check
+                              whether a local file exists, in the working
+                              directory given to fromUserInput, and only
+                              return a local path in that case. Otherwise a URL
+                              is assumed.
+    \value AssumeLocalFile    This option makes fromUserInput() always return
+                              a local path unless the input contains a scheme, such as
+                              \c{http://file.pl}. This is useful for applications
+                              such as text editors, which are able to create
+                              the file if it doesn't exist.
+
+    \sa fromUserInput()
+*/
+
+/*!
     \fn QUrl::QUrl(QUrl &&other)
 
     Move-constructs a QUrl instance, making it point at the same
@@ -388,6 +403,7 @@
 #include "qdebug.h"
 #include "qhash.h"
 #include "qdir.h"         // for QDir::fromNativeSeparators
+#include "qdatastream.h"
 #include "qtldurl_p.h"
 #include "private/qipaddress_p.h"
 #include "qurlquery.h"
@@ -412,6 +428,16 @@ static inline QString ftpScheme()
 static inline QString fileScheme()
 {
     return QStringLiteral("file");
+}
+
+static inline QString webDavScheme()
+{
+    return QStringLiteral("webdavs");
+}
+
+static inline QString webDavSslTag()
+{
+    return QStringLiteral("@SSL");
 }
 
 #ifdef Q_COMPILER_CLASS_ENUM
@@ -977,10 +1003,15 @@ inline bool QUrlPrivate::setScheme(const QString &value, int len, bool doSetErro
     }
 
     // did we set to the file protocol?
-    if (scheme == fileScheme())
+    if (scheme == fileScheme()
+#ifdef Q_OS_WIN
+        || scheme == webDavScheme()
+#endif
+       ) {
         flags |= IsLocalFile;
-    else
+    } else {
         flags &= ~IsLocalFile;
+    }
     return true;
 }
 
@@ -2315,7 +2346,7 @@ void QUrl::setHost(const QString &host, ParsingMode mode)
     as DNS requests or in HTTP request headers). If that flag is not present,
     this function returns the International Domain Name (IDN) in Unicode form,
     according to the list of permissible top-level domains (see
-    idnWhiteList()).
+    idnWhitelist()).
 
     All other flags are ignored. Host names cannot contain control or percent
     characters, so the returned value can be considered fully decoded.
@@ -2656,8 +2687,8 @@ void QUrl::setQuery(const QUrlQuery &query)
     Sets the query string of the URL to an encoded version of \a
     query. The contents of \a query are converted to a string
     internally, each pair delimited by the character returned by
-    pairDelimiter(), and the key and value are delimited by
-    valueDelimiter().
+    \l {QUrlQuery::queryPairDelimiter()}{queryPairDelimiter()}, and the key and value are delimited by
+    \l {QUrlQuery::queryValueDelimiter()}{queryValueDelimiter()}
 
     \note This method does not encode spaces (ASCII 0x20) as plus (+) signs,
     like HTML forms do. If you need that kind of encoding, you must encode
@@ -2676,8 +2707,8 @@ void QUrl::setQuery(const QUrlQuery &query)
     Sets the query string of the URL to the encoded version of \a
     query. The contents of \a query are converted to a string
     internally, each pair delimited by the character returned by
-    pairDelimiter(), and the key and value are delimited by
-    valueDelimiter().
+    \l {QUrlQuery::queryPairDelimiter()}{queryPairDelimiter()}, and the key and value are delimited by
+    \l {QUrlQuery::queryValueDelimiter()}{queryValueDelimiter()}.
 
     \obsolete Use QUrlQuery and setQuery().
 
@@ -2691,11 +2722,12 @@ void QUrl::setQuery(const QUrlQuery &query)
     Inserts the pair \a key = \a value into the query string of the
     URL.
 
-    The key/value pair is encoded before it is added to the query. The
+    The key-value pair is encoded before it is added to the query. The
     pair is converted into separate strings internally. The \a key and
     \a value is first encoded into UTF-8 and then delimited by the
-    character returned by valueDelimiter(). Each key/value pair is
-    delimited by the character returned by pairDelimiter().
+    character returned by \l {QUrlQuery::queryValueDelimiter()}{queryValueDelimiter()}.
+    Each key-value pair is delimited by the character returned by
+    \l {QUrlQuery::queryPairDelimiter()}{queryPairDelimiter()}
 
     \note This method does not encode spaces (ASCII 0x20) as plus (+) signs,
     like HTML forms do. If you need that kind of encoding, you must encode
@@ -2929,9 +2961,8 @@ QString QUrl::query(ComponentFormattingOptions options) const
     The fragment is sometimes also referred to as the URL "reference".
 
     Passing an argument of QString() (a null QString) will unset the fragment.
-    Passing an argument of QString("") (an empty but not null QString)
-    will set the fragment to an empty string (as if the original URL
-    had a lone "#").
+    Passing an argument of QString("") (an empty but not null QString) will set the
+    fragment to an empty string (as if the original URL had a lone "#").
 
     The \a fragment data is interpreted according to \a mode: in StrictMode,
     any '%' characters must be followed by exactly two hexadecimal characters
@@ -3006,10 +3037,10 @@ QString QUrl::fragment(ComponentFormattingOptions options) const
 
     The fragment is sometimes also referred to as the URL "reference".
 
-    Passing an argument of QByteArray() (a null QByteArray) will unset
-    the fragment.  Passing an argument of QByteArray("") (an empty but
-    not null QByteArray) will set the fragment to an empty string (as
-    if the original URL had a lone "#").
+    Passing an argument of QByteArray() (a null QByteArray) will unset the fragment.
+    Passing an argument of QByteArray("") (an empty but not null QByteArray)
+    will set the fragment to an empty string (as if the original URL
+    had a lone "#").
 
     \obsolete Use setFragment(), which has the same behavior of null / empty.
 
@@ -3715,12 +3746,16 @@ bool QUrl::isDetached() const
     "//servername/path/to/file.txt". Note that only certain platforms can
     actually open this file using QFile::open().
 
+    An empty \a localFile leads to an empty URL (since Qt 5.4).
+
     \sa toLocalFile(), isLocalFile(), QDir::toNativeSeparators()
 */
 QUrl QUrl::fromLocalFile(const QString &localFile)
 {
     QUrl url;
-    url.setScheme(fileScheme());
+    if (localFile.isEmpty())
+        return url;
+    QString scheme = fileScheme();
     QString deslashified = QDir::fromNativeSeparators(localFile);
 
     // magic for drives on windows
@@ -3729,13 +3764,21 @@ QUrl QUrl::fromLocalFile(const QString &localFile)
     } else if (deslashified.startsWith(QLatin1String("//"))) {
         // magic for shared drive on windows
         int indexOfPath = deslashified.indexOf(QLatin1Char('/'), 2);
-        url.setHost(deslashified.mid(2, indexOfPath - 2));
+        QString hostSpec = deslashified.mid(2, indexOfPath - 2);
+        // Check for Windows-specific WebDAV specification: "//host@SSL/path".
+        if (hostSpec.endsWith(webDavSslTag(), Qt::CaseInsensitive)) {
+            hostSpec.chop(4);
+            scheme = webDavScheme();
+        }
+        url.setHost(hostSpec);
+
         if (indexOfPath > 2)
             deslashified = deslashified.right(deslashified.length() - indexOfPath);
         else
             deslashified.clear();
     }
 
+    url.setScheme(scheme);
     url.setPath(deslashified, DecodedMode);
     return url;
 }
@@ -3765,8 +3808,14 @@ QString QUrl::toLocalFile() const
 
     // magic for shared drive on windows
     if (!d->host.isEmpty()) {
-        tmp = QStringLiteral("//") + host() + (ourPath.length() > 0 && ourPath.at(0) != QLatin1Char('/')
-                                               ? QLatin1Char('/') + ourPath :  ourPath);
+        tmp = QStringLiteral("//") + host();
+#ifdef Q_OS_WIN // QTBUG-42346, WebDAV is visible as local file on Windows only.
+        if (scheme() == webDavScheme())
+            tmp += webDavSslTag();
+#endif
+        if (!ourPath.isEmpty() && !ourPath.startsWith(QLatin1Char('/')))
+            tmp += QLatin1Char('/');
+        tmp += ourPath;
     } else {
         tmp = ourPath;
 #ifdef Q_OS_WIN
@@ -4061,6 +4110,11 @@ static QUrl adjustFtpPath(QUrl url)
     return url;
 }
 
+static bool isIp6(const QString &text)
+{
+    QIPAddressUtils::IPv6Address address;
+    return !text.isEmpty() && QIPAddressUtils::parseIp6(address, text.begin(), text.end()) == 0;
+}
 
 // The following code has the following copyright:
 /*
@@ -4090,6 +4144,53 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+
+/*!
+    Returns a valid URL from a user supplied \a userInput string if one can be
+    deducted. In the case that is not possible, an invalid QUrl() is returned.
+
+    This overload takes a \a workingDirectory path, in order to be able to
+    handle relative paths. This is especially useful when handling command
+    line arguments.
+    If \a workingDirectory is empty, no handling of relative paths will be done,
+    so this method will behave like its one argument overload.
+
+    By default, an input string that looks like a relative path will only be treated
+    as such if the file actually exists in the given working directory.
+
+    If the application can handle files that don't exist yet, it should pass the
+    flag AssumeLocalFile in \a options.
+
+    \since 5.4
+*/
+QUrl QUrl::fromUserInput(const QString &userInput, const QString &workingDirectory,
+                         UserInputResolutionOptions options)
+{
+    QString trimmedString = userInput.trimmed();
+
+    if (trimmedString.isEmpty())
+        return QUrl();
+
+
+    // Check for IPv6 addresses, since a path starting with ":" is absolute (a resource)
+    // and IPv6 addresses can start with "c:" too
+    if (isIp6(trimmedString)) {
+        QUrl url;
+        url.setHost(trimmedString);
+        url.setScheme(QStringLiteral("http"));
+        return url;
+    }
+
+    QUrl url = QUrl(trimmedString, QUrl::TolerantMode);
+    // Check both QUrl::isRelative (to detect full URLs) and QDir::isAbsolutePath (since on Windows drive letters can be interpreted as schemes)
+    if (url.isRelative() && !QDir::isAbsolutePath(trimmedString)) {
+        QFileInfo fileInfo(QDir(workingDirectory), trimmedString);
+        if ((options & AssumeLocalFile) || fileInfo.exists())
+            return QUrl::fromLocalFile(fileInfo.absoluteFilePath());
+    }
+
+    return fromUserInput(trimmedString);
+}
 
 /*!
     Returns a valid URL from a user supplied \a userInput string if one can be
@@ -4125,6 +4226,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 QUrl QUrl::fromUserInput(const QString &userInput)
 {
     QString trimmedString = userInput.trimmed();
+
+    // Check for IPv6 addresses, since a path starting with ":" is absolute (a resource)
+    // and IPv6 addresses can start with "c:" too
+    if (isIp6(trimmedString)) {
+        QUrl url;
+        url.setHost(trimmedString);
+        url.setScheme(QStringLiteral("http"));
+        return url;
+    }
 
     // Check first for files, since on Windows drive letters can be interpretted as schemes
     if (QDir::isAbsolutePath(trimmedString))

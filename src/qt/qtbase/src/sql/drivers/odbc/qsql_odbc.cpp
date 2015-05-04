@@ -5,35 +5,27 @@
 **
 ** This file is part of the QtSql module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -381,9 +373,19 @@ static QString qGetStringData(SQLHANDLE hStmt, int column, int colSize, bool uni
                             colSize*sizeof(SQLTCHAR),
                             &lengthIndicator);
             if (r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO) {
-                if (lengthIndicator == SQL_NULL_DATA || lengthIndicator == SQL_NO_TOTAL) {
+                if (lengthIndicator == SQL_NULL_DATA) {
                     fieldVal.clear();
                     break;
+                }
+                // starting with ODBC Native Client 2012, SQL_NO_TOTAL is returned
+                // instead of the length (which sometimes was wrong in older versions)
+                // see link for more info: http://msdn.microsoft.com/en-us/library/jj219209.aspx
+                // if length indicator equals SQL_NO_TOTAL, indicating that
+                // more data can be fetched, but size not known, collect data
+                // and fetch next block
+                if (lengthIndicator == SQL_NO_TOTAL) {
+                    fieldVal += fromSQLTCHAR(buf, colSize);
+                    continue;
                 }
                 // if SQL_SUCCESS_WITH_INFO is returned, indicating that
                 // more data can be fetched, the length indicator does NOT
@@ -963,7 +965,7 @@ bool QODBCResult::reset (const QString& query)
     if(r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO)
         QSqlResult::setForwardOnly(isScrollable==SQL_NONSCROLLABLE);
 
-    SQLSMALLINT count;
+    SQLSMALLINT count = 0;
     SQLNumResultCols(d->hStmt, &count);
     if (count) {
         setSelect(true);
@@ -1591,7 +1593,7 @@ bool QODBCResult::exec()
     if(r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO)
         QSqlResult::setForwardOnly(isScrollable==SQL_NONSCROLLABLE);
 
-    SQLSMALLINT count;
+    SQLSMALLINT count = 0;
     SQLNumResultCols(d->hStmt, &count);
     if (count) {
         setSelect(true);
@@ -1668,14 +1670,14 @@ QVariant QODBCResult::lastInsertId() const
     QString sql;
 
     switch (d->driverPrivate->dbmsType) {
-    case QODBCDriverPrivate::MSSqlServer:
-    case QODBCDriverPrivate::Sybase:
+    case QSqlDriver::MSSqlServer:
+    case QSqlDriver::Sybase:
         sql = QLatin1String("SELECT @@IDENTITY;");
         break;
-    case QODBCDriverPrivate::MySqlServer:
+    case QSqlDriver::MySqlServer:
         sql = QLatin1String("SELECT LAST_INSERT_ID();");
         break;
-    case QODBCDriverPrivate::PostgreSQL:
+    case QSqlDriver::PostgreSQL:
         sql = QLatin1String("SELECT lastval();");
         break;
     default:
@@ -1723,7 +1725,7 @@ bool QODBCResult::nextResult()
         }
     }
 
-    SQLSMALLINT count;
+    SQLSMALLINT count = 0;
     SQLNumResultCols(d->hStmt, &count);
     if (count) {
         setSelect(true);
@@ -1815,14 +1817,14 @@ bool QODBCDriver::hasFeature(DriverFeature f) const
     case CancelQuery:
         return false;
     case LastInsertId:
-        return (d->dbmsType == QODBCDriverPrivate::MSSqlServer)
-                || (d->dbmsType == QODBCDriverPrivate::Sybase)
-                || (d->dbmsType == QODBCDriverPrivate::MySqlServer)
-                || (d->dbmsType == QODBCDriverPrivate::PostgreSQL);
+        return (d->dbmsType == MSSqlServer)
+                || (d->dbmsType == Sybase)
+                || (d->dbmsType == MySqlServer)
+                || (d->dbmsType == PostgreSQL);
     case MultipleResultSets:
         return d->hasMultiResultSets;
     case BLOB: {
-        if (d->dbmsType == QODBCDriverPrivate::MySqlServer)
+        if (d->dbmsType == MySqlServer)
             return true;
         else
             return false;
@@ -1919,7 +1921,7 @@ bool QODBCDriver::open(const QString & db,
     d->checkDateTimePrecision();
     setOpen(true);
     setOpenError(false);
-    if (d->dbmsType == QODBCDriverPrivate::MSSqlServer) {
+    if (d->dbmsType == MSSqlServer) {
         QSqlQuery i(createResult());
         i.exec(QLatin1String("SET QUOTED_IDENTIFIER ON"));
     }
@@ -2105,15 +2107,15 @@ void QODBCDriverPrivate::checkDBMS()
         serverType = QString::fromUtf8((const char *)serverString.constData(), t);
 #endif
         if (serverType.contains(QLatin1String("PostgreSQL"), Qt::CaseInsensitive))
-            dbmsType = PostgreSQL;
+            dbmsType = QSqlDriver::PostgreSQL;
         else if (serverType.contains(QLatin1String("Oracle"), Qt::CaseInsensitive))
-            dbmsType = Oracle;
+            dbmsType = QSqlDriver::Oracle;
         else if (serverType.contains(QLatin1String("MySql"), Qt::CaseInsensitive))
-            dbmsType = MySqlServer;
+            dbmsType = QSqlDriver::MySqlServer;
         else if (serverType.contains(QLatin1String("Microsoft SQL Server"), Qt::CaseInsensitive))
-            dbmsType = MSSqlServer;
+            dbmsType = QSqlDriver::MSSqlServer;
         else if (serverType.contains(QLatin1String("Sybase"), Qt::CaseInsensitive))
-            dbmsType = Sybase;
+            dbmsType = QSqlDriver::Sybase;
     }
     r = SQLGetInfo(hDbc,
                    SQL_DRIVER_NAME,

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -127,6 +119,7 @@ inline Q_DECL_CONSTEXPR int qMetaTypeId();
     F(QVariantMap, 8, QVariantMap) \
     F(QVariantList, 9, QVariantList) \
     F(QVariantHash, 28, QVariantHash) \
+    F(QByteArrayList, 49, QByteArrayList) \
 
 #define QT_FOR_EACH_STATIC_GUI_CLASS(F)\
     F(QFont, 64, QFont) \
@@ -180,6 +173,7 @@ inline Q_DECL_CONSTEXPR int qMetaTypeId();
     F(QVariantList, -1, QVariantList, "QList<QVariant>") \
     F(QVariantMap, -1, QVariantMap, "QMap<QString,QVariant>") \
     F(QVariantHash, -1, QVariantHash, "QHash<QString,QVariant>") \
+    F(QByteArrayList, -1, QByteArrayList, "QList<QByteArray>") \
 
 #define QT_FOR_EACH_STATIC_TYPE(F)\
     QT_FOR_EACH_STATIC_PRIMITIVE_TYPE(F)\
@@ -393,7 +387,7 @@ public:
         QT_FOR_EACH_STATIC_TYPE(QT_DEFINE_METATYPE_ID)
 
         FirstCoreType = Bool,
-        LastCoreType = QJsonDocument,
+        LastCoreType = QByteArrayList,
         FirstGuiType = QFont,
         LastGuiType = QPolygonF,
         FirstWidgetsType = QSizePolicy,
@@ -419,7 +413,7 @@ public:
         QEasingCurve = 29, QUuid = 30, QVariant = 41, QModelIndex = 42,
         QRegularExpression = 44,
         QJsonValue = 45, QJsonObject = 46, QJsonArray = 47, QJsonDocument = 48,
-        QObjectStar = 39, SChar = 40,
+        QByteArrayList = 49, QObjectStar = 39, SChar = 40,
         Void = 43,
         QVariantMap = 8, QVariantList = 9, QVariantHash = 28,
         QFont = 64, QPixmap = 65, QBrush = 66, QColor = 67, QPalette = 68,
@@ -646,7 +640,7 @@ private:
     static bool registerDebugStreamOperatorFunction(const QtPrivate::AbstractDebugStreamFunction *f, int type);
 #endif
 
-#ifndef Q_NO_TEMPLATE_FRIENDS
+#if !defined(Q_NO_TEMPLATE_FRIENDS) && !defined(Q_CC_MSVC)
 #ifndef Q_QDOC
     template<typename T>
     friend bool qRegisterSequentialConverter();
@@ -782,7 +776,7 @@ private:
 };
 
 template<typename const_iterator>
-struct IteratorOwner
+struct IteratorOwnerCommon
 {
     static void assign(void **ptr, const_iterator iterator)
     {
@@ -804,6 +798,15 @@ struct IteratorOwner
         delete static_cast<const_iterator*>(*ptr);
     }
 
+    static bool equal(void * const *it, void * const *other)
+    {
+        return *static_cast<const_iterator*>(*it) == *static_cast<const_iterator*>(*other);
+    }
+};
+
+template<typename const_iterator>
+struct IteratorOwner : IteratorOwnerCommon<const_iterator>
+{
     static const void *getData(void * const *iterator)
     {
         return &**static_cast<const_iterator*>(*iterator);
@@ -813,16 +816,41 @@ struct IteratorOwner
     {
         return &*it;
     }
+};
 
-    static bool equal(void * const *it, void * const *other)
+struct Q_CORE_EXPORT VectorBoolElements
+{
+  static const bool true_element;
+  static const bool false_element;
+};
+
+template<>
+struct IteratorOwner<std::vector<bool>::const_iterator> : IteratorOwnerCommon<std::vector<bool>::const_iterator>
+{
+public:
+    static const void *getData(void * const *iterator)
     {
-        return *static_cast<const_iterator*>(*it) == *static_cast<const_iterator*>(*other);
+        return **static_cast<std::vector<bool>::const_iterator*>(*iterator) ?
+            &VectorBoolElements::true_element : &VectorBoolElements::false_element;
+    }
+
+    static const void *getData(const std::vector<bool>::const_iterator& it)
+    {
+        return *it ? &VectorBoolElements::true_element : &VectorBoolElements::false_element;
     }
 };
+
 template<typename value_type>
 struct IteratorOwner<const value_type*>
 {
-    static void assign(void **ptr, const value_type *iterator )
+private:
+    // We need to disable typed overloads of assign() and getData() if the value_type
+    // is void* to avoid overloads conflicts. We do it by injecting unaccessible Dummy
+    // type as part of the overload signature.
+    struct Dummy {};
+    typedef typename QtPrivate::if_<QtPrivate::is_same<value_type, void*>::value, Dummy, value_type>::type value_type_OR_Dummy;
+public:
+    static void assign(void **ptr, const value_type_OR_Dummy *iterator )
     {
         *ptr = const_cast<value_type*>(iterator);
     }
@@ -847,7 +875,7 @@ struct IteratorOwner<const value_type*>
         return *iterator;
     }
 
-    static const void *getData(const value_type *it)
+    static const void *getData(const value_type_OR_Dummy *it)
     {
         return it;
     }
@@ -894,11 +922,11 @@ struct ContainerAPI<QVector<T> > : CapabilitiesImpl<QVector<T> >
 
 template<typename T>
 struct ContainerAPI<std::vector<T> > : CapabilitiesImpl<std::vector<T> >
-{ static int size(const std::vector<T> *t) { return t->size(); } };
+{ static int size(const std::vector<T> *t) { return int(t->size()); } };
 
 template<typename T>
 struct ContainerAPI<std::list<T> > : CapabilitiesImpl<std::list<T> >
-{ static int size(const std::list<T> *t) { return t->size(); } };
+{ static int size(const std::list<T> *t) { return int(t->size()); } };
 
 class QSequentialIterableImpl
 {
@@ -1274,6 +1302,11 @@ namespace QtPrivate
     // Specialize to avoid sizeof(void) warning
     template<>
     struct IsPointerToTypeDerivedFromQObject<void*>
+    {
+        enum { Value = false };
+    };
+    template<>
+    struct IsPointerToTypeDerivedFromQObject<const void*>
     {
         enum { Value = false };
     };
@@ -1721,6 +1754,7 @@ QT_FOR_EACH_STATIC_WIDGETS_CLASS(QT_FORWARD_DECLARE_STATIC_TYPES_ITER)
 typedef QList<QVariant> QVariantList;
 typedef QMap<QString, QVariant> QVariantMap;
 typedef QHash<QString, QVariant> QVariantHash;
+typedef QList<QByteArray> QByteArrayList;
 
 #define Q_DECLARE_METATYPE_TEMPLATE_1ARG(SINGLE_ARG_TEMPLATE) \
 QT_BEGIN_NAMESPACE \
@@ -2074,6 +2108,21 @@ namespace QtPrivate {
         }
     };
 }
+
+namespace QtMetaTypePrivate {
+inline Q_DECL_CONSTEXPR bool isBuiltinSequentialType(int typeId)
+{
+    return typeId == qMetaTypeId<QStringList>()
+            || typeId == qMetaTypeId<QByteArrayList>()
+            || typeId == qMetaTypeId<QVariantList>();
+}
+
+inline Q_DECL_CONSTEXPR bool isBuiltinAssociativeType(int typeId)
+{
+    return typeId == qMetaTypeId<QVariantHash>()
+            || typeId == qMetaTypeId<QVariantMap>();
+}
+} // QtMetaTypePrivate
 
 QT_END_NAMESPACE
 

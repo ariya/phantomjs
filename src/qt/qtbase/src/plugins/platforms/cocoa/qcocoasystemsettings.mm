@@ -41,6 +41,8 @@
 
 #include "qcocoasystemsettings.h"
 
+#include "qcocoahelpers.h"
+
 #include <QtCore/private/qcore_mac_p.h>
 #include <QtGui/qfont.h>
 
@@ -48,30 +50,11 @@
 
 QT_BEGIN_NAMESPACE
 
-QColor qt_mac_colorFromCGColor(CGColorRef cgcolor)
-{
-    QColor pc;
-    CGColorSpaceModel model = CGColorSpaceGetModel(CGColorGetColorSpace(cgcolor));
-    const CGFloat *components = CGColorGetComponents(cgcolor);
-    if (model == kCGColorSpaceModelRGB) {
-        pc.setRgbF(components[0], components[1], components[2], components[3]);
-    } else if (model == kCGColorSpaceModelCMYK) {
-        pc.setCmykF(components[0], components[1], components[2], components[3]);
-    } else if (model == kCGColorSpaceModelMonochrome) {
-        pc.setRgbF(components[0], components[0], components[0], components[1]);
-    } else {
-        // Colorspace we can't deal with.
-        qWarning("Qt: qcolorFromCGColor: cannot convert from colorspace model: %d", model);
-        Q_ASSERT(false);
-    }
-    return pc;
-}
-
 QColor qt_mac_colorForTheme(ThemeBrush brush)
 {
     QCFType<CGColorRef> cgClr = 0;
     HIThemeBrushCreateCGColor(brush, &cgClr);
-    return qt_mac_colorFromCGColor(cgClr);
+    return qt_mac_toQColor(cgClr);
 }
 
 QColor qt_mac_colorForThemeTextColor(ThemeTextColor themeColor)
@@ -228,50 +211,6 @@ QHash<QPlatformTheme::Palette, QPalette*> qt_mac_createRolePalettes()
         palettes.insert(mac_widget_colors[i].paletteRole, &pal);
     }
     return palettes;
-}
-
-QFont *qt_mac_qfontForThemeFont(ThemeFontID themeID)
-{
-    CTFontUIFontType ctID = HIThemeGetUIFontType(themeID);
-    QCFType<CTFontRef> ctfont = CTFontCreateUIFontForLanguage(ctID, 0, 0);
-    QString familyName = QCFString(CTFontCopyFamilyName(ctfont));
-    QCFType<CFDictionaryRef> dict = CTFontCopyTraits(ctfont);
-    CFNumberRef num = static_cast<CFNumberRef>(CFDictionaryGetValue(dict, kCTFontWeightTrait));
-    float fW;
-    CFNumberGetValue(num, kCFNumberFloat32Type, &fW);
-    QFont::Weight wght = fW > 0. ? QFont::Bold : QFont::Normal;
-    num = static_cast<CFNumberRef>(CFDictionaryGetValue(dict, kCTFontSlantTrait));
-    CFNumberGetValue(num, kCFNumberFloatType, &fW);
-    bool italic = (fW != 0.0);
-    return new QFont(familyName, CTFontGetSize(ctfont), wght, italic);
-}
-
-QHash<QPlatformTheme::Font, QFont *> qt_mac_createRoleFonts()
-{
-    QHash<QPlatformTheme::Font, QFont *> fonts;
-
-    fonts.insert(QPlatformTheme::SystemFont, qt_mac_qfontForThemeFont(kThemeApplicationFont));
-    fonts.insert(QPlatformTheme::PushButtonFont, qt_mac_qfontForThemeFont(kThemePushButtonFont));
-    fonts.insert(QPlatformTheme::ListViewFont, qt_mac_qfontForThemeFont(kThemeViewsFont));
-    fonts.insert(QPlatformTheme::ListBoxFont, qt_mac_qfontForThemeFont(kThemeViewsFont));
-    fonts.insert(QPlatformTheme::TitleBarFont, qt_mac_qfontForThemeFont(kThemeWindowTitleFont));
-    fonts.insert(QPlatformTheme::MenuFont, qt_mac_qfontForThemeFont(kThemeMenuItemFont));
-    fonts.insert(QPlatformTheme::MenuBarFont, qt_mac_qfontForThemeFont(kThemeMenuItemFont));
-    fonts.insert(QPlatformTheme::ComboMenuItemFont, qt_mac_qfontForThemeFont(kThemeSystemFont));
-    fonts.insert(QPlatformTheme::HeaderViewFont, qt_mac_qfontForThemeFont(kThemeSmallSystemFont));
-    fonts.insert(QPlatformTheme::TipLabelFont, qt_mac_qfontForThemeFont(kThemeSmallSystemFont));
-    fonts.insert(QPlatformTheme::LabelFont, qt_mac_qfontForThemeFont(kThemeSystemFont));
-    fonts.insert(QPlatformTheme::ToolButtonFont, qt_mac_qfontForThemeFont(kThemeSmallSystemFont));
-    fonts.insert(QPlatformTheme::MenuItemFont, qt_mac_qfontForThemeFont(kThemeMenuItemFont));
-    fonts.insert(QPlatformTheme::ComboLineEditFont, qt_mac_qfontForThemeFont(kThemeViewsFont));
-    fonts.insert(QPlatformTheme::SmallFont, qt_mac_qfontForThemeFont(kThemeSmallSystemFont));
-    fonts.insert(QPlatformTheme::MiniFont, qt_mac_qfontForThemeFont(kThemeMiniSystemFont));
-
-    QFont* fixedFont = new QFont(QStringLiteral("Monaco"), fonts[QPlatformTheme::SystemFont]->pointSize());
-    fixedFont->setStyleHint(QFont::TypeWriter);
-    fonts.insert(QPlatformTheme::FixedFont, fixedFont);
-
-    return fonts;
 }
 
 QT_END_NAMESPACE

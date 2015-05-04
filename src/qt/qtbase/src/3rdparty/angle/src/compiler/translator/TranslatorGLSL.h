@@ -7,14 +7,19 @@
 #ifndef COMPILER_TRANSLATORGLSL_H_
 #define COMPILER_TRANSLATORGLSL_H_
 
-#include "compiler/translator/ShHandle.h"
+#include "compiler/translator/Compiler.h"
 
-class TranslatorGLSL : public TCompiler {
-public:
-    TranslatorGLSL(ShShaderType type, ShShaderSpec spec);
+class TranslatorGLSL : public TCompiler
+{
+  public:
+    TranslatorGLSL(sh::GLenum type, ShShaderSpec spec);
 
-protected:
-    virtual void translate(TIntermNode* root);
+  protected:
+    virtual void translate(TIntermNode *root);
+
+  private:
+    void writeVersion(TIntermNode *root);
+    void writeExtensionBehavior();
 };
 
 #endif  // COMPILER_TRANSLATORGLSL_H_

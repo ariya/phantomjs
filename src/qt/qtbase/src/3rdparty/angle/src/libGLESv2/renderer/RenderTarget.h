@@ -11,44 +11,41 @@
 #define LIBGLESV2_RENDERER_RENDERTARGET_H_
 
 #include "common/angleutils.h"
+#include "libGLESv2/angletypes.h"
 
 namespace rx
 {
 class RenderTarget
 {
   public:
-    RenderTarget()
-    {
-        mWidth = 0;
-        mHeight = 0;
-        mInternalFormat = GL_NONE;
-        mActualFormat = GL_NONE;
-        mSamples = 0;
-    }
+    RenderTarget();
+    virtual ~RenderTarget();
 
-    virtual ~RenderTarget() {};
+    virtual GLsizei getWidth() const = 0;
+    virtual GLsizei getHeight() const = 0;
+    virtual GLsizei getDepth() const = 0;
+    virtual GLenum getInternalFormat() const = 0;
+    virtual GLenum getActualFormat() const = 0;
+    virtual GLsizei getSamples() const = 0;
+    gl::Extents getExtents() const { return gl::Extents(getWidth(), getHeight(), getDepth()); }
 
-    GLsizei getWidth() { return mWidth; }
-    GLsizei getHeight() { return mHeight; }
-    GLenum getInternalFormat() { return mInternalFormat; }
-    GLenum getActualFormat() { return mActualFormat; }
-    GLsizei getSamples() { return mSamples; }
-    
+    virtual void invalidate(GLint x, GLint y, GLsizei width, GLsizei height) = 0;
+
+    virtual unsigned int getSerial() const;
+    static unsigned int issueSerials(unsigned int count);
+
     struct Desc {
         GLsizei width;
         GLsizei height;
+        GLsizei depth;
         GLenum  format;
     };
 
-  protected:
-    GLsizei mWidth;
-    GLsizei mHeight;
-    GLenum mInternalFormat;
-    GLenum mActualFormat;
-    GLsizei mSamples;
-
   private:
     DISALLOW_COPY_AND_ASSIGN(RenderTarget);
+
+    const unsigned int mSerial;
+    static unsigned int mCurrentSerial;
 };
 
 }

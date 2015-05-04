@@ -122,10 +122,10 @@
     configuration options to fine tune the build process. For more information,
     see \l{Building Common Project Types}.
 
-    You can use the \l{external: Qt Creator Manual}{Qt Creator} new project
-    wizard to create the project file. You choose the project template, and Qt
-    Creator creates a project file with default values that enable you to build
-    and run the project. You can modify the project file to suit your purposes.
+    You can use the \l{Qt Creator: Creating Projects}{Qt Creator new project wizard} to create the project file.
+    You choose the project template, and Qt Creator creates a project file with
+    default values that enable you to build and run the project. You can modify
+    the project file to suit your purposes.
 
     You can also use qmake to generate project files. For a full description of
     qmake command line options, see \l{Running qmake}.
@@ -321,6 +321,12 @@
     \header \li Template      \li qmake Output
     \row    \li app (default) \li Makefile to build an application.
     \row    \li lib           \li Makefile to build a library.
+    \row    \li aux           \li Makefile to build nothing. Use this if no compiler needs to
+                                  be invoked to create the target, for instance because your
+                                  project is written in an interpreted language.
+                                  \note This template type is only available for Makefile-based
+                                  generators. In particular, it will not work with the vcxproj and
+                                  Xcode generators.
     \row    \li subdirs       \li Makefile containing rules for the
     subdirectories specified using the \l{SUBDIRS}
     variable. Each subdirectory must contain its own project file.
@@ -651,9 +657,9 @@
     qmake knows about many of these features, which can be accessed via specific
     variables that only take effect on the platforms where they are relevant.
 
-    \section1 Mac OS X
+    \section1 OS X and iOS
 
-    Features specific to this platform include support for creating universal
+    Features specific to these platforms include support for creating universal
     binaries, frameworks and bundles.
 
     \section2 Source and Binary Packages
@@ -675,7 +681,7 @@
 
     qmake is able to automatically generate build
     rules for linking against frameworks in the standard framework directory on
-    Mac OS X, located at \c{/Library/Frameworks/}.
+    OS X, located at \c{/Library/Frameworks/}.
 
     Directories other than the standard framework directory need to be specified
     to the build system, and this is achieved by appending linker options to the
@@ -716,14 +722,14 @@
     and \l{QMAKE_FRAMEWORK_VERSION} variables. By default, the values used for
     these variables are obtained from the \l{TARGET} and \l{VERSION} variables.
 
-    See \l{Qt for Mac OS X - Deployment} for more information about
+    See \l{Qt for OS X - Deployment} for more information about
     deploying applications and libraries.
 
     \section2 Creating and Moving Xcode Projects
 
-    Developers on Mac OS X can take advantage of the qmake support for Xcode
+    Developers on OS X can take advantage of the qmake support for Xcode
     project files, as described in
-    \l{Qt is Mac OS X Native#Development Tools}{Qt is Mac OS X Native},
+    \l{Qt is OS X Native#Development Tools}{Qt is OS X Native},
     by running qmake to generate an Xcode project from an existing qmake project
     file. For example:
 
@@ -911,6 +917,9 @@
     \row    \li c++11 \li C++11 support is enabled. This option has no effect if
             the compiler does not support C++11.
             By default, support is disabled.
+    \row    \li c++14 \li C++14 support is enabled. This option has no effect if
+            the compiler does not support C++14.
+            By default, support is disabled.
     \endtable
 
     When you use the \c debug_and_release option (which is the default under
@@ -1013,14 +1022,14 @@
          on the directory they reside. This is turned on by default.
     \row \li embed_manifest_dll \li Embeds a manifest file in the DLL created
          as part of a library project.
-    \row \li embed_manifest_exe \li Embeds a manifest file in the DLL created
+    \row \li embed_manifest_exe \li Embeds a manifest file in the EXE created
          as part of an application project.
     \endtable
 
     See \l{Platform Notes#Visual Studio Manifest Files}{Platform Notes}
     for more information about the options for embedding manifest files.
 
-    The following options take an effect only on Mac OS X:
+    The following options take an effect only on OS X:
 
     \table
     \header \li Option \li Description
@@ -1189,6 +1198,12 @@
     Please see \l{Setting the Application Icon}{the application icon documentation}
     for more information.
 
+    \target IDLSOURCES
+    \section1 IDLSOURCES
+
+    This variable is used only on Windows for the Visual Studio project generation to
+    put the specified files in the Generated Files folder.
+
     \target INCLUDEPATH
     \section1 INCLUDEPATH
 
@@ -1298,6 +1313,12 @@
     handled internally by qmake and rarely needs to
     be modified.
 
+    \target MSVCPROJ_*
+    \section1 MSVCPROJ_*
+
+    These variables are handled internally by qmake and should not be modified
+    or utilized.
+
     \target MOC_DIR
     \section1 MOC_DIR
 
@@ -1354,7 +1375,7 @@
     Indicates the header file for creating a precompiled
     header file, to increase the compilation speed of a project.
     Precompiled headers are currently only supported on some platforms
-    (Windows - all MSVC project types, Mac OS X - Xcode, Makefile,
+    (Windows - all MSVC project types, Apple - Xcode, Makefile,
     Unix - gcc 3.3 and up).
 
     \target PWD
@@ -1403,7 +1424,7 @@
     \target QMAKE_BUNDLE_DATA
     \section1 QMAKE_BUNDLE_DATA
 
-    \note This variable is used on Mac OS X only.
+    \note This variable is used on OS X and iOS only.
 
     Specifies the data that will be installed with a library
     bundle, and is often used to specify a collection of header files.
@@ -1425,7 +1446,7 @@
 
     \section1 QMAKE_BUNDLE_EXTENSION
 
-    \note This variable is used on Mac OS X only.
+    \note This variable is used on OS X and iOS only.
 
     Specifies the extension to be used for library bundles.
     This allows frameworks to be created with custom extensions instead of the
@@ -1442,6 +1463,15 @@
     projects containing C source code. Only the file name of the compiler
     executable needs to be specified as long as it is on a path contained
     in the \c PATH variable when the Makefile is processed.
+
+    \section1 QMAKE_CFLAGS
+
+    Specifies the C compiler flags for building
+    a project. The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified. The flags specific to debug and release modes can be
+    adjusted by modifying the \c QMAKE_CFLAGS_DEBUG and
+    \c QMAKE_CFLAGS_RELEASE variables, respectively.
 
     \target QMAKE_CFLAGS_DEBUG
     \section1 QMAKE_CFLAGS_DEBUG
@@ -1643,7 +1673,7 @@
 
     \section1 QMAKE_FRAMEWORK_BUNDLE_NAME
 
-    \note This variable is used on Mac OS X only.
+    \note This variable is used on OS X and iOS only.
 
     In a framework project, this variable contains the name to be used for the
     framework that is built.
@@ -1657,9 +1687,9 @@
     \target QMAKE_FRAMEWORK_VERSION
     \section1 QMAKE_FRAMEWORK_VERSION
 
-    \note This variable is used on Mac OS X only.
+    \note This variable is used on OS X and iOS only.
 
-    For projects where the build target is a Mac OS X framework, this variable
+    For projects where the build target is an OS X or iOS framework, this variable
     is used to specify the version number that will be applied to the framework
     that is built.
 
@@ -1733,10 +1763,10 @@
     \target QMAKE_INFO_PLIST
     \section1 QMAKE_INFO_PLIST
 
-    \note This variable is used on Mac OS X platforms only.
+    \note This variable is used on OS X and iOS platforms only.
 
     Specifies the name of the property list file, \c{.plist}, you
-    would like to include in your Mac OS X application bundle.
+    would like to include in your OS X and iOS application bundle.
 
     In the \c{.plist} file, you can define some variables, e.g., @EXECUTABLE@,
     which qmake will replace with the actual executable name. Other variables
@@ -1990,16 +2020,16 @@
 
     \section1 QMAKE_MAC_SDK
 
-    This variable is used on Mac OS X when building universal binaries.
+    This variable is used on OS X when building universal binaries.
 
     \section1 QMAKE_MACOSX_DEPLOYMENT_TARGET
 
-    This variable only takes effect when building on Mac OS X. On that
+    This variable only takes effect when building on OS X. On that
     platform, the variable will be forwarded to the MACOSX_DEPLOYMENT_TARGET
     environment variable, which is interpreted by the compiler or linker.
     For more information, see the
-    \l{Qt for Mac OS X - Deployment#Mac OS X Version Dependencies}{Deploying
-    an Application on Mac OS X} document.
+    \l{Qt for OS X - Deployment#OS X Version Dependencies}{Deploying
+    an Application on OS X} document.
 
     \section1 QMAKE_MAKEFILE
 
@@ -2065,11 +2095,76 @@
     qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
     needs to be modified.
 
+    \section1 QMAKE_SONAME_PREFIX
+
+    If defined, the value of this variable is used as a path to be prepended to
+    the built shared library's \c SONAME identifier. The \c SONAME is the
+    identifier that the dynamic linker will later use to reference the library.
+    In general this reference may be a library name or full library path. On OS
+    X and iOS, the path may be specified relatively using the following
+    placeholders:
+
+    \table
+    \header \li Placeholder  \li Effect
+    \row \li @rpath
+         \li Expands to paths defined by LC_RPATH mach-o commands in
+             the current process executable or the referring libraries.
+    \row \li @executable_path
+         \li Expands to the current process executable location.
+    \row \li @loader_path
+         \li Expands to the referring executable or library location.
+    \endtable
+
+    In most cases, using \c @rpath is sufficient and recommended:
+
+    \snippet code/doc_src_qmake-manual.pro 183
+
+    However, the prefix may be also specified using different placeholders, or
+    an absolute path, such as one of the following:
+
+    \snippet code/doc_src_qmake-manual.pro 184
+
+    For more information, see
+    \l{https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/dyld.1.html}{dyld}
+    documentation on dynamic library install names.
+
     \section1 QMAKE_TARGET
 
     Specifies the name of the project target.  The value of this
     variable is typically handled by qmake or
     \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \target QMAKE_TARGET_COMPANY
+    \section1 QMAKE_TARGET_COMPANY
+
+    Windows only. Specifies the company for the project target, this is used where
+    applicable for putting the company name in the application's properties. This is
+    only utilized if the VERSION or RC_ICONS variable is set and the RC_FILE and RES_FILE
+    variables are not set.
+
+    \target QMAKE_TARGET_DESCRIPTION
+    \section1 QMAKE_TARGET_DESCRIPTION
+
+    Windows only. Specifies the description for the project target, this is used where
+    applicable for putting the description in the application's properties. This is only
+    utilized if the VERSION or RC_ICONS variable is set and the RC_FILE and RES_FILE variables
+    are not set.
+
+    \target QMAKE_TARGET_COPYRIGHT
+    \section1 QMAKE_TARGET_COPYRIGHT
+
+    Windows only. Specifies the copyright information for the project target, this is used where
+    applicable for putting the copyright information in the application's properties. This is only
+    utilized if the VERSION or RC_ICONS variable is set and the RC_FILE and RES_FILE variables
+    are not set.
+
+    \target QMAKE_TARGET_PRODUCT
+    \section1 QMAKE_TARGET_PRODUCT
+
+    Windows only. Specifies the product for the project target, this is used where
+    applicable for putting the product in the application's properties. This is only utilized if
+    the VERSION or RC_ICONS variable is set and the RC_FILE and RES_FILE variables
+    are not set.
 
     \section1 QT
 
@@ -2169,6 +2264,26 @@
     The value of this variable is typically handled by
     qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
     needs to be modified.
+
+    \target RC_CODEPAGE
+    \section1 RC_CODEPAGE
+
+    Windows only. Specifies the codepage that should be specified in a generated rc file. This is
+    only utilized if the VERSION or RC_ICONS variable is set and the RC_FILE and RES_FILE variables
+    are not set.
+
+    \target RC_ICONS
+    \section1 RC_ICONS
+
+    Windows only. Specifies the icons that should be included into a generated rc file, this
+    is only utilized if the RC_FILE and RES_FILE variable are not set.
+
+    \target RC_LANG
+    \section1 RC_LANG
+
+    Windows only. Specifies the language that should be specified in a generated rc file. This is
+    only utilized if the VERSION or RC_ICONS variable is set and the RC_FILE and RES_FILE variables
+    are not set.
 
     \section1 RC_INCLUDEPATH
 
@@ -2324,6 +2439,12 @@
     \row    \li subdirs \li Creates a Makefile for building targets in subdirectories.
             The subdirectories are specified using the \l{#SUBDIRS}{SUBDIRS}
             variable.
+    \row    \li aux     \li Creates a Makefile for not building anything. Use this if no compiler
+                            needs to be invoked to create the target, for instance because your
+                            project is written in an interpreted language.
+                            \note This template type is only available for Makefile-based
+                            generators. In particular, it will not work with the vcxproj and
+                            Xcode generators.
     \row    \li vcapp  \li Windows only. Creates an application project for
             Visual Studio. See \l{Creating Visual Studio Project Files} for more
             information.
@@ -2405,13 +2526,6 @@
         \li architecture
         \li The target architecture. Defaults to \c VCPROJ_ARCH.
     \row
-        \li arguments
-        \li Allows arguments to be passed to the executable.
-    \row
-        \li author
-        \li Package author. Defaults to \c{Default package author}.
-            This option is only available for Windows Phone.
-    \row
         \li background
         \li Tile background color. Defaults to \c{green}.
     \row
@@ -2420,7 +2534,10 @@
     \row
         \li capabilities_device
         \li Specifies device capabilities to add to the capability list
-            (location, webcam, and so on). This option is not available on Windows Phone.
+            (location, webcam, and so on).
+    \row
+        \li default_language
+        \li The default language code of the application. Defaults to "en".
     \row
         \li dependencies
         \li Specifies dependencies required by the package.
@@ -2431,10 +2548,6 @@
         \li foreground
         \li Tile foreground (text) color. Defaults to \c{light}.
             This option is only available for Windows Store apps on Windows 8 and Windows RT.
-    \row
-        \li genre
-        \li Package genre. Defaults to \c{apps.normal}.
-            This option is only available for Windows Phone.
     \row
         \li iconic_tile_icon
         \li Image file for the \c{iconic} tile template icon. Default provided by
@@ -2463,12 +2576,17 @@
         \li name
         \li The name of the package as displayed to the user. Defaults to TARGET.
     \row
+        \li phone_product_id
+        \li The GUID of the product. Defaults to the value of WINRT_MANIFEST.identity. (Windows Phone only)
+    \row
+        \li phone_publisher_id
+        \li The GUID of the publisher. Defaults to an invalid GUID. (Windows Phone only)
+    \row
         \li publisher
         \li Display name of the publisher. Defaults to \c{Default publisher display name}.
     \row
         \li publisher_id
-        \li On Windows 8 or Windows RT, the publisher's distinguished name (default: \c{CN=MyCN}).
-            On Windows Phone, the publisher's UUID (default: invalid UUID string).
+        \li The publisher's distinguished name (default: \c{CN=MyCN}).
     \row
         \li splash_screen
         \li Splash screen image file. Default provided by the mkspec.
@@ -2487,12 +2605,8 @@
     \code
     WINRT_MANIFEST.publisher = MyCompany
     WINRT_MANIFEST.logo_store = someImage.png
-    winphone {
-        WINRT_MANIFEST.capabilities += ID_CAP_LOCATION ID_CAP_NETWORKING
-    } else {
-        WINRT_MANIFEST.capabilities += internetClient
-        WINRT_MANIFEST.device_capabilities += location
-    }
+    WINRT_MANIFEST.capabilities += internetClient
+    WINRT_MANIFEST.device_capabilities += location
     \endcode
 
     Additionally, an input manifest file can be specified by using WINRT_MANIFEST.
@@ -4091,7 +4205,7 @@
         \li nmake
         \li Visual Studio projects (VS 2008 and later)
         \endlist
-    \li Mac OS X
+    \li OS X and iOS
         \list
         \li Makefile
         \li Xcode
@@ -4290,7 +4404,7 @@
     This tutorial teaches you the basics of qmake. The other topics in this
     manual contain more detailed information about using qmake.
 
-    \section1 Starting off Simple
+    \section1 Starting Off Simple
 
     Let's assume that you have just finished a basic implementation of
     your application, and you have created the following files:
@@ -4462,7 +4576,7 @@
     them uses project-specific variables to customize output files.
 
     Platform-specific variables are not described here. For more information,
-    see  \l{Qt for Windows - Deployment} and \l{Qt for Mac OS X}.
+    see  \l{Qt for Windows - Deployment} and \l{Qt for OS X}.
 
     \target Application
     \section1 Building an Application
@@ -4611,7 +4725,7 @@
     \endlist
 
     The target file name for the library is platform-dependent. For example, on
-    X11 and Mac OS X, the library name will be prefixed by \c lib. On Windows,
+    X11, OS X, and iOS, the library name will be prefixed by \c lib. On Windows,
     no prefix is added to the file name.
 
     \target Plugin

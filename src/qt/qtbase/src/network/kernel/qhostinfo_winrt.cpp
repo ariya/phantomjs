@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -80,29 +72,25 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
         return results;
     }
 
-    IHostNameFactory *hostnameFactory;
+    ComPtr<IHostNameFactory> hostnameFactory;
+    HRESULT hr = RoGetActivationFactory(HString::MakeReference(RuntimeClass_Windows_Networking_HostName).Get(),
+                                        IID_PPV_ARGS(&hostnameFactory));
+    Q_ASSERT_X(SUCCEEDED(hr), Q_FUNC_INFO, qPrintable(qt_error_string(hr)));
 
-    HStringReference classId(RuntimeClass_Windows_Networking_HostName);
-    if (FAILED(GetActivationFactory(classId.Get(), &hostnameFactory)))
-        Q_ASSERT(false, "Could not obtain hostname factory.");
-
-    IHostName *host;
+    ComPtr<IHostName> host;
     HStringReference hostNameRef((const wchar_t*)hostName.utf16());
     hostnameFactory->CreateHostName(hostNameRef.Get(), &host);
-    hostnameFactory->Release();
 
-    IDatagramSocketStatics *datagramSocketStatics;
+    ComPtr<IDatagramSocketStatics> datagramSocketStatics;
     GetActivationFactory(HString::MakeReference(RuntimeClass_Windows_Networking_Sockets_DatagramSocket).Get(), &datagramSocketStatics);
 
-    IAsyncOperation<IVectorView<EndpointPair*> *> *op;
-    HSTRING proto;
-    WindowsCreateString(L"0", 1, &proto);
-    datagramSocketStatics->GetEndpointPairsAsync(host, proto, &op);
-    datagramSocketStatics->Release();
-    host->Release();
+    ComPtr<IAsyncOperation<IVectorView<EndpointPair *> *>> op;
+    datagramSocketStatics->GetEndpointPairsAsync(host.Get(),
+                                                 HString::MakeReference(L"0").Get(),
+                                                 &op);
 
-    IVectorView<EndpointPair*> *endpointPairs = 0;
-    HRESULT hr = op->GetResults(&endpointPairs);
+    ComPtr<IVectorView<EndpointPair *>> endpointPairs;
+    hr = op->GetResults(&endpointPairs);
     int waitCount = 0;
     while (hr == E_ILLEGAL_METHOD_CALL) {
         WaitForSingleObjectEx(GetCurrentThread(), 50, FALSE);
@@ -110,7 +98,6 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
         if (++waitCount > 1200) // Wait for 1 minute max
             return results;
     }
-    op->Release();
 
     if (!endpointPairs)
         return results;
@@ -119,11 +106,10 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
     endpointPairs->get_Size(&size);
     QList<QHostAddress> addresses;
     for (unsigned int i = 0; i < size; ++i) {
-        IEndpointPair *endpointpair;
+        ComPtr<IEndpointPair> endpointpair;
         endpointPairs->GetAt(i, &endpointpair);
-        IHostName *remoteHost;
+        ComPtr<IHostName> remoteHost;
         endpointpair->get_RemoteHostName(&remoteHost);
-        endpointpair->Release();
         if (!remoteHost)
             continue;
         HostNameType type;
@@ -131,11 +117,10 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
         if (type == HostNameType_DomainName)
             continue;
 
-        HSTRING name;
-        remoteHost->get_CanonicalName(&name);
-        remoteHost->Release();
+        HString name;
+        remoteHost->get_CanonicalName(name.GetAddressOf());
         UINT32 length;
-        PCWSTR rawString = WindowsGetStringRawBuffer(name, &length);
+        PCWSTR rawString = name.GetRawBuffer(&length);
         QHostAddress addr;
         addr.setAddress(QString::fromWCharArray(rawString, length));
         if (!addresses.contains(addr))
@@ -148,12 +133,11 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
 
 QString QHostInfo::localHostName()
 {
-    INetworkInformationStatics *statics;
+    ComPtr<INetworkInformationStatics> statics;
     GetActivationFactory(HString::MakeReference(RuntimeClass_Windows_Networking_Connectivity_NetworkInformation).Get(), &statics);
 
-    IVectorView<HostName*> *hostNames = 0;
+    ComPtr<IVectorView<HostName *>> hostNames;
     statics->GetHostNames(&hostNames);
-    statics->Release();
     if (!hostNames)
         return QString();
 
@@ -163,29 +147,26 @@ QString QHostInfo::localHostName()
         return QString();
 
     for (unsigned int i = 0; i < size; ++i) {
-        IHostName *hostName;
+        ComPtr<IHostName> hostName;
         hostNames->GetAt(i, &hostName);
         HostNameType type;
         hostName->get_Type(&type);
         if (type != HostNameType_DomainName)
             continue;
 
-        HSTRING name;
-        hostName->get_CanonicalName(&name);
-        hostName->Release();
+        HString name;
+        hostName->get_CanonicalName(name.GetAddressOf());
         UINT32 length;
-        PCWSTR rawString = WindowsGetStringRawBuffer(name, &length);
+        PCWSTR rawString = name.GetRawBuffer(&length);
         return QString::fromWCharArray(rawString, length);
     }
-    IHostName *firstHost;
+    ComPtr<IHostName> firstHost;
     hostNames->GetAt(0, &firstHost);
-    hostNames->Release();
 
-    HSTRING name;
-    firstHost->get_CanonicalName(&name);
-    firstHost->Release();
+    HString name;
+    firstHost->get_CanonicalName(name.GetAddressOf());
     UINT32 length;
-    PCWSTR rawString = WindowsGetStringRawBuffer(name, &length);
+    PCWSTR rawString = name.GetRawBuffer(&length);
     return QString::fromWCharArray(rawString, length);
 }
 

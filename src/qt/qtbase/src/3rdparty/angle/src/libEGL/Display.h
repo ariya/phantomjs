@@ -14,7 +14,9 @@
 #include <set>
 #include <vector>
 
+#include "libEGL/Error.h"
 #include "libEGL/Config.h"
+#include "libEGL/AttributeMap.h"
 
 namespace gl
 {
@@ -30,17 +32,23 @@ class Display
   public:
     ~Display();
 
-    bool initialize();
+    Error initialize();
     void terminate();
 
-    static egl::Display *getDisplay(EGLNativeDisplayType displayId);
+    static egl::Display *getDisplay(EGLNativeDisplayType displayId, const AttributeMap &attribMap);
+
+    static const char *getExtensionString(egl::Display *display);
+
+    static bool supportsPlatformD3D();
+    static bool supportsPlatformOpenGL();
 
     bool getConfigs(EGLConfig *configs, const EGLint *attribList, EGLint configSize, EGLint *numConfig);
     bool getConfigAttrib(EGLConfig config, EGLint attribute, EGLint *value);
 
-    EGLSurface createWindowSurface(EGLNativeWindowType window, EGLConfig config, const EGLint *attribList);
-    EGLSurface createOffscreenSurface(EGLConfig config, HANDLE shareHandle, const EGLint *attribList);
-    EGLContext createContext(EGLConfig configHandle, const gl::Context *shareContext, bool notifyResets, bool robustAccess);
+    Error createWindowSurface(EGLNativeWindowType window, EGLConfig config, const EGLint *attribList, EGLSurface *outSurface);
+    Error createOffscreenSurface(EGLConfig config, HANDLE shareHandle, const EGLint *attribList, EGLSurface *outSurface);
+    Error createContext(EGLConfig configHandle, EGLint clientVersion, const gl::Context *shareContext, bool notifyResets,
+                        bool robustAccess, EGLContext *outContext);
 
     void destroySurface(egl::Surface *surface);
     void destroyContext(gl::Context *context);
@@ -59,18 +67,20 @@ class Display
 
     const char *getExtensionString() const;
     const char *getVendorString() const;
+    EGLNativeDisplayType getDisplayId() const { return mDisplayId; }
 
   private:
     DISALLOW_COPY_AND_ASSIGN(Display);
 
     Display(EGLNativeDisplayType displayId);
 
-    bool restoreLostDevice();
+    void setAttributes(const AttributeMap &attribMap);
+
+    Error restoreLostDevice();
 
     EGLNativeDisplayType mDisplayId;
+    AttributeMap mAttributeMap;
 
-    bool mSoftwareDevice;
-    
     typedef std::set<Surface*> SurfaceSet;
     SurfaceSet mSurfaceSet;
 
@@ -81,9 +91,12 @@ class Display
 
     rx::Renderer *mRenderer;
 
-    void initExtensionString();
+    static std::string generateClientExtensionString();
+
+    void initDisplayExtensionString();
+    std::string mDisplayExtensionString;
+
     void initVendorString();
-    std::string mExtensionString;
     std::string mVendorString;
 };
 }

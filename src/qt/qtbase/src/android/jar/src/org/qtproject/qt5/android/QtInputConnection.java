@@ -174,6 +174,9 @@ public class QtInputConnection extends BaseInputConnection
         QtExtractedText qExtractedText = QtNativeInputConnection.getExtractedText(request.hintMaxChars,
                                                                                   request.hintMaxLines,
                                                                                   flags);
+        if (qExtractedText == null)
+            return null;
+
         ExtractedText extractedText = new ExtractedText();
         extractedText.partialEndOffset = qExtractedText.partialEndOffset;
         extractedText.partialStartOffset = qExtractedText.partialStartOffset;

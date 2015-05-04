@@ -1,0 +1,38 @@
+include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
+
+project                 = QtPlatformHeaders
+description             = Qt Platform Headers Reference Documentation
+version                 = $QT_VERSION
+
+examplesinstallpath     = qtplatformheaders
+
+qhp.projects            = QtPlatformHeaders
+
+qhp.QtPlatformHeaders.file         = qtplatformheaders.qhp
+qhp.QtPlatformHeaders.namespace           = org.qt-project.qtplatformheaders.$QT_VERSION_TAG
+qhp.QtPlatformHeaders.virtualFolder       = qtplatformheaders
+qhp.QtPlatformHeaders.indexTitle          = Qt Platform Headers
+qhp.QtPlatformHeaders.indexRoot           =
+
+qhp.QtPlatformHeaders.filterAttributes    = qtplatformheaders $QT_VERSION qtrefdoc
+qhp.QtPlatformHeaders.customFilters.Qt.name = QtPlatformHeaders $QT_VERSION
+qhp.QtPlatformHeaders.customFilters.Qt.filterAttributes = qtplatformheaders $QT_VERSION
+
+qhp.QtPlatformHeaders.subprojects         = classes
+qhp.QtPlatformHeaders.subprojects.classes.title = C++ Classes
+qhp.QtPlatformHeaders.subprojects.classes.indexTitle = Qt Platform Headers C++ Classes
+qhp.QtPlatformHeaders.subprojects.classes.selectors = class fake:headerfile
+qhp.QtPlatformHeaders.subprojects.classes.sortPages = true
+
+depends += \
+    qtcore \
+    qtgui \
+    qtdoc
+
+headerdirs  += ..
+sourcedirs  += ..
+exampledirs += snippets
+imagedirs   += images
+
+navigation.landingpage = "Qt Platform Headers"
+navigation.cppclassespage = "Qt Platform Headers C++ Classes"

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -94,6 +86,8 @@ struct QWindowsUser32DLL
     typedef BOOL (WINAPI *UpdateLayeredWindowIndirect)(HWND, const UPDATELAYEREDWINDOWINFO *);
     typedef BOOL (WINAPI *IsHungAppWindow)(HWND);
     typedef BOOL (WINAPI *SetProcessDPIAware)();
+    typedef BOOL (WINAPI *AddClipboardFormatListener)(HWND);
+    typedef BOOL (WINAPI *RemoveClipboardFormatListener)(HWND);
 
     // Functions missing in Q_CC_GNU stub libraries.
     SetLayeredWindowAttributes setLayeredWindowAttributes;
@@ -111,6 +105,10 @@ struct QWindowsUser32DLL
 
     // Windows Vista onwards
     SetProcessDPIAware setProcessDPIAware;
+
+    // Clipboard listeners, Windows Vista onwards
+    AddClipboardFormatListener addClipboardFormatListener;
+    RemoveClipboardFormatListener removeClipboardFormatListener;
 };
 
 struct QWindowsShell32DLL
@@ -126,6 +124,22 @@ struct QWindowsShell32DLL
     SHGetStockIconInfo sHGetStockIconInfo;
     SHGetImageList sHGetImageList;
 };
+
+// Shell scaling library (Windows 8.1 onwards)
+struct QWindowsShcoreDLL {
+    QWindowsShcoreDLL();
+    void init();
+    inline bool isValid() const { return getProcessDpiAwareness && setProcessDpiAwareness && getDpiForMonitor; }
+
+    typedef HRESULT (WINAPI *GetProcessDpiAwareness)(HANDLE,int);
+    typedef HRESULT (WINAPI *SetProcessDpiAwareness)(int);
+    typedef HRESULT (WINAPI *GetDpiForMonitor)(HMONITOR,int,UINT *,UINT *);
+
+    GetProcessDpiAwareness getProcessDpiAwareness;
+    SetProcessDpiAwareness setProcessDpiAwareness;
+    GetDpiForMonitor getDpiForMonitor;
+};
+
 #endif // Q_OS_WINCE
 
 class QWindowsContext
@@ -184,6 +198,7 @@ public:
     void setWindowCreationContext(const QSharedPointer<QWindowCreationContext> &ctx);
 
     void setTabletAbsoluteRange(int a);
+    void setProcessDpiAwareness(QtWindows::ProcessDpiAwareness dpiAwareness);
 
     // Returns a combination of SystemInfoFlags
     unsigned systemInfo() const;
@@ -197,6 +212,7 @@ public:
 #ifndef Q_OS_WINCE
     static QWindowsUser32DLL user32dll;
     static QWindowsShell32DLL shell32dll;
+    static QWindowsShcoreDLL shcoredll;
 #endif
 
     static QByteArray comErrorString(HRESULT hr);

@@ -32,6 +32,7 @@
 
 include(MacroAddFileDependencies)
 
+include(CMakeParseArguments)
 
 function(QT5_ADD_DBUS_INTERFACE _sources _interface _basename)
     get_filename_component(_infile ${_interface} ABSOLUTE)

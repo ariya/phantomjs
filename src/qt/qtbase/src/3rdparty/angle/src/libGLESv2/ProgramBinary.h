@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2002-2012 The ANGLE Project Authors. All rights reserved.
+// Copyright (c) 2002-2014 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -10,95 +10,148 @@
 #ifndef LIBGLESV2_PROGRAM_BINARY_H_
 #define LIBGLESV2_PROGRAM_BINARY_H_
 
-#define GL_APICALL
+#include "common/RefCountObject.h"
+#include "angletypes.h"
+#include "common/mathutil.h"
+#include "libGLESv2/Uniform.h"
+#include "libGLESv2/Shader.h"
+#include "libGLESv2/Constants.h"
+#include "libGLESv2/renderer/d3d/VertexDataManager.h"
+#include "libGLESv2/renderer/d3d/DynamicHLSL.h"
+
+#include "angle_gl.h"
+
+#include <string>
+#include <vector>
+
+namespace sh
+{
+class HLSLBlockEncoder;
+}
+
+#include <GLES3/gl3.h>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
 #include <string>
 #include <vector>
 
-#include "common/RefCountObject.h"
-#include "angletypes.h"
-#include "libGLESv2/mathutil.h"
-#include "libGLESv2/Uniform.h"
-#include "libGLESv2/Shader.h"
-#include "libGLESv2/Constants.h"
-
 namespace rx
 {
 class ShaderExecutable;
-class Renderer;
 struct TranslatedAttribute;
+class UniformStorage;
+class ProgramImpl;
 }
 
 namespace gl
 {
-class FragmentShader;
-class VertexShader;
+struct Caps;
+class Shader;
 class InfoLog;
 class AttributeBindings;
-struct Varying;
+class Buffer;
+class Framebuffer;
+struct Data;
 
 // Struct used for correlating uniforms/elements of uniform arrays to handles
-struct UniformLocation
+struct VariableLocation
 {
-    UniformLocation()
+    VariableLocation()
     {
     }
 
-    UniformLocation(const std::string &name, unsigned int element, unsigned int index);
+    VariableLocation(const std::string &name, unsigned int element, unsigned int index);
 
     std::string name;
     unsigned int element;
     unsigned int index;
 };
 
+struct LinkedVarying
+{
+    LinkedVarying();
+    LinkedVarying(const std::string &name, GLenum type, GLsizei size, const std::string &semanticName,
+                  unsigned int semanticIndex, unsigned int semanticIndexCount);
+
+    // Original GL name
+    std::string name;
+
+    GLenum type;
+    GLsizei size;
+
+    // DirectX semantic information
+    std::string semanticName;
+    unsigned int semanticIndex;
+    unsigned int semanticIndexCount;
+};
+
+struct LinkResult
+{
+    bool linkSuccess;
+    Error error;
+
+    LinkResult(bool linkSuccess, const Error &error);
+};
+
 // This is the result of linking a program. It is the state that would be passed to ProgramBinary.
 class ProgramBinary : public RefCountObject
 {
   public:
-    explicit ProgramBinary(rx::Renderer *renderer);
+    explicit ProgramBinary(rx::ProgramImpl *impl);
     ~ProgramBinary();
 
-    rx::ShaderExecutable *getPixelExecutable();
-    rx::ShaderExecutable *getVertexExecutable();
-    rx::ShaderExecutable *getGeometryExecutable();
+    rx::ProgramImpl *getImplementation() { return mProgram; }
+    const rx::ProgramImpl *getImplementation() const { return mProgram; }
 
     GLuint getAttributeLocation(const char *name);
     int getSemanticIndex(int attributeIndex);
 
-    GLint getSamplerMapping(SamplerType type, unsigned int samplerIndex);
-    TextureType getSamplerTextureType(SamplerType type, unsigned int samplerIndex);
+    GLint getSamplerMapping(SamplerType type, unsigned int samplerIndex, const Caps &caps);
+    GLenum getSamplerTextureType(SamplerType type, unsigned int samplerIndex);
     GLint getUsedSamplerRange(SamplerType type);
     bool usesPointSize() const;
-    bool usesPointSpriteEmulation() const;
-    bool usesGeometryShader() const;
 
     GLint getUniformLocation(std::string name);
-    bool setUniform1fv(GLint location, GLsizei count, const GLfloat *v);
-    bool setUniform2fv(GLint location, GLsizei count, const GLfloat *v);
-    bool setUniform3fv(GLint location, GLsizei count, const GLfloat *v);
-    bool setUniform4fv(GLint location, GLsizei count, const GLfloat *v);
-    bool setUniformMatrix2fv(GLint location, GLsizei count, const GLfloat *value);
-    bool setUniformMatrix3fv(GLint location, GLsizei count, const GLfloat *value);
-    bool setUniformMatrix4fv(GLint location, GLsizei count, const GLfloat *value);
-    bool setUniform1iv(GLint location, GLsizei count, const GLint *v);
-    bool setUniform2iv(GLint location, GLsizei count, const GLint *v);
-    bool setUniform3iv(GLint location, GLsizei count, const GLint *v);
-    bool setUniform4iv(GLint location, GLsizei count, const GLint *v);
+    GLuint getUniformIndex(std::string name);
+    GLuint getUniformBlockIndex(std::string name);
+    void setUniform1fv(GLint location, GLsizei count, const GLfloat *v);
+    void setUniform2fv(GLint location, GLsizei count, const GLfloat *v);
+    void setUniform3fv(GLint location, GLsizei count, const GLfloat *v);
+    void setUniform4fv(GLint location, GLsizei count, const GLfloat *v);
+    void setUniform1iv(GLint location, GLsizei count, const GLint *v);
+    void setUniform2iv(GLint location, GLsizei count, const GLint *v);
+    void setUniform3iv(GLint location, GLsizei count, const GLint *v);
+    void setUniform4iv(GLint location, GLsizei count, const GLint *v);
+    void setUniform1uiv(GLint location, GLsizei count, const GLuint *v);
+    void setUniform2uiv(GLint location, GLsizei count, const GLuint *v);
+    void setUniform3uiv(GLint location, GLsizei count, const GLuint *v);
+    void setUniform4uiv(GLint location, GLsizei count, const GLuint *v);
+    void setUniformMatrix2fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+    void setUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+    void setUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+    void setUniformMatrix2x3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+    void setUniformMatrix3x2fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+    void setUniformMatrix2x4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+    void setUniformMatrix4x2fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+    void setUniformMatrix3x4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+    void setUniformMatrix4x3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 
-    bool getUniformfv(GLint location, GLsizei *bufSize, GLfloat *params);
-    bool getUniformiv(GLint location, GLsizei *bufSize, GLint *params);
+    void getUniformfv(GLint location, GLfloat *params);
+    void getUniformiv(GLint location, GLint *params);
+    void getUniformuiv(GLint location, GLuint *params);
 
-    void dirtyAllUniforms();
-    void applyUniforms();
+    Error applyUniforms();
+    Error applyUniformBuffers(const std::vector<Buffer*> boundBuffers, const Caps &caps);
 
-    bool load(InfoLog &infoLog, const void *binary, GLsizei length);
-    bool save(void* binary, GLsizei bufSize, GLsizei *length);
+    LinkResult load(InfoLog &infoLog, GLenum binaryFormat, const void *binary, GLsizei length);
+    Error save(GLenum *binaryFormat, void *binary, GLsizei bufSize, GLsizei *length);
     GLint getLength();
 
-    bool link(InfoLog &infoLog, const AttributeBindings &attributeBindings, FragmentShader *fragmentShader, VertexShader *vertexShader);
-    void getAttachedShaders(GLsizei maxCount, GLsizei *count, GLuint *shaders);
+    LinkResult link(const Data &data, InfoLog &infoLog, const AttributeBindings &attributeBindings,
+                    Shader *fragmentShader, Shader *vertexShader,
+                    const std::vector<std::string> &transformFeedbackVaryings,
+                    GLenum transformFeedbackBufferMode);
 
     void getActiveAttribute(GLuint index, GLsizei bufsize, GLsizei *length, GLint *size, GLenum *type, GLchar *name) const;
     GLint getActiveAttributeCount() const;
@@ -107,62 +160,69 @@ class ProgramBinary : public RefCountObject
     void getActiveUniform(GLuint index, GLsizei bufsize, GLsizei *length, GLint *size, GLenum *type, GLchar *name) const;
     GLint getActiveUniformCount() const;
     GLint getActiveUniformMaxLength() const;
+    GLint getActiveUniformi(GLuint index, GLenum pname) const;
+    bool isValidUniformLocation(GLint location) const;
+    LinkedUniform *getUniformByLocation(GLint location) const;
+    LinkedUniform *getUniformByName(const std::string &name) const;
 
-    void validate(InfoLog &infoLog);
-    bool validateSamplers(InfoLog *infoLog);
+    void getActiveUniformBlockName(GLuint uniformBlockIndex, GLsizei bufSize, GLsizei *length, GLchar *uniformBlockName) const;
+    void getActiveUniformBlockiv(GLuint uniformBlockIndex, GLenum pname, GLint *params) const;
+    GLuint getActiveUniformBlockCount() const;
+    GLuint getActiveUniformBlockMaxLength() const;
+    UniformBlock *getUniformBlockByIndex(GLuint blockIndex);
+
+    GLint getFragDataLocation(const char *name) const;
+
+    size_t getTransformFeedbackVaryingCount() const;
+    const LinkedVarying &getTransformFeedbackVarying(size_t idx) const;
+    GLenum getTransformFeedbackBufferMode() const;
+
+    void validate(InfoLog &infoLog, const Caps &caps);
+    bool validateSamplers(InfoLog *infoLog, const Caps &caps);
     bool isValidated() const;
+    void updateSamplerMapping();
 
     unsigned int getSerial() const;
 
     void initAttributesByLayout();
-    void sortAttributesByLayout(rx::TranslatedAttribute attributes[gl::MAX_VERTEX_ATTRIBS], int sortedSemanticIndices[MAX_VERTEX_ATTRIBS]) const;
+    void sortAttributesByLayout(rx::TranslatedAttribute attributes[MAX_VERTEX_ATTRIBS], int sortedSemanticIndices[MAX_VERTEX_ATTRIBS]) const;
 
-    static std::string decorateAttribute(const std::string &name);    // Prepend an underscore
+    static bool linkVaryings(InfoLog &infoLog, Shader *fragmentShader, Shader *vertexShader);
+    static bool linkValidateUniforms(InfoLog &infoLog, const std::string &uniformName, const sh::Uniform &vertexUniform, const sh::Uniform &fragmentUniform);
+    static bool linkValidateInterfaceBlockFields(InfoLog &infoLog, const std::string &uniformName, const sh::InterfaceBlockField &vertexUniform, const sh::InterfaceBlockField &fragmentUniform);
 
   private:
     DISALLOW_COPY_AND_ASSIGN(ProgramBinary);
 
-    int packVaryings(InfoLog &infoLog, const Varying *packing[][4], FragmentShader *fragmentShader);
-    bool linkVaryings(InfoLog &infoLog, int registers, const Varying *packing[][4],
-                      std::string& pixelHLSL, std::string& vertexHLSL,
-                      FragmentShader *fragmentShader, VertexShader *vertexShader);
+    void reset();
 
-    bool linkAttributes(InfoLog &infoLog, const AttributeBindings &attributeBindings, FragmentShader *fragmentShader, VertexShader *vertexShader);
+    bool linkAttributes(InfoLog &infoLog, const AttributeBindings &attributeBindings, const Shader *vertexShader);
+    bool linkUniformBlocks(InfoLog &infoLog, const Shader &vertexShader, const Shader &fragmentShader, const Caps &caps);
+    bool areMatchingInterfaceBlocks(gl::InfoLog &infoLog, const sh::InterfaceBlock &vertexInterfaceBlock,
+                                    const sh::InterfaceBlock &fragmentInterfaceBlock);
 
-    bool linkUniforms(InfoLog &infoLog, const sh::ActiveUniforms &vertexUniforms, const sh::ActiveUniforms &fragmentUniforms);
-    bool defineUniform(GLenum shader, const sh::Uniform &constant, InfoLog &infoLog);
-    
-    std::string generateGeometryShaderHLSL(int registers, const Varying *packing[][4], FragmentShader *fragmentShader, VertexShader *vertexShader) const;
-    std::string generatePointSpriteHLSL(int registers, const Varying *packing[][4], FragmentShader *fragmentShader, VertexShader *vertexShader) const;
+    static bool linkValidateVariablesBase(InfoLog &infoLog,
+                                          const std::string &variableName,
+                                          const sh::ShaderVariable &vertexVariable,
+                                          const sh::ShaderVariable &fragmentVariable,
+                                          bool validatePrecision);
 
-    rx::Renderer *const mRenderer;
+    static bool linkValidateVaryings(InfoLog &infoLog, const std::string &varyingName, const sh::Varying &vertexVarying, const sh::Varying &fragmentVarying);
+    bool gatherTransformFeedbackLinkedVaryings(InfoLog &infoLog, const std::vector<LinkedVarying> &linkedVaryings,
+                                               const std::vector<std::string> &transformFeedbackVaryingNames,
+                                               GLenum transformFeedbackBufferMode,
+                                               std::vector<LinkedVarying> *outTransformFeedbackLinkedVaryings,
+                                               const Caps &caps) const;
+    bool assignUniformBlockRegister(InfoLog &infoLog, UniformBlock *uniformBlock, GLenum shader, unsigned int registerIndex, const Caps &caps);
+    void defineOutputVariables(Shader *fragmentShader);
 
-    rx::ShaderExecutable *mPixelExecutable;
-    rx::ShaderExecutable *mVertexExecutable;
-    rx::ShaderExecutable *mGeometryExecutable;
+    rx::ProgramImpl *mProgram;
 
-    Attribute mLinkedAttribute[MAX_VERTEX_ATTRIBS];
+    sh::Attribute mLinkedAttribute[MAX_VERTEX_ATTRIBS];
     int mSemanticIndex[MAX_VERTEX_ATTRIBS];
     int mAttributesByLayout[MAX_VERTEX_ATTRIBS];
 
-    struct Sampler
-    {
-        Sampler();
-
-        bool active;
-        GLint logicalTextureUnit;
-        TextureType textureType;
-    };
-
-    Sampler mSamplersPS[MAX_TEXTURE_IMAGE_UNITS];
-    Sampler mSamplersVS[IMPLEMENTATION_MAX_VERTEX_TEXTURE_IMAGE_UNITS];
-    GLuint mUsedVertexSamplerRange;
-    GLuint mUsedPixelSamplerRange;
-    bool mUsesPointSize;
-
-    UniformArray mUniforms;
-    typedef std::vector<UniformLocation> UniformIndex;
-    UniformIndex mUniformIndex;
+    std::map<int, VariableLocation> mOutputVariables;
 
     bool mValidated;
 
@@ -171,6 +231,7 @@ class ProgramBinary : public RefCountObject
     static unsigned int issueSerial();
     static unsigned int mCurrentSerial;
 };
+
 }
 
 #endif   // LIBGLESV2_PROGRAM_BINARY_H_

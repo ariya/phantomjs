@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -138,6 +130,7 @@ public:
     static void handleTouchCancelEvent(QWindow *w, QTouchDevice *device, Qt::KeyboardModifiers mods = Qt::NoModifier);
     static void handleTouchCancelEvent(QWindow *w, ulong timestamp, QTouchDevice *device, Qt::KeyboardModifiers mods = Qt::NoModifier);
 
+    // rect is relative to parent
     static void handleGeometryChange(QWindow *w, const QRect &newRect, const QRect &oldRect = QRect());
     static void handleCloseEvent(QWindow *w, bool *accepted = 0);
     static void handleEnterEvent(QWindow *w, const QPointF &local = QPointF(), const QPointF& global = QPointF());
@@ -148,8 +141,9 @@ public:
     static void handleWindowStateChanged(QWindow *w, Qt::WindowState newState);
     static void handleWindowScreenChanged(QWindow *w, QScreen *newScreen);
 
-    static void handleApplicationStateChanged(Qt::ApplicationState newState);
+    static void handleApplicationStateChanged(Qt::ApplicationState newState, bool forcePropagate = false);
 
+    // region is in local coordinates, do not confuse with geometry which is parent-relative
     static void handleExposeEvent(QWindow *tlw, const QRegion &region);
 
 #ifndef QT_NO_DRAGANDDROP
@@ -162,8 +156,7 @@ public:
 
     // Changes to the screen
     static void handleScreenOrientationChange(QScreen *screen, Qt::ScreenOrientation newOrientation);
-    static void handleScreenGeometryChange(QScreen *screen, const QRect &newGeometry);
-    static void handleScreenAvailableGeometryChange(QScreen *screen, const QRect &newAvailableGeometry);
+    static void handleScreenGeometryChange(QScreen *screen, const QRect &newGeometry, const QRect &newAvailableGeometry);
     static void handleScreenLogicalDotsPerInchChange(QScreen *screen, qreal newDpiX, qreal newDpiY);
     static void handleScreenRefreshRateChange(QScreen *screen, qreal newRefreshRate);
 
@@ -172,14 +165,22 @@ public:
     static void handleFileOpenEvent(const QString& fileName);
     static void handleFileOpenEvent(const QUrl &url);
 
+    static void handleTabletEvent(QWindow *w, ulong timestamp, const QPointF &local, const QPointF &global,
+                                  int device, int pointerType, Qt::MouseButtons buttons, qreal pressure, int xTilt, int yTilt,
+                                  qreal tangentialPressure, qreal rotation, int z, qint64 uid,
+                                  Qt::KeyboardModifiers modifiers = Qt::NoModifier);
+    static void handleTabletEvent(QWindow *w, const QPointF &local, const QPointF &global,
+                                  int device, int pointerType, Qt::MouseButtons buttons, qreal pressure, int xTilt, int yTilt,
+                                  qreal tangentialPressure, qreal rotation, int z, qint64 uid,
+                                  Qt::KeyboardModifiers modifiers = Qt::NoModifier);
     static void handleTabletEvent(QWindow *w, ulong timestamp, bool down, const QPointF &local, const QPointF &global,
                                   int device, int pointerType, qreal pressure, int xTilt, int yTilt,
                                   qreal tangentialPressure, qreal rotation, int z, qint64 uid,
-                                  Qt::KeyboardModifiers modifiers = Qt::NoModifier);
+                                  Qt::KeyboardModifiers modifiers = Qt::NoModifier); // ### remove in Qt 6
     static void handleTabletEvent(QWindow *w, bool down, const QPointF &local, const QPointF &global,
                                   int device, int pointerType, qreal pressure, int xTilt, int yTilt,
                                   qreal tangentialPressure, qreal rotation, int z, qint64 uid,
-                                  Qt::KeyboardModifiers modifiers = Qt::NoModifier);
+                                  Qt::KeyboardModifiers modifiers = Qt::NoModifier); // ### remove in Qt 6
     static void handleTabletEnterProximityEvent(ulong timestamp, int device, int pointerType, qint64 uid);
     static void handleTabletEnterProximityEvent(int device, int pointerType, qint64 uid);
     static void handleTabletLeaveProximityEvent(ulong timestamp, int device, int pointerType, qint64 uid);
@@ -207,8 +208,8 @@ public:
     // For event dispatcher implementations
     static bool sendWindowSystemEvents(QEventLoop::ProcessEventsFlags flags);
     static void setSynchronousWindowsSystemEvents(bool enable);
-    static void flushWindowSystemEvents();
-    static void deferredFlushWindowSystemEvents();
+    static void flushWindowSystemEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents);
+    static void deferredFlushWindowSystemEvents(QEventLoop::ProcessEventsFlags flags);
     static int windowSystemEventsQueued();
 };
 

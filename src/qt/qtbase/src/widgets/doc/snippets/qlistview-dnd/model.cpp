@@ -65,18 +65,31 @@ DragDropListModel::DragDropListModel(const QStringList &strings,
 }
 
 //! [0]
-bool DragDropListModel::dropMimeData(const QMimeData *data,
+bool DragDropListModel::canDropMimeData(const QMimeData *data,
     Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
-    if (action == Qt::IgnoreAction)
-        return true;
+    Q_UNUSED(action);
+    Q_UNUSED(row);
+    Q_UNUSED(parent);
 
     if (!data->hasFormat("application/vnd.text.list"))
         return false;
 
     if (column > 0)
-//! [0] //! [1]
         return false;
+
+    return true;
+}
+//! [0]
+//! [1]
+bool DragDropListModel::dropMimeData(const QMimeData *data,
+    Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+    if (!canDropMimeData(data, action, row, column, parent))
+        return false;
+
+    if (action == Qt::IgnoreAction)
+        return true;
 //! [1]
 
 //! [2]

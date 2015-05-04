@@ -1,222 +1,98 @@
-#include "precompiled.h"
 //
-// Copyright (c) 2012-2013 The ANGLE Project Authors. All rights reserved.
+// Copyright (c) 2012-2014 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
 
 // Renderer.cpp: Implements EGL dependencies for creating and destroying Renderer instances.
 
-#include <EGL/eglext.h>
+#include "common/utilities.h"
+#include "libEGL/AttributeMap.h"
 #include "libGLESv2/main.h"
-#include "libGLESv2/Program.h"
 #include "libGLESv2/renderer/Renderer.h"
-#if defined(ANGLE_ENABLE_D3D9)
-#  include "libGLESv2/renderer/d3d9/Renderer9.h"
+
+#include <EGL/eglext.h>
+
+#if defined (ANGLE_ENABLE_D3D9)
+#include "libGLESv2/renderer/d3d/d3d9/Renderer9.h"
+#endif // ANGLE_ENABLE_D3D9
+
+#if defined (ANGLE_ENABLE_D3D11)
+#include "libGLESv2/renderer/d3d/d3d11/Renderer11.h"
+#endif // ANGLE_ENABLE_D3D11
+
+#if defined (ANGLE_TEST_CONFIG)
+#define ANGLE_DEFAULT_D3D11 1
 #endif
-#if defined(ANGLE_ENABLE_D3D11)
-#  include "libGLESv2/renderer/d3d11/Renderer11.h"
-#endif
-#include "libGLESv2/utilities.h"
-#include "third_party/trace_event/trace_event.h"
 
-#ifndef D3DERR_OUTOFVIDEOMEMORY
-#define D3DERR_OUTOFVIDEOMEMORY MAKE_HRESULT(1, 0x876, 380)
-#endif
-
-#if defined(__MINGW32__) || defined(ANGLE_OS_WINPHONE)
-
-#ifndef D3DCOMPILER_DLL
-
-// Add define + typedefs for older MinGW-w64 headers (pre 5783)
-
-#define D3DCOMPILER_DLL L"d3dcompiler_43.dll"
-
-HRESULT WINAPI D3DCompile(const void *data, SIZE_T data_size, const char *filename,
-        const D3D_SHADER_MACRO *defines, ID3DInclude *include, const char *entrypoint,
-        const char *target, UINT sflags, UINT eflags, ID3DBlob **shader, ID3DBlob **error_messages);
-typedef HRESULT (WINAPI *pD3DCompile)(const void *data, SIZE_T data_size, const char *filename,
-        const D3D_SHADER_MACRO *defines, ID3DInclude *include, const char *entrypoint,
-        const char *target, UINT sflags, UINT eflags, ID3DBlob **shader, ID3DBlob **error_messages);
-
-#endif // D3DCOMPILER_DLL
-
-#endif // __MINGW32__ || ANGLE_OS_WINPHONE
-
-#ifndef QT_D3DCOMPILER_DLL
-#define QT_D3DCOMPILER_DLL D3DCOMPILER_DLL
+#if !defined(ANGLE_DEFAULT_D3D11)
+// Enables use of the Direct3D 11 API for a default display, when available
+#define ANGLE_DEFAULT_D3D11 0
 #endif
 
 namespace rx
 {
 
-Renderer::Renderer(egl::Display *display) : mDisplay(display)
+Renderer::Renderer()
+    : mCapsInitialized(false),
+      mWorkaroundsInitialized(false)
 {
-    mD3dCompilerModule = NULL;
-    mD3DCompileFunc = NULL;
 }
 
 Renderer::~Renderer()
 {
-    if (mD3dCompilerModule)
-    {
-        FreeLibrary(mD3dCompilerModule);
-        mD3dCompilerModule = NULL;
-    }
 }
 
-bool Renderer::initializeCompiler()
+const gl::Caps &Renderer::getRendererCaps() const
 {
-    TRACE_EVENT0("gpu", "initializeCompiler");
-#if defined(ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES)
-    // Find a D3DCompiler module that had already been loaded based on a predefined list of versions.
-    static TCHAR* d3dCompilerNames[] = ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES;
-
-    for (size_t i = 0; i < ArraySize(d3dCompilerNames); ++i)
+    if (!mCapsInitialized)
     {
-        if (GetModuleHandleEx(0, d3dCompilerNames[i], &mD3dCompilerModule))
-        {
-            break;
-        }
-    }
-#endif  // ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES
-
-    // Load the compiler DLL specified by the environment, or default to QT_D3DCOMPILER_DLL
-#if !defined(ANGLE_OS_WINRT)
-    const wchar_t *defaultCompiler = _wgetenv(L"QT_D3DCOMPILER_DLL");
-    if (!defaultCompiler)
-        defaultCompiler = QT_D3DCOMPILER_DLL;
-#else // !ANGLE_OS_WINRT
-#  ifdef _DEBUG
-    const wchar_t *defaultCompiler = L"d3dcompiler_qtd.dll";
-#  else
-    const wchar_t *defaultCompiler = L"d3dcompiler_qt.dll";
-#  endif
-#endif // ANGLE_OS_WINRT
-
-    const wchar_t *compilerDlls[] = {
-        defaultCompiler,
-        L"d3dcompiler_47.dll",
-        L"d3dcompiler_46.dll",
-        L"d3dcompiler_45.dll",
-        L"d3dcompiler_44.dll",
-        L"d3dcompiler_43.dll",
-        0
-    };
-
-    // Load the first available known compiler DLL
-    for (int i = 0; compilerDlls[i]; ++i)
-    {
-        // Load the version of the D3DCompiler DLL associated with the Direct3D version ANGLE was built with.
-        mD3dCompilerModule = LoadLibrary(compilerDlls[i]);
-        if (mD3dCompilerModule)
-            break;
+        generateCaps(&mCaps, &mTextureCaps, &mExtensions);
+        mCapsInitialized = true;
     }
 
-    if (!mD3dCompilerModule)
-    {
-        ERR("No D3D compiler module found - aborting!\n");
-        return false;
-    }
-
-    mD3DCompileFunc = reinterpret_cast<pCompileFunc>(GetProcAddress(mD3dCompilerModule, "D3DCompile"));
-    ASSERT(mD3DCompileFunc);
-
-    return mD3DCompileFunc != NULL;
+    return mCaps;
 }
 
-// Compiles HLSL code into executable binaries
-ShaderBlob *Renderer::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, const char *profile, UINT optimizationFlags, bool alternateFlags)
+const gl::TextureCapsMap &Renderer::getRendererTextureCaps() const
 {
-    if (!hlsl)
+    if (!mCapsInitialized)
     {
-        return NULL;
+        generateCaps(&mCaps, &mTextureCaps, &mExtensions);
+        mCapsInitialized = true;
     }
 
-    HRESULT result = S_OK;
-    UINT flags = 0;
-    std::string sourceText;
-    if (gl::perfActive())
-    {
-        flags |= D3DCOMPILE_DEBUG;
+    return mTextureCaps;
+}
 
-#ifdef NDEBUG
-        flags |= optimizationFlags;
-#else
-        flags |= D3DCOMPILE_SKIP_OPTIMIZATION;
-#endif
-
-        std::string sourcePath = getTempPath();
-        sourceText = std::string("#line 2 \"") + sourcePath + std::string("\"\n\n") + std::string(hlsl);
-        writeFile(sourcePath.c_str(), sourceText.c_str(), sourceText.size());
-    }
-    else
+const gl::Extensions &Renderer::getRendererExtensions() const
+{
+    if (!mCapsInitialized)
     {
-        flags |= optimizationFlags;
-        sourceText = hlsl;
+        generateCaps(&mCaps, &mTextureCaps, &mExtensions);
+        mCapsInitialized = true;
     }
 
-    // Sometimes D3DCompile will fail with the default compilation flags for complicated shaders when it would otherwise pass with alternative options.
-    // Try the default flags first and if compilation fails, try some alternatives.
-    const static UINT extraFlags[] =
+    return mExtensions;
+}
+
+const Workarounds &Renderer::getWorkarounds() const
+{
+    if (!mWorkaroundsInitialized)
     {
-        0,
-        D3DCOMPILE_AVOID_FLOW_CONTROL,
-        D3DCOMPILE_PREFER_FLOW_CONTROL
-    };
-
-    const static char * const extraFlagNames[] =
-    {
-        "default",
-        "avoid flow control",
-        "prefer flow control"
-    };
-
-    int attempts = alternateFlags ? ArraySize(extraFlags) : 1;
-    pD3DCompile compileFunc = reinterpret_cast<pD3DCompile>(mD3DCompileFunc);
-    for (int i = 0; i < attempts; ++i)
-    {
-        ID3DBlob *errorMessage = NULL;
-        ID3DBlob *binary = NULL;
-
-        result = compileFunc(hlsl, strlen(hlsl), gl::g_fakepath, NULL, NULL,
-                             "main", profile, flags | extraFlags[i], 0, &binary, &errorMessage);
-        if (errorMessage)
-        {
-            const char *message = (const char*)errorMessage->GetBufferPointer();
-
-            infoLog.appendSanitized(message);
-            TRACE("\n%s", hlsl);
-            TRACE("\n%s", message);
-
-            errorMessage->Release();
-            errorMessage = NULL;
-        }
-
-        if (SUCCEEDED(result))
-        {
-            return (ShaderBlob*)binary;
-        }
-        else
-        {
-            if (result == D3DERR_OUTOFVIDEOMEMORY || result == E_OUTOFMEMORY)
-            {
-                return gl::error(GL_OUT_OF_MEMORY, (ShaderBlob*) NULL);
-            }
-
-            infoLog.append("Warning: D3D shader compilation failed with ");
-            infoLog.append(extraFlagNames[i]);
-            infoLog.append(" flags.");
-            if (i + 1 < attempts)
-            {
-                infoLog.append(" Retrying with ");
-                infoLog.append(extraFlagNames[i + 1]);
-                infoLog.append(".\n");
-            }
-        }
+        mWorkarounds = generateWorkarounds();
+        mWorkaroundsInitialized = true;
     }
 
-    return NULL;
+    return mWorkarounds;
+}
+
+typedef Renderer *(*CreateRendererFunction)(egl::Display*, EGLNativeDisplayType, const egl::AttributeMap &);
+
+template <typename RendererType>
+Renderer *CreateRenderer(egl::Display *display, EGLNativeDisplayType nativeDisplay, const egl::AttributeMap &attributes)
+{
+    return new RendererType(display, nativeDisplay, attributes);
 }
 
 }
@@ -224,63 +100,73 @@ ShaderBlob *Renderer::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, co
 extern "C"
 {
 
-rx::Renderer *glCreateRenderer(egl::Display *display, EGLNativeDisplayType displayId)
+rx::Renderer *glCreateRenderer(egl::Display *display, EGLNativeDisplayType nativeDisplay, const egl::AttributeMap &attribMap)
 {
-    rx::Renderer *renderer = NULL;
-    EGLint status = EGL_BAD_ALLOC;
+    std::vector<rx::CreateRendererFunction> rendererCreationFunctions;
 
-#if defined(ANGLE_OS_WINRT)
-    if (displayId == EGL_DEFAULT_DISPLAY)
-        displayId = EGL_D3D11_ONLY_DISPLAY_ANGLE;
-#endif
+    EGLint requestedDisplayType = attribMap.get(EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE);
 
-#if defined(ANGLE_ENABLE_D3D11)
-    if (displayId == EGL_DEFAULT_DISPLAY ||
-        displayId == EGL_D3D11_ELSE_D3D9_DISPLAY_ANGLE ||
-        displayId == EGL_D3D11_ONLY_DISPLAY_ANGLE)
-    {
-        renderer = new rx::Renderer11(display);
-
-        if (renderer)
+#   if defined(ANGLE_ENABLE_D3D11)
+        if (nativeDisplay == EGL_D3D11_ELSE_D3D9_DISPLAY_ANGLE ||
+            nativeDisplay == EGL_D3D11_ONLY_DISPLAY_ANGLE ||
+            requestedDisplayType == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
         {
-            status = renderer->initialize();
+            rendererCreationFunctions.push_back(rx::CreateRenderer<rx::Renderer11>);
         }
+#   endif
 
-        if (status == EGL_SUCCESS)
+#   if defined(ANGLE_ENABLE_D3D9)
+        if (nativeDisplay == EGL_D3D11_ELSE_D3D9_DISPLAY_ANGLE ||
+            requestedDisplayType == EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE)
+        {
+            rendererCreationFunctions.push_back(rx::CreateRenderer<rx::Renderer9>);
+        }
+#   endif
+
+    if (nativeDisplay != EGL_D3D11_ELSE_D3D9_DISPLAY_ANGLE &&
+        nativeDisplay != EGL_D3D11_ONLY_DISPLAY_ANGLE &&
+        requestedDisplayType == EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE)
+    {
+        // The default display is requested, try the D3D9 and D3D11 renderers, order them using
+        // the definition of ANGLE_DEFAULT_D3D11
+#       if ANGLE_DEFAULT_D3D11
+#           if defined(ANGLE_ENABLE_D3D11)
+                rendererCreationFunctions.push_back(rx::CreateRenderer<rx::Renderer11>);
+#           endif
+#           if defined(ANGLE_ENABLE_D3D9)
+                rendererCreationFunctions.push_back(rx::CreateRenderer<rx::Renderer9>);
+#           endif
+#       else
+#           if defined(ANGLE_ENABLE_D3D9)
+                rendererCreationFunctions.push_back(rx::CreateRenderer<rx::Renderer9>);
+#           endif
+#           if defined(ANGLE_ENABLE_D3D11)
+                rendererCreationFunctions.push_back(rx::CreateRenderer<rx::Renderer11>);
+#           endif
+#       endif
+    }
+
+    for (size_t i = 0; i < rendererCreationFunctions.size(); i++)
+    {
+        rx::Renderer *renderer = rendererCreationFunctions[i](display, nativeDisplay, attribMap);
+        if (renderer->initialize() == EGL_SUCCESS)
         {
             return renderer;
         }
-        else if (displayId == EGL_D3D11_ONLY_DISPLAY_ANGLE)
+        else
         {
-            return NULL;
+            // Failed to create the renderer, try the next
+            SafeDelete(renderer);
         }
-
-        // Failed to create a D3D11 renderer, try creating a D3D9 renderer
-        delete renderer;
     }
-#endif // ANGLE_ENABLE_D3D11
-
-#if defined(ANGLE_ENABLE_D3D9)
-    bool softwareDevice = (displayId == EGL_SOFTWARE_DISPLAY_ANGLE);
-    renderer = new rx::Renderer9(display, displayId, softwareDevice);
-
-    if (renderer)
-    {
-        status = renderer->initialize();
-    }
-
-    if (status == EGL_SUCCESS)
-    {
-        return renderer;
-    }
-#endif // ANGLE_ENABLE_D3D9
 
     return NULL;
 }
 
 void glDestroyRenderer(rx::Renderer *renderer)
 {
-    delete renderer;
+    ASSERT(renderer);
+    SafeDelete(renderer);
 }
 
 }

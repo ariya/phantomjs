@@ -39,7 +39,7 @@
     documentation build process is still under consideration. This section will be updated
     as the decisions are made.
 
-    \section1 What is a DITA map?
+    \section1 What is a DITA Map?
 
     A complete description of DITA can be found at the
     \l{http://www.oasis-open.org/committees/tc_home.php?wg_abbrev=dita}
@@ -107,7 +107,7 @@
         \mapref {Creator Manual} {creator-manual.ditamap} \endmapref
     \endcode
 
-    \section1 An example ditamap page
+    \section1 An Example Ditamap Page
 
     The following example uses the three qdoc ditamap commands described above.
 
@@ -131,7 +131,7 @@
       \endtopicref
     \endcode
 
-    \section1 The resulting ditamap file
+    \section1 The Resulting Ditamap File
 
     This is the \e{.ditamap} file you get when you input the qdoc
     ditamap page shown above. Note that you can write ditamap files

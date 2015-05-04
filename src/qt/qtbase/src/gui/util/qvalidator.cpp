@@ -1,40 +1,32 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Copyright (C) 2012 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com, author Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -314,7 +306,7 @@ void QValidator::fixup(QString &) const
     Notice that the value \c 999 returns Intermediate. Values
     consisting of a number of digits equal to or less than the max
     value are considered intermediate. This is intended because the
-    digit that prevents a number to be in range is not necessarily the
+    digit that prevents a number from being in range is not necessarily the
     last digit typed. This also means that an intermediate number can
     have leading zeros.
 
@@ -324,7 +316,12 @@ void QValidator::fixup(QString &) const
     QIntValidator uses its locale() to interpret the number. For example,
     in Arabic locales, QIntValidator will accept Arabic digits.
 
-    \sa QDoubleValidator, QRegExpValidator, {Line Edits Example}
+    \note The QLocale::NumberOptions set on the locale() also affect the
+    way the number is interpreted. For example, since QLocale::RejectGroupSeparator
+    is not set by default, the validator will accept group separators. It is thus
+    recommended to use QLocale::toInt() to obtain the numeric value.
+
+    \sa QDoubleValidator, QRegExpValidator, QLocale::toInt(), {Line Edits Example}
 */
 
 /*!
@@ -401,7 +398,8 @@ static qlonglong pow10(int exp)
 QValidator::State QIntValidator::validate(QString & input, int&) const
 {
     QByteArray buff;
-    if (!locale().d->m_data->validateChars(input, QLocaleData::IntegerMode, &buff)) {
+    if (!locale().d->m_data->validateChars(input, QLocaleData::IntegerMode, &buff,
+                                           -1, locale().numberOptions() & QLocale::RejectGroupSeparator)) {
         return Invalid;
     }
 
@@ -440,7 +438,8 @@ QValidator::State QIntValidator::validate(QString & input, int&) const
 void QIntValidator::fixup(QString &input) const
 {
     QByteArray buff;
-    if (!locale().d->m_data->validateChars(input, QLocaleData::IntegerMode, &buff)) {
+    if (!locale().d->m_data->validateChars(input, QLocaleData::IntegerMode, &buff,
+                                           -1, locale().numberOptions() & QLocale::RejectGroupSeparator)) {
         return;
     }
     bool ok, overflow;
@@ -556,7 +555,12 @@ public:
     in the German locale, "1,234" will be accepted as the fractional number
     1.234. In Arabic locales, QDoubleValidator will accept Arabic digits.
 
-    \sa QIntValidator, QRegExpValidator, {Line Edits Example}
+    \note The QLocale::NumberOptions set on the locale() also affect the
+    way the number is interpreted. For example, since QLocale::RejectGroupSeparator
+    is not set by default, the validator will accept group separators. It is thus
+    recommended to use QLocale::toDouble() to obtain the numeric value.
+
+    \sa QIntValidator, QRegExpValidator, QLocale::toDouble(), {Line Edits Example}
 */
 
  /*!
@@ -656,8 +660,10 @@ QValidator::State QDoubleValidatorPrivate::validateWithLocale(QString &input, QL
 {
     Q_Q(const QDoubleValidator);
     QByteArray buff;
-    if (!locale.d->m_data->validateChars(input, numMode, &buff, q->dec))
+    if (!locale.d->m_data->validateChars(input, numMode, &buff, q->dec,
+                                         locale.numberOptions() & QLocale::RejectGroupSeparator)) {
         return QValidator::Invalid;
+    }
 
     if (buff.isEmpty())
         return QValidator::Intermediate;
@@ -1011,7 +1017,7 @@ QValidator::State QRegularExpressionValidator::validate(QString &input, int &pos
     const QRegularExpressionMatch m = d->usedRe.match(input, 0, QRegularExpression::PartialPreferCompleteMatch);
     if (m.hasMatch()) {
         return Acceptable;
-    } else if (m.hasPartialMatch()) {
+    } else if (input.isEmpty() || m.hasPartialMatch()) {
         return Intermediate;
     } else {
         pos = input.size();

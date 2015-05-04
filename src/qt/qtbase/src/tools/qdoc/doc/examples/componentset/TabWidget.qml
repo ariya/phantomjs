@@ -42,7 +42,7 @@ import QtQuick 1.0
 
 /*!
     \qmltype TabWidget
-    \inqmlmodule UIComponents 1.0
+    \inqmlmodule UIComponents
     \brief A widget that places its children as tabs
 
     A TabWidget places its children as tabs in a view. Selecting

@@ -124,6 +124,8 @@ void QCocoaMenuBar::insertMenu(QPlatformMenu *platformMenu, QPlatformMenu *befor
     m_menus.insert(beforeMenu ? m_menus.indexOf(beforeMenu) : m_menus.size(), menu);
     if (!menu->menuBar())
         insertNativeMenu(menu, beforeMenu);
+    if (m_window && m_window->window()->isActive())
+        updateMenuBarImmediately();
 }
 
 void QCocoaMenuBar::removeNativeMenu(QCocoaMenu *menu)

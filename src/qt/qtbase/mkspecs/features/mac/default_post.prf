@@ -35,6 +35,30 @@ qt:!isEmpty(QT_CONFIG) {
             QMAKE_LFLAGS   += -stdlib=libstdc++
         }
     }
+    # If Qt was built with shared libraries with rpath support and project does
+    # not specify own rpaths (including empty list) add one pointing to Qt
+    # libraries. This applies only to apps, since all loaded libraries inherit
+    # rpaths from current process executable.
+    else:!if(host_build:force_bootstrap):equals(TEMPLATE, app):!defined(QMAKE_RPATHDIR, var):contains(QT_CONFIG, rpath) {
+        # If app is outside of Qt SDK prefix use absolute path to Qt libraries,
+        # otherwise make it relative, so all SDK tools and examples work when
+        # relocated.
+        # Tests are an exception, since they are launched in their build not
+        # install location by CI, so we cannot use relative rpaths there.
+        if(!contains(target.path, "$$re_escape($$[QT_INSTALL_PREFIX])/.*")|\
+            contains(target.path, "$$re_escape($$[QT_INSTALL_TESTS])/.*")) {
+            QMAKE_RPATHDIR = $$[QT_INSTALL_LIBS]
+        } else {
+            app_bundle {
+                ios:  binpath = $$target.path/$${TARGET}.app
+                else: binpath = $$target.path/$${TARGET}.app/Contents/MacOS
+            } else {
+                binpath = $$target.path
+            }
+            QMAKE_RPATHDIR = @loader_path/$$relative_path($$[QT_INSTALL_LIBS], $$binpath)
+            unset(binpath)
+        }
+    }
 }
 
 macx-xcode:!isEmpty(QMAKE_XCODE_DEBUG_INFORMATION_FORMAT) {

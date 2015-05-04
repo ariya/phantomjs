@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -111,21 +103,17 @@ void TableGenerator::findComposeFile()
     }
     // check for the system provided compose files
     if (!found && cleanState()) {
-        QByteArray loc = locale().toUpper().toUtf8();
-        QString table = readLocaleMappings(loc);
-        if (table.isEmpty())
-            table = readLocaleMappings(readLocaleAliases(loc));
-
+        QString table = composeTableForLocale();
         if (cleanState()) {
             if (table.isEmpty())
                 // no table mappings for the system's locale in the compose.dir
                 m_state = UnsupportedLocale;
             else
-                found = processFile(systemComposeDir() + QLatin1String("/") + table);
+                found = processFile(systemComposeDir() + QLatin1Char('/') + table);
 #ifdef DEBUG_GENERATOR
             if (found)
                 qDebug() << "Using Compose file from: " <<
-                            systemComposeDir() + QLatin1String("/") + table;
+                            systemComposeDir() + QLatin1Char('/') + table;
 #endif
         }
     }
@@ -135,6 +123,15 @@ void TableGenerator::findComposeFile()
 
     if (!found)
         m_state = MissingComposeFile;
+}
+
+QString TableGenerator::composeTableForLocale()
+{
+    QByteArray loc = locale().toUpper().toUtf8();
+    QString table = readLocaleMappings(loc);
+    if (table.isEmpty())
+        table = readLocaleMappings(readLocaleAliases(loc));
+    return table;
 }
 
 bool TableGenerator::findSystemComposeDir()
@@ -311,7 +308,7 @@ void TableGenerator::parseIncludeInstruction(QString line)
 
     // expand substitutions if present
     line.replace(QLatin1String("%H"), QString(qgetenv("HOME")));
-    line.replace(QLatin1String("%L"), locale());
+    line.replace(QLatin1String("%L"), systemComposeDir() +  QLatin1Char('/')  + composeTableForLocale());
     line.replace(QLatin1String("%S"), systemComposeDir());
 
     processFile(line);
@@ -445,7 +442,7 @@ void TableGenerator::parseKeySequence(char *line)
 void TableGenerator::printComposeTable() const
 {
 #ifdef DEBUG_GENERATOR
-    if (composeTable().isEmpty())
+    if (m_composeTable.isEmpty())
         return;
 
     QString output;

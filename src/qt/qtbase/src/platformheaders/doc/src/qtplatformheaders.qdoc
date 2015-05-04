@@ -1,0 +1,87 @@
+/****************************************************************************
+**
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \module QtPlatformHeaders
+    \title Qt Platform Headers C++ Classes
+    \ingroup modules
+
+    \brief The Qt Platform Headers module offers header-only inline classes that
+    encapsulate platform-specific information that is tied to a given runtime
+    configuration of a platform plugin.
+*/
+
+/*!
+    \page qtplatformheaders-index.html
+    \title Qt Platform Headers
+
+    \brief The Qt Platform Headers module offers header-only inline classes that
+    encapsulate platform-specific information that is tied to a given runtime
+    configuration of a platform plugin.
+
+    Some applications may need to interface Qt with other frameworks. This often
+    means using graphics contexts or other types of native handles created by
+    one framework with another. For example, on some platforms, QOpenGLContext
+    offers the ability to wrap an existing native OpenGL context, instead of
+    creating a new one. This existing native context can be created by some
+    other third-party code.
+
+    The type of such native handles is highly platform specific and in some
+    cases the platform plugin will need more information to adopt a handle, just
+    the handle in itself will not be sufficient. Therefore the public API
+    consists of functions taking or returning a QVariant that contains a
+    platform-specific value type. See for example
+    QOpenGLContext::setNativeHandle() and QOpenGLContext::nativeHandle(). When
+    running on Linux/X11, using the xcb platform plugin and the GLX windowing
+    system interface, the variant contains a QGLXNativeContext. On other
+    platforms a different class will be used. These classes are all placed in
+    the Qt Platform Headers module.
+
+    Platform headers can be used in conjunction with
+    QGuiApplication::platformFunction() to give a type safe interface to
+    platform specific functionality. It is possible for headers defined in
+    QtPlatformHeaders to define typedefs for functions that can be returned by
+    a platform plugin from QGuiApplication::platformFunction(). Headers in
+    QtPlatformHeaders can also implement wrapper functions for the function
+    pointer, giving a static function that can be called from any context after
+    the platform integration has been created. An implementation of this
+    pattern is QXcbWindowFunctions::setWmWindowType().  This function retrieves
+    a function pointer from QGuiApplication::platformFunction, and executes
+    that function if the requested function was returned.
+
+    \note Similar to the other QPA APIs, there are no binary compatibility
+    guarantees for these classes, meaning that an application using these
+    classes is only guaranteed to work with the Qt version it was developed
+    against. Unlike QPA however, source compatibility is guaranteed.
+
+    \sa QXcbWindowFunctions
+
+    \section1 API Reference
+    \list
+    \li \l{Qt Platform Headers C++ Classes}{C++ Classes}
+    \endlist
+ */

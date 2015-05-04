@@ -1,41 +1,33 @@
 
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Copyright (C) 2012 Giuseppe D'Angelo <dangelog@gmail.com>.
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -94,13 +86,14 @@ QT_BEGIN_NAMESPACE
     (for instance, gcc 4.4 does that even at -O0).
 */
 
-#ifdef __SSE4_2__
+#if QT_COMPILER_SUPPORTS_HERE(SSE4_2)
 static inline bool hasFastCrc32()
 {
-    return true;
+    return qCpuHasFeature(SSE4_2);
 }
 
 template <typename Char>
+QT_FUNCTION_TARGET(SSE4_2)
 static uint crc32(const Char *ptr, size_t len, uint h)
 {
     // The CRC32 instructions from Nehalem calculate a 32-bit CRC32 checksum
@@ -163,6 +156,11 @@ static inline uint hash(const uchar *p, int len, uint seed) Q_DECL_NOTHROW
     return h;
 }
 
+uint qHashBits(const void *p, size_t len, uint seed) Q_DECL_NOTHROW
+{
+    return hash(static_cast<const uchar*>(p), int(len), seed);
+}
+
 static inline uint hash(const QChar *p, int len, uint seed) Q_DECL_NOTHROW
 {
     uint h = seed;
@@ -222,11 +220,12 @@ uint qHash(QLatin1String key, uint seed) Q_DECL_NOTHROW
 */
 static uint qt_create_qhash_seed()
 {
+    uint seed = 0;
+
+#ifndef QT_BOOTSTRAPPED
     QByteArray envSeed = qgetenv("QT_HASH_SEED");
     if (!envSeed.isNull())
         return envSeed.toUInt();
-
-    uint seed = 0;
 
 #ifdef Q_OS_UNIX
     int randomfd = qt_safe_open("/dev/urandom", O_RDONLY);
@@ -254,17 +253,16 @@ static uint qt_create_qhash_seed()
     seed ^= timestamp;
     seed ^= (timestamp >> 32);
 
-#ifndef QT_BOOTSTRAPPED
     quint64 pid = QCoreApplication::applicationPid();
     seed ^= pid;
     seed ^= (pid >> 32);
-#endif // QT_BOOTSTRAPPED
 
     quintptr seedPtr = reinterpret_cast<quintptr>(&seed);
     seed ^= seedPtr;
 #if QT_POINTER_SIZE == 8
     seed ^= (seedPtr >> 32);
 #endif
+#endif // QT_BOOTSTRAPPED
 
     return seed;
 }
@@ -669,6 +667,25 @@ void QHashData::checkSanity()
     Types \c T1 and \c T2 must be supported by qHash().
 */
 
+/*! \fn uint qHashBits(const void *p, size_t len, uint seed = 0)
+    \relates QHash
+    \since 5.4
+
+    Returns the hash value for the memory block of size \a len pointed
+    to by \a p, using \a seed to seed the calculation.
+
+    Use this function only to implement qHash() for your own custom
+    types. E.g., here's how you could implement a qHash() overload for
+    std::vector<int>:
+
+    \snippet code/src_corelib_tools_qhash.cpp qhashbits
+
+    It bears repeating that the implementation of qHashBits() - like
+    the qHash() overloads offered by Qt - may change at any time. You
+    \b{must not} rely on the fact that qHashBits() will give the same
+    results (for the same inputs) across different Qt versions.
+*/
+
 /*! \fn uint qHash(char key, uint seed = 0)
     \relates QHash
     \since 5.0
@@ -778,7 +795,7 @@ uint qHash(long double key, uint seed) Q_DECL_NOTHROW
 }
 #endif
 
-/*! \fn uint qHash(QChar key, uint seed = 0)
+/*! \fn uint qHash(const QChar key, uint seed = 0)
     \relates QHash
     \since 5.0
 
@@ -961,8 +978,8 @@ uint qHash(long double key, uint seed) Q_DECL_NOTHROW
 
     A QHash's key type has additional requirements other than being an
     assignable data type: it must provide operator==(), and there must also be
-    a global qHash() function that returns a hash value for an argument of the
-    key's type.
+    a qHash() function in the type's namespace that returns a hash value for an
+    argument of the key's type.
 
     The qHash() function computes a numeric value based on a key. It
     can use any algorithm imaginable, as long as it always returns
@@ -2127,8 +2144,8 @@ uint qHash(long double key, uint seed) Q_DECL_NOTHROW
     QMultiHash's key and value data types must be \l{assignable data
     types}. You cannot, for example, store a QWidget as a value;
     instead, store a QWidget *. In addition, QMultiHash's key type
-    must provide operator==(), and there must also be a global
-    qHash() function that returns a hash value for an argument of the
+    must provide operator==(), and there must also be a qHash() function
+   in the type's namespace that returns a hash value for an argument of the
     key's type. See the QHash documentation for details.
 
     \sa QHash, QHashIterator, QMutableHashIterator, QMultiMap

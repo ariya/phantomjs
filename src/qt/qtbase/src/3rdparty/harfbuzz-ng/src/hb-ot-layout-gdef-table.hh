@@ -282,7 +282,7 @@ struct MarkGlyphSetsFormat1
 
   protected:
   USHORT	format;			/* Format identifier--format = 1 */
-  LongOffsetArrayOf<Coverage>
+  ArrayOf<OffsetTo<Coverage, ULONG> >
 		coverage;		/* Array of long offsets to mark set
 					 * coverage tables */
   public:
@@ -360,9 +360,9 @@ struct GDEF
 				      hb_position_t *caret_array /* OUT */) const
   { return (this+ligCaretList).get_lig_carets (font, direction, glyph_id, start_offset, caret_count, caret_array); }
 
-  inline bool has_mark_sets (void) const { return version.to_int () >= 0x00010002 && markGlyphSetsDef[0] != 0; }
+  inline bool has_mark_sets (void) const { return version.to_int () >= 0x00010002u && markGlyphSetsDef[0] != 0; }
   inline bool mark_set_covers (unsigned int set_index, hb_codepoint_t glyph_id) const
-  { return version.to_int () >= 0x00010002 && (this+markGlyphSetsDef[0]).covers (set_index, glyph_id); }
+  { return version.to_int () >= 0x00010002u && (this+markGlyphSetsDef[0]).covers (set_index, glyph_id); }
 
   inline bool sanitize (hb_sanitize_context_t *c) {
     TRACE_SANITIZE (this);
@@ -372,7 +372,7 @@ struct GDEF
 			 attachList.sanitize (c, this) &&
 			 ligCaretList.sanitize (c, this) &&
 			 markAttachClassDef.sanitize (c, this) &&
-			 (version.to_int () < 0x00010002 || markGlyphSetsDef[0].sanitize (c, this)));
+			 (version.to_int () < 0x00010002u || markGlyphSetsDef[0].sanitize (c, this)));
   }
 
 
@@ -400,7 +400,7 @@ struct GDEF
 
   protected:
   FixedVersion	version;		/* Version of the GDEF table--currently
-					 * 0x00010002 */
+					 * 0x00010002u */
   OffsetTo<ClassDef>
 		glyphClassDef;		/* Offset to class definition table
 					 * for glyph type--from beginning of

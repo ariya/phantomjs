@@ -18,6 +18,7 @@ include(input/input.pri)
 include(devicediscovery/devicediscovery.pri)
 include(services/services.pri)
 include(themes/themes.pri)
+include(accessibility/accessibility.pri)
 include(linuxaccessibility/linuxaccessibility.pri)
 include(clipboard/clipboard.pri)
 

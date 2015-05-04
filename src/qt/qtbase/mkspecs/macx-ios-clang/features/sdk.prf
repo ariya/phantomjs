@@ -1,0 +1,4 @@
+load(sdk)
+
+lessThan(QMAKE_MAC_SDK_VERSION, "8.0"): \
+    error("Current $$QMAKE_MAC_SDK SDK version ($$QMAKE_MAC_SDK_VERSION) is too old. Please upgrade Xcode.")

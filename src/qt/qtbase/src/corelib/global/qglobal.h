@@ -1,40 +1,32 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Copyright (C) 2012 Intel Corporation.
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Intel Corporation.
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -45,11 +37,11 @@
 
 #include <stddef.h>
 
-#define QT_VERSION_STR   "5.3.0"
+#define QT_VERSION_STR   "5.4.1"
 /*
    QT_VERSION is (major << 16) + (minor << 8) + patch.
 */
-#define QT_VERSION 0x050300
+#define QT_VERSION 0x050401
 /*
    can be used like #if (QT_VERSION >= QT_VERSION_CHECK(4, 4, 0))
 */
@@ -59,7 +51,11 @@
 #include <QtCore/qconfig.h>
 #include <QtCore/qfeatures.h>
 #endif
-#define QT_SUPPORTS(FEATURE) (!defined(QT_NO_##FEATURE))
+#ifdef _MSC_VER
+#  define QT_SUPPORTS(FEATURE) (!defined QT_NO_##FEATURE)
+#else
+#  define QT_SUPPORTS(FEATURE) (!defined(QT_NO_##FEATURE))
+#endif
 #if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
 #  define QT_NO_UNSHARABLE_CONTAINERS
 #endif
@@ -645,6 +641,10 @@ inline void qUnused(T &x) { (void)x; }
 #  define qPrintable(string) QString(string).toLocal8Bit().constData()
 #endif
 
+#ifndef qUtf8Printable
+#  define qUtf8Printable(string) QString(string).toUtf8().constData()
+#endif
+
 class QString;
 Q_CORE_EXPORT QString qt_error_string(int errorCode = -1);
 
@@ -861,22 +861,42 @@ Q_CORE_EXPORT void qFreeAligned(void *ptr);
 #  endif
 #endif
 
-#if defined(Q_CC_GNU) && !defined(Q_CC_INTEL) && !defined(Q_CC_RVCT)
-/* make use of typeof-extension */
+#if defined(Q_COMPILER_DECLTYPE) || (defined(Q_CC_GNU) && !defined(Q_CC_RVCT))
+/* make use of decltype or GCC's __typeof__ extension */
 template <typename T>
 class QForeachContainer {
 public:
-    inline QForeachContainer(const T& t) : c(t), brk(0), i(c.begin()), e(c.end()) { }
+    inline QForeachContainer(const T& t) : c(t), i(c.begin()), e(c.end()), control(1) { }
     const T c;
-    int brk;
     typename T::const_iterator i, e;
+    int control;
 };
 
-#define Q_FOREACH(variable, container)                                \
-for (QForeachContainer<__typeof__((container))> _container_((container)); \
-     !_container_.brk && _container_.i != _container_.e;              \
-     __extension__  ({ ++_container_.brk; ++_container_.i; }))                       \
-    for (variable = *_container_.i;; __extension__ ({--_container_.brk; break;}))
+// We need to use __typeof__ if we don't have decltype or if the compiler
+// hasn't been updated to the fix of Core Language Defect Report 382
+// (http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#382).
+// GCC 4.3 and 4.4 have support for decltype, but are affected by DR 382.
+#  if defined(Q_COMPILER_DECLTYPE) && \
+    (defined(Q_CC_CLANG) || defined(Q_CC_INTEL) || !defined(Q_CC_GNU) || Q_CC_GNU >= 405)
+#    define QT_FOREACH_DECLTYPE(x) typename QtPrivate::remove_reference<decltype(x)>::type
+#  else
+#    define QT_FOREACH_DECLTYPE(x) __typeof__((x))
+#  endif
+
+// Explanation of the control word:
+//  - it's initialized to 1
+//  - that means both the inner and outer loops start
+//  - if there were no breaks, at the end of the inner loop, it's set to 0, which
+//    causes it to exit (the inner loop is run exactly once)
+//  - at the end of the outer loop, it's inverted, so it becomes 1 again, allowing
+//    the outer loop to continue executing
+//  - if there was a break inside the inner loop, it will exit with control still
+//    set to 1; in that case, the outer loop will invert it to 0 and will exit too
+#  define Q_FOREACH(variable, container)                                \
+for (QForeachContainer<QT_FOREACH_DECLTYPE(container)> _container_((container)); \
+     _container_.control && _container_.i != _container_.e;         \
+     ++_container_.i, _container_.control ^= 1)                     \
+    for (variable = *_container_.i; _container_.control; _container_.control = 0)
 
 #else
 

@@ -5,35 +5,27 @@
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -75,7 +67,6 @@
 #ifndef CWP_SKIPINVISIBLE
 #define CWP_SKIPINVISIBLE   0x0001
 #define CWP_SKIPTRANSPARENT 0x0004
-#define findPlatformWindowAt(a, b, c) findPlatformWindowAt(a, b)
 #endif
 
 #ifndef CS_OWNDC
@@ -86,16 +77,14 @@
 #define HWND_MESSAGE 0
 #endif
 
+// Real Value would be 0x40000000, but if we pass this to Windows Embedded Compact
+// he blits it wrongly, so lets not do any harm and define it to 0
 #ifndef CAPTUREBLT
-#define CAPTUREBLT                   (DWORD)0x40000000
+#define CAPTUREBLT                   (DWORD)0x0
 #endif
 
 #define SW_SHOWMINIMIZED SW_MINIMIZE
 #define SW_SHOWMINNOACTIVE SW_MINIMIZE
-
-#ifndef ChildWindowFromPointEx
-#define ChildWindowFromPointEx(a, b, c) ChildWindowFromPoint(a, b)
-#endif
 
 #ifndef CF_DIBV5
 #define CF_DIBV5            17
@@ -271,14 +260,19 @@ typedef struct tagTTPOLYCURVE
 #define WM_DRAWCLIPBOARD 0x0308
 #endif
 
+#include <QFileInfo>
+
 inline bool IsIconic( HWND /*hWnd*/ )
 {
     return false;
 }
 
-inline int AddFontResourceExW( LPCWSTR /*name*/, DWORD /*fl*/, PVOID /*res*/)
+inline int AddFontResourceExW( LPCWSTR name, DWORD /*fl*/, PVOID /*res*/)
 {
-    return 0;
+    QString fName = QString::fromWCharArray(name);
+    QFileInfo fileinfo(fName);
+    fName = fileinfo.absoluteFilePath();
+    return AddFontResource((LPCWSTR)fName.utf16());
 }
 
 inline bool RemoveFontResourceExW( LPCWSTR /*name*/, DWORD /*fl*/, PVOID /*pdv*/)

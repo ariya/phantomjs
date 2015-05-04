@@ -5,35 +5,27 @@
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -99,6 +91,8 @@ public:
     explicit QOpenGLTexture(Target target);
     explicit QOpenGLTexture(const QImage& image, MipMapGeneration genMipMaps = GenerateMipMaps);
     ~QOpenGLTexture();
+
+    Target target() const;
 
     // Creation and destruction
     bool create();
@@ -201,6 +195,7 @@ public:
         D32                    = 0x81A7,    // GL_DEPTH_COMPONENT32
         D32F                   = 0x8CAC,    // GL_DEPTH_COMPONENT32F
         D32FS8X24              = 0x8CAD,    // GL_DEPTH32F_STENCIL8
+        S8                     = 0x8D48,    // GL_STENCIL_INDEX8
 
         // Compressed formats
         RGB_DXT1               = 0x83F0,    // GL_COMPRESSED_RGB_S3TC_DXT1_EXT
@@ -272,6 +267,10 @@ public:
     void setLayers(int layers);
     int layers() const;
     int faces() const;
+    void setSamples(int samples);
+    int samples() const;
+    void setFixedSamplePositions(bool fixed);
+    bool isFixedSamplePositions() const;
     void allocateStorage();
     bool isStorageAllocated() const;
 
@@ -304,6 +303,7 @@ public:
         BGR_Integer    = 0x8D9A,    // GL_BGR_INTEGER
         RGBA_Integer   = 0x8D99,    // GL_RGBA_INTEGER
         BGRA_Integer   = 0x8D9B,    // GL_BGRA_INTEGER
+        Stencil        = 0x1901,    // GL_STENCIL_INDEX
         Depth          = 0x1902,    // GL_DEPTH_COMPONENT
         DepthStencil   = 0x84F9,    // GL_DEPTH_STENCIL
         Alpha          = 0x1906,    // GL_ALPHA
@@ -332,12 +332,17 @@ public:
         UInt16_R5G6B5_Rev  = 0x8364,    // GL_UNSIGNED_SHORT_5_6_5_REV
         UInt16_RGBA4       = 0x8033,    // GL_UNSIGNED_SHORT_4_4_4_4
         UInt16_RGBA4_Rev   = 0x8365,    // GL_UNSIGNED_SHORT_4_4_4_4_REV
+        UInt32_RGBA8       = 0x8035,    // GL_UNSIGNED_INT_8_8_8_8
+        UInt32_RGBA8_Rev   = 0x8367,    // GL_UNSIGNED_INT_8_8_8_8_REV
         UInt32_RGB10A2     = 0x8036,    // GL_UNSIGNED_INT_10_10_10_2
-        UInt32_RGB10A2_Rev = 0x8368     // GL_UNSIGNED_INT_2_10_10_10_REV
+        UInt32_RGB10A2_Rev = 0x8368,    // GL_UNSIGNED_INT_2_10_10_10_REV
+        UInt32_D24S8       = 0x84FA,    // GL_UNSIGNED_INT_24_8
+        Float32_D32_UInt32_S8_X24 = 0x8DAD // GL_FLOAT_32_UNSIGNED_INT_24_8_REV
     };
 
     // Pixel transfer
     // ### Qt 6: remove the non-const void * overloads
+#if QT_DEPRECATED_SINCE(5, 3)
     QT_DEPRECATED void setData(int mipLevel, int layer, CubeMapFace cubeFace,
                                PixelFormat sourceFormat, PixelType sourceType,
                                void *data, const QOpenGLPixelTransferOptions * const options = 0);
@@ -349,6 +354,7 @@ public:
                                void *data, const QOpenGLPixelTransferOptions * const options = 0);
     QT_DEPRECATED void setData(PixelFormat sourceFormat, PixelType sourceType,
                                void *data, const QOpenGLPixelTransferOptions * const options = 0);
+#endif // QT_DEPRECATED_SINCE(5, 3)
 
     void setData(int mipLevel, int layer, CubeMapFace cubeFace,
                  PixelFormat sourceFormat, PixelType sourceType,
@@ -364,6 +370,7 @@ public:
 
     // Compressed data upload
     // ### Qt 6: remove the non-const void * overloads
+#if QT_DEPRECATED_SINCE(5, 3)
     QT_DEPRECATED void setCompressedData(int mipLevel, int layer, CubeMapFace cubeFace,
                                          int dataSize, void *data,
                                          const QOpenGLPixelTransferOptions * const options = 0);
@@ -374,6 +381,7 @@ public:
                                          const QOpenGLPixelTransferOptions * const options = 0);
     QT_DEPRECATED void setCompressedData(int dataSize, void *data,
                                          const QOpenGLPixelTransferOptions * const options = 0);
+#endif // QT_DEPRECATED_SINCE(5, 3)
 
     void setCompressedData(int mipLevel, int layer, CubeMapFace cubeFace,
                            int dataSize, const void *data,

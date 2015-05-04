@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -261,9 +253,10 @@ static QTextCodec *setupLocaleMapper()
 // textCodecsMutex need to be locked to enter this function
 static void setup()
 {
-    QCoreGlobalData *globalData = QCoreGlobalData::instance();
-    if (!globalData->allCodecs.isEmpty())
+    static bool initialized = false;
+    if (initialized)
         return;
+    initialized = true;
 
 #if !defined(QT_NO_CODECS) && !defined(QT_BOOTSTRAPPED)
     (void)new QTsciiCodec;
@@ -354,13 +347,13 @@ QTextCodec::ConverterState::~ConverterState()
     The supported encodings are:
 
     \list
-    \li Apple Roman
     \li \l{Big5 Text Codec}{Big5}
     \li \l{Big5-HKSCS Text Codec}{Big5-HKSCS}
     \li CP949
     \li \l{EUC-JP Text Codec}{EUC-JP}
     \li \l{EUC-KR Text Codec}{EUC-KR}
-    \li \l{GBK Text Codec}{GB18030-0}
+    \li \l{GBK Text Codec}{GB18030}
+    \li HP-ROMAN8
     \li IBM 850
     \li IBM 866
     \li IBM 874
@@ -368,10 +361,9 @@ QTextCodec::ConverterState::~ConverterState()
     \li ISO 8859-1 to 10
     \li ISO 8859-13 to 16
     \li Iscii-Bng, Dev, Gjr, Knd, Mlm, Ori, Pnj, Tlg, and Tml
-    \li JIS X 0201
-    \li JIS X 0208
     \li KOI8-R
     \li KOI8-U
+    \li Macintosh
     \li \l{Shift-JIS Text Codec}{Shift-JIS}
     \li TIS-620
     \li \l{TSCII Text Codec}{TSCII}
@@ -388,7 +380,7 @@ QTextCodec::ConverterState::~ConverterState()
     If Qt is compiled with ICU support enabled, most codecs supported by
     ICU will also be available to the application.
 
-    QTextCodecs can be used as follows to convert some locally encoded
+    \l {QTextCodec}s can be used as follows to convert some locally encoded
     string to Unicode. Suppose you have some string encoded in Russian
     KOI8-R encoding, and want to convert it to Unicode. The simple way
     to do it is like this:
@@ -450,7 +442,7 @@ QTextCodec::ConverterState::~ConverterState()
             an empty list. For example, "ISO-8859-1" has "latin1",
             "CP819", "IBM819", and "iso-ir-100" as aliases.
 
-    \row \li mibEnum()
+    \row \li \l{QTextCodec::mibEnum()}{mibEnum()}
          \li Return the MIB enum for the encoding if it is listed in
             the \l{IANA character-sets encoding file}.
 
@@ -461,7 +453,7 @@ QTextCodec::ConverterState::~ConverterState()
          \li Converts a Unicode string to an 8-bit character string.
     \endtable
 
-    \sa QTextStream, QTextDecoder, QTextEncoder, {Codecs Example}
+    \sa QTextStream, QTextDecoder, QTextEncoder, {Text Codecs Example}
 */
 
 /*!
@@ -474,7 +466,11 @@ QTextCodec::QTextCodec()
 {
     QMutexLocker locker(textCodecsMutex());
 
-    QCoreGlobalData::instance()->allCodecs.prepend(this);
+    QCoreGlobalData *globalInstance = QCoreGlobalData::instance();
+    if (globalInstance->allCodecs.isEmpty())
+        setup();
+
+    globalInstance->allCodecs.prepend(this);
 }
 
 
@@ -512,7 +508,7 @@ QTextCodec *QTextCodec::codecForName(const QByteArray &name)
     QCoreGlobalData *globalData = QCoreGlobalData::instance();
     if (!globalData)
         return 0;
-        setup();
+    setup();
 
 #ifndef QT_USE_ICU
     QTextCodecCache *cache = &globalData->codecCache;
@@ -713,7 +709,7 @@ QTextCodec* QTextCodec::codecForLocale()
     \fn int QTextCodec::mibEnum() const
 
     Subclasses of QTextCodec must reimplement this function. It
-    returns the MIBenum (see \l{IANA character-sets encoding file}
+    returns the \l{QTextCodec::mibEnum()}{MIBenum} (see \l{IANA character-sets encoding file}
     for more information). It is important that each QTextCodec
     subclass returns the correct unique value for this function.
 */
@@ -742,7 +738,7 @@ QList<QByteArray> QTextCodec::aliases() const
     \a state can be 0, in which case the conversion is stateless and
     default conversion rules should be used. If state is not 0, the
     codec should save the state after the conversion in \a state, and
-    adjust the remainingChars and invalidChars members of the struct.
+    adjust the \c remainingChars and \c invalidChars members of the struct.
 */
 
 /*!
@@ -758,7 +754,7 @@ QList<QByteArray> QTextCodec::aliases() const
     \a state can be 0 in which case the conversion is stateless and
     default conversion rules should be used. If state is not 0, the
     codec should save the state after the conversion in \a state, and
-    adjust the remainingChars and invalidChars members of the struct.
+    adjust the \c remainingChars and \c invalidChars members of the struct.
 */
 
 /*!
@@ -1045,7 +1041,7 @@ QTextCodec *QTextCodec::codecForHtml(const QByteArray &ba, QTextCodec *defaultCo
     // determine charset
     QTextCodec *c = QTextCodec::codecForUtfText(ba, 0);
     if (!c) {
-        QByteArray header = ba.left(512).toLower();
+        QByteArray header = ba.left(1024).toLower();
         int pos = header.indexOf("meta ");
         if (pos != -1) {
             pos = header.indexOf("charset=", pos);
@@ -1058,7 +1054,10 @@ QTextCodec *QTextCodec::codecForHtml(const QByteArray &ba, QTextCodec *defaultCo
                 while (++pos2 < header.size()) {
                     char ch = header.at(pos2);
                     if (ch == '\"' || ch == '\'' || ch == '>') {
-                        c = QTextCodec::codecForName(header.mid(pos, pos2 - pos));
+                        QByteArray name = header.mid(pos, pos2 - pos);
+                        if (name == "unicode") // QTBUG-41998, ICU will return UTF-16.
+                            name = QByteArrayLiteral("UTF-8");
+                        c = QTextCodec::codecForName(name);
                         return c ? c : defaultCodec;
                     }
                 }

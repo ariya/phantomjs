@@ -20,8 +20,8 @@ contains(QT_CONFIG, build_all): CONFIG += build_all
 DESTDIR = $$MODULE_BASE_OUTDIR/lib
 DLLDESTDIR = $$MODULE_BASE_OUTDIR/bin
 
-# Static builds always need to be installed, as the convenience libraries
-# are not linked to the final library in this case.
-installed|static: load(qt_installs)
+# In static builds of Qt, convenience libraries must be installed,
+# as in this case they are not linked to the final library/plugin.
+installed|contains(QT_CONFIG, static): load(qt_installs)
 
 TARGET = $$qtLibraryTarget($$TARGET)

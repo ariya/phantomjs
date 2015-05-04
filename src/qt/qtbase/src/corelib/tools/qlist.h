@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -45,6 +37,7 @@
 #include <QtCore/qalgorithms.h>
 #include <QtCore/qiterator.h>
 #include <QtCore/qrefcount.h>
+#include <QtCore/qarraydata.h>
 
 #include <iterator>
 #include <list>
@@ -68,6 +61,9 @@ QT_BEGIN_NAMESPACE
 
 template <typename T> class QVector;
 template <typename T> class QSet;
+
+template <typename T> struct QListSpecialMethods { };
+template <> struct QListSpecialMethods<QByteArray>;
 
 struct Q_CORE_EXPORT QListData {
     struct Data {
@@ -101,7 +97,7 @@ struct Q_CORE_EXPORT QListData {
 };
 
 template <typename T>
-class QList
+class QList : public QListSpecialMethods<T>
 {
     struct Node { void *v;
 #if defined(Q_CC_BOR)
@@ -129,7 +125,7 @@ public:
 #ifdef Q_COMPILER_INITIALIZER_LISTS
     inline QList(std::initializer_list<T> args)
         : d(const_cast<QListData::Data *>(&QListData::shared_null))
-    { std::copy(args.begin(), args.end(), std::back_inserter(*this)); }
+    { reserve(int(args.size())); std::copy(args.begin(), args.end(), std::back_inserter(*this)); }
 #endif
     bool operator==(const QList<T> &l) const;
     inline bool operator!=(const QList<T> &l) const { return !(*this == l); }
@@ -192,6 +188,7 @@ public:
     public:
         Node *i;
         typedef std::random_access_iterator_tag  iterator_category;
+        // ### Qt6: use int
         typedef qptrdiff difference_type;
         typedef T value_type;
         typedef T *pointer;
@@ -202,7 +199,7 @@ public:
         inline iterator(const iterator &o): i(o.i){}
         inline T &operator*() const { return i->t(); }
         inline T *operator->() const { return &i->t(); }
-        inline T &operator[](int j) const { return i[j].t(); }
+        inline T &operator[](difference_type j) const { return i[j].t(); }
         inline bool operator==(const iterator &o) const { return i == o.i; }
         inline bool operator!=(const iterator &o) const { return i != o.i; }
         inline bool operator<(const iterator& other) const { return i < other.i; }
@@ -227,10 +224,10 @@ public:
         inline iterator operator++(int) { Node *n = i; ++i; return n; }
         inline iterator &operator--() { i--; return *this; }
         inline iterator operator--(int) { Node *n = i; i--; return n; }
-        inline iterator &operator+=(int j) { i+=j; return *this; }
-        inline iterator &operator-=(int j) { i-=j; return *this; }
-        inline iterator operator+(int j) const { return iterator(i+j); }
-        inline iterator operator-(int j) const { return iterator(i-j); }
+        inline iterator &operator+=(difference_type j) { i+=j; return *this; }
+        inline iterator &operator-=(difference_type j) { i-=j; return *this; }
+        inline iterator operator+(difference_type j) const { return iterator(i+j); }
+        inline iterator operator-(difference_type j) const { return iterator(i-j); }
         inline int operator-(iterator j) const { return int(i - j.i); }
     };
     friend class iterator;
@@ -239,6 +236,7 @@ public:
     public:
         Node *i;
         typedef std::random_access_iterator_tag  iterator_category;
+        // ### Qt6: use int
         typedef qptrdiff difference_type;
         typedef T value_type;
         typedef const T *pointer;
@@ -254,7 +252,7 @@ public:
 #endif
         inline const T &operator*() const { return i->t(); }
         inline const T *operator->() const { return &i->t(); }
-        inline const T &operator[](int j) const { return i[j].t(); }
+        inline const T &operator[](difference_type j) const { return i[j].t(); }
         inline bool operator==(const const_iterator &o) const { return i == o.i; }
         inline bool operator!=(const const_iterator &o) const { return i != o.i; }
         inline bool operator<(const const_iterator& other) const { return i < other.i; }
@@ -265,10 +263,10 @@ public:
         inline const_iterator operator++(int) { Node *n = i; ++i; return n; }
         inline const_iterator &operator--() { i--; return *this; }
         inline const_iterator operator--(int) { Node *n = i; i--; return n; }
-        inline const_iterator &operator+=(int j) { i+=j; return *this; }
-        inline const_iterator &operator-=(int j) { i-=j; return *this; }
-        inline const_iterator operator+(int j) const { return const_iterator(i+j); }
-        inline const_iterator operator-(int j) const { return const_iterator(i-j); }
+        inline const_iterator &operator+=(difference_type j) { i+=j; return *this; }
+        inline const_iterator &operator-=(difference_type j) { i-=j; return *this; }
+        inline const_iterator operator+(difference_type j) const { return const_iterator(i+j); }
+        inline const_iterator operator-(difference_type j) const { return const_iterator(i-j); }
         inline int operator-(const_iterator j) const { return int(i - j.i); }
     };
     friend class const_iterator;
@@ -320,6 +318,7 @@ public:
     typedef const value_type *const_pointer;
     typedef value_type &reference;
     typedef const value_type &const_reference;
+    // ### Qt6: use int
     typedef qptrdiff difference_type;
 
     // comfort
@@ -646,10 +645,17 @@ inline void QList<T>::move(int from, int to)
 template<typename T>
 Q_OUTOFLINE_TEMPLATE QList<T> QList<T>::mid(int pos, int alength) const
 {
-    if (alength < 0 || pos > size() - alength)
-        alength = size() - pos;
-    if (pos == 0 && alength == size())
+    using namespace QtPrivate;
+    switch (QContainerImplHelper::mid(size(), &pos, &alength)) {
+    case QContainerImplHelper::Null:
+    case QContainerImplHelper::Empty:
+        return QList<T>();
+    case QContainerImplHelper::Full:
         return *this;
+    case QContainerImplHelper::Subset:
+        break;
+    }
+
     QList<T> cpy;
     if (alength <= 0)
         return cpy;
@@ -737,7 +743,7 @@ Q_OUTOFLINE_TEMPLATE void QList<T>::detach_helper()
 
 template <typename T>
 Q_OUTOFLINE_TEMPLATE QList<T>::QList(const QList<T> &l)
-    : d(l.d)
+    : QListSpecialMethods<T>(l), d(l.d)
 {
     if (!d->ref.ref()) {
         p.detach(d->alloc);
@@ -763,10 +769,10 @@ Q_OUTOFLINE_TEMPLATE QList<T>::~QList()
 template <typename T>
 Q_OUTOFLINE_TEMPLATE bool QList<T>::operator==(const QList<T> &l) const
 {
-    if (p.size() != l.p.size())
-        return false;
     if (d == l.d)
         return true;
+    if (p.size() != l.p.size())
+        return false;
     Node *i = reinterpret_cast<Node *>(p.end());
     Node *b = reinterpret_cast<Node *>(p.begin());
     Node *li = reinterpret_cast<Node *>(l.p.end());
@@ -943,6 +949,8 @@ Q_DECLARE_SEQUENTIAL_ITERATOR(List)
 Q_DECLARE_MUTABLE_SEQUENTIAL_ITERATOR(List)
 
 QT_END_NAMESPACE
+
+#include <QtCore/qbytearraylist.h>
 
 #ifdef Q_CC_MSVC
 #pragma warning( pop )

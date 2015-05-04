@@ -49,18 +49,18 @@ typedef Value ValueRecord[VAR];
 struct ValueFormat : USHORT
 {
   enum Flags {
-    xPlacement	= 0x0001,	/* Includes horizontal adjustment for placement */
-    yPlacement	= 0x0002,	/* Includes vertical adjustment for placement */
-    xAdvance	= 0x0004,	/* Includes horizontal adjustment for advance */
-    yAdvance	= 0x0008,	/* Includes vertical adjustment for advance */
-    xPlaDevice	= 0x0010,	/* Includes horizontal Device table for placement */
-    yPlaDevice	= 0x0020,	/* Includes vertical Device table for placement */
-    xAdvDevice	= 0x0040,	/* Includes horizontal Device table for advance */
-    yAdvDevice	= 0x0080,	/* Includes vertical Device table for advance */
-    ignored	= 0x0F00,	/* Was used in TrueType Open for MM fonts */
-    reserved	= 0xF000,	/* For future use */
+    xPlacement	= 0x0001u,	/* Includes horizontal adjustment for placement */
+    yPlacement	= 0x0002u,	/* Includes vertical adjustment for placement */
+    xAdvance	= 0x0004u,	/* Includes horizontal adjustment for advance */
+    yAdvance	= 0x0008u,	/* Includes vertical adjustment for advance */
+    xPlaDevice	= 0x0010u,	/* Includes horizontal Device table for placement */
+    yPlaDevice	= 0x0020u,	/* Includes vertical Device table for placement */
+    xAdvDevice	= 0x0040u,	/* Includes horizontal Device table for advance */
+    yAdvDevice	= 0x0080u,	/* Includes vertical Device table for advance */
+    ignored	= 0x0F00u,	/* Was used in TrueType Open for MM fonts */
+    reserved	= 0xF000u,	/* For future use */
 
-    devices	= 0x00F0	/* Mask for having any Device table */
+    devices	= 0x00F0u	/* Mask for having any Device table */
   };
 
 /* All fields are options.  Only those available advance the value pointer. */
@@ -1608,14 +1608,14 @@ GPOS::position_finish (hb_font_t *font HB_UNUSED, hb_buffer_t *buffer)
 /* Out-of-class implementation for methods recursing */
 
 template <typename context_t>
-inline typename context_t::return_t PosLookup::dispatch_recurse_func (context_t *c, unsigned int lookup_index)
+/*static*/ inline typename context_t::return_t PosLookup::dispatch_recurse_func (context_t *c, unsigned int lookup_index)
 {
   const GPOS &gpos = *(hb_ot_layout_from_face (c->face)->gpos);
   const PosLookup &l = gpos.get_lookup (lookup_index);
   return l.dispatch (c);
 }
 
-inline bool PosLookup::apply_recurse_func (hb_apply_context_t *c, unsigned int lookup_index)
+/*static*/ inline bool PosLookup::apply_recurse_func (hb_apply_context_t *c, unsigned int lookup_index)
 {
   const GPOS &gpos = *(hb_ot_layout_from_face (c->face)->gpos);
   const PosLookup &l = gpos.get_lookup (lookup_index);

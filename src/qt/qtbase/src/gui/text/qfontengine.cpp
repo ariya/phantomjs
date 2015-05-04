@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -42,6 +34,10 @@
 #include <qdebug.h>
 #include <private/qfontengine_p.h>
 #include <private/qfontengineglyphcache_p.h>
+#include <private/qguiapplication_p.h>
+
+#include <qpa/qplatformfontdatabase.h>
+#include <qpa/qplatformintegration.h>
 
 #include "qbitmap.h"
 #include "qpainter.h"
@@ -81,7 +77,12 @@ static inline bool qtransform_equals_no_translate(const QTransform &a, const QTr
 // Harfbuzz helper functions
 
 #ifdef QT_ENABLE_HARFBUZZ_NG
-bool useHarfbuzzNG = qgetenv("QT_HARFBUZZ") != "old";
+Q_GLOBAL_STATIC_WITH_ARGS(bool, useHarfbuzzNG,(qgetenv("QT_HARFBUZZ") != "old"))
+
+bool qt_useHarfbuzzNG()
+{
+    return *useHarfbuzzNG();
+}
 #endif
 
 Q_STATIC_ASSERT(sizeof(HB_Glyph) == sizeof(glyph_t));
@@ -177,9 +178,13 @@ static const HB_FontClass hb_fontClass = {
 
 static HB_Error hb_getSFntTable(void *font, HB_Tag tableTag, HB_Byte *buffer, HB_UInt *length)
 {
-    QFontEngine *fe = (QFontEngine *)font;
-    Q_ASSERT(fe->faceData.get_font_table);
-    if (!fe->faceData.get_font_table(fe->faceData.user_data, tableTag, buffer, length))
+    QFontEngine::FaceData *data = (QFontEngine::FaceData *)font;
+    Q_ASSERT(data);
+
+    qt_get_font_table_func_t get_font_table = data->get_font_table;
+    Q_ASSERT(get_font_table);
+
+    if (!get_font_table(data->user_data, tableTag, buffer, length))
         return HB_Err_Invalid_Argument;
     return HB_Err_Ok;
 }
@@ -282,13 +287,16 @@ void *QFontEngine::harfbuzzFont() const
 {
     Q_ASSERT(type() != QFontEngine::Multi);
 #ifdef QT_ENABLE_HARFBUZZ_NG
-    if (useHarfbuzzNG)
+    if (qt_useHarfbuzzNG())
         return hb_qt_font_get_for_engine(const_cast<QFontEngine *>(this));
 #endif
     if (!font_) {
         HB_Face hbFace = (HB_Face)harfbuzzFace();
-        if (hbFace->font_for_init != 0)
+        if (hbFace->font_for_init) {
+            void *data = hbFace->font_for_init;
             q_check_ptr(qHBLoadFace(hbFace));
+            free(data);
+        }
 
         HB_FontRec *hbFont = (HB_FontRec *) malloc(sizeof(HB_FontRec));
         Q_CHECK_PTR(hbFont);
@@ -315,11 +323,16 @@ void *QFontEngine::harfbuzzFace() const
 {
     Q_ASSERT(type() != QFontEngine::Multi);
 #ifdef QT_ENABLE_HARFBUZZ_NG
-    if (useHarfbuzzNG)
+    if (qt_useHarfbuzzNG())
         return hb_qt_face_get_for_engine(const_cast<QFontEngine *>(this));
 #endif
     if (!face_) {
-        HB_Face hbFace = qHBNewFace(const_cast<QFontEngine *>(this), hb_getSFntTable);
+        QFontEngine::FaceData *data = (QFontEngine::FaceData *)malloc(sizeof(QFontEngine::FaceData));
+        Q_CHECK_PTR(data);
+        data->user_data = faceData.user_data;
+        data->get_font_table = faceData.get_font_table;
+
+        HB_Face hbFace = qHBNewFace(data, hb_getSFntTable);
         Q_CHECK_PTR(hbFace);
         hbFace->isSymbolFont = symbol;
 
@@ -352,28 +365,29 @@ bool QFontEngine::supportsScript(QChar::Script script) const
 #endif
 
 #ifdef QT_ENABLE_HARFBUZZ_NG
-    if (useHarfbuzzNG) {
+    if (qt_useHarfbuzzNG()) {
         bool ret = false;
         if (hb_face_t *face = hb_qt_face_get_for_engine(const_cast<QFontEngine *>(this))) {
             hb_tag_t script_tag_1, script_tag_2;
             hb_ot_tags_from_script(hb_qt_script_to_script(script), &script_tag_1, &script_tag_2);
 
-            unsigned int script_index = -1;
+            unsigned int script_index;
             ret = hb_ot_layout_table_find_script(face, HB_OT_TAG_GSUB, script_tag_1, &script_index);
             if (!ret) {
                 ret = hb_ot_layout_table_find_script(face, HB_OT_TAG_GSUB, script_tag_2, &script_index);
                 if (!ret && script_tag_2 != HB_OT_TAG_DEFAULT_SCRIPT)
                     ret = hb_ot_layout_table_find_script(face, HB_OT_TAG_GSUB, HB_OT_TAG_DEFAULT_SCRIPT, &script_index);
             }
-
-            hb_face_destroy(face);
         }
         return ret;
     }
 #endif
     HB_Face hbFace = (HB_Face)harfbuzzFace();
-    if (hbFace->font_for_init != 0)
+    if (hbFace->font_for_init) {
+        void *data = hbFace->font_for_init;
         q_check_ptr(qHBLoadFace(hbFace));
+        free(data);
+    }
     return hbFace->supported_scripts[script_to_hbscript(script)];
 }
 
@@ -1335,6 +1349,15 @@ QByteArray QFontEngine::convertToPostscriptFontFamilyName(const QByteArray &fami
     return f;
 }
 
+/**
+ * Some font engines like the windows font engine
+ * can not reliable create outline paths
+ */
+bool QFontEngine::hasUnreliableGlyphOutline() const
+{
+    return false;
+}
+
 QFixed QFontEngine::lastRightBearing(const QGlyphLayout &glyphs, bool round)
 {
     if (glyphs.numGlyphs >= 1) {
@@ -1975,5 +1998,120 @@ QImage QFontEngineMulti::alphaRGBMapForGlyph(glyph_t glyph, QFixed subPixelPosit
     Q_ASSERT(which < engines.size());
     return engine(which)->alphaRGBMapForGlyph(stripped(glyph), subPixelPosition, t);
 }
+
+/*
+    Creates a new multi engine.
+
+    This function takes ownership of the QFontEngine, increasing it's refcount.
+*/
+QFontEngineMultiBasicImpl::QFontEngineMultiBasicImpl(QFontEngine *fe, int _script, const QStringList &fallbacks)
+    : QFontEngineMulti(fallbacks.size() + 1),
+      fallbackFamilies(fallbacks), script(_script)
+    , fallbacksQueried(true)
+{
+    init(fe);
+}
+
+QFontEngineMultiBasicImpl::QFontEngineMultiBasicImpl(QFontEngine *fe, int _script)
+    : QFontEngineMulti(2)
+    , script(_script)
+    , fallbacksQueried(false)
+{
+    fallbackFamilies << QString();
+    init(fe);
+}
+
+void QFontEngineMultiBasicImpl::init(QFontEngine *fe)
+{
+    Q_ASSERT(fe && fe->type() != QFontEngine::Multi);
+    engines[0] = fe;
+    fe->ref.ref();
+    fontDef = engines[0]->fontDef;
+    cache_cost = fe->cache_cost;
+}
+
+void QFontEngineMultiBasicImpl::loadEngine(int at)
+{
+    ensureFallbackFamiliesQueried();
+    Q_ASSERT(at < engines.size());
+    Q_ASSERT(engines.at(at) == 0);
+    QFontDef request = fontDef;
+    request.styleStrategy |= QFont::NoFontMerging;
+    request.family = fallbackFamilies.at(at-1);
+    engines[at] = QFontDatabase::findFont(script,
+                                          /*fontprivate = */0,
+                                          request, /*multi = */false);
+    Q_ASSERT(engines[at]);
+    engines[at]->ref.ref();
+    engines[at]->fontDef = request;
+}
+void QFontEngineMultiBasicImpl::ensureFallbackFamiliesQueried()
+{
+    if (fallbacksQueried)
+        return;
+    QStringList fallbacks = QGuiApplicationPrivate::instance()->platformIntegration()->fontDatabase()->fallbacksForFamily(engine(0)->fontDef.family, QFont::Style(engine(0)->fontDef.style)
+                                                                                                                          , QFont::AnyStyle, QChar::Script(script));
+    setFallbackFamiliesList(fallbacks);
+}
+
+void QFontEngineMultiBasicImpl::setFallbackFamiliesList(const QStringList &fallbacks)
+{
+    // Original FontEngine to restore after the fill.
+    QFontEngine *fe = engines[0];
+    fallbackFamilies = fallbacks;
+    if (!fallbackFamilies.isEmpty()) {
+        engines.fill(0, fallbackFamilies.size() + 1);
+        engines[0] = fe;
+    } else {
+        // Turns out we lied about having any fallback at all.
+        fallbackFamilies << fe->fontDef.family;
+        engines[1] = fe;
+        fe->ref.ref();
+    }
+    fallbacksQueried = true;
+}
+
+/*
+  This is used indirectly by Qt WebKit when using QTextLayout::setRawFont
+
+  The purpose of this is to provide the necessary font fallbacks when drawing complex
+  text. Since Qt WebKit ends up repeatedly creating QTextLayout instances and passing them
+  the same raw font over and over again, we want to cache the corresponding multi font engine
+  as it may contain fallback font engines already.
+*/
+QFontEngine* QFontEngineMultiBasicImpl::createMultiFontEngine(QFontEngine *fe, int script)
+{
+    QFontEngine *engine = 0;
+    QFontCache::Key key(fe->fontDef, script, /*multi = */true);
+    QFontCache *fc = QFontCache::instance();
+    //  We can't rely on the fontDef (and hence the cache Key)
+    //  alone to distinguish webfonts, since these should not be
+    //  accidentally shared, even if the resulting fontcache key
+    //  is strictly identical. See:
+    //   http://www.w3.org/TR/css3-fonts/#font-face-rule
+    const bool faceIsLocal = !fe->faceId().filename.isEmpty();
+    QFontCache::EngineCache::Iterator it = fc->engineCache.find(key),
+            end = fc->engineCache.end();
+    while (it != end && it.key() == key) {
+        Q_ASSERT(it.value().data->type() == QFontEngine::Multi);
+        QFontEngineMulti *cachedEngine = static_cast<QFontEngineMulti *>(it.value().data);
+        if (fe == cachedEngine->engine(0) || (faceIsLocal && fe->faceId().filename == cachedEngine->engine(0)->faceId().filename)) {
+            engine = cachedEngine;
+            fc->updateHitCountAndTimeStamp(it.value());
+            break;
+        }
+        it++;
+    }
+    if (!engine) {
+        engine = QGuiApplicationPrivate::instance()->platformIntegration()->fontDatabase()->fontEngineMulti(fe, QChar::Script(script));
+        QFontCache::instance()->insertEngine(key, engine, /* insertMulti */ !faceIsLocal);
+    }
+    Q_ASSERT(engine);
+    return engine;
+}
+
+QTestFontEngine::QTestFontEngine(int size)
+    : QFontEngineBox(TestFontEngine, size)
+{}
 
 QT_END_NAMESPACE

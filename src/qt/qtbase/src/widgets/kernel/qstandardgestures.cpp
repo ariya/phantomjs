@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -52,10 +44,6 @@
 
 QT_BEGIN_NAMESPACE
 
-QPanGestureRecognizer::QPanGestureRecognizer()
-{
-}
-
 QGesture *QPanGestureRecognizer::create(QObject *target)
 {
     if (target && target->isWidgetType()) {
@@ -68,6 +56,15 @@ QGesture *QPanGestureRecognizer::create(QObject *target)
 #endif
     }
     return new QPanGesture;
+}
+
+static QPointF panOffset(const QList<QTouchEvent::TouchPoint> &touchPoints, int maxCount)
+{
+    QPointF result;
+    const int count = qMin(touchPoints.size(), maxCount);
+    for (int p = 0; p < count; ++p)
+        result += touchPoints.at(p).pos() - touchPoints.at(p).startPos();
+    return result / qreal(count);
 }
 
 QGestureRecognizer::Result QPanGestureRecognizer::recognize(QGesture *state,
@@ -84,18 +81,15 @@ QGestureRecognizer::Result QPanGestureRecognizer::recognize(QGesture *state,
         result = QGestureRecognizer::MayBeGesture;
         QTouchEvent::TouchPoint p = ev->touchPoints().at(0);
         d->lastOffset = d->offset = QPointF();
+        d->pointCount = m_pointCount;
         break;
     }
     case QEvent::TouchEnd: {
         if (q->state() != Qt::NoGesture) {
             const QTouchEvent *ev = static_cast<const QTouchEvent *>(event);
-            if (ev->touchPoints().size() == 2) {
-                QTouchEvent::TouchPoint p1 = ev->touchPoints().at(0);
-                QTouchEvent::TouchPoint p2 = ev->touchPoints().at(1);
+            if (ev->touchPoints().size() == d->pointCount) {
                 d->lastOffset = d->offset;
-                d->offset =
-                        QPointF(p1.pos().x() - p1.startPos().x() + p2.pos().x() - p2.startPos().x(),
-                              p1.pos().y() - p1.startPos().y() + p2.pos().y() - p2.startPos().y()) / 2;
+                d->offset = panOffset(ev->touchPoints(), d->pointCount);
             }
             result = QGestureRecognizer::FinishGesture;
         } else {
@@ -105,16 +99,12 @@ QGestureRecognizer::Result QPanGestureRecognizer::recognize(QGesture *state,
     }
     case QEvent::TouchUpdate: {
         const QTouchEvent *ev = static_cast<const QTouchEvent *>(event);
-        if (ev->touchPoints().size() >= 2) {
-            QTouchEvent::TouchPoint p1 = ev->touchPoints().at(0);
-            QTouchEvent::TouchPoint p2 = ev->touchPoints().at(1);
+        if (ev->touchPoints().size() >= d->pointCount) {
             d->lastOffset = d->offset;
-            d->offset =
-                    QPointF(p1.pos().x() - p1.startPos().x() + p2.pos().x() - p2.startPos().x(),
-                          p1.pos().y() - p1.startPos().y() + p2.pos().y() - p2.startPos().y()) / 2;
+            d->offset = panOffset(ev->touchPoints(), d->pointCount);
             if (d->offset.x() > 10  || d->offset.y() > 10 ||
                 d->offset.x() < -10 || d->offset.y() < -10) {
-                q->setHotSpot(p1.startScreenPos());
+                q->setHotSpot(ev->touchPoints().first().startScreenPos());
                 result = QGestureRecognizer::TriggerGesture;
             } else {
                 result = QGestureRecognizer::MayBeGesture;
@@ -291,7 +281,7 @@ QGestureRecognizer::Result QSwipeGestureRecognizer::recognize(QGesture *state,
     case QEvent::TouchBegin: {
         d->velocityValue = 1;
         d->time.start();
-        d->started = true;
+        d->state = QSwipeGesturePrivate::Started;
         result = QGestureRecognizer::MayBeGesture;
         break;
     }
@@ -305,9 +295,10 @@ QGestureRecognizer::Result QSwipeGestureRecognizer::recognize(QGesture *state,
     }
     case QEvent::TouchUpdate: {
         const QTouchEvent *ev = static_cast<const QTouchEvent *>(event);
-        if (!d->started)
+        if (d->state == QSwipeGesturePrivate::NoGesture)
             result = QGestureRecognizer::CancelGesture;
         else if (ev->touchPoints().size() == 3) {
+            d->state = QSwipeGesturePrivate::ThreePointsReached;
             QTouchEvent::TouchPoint p1 = ev->touchPoints().at(0);
             QTouchEvent::TouchPoint p2 = ev->touchPoints().at(1);
             QTouchEvent::TouchPoint p3 = ev->touchPoints().at(2);
@@ -331,11 +322,11 @@ QGestureRecognizer::Result QSwipeGestureRecognizer::recognize(QGesture *state,
             int elapsedTime = d->time.restart();
             if (!elapsedTime)
                 elapsedTime = 1;
-            d->velocityValue = 0.9 * d->velocityValue + distance / elapsedTime;
+            d->velocityValue = 0.9 * d->velocityValue + (qreal) distance / elapsedTime;
             d->swipeAngle = QLineF(p1.startScreenPos(), p1.screenPos()).angle();
 
             static const int MoveThreshold = 50;
-            if (xDistance > MoveThreshold || yDistance > MoveThreshold) {
+            if (qAbs(xDistance) > MoveThreshold || qAbs(yDistance) > MoveThreshold) {
                 // measure the distance to check if the direction changed
                 d->lastPositions[0] = p1.screenPos().toPoint();
                 d->lastPositions[1] = p2.screenPos().toPoint();
@@ -349,10 +340,10 @@ QGestureRecognizer::Result QSwipeGestureRecognizer::recognize(QGesture *state,
                 if (d->horizontalDirection == QSwipeGesture::NoDirection)
                     d->horizontalDirection = horizontal;
                 if (d->verticalDirection != vertical || d->horizontalDirection != horizontal) {
-                    // the user has changed the direction!
                     result = QGestureRecognizer::CancelGesture;
+                } else {
+                    result = QGestureRecognizer::TriggerGesture;
                 }
-                result = QGestureRecognizer::TriggerGesture;
             } else {
                 if (q->state() != Qt::NoGesture)
                     result = QGestureRecognizer::TriggerGesture;
@@ -362,12 +353,18 @@ QGestureRecognizer::Result QSwipeGestureRecognizer::recognize(QGesture *state,
         } else if (ev->touchPoints().size() > 3) {
             result = QGestureRecognizer::CancelGesture;
         } else { // less than 3 touch points
-            if (d->started && (ev->touchPointStates() & Qt::TouchPointPressed))
-                result = QGestureRecognizer::CancelGesture;
-            else if (d->started)
-                result = QGestureRecognizer::Ignore;
-            else
+            switch (d->state) {
+            case QSwipeGesturePrivate::NoGesture:
                 result = QGestureRecognizer::MayBeGesture;
+                break;
+            case QSwipeGesturePrivate::Started:
+                result = QGestureRecognizer::Ignore;
+                break;
+            case QSwipeGesturePrivate::ThreePointsReached:
+                result = (ev->touchPointStates() & Qt::TouchPointPressed)
+                    ? QGestureRecognizer::CancelGesture : QGestureRecognizer::Ignore;
+                break;
+            }
         }
         break;
     }
@@ -386,7 +383,7 @@ void QSwipeGestureRecognizer::reset(QGesture *state)
     d->swipeAngle = 0;
 
     d->lastPositions[0] = d->lastPositions[1] = d->lastPositions[2] = QPoint();
-    d->started = false;
+    d->state = QSwipeGesturePrivate::NoGesture;
     d->velocityValue = 0;
     d->time.invalidate();
 

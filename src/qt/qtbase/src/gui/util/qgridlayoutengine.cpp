@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -983,9 +975,10 @@ void QGridLayoutEngine::invalidate()
     q_cachedEffectiveFirstRows[Ver] = -1;
     q_cachedEffectiveLastRows[Hor] = -1;
     q_cachedEffectiveLastRows[Ver] = -1;
-    q_totalBoxesValid = false;
-    q_sizeHintValid[Hor] = false;
-    q_sizeHintValid[Ver] = false;
+
+    q_totalBoxCachedConstraints[Hor] = NotCached;
+    q_totalBoxCachedConstraints[Ver] = NotCached;
+
     q_cachedSize = QSizeF();
     q_cachedConstraintOrientation = UnknownConstraint;
 }
@@ -1296,7 +1289,7 @@ void QGridLayoutEngine::fillRowData(QGridLayoutRowData *rowData,
             if (rowIsIdenticalToPrevious && item != itemAt(row - 1, column, orientation))
                 rowIsIdenticalToPrevious = false;
 
-            if (item)
+            if (item && !item->isIgnored())
                 rowIsEmpty = false;
         }
 
@@ -1530,7 +1523,11 @@ void QGridLayoutEngine::ensureColumnAndRowData(QGridLayoutRowData *rowData, QGri
                                                const QAbstractLayoutStyleInfo *styleInfo) const
 {
     const int o = (orientation == Qt::Vertical ? Ver : Hor);
-    if (q_sizeHintValid[o] && !colPositions && !colSizes) {
+    const int cc = columnCount(orientation);
+
+    const qreal constraint = (colPositions && colSizes && hasDynamicConstraint()) ? (colPositions[cc - 1] + colSizes[cc - 1]) : qreal(CachedWithNoConstraint);
+    qreal &cachedConstraint = q_totalBoxCachedConstraints[o];
+    if (cachedConstraint == constraint) {
         if (totalBox != &q_totalBoxes[o])
             *totalBox = q_totalBoxes[o];
          return;
@@ -1541,10 +1538,10 @@ void QGridLayoutEngine::ensureColumnAndRowData(QGridLayoutRowData *rowData, QGri
     rowData->distributeMultiCells(rowInfo);
     *totalBox = rowData->totalBox(0, rowCount(orientation));
 
-    if (!colPositions && !colSizes) {
+    if (totalBox != &q_totalBoxes[o])
         q_totalBoxes[o] = *totalBox;
-        q_sizeHintValid[o] = true;
-    }
+
+    cachedConstraint = constraint;
 }
 
 /**
@@ -1593,10 +1590,9 @@ Qt::Orientation QGridLayoutEngine::constraintOrientation() const
 void QGridLayoutEngine::ensureGeometries(const QSizeF &size,
                                          const QAbstractLayoutStyleInfo *styleInfo) const
 {
-    if (!styleInfo->hasChanged() && q_totalBoxesValid && q_cachedSize == size)
+    if (!styleInfo->hasChanged() && q_cachedSize == size)
         return;
 
-    q_totalBoxesValid = true;
     q_cachedSize = size;
 
     q_xx.resize(columnCount());
@@ -1606,7 +1602,7 @@ void QGridLayoutEngine::ensureGeometries(const QSizeF &size,
     q_descents.resize(rowCount());
 
     if (constraintOrientation() != Qt::Horizontal) {
-        //We might have items whose width depends on their height
+        //We might have items whose height depends on their width (HFW)
         ensureColumnAndRowData(&q_columnData, &q_totalBoxes[Hor], NULL, NULL, Qt::Horizontal, styleInfo);
         //Calculate column widths and positions, and put results in q_xx.data() and q_widths.data() so that we can use this information as
         //constraints to find the row heights
@@ -1617,7 +1613,7 @@ void QGridLayoutEngine::ensureGeometries(const QSizeF &size,
         q_rowData.calculateGeometries(0, rowCount(), size.height(), q_yy.data(), q_heights.data(),
                 q_descents.data(), q_totalBoxes[Ver], q_infos[Ver]);
     } else {
-        //We have items whose height depends on their width
+        //We have items whose width depends on their height (WFH)
         ensureColumnAndRowData(&q_rowData, &q_totalBoxes[Ver], NULL, NULL, Qt::Vertical, styleInfo);
         //Calculate row heights and positions, and put results in q_yy.data() and q_heights.data() so that we can use this information as
         //constraints to find the column widths

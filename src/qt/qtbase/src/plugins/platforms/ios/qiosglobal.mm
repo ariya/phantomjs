@@ -46,6 +46,8 @@
 
 QT_BEGIN_NAMESPACE
 
+Q_LOGGING_CATEGORY(lcQpaInputMethods, "qt.qpa.input.methods");
+
 bool isQtApplication()
 {
     // Returns \c true if the plugin is in full control of the whole application. This means
@@ -125,21 +127,69 @@ UIDeviceOrientation fromQtScreenOrientation(Qt::ScreenOrientation qtOrientation)
     return uiOrientation;
 }
 
-QRect fromPortraitToPrimary(const QRect &rect, QPlatformScreen *screen)
-{
-    // UIScreen is always in portrait. Use this function to convert CGRects
-    // aligned with UIScreen into whatever is the current orientation of QScreen.
-    QRect geometry = screen->geometry();
-    return geometry.width() < geometry.height() ? rect
-        : QRect(rect.y(), geometry.height() - rect.width() - rect.x(), rect.height(), rect.width());
-}
-
 int infoPlistValue(NSString* key, int defaultValue)
 {
     static NSBundle *bundle = [NSBundle mainBundle];
     NSNumber* value = [bundle objectForInfoDictionaryKey:key];
     return value ? [value intValue] : defaultValue;
 }
+
+// -------------------------------------------------------------------------
+
+@interface QtFirstResponderEvent : UIEvent
+@property (nonatomic, strong) id firstResponder;
+@end
+
+@implementation QtFirstResponderEvent
+- (void) dealloc
+{
+    self.firstResponder = 0;
+    [super dealloc];
+}
+@end
+
+
+@implementation UIView (QtFirstResponder)
+- (UIView*)qt_findFirstResponder
+{
+    if ([self isFirstResponder])
+        return self;
+
+    for (UIView *subview in self.subviews) {
+        if (UIView *firstResponder = [subview qt_findFirstResponder])
+            return firstResponder;
+    }
+
+    return nil;
+}
+@end
+
+@implementation UIResponder (QtFirstResponder)
+
++(id)currentFirstResponder
+{
+    QtFirstResponderEvent *event = [[[QtFirstResponderEvent alloc] init] autorelease];
+    [[UIApplication sharedApplication] sendAction:@selector(qt_findFirstResponder:event:) to:nil from:nil forEvent:event];
+    return event.firstResponder;
+}
+
+- (void)qt_findFirstResponder:(id)sender event:(QtFirstResponderEvent *)event
+{
+    Q_UNUSED(sender);
+
+    if ([self isKindOfClass:[UIView class]])
+        event.firstResponder = [static_cast<UIView *>(self) qt_findFirstResponder];
+    else
+        event.firstResponder = [self isFirstResponder] ? self : nil;
+}
+@end
+
+FirstResponderCandidate::FirstResponderCandidate(UIResponder *responder)
+    : QScopedValueRollback<UIResponder *>(s_firstResponderCandidate, responder)
+{
+}
+
+UIResponder *FirstResponderCandidate::s_firstResponderCandidate = 0;
 
 QT_END_NAMESPACE
 

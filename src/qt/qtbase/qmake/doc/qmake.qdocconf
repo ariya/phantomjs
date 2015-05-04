@@ -2,7 +2,6 @@ include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
 
 project                 = QMake
 description             = QMake Manual
-url                     = http://qt-project.org/doc/qt-$QT_VER
 
 qhp.projects            = qmake
 
@@ -74,3 +73,5 @@ depends += \
     qtx11extras \
     qtxml \
     qtxmlpatterns
+
+navigation.landingpage = "qmake Manual"

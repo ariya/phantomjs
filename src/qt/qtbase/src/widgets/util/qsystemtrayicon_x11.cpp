@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -55,6 +47,9 @@
 #include <qscreen.h>
 #include <qbackingstore.h>
 #include <qpa/qplatformnativeinterface.h>
+#include <qpa/qplatformsystemtrayicon.h>
+#include <qpa/qplatformtheme.h>
+#include <private/qguiapplication_p.h>
 #include <qdebug.h>
 
 #ifndef QT_NO_SYSTEMTRAYICON
@@ -83,6 +78,8 @@ protected:
     virtual void mouseDoubleClickEvent(QMouseEvent *ev);
     virtual bool event(QEvent *);
     virtual void paintEvent(QPaintEvent *);
+    virtual void resizeEvent(QResizeEvent *);
+    virtual void moveEvent(QMoveEvent *);
 
 private slots:
     void systemTrayWindowChanged(QScreen *screen);
@@ -100,11 +97,24 @@ QSystemTrayIconSys::QSystemTrayIconSys(QSystemTrayIcon *qIn)
     setObjectName(QStringLiteral("QSystemTrayIconSys"));
     setToolTip(q->toolTip());
     setAttribute(Qt::WA_AlwaysShowToolTips, true);
-    setAttribute(Qt::WA_TranslucentBackground, true);
     setAttribute(Qt::WA_QuitOnClose, false);
     const QSize size(22, 22); // Gnome, standard size
     setGeometry(QRect(QPoint(0, 0), size));
     setMinimumSize(size);
+
+    // We need two different behaviors depending on whether the X11 visual for the system tray
+    // (a) exists and (b) supports an alpha channel, i.e. is 32 bits.
+    // If we have a visual that has an alpha channel, we can paint this widget with a transparent
+    // background and it will work.
+    // However, if there's no alpha channel visual, in order for transparent tray icons to work,
+    // we do not have a transparent background on the widget, but call xcb_clear_region before
+    // painting the icon
+    bool hasAlphaChannel = false;
+    QMetaObject::invokeMethod(QGuiApplication::platformNativeInterface(),
+                              "systrayVisualHasAlphaChannel", Qt::DirectConnection,
+                              Q_RETURN_ARG(bool, hasAlphaChannel));
+    setAttribute(Qt::WA_TranslucentBackground, hasAlphaChannel);
+
     addToTray();
 }
 
@@ -195,30 +205,59 @@ bool QSystemTrayIconSys::event(QEvent *e)
 
 void QSystemTrayIconSys::paintEvent(QPaintEvent *)
 {
-    // Note: Transparent pixels require a particular Visual which XCB
-    // currently does not support yet.
     const QRect rect(QPoint(0, 0), geometry().size());
     QPainter painter(this);
-    painter.setCompositionMode(QPainter::CompositionMode_Source);
-    painter.fillRect(rect, Qt::transparent);
+
+    // If we have Qt::WA_TranslucentBackground set, during widget creation
+    // we detected the systray visual supported an alpha channel
+    if (testAttribute(Qt::WA_TranslucentBackground)) {
+        painter.setCompositionMode(QPainter::CompositionMode_Source);
+        painter.fillRect(rect, Qt::transparent);
+    } else {
+        QMetaObject::invokeMethod(QGuiApplication::platformNativeInterface(),
+                                    "clearRegion", Qt::DirectConnection,
+                                    Q_ARG(const QWindow *, windowHandle()),
+                                    Q_ARG(const QRect&, rect)
+                                 );
+    }
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
     q->icon().paint(&painter, rect);
 }
 
+void QSystemTrayIconSys::moveEvent(QMoveEvent *event)
+{
+    QWidget::moveEvent(event);
+    if (QBalloonTip::isBalloonVisible())
+        QBalloonTip::updateBalloonPosition(globalGeometry().center());
+}
+
+void QSystemTrayIconSys::resizeEvent(QResizeEvent *event)
+{
+    update();
+    QWidget::resizeEvent(event);
+    if (QBalloonTip::isBalloonVisible())
+        QBalloonTip::updateBalloonPosition(globalGeometry().center());
+}
 ////////////////////////////////////////////////////////////////////////////
 
 QSystemTrayIconPrivate::QSystemTrayIconPrivate()
     : sys(0),
+      qpa_sys(QGuiApplicationPrivate::platformTheme()->createPlatformSystemTrayIcon()),
       visible(false)
 {
 }
 
 QSystemTrayIconPrivate::~QSystemTrayIconPrivate()
 {
+    delete qpa_sys;
 }
 
 void QSystemTrayIconPrivate::install_sys()
 {
+    if (qpa_sys) {
+        install_sys_qpa();
+        return;
+    }
     Q_Q(QSystemTrayIcon);
     if (!sys && locateSystemTray()) {
         sys = new QSystemTrayIconSys(q);
@@ -229,6 +268,8 @@ void QSystemTrayIconPrivate::install_sys()
 
 QRect QSystemTrayIconPrivate::geometry_sys() const
 {
+    if (qpa_sys)
+        return geometry_sys_qpa();
     if (!sys)
         return QRect();
     return sys->globalGeometry();
@@ -236,6 +277,10 @@ QRect QSystemTrayIconPrivate::geometry_sys() const
 
 void QSystemTrayIconPrivate::remove_sys()
 {
+    if (qpa_sys) {
+        remove_sys_qpa();
+        return;
+    }
     if (!sys)
         return;
     QBalloonTip::hideBalloon();
@@ -246,17 +291,26 @@ void QSystemTrayIconPrivate::remove_sys()
 
 void QSystemTrayIconPrivate::updateIcon_sys()
 {
+    if (qpa_sys) {
+        updateIcon_sys_qpa();
+        return;
+    }
     if (sys)
         sys->updateIcon();
 }
 
 void QSystemTrayIconPrivate::updateMenu_sys()
 {
-
+    if (qpa_sys)
+        updateMenu_sys_qpa();
 }
 
 void QSystemTrayIconPrivate::updateToolTip_sys()
 {
+    if (qpa_sys) {
+        updateToolTip_sys_qpa();
+        return;
+    }
     if (!sys)
         return;
 #ifndef QT_NO_TOOLTIP
@@ -266,25 +320,38 @@ void QSystemTrayIconPrivate::updateToolTip_sys()
 
 bool QSystemTrayIconPrivate::isSystemTrayAvailable_sys()
 {
+    QScopedPointer<QPlatformSystemTrayIcon> sys(QGuiApplicationPrivate::platformTheme()->createPlatformSystemTrayIcon());
+    if (sys)
+        return sys->isSystemTrayAvailable();
+
+    // no QPlatformSystemTrayIcon so fall back to default xcb platform behavior
     const QString platform = QGuiApplication::platformName();
-    if (platform.compare(QStringLiteral("xcb"), Qt::CaseInsensitive) == 0)
+    if (platform.compare(QLatin1String("xcb"), Qt::CaseInsensitive) == 0)
        return locateSystemTray();
     return false;
 }
 
 bool QSystemTrayIconPrivate::supportsMessages_sys()
 {
+    QScopedPointer<QPlatformSystemTrayIcon> sys(QGuiApplicationPrivate::platformTheme()->createPlatformSystemTrayIcon());
+    if (sys)
+        return sys->supportsMessages();
+
+    // no QPlatformSystemTrayIcon so fall back to default xcb platform behavior
     return true;
 }
 
 void QSystemTrayIconPrivate::showMessage_sys(const QString &message, const QString &title,
                                    QSystemTrayIcon::MessageIcon icon, int msecs)
 {
+    if (qpa_sys) {
+        showMessage_sys_qpa(message, title, icon, msecs);
+        return;
+    }
     if (!sys)
         return;
-    const QPoint g = sys->globalGeometry().topLeft();
     QBalloonTip::showBalloon(icon, message, title, sys->systemTrayIcon(),
-                             QPoint(g.x() + sys->width()/2, g.y() + sys->height()/2),
+                             sys->globalGeometry().center(),
                              msecs);
 }
 

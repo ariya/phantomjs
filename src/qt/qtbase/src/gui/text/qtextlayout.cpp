@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -100,23 +92,25 @@ QT_BEGIN_NAMESPACE
     \reentrant
 
     \brief The QTextInlineObject class represents an inline object in
-    a QTextLayout.
+    a QAbstractTextDocumentLayout and its implementations.
     \inmodule QtGui
 
     \ingroup richtext-processing
 
-    This class is only used if the text layout is used to lay out
-    parts of a QTextDocument.
+    Normally, you do not need to create a QTextInlineObject. It is
+    used by QAbstractTextDocumentLayout to handle inline objects when
+    implementing a custom layout.
 
     The inline object has various attributes that can be set, for
     example using, setWidth(), setAscent(), and setDescent(). The
     rectangle it occupies is given by rect(), and its direction by
-    isRightToLeft(). Its position in the text layout is given by at(),
-    and its format is given by format().
+    textDirection(). Its position in the text layout is given by
+    textPosition(), and its format is given by format().
 */
 
 /*!
     \fn QTextInlineObject::QTextInlineObject(int i, QTextEngine *e)
+    \internal
 
     Creates a new inline object for the item at position \a i in the
     text engine \a e.
@@ -500,7 +494,7 @@ QString QTextLayout::preeditAreaText() const
 */
 void QTextLayout::setAdditionalFormats(const QList<FormatRange> &formatList)
 {
-    d->setAdditionalFormats(formatList);
+    d->setFormats(formatList);
 
     if (d->block.docHandle())
         d->block.docHandle()->documentChange(d->block.position(), d->block.length());
@@ -513,7 +507,7 @@ void QTextLayout::setAdditionalFormats(const QList<FormatRange> &formatList)
 */
 QList<QTextLayout::FormatRange> QTextLayout::additionalFormats() const
 {
-    return d->additionalFormats();
+    return d->formats();
 }
 
 /*!
@@ -562,7 +556,7 @@ bool QTextLayout::cacheEnabled() const
 */
 void QTextLayout::setCursorMoveStyle(Qt::CursorMoveStyle style)
 {
-    d->visualMovement = style == Qt::VisualMoveStyle ? true : false;
+    d->visualMovement = style == Qt::VisualMoveStyle;
 }
 
 /*!
@@ -1730,6 +1724,7 @@ void QTextLine::layout_helper(int maxGlyphs)
 
     int item = -1;
     int newItem = eng->findItem(line.from);
+    Q_ASSERT(newItem >= 0);
 
     LB_DEBUG("from: %d: item=%d, total %d, width available %f", line.from, newItem, eng->layoutData->items.size(), line.width.toReal());
 
@@ -1781,6 +1776,11 @@ void QTextLine::layout_helper(int maxGlyphs)
 
             QFixed x = line.x + line.textWidth + lbh.tmpData.textWidth + lbh.spaceData.textWidth;
             QFixed tabWidth = eng->calculateTabWidth(item, x);
+            attributes = eng->attributes();
+            if (!attributes)
+                return;
+            lbh.logClusters = eng->layoutData->logClustersPtr;
+            lbh.glyphs = eng->shapedGlyphs(&current);
 
             lbh.spaceData.textWidth += tabWidth;
             lbh.spaceData.length++;
@@ -1842,8 +1842,17 @@ void QTextLine::layout_helper(int maxGlyphs)
                 addNextCluster(lbh.currentPosition, end, lbh.tmpData, lbh.glyphCount,
                                current, lbh.logClusters, lbh.glyphs);
 
+                // This is a hack to fix a regression caused by the introduction of the
+                // whitespace flag to non-breakable spaces and will cause the non-breakable
+                // spaces to behave as in previous Qt versions in the line breaking algorithm.
+                // The line breaks do not currently follow the Unicode specs, but fixing this would
+                // require refactoring the code and would cause behavioral regressions.
+                bool isBreakableSpace = lbh.currentPosition < eng->layoutData->string.length()
+                                        && attributes[lbh.currentPosition].whiteSpace
+                                        && eng->layoutData->string.at(lbh.currentPosition).decompositionTag() != QChar::NoBreak;
+
                 if (lbh.currentPosition >= eng->layoutData->string.length()
-                    || attributes[lbh.currentPosition].whiteSpace
+                    || isBreakableSpace
                     || attributes[lbh.currentPosition].lineBreak) {
                     sb_or_ws = true;
                     break;
@@ -2006,79 +2015,6 @@ int QTextLine::textLength() const
     return eng->lines[index].length + eng->lines[index].trailingSpaces;
 }
 
-static void drawMenuText(QPainter *p, QFixed x, QFixed y, const QScriptItem &si, QTextItemInt &gf, QTextEngine *eng,
-                         int start, int glyph_start)
-{
-    int ge = glyph_start + gf.glyphs.numGlyphs;
-    int gs = glyph_start;
-    int end = start + gf.num_chars;
-    unsigned short *logClusters = eng->logClusters(&si);
-    QGlyphLayout glyphs = eng->shapedGlyphs(&si);
-    QFixed orig_width = gf.width;
-
-    int *ul = eng->underlinePositions;
-    if (ul)
-        while (*ul != -1 && *ul < start)
-            ++ul;
-    bool rtl = si.analysis.bidiLevel % 2;
-    if (rtl)
-        x += si.width;
-
-    do {
-        int gtmp = ge;
-        int stmp = end;
-        if (ul && *ul != -1 && *ul < end) {
-            stmp = *ul;
-            gtmp = logClusters[*ul-si.position];
-        }
-
-        gf.glyphs = glyphs.mid(gs, gtmp - gs);
-        gf.num_chars = stmp - start;
-        gf.chars = eng->layoutData->string.unicode() + start;
-        QFixed w = 0;
-        while (gs < gtmp) {
-            w += glyphs.effectiveAdvance(gs);
-            ++gs;
-        }
-        start = stmp;
-        gf.width = w;
-        if (rtl)
-            x -= w;
-        if (gf.num_chars)
-            QPainterPrivate::get(p)->drawTextItem(QPointF(x.toReal(), y.toReal()), gf, eng);
-        if (!rtl)
-            x += w;
-        if (ul && *ul != -1 && *ul < end) {
-            // draw underline
-            gtmp = (*ul == end-1) ? ge : logClusters[*ul+1-si.position];
-            ++stmp;
-            gf.glyphs = glyphs.mid(gs, gtmp - gs);
-            gf.num_chars = stmp - start;
-            gf.chars = eng->layoutData->string.unicode() + start;
-            gf.logClusters = logClusters + start - si.position;
-            w = 0;
-            while (gs < gtmp) {
-                w += glyphs.effectiveAdvance(gs);
-                ++gs;
-            }
-            ++start;
-            gf.width = w;
-            gf.underlineStyle = QTextCharFormat::SingleUnderline;
-            if (rtl)
-                x -= w;
-            QPainterPrivate::get(p)->drawTextItem(QPointF(x.toReal(), y.toReal()), gf, eng);
-            if (!rtl)
-                x += w;
-            gf.underlineStyle = QTextCharFormat::NoUnderline;
-            ++gf.chars;
-            ++ul;
-        }
-    } while (gs < ge);
-
-    gf.width = orig_width;
-}
-
-
 static void setPenAndDrawBackground(QPainter *p, const QPen &defaultPen, const QTextCharFormat &chf, const QRectF &r)
 {
     QBrush c = chf.foreground();
@@ -2096,18 +2032,44 @@ static void setPenAndDrawBackground(QPainter *p, const QPen &defaultPen, const Q
 }
 
 #if !defined(QT_NO_RAWFONT)
-static QGlyphRun glyphRunWithInfo(QFontEngine *fontEngine, const QGlyphLayout &glyphLayout,
-                                  const QPointF &pos, const QGlyphRun::GlyphRunFlags &flags,
-                                  const QFixed &selectionX, const QFixed &selectionWidth)
+static QGlyphRun glyphRunWithInfo(QFontEngine *fontEngine,
+                                  const QGlyphLayout &glyphLayout,
+                                  const QPointF &pos,
+                                  const QGlyphRun::GlyphRunFlags &flags,
+                                  const QFixed &selectionX,
+                                  const QFixed &selectionWidth,
+                                  int glyphsStart,
+                                  int glyphsEnd,
+                                  unsigned short *logClusters,
+                                  int textPosition,
+                                  int textLength)
 {
+    Q_ASSERT(logClusters != 0);
+
     QGlyphRun glyphRun;
+
+    QGlyphRunPrivate *d = QGlyphRunPrivate::get(glyphRun);
+
+    int rangeStart = textPosition;
+    while (*logClusters != glyphsStart && rangeStart < textPosition + textLength) {
+        ++logClusters;
+        ++rangeStart;
+    }
+
+    int rangeEnd = rangeStart;
+    while (*logClusters != glyphsEnd && rangeEnd < textPosition + textLength) {
+        ++logClusters;
+        ++rangeEnd;
+    }
+
+    d->textRangeStart = rangeStart;
+    d->textRangeEnd = rangeEnd;
 
     // Make a font for this particular engine
     QRawFont font;
     QRawFontPrivate *fontD = QRawFontPrivate::get(font);
-    fontD->fontEngine = fontEngine;
-    fontD->thread = QThread::currentThread();
-    fontD->fontEngine->ref.ref();
+    fontD->setFontEngine(fontEngine);
+
     QVarLengthArray<glyph_t> glyphsArray;
     QVarLengthArray<QFixedPoint> positionsArray;
 
@@ -2198,14 +2160,10 @@ QList<QGlyphRun> QTextLine::glyphRuns(int from, int length) const
         if (si.analysis.flags >= QScriptAnalysis::TabOrObject)
             continue;
 
-        QPointF pos(iterator.x.toReal(), y);
-        if (from >= 0 && length >= 0 &&
-            (from >= si.position + eng->length(&si)
-             || from + length <= si.position
-             || from + length <= iterator.itemStart
-             || from >= iterator.itemEnd)) {
+        if (from >= 0 && length >= 0 && (from >= iterator.itemEnd || from + length <= iterator.itemStart))
             continue;
-        }
+
+        QPointF pos(iterator.x.toReal(), y);
 
         QFont font;
         QGlyphRun::GlyphRunFlags flags;
@@ -2226,15 +2184,13 @@ QList<QGlyphRun> QTextLine::glyphRuns(int from, int length) const
         }
 
         int relativeFrom = qMax(iterator.itemStart, from) - si.position;
-        int relativeTo = qMin(iterator.itemEnd - 1, from + length - 1) - si.position;
+        int relativeTo = qMin(iterator.itemEnd, from + length) - 1 - si.position;
 
         unsigned short *logClusters = eng->logClusters(&si);
         int glyphsStart = logClusters[relativeFrom];
-        int glyphsEnd = (relativeTo == eng->length(&si))
-                         ? si.num_glyphs - 1
-                         : logClusters[relativeTo];
+        int glyphsEnd = (relativeTo == iterator.itemLength) ? si.num_glyphs - 1 : logClusters[relativeTo];
         // the glyph index right next to the requested range
-        int nextGlyphIndex = relativeTo < eng->length(&si) - 1 ? logClusters[relativeTo + 1] : si.num_glyphs;
+        int nextGlyphIndex = (relativeTo < iterator.itemLength - 1) ? logClusters[relativeTo + 1] : si.num_glyphs;
         if (nextGlyphIndex - 1 > glyphsEnd)
             glyphsEnd = nextGlyphIndex - 1;
         bool startsInsideLigature = relativeFrom > 0 && logClusters[relativeFrom - 1] == glyphsStart;
@@ -2294,9 +2250,20 @@ QList<QGlyphRun> QTextLine::glyphRuns(int from, int length) const
                         subFlags |= QGlyphRun::SplitLigature;
 
                     glyphRuns.append(glyphRunWithInfo(multiFontEngine->engine(which),
-                                                      subLayout, pos, subFlags, x, width));
-                    for (int i = 0; i < subLayout.numGlyphs; ++i)
-                        pos.rx() += subLayout.advances[i].toReal();
+                                                      subLayout,
+                                                      pos,
+                                                      subFlags,
+                                                      x,
+                                                      width,
+                                                      glyphsStart + start,
+                                                      glyphsStart + end,
+                                                      logClusters,
+                                                      iterator.itemStart,
+                                                      iterator.itemLength));
+                    for (int i = 0; i < subLayout.numGlyphs; ++i) {
+                        QFixed justification = QFixed::fromFixed(subLayout.justifications[i].space_18d6);
+                        pos.rx() += (subLayout.advances[i] + justification).toReal();
+                    }
 
                     if (rtl)
                         end = start;
@@ -2313,14 +2280,32 @@ QList<QGlyphRun> QTextLine::glyphRuns(int from, int length) const
                     subFlags |= QGlyphRun::SplitLigature;
 
                 QGlyphRun glyphRun = glyphRunWithInfo(multiFontEngine->engine(which),
-                                                      subLayout, pos, subFlags, x, width);
+                                                      subLayout,
+                                                      pos,
+                                                      subFlags,
+                                                      x,
+                                                      width,
+                                                      glyphsStart + start,
+                                                      glyphsStart + end,
+                                                      logClusters,
+                                                      iterator.itemStart,
+                                                      iterator.itemLength);
                 if (!glyphRun.isEmpty())
                     glyphRuns.append(glyphRun);
             } else {
                 if (startsInsideLigature || endsInsideLigature)
                     flags |= QGlyphRun::SplitLigature;
-                QGlyphRun glyphRun = glyphRunWithInfo(mainFontEngine, glyphLayout, pos, flags, x,
-                                                      width);
+                QGlyphRun glyphRun = glyphRunWithInfo(mainFontEngine,
+                                                      glyphLayout,
+                                                      pos,
+                                                      flags,
+                                                      x,
+                                                      width,
+                                                      glyphsStart,
+                                                      glyphsEnd,
+                                                      logClusters,
+                                                      iterator.itemStart,
+                                                      iterator.itemLength);
                 if (!glyphRun.isEmpty())
                     glyphRuns.append(glyphRun);
             }
@@ -2474,52 +2459,48 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
 
         Q_ASSERT(gf.fontEngine);
 
-        if (eng->underlinePositions) {
-            // can't have selections in this case
-            drawMenuText(p, iterator.x, itemBaseLine, si, gf, eng, iterator.itemStart, iterator.glyphsStart);
-        } else {
-            QPointF pos(iterator.x.toReal(), itemBaseLine.toReal());
-            if (format.penProperty(QTextFormat::TextOutline).style() != Qt::NoPen) {
-                QPainterPath path;
-                path.setFillRule(Qt::WindingFill);
+        QPointF pos(iterator.x.toReal(), itemBaseLine.toReal());
+        if (format.penProperty(QTextFormat::TextOutline).style() != Qt::NoPen) {
+            QPainterPath path;
+            path.setFillRule(Qt::WindingFill);
 
-                if (gf.glyphs.numGlyphs)
-                    gf.fontEngine->addOutlineToPath(pos.x(), pos.y(), gf.glyphs, &path, gf.flags);
-                if (gf.flags) {
-                    const QFontEngine *fe = gf.fontEngine;
-                    const qreal lw = fe->lineThickness().toReal();
-                    if (gf.flags & QTextItem::Underline) {
-                        qreal offs = fe->underlinePosition().toReal();
-                        path.addRect(pos.x(), pos.y() + offs, gf.width.toReal(), lw);
-                    }
-                    if (gf.flags & QTextItem::Overline) {
-                        qreal offs = fe->ascent().toReal() + 1;
-                        path.addRect(pos.x(), pos.y() - offs, gf.width.toReal(), lw);
-                    }
-                    if (gf.flags & QTextItem::StrikeOut) {
-                        qreal offs = fe->ascent().toReal() / 3;
-                        path.addRect(pos.x(), pos.y() - offs, gf.width.toReal(), lw);
-                    }
+            if (gf.glyphs.numGlyphs)
+                gf.fontEngine->addOutlineToPath(pos.x(), pos.y(), gf.glyphs, &path, gf.flags);
+            if (gf.flags) {
+                const QFontEngine *fe = gf.fontEngine;
+                const qreal lw = fe->lineThickness().toReal();
+                if (gf.flags & QTextItem::Underline) {
+                    qreal offs = fe->underlinePosition().toReal();
+                    path.addRect(pos.x(), pos.y() + offs, gf.width.toReal(), lw);
                 }
-
-                p->save();
-                p->setRenderHint(QPainter::Antialiasing);
-                //Currently QPen with a Qt::NoPen style still returns a default
-                //QBrush which != Qt::NoBrush so we need this specialcase to reset it
-                if (p->pen().style() == Qt::NoPen)
-                    p->setBrush(Qt::NoBrush);
-                else
-                    p->setBrush(p->pen().brush());
-
-                p->setPen(format.textOutline());
-                p->drawPath(path);
-                p->restore();
-            } else {
-                if (noText)
-                    gf.glyphs.numGlyphs = 0; // slightly less elegant than it should be
-                QPainterPrivate::get(p)->drawTextItem(pos, gf, eng);
+                if (gf.flags & QTextItem::Overline) {
+                    qreal offs = fe->ascent().toReal() + 1;
+                    path.addRect(pos.x(), pos.y() - offs, gf.width.toReal(), lw);
+                }
+                if (gf.flags & QTextItem::StrikeOut) {
+                    qreal offs = fe->ascent().toReal() / 3;
+                    path.addRect(pos.x(), pos.y() - offs, gf.width.toReal(), lw);
+                }
             }
+
+            p->save();
+            p->setRenderHint(QPainter::Antialiasing);
+            //Currently QPen with a Qt::NoPen style still returns a default
+            //QBrush which != Qt::NoBrush so we need this specialcase to reset it
+            if (p->pen().style() == Qt::NoPen)
+                p->setBrush(Qt::NoBrush);
+            else
+                p->setBrush(p->pen().brush());
+
+            p->setPen(format.textOutline());
+            p->drawPath(path);
+            p->restore();
+        } else {
+            if (noText)
+                gf.glyphs.numGlyphs = 0; // slightly less elegant than it should be
+            QPainterPrivate::get(p)->drawTextItem(pos, gf, eng);
         }
+
         if (si.analysis.flags == QScriptAnalysis::Space
             && (eng->option.flags() & QTextOption::ShowTabsAndSpaces)) {
             QBrush c = format.foreground();
@@ -2569,7 +2550,7 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
     }
 
     int lineEnd = line.from + line.length + line.trailingSpaces;
-    int pos = *cursorPos;
+    int pos = qBound(0, *cursorPos, lineEnd);
     int itm;
     const QCharAttributes *attributes = eng->attributes();
     if (!attributes) {
@@ -2584,6 +2565,10 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
     }
     else
         itm = eng->findItem(pos);
+    if (itm < 0) {
+        *cursorPos = 0;
+        return x.toReal();
+    }
     eng->shapeLine(line);
 
     const QScriptItem *si = &eng->layoutData->items[itm];
@@ -2810,7 +2795,6 @@ int QTextLine::xToCursor(qreal _x, CursorPosition cpos) const
                                 break;
                             glyph_pos = gs;
                             edge = pos;
-                            break;
                         }
                         pos -= glyphs.effectiveAdvance(gs);
                         ++gs;

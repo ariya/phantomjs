@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -117,10 +109,9 @@ QT_BEGIN_NAMESPACE
     \value HomeLocation Returns the user's home directory (the same as QDir::homePath()). On Unix
            systems, this is equal to the HOME environment variable. This value might be
            generic or application-specific, but the returned path is never empty.
-    \value DataLocation Returns a directory location where persistent
-           application data can be stored. This is an application-specific directory. To obtain a
-           path to store data to be shared with other applications, use
-           QStandardPaths::GenericDataLocation. The returned path is never empty.
+    \value DataLocation Returns the same value as AppLocalDataLocation. This enumeration value
+           is deprecated. Using AppDataLocation is preferable since on Windows, the roaming path is
+           recommended.
     \value CacheLocation Returns a directory location where user-specific
            non-essential (cached) data should be written. This is an application-specific directory.
            The returned path is never empty.
@@ -142,6 +133,15 @@ QT_BEGIN_NAMESPACE
     \value GenericConfigLocation Returns a directory location where user-specific
            configuration files shared between multiple applications should be written.
            This is a generic value and the returned path is never empty.
+    \value AppDataLocation Returns a directory location where persistent
+           application data can be stored. This is an application-specific directory.
+           To obtain a path to store data to be shared with other applications, use
+           QStandardPaths::GenericDataLocation. The returned path is never empty.
+           On the Windows operating system, this returns the roaming path.
+           This enum value was added in Qt 5.4.
+    \value AppLocalDataLocation Returns the local settings path on the Windows operating
+           system. On all other platforms, it returns the same value as AppDataLocation.
+           This enum value was added in Qt 5.4.
 
     The following table gives examples of paths on different operating systems.
     The first path is the writable path (unless noted). Other, additional
@@ -195,11 +195,17 @@ QT_BEGIN_NAMESPACE
          \li "~/Library/Preferences"
          \li "C:/Users/<USER>/AppData/Local", "C:/ProgramData"
     \row \li DownloadLocation
-         \li "~/Documents"
+         \li "~/Downloads"
          \li "C:/Users/<USER>/Documents"
     \row \li GenericCacheLocation
          \li "~/Library/Caches", "/Library/Caches"
          \li "C:/Users/<USER>/AppData/Local/cache"
+    \row \li AppDataLocation
+         \li "~/Library/Application Support/<APPNAME>", "/Library/Application Support/<APPNAME>". "<APPDIR>/../Resources"
+         \li "C:/Users/<USER>/AppData/Roaming/<APPNAME>", "C:/ProgramData/<APPNAME>", "<APPDIR>", "<APPDIR>/data"
+    \row \li AppLocalDataLocation
+         \li "~/Library/Application Support/<APPNAME>", "/Library/Application Support/<APPNAME>". "<APPDIR>/../Resources"
+         \li "C:/Users/<USER>/AppData/Local/<APPNAME>", "C:/ProgramData/<APPNAME>", "<APPDIR>", "<APPDIR>/data"
     \endtable
 
     \table
@@ -255,6 +261,12 @@ QT_BEGIN_NAMESPACE
     \row \li GenericCacheLocation
          \li "<APPROOT>/data/Cache" (there is no shared cache)
          \li "~/.cache"
+    \row \li AppDataLocation
+         \li "<APPROOT>/data", "<APPROOT>/app/native/assets"
+         \li "~/.local/share/<APPNAME>", "/usr/local/share/<APPNAME>", "/usr/share/<APPNAME>"
+    \row \li AppLocalDataLocation
+         \li "<APPROOT>/data", "<APPROOT>/app/native/assets"
+         \li "~/.local/share/<APPNAME>", "/usr/local/share/<APPNAME>", "/usr/share/<APPNAME>"
     \endtable
 
     \table
@@ -293,6 +305,8 @@ QT_BEGIN_NAMESPACE
          \li "<USER>/Downloads", "<USER>/<APPNAME>/Downloads"
     \row \li GenericCacheLocation
          \li "<APPROOT>/cache" (there is no shared cache)
+    \row \li AppDataLocation
+         \li "<APPROOT>/files", "<USER>/<APPNAME>/files"
     \endtable
 
     In the table above, \c <APPNAME> is usually the organization name, the
@@ -512,7 +526,7 @@ QString QStandardPaths::findExecutable(const QString &executableName, const QStr
     an empty QString if no relevant location can be found.
 */
 
-#if !defined(Q_OS_MAC) && !defined(QT_BOOTSTRAPPED)
+#if !defined(Q_OS_OSX) && !defined(QT_BOOTSTRAPPED)
 QString QStandardPaths::displayName(StandardLocation type)
 {
     switch (type) {
@@ -534,8 +548,6 @@ QString QStandardPaths::displayName(StandardLocation type)
         return QCoreApplication::translate("QStandardPaths", "Temporary Directory");
     case HomeLocation:
         return QCoreApplication::translate("QStandardPaths", "Home");
-    case DataLocation:
-        return QCoreApplication::translate("QStandardPaths", "Application Data");
     case CacheLocation:
         return QCoreApplication::translate("QStandardPaths", "Cache");
     case GenericDataLocation:
@@ -550,6 +562,9 @@ QString QStandardPaths::displayName(StandardLocation type)
         return QCoreApplication::translate("QStandardPaths", "Shared Cache");
     case DownloadLocation:
         return QCoreApplication::translate("QStandardPaths", "Download");
+    case AppDataLocation:
+    case AppLocalDataLocation:
+        return QCoreApplication::translate("QStandardPaths", "Application Data");
     }
     // not reached
     return QString();
@@ -573,11 +588,11 @@ QString QStandardPaths::displayName(StandardLocation type)
   GenericCacheLocation, CacheLocation.
   Other locations are not affected.
 
-  On Unix, XDG_DATA_HOME is set to ~/.qttest/share, XDG_CONFIG_HOME is
-  set to ~/.qttest/config, and XDG_CACHE_HOME is set to ~/.qttest/cache.
+  On Unix, \c XDG_DATA_HOME is set to \e ~/.qttest/share, \c XDG_CONFIG_HOME is
+  set to \e ~/.qttest/config, and \c XDG_CACHE_HOME is set to \e ~/.qttest/cache.
 
-  On Mac, data goes to "~/.qttest/Application Support", cache goes to
-  ~/.qttest/Cache, and config goes to ~/.qttest/Preferences.
+  On OS X, data goes to \e ~/.qttest/Application Support, cache goes to
+  \e ~/.qttest/Cache, and config goes to \e ~/.qttest/Preferences.
 
   On Windows, everything goes to a "qttest" directory under Application Data.
 */

@@ -40,7 +40,6 @@
 ****************************************************************************/
 
 #include "qcocoanativeinterface.h"
-#include "qcocoaglcontext.h"
 #include "qcocoawindow.h"
 #include "qcocoamenu.h"
 #include "qcocoamenubar.h"
@@ -56,6 +55,7 @@
 #ifndef QT_NO_OPENGL
 #include <qpa/qplatformopenglcontext.h>
 #include "qopenglcontext.h"
+#include "qcocoaglcontext.h"
 #endif
 #include "qguiapplication.h"
 #include <qdebug.h>
@@ -93,7 +93,6 @@ void *QCocoaNativeInterface::nativeResourceForWindow(const QByteArray &resourceS
     if (!window->handle())
         return 0;
 
-    
     if (resourceString == "nsview") {
         return static_cast<QCocoaWindow *>(window->handle())->m_contentView;
 #ifndef QT_NO_OPENGL

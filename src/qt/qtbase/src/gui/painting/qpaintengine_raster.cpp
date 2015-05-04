@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -235,21 +227,6 @@ static const QRectF boundingRect(const QPointF *points, int pointCount)
 }
 #endif
 
-template <typename T> static inline bool isRect(const T *pts, int elementCount) {
-    return (elementCount == 5 // 5-point polygon, check for closed rect
-            && pts[0] == pts[8] && pts[1] == pts[9] // last point == first point
-            && pts[0] == pts[6] && pts[2] == pts[4] // x values equal
-            && pts[1] == pts[3] && pts[5] == pts[7] // y values equal...
-            && pts[0] < pts[4] && pts[1] < pts[5]
-            ) ||
-           (elementCount == 4 // 4-point polygon, check for unclosed rect
-            && pts[0] == pts[6] && pts[2] == pts[4] // x values equal
-            && pts[1] == pts[3] && pts[5] == pts[7] // y values equal...
-            && pts[0] < pts[4] && pts[1] < pts[5]
-            );
-}
-
-
 static void qt_ft_outline_move_to(qfixed x, qfixed y, void *data)
 {
     ((QOutlineMapper *) data)->moveTo(QPointF(qt_fixed_to_real(x), qt_fixed_to_real(y)));
@@ -430,30 +407,12 @@ void QRasterPaintEngine::init()
     case QImage::Format_Mono:
         d->mono_surface = true;
         break;
-    case QImage::Format_ARGB8565_Premultiplied:
-    case QImage::Format_ARGB8555_Premultiplied:
-    case QImage::Format_ARGB6666_Premultiplied:
-    case QImage::Format_ARGB4444_Premultiplied:
-    case QImage::Format_ARGB32_Premultiplied:
-    case QImage::Format_ARGB32:
-    case QImage::Format_RGBA8888_Premultiplied:
-    case QImage::Format_RGBA8888:
-        gccaps |= PorterDuff;
-        break;
-    case QImage::Format_RGB32:
-    case QImage::Format_RGB444:
-    case QImage::Format_RGB555:
-    case QImage::Format_RGB666:
-    case QImage::Format_RGB888:
-    case QImage::Format_RGB16:
-    case QImage::Format_RGBX8888:
-        break;
     default:
+        if (QImage::toPixelFormat(format).alphaUsage() == QPixelFormat::UsesAlpha)
+            gccaps |= PorterDuff;
         break;
     }
 }
-
-
 
 
 /*!
@@ -932,7 +891,7 @@ void QRasterPaintEngine::renderHintsChanged()
     bool was_aa = s->flags.antialiased;
     bool was_bilinear = s->flags.bilinear;
 
-    s->flags.antialiased = bool(s->renderHints & QPainter::Antialiasing);
+    s->flags.antialiased = bool(s->renderHints & (QPainter::Antialiasing | QPainter::HighQualityAntialiasing));
     s->flags.bilinear = bool(s->renderHints & QPainter::SmoothPixmapTransform);
     s->flags.legacy_rounding = !bool(s->renderHints & QPainter::Antialiasing) && bool(s->renderHints & QPainter::Qt4CompatiblePainting);
 
@@ -1193,22 +1152,14 @@ void QRasterPaintEngine::clip(const QVectorPath &path, Qt::ClipOperation op)
     Q_D(QRasterPaintEngine);
     QRasterPaintEngineState *s = state();
 
-    const qreal *points = path.points();
-    const QPainterPath::ElementType *types = path.elements();
-
     // There are some cases that are not supported by clip(QRect)
     if (op != Qt::IntersectClip || !s->clip || s->clip->hasRectClip || s->clip->hasRegionClip) {
         if (s->matrix.type() <= QTransform::TxScale
-            && ((path.shape() == QVectorPath::RectangleHint)
-                || (isRect(points, path.elementCount())
-                    && (!types || (types[0] == QPainterPath::MoveToElement
-                                   && types[1] == QPainterPath::LineToElement
-                                   && types[2] == QPainterPath::LineToElement
-                                   && types[3] == QPainterPath::LineToElement))))) {
+            && path.isRect()) {
 #ifdef QT_DEBUG_DRAW
             qDebug() << " --- optimizing vector clip to rect clip...";
 #endif
-
+            const qreal *points = path.points();
             QRectF r(points[0], points[1], points[4]-points[0], points[5]-points[1]);
             if (setClipRectInDeviceCoords(s->matrix.mapRect(r).toRect(), op))
                 return;
@@ -1939,7 +1890,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 #endif
     Q_ASSERT(pointCount >= 2);
 
-    if (mode != PolylineMode && isRect((qreal *) points, pointCount)) {
+    if (mode != PolylineMode && QVectorPath::isRect((qreal *) points, pointCount)) {
         QRectF r(points[0], points[2]);
         drawRects(&r, 1);
         return;
@@ -1980,7 +1931,7 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
         qDebug() << "   - " << points[i];
 #endif
     Q_ASSERT(pointCount >= 2);
-    if (mode != PolylineMode && isRect((int *) points, pointCount)) {
+    if (mode != PolylineMode && QVectorPath::isRect((int *) points, pointCount)) {
         QRect r(points[0].x(),
                 points[0].y(),
                 points[2].x() - points[0].x(),
@@ -2266,6 +2217,8 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
         case QImage::Format_ARGB8555_Premultiplied:
         case QImage::Format_ARGB4444_Premultiplied:
         case QImage::Format_RGBA8888_Premultiplied:
+        case QImage::Format_A2BGR30_Premultiplied:
+        case QImage::Format_A2RGB30_Premultiplied:
             // Combine premultiplied color with the opacity set on the painter.
             d->solid_color_filler.solid.color =
                 ((((color & 0x00ff00ff) * s->intOpacity) >> 8) & 0x00ff00ff)
@@ -2626,7 +2579,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, int depth, int rx
                     return;
                 }
             }
-        } else if (d->deviceDepth == 32 && (depth == 8 || depth == 32)) {
+        } else if (d->deviceDepth == 32 && ((depth == 8 && s->penData.alphamapBlit) || (depth == 32 && s->penData.alphaRGBBlit))) {
             // (A)RGB Alpha mask where the alpha component is not used.
             if (!clip) {
                 int nx = qMax(0, rx);
@@ -2649,13 +2602,12 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, int depth, int rx
                 rx = nx;
                 ry = ny;
             }
-            if (depth == 8 && s->penData.alphamapBlit) {
+            if (depth == 8)
                 s->penData.alphamapBlit(rb, rx, ry, s->penData.solid.color,
                                         scanline, w, h, bpl, clip);
-            } else if (depth == 32 && s->penData.alphaRGBBlit) {
+            else if (depth == 32)
                 s->penData.alphaRGBBlit(rb, rx, ry, s->penData.solid.color,
                                         (const uint *) scanline, w, h, bpl / 4, clip);
-            }
             return;
         }
     }
@@ -2744,7 +2696,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, int depth, int rx
             scanline += bpl;
         }
     } else { // 32-bit alpha...
-        uint *sl = (uint *) src;
+        uint *sl = (uint *) scanline;
         for (int y = y0; y < y1; ++y) {
             for (int x = x0; x < x1; ) {
                 // Skip those with 0 coverage

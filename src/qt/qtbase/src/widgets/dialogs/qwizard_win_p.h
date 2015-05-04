@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -102,7 +94,8 @@ public:
     QColor basicWindowFrameColor();
     enum VistaState { VistaAero, VistaBasic, Classic, Dirty };
     static VistaState vistaState();
-    static int titleBarSize() { return frameSize() + captionSize(); }
+    static int titleBarSize() { return QVistaHelper::titleBarSizeDp() / QVistaHelper::m_devicePixelRatio; }
+    static int titleBarSizeDp() { return QVistaHelper::frameSizeDp() + QVistaHelper::captionSizeDp(); }
     static int topPadding() { // padding under text
         return int(QStyleHelper::dpiScaled(
                 QSysInfo::WindowsVersion >= QSysInfo::WV_WINDOWS7 ? 4 : 6));
@@ -117,12 +110,14 @@ private:
     bool drawTitleText(QPainter *painter, const QString &text, const QRect &rect, HDC hdc);
     static bool drawBlackRect(const QRect &rect, HDC hdc);
 
-    static int frameSize();
-    static int captionSize();
+    static int frameSize() { return QVistaHelper::frameSizeDp() / QVistaHelper::m_devicePixelRatio; }
+    static int frameSizeDp();
+    static int captionSize() { return QVistaHelper::captionSizeDp() / QVistaHelper::m_devicePixelRatio; }
+    static int captionSizeDp();
 
     static int backButtonSize() { return int(QStyleHelper::dpiScaled(30)); }
-    static int iconSize() { return 16; } // Standard Aero
-    static int glowSize() { return 10; }
+    static int iconSize();
+    static int glowSize();
     int leftMargin() { return backButton_->isVisible() ? backButtonSize() + iconSpacing : 0; }
 
     int titleOffset();
@@ -152,6 +147,7 @@ private:
     int titleBarOffset;  // Extra spacing above the text
     int iconSpacing;    // Space between button and icon
     int textSpacing;    // Space between icon and text
+    static int m_devicePixelRatio;
 };
 
 

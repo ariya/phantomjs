@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -68,7 +60,7 @@ public:
     Q_DECL_CONSTEXPR inline int top() const;
     Q_DECL_CONSTEXPR inline int right() const;
     Q_DECL_CONSTEXPR inline int bottom() const;
-    QRect normalized() const;
+    QRect normalized() const Q_REQUIRED_RESULT;
 
     Q_DECL_CONSTEXPR inline int x() const;
     Q_DECL_CONSTEXPR inline int y() const;
@@ -102,8 +94,8 @@ public:
 
     inline void translate(int dx, int dy);
     inline void translate(const QPoint &p);
-    Q_DECL_CONSTEXPR inline QRect translated(int dx, int dy) const;
-    Q_DECL_CONSTEXPR inline QRect translated(const QPoint &p) const;
+    Q_DECL_CONSTEXPR inline QRect translated(int dx, int dy) const Q_REQUIRED_RESULT;
+    Q_DECL_CONSTEXPR inline QRect translated(const QPoint &p) const Q_REQUIRED_RESULT;
 
     inline void moveTo(int x, int t);
     inline void moveTo(const QPoint &p);
@@ -115,7 +107,7 @@ public:
     inline void getCoords(int *x1, int *y1, int *x2, int *y2) const;
 
     inline void adjust(int x1, int y1, int x2, int y2);
-    Q_DECL_CONSTEXPR inline QRect adjusted(int x1, int y1, int x2, int y2) const;
+    Q_DECL_CONSTEXPR inline QRect adjusted(int x1, int y1, int x2, int y2) const Q_REQUIRED_RESULT;
 
     Q_DECL_CONSTEXPR inline QSize size() const;
     Q_DECL_CONSTEXPR inline int width() const;
@@ -133,8 +125,8 @@ public:
     bool contains(const QPoint &p, bool proper=false) const;
     inline bool contains(int x, int y) const;
     inline bool contains(int x, int y, bool proper) const;
-    inline QRect united(const QRect &other) const;
-    inline QRect intersected(const QRect &other) const;
+    inline QRect united(const QRect &other) const Q_REQUIRED_RESULT;
+    inline QRect intersected(const QRect &other) const Q_REQUIRED_RESULT;
     bool intersects(const QRect &r) const;
 
     Q_DECL_CONSTEXPR inline QRect marginsAdded(const QMargins &margins) const;
@@ -143,8 +135,8 @@ public:
     inline QRect &operator-=(const QMargins &margins);
 
 #if QT_DEPRECATED_SINCE(5, 0)
-    QT_DEPRECATED QRect unite(const QRect &r) const { return united(r); }
-    QT_DEPRECATED QRect intersect(const QRect &r) const { return intersected(r); }
+    QT_DEPRECATED QRect unite(const QRect &r) const Q_REQUIRED_RESULT { return united(r); }
+    QT_DEPRECATED QRect intersect(const QRect &r) const Q_REQUIRED_RESULT { return intersected(r); }
 #endif
 
     friend Q_DECL_CONSTEXPR inline bool operator==(const QRect &, const QRect &);
@@ -510,7 +502,7 @@ public:
     Q_DECL_CONSTEXPR inline bool isNull() const;
     Q_DECL_CONSTEXPR inline bool isEmpty() const;
     Q_DECL_CONSTEXPR inline bool isValid() const;
-    QRectF normalized() const;
+    QRectF normalized() const Q_REQUIRED_RESULT;
 
     Q_DECL_CONSTEXPR inline qreal left() const { return xp; }
     Q_DECL_CONSTEXPR inline qreal top() const { return yp; }
@@ -550,8 +542,8 @@ public:
     inline void translate(qreal dx, qreal dy);
     inline void translate(const QPointF &p);
 
-    Q_DECL_CONSTEXPR inline QRectF translated(qreal dx, qreal dy) const;
-    Q_DECL_CONSTEXPR inline QRectF translated(const QPointF &p) const;
+    Q_DECL_CONSTEXPR inline QRectF translated(qreal dx, qreal dy) const Q_REQUIRED_RESULT;
+    Q_DECL_CONSTEXPR inline QRectF translated(const QPointF &p) const Q_REQUIRED_RESULT;
 
     inline void moveTo(qreal x, qreal y);
     inline void moveTo(const QPointF &p);
@@ -563,7 +555,7 @@ public:
     inline void getCoords(qreal *x1, qreal *y1, qreal *x2, qreal *y2) const;
 
     inline void adjust(qreal x1, qreal y1, qreal x2, qreal y2);
-    Q_DECL_CONSTEXPR inline QRectF adjusted(qreal x1, qreal y1, qreal x2, qreal y2) const;
+    Q_DECL_CONSTEXPR inline QRectF adjusted(qreal x1, qreal y1, qreal x2, qreal y2) const Q_REQUIRED_RESULT;
 
     Q_DECL_CONSTEXPR inline QSizeF size() const;
     Q_DECL_CONSTEXPR inline qreal width() const;
@@ -580,8 +572,8 @@ public:
     bool contains(const QRectF &r) const;
     bool contains(const QPointF &p) const;
     inline bool contains(qreal x, qreal y) const;
-    inline QRectF united(const QRectF &other) const;
-    inline QRectF intersected(const QRectF &other) const;
+    inline QRectF united(const QRectF &other) const Q_REQUIRED_RESULT;
+    inline QRectF intersected(const QRectF &other) const Q_REQUIRED_RESULT;
     bool intersects(const QRectF &r) const;
 
     Q_DECL_CONSTEXPR inline QRectF marginsAdded(const QMarginsF &margins) const;
@@ -590,15 +582,15 @@ public:
     inline QRectF &operator-=(const QMarginsF &margins);
 
 #if QT_DEPRECATED_SINCE(5, 0)
-    QT_DEPRECATED QRectF unite(const QRectF &r) const { return united(r); }
-    QT_DEPRECATED QRectF intersect(const QRectF &r) const { return intersected(r); }
+    QT_DEPRECATED QRectF unite(const QRectF &r) const Q_REQUIRED_RESULT { return united(r); }
+    QT_DEPRECATED QRectF intersect(const QRectF &r) const Q_REQUIRED_RESULT { return intersected(r); }
 #endif
 
     friend Q_DECL_CONSTEXPR inline bool operator==(const QRectF &, const QRectF &);
     friend Q_DECL_CONSTEXPR inline bool operator!=(const QRectF &, const QRectF &);
 
-    Q_DECL_CONSTEXPR inline QRect toRect() const;
-    QRect toAlignedRect() const;
+    Q_DECL_CONSTEXPR inline QRect toRect() const Q_REQUIRED_RESULT;
+    QRect toAlignedRect() const Q_REQUIRED_RESULT;
 
 private:
     qreal xp;

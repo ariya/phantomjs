@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtXml module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -54,6 +46,7 @@
 #include <qtextcodec.h>
 #include <qtextstream.h>
 #include <qxml.h>
+#include "private/qxml_p.h"
 #include <qvariant.h>
 #include <qmap.h>
 #include <qshareddata.h>
@@ -502,7 +495,7 @@ public:
     ~QDomDocumentPrivate();
 
     bool setContent(QXmlInputSource *source, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn);
-    bool setContent(QXmlInputSource *source, QXmlReader *reader, QString *errorMsg, int *errorLine, int *errorColumn);
+    bool setContent(QXmlInputSource *source, QXmlReader *reader, QXmlSimpleReader *simpleReader, QString *errorMsg, int *errorLine, int *errorColumn);
 
     // Attributes
     QDomDocumentTypePrivate* doctype() { return type.data(); }
@@ -573,7 +566,7 @@ public:
 class QDomHandler : public QXmlDefaultHandler
 {
 public:
-    QDomHandler(QDomDocumentPrivate* d, bool namespaceProcessing);
+    QDomHandler(QDomDocumentPrivate* d, QXmlSimpleReader *reader, bool namespaceProcessing);
     ~QDomHandler();
 
     // content handler
@@ -615,6 +608,7 @@ private:
     bool cdata;
     bool nsProcessing;
     QXmlLocator *locator;
+    QXmlSimpleReader *reader;
 };
 
 /**************************************************************
@@ -6208,10 +6202,10 @@ bool QDomDocumentPrivate::setContent(QXmlInputSource *source, bool namespaceProc
 {
     QXmlSimpleReader reader;
     initializeReader(reader, namespaceProcessing);
-    return setContent(source, &reader, errorMsg, errorLine, errorColumn);
+    return setContent(source, &reader, &reader, errorMsg, errorLine, errorColumn);
 }
 
-bool QDomDocumentPrivate::setContent(QXmlInputSource *source, QXmlReader *reader, QString *errorMsg, int *errorLine, int *errorColumn)
+bool QDomDocumentPrivate::setContent(QXmlInputSource *source, QXmlReader *reader, QXmlSimpleReader *simpleReader, QString *errorMsg, int *errorLine, int *errorColumn)
 {
     clear();
     impl = new QDomImplementationPrivate;
@@ -6221,7 +6215,7 @@ bool QDomDocumentPrivate::setContent(QXmlInputSource *source, QXmlReader *reader
     bool namespaceProcessing = reader->feature(QLatin1String("http://xml.org/sax/features/namespaces"))
         && !reader->feature(QLatin1String("http://xml.org/sax/features/namespace-prefixes"));
 
-    QDomHandler hnd(this, namespaceProcessing);
+    QDomHandler hnd(this, simpleReader, namespaceProcessing);
     reader->setContentHandler(&hnd);
     reader->setErrorHandler(&hnd);
     reader->setLexicalHandler(&hnd);
@@ -6758,7 +6752,7 @@ bool QDomDocument::setContent(QXmlInputSource *source, bool namespaceProcessing,
         impl = new QDomDocumentPrivate();
     QXmlSimpleReader reader;
     initializeReader(reader, namespaceProcessing);
-    return IMPL->setContent(source, &reader, errorMsg, errorLine, errorColumn);
+    return IMPL->setContent(source, &reader, &reader, errorMsg, errorLine, errorColumn);
 }
 
 /*!
@@ -6820,7 +6814,7 @@ bool QDomDocument::setContent(QXmlInputSource *source, QXmlReader *reader, QStri
 {
     if (!impl)
         impl = new QDomDocumentPrivate();
-    return IMPL->setContent(source, reader, errorMsg, errorLine, errorColumn);
+    return IMPL->setContent(source, reader, 0, errorMsg, errorLine, errorColumn);
 }
 
 /*!
@@ -7360,9 +7354,9 @@ QDomComment QDomNode::toComment() const
  *
  **************************************************************/
 
-QDomHandler::QDomHandler(QDomDocumentPrivate* adoc, bool namespaceProcessing)
+QDomHandler::QDomHandler(QDomDocumentPrivate* adoc, QXmlSimpleReader* areader, bool namespaceProcessing)
     : errorLine(0), errorColumn(0), doc(adoc), node(adoc), cdata(false),
-        nsProcessing(namespaceProcessing), locator(0)
+        nsProcessing(namespaceProcessing), locator(0), reader(areader)
 {
 }
 
@@ -7466,11 +7460,10 @@ bool QDomHandler::processingInstruction(const QString& target, const QString& da
         return false;
 }
 
-extern bool qt_xml_skipped_entity_in_content;
 bool QDomHandler::skippedEntity(const QString& name)
 {
     // we can only handle inserting entity references into content
-    if (!qt_xml_skipped_entity_in_content)
+    if (reader && !reader->d_ptr->skipped_entity_in_content)
         return true;
 
     QDomNodePrivate *n = doc->createEntityReference(name);

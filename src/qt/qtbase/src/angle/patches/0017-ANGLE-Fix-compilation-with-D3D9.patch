@@ -1,0 +1,62 @@
+From d7839cc052de126cc3b457fe41963fd9c7e91846 Mon Sep 17 00:00:00 2001
+From: Kai Koehne <kai.koehne@theqtcompany.com>
+Date: Mon, 17 Nov 2014 15:10:10 +0100
+Subject: [PATCH] ANGLE: Fix compilation with D3D9
+
+Fixes a regression introduced in c6df5fe3ed0f2a722 that
+broke compilation with d3d9 (namely, -target xp).
+
+Task-number: QTBUG-42714
+Change-Id: I1a5e9682d5463bfa082a5d0c062399a131a7cf52
+---
+ src/3rdparty/angle/src/common/NativeWindow.h         | 7 ++++++-
+ src/3rdparty/angle/src/common/platform.h             | 1 +
+ src/3rdparty/angle/src/common/win32/NativeWindow.cpp | 2 +-
+ 3 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/src/3rdparty/angle/src/common/NativeWindow.h b/src/3rdparty/angle/src/common/NativeWindow.h
+index 9e93aea..c4a0e42 100644
+--- a/src/3rdparty/angle/src/common/NativeWindow.h
++++ b/src/3rdparty/angle/src/common/NativeWindow.h
+@@ -54,7 +54,12 @@ public:
+     bool getClientRect(LPRECT rect);
+     bool isIconic();
+ 
+-    HRESULT createSwapChain(ID3D11Device* device, DXGIFactory* factory,
++#   if defined(ANGLE_ENABLE_D3D11)
++    typedef ID3D11Device Device;
++#else
++    typedef IDirect3DDevice9 Device;
++#endif
++    HRESULT createSwapChain(Device* device, DXGIFactory* factory,
+                             DXGI_FORMAT format, UINT width, UINT height,
+                             DXGISwapChain** swapChain);
+ 
+diff --git a/src/3rdparty/angle/src/common/platform.h b/src/3rdparty/angle/src/common/platform.h
+index 0001e71..5bf97f9 100644
+--- a/src/3rdparty/angle/src/common/platform.h
++++ b/src/3rdparty/angle/src/common/platform.h
+@@ -52,6 +52,7 @@
+ 
+ #   if defined(ANGLE_ENABLE_D3D9)
+ #       include <d3d9.h>
++#       include <dxgi.h>
+ #      if !defined(COMPILER_IMPLEMENTATION)
+ #       include <d3dcompiler.h>
+ #      endif
+diff --git a/src/3rdparty/angle/src/common/win32/NativeWindow.cpp b/src/3rdparty/angle/src/common/win32/NativeWindow.cpp
+index 2440747..46082a2 100644
+--- a/src/3rdparty/angle/src/common/win32/NativeWindow.cpp
++++ b/src/3rdparty/angle/src/common/win32/NativeWindow.cpp
+@@ -35,7 +35,7 @@ bool NativeWindow::isIconic()
+     return IsIconic(mWindow) == TRUE;
+ }
+ 
+-HRESULT NativeWindow::createSwapChain(ID3D11Device* device, DXGIFactory* factory,
++HRESULT NativeWindow::createSwapChain(NativeWindow::Device* device, DXGIFactory* factory,
+                                       DXGI_FORMAT format, unsigned int width, unsigned int height,
+                                       DXGISwapChain** swapChain)
+ {
+-- 
+1.9.4.msysgit.0
+

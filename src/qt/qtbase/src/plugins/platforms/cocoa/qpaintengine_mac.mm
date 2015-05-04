@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -90,20 +90,13 @@ static void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, CGAffineTransfor
     if (rgn.isEmpty()) {
         CGContextAddRect(hd, CGRectMake(0, 0, 0, 0));
     } else {
-        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_5) {
-            QCFType<HIMutableShapeRef> shape = qt_mac_QRegionToHIMutableShape(rgn);
-            Q_ASSERT(!HIShapeIsEmpty(shape));
-            HIShapeReplacePathInCGContext(shape, hd);
-        } else {
-            QVector<QRect> rects = rgn.rects();
-            const int count = rects.size();
-            for (int i = 0; i < count; i++) {
-                const QRect &r = rects[i];
-                CGRect mac_r = CGRectMake(r.x(), r.y(), r.width(), r.height());
-                CGContextAddRect(hd, mac_r);
-            }
+        QVector<QRect> rects = rgn.rects();
+        const int count = rects.size();
+        for (int i = 0; i < count; i++) {
+            const QRect &r = rects[i];
+            CGRect mac_r = CGRectMake(r.x(), r.y(), r.width(), r.height());
+            CGContextAddRect(hd, mac_r);
         }
-
     }
     CGContextClip(hd);
 
@@ -193,7 +186,6 @@ CGImageRef qt_mac_create_imagemask(const QPixmap &pixmap, const QRectF &sr)
 
 //conversion
 inline static float qt_mac_convert_color_to_cg(int c) { return ((float)c * 1000 / 255) / 1000; }
-inline static int qt_mac_convert_color_from_cg(float c) { return qRound(c * 255); }
 CGAffineTransform qt_mac_convert_transform_to_cg(const QTransform &t) {
     return CGAffineTransformMake(t.m11(), t.m12(), t.m21(), t.m22(), t.dx(),  t.dy());
 }
@@ -974,11 +966,6 @@ void QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, co
         d->restoreGraphicsState();
 }
 
-static void drawImageReleaseData (void *info, const void *, size_t)
-{
-    delete static_cast<QImage *>(info);
-}
-
 void QCoreGraphicsPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRectF &sr,
                                          Qt::ImageConversionFlags flags)
 {
@@ -1090,6 +1077,10 @@ void QCoreGraphicsPaintEngine::drawTextItem(const QPointF &pos, const QTextItem 
     if (textAA != lineAA)
         CGContextSetShouldAntialias(d->hd, textAA);
 
+    const bool smoothing = textAA && !(fe->fontDef.styleStrategy & QFont::NoSubpixelAntialias);
+    if (d->disabledSmoothFonts == smoothing)
+        CGContextSetShouldSmoothFonts(d->hd, smoothing);
+
     if (ti.glyphs.numGlyphs) {
         switch (fe->type()) {
         case QFontEngine::Mac:
@@ -1105,6 +1096,9 @@ void QCoreGraphicsPaintEngine::drawTextItem(const QPointF &pos, const QTextItem 
 
     if (textAA != lineAA)
         CGContextSetShouldAntialias(d->hd, !textAA);
+
+    if (smoothing == d->disabledSmoothFonts)
+        CGContextSetShouldSmoothFonts(d->hd, !d->disabledSmoothFonts);
 
     updatePen(oldPen);
     updateBrush(oldBrush, oldBrushOrigin);
@@ -1136,184 +1130,85 @@ extern "C" {
 void
 QCoreGraphicsPaintEngine::updateCompositionMode(QPainter::CompositionMode mode)
 {
-    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_5) {
-        int cg_mode = kCGBlendModeNormal;
-        switch (mode) {
-        case QPainter::CompositionMode_Multiply:
-            cg_mode = kCGBlendModeMultiply;
-            break;
-        case QPainter::CompositionMode_Screen:
-            cg_mode = kCGBlendModeScreen;
-            break;
-        case QPainter::CompositionMode_Overlay:
-            cg_mode = kCGBlendModeOverlay;
-            break;
-        case QPainter::CompositionMode_Darken:
-            cg_mode = kCGBlendModeDarken;
-            break;
-        case QPainter::CompositionMode_Lighten:
-            cg_mode = kCGBlendModeLighten;
-            break;
-        case QPainter::CompositionMode_ColorDodge:
-            cg_mode = kCGBlendModeColorDodge;
-            break;
-        case QPainter::CompositionMode_ColorBurn:
-            cg_mode = kCGBlendModeColorBurn;
-            break;
-        case QPainter::CompositionMode_HardLight:
-            cg_mode = kCGBlendModeHardLight;
-            break;
-        case QPainter::CompositionMode_SoftLight:
-            cg_mode = kCGBlendModeSoftLight;
-            break;
-        case QPainter::CompositionMode_Difference:
-            cg_mode = kCGBlendModeDifference;
-            break;
-        case QPainter::CompositionMode_Exclusion:
-            cg_mode = kCGBlendModeExclusion;
-            break;
-        case QPainter::CompositionMode_Plus:
-            cg_mode = kCGBlendModePlusLighter;
-            break;
-        case QPainter::CompositionMode_SourceOver:
-            cg_mode = kCGBlendModeNormal;
-            break;
-        case QPainter::CompositionMode_DestinationOver:
-            cg_mode = kCGBlendModeDestinationOver;
-            break;
-        case QPainter::CompositionMode_Clear:
-            cg_mode = kCGBlendModeClear;
-            break;
-        case QPainter::CompositionMode_Source:
-            cg_mode = kCGBlendModeCopy;
-            break;
-        case QPainter::CompositionMode_Destination:
-            cg_mode = -1;
-            break;
-        case QPainter::CompositionMode_SourceIn:
-            cg_mode = kCGBlendModeSourceIn;
-            break;
-        case QPainter::CompositionMode_DestinationIn:
-            cg_mode = kCGCompositeModeDestinationIn;
-            break;
-        case QPainter::CompositionMode_SourceOut:
-            cg_mode = kCGBlendModeSourceOut;
-            break;
-        case QPainter::CompositionMode_DestinationOut:
-            cg_mode = kCGBlendModeDestinationOver;
-            break;
-        case QPainter::CompositionMode_SourceAtop:
-            cg_mode = kCGBlendModeSourceAtop;
-            break;
-        case QPainter::CompositionMode_DestinationAtop:
-            cg_mode = kCGBlendModeDestinationAtop;
-            break;
-        case QPainter::CompositionMode_Xor:
-            cg_mode = kCGBlendModeXOR;
-            break;
-        default:
-            break;
-        }
-        if (cg_mode > -1) {
-            CGContextSetBlendMode(d_func()->hd, CGBlendMode(cg_mode));
-        }
-    } else if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3
-            && mode <= QPainter::CompositionMode_Xor) {
-        // The standard porter duff ops.
-        int cg_mode = kCGCompositeModeCopy;
-        switch (mode) {
-        case QPainter::CompositionMode_SourceOver:
-            cg_mode = kCGCompositeModeSourceOver;
-            break;
-        case QPainter::CompositionMode_DestinationOver:
-            cg_mode = kCGCompositeModeDestinationOver;
-            break;
-        case QPainter::CompositionMode_Clear:
-            cg_mode = kCGCompositeModeClear;
-            break;
-        default:
-            qWarning("QCoreGraphicsPaintEngine: Unhandled composition mode %d", (int)mode);
-            break;
-        case QPainter::CompositionMode_Source:
-            cg_mode = kCGCompositeModeCopy;
-            break;
-        case QPainter::CompositionMode_Destination:
-            cg_mode = CGCompositeMode(-1);
-            break;
-        case QPainter::CompositionMode_SourceIn:
-            cg_mode = kCGCompositeModeSourceIn;
-            break;
-        case QPainter::CompositionMode_DestinationIn:
-            cg_mode = kCGCompositeModeDestinationIn;
-            break;
-        case QPainter::CompositionMode_SourceOut:
-            cg_mode = kCGCompositeModeSourceOut;
-            break;
-        case QPainter::CompositionMode_DestinationOut:
-            cg_mode = kCGCompositeModeDestinationOut;
-            break;
-        case QPainter::CompositionMode_SourceAtop:
-            cg_mode = kCGCompositeModeSourceAtop;
-            break;
-        case QPainter::CompositionMode_DestinationAtop:
-            cg_mode = kCGCompositeModeDestinationAtop;
-            break;
-        case QPainter::CompositionMode_Xor:
-            cg_mode = kCGCompositeModeXOR;
-            break;
-        }
-        if (cg_mode > -1)
-            CGContextSetCompositeOperation(d_func()->hd, CGCompositeMode(cg_mode));
-    } else {
-        bool needPrivateAPI = false;
-        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
-            int cg_mode = kCGBlendModeNormal;
-            switch (mode) {
-            case QPainter::CompositionMode_Multiply:
-                cg_mode = kCGBlendModeMultiply;
-                break;
-            case QPainter::CompositionMode_Screen:
-                cg_mode = kCGBlendModeScreen;
-                break;
-            case QPainter::CompositionMode_Overlay:
-                cg_mode = kCGBlendModeOverlay;
-                break;
-            case QPainter::CompositionMode_Darken:
-                cg_mode = kCGBlendModeDarken;
-                break;
-            case QPainter::CompositionMode_Lighten:
-                cg_mode = kCGBlendModeLighten;
-                break;
-            case QPainter::CompositionMode_ColorDodge:
-                cg_mode = kCGBlendModeColorDodge;
-                break;
-            case QPainter::CompositionMode_ColorBurn:
-                cg_mode = kCGBlendModeColorBurn;
-                break;
-            case QPainter::CompositionMode_HardLight:
-                cg_mode = kCGBlendModeHardLight;
-                break;
-            case QPainter::CompositionMode_SoftLight:
-                cg_mode = kCGBlendModeSoftLight;
-                break;
-            case QPainter::CompositionMode_Difference:
-                cg_mode = kCGBlendModeDifference;
-                break;
-            case QPainter::CompositionMode_Exclusion:
-                cg_mode = kCGBlendModeExclusion;
-                break;
-            case QPainter::CompositionMode_Plus:
-                needPrivateAPI = true;
-                cg_mode = kCGCompositeModePlusLighter;
-                break;
-            default:
-                break;
-            }
-            if (!needPrivateAPI)
-                CGContextSetBlendMode(d_func()->hd, CGBlendMode(cg_mode));
-            else
-                CGContextSetCompositeOperation(d_func()->hd, CGCompositeMode(cg_mode));
-        }
+    int cg_mode = kCGBlendModeNormal;
+    switch (mode) {
+    case QPainter::CompositionMode_Multiply:
+        cg_mode = kCGBlendModeMultiply;
+        break;
+    case QPainter::CompositionMode_Screen:
+        cg_mode = kCGBlendModeScreen;
+        break;
+    case QPainter::CompositionMode_Overlay:
+        cg_mode = kCGBlendModeOverlay;
+        break;
+    case QPainter::CompositionMode_Darken:
+        cg_mode = kCGBlendModeDarken;
+        break;
+    case QPainter::CompositionMode_Lighten:
+        cg_mode = kCGBlendModeLighten;
+        break;
+    case QPainter::CompositionMode_ColorDodge:
+        cg_mode = kCGBlendModeColorDodge;
+        break;
+    case QPainter::CompositionMode_ColorBurn:
+        cg_mode = kCGBlendModeColorBurn;
+        break;
+    case QPainter::CompositionMode_HardLight:
+        cg_mode = kCGBlendModeHardLight;
+        break;
+    case QPainter::CompositionMode_SoftLight:
+        cg_mode = kCGBlendModeSoftLight;
+        break;
+    case QPainter::CompositionMode_Difference:
+        cg_mode = kCGBlendModeDifference;
+        break;
+    case QPainter::CompositionMode_Exclusion:
+        cg_mode = kCGBlendModeExclusion;
+        break;
+    case QPainter::CompositionMode_Plus:
+        cg_mode = kCGBlendModePlusLighter;
+        break;
+    case QPainter::CompositionMode_SourceOver:
+        cg_mode = kCGBlendModeNormal;
+        break;
+    case QPainter::CompositionMode_DestinationOver:
+        cg_mode = kCGBlendModeDestinationOver;
+        break;
+    case QPainter::CompositionMode_Clear:
+        cg_mode = kCGBlendModeClear;
+        break;
+    case QPainter::CompositionMode_Source:
+        cg_mode = kCGBlendModeCopy;
+        break;
+    case QPainter::CompositionMode_Destination:
+        cg_mode = -1;
+        break;
+    case QPainter::CompositionMode_SourceIn:
+        cg_mode = kCGBlendModeSourceIn;
+        break;
+    case QPainter::CompositionMode_DestinationIn:
+        cg_mode = kCGCompositeModeDestinationIn;
+        break;
+    case QPainter::CompositionMode_SourceOut:
+        cg_mode = kCGBlendModeSourceOut;
+        break;
+    case QPainter::CompositionMode_DestinationOut:
+        cg_mode = kCGBlendModeDestinationOver;
+        break;
+    case QPainter::CompositionMode_SourceAtop:
+        cg_mode = kCGBlendModeSourceAtop;
+        break;
+    case QPainter::CompositionMode_DestinationAtop:
+        cg_mode = kCGBlendModeDestinationAtop;
+        break;
+    case QPainter::CompositionMode_Xor:
+        cg_mode = kCGBlendModeXOR;
+        break;
+    default:
+        break;
+    }
+    if (cg_mode > -1) {
+        CGContextSetBlendMode(d_func()->hd, CGBlendMode(cg_mode));
     }
 }
 
@@ -1644,8 +1539,6 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
         if (!(q->state->renderHints() & QPainter::Antialiasing)) {
             if (current.pen.style() == Qt::SolidLine || current.pen.width() >= 3)
                 CGContextTranslateCTM(hd, double(pixelSize.x()) * 0.25, double(pixelSize.y()) * 0.25);
-            else if (current.pen.style() == Qt::DotLine && QSysInfo::MacintoshVersion == QSysInfo::MV_10_3)
-                ; // Do nothing.
             else
                 CGContextTranslateCTM(hd, 0, double(pixelSize.y()) * 0.1);
         }

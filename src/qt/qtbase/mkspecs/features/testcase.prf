@@ -22,7 +22,7 @@ debug_and_release:debug_and_release_target {
 }
 
 !isEmpty(TESTRUN_CWD):!contains(TESTRUN_CWD,^\\./?): \
-    check.commands = cd $$system_path($$TESTRUN_CWD) &&
+    check.commands = cd $$shell_path($$TESTRUN_CWD) &&
 
 # Allow for a custom test runner script
 check.commands += $(TESTRUNNER)

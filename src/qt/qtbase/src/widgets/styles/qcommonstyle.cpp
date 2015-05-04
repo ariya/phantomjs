@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -321,22 +313,24 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
             QPen oldPen = p->pen();
             if (header->sortIndicator & QStyleOptionHeader::SortUp) {
-                QPolygon pa(3);
                 p->setPen(QPen(opt->palette.light(), 0));
                 p->drawLine(opt->rect.x() + opt->rect.width(), opt->rect.y(),
                             opt->rect.x() + opt->rect.width() / 2, opt->rect.y() + opt->rect.height());
                 p->setPen(QPen(opt->palette.dark(), 0));
-                pa.setPoint(0, opt->rect.x() + opt->rect.width() / 2, opt->rect.y() + opt->rect.height());
-                pa.setPoint(1, opt->rect.x(), opt->rect.y());
-                pa.setPoint(2, opt->rect.x() + opt->rect.width(), opt->rect.y());
-                p->drawPolyline(pa);
+                const QPoint points[] = {
+                    QPoint(opt->rect.x() + opt->rect.width() / 2, opt->rect.y() + opt->rect.height()),
+                    QPoint(opt->rect.x(), opt->rect.y()),
+                    QPoint(opt->rect.x() + opt->rect.width(), opt->rect.y()),
+                };
+                p->drawPolyline(points, sizeof points / sizeof *points);
             } else if (header->sortIndicator & QStyleOptionHeader::SortDown) {
-                QPolygon pa(3);
                 p->setPen(QPen(opt->palette.light(), 0));
-                pa.setPoint(0, opt->rect.x(), opt->rect.y() + opt->rect.height());
-                pa.setPoint(1, opt->rect.x() + opt->rect.width(), opt->rect.y() + opt->rect.height());
-                pa.setPoint(2, opt->rect.x() + opt->rect.width() / 2, opt->rect.y());
-                p->drawPolyline(pa);
+                const QPoint points[] = {
+                    QPoint(opt->rect.x(), opt->rect.y() + opt->rect.height()),
+                    QPoint(opt->rect.x() + opt->rect.width(), opt->rect.y() + opt->rect.height()),
+                    QPoint(opt->rect.x() + opt->rect.width() / 2, opt->rect.y()),
+                };
+                p->drawPolyline(points, sizeof points / sizeof *points);
                 p->setPen(QPen(opt->palette.dark(), 0));
                 p->drawLine(opt->rect.x(), opt->rect.y() + opt->rect.height(),
                             opt->rect.x() + opt->rect.width() / 2, opt->rect.y());
@@ -416,8 +410,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
 #ifndef QT_NO_GROUPBOX
     case PE_FrameGroupBox:
         if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
-            const QStyleOptionFrameV2 *frame2 = qstyleoption_cast<const QStyleOptionFrameV2 *>(opt);
-            if (frame2 && (frame2->features & QStyleOptionFrameV2::Flat)) {
+            if (frame->features & QStyleOptionFrame::Flat) {
                 QRect fr = frame->rect;
                 QPoint p1(fr.x(), fr.y() + 1);
                 QPoint p2(fr.x() + fr.width(), p1.y());
@@ -519,11 +512,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         if (pe == PE_IndicatorSpinUp && fw)
             --sy;
 
-        QPolygon a;
-        if (pe == PE_IndicatorSpinDown)
-            a.setPoints(3, 0, 1,  sw-1, 1,  sh-2, sh-1);
-        else
-            a.setPoints(3, 0, sh-1,  sw-1, sh-1,  sh-2, 1);
         int bsx = 0;
         int bsy = 0;
         if (opt->state & State_Sunken) {
@@ -535,7 +523,13 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         p->setPen(opt->palette.buttonText().color());
         p->setBrush(opt->palette.buttonText());
         p->setRenderHint(QPainter::Qt4CompatiblePainting);
-        p->drawPolygon(a);
+        if (pe == PE_IndicatorSpinDown) {
+            const QPoint points[] = { QPoint(0, 1), QPoint(sw-1, 1), QPoint(sh-2, sh-1) };
+            p->drawPolygon(points, sizeof points / sizeof *points);
+        } else {
+            const QPoint points[] = { QPoint(0, sh-1), QPoint(sw-1, sh-1), QPoint(sh-2, 1) };
+            p->drawPolygon(points, sizeof points / sizeof *points);
+        }
         p->restore();
         break; }
 #endif // QT_NO_SPINBOX
@@ -1120,7 +1114,7 @@ void QCommonStylePrivate::tabLayout(const QStyleOptionTabV3 *opt, const QWidget 
                         (opt->state & QStyle::State_Enabled) ? QIcon::Normal : QIcon::Disabled,
                         (opt->state & QStyle::State_Selected) ? QIcon::On : QIcon::Off  );
         // High-dpi icons do not need adjustmet; make sure tabIconSize is not larger than iconSize
-        tabIconSize = QSize(qMin(tabIconSize.width(), iconSize.width()), qMin(tabIconSize.height(), iconSize.width()));
+        tabIconSize = QSize(qMin(tabIconSize.width(), iconSize.width()), qMin(tabIconSize.height(), iconSize.height()));
 
         *iconRect = QRect(tr.left(), tr.center().y() - tabIconSize.height() / 2,
                     tabIconSize.width(), tabIconSize .height());
@@ -1136,6 +1130,7 @@ void QCommonStylePrivate::tabLayout(const QStyleOptionTabV3 *opt, const QWidget 
 }
 #endif //QT_NO_TABBAR
 
+#ifndef QT_NO_ANIMATION
 /*! \internal */
 QList<const QObject*> QCommonStylePrivate::animationTargets() const
 {
@@ -1155,7 +1150,7 @@ void QCommonStylePrivate::startAnimation(QStyleAnimation *animation) const
     stopAnimation(animation->target());
     q->connect(animation, SIGNAL(destroyed()), SLOT(_q_removeAnimation()), Qt::UniqueConnection);
     animations.insert(animation->target(), animation);
-    animation->start(QAbstractAnimation::DeleteWhenStopped);
+    animation->start();
 }
 
 /*! \internal */
@@ -1176,6 +1171,7 @@ void QCommonStylePrivate::_q_removeAnimation()
     if (animation)
         animations.remove(animation->parent());
 }
+#endif
 
 /*!
   \reimp
@@ -1642,30 +1638,33 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         break;
     case CE_ToolBoxTabShape:
         if (const QStyleOptionToolBox *tb = qstyleoption_cast<const QStyleOptionToolBox *>(opt)) {
-            int d = 20 + tb->rect.height() - 3;
-            QPolygon a(7);
-            if (tb->direction != Qt::RightToLeft) {
-                a.setPoint(0, -1, tb->rect.height() + 1);
-                a.setPoint(1, -1, 1);
-                a.setPoint(2, tb->rect.width() - d, 1);
-                a.setPoint(3, tb->rect.width() - 20, tb->rect.height() - 2);
-                a.setPoint(4, tb->rect.width() - 1, tb->rect.height() - 2);
-                a.setPoint(5, tb->rect.width() - 1, tb->rect.height() + 1);
-                a.setPoint(6, -1, tb->rect.height() + 1);
-            } else {
-                a.setPoint(0, tb->rect.width(), tb->rect.height() + 1);
-                a.setPoint(1, tb->rect.width(), 1);
-                a.setPoint(2, d - 1, 1);
-                a.setPoint(3, 20 - 1, tb->rect.height() - 2);
-                a.setPoint(4, 0, tb->rect.height() - 2);
-                a.setPoint(5, 0, tb->rect.height() + 1);
-                a.setPoint(6, tb->rect.width(), tb->rect.height() + 1);
-            }
-
             p->setPen(tb->palette.mid().color().darker(150));
             bool oldQt4CompatiblePainting = p->testRenderHint(QPainter::Qt4CompatiblePainting);
             p->setRenderHint(QPainter::Qt4CompatiblePainting);
-            p->drawPolygon(a);
+            int d = 20 + tb->rect.height() - 3;
+            if (tb->direction != Qt::RightToLeft) {
+                const QPoint points[] = {
+                    QPoint(-1, tb->rect.height() + 1),
+                    QPoint(-1, 1),
+                    QPoint(tb->rect.width() - d, 1),
+                    QPoint(tb->rect.width() - 20, tb->rect.height() - 2),
+                    QPoint(tb->rect.width() - 1, tb->rect.height() - 2),
+                    QPoint(tb->rect.width() - 1, tb->rect.height() + 1),
+                    QPoint(-1, tb->rect.height() + 1),
+                };
+                p->drawPolygon(points, sizeof points / sizeof *points);
+            } else {
+                const QPoint points[] = {
+                    QPoint(tb->rect.width(), tb->rect.height() + 1),
+                    QPoint(tb->rect.width(), 1),
+                    QPoint(d - 1, 1),
+                    QPoint(20 - 1, tb->rect.height() - 2),
+                    QPoint(0, tb->rect.height() - 2),
+                    QPoint(0, tb->rect.height() + 1),
+                    QPoint(tb->rect.width(), tb->rect.height() + 1),
+                };
+                p->drawPolygon(points, sizeof points / sizeof *points);
+            }
             p->setRenderHint(QPainter::Qt4CompatiblePainting, oldQt4CompatiblePainting);
             p->setPen(tb->palette.light().color());
             if (tb->direction != Qt::RightToLeft) {
@@ -2226,7 +2225,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
 #endif // QT_NO_ITEMVIEWS
 #ifndef QT_NO_FRAME
     case CE_ShapedFrame:
-        if (const QStyleOptionFrameV3 *f = qstyleoption_cast<const QStyleOptionFrameV3 *>(opt)) {
+        if (const QStyleOptionFrame *f = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
             int frameShape  = f->frameShape;
             int frameShadow = QFrame::Plain;
             if (f->state & QStyle::State_Sunken) {
@@ -2816,14 +2815,14 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt,
         }
         break;
     case SE_FrameContents:
-        if (const QStyleOptionFrameV2 *f = qstyleoption_cast<const QStyleOptionFrameV2 *>(opt)) {
+        if (const QStyleOptionFrame *f = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
             int fw = proxy()->pixelMetric(PM_DefaultFrameWidth, f, widget);
             r = opt->rect.adjusted(fw, fw, -fw, -fw);
             r = visualRect(opt->direction, opt->rect, r);
         }
         break;
     case SE_ShapedFrameContents:
-        if (const QStyleOptionFrameV3 *f = qstyleoption_cast<const QStyleOptionFrameV3 *>(opt)) {
+        if (const QStyleOptionFrame *f = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
             int frameShape  = f->frameShape;
             int frameShadow = QFrame::Plain;
             if (f->state & QStyle::State_Sunken) {
@@ -2912,7 +2911,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt,
 
             QRect closeRect;
             if (canClose) {
-                QSize sz = standardIcon(QStyle::SP_TitleBarCloseButton,
+                QSize sz = proxy()->standardIcon(QStyle::SP_TitleBarCloseButton,
                                         opt, widget).actualSize(QSize(iconSize, iconSize));
                 sz += QSize(buttonMargin, buttonMargin);
                 if (verticalTitleBar)
@@ -2929,7 +2928,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt,
 
             QRect floatRect;
             if (canFloat) {
-                QSize sz = standardIcon(QStyle::SP_TitleBarNormalButton,
+                QSize sz = proxy()->standardIcon(QStyle::SP_TitleBarNormalButton,
                                         opt, widget).actualSize(QSize(iconSize, iconSize));
                 sz += QSize(buttonMargin, buttonMargin);
                 if (verticalTitleBar)
@@ -3037,7 +3036,18 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt,
 
 #ifndef QT_NO_DIAL
 
-static QPolygonF calcArrow(const QStyleOptionSlider *dial, qreal &a)
+// in lieu of std::array, minimal API
+template <int N>
+struct StaticPolygonF
+{
+    QPointF data[N];
+
+    Q_DECL_CONSTEXPR int size() const { return N; }
+    Q_DECL_CONSTEXPR const QPointF *cbegin() const { return data; }
+    Q_DECL_CONSTEXPR const QPointF &operator[](int idx) const { return data[idx]; }
+};
+
+static StaticPolygonF<3> calcArrow(const QStyleOptionSlider *dial, qreal &a)
 {
     int width = dial->rect.width();
     int height = dial->rect.height();
@@ -3061,13 +3071,14 @@ static QPolygonF calcArrow(const QStyleOptionSlider *dial, qreal &a)
         len = 5;
     int back = len / 2;
 
-    QPolygonF arrow(3);
-    arrow[0] = QPointF(0.5 + xc + len * qCos(a),
-                       0.5 + yc - len * qSin(a));
-    arrow[1] = QPointF(0.5 + xc + back * qCos(a + Q_PI * 5 / 6),
-                       0.5 + yc - back * qSin(a + Q_PI * 5 / 6));
-    arrow[2] = QPointF(0.5 + xc + back * qCos(a - Q_PI * 5 / 6),
-                       0.5 + yc - back * qSin(a - Q_PI * 5 / 6));
+    StaticPolygonF<3> arrow = {{
+        QPointF(0.5 + xc + len * qCos(a),
+                0.5 + yc - len * qSin(a)),
+        QPointF(0.5 + xc + back * qCos(a + Q_PI * 5 / 6),
+                0.5 + yc - back * qSin(a + Q_PI * 5 / 6)),
+        QPointF(0.5 + xc + back * qCos(a - Q_PI * 5 / 6),
+                0.5 + yc - back * qSin(a - Q_PI * 5 / 6)),
+    }};
     return arrow;
 }
 
@@ -3392,9 +3403,9 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     || qobject_cast<const QDockWidget *>(widget)
 #endif
                     )
-                    pm = standardIcon(SP_DockWidgetCloseButton, &tool, widget).pixmap(10, 10);
+                    pm = proxy()->standardIcon(SP_DockWidgetCloseButton, &tool, widget).pixmap(10, 10);
                 else
-                    pm = standardIcon(SP_TitleBarCloseButton, &tool, widget).pixmap(10, 10);
+                    pm = proxy()->standardIcon(SP_TitleBarCloseButton, &tool, widget).pixmap(10, 10);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;
                 proxy()->drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
@@ -3413,7 +3424,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 ir = proxy()->subControlRect(CC_TitleBar, tb, SC_TitleBarMaxButton, widget);
 
                 down = tb->activeSubControls & SC_TitleBarMaxButton && (opt->state & State_Sunken);
-                pm = standardIcon(SP_TitleBarMaxButton, &tool, widget).pixmap(10, 10);
+                pm = proxy()->standardIcon(SP_TitleBarMaxButton, &tool, widget).pixmap(10, 10);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;
                 proxy()->drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
@@ -3431,7 +3442,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     && !(tb->titleBarState & Qt::WindowMinimized)) {
                 ir = proxy()->subControlRect(CC_TitleBar, tb, SC_TitleBarMinButton, widget);
                 down = tb->activeSubControls & SC_TitleBarMinButton && (opt->state & State_Sunken);
-                pm = standardIcon(SP_TitleBarMinButton, &tool, widget).pixmap(10, 10);
+                pm = proxy()->standardIcon(SP_TitleBarMinButton, &tool, widget).pixmap(10, 10);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;
                 proxy()->drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
@@ -3453,7 +3464,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (drawNormalButton) {
                 ir = proxy()->subControlRect(CC_TitleBar, tb, SC_TitleBarNormalButton, widget);
                 down = tb->activeSubControls & SC_TitleBarNormalButton && (opt->state & State_Sunken);
-                pm = standardIcon(SP_TitleBarNormalButton, &tool, widget).pixmap(10, 10);
+                pm = proxy()->standardIcon(SP_TitleBarNormalButton, &tool, widget).pixmap(10, 10);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;
                 proxy()->drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
@@ -3471,7 +3482,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     && !(tb->titleBarState & Qt::WindowMinimized)) {
                 ir = proxy()->subControlRect(CC_TitleBar, tb, SC_TitleBarShadeButton, widget);
                 down = (tb->activeSubControls & SC_TitleBarShadeButton && (opt->state & State_Sunken));
-                pm = standardIcon(SP_TitleBarShadeButton, &tool, widget).pixmap(10, 10);
+                pm = proxy()->standardIcon(SP_TitleBarShadeButton, &tool, widget).pixmap(10, 10);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;
                 proxy()->drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
@@ -3489,7 +3500,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 ir = proxy()->subControlRect(CC_TitleBar, tb, SC_TitleBarUnshadeButton, widget);
 
                 down = tb->activeSubControls & SC_TitleBarUnshadeButton  && (opt->state & State_Sunken);
-                pm = standardIcon(SP_TitleBarUnshadeButton, &tool, widget).pixmap(10, 10);
+                pm = proxy()->standardIcon(SP_TitleBarUnshadeButton, &tool, widget).pixmap(10, 10);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;
                 proxy()->drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
@@ -3505,7 +3516,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 ir = proxy()->subControlRect(CC_TitleBar, tb, SC_TitleBarContextHelpButton, widget);
 
                 down = tb->activeSubControls & SC_TitleBarContextHelpButton  && (opt->state & State_Sunken);
-                pm = standardIcon(SP_TitleBarContextHelpButton, &tool, widget).pixmap(10, 10);
+                pm = proxy()->standardIcon(SP_TitleBarContextHelpButton, &tool, widget).pixmap(10, 10);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;
                 proxy()->drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
@@ -3522,7 +3533,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     tb->icon.paint(p, ir);
                 } else {
                     int iconSize = proxy()->pixelMetric(PM_SmallIconSize, tb, widget);
-                    pm = standardIcon(SP_TitleBarMenuButton, &tool, widget).pixmap(iconSize, iconSize);
+                    pm = proxy()->standardIcon(SP_TitleBarMenuButton, &tool, widget).pixmap(iconSize, iconSize);
                     tool.rect = ir;
                     p->save();
                     proxy()->drawItemPixmap(p, ir, Qt::AlignCenter, pm);
@@ -3569,12 +3580,12 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             p->drawArc(br, 240 * 16, 180 * 16);
 
             qreal a;
-            QPolygonF arrow(calcArrow(dial, a));
+            const StaticPolygonF<3> arrow = calcArrow(dial, a);
 
             p->setPen(Qt::NoPen);
             p->setBrush(pal.button());
             p->setRenderHint(QPainter::Qt4CompatiblePainting);
-            p->drawPolygon(arrow);
+            p->drawPolygon(arrow.cbegin(), arrow.size());
 
             a = QStyleHelper::angle(QPointF(width / 2, height / 2), arrow[0]);
             p->setBrush(Qt::NoBrush);
@@ -3632,7 +3643,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             QRect textRect = proxy()->subControlRect(CC_GroupBox, opt, SC_GroupBoxLabel, widget);
             QRect checkBoxRect = proxy()->subControlRect(CC_GroupBox, opt, SC_GroupBoxCheckBox, widget);
             if (groupBox->subControls & QStyle::SC_GroupBoxFrame) {
-                QStyleOptionFrameV2 frame;
+                QStyleOptionFrame frame;
                 frame.QStyleOption::operator=(*groupBox);
                 frame.features = groupBox->features;
                 frame.lineWidth = groupBox->lineWidth;
@@ -3709,7 +3720,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 }
                 btnOpt.rect = proxy()->subControlRect(CC_MdiControls, opt, SC_MdiCloseButton, widget);
                 proxy()->drawPrimitive(PE_PanelButtonCommand, &btnOpt, p, widget);
-                QPixmap pm = standardIcon(SP_TitleBarCloseButton).pixmap(16, 16);
+                QPixmap pm = proxy()->standardIcon(SP_TitleBarCloseButton).pixmap(16, 16);
                 proxy()->drawItemPixmap(p, btnOpt.rect.translated(bsx, bsy), Qt::AlignCenter, pm);
             }
             if (opt->subControls & QStyle::SC_MdiNormalButton) {
@@ -3726,7 +3737,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 }
                 btnOpt.rect = proxy()->subControlRect(CC_MdiControls, opt, SC_MdiNormalButton, widget);
                 proxy()->drawPrimitive(PE_PanelButtonCommand, &btnOpt, p, widget);
-                QPixmap pm = standardIcon(SP_TitleBarNormalButton).pixmap(16, 16);
+                QPixmap pm = proxy()->standardIcon(SP_TitleBarNormalButton).pixmap(16, 16);
                 proxy()->drawItemPixmap(p, btnOpt.rect.translated(bsx, bsy), Qt::AlignCenter, pm);
             }
             if (opt->subControls & QStyle::SC_MdiMinButton) {
@@ -3743,7 +3754,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 }
                 btnOpt.rect = proxy()->subControlRect(CC_MdiControls, opt, SC_MdiMinButton, widget);
                 proxy()->drawPrimitive(PE_PanelButtonCommand, &btnOpt, p, widget);
-                QPixmap pm = standardIcon(SP_TitleBarMinButton).pixmap(16, 16);
+                QPixmap pm = proxy()->standardIcon(SP_TitleBarMinButton).pixmap(16, 16);
                 proxy()->drawItemPixmap(p, btnOpt.rect.translated(bsx, bsy), Qt::AlignCenter, pm);
             }
         }
@@ -4223,7 +4234,7 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
                 }
 
                 int frameWidth = 0;
-                if ((groupBox->features & QStyleOptionFrameV2::Flat) == 0)
+                if ((groupBox->features & QStyleOptionFrame::Flat) == 0)
                     frameWidth = proxy()->pixelMetric(PM_DefaultFrameWidth, groupBox, widget);
                 ret = frameRect.adjusted(frameWidth, frameWidth + topHeight - topMargin,
                                          -frameWidth, -frameWidth);
@@ -4235,7 +4246,7 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
                 QFontMetrics fontMetrics = groupBox->fontMetrics;
                 int h = fontMetrics.height();
                 int tw = fontMetrics.size(Qt::TextShowMnemonic, groupBox->text + QLatin1Char(' ')).width();
-                int marg = (groupBox->features & QStyleOptionFrameV2::Flat) ? 0 : 8;
+                int marg = (groupBox->features & QStyleOptionFrame::Flat) ? 0 : 8;
                 ret = groupBox->rect.adjusted(marg, 0, -marg, 0);
                 ret.setHeight(h);
 
@@ -4576,7 +4587,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         ret = int(QStyleHelper::dpiScaled(4.));
         break;
     case PM_HeaderMarkSize:
-        ret = int(QStyleHelper::dpiScaled(32.));
+        ret = int(QStyleHelper::dpiScaled(16.));
         break;
     case PM_HeaderGripMargin:
         ret = int(QStyleHelper::dpiScaled(4.));
@@ -4676,6 +4687,9 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         break;
     case PM_SubMenuOverlap:
         ret = -proxy()->pixelMetric(QStyle::PM_MenuPanelWidth, opt, widget);
+        break;
+    case PM_TreeViewIndentation:
+        ret = int(QStyleHelper::dpiScaled(20.));
         break;
     default:
         ret = 0;
@@ -4783,6 +4797,13 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
             sz.setHeight(margin + qMax(iconSize, txt.height()) + margin);
             sz.setWidth((nullIcon ? 0 : margin) + iconSize
                         + (hdr->text.isNull() ? 0 : margin) + txt.width() + margin);
+            if (hdr->sortIndicator != QStyleOptionHeader::None) {
+                int margin = proxy()->pixelMetric(QStyle::PM_HeaderMargin, hdr, widget);
+                if (hdr->orientation == Qt::Horizontal)
+                    sz.rwidth() += sz.height() + margin;
+                else
+                    sz.rheight() += sz.width() + margin;
+            }
         }
         break;
     case CT_TabWidget:
@@ -4886,8 +4907,11 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
 
 
     case SH_TabBar_Alignment:
-    case SH_Header_ArrowAlignment:
         ret = Qt::AlignLeft;
+        break;
+
+    case SH_Header_ArrowAlignment:
+        ret = Qt::AlignRight | Qt::AlignVCenter;
         break;
 
     case SH_TitleBar_AutoRaise:
@@ -4923,6 +4947,9 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         ret = hint.toChar().unicode();
         break;
     }
+    case SH_LineEdit_PasswordMaskDelay:
+        ret = QGuiApplicationPrivate::platformTheme()->themeHint(QPlatformTheme::PasswordMaskDelay).toInt();
+        break;
     case SH_ToolBox_SelectedPageTitleBold:
         ret = 1;
         break;
@@ -5099,6 +5126,9 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
     case SH_TabBar_CloseButtonPosition:
         ret = QTabBar::RightSide;
         break;
+    case SH_TabBar_ChangeCurrentDelay:
+        ret = 500;
+        break;
 #endif
     case SH_DockWidget_ButtonsHaveFrame:
         ret = true;
@@ -5144,6 +5174,17 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
     }
 
     return ret;
+}
+
+static QPixmap cachedPixmapFromXPM(const char * const *xpm)
+{
+    QPixmap result;
+    const QString tag = QString().sprintf("xpm:0x%p", static_cast<const void*>(xpm));
+    if (!QPixmapCache::find(tag, &result)) {
+        result = QPixmap(xpm);
+        QPixmapCache::insert(tag, result);
+    }
+    return result;
 }
 
 /*! \reimp */
@@ -5341,13 +5382,13 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap sp, const QStyleOption *opti
             im = im.convertToFormat(QImage::Format_ARGB32).mirrored(true, false);
             return QPixmap::fromImage(im);
         }
-        return QPixmap(tb_extension_arrow_h_xpm);
+        return cachedPixmapFromXPM(tb_extension_arrow_h_xpm);
     case SP_ToolBarVerticalExtensionButton:
-        return QPixmap(tb_extension_arrow_v_xpm);
+        return cachedPixmapFromXPM(tb_extension_arrow_v_xpm);
     case SP_FileDialogStart:
-        return QPixmap(filedialog_start_xpm);
+        return cachedPixmapFromXPM(filedialog_start_xpm);
     case SP_FileDialogEnd:
-        return QPixmap(filedialog_end_xpm);
+        return cachedPixmapFromXPM(filedialog_end_xpm);
 #endif
 #ifndef QT_NO_IMAGEFORMAT_PNG
     case SP_CommandLink:
@@ -5463,31 +5504,31 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap sp, const QStyleOption *opti
 #ifndef QT_NO_IMAGEFORMAT_XPM
     switch (sp) {
     case SP_TitleBarMenuButton:
-        return QPixmap(qt_menu_xpm);
+        return cachedPixmapFromXPM(qt_menu_xpm);
     case SP_TitleBarShadeButton:
-        return QPixmap(qt_shade_xpm);
+        return cachedPixmapFromXPM(qt_shade_xpm);
     case SP_TitleBarUnshadeButton:
-        return QPixmap(qt_unshade_xpm);
+        return cachedPixmapFromXPM(qt_unshade_xpm);
     case SP_TitleBarNormalButton:
-        return QPixmap(qt_normalizeup_xpm);
+        return cachedPixmapFromXPM(qt_normalizeup_xpm);
     case SP_TitleBarMinButton:
-        return QPixmap(qt_minimize_xpm);
+        return cachedPixmapFromXPM(qt_minimize_xpm);
     case SP_TitleBarMaxButton:
-        return QPixmap(qt_maximize_xpm);
+        return cachedPixmapFromXPM(qt_maximize_xpm);
     case SP_TitleBarCloseButton:
-        return QPixmap(qt_close_xpm);
+        return cachedPixmapFromXPM(qt_close_xpm);
     case SP_TitleBarContextHelpButton:
-        return QPixmap(qt_help_xpm);
+        return cachedPixmapFromXPM(qt_help_xpm);
     case SP_DockWidgetCloseButton:
-        return QPixmap(dock_widget_close_xpm);
+        return cachedPixmapFromXPM(dock_widget_close_xpm);
     case SP_MessageBoxInformation:
-        return QPixmap(information_xpm);
+        return cachedPixmapFromXPM(information_xpm);
     case SP_MessageBoxWarning:
-        return QPixmap(warning_xpm);
+        return cachedPixmapFromXPM(warning_xpm);
     case SP_MessageBoxCritical:
-        return QPixmap(critical_xpm);
+        return cachedPixmapFromXPM(critical_xpm);
     case SP_MessageBoxQuestion:
-        return QPixmap(question_xpm);
+        return cachedPixmapFromXPM(question_xpm);
     default:
         break;
     }

@@ -5,35 +5,27 @@
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -45,14 +37,16 @@
 #include <QGuiApplication>
 #include <QOpenGLContext>
 #include <QThread>
+#include <QOffscreenSurface>
 
-#include <QtPlatformSupport/private/qgenericunixeventdispatcher_p.h>
-
+#include <QtPlatformSupport/private/qeglpbuffer_p.h>
 #include <qpa/qwindowsysteminterface.h>
 #include <qpa/qplatformwindow.h>
+#include <qpa/qplatformoffscreensurface.h>
 
 #include "androidjnimain.h"
 #include "qabstracteventdispatcher.h"
+#include "qandroideventdispatcher.h"
 #include "qandroidplatformbackingstore.h"
 #include "qandroidplatformaccessibility.h"
 #include "qandroidplatformclipboard.h"
@@ -60,7 +54,6 @@
 #include "qandroidplatformfontdatabase.h"
 #include "qandroidplatformopenglcontext.h"
 #include "qandroidplatformopenglwindow.h"
-#include "qandroidplatformrasterwindow.h"
 #include "qandroidplatformscreen.h"
 #include "qandroidplatformservices.h"
 #include "qandroidplatformtheme.h"
@@ -71,6 +64,8 @@ QT_BEGIN_NAMESPACE
 
 int QAndroidPlatformIntegration::m_defaultGeometryWidth = 320;
 int QAndroidPlatformIntegration::m_defaultGeometryHeight = 455;
+int QAndroidPlatformIntegration::m_defaultScreenWidth = 320;
+int QAndroidPlatformIntegration::m_defaultScreenHeight = 455;
 int QAndroidPlatformIntegration::m_defaultPhysicalSizeWidth = 50;
 int QAndroidPlatformIntegration::m_defaultPhysicalSizeHeight = 71;
 
@@ -83,10 +78,27 @@ void *QAndroidPlatformNativeInterface::nativeResourceForIntegration(const QByteA
         return QtAndroid::javaVM();
     if (resource == "QtActivity")
         return QtAndroid::activity();
-    if (resource == "AndroidStylePalettes")
-        return &m_palettes;
-    if (resource == "AndroidStyleFonts")
-        return &m_fonts;
+    if (resource == "AndroidStyleData") {
+        if (m_androidStyle) {
+            if (m_androidStyle->m_styleData.isEmpty())
+                m_androidStyle->m_styleData = AndroidStyle::loadStyleData();
+            return &m_androidStyle->m_styleData;
+        }
+        else
+            return Q_NULLPTR;
+    }
+    if (resource == "AndroidStandardPalette") {
+        if (m_androidStyle)
+            return &m_androidStyle->m_standardPalette;
+        else
+            return Q_NULLPTR;
+    }
+    if (resource == "AndroidQWidgetFonts") {
+        if (m_androidStyle)
+            return &m_androidStyle->m_QWidgetsFonts;
+        else
+            return Q_NULLPTR;
+    }
     if (resource == "AndroidDeviceName") {
         static QString deviceName = QtAndroid::deviceName();
         return &deviceName;
@@ -118,7 +130,8 @@ QAndroidPlatformIntegration::QAndroidPlatformIntegration(const QStringList &para
     m_primaryScreen = new QAndroidPlatformScreen();
     screenAdded(m_primaryScreen);
     m_primaryScreen->setPhysicalSize(QSize(m_defaultPhysicalSizeWidth, m_defaultPhysicalSizeHeight));
-    m_primaryScreen->setGeometry(QRect(0, 0, m_defaultGeometryWidth, m_defaultGeometryHeight));
+    m_primaryScreen->setSize(QSize(m_defaultScreenWidth, m_defaultScreenHeight));
+    m_primaryScreen->setAvailableGeometry(QRect(0, 0, m_defaultGeometryWidth, m_defaultGeometryHeight));
 
     m_mainThread = QThread::currentThread();
     QtAndroid::setAndroidPlatformIntegration(this);
@@ -168,9 +181,9 @@ QAndroidPlatformIntegration::QAndroidPlatformIntegration(const QStringList &para
 bool QAndroidPlatformIntegration::needsBasicRenderloopWorkaround()
 {
     static bool needsWorkaround =
-            QtAndroid::deviceName().compare(QStringLiteral("samsung SM-T211"), Qt::CaseInsensitive) == 0
-            || QtAndroid::deviceName().compare(QStringLiteral("samsung SM-T210"), Qt::CaseInsensitive) == 0
-            || QtAndroid::deviceName().compare(QStringLiteral("samsung SM-T215"), Qt::CaseInsensitive) == 0;
+            QtAndroid::deviceName().compare(QLatin1String("samsung SM-T211"), Qt::CaseInsensitive) == 0
+            || QtAndroid::deviceName().compare(QLatin1String("samsung SM-T210"), Qt::CaseInsensitive) == 0
+            || QtAndroid::deviceName().compare(QLatin1String("samsung SM-T215"), Qt::CaseInsensitive) == 0;
     return needsWorkaround;
 }
 
@@ -187,6 +200,7 @@ bool QAndroidPlatformIntegration::hasCapability(Capability cap) const
                 return false;
             else
                 return true;
+        case RasterGLSurface: return true;
         default:
             return QPlatformIntegration::hasCapability(cap);
     }
@@ -207,19 +221,28 @@ QPlatformOpenGLContext *QAndroidPlatformIntegration::createPlatformOpenGLContext
     return new QAndroidPlatformOpenGLContext(format, context->shareHandle(), m_eglDisplay);
 }
 
+QPlatformOffscreenSurface *QAndroidPlatformIntegration::createPlatformOffscreenSurface(QOffscreenSurface *surface) const
+{
+    QSurfaceFormat format(surface->requestedFormat());
+    format.setAlphaBufferSize(8);
+    format.setRedBufferSize(8);
+    format.setGreenBufferSize(8);
+    format.setBlueBufferSize(8);
+
+    return new QEGLPbuffer(m_eglDisplay, format, surface);
+}
+
 QPlatformWindow *QAndroidPlatformIntegration::createPlatformWindow(QWindow *window) const
 {
     if (window->type() == Qt::ForeignWindow)
         return new QAndroidPlatformForeignWindow(window);
-    else if (window->surfaceType() == QSurface::RasterSurface)
-        return new QAndroidPlatformRasterWindow(window);
     else
         return new QAndroidPlatformOpenGLWindow(window, m_eglDisplay);
 }
 
 QAbstractEventDispatcher *QAndroidPlatformIntegration::createEventDispatcher() const
 {
-    return createUnixEventDispatcher();
+    return new QAndroidEventDispatcher;
 }
 
 QAndroidPlatformIntegration::~QAndroidPlatformIntegration()
@@ -298,12 +321,14 @@ QPlatformTheme *QAndroidPlatformIntegration::createPlatformTheme(const QString &
     return 0;
 }
 
-void QAndroidPlatformIntegration::setDefaultDisplayMetrics(int gw, int gh, int sw, int sh)
+void QAndroidPlatformIntegration::setDefaultDisplayMetrics(int gw, int gh, int sw, int sh, int screenWidth, int screenHeight)
 {
     m_defaultGeometryWidth = gw;
     m_defaultGeometryHeight = gh;
     m_defaultPhysicalSizeWidth = sw;
     m_defaultPhysicalSizeHeight = sh;
+    m_defaultScreenWidth = screenWidth;
+    m_defaultScreenHeight = screenHeight;
 }
 
 void QAndroidPlatformIntegration::setDefaultDesktopSize(int gw, int gh)
@@ -331,13 +356,19 @@ QPlatformAccessibility *QAndroidPlatformIntegration::accessibility() const
 void QAndroidPlatformIntegration::setDesktopSize(int width, int height)
 {
     if (m_primaryScreen)
-        QMetaObject::invokeMethod(m_primaryScreen, "setGeometry", Qt::AutoConnection, Q_ARG(QRect, QRect(0,0,width, height)));
+        QMetaObject::invokeMethod(m_primaryScreen, "setAvailableGeometry", Qt::AutoConnection, Q_ARG(QRect, QRect(0,0,width, height)));
 }
 
 void QAndroidPlatformIntegration::setDisplayMetrics(int width, int height)
 {
     if (m_primaryScreen)
         QMetaObject::invokeMethod(m_primaryScreen, "setPhysicalSize", Qt::AutoConnection, Q_ARG(QSize, QSize(width, height)));
+}
+
+void QAndroidPlatformIntegration::setScreenSize(int width, int height)
+{
+    if (m_primaryScreen)
+        QMetaObject::invokeMethod(m_primaryScreen, "setSize", Qt::AutoConnection, Q_ARG(QSize, QSize(width, height)));
 }
 
 QT_END_NAMESPACE

@@ -2,7 +2,6 @@ include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
 
 project                 = QtWidgets
 description             = Qt Widgets Reference Documentation
-url                     = http://qt-project.org/doc/qt-$QT_VER
 version                 = $QT_VERSION
 
 examplesinstallpath     = widgets
@@ -33,15 +32,6 @@ headerdirs  += ..
 
 sourcedirs  += .. \
                ../../../examples/widgets/doc/src
-
-excludefiles += ../widgets/qmacnativewidget_mac.h \
-                ../widgets/qmaccocoaviewcontainer_mac.h \
-                ../widgets/qcocoatoolbardelegate_mac_p.h \
-                ../widgets/qcocoamenu_mac_p.h \
-                ../widgets/qmaccocoaviewcontainer_mac.mm \
-                ../widgets/qcocoatoolbardelegate_mac.mm \
-                ../widgets/qmainwindowlayout_mac.mm \
-                ../widgets/qmacnativewidget_mac.mm
 
 exampledirs += ../../../examples/widgets \
                ../../../doc/src/snippets \

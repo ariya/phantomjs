@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -509,7 +501,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxLength)
 {
     if (!data) return "(null)";
     QByteArray out;
-    for (int i = 0; i < len; ++i) {
+    for (int i = 0; i < qMin(len, maxLength); ++i) {
         char c = data[i];
         if (isprint(int(uchar(c)))) {
             out += c;
@@ -1890,6 +1882,9 @@ bool QAbstractSocket::setSocketDescriptor(qintptr socketDescriptor, SocketState 
     \since 4.6
     Sets the given \a option to the value described by \a value.
 
+    \note On Windows Runtime, QAbstractSocket::KeepAliveOption must be set
+    before the socket is connected.
+
     \sa socketOption()
 */
 void QAbstractSocket::setSocketOption(QAbstractSocket::SocketOption option, const QVariant &value)
@@ -2008,6 +2003,9 @@ static int qt_timeout_value(int msecs, int elapsed)
     \note Multiple calls to this functions do not accumulate the time.
     If the function times out, the connecting process will be aborted.
 
+    \note This function may fail randomly on Windows. Consider using the event
+    loop and the connected() signal if your software will run on Windows.
+
     \sa connectToHost(), connected()
 */
 bool QAbstractSocket::waitForConnected(int msecs)
@@ -2107,6 +2105,9 @@ bool QAbstractSocket::waitForConnected(int msecs)
     there is new data available for reading; otherwise it returns \c false
     (if an error occurred or the operation timed out).
 
+    \note This function may fail randomly on Windows. Consider using the event
+    loop and the readyRead() signal if your software will run on Windows.
+
     \sa waitForBytesWritten()
 */
 bool QAbstractSocket::waitForReadyRead(int msecs)
@@ -2166,6 +2167,20 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
 }
 
 /*! \reimp
+
+    This function blocks until at least one byte has been written on the socket
+    and the \l{QIODevice::}{bytesWritten()} signal has been emitted. The
+    function will timeout after \a msecs milliseconds; the default timeout is
+    30000 milliseconds.
+
+    The function returns \c true if the bytesWritten() signal is emitted;
+    otherwise it returns \c false (if an error occurred or the operation timed
+    out).
+
+    \note This function may fail randomly on Windows. Consider using the event
+    loop and the bytesWritten() signal if your software will run on Windows.
+
+    \sa waitForReadyRead()
  */
 bool QAbstractSocket::waitForBytesWritten(int msecs)
 {
@@ -2246,6 +2261,9 @@ bool QAbstractSocket::waitForBytesWritten(int msecs)
     \snippet code/src_network_socket_qabstractsocket.cpp 1
 
     If msecs is -1, this function will not time out.
+
+    \note This function may fail randomly on Windows. Consider using the event
+    loop and the disconnected() signal if your software will run on Windows.
 
     \sa disconnectFromHost(), close()
 */
@@ -2397,7 +2415,7 @@ qint64 QAbstractSocket::readData(char *data, qint64 maxSize)
         return 0;
 
     // This is for a buffered QTcpSocket
-    if (d->isBuffered && d->buffer.isEmpty())
+    if (d->isBuffered)
         // if we're still connected, return 0 indicating there may be more data in the future
         // if we're not connected, return -1 indicating EOF
         return d->state == QAbstractSocket::ConnectedState ? qint64(0) : qint64(-1);

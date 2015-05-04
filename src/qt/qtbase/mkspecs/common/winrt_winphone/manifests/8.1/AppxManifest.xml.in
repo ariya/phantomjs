@@ -1,5 +1,5 @@
 <?xml version=\"1.0\" encoding=\"utf-8\"?>
-<Package xmlns=\"http://schemas.microsoft.com/appx/2010/manifest\" xmlns:v2=\"http://schemas.microsoft.com/appx/2013/manifest\">
+<Package xmlns=\"http://schemas.microsoft.com/appx/2010/manifest\" xmlns:m2=\"http://schemas.microsoft.com/appx/2013/manifest\">
   <Identity
     Name=\"$${WINRT_MANIFEST.identity}\"
     ProcessorArchitecture=\"$${WINRT_MANIFEST.architecture}\"
@@ -22,20 +22,20 @@
       Id=\"App\"
       Executable=\"$${WINRT_MANIFEST.target}.exe\"
       EntryPoint=\"$${WINRT_MANIFEST.target}.App\">
-      <v2:VisualElements
+      <m2:VisualElements
         DisplayName=\"$${WINRT_MANIFEST.name}\"
         Description=\"$${WINRT_MANIFEST.description}\"
         BackgroundColor=\"$${WINRT_MANIFEST.background}\"
         ForegroundText=\"$${WINRT_MANIFEST.foreground}\"
         Square150x150Logo=\"$${WINRT_MANIFEST.logo_large}\"
         Square30x30Logo=\"$${WINRT_MANIFEST.logo_small}\">
-        <v2:DefaultTile>
-          <v2:ShowNameOnTiles>
-            <v2:ShowOn Tile=\"square150x150Logo\" />
-          </v2:ShowNameOnTiles>
-        </v2:DefaultTile>
-        <v2:SplashScreen Image=\"$${WINRT_MANIFEST.logo_splash}\" />
-      </v2:VisualElements>
+        <m2:DefaultTile>
+          <m2:ShowNameOnTiles>
+            <m2:ShowOn Tile=\"square150x150Logo\" />
+          </m2:ShowNameOnTiles>
+        </m2:DefaultTile>
+        <m2:SplashScreen Image=\"$${WINRT_MANIFEST.logo_splash}\" />$${WINRT_MANIFEST.rotation_preference}
+      </m2:VisualElements>
     </Application>
   </Applications>$${WINRT_MANIFEST.capabilities}$${WINRT_MANIFEST.dependencies}
 </Package>

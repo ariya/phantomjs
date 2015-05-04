@@ -99,6 +99,7 @@ void hb_ot_map_builder_t::add_feature (hb_tag_t tag, unsigned int value,
 {
   feature_info_t *info = feature_infos.push();
   if (unlikely (!info)) return;
+  if (unlikely (!tag)) return;
   info->tag = tag;
   info->seq = feature_infos.len;
   info->max_value = value;
@@ -131,9 +132,25 @@ hb_ot_map_builder_t::compile (hb_ot_map_t &m)
 {
   m.global_mask = 1;
 
-  for (unsigned int table_index = 0; table_index < 2; table_index++) {
+  unsigned int required_feature_index[2];
+  hb_tag_t required_feature_tag[2];
+  /* We default to applying required feature in stage 0.  If the required
+   * feature has a tag that is known to the shaper, we apply required feature
+   * in the stage for that tag.
+   */
+  unsigned int required_feature_stage[2] = {0, 0};
+
+  for (unsigned int table_index = 0; table_index < 2; table_index++)
+  {
     m.chosen_script[table_index] = chosen_script[table_index];
     m.found_script[table_index] = found_script[table_index];
+
+    hb_ot_layout_language_get_required_feature (face,
+						table_tags[table_index],
+						script_index[table_index],
+						language_index[table_index],
+						&required_feature_index[table_index],
+						&required_feature_tag[table_index]);
   }
 
   if (!feature_infos.len)
@@ -141,7 +158,7 @@ hb_ot_map_builder_t::compile (hb_ot_map_t &m)
 
   /* Sort features and merge duplicates */
   {
-    feature_infos.sort ();
+    feature_infos.qsort ();
     unsigned int j = 0;
     for (unsigned int i = 1; i < feature_infos.len; i++)
       if (feature_infos[i].tag != feature_infos[j].tag)
@@ -166,7 +183,8 @@ hb_ot_map_builder_t::compile (hb_ot_map_t &m)
 
   /* Allocate bits now */
   unsigned int next_bit = 1;
-  for (unsigned int i = 0; i < feature_infos.len; i++) {
+  for (unsigned int i = 0; i < feature_infos.len; i++)
+  {
     const feature_info_t *info = &feature_infos[i];
 
     unsigned int bits_needed;
@@ -184,12 +202,20 @@ hb_ot_map_builder_t::compile (hb_ot_map_t &m)
     hb_bool_t found = false;
     unsigned int feature_index[2];
     for (unsigned int table_index = 0; table_index < 2; table_index++)
+    {
+      if (required_feature_tag[table_index] == info->tag)
+      {
+	required_feature_stage[table_index] = info->stage[table_index];
+	found = true;
+	continue;
+      }
       found |= hb_ot_layout_language_find_feature (face,
 						   table_tags[table_index],
 						   script_index[table_index],
 						   language_index[table_index],
 						   info->tag,
 						   &feature_index[table_index]);
+    }
     if (!found && !(info->flags & F_HAS_FALLBACK))
       continue;
 
@@ -224,23 +250,21 @@ hb_ot_map_builder_t::compile (hb_ot_map_t &m)
   add_gsub_pause (NULL);
   add_gpos_pause (NULL);
 
-  for (unsigned int table_index = 0; table_index < 2; table_index++) {
-    hb_tag_t table_tag = table_tags[table_index];
-
+  for (unsigned int table_index = 0; table_index < 2; table_index++)
+  {
     /* Collect lookup indices for features */
-
-    unsigned int required_feature_index;
-    if (hb_ot_layout_language_get_required_feature_index (face,
-							  table_tag,
-							  script_index[table_index],
-							  language_index[table_index],
-							  &required_feature_index))
-      m.add_lookups (face, table_index, required_feature_index, 1, true);
 
     unsigned int stage_index = 0;
     unsigned int last_num_lookups = 0;
     for (unsigned stage = 0; stage < current_stage[table_index]; stage++)
     {
+      if (required_feature_index[table_index] != HB_OT_LAYOUT_NO_FEATURE_INDEX &&
+	  required_feature_stage[table_index] == stage)
+	m.add_lookups (face, table_index,
+		       required_feature_index[table_index],
+		       1 /* mask */,
+		       true /* auto_zwj */);
+
       for (unsigned i = 0; i < m.features.len; i++)
         if (m.features[i].stage[table_index] == stage)
 	  m.add_lookups (face, table_index,
@@ -251,7 +275,7 @@ hb_ot_map_builder_t::compile (hb_ot_map_t &m)
       /* Sort lookups and merge duplicates */
       if (last_num_lookups < m.lookups[table_index].len)
       {
-	m.lookups[table_index].sort (last_num_lookups, m.lookups[table_index].len);
+	m.lookups[table_index].qsort (last_num_lookups, m.lookups[table_index].len);
 
 	unsigned int j = last_num_lookups;
 	for (unsigned int i = j + 1; i < m.lookups[table_index].len; i++)

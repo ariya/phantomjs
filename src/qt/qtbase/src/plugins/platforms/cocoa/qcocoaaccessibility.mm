@@ -55,7 +55,7 @@ QCocoaAccessibility::~QCocoaAccessibility()
 
 void QCocoaAccessibility::notifyAccessibilityUpdate(QAccessibleEvent *event)
 {
-    QCocoaAccessibleElement *element = [QCocoaAccessibleElement elementWithId: event->uniqueId()];
+    QMacAccessibilityElement *element = [QMacAccessibilityElement elementWithId: event->uniqueId()];
     if (!element) {
         qWarning() << "QCocoaAccessibility::notifyAccessibilityUpdate: invalid element";
         return;
@@ -140,7 +140,7 @@ static void populateRoleMap()
     roleMap[QAccessible::Row] = NSAccessibilityRowRole;
     roleMap[QAccessible::RowHeader] = NSAccessibilityRowRole;
     roleMap[QAccessible::Cell] = NSAccessibilityTextFieldRole;
-    roleMap[QAccessible::PushButton] = NSAccessibilityButtonRole;
+    roleMap[QAccessible::Button] = NSAccessibilityButtonRole;
     roleMap[QAccessible::EditableText] = NSAccessibilityTextFieldRole;
     roleMap[QAccessible::Link] = NSAccessibilityLinkRole;
     roleMap[QAccessible::Indicator] = NSAccessibilityValueIndicatorRole;
@@ -149,10 +149,20 @@ static void populateRoleMap()
     roleMap[QAccessible::ListItem] = NSAccessibilityStaticTextRole;
     roleMap[QAccessible::Cell] = NSAccessibilityStaticTextRole;
     roleMap[QAccessible::Client] = NSAccessibilityGroupRole;
+    roleMap[QAccessible::Paragraph] = NSAccessibilityGroupRole;
+    roleMap[QAccessible::Section] = NSAccessibilityGroupRole;
+    roleMap[QAccessible::WebDocument] = NSAccessibilityGroupRole;
+    roleMap[QAccessible::ColorChooser] = NSAccessibilityColorWellRole;
+    roleMap[QAccessible::Footer] = NSAccessibilityGroupRole;
+    roleMap[QAccessible::Form] = NSAccessibilityGroupRole;
+    roleMap[QAccessible::Heading] = @"AXHeading";
+    roleMap[QAccessible::Note] = NSAccessibilityGroupRole;
+    roleMap[QAccessible::ComplementaryContent] = NSAccessibilityGroupRole;
+    roleMap[QAccessible::Graphic] = NSAccessibilityImageRole;
 }
 
 /*
-    Returns a Mac accessibility role for the given interface, or
+    Returns a Cocoa accessibility role for the given interface, or
     NSAccessibilityUnknownRole if no role mapping is found.
 */
 NSString *macRole(QAccessibleInterface *interface)
@@ -180,13 +190,24 @@ NSString *macRole(QAccessibleInterface *interface)
 }
 
 /*
-    Mac accessibility supports ignoring elements, which means that
+    Returns a Cocoa sub role for the given interface.
+*/
+NSString *macSubrole(QAccessibleInterface *interface)
+{
+    QAccessible::State s = interface->state();
+    if (s.searchEdit)
+        return NSAccessibilitySearchFieldSubrole;
+    return nil;
+}
+
+/*
+    Cocoa accessibility supports ignoring elements, which means that
     the elements are still present in the accessibility tree but is
     not used by the screen reader.
 */
 bool shouldBeIgnored(QAccessibleInterface *interface)
 {
-    // Mac accessibility does not have an attribute that corresponds to the Invisible/Offscreen
+    // Cocoa accessibility does not have an attribute that corresponds to the Invisible/Offscreen
     // state. Ignore interfaces with those flags set.
     const QAccessible::State state = interface->state();
     if (state.invisible ||
@@ -244,7 +265,7 @@ NSArray *unignoredChildren(QAccessibleInterface *interface)
         QAccessible::Id childId = QAccessible::uniqueId(child);
         //qDebug() << "    kid: " << childId << child;
 
-        QCocoaAccessibleElement *element = [QCocoaAccessibleElement elementWithId: childId];
+        QMacAccessibilityElement *element = [QMacAccessibilityElement elementWithId: childId];
         if (element)
             [kids addObject: element];
         else
@@ -343,7 +364,7 @@ id getValueAttribute(QAccessibleInterface *interface)
     }
 
     if (QAccessibleValueInterface *valueInterface = interface->valueInterface()) {
-        return QCFString::toNSString(QString::number(valueInterface->currentValue().toDouble()));
+        return QCFString::toNSString(valueInterface->currentValue().toString());
     }
 
     if (interface->state().checkable) {

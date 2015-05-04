@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -169,7 +161,7 @@
 #include <QResizeEvent>
 #include <QScrollBar>
 #include <QtAlgorithms>
-#include <QMutableListIterator>
+#include <QMutableVectorIterator>
 #include <QPainter>
 #include <QFontMetrics>
 #include <QStyleOption>
@@ -355,7 +347,8 @@ void SimpleCascader::rearrange(QList<QWidget *> &widgets, const QRect &domain) c
     options.initFrom(widgets.at(0));
     int titleBarHeight = widgets.at(0)->style()->pixelMetric(QStyle::PM_TitleBarHeight, &options, widgets.at(0));
     const QFontMetrics fontMetrics = QFontMetrics(QApplication::font("QMdiSubWindowTitleBar"));
-    const int dy = qMax(titleBarHeight - (titleBarHeight - fontMetrics.height()) / 2, 1);
+    const int dy = qMax(titleBarHeight - (titleBarHeight - fontMetrics.height()) / 2, 1)
+        + widgets.at(0)->style()->pixelMetric(QStyle::PM_FocusFrameVMargin, 0, widgets.at(0));
 
     const int n = widgets.size();
     const int nrows = qMax((domain.height() - (topOffset + bottomOffset)) / dy, 1);
@@ -413,7 +406,7 @@ void IconTiler::rearrange(QList<QWidget *> &widgets, const QRect &domain) const
     \internal
     Calculates the accumulated overlap (intersection area) between 'source' and 'rects'.
 */
-int MinOverlapPlacer::accumulatedOverlap(const QRect &source, const QList<QRect> &rects)
+int MinOverlapPlacer::accumulatedOverlap(const QRect &source, const QVector<QRect> &rects)
 {
     int accOverlap = 0;
     foreach (const QRect &rect, rects) {
@@ -429,7 +422,7 @@ int MinOverlapPlacer::accumulatedOverlap(const QRect &source, const QList<QRect>
     Finds among 'source' the rectangle with the minimum accumulated overlap with the
     rectangles in 'rects'.
 */
-QRect MinOverlapPlacer::findMinOverlapRect(const QList<QRect> &source, const QList<QRect> &rects)
+QRect MinOverlapPlacer::findMinOverlapRect(const QVector<QRect> &source, const QVector<QRect> &rects)
 {
     int minAccOverlap = -1;
     QRect minAccOverlapRect;
@@ -447,28 +440,37 @@ QRect MinOverlapPlacer::findMinOverlapRect(const QList<QRect> &source, const QLi
     \internal
     Gets candidates for the final placement.
 */
-void MinOverlapPlacer::getCandidatePlacements(const QSize &size, const QList<QRect> &rects,
-                                              const QRect &domain,QList<QRect> &candidates)
+QVector<QRect> MinOverlapPlacer::getCandidatePlacements(const QSize &size, const QVector<QRect> &rects,
+                                                        const QRect &domain)
 {
-    QSet<int> xset;
-    QSet<int> yset;
-    xset << domain.left() << domain.right() - size.width() + 1;
-    yset << domain.top();
+    QVector<QRect> result;
+
+    QVector<int> xlist;
+    xlist.reserve(2 + rects.size());
+    xlist << domain.left() << domain.right() - size.width() + 1;
+
+    QVector<int> ylist;
+    ylist.reserve(2 + rects.size());
+    ylist << domain.top();
     if (domain.bottom() - size.height() + 1 >= 0)
-        yset << domain.bottom() - size.height() + 1;
+        ylist << domain.bottom() - size.height() + 1;
+
     foreach (const QRect &rect, rects) {
-        xset << rect.right() + 1;
-        yset << rect.bottom() + 1;
+        xlist << rect.right() + 1;
+        ylist << rect.bottom() + 1;
     }
 
-    QList<int> xlist = xset.values();
     std::sort(xlist.begin(), xlist.end());
-    QList<int> ylist = yset.values();
-    std::sort(ylist.begin(), ylist.end());
+    xlist.erase(std::unique(xlist.begin(), xlist.end()), xlist.end());
 
+    std::sort(ylist.begin(), ylist.end());
+    ylist.erase(std::unique(ylist.begin(), ylist.end()), ylist.end());
+
+    result.reserve(ylist.size() * xlist.size());
     foreach (int y, ylist)
         foreach (int x, xlist)
-            candidates << QRect(QPoint(x, y), size);
+            result << QRect(QPoint(x, y), size);
+    return result;
 }
 
 /*!
@@ -476,10 +478,12 @@ void MinOverlapPlacer::getCandidatePlacements(const QSize &size, const QList<QRe
     Finds all rectangles in 'source' not completely inside 'domain'. The result is stored
     in 'result' and also removed from 'source'.
 */
-void MinOverlapPlacer::findNonInsiders(const QRect &domain, QList<QRect> &source,
-                                       QList<QRect> &result)
+QVector<QRect> MinOverlapPlacer::findNonInsiders(const QRect &domain, QVector<QRect> &source)
 {
-    QMutableListIterator<QRect> it(source);
+    QVector<QRect> result;
+    result.reserve(source.size());
+
+    QMutableVectorIterator<QRect> it(source);
     while (it.hasNext()) {
         const QRect srcRect = it.next();
         if (!domain.contains(srcRect)) {
@@ -487,6 +491,8 @@ void MinOverlapPlacer::findNonInsiders(const QRect &domain, QList<QRect> &source
             it.remove();
         }
     }
+
+    return result;
 }
 
 /*!
@@ -494,9 +500,11 @@ void MinOverlapPlacer::findNonInsiders(const QRect &domain, QList<QRect> &source
     Finds all rectangles in 'source' that overlaps 'domain' by the maximum overlap area
     between 'domain' and any rectangle in 'source'. The result is stored in 'result'.
 */
-void MinOverlapPlacer::findMaxOverlappers(const QRect &domain, const QList<QRect> &source,
-                                          QList<QRect> &result)
+QVector<QRect> MinOverlapPlacer::findMaxOverlappers(const QRect &domain, const QVector<QRect> &source)
 {
+    QVector<QRect> result;
+    result.reserve(source.size());
+
     int maxOverlap = -1;
     foreach (const QRect &srcRect, source) {
         QRect intersection = domain.intersected(srcRect);
@@ -509,6 +517,8 @@ void MinOverlapPlacer::findMaxOverlappers(const QRect &domain, const QList<QRect
             result << srcRect;
         }
     }
+
+    return result;
 }
 
 /*!
@@ -517,17 +527,15 @@ void MinOverlapPlacer::findMaxOverlappers(const QRect &domain, const QList<QRect
     placement that overlaps the rectangles in 'rects' as little as possible while at the
     same time being as much as possible inside 'domain'.
 */
-QPoint MinOverlapPlacer::findBestPlacement(const QRect &domain, const QList<QRect> &rects,
-                                           QList<QRect> &source)
+QPoint MinOverlapPlacer::findBestPlacement(const QRect &domain, const QVector<QRect> &rects,
+                                           QVector<QRect> &source)
 {
-    QList<QRect> nonInsiders;
-    findNonInsiders(domain, source, nonInsiders);
+    const QVector<QRect> nonInsiders = findNonInsiders(domain, source);
 
     if (!source.empty())
         return findMinOverlapRect(source, rects).topLeft();
 
-    QList<QRect> maxOverlappers;
-    findMaxOverlappers(domain, nonInsiders, maxOverlappers);
+    QVector<QRect> maxOverlappers = findMaxOverlappers(domain, nonInsiders);
     return findMinOverlapRect(maxOverlappers, rects).topLeft();
 }
 
@@ -538,7 +546,7 @@ QPoint MinOverlapPlacer::findBestPlacement(const QRect &domain, const QList<QRec
     overlaps 'rects' as little as possible and 'domain' as much as possible.
     Returns the position of the resulting rectangle.
 */
-QPoint MinOverlapPlacer::place(const QSize &size, const QList<QRect> &rects,
+QPoint MinOverlapPlacer::place(const QSize &size, const QVector<QRect> &rects,
                                const QRect &domain) const
 {
     if (size.isEmpty() || !domain.isValid())
@@ -548,8 +556,7 @@ QPoint MinOverlapPlacer::place(const QSize &size, const QList<QRect> &rects,
             return QPoint();
     }
 
-    QList<QRect> candidates;
-    getCandidatePlacements(size, rects, domain, candidates);
+    QVector<QRect> candidates = getCandidatePlacements(size, rects, domain);
     return findBestPlacement(domain, rects, candidates);
 }
 
@@ -882,7 +889,8 @@ void QMdiAreaPrivate::place(Placer *placer, QMdiSubWindow *child)
         return;
     }
 
-    QList<QRect> rects;
+    QVector<QRect> rects;
+    rects.reserve(childWindows.size());
     QRect parentRect = q->rect();
     foreach (QMdiSubWindow *window, childWindows) {
         if (!sanityCheck(window, "QMdiArea::place") || window == child || !window->isVisibleTo(q)
@@ -1458,7 +1466,7 @@ QMdiSubWindow *QMdiAreaPrivate::nextVisibleSubWindow(int increaseFactor, QMdiAre
 
     // Find the index for the current sub-window in the given activation order
     const int indexToCurrent = subWindows.indexOf(current);
-    const bool increasing = increaseFactor > 0 ? true : false;
+    const bool increasing = increaseFactor > 0;
 
     // and use that index + increseFactor as a candidate.
     int index = -1;
@@ -1503,7 +1511,7 @@ void QMdiAreaPrivate::highlightNextSubWindow(int increaseFactor)
 
 #ifndef QT_NO_RUBBERBAND
     if (!rubberBand) {
-        rubberBand = new QRubberBand(QRubberBand::Rectangle, viewport);
+        rubberBand = new QRubberBand(QRubberBand::Rectangle, q);
         // For accessibility to identify this special widget.
         rubberBand->setObjectName(QLatin1String("qt_rubberband"));
         rubberBand->setWindowFlags(rubberBand->windowFlags() | Qt::WindowStaysOnTopHint);
@@ -1518,6 +1526,20 @@ void QMdiAreaPrivate::highlightNextSubWindow(int increaseFactor)
 
     indexToHighlighted = childWindows.indexOf(highlight);
     Q_ASSERT(indexToHighlighted >= 0);
+}
+
+void QMdiAreaPrivate::showRubberBandFor(QMdiSubWindow *subWindow)
+{
+    if (!subWindow || !rubberBand)
+        return;
+
+    if (viewMode == QMdiArea::TabbedView)
+        rubberBand->setGeometry(tabBar->tabRect(childWindows.indexOf(subWindow)));
+    else
+        rubberBand->setGeometry(subWindow->geometry());
+
+    rubberBand->raise();
+    rubberBand->show();
 }
 
 /*!
@@ -2545,7 +2567,7 @@ bool QMdiArea::eventFilter(QObject *object, QEvent *event)
         if (!area)
             return QAbstractScrollArea::eventFilter(object, event);
 
-        const bool keyPress = (event->type() == QEvent::KeyPress) ? true : false;
+        const bool keyPress = (event->type() == QEvent::KeyPress);
 
         // 1) Ctrl-Tab once -> activate the previously active window.
         // 2) Ctrl-Tab (Tab, Tab, ...) -> iterate through all windows (activateNextSubWindow()).
@@ -2590,6 +2612,9 @@ bool QMdiArea::eventFilter(QObject *object, QEvent *event)
         }
         return QAbstractScrollArea::eventFilter(object, event);
     }
+
+    if (subWindow->mdiArea() != this)
+        return QAbstractScrollArea::eventFilter(object, event);
 
     // QMdiSubWindow events:
     switch (event->type()) {

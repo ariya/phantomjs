@@ -4,7 +4,8 @@ API_VERSION = android-16
 
 PATHPREFIX = $$PWD/src/org/qtproject/qt5/android/accessibility
 
-JAVACLASSPATH += $$PWD/src/
+JAVACLASSPATH += $$PWD/src/ \
+                 $$DESTDIR/QtAndroid-bundled.jar
 JAVASOURCES += \
     $$PATHPREFIX/QtAccessibilityDelegate.java \
     $$PATHPREFIX/QtNativeAccessibility.java

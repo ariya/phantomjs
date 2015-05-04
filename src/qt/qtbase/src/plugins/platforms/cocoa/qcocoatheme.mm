@@ -60,6 +60,7 @@
 #include <QtCore/qfileinfo.h>
 #include <QtGui/private/qguiapplication_p.h>
 #include <QtGui/qpainter.h>
+#include <QtPlatformSupport/private/qcoretextfontdatabase_p.h>
 #include <qpa/qplatformintegration.h>
 #include <qpa/qplatformnativeinterface.h>
 
@@ -132,6 +133,12 @@ const QPalette *QCocoaTheme::palette(Palette type) const
         return m_palettes.value(type, 0);
     }
     return 0;
+}
+
+QHash<QPlatformTheme::Font, QFont *> qt_mac_createRoleFonts()
+{
+    QCoreTextFontDatabase *ctfd = static_cast<QCoreTextFontDatabase *>(QGuiApplicationPrivate::platformIntegration()->fontDatabase());
+    return ctfd->themeFonts();
 }
 
 const QFont *QCocoaTheme::font(Font type) const

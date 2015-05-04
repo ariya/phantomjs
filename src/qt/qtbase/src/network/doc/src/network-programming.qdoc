@@ -204,7 +204,7 @@
     \l{multicastreceiver}{Multicast Receiver} examples show how to use
     write UDP multicast clients.
 
-    \section1 Resolving Host Names using QHostInfo
+    \section1 Resolving Host Names Using QHostInfo
 
     Before establishing a network connection, QTcpSocket and
     QUdpSocket perform a name lookup, translating the host name

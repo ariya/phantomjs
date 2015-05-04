@@ -10,9 +10,8 @@ contains(TEMPLATE, ".*app"):!build_pass:!android-no-sdk {
     FILE_CONTENT += "   \"qt\": $$emitString($$[QT_INSTALL_PREFIX]),"
 
     # Settings from mkspecs/environment
-    isEmpty(SDK_ROOT): SDK_ROOT = $$(ANDROID_SDK_ROOT)
-    isEmpty(SDK_ROOT): SDK_ROOT = $$DEFAULT_ANDROID_SDK_ROOT
-    FILE_CONTENT += "   \"sdk\": $$emitString($$SDK_ROOT),"
+    FILE_CONTENT += "   \"sdk\": $$emitString($$ANDROID_SDK_ROOT),"
+    FILE_CONTENT += "   \"sdkBuildToolsRevision\": $$emitString($$ANDROID_SDK_BUILD_TOOLS_REVISION),"
 
     isEmpty(NDK_ROOT): NDK_ROOT = $$(ANDROID_NDK_ROOT)
     isEmpty(NDK_ROOT): NDK_ROOT = $$DEFAULT_ANDROID_NDK_ROOT
@@ -39,9 +38,13 @@ contains(TEMPLATE, ".*app"):!build_pass:!android-no-sdk {
     isEmpty(ANDROID_TARGET_ARCH): ANDROID_TARGET_ARCH = $$DEFAULT_ANDROID_TARGET_ARCH
     FILE_CONTENT += "   \"target-architecture\": $$emitString($$ANDROID_TARGET_ARCH),"
 
-    # Explicitly set dependencies of application for deployment
+    # Explicitly set qt dependencies of application for deployment
     !isEmpty(ANDROID_DEPLOYMENT_DEPENDENCIES): \
         FILE_CONTENT += "   \"deployment-dependencies\": $$emitString($$join(ANDROID_DEPLOYMENT_DEPENDENCIES, ",")),"
+
+    # Explicitly set external dependencies of application for deployment
+    !isEmpty(ANDROID_EXTRA_PLUGINS): \
+        FILE_CONTENT += "   \"android-extra-plugins\": $$emitString($$join(ANDROID_EXTRA_PLUGINS, ",")),"
 
     # Android-specific settings of Project
     !isEmpty(ANDROID_PACKAGE_SOURCE_DIR): \
@@ -49,6 +52,13 @@ contains(TEMPLATE, ".*app"):!build_pass:!android-no-sdk {
 
     !isEmpty(ANDROID_EXTRA_LIBS): \
         FILE_CONTENT += "   \"android-extra-libs\": $$emitString($$join(ANDROID_EXTRA_LIBS, ",")),"
+
+    !isEmpty(QML_IMPORT_PATH): \
+        FILE_CONTENT += "   \"qml-import-paths\": $$emitString($$join(QML_IMPORT_PATH, ",")),"
+
+    isEmpty(QML_ROOT_PATH): \
+        QML_ROOT_PATH = $$_PRO_FILE_PWD_
+    FILE_CONTENT += "   \"qml-root-path\": $$emitString($$QML_ROOT_PATH),"
 
     FILE_CONTENT += "   \"application-binary\": $$emitString($$absolute_path($$DESTDIR, $$OUT_PWD)/$$TARGET)"
     FILE_CONTENT += "}"

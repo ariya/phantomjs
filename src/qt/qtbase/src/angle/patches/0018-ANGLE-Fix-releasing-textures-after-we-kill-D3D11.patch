@@ -1,0 +1,106 @@
+From 014d3fcf6011109491b0489da9c1abb1fdc6dbdc Mon Sep 17 00:00:00 2001
+From: Kai Koehne <kai.koehne@theqtcompany.com>
+Date: Mon, 24 Nov 2014 10:52:03 +0100
+Subject: [PATCH] ANGLE: Fix releasing textures after we kill D3D11
+
+Cherry-pick upstream commit cc4cd2925b9a4f1142a86df131345a861c9d7cd9
+to fix crashes on exit.
+
+Task-number: QTBUG-42772
+Change-Id: Ib74be17f2b5fdd58f9e0568e1da74ba19e943019
+---
+ src/3rdparty/angle/src/libGLESv2/Context.cpp                       | 6 ------
+ src/3rdparty/angle/src/libGLESv2/Context.h                         | 1 -
+ src/3rdparty/angle/src/libGLESv2/renderer/d3d/RendererD3D.cpp      | 5 +++++
+ src/3rdparty/angle/src/libGLESv2/renderer/d3d/RendererD3D.h        | 2 ++
+ src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp | 2 ++
+ src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp   | 2 ++
+ 6 files changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/src/3rdparty/angle/src/libGLESv2/Context.cpp b/src/3rdparty/angle/src/libGLESv2/Context.cpp
+index b87689c..3772da6 100644
+--- a/src/3rdparty/angle/src/libGLESv2/Context.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/Context.cpp
+@@ -162,12 +162,6 @@ Context::~Context()
+         deleteTransformFeedback(mTransformFeedbackMap.begin()->first);
+     }
+ 
+-    for (TextureMap::iterator i = mIncompleteTextures.begin(); i != mIncompleteTextures.end(); i++)
+-    {
+-        i->second.set(NULL);
+-    }
+-    mIncompleteTextures.clear();
+-
+     for (TextureMap::iterator i = mZeroTextures.begin(); i != mZeroTextures.end(); i++)
+     {
+         i->second.set(NULL);
+diff --git a/src/3rdparty/angle/src/libGLESv2/Context.h b/src/3rdparty/angle/src/libGLESv2/Context.h
+index 1e890de..0699592 100644
+--- a/src/3rdparty/angle/src/libGLESv2/Context.h
++++ b/src/3rdparty/angle/src/libGLESv2/Context.h
+@@ -247,7 +247,6 @@ class Context
+     int mClientVersion;
+ 
+     TextureMap mZeroTextures;
+-    TextureMap mIncompleteTextures;
+ 
+     typedef std::unordered_map<GLuint, Framebuffer*> FramebufferMap;
+     FramebufferMap mFramebufferMap;
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/RendererD3D.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/RendererD3D.cpp
+index 97da6da..5cddd8a 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/RendererD3D.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/RendererD3D.cpp
+@@ -27,6 +27,11 @@ RendererD3D::RendererD3D(egl::Display *display)
+ 
+ RendererD3D::~RendererD3D()
+ {
++    cleanup();
++}
++
++void RendererD3D::cleanup()
++{
+     for (gl::TextureMap::iterator i = mIncompleteTextures.begin(); i != mIncompleteTextures.end(); ++i)
+     {
+         i->second.set(NULL);
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/RendererD3D.h b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/RendererD3D.h
+index 9919207..a2f7787 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/RendererD3D.h
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/RendererD3D.h
+@@ -160,6 +160,8 @@ class RendererD3D : public Renderer
+                                const gl::Rectangle *scissor, bool blitRenderTarget,
+                                bool blitDepth, bool blitStencil, GLenum filter) = 0;
+ 
++    void cleanup();
++
+     egl::Display *mDisplay;
+ 
+   private:
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp
+index e6d7f30..777308e 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp
+@@ -1870,6 +1870,8 @@ bool Renderer11::testDeviceResettable()
+ 
+ void Renderer11::release()
+ {
++    RendererD3D::cleanup();
++
+     releaseShaderCompiler();
+     releaseDeviceResources();
+ 
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp
+index 601cd24..18e6e2d 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp
+@@ -151,6 +151,8 @@ Renderer9::~Renderer9()
+ 
+ void Renderer9::release()
+ {
++    RendererD3D::cleanup();
++
+     releaseShaderCompiler();
+     releaseDeviceResources();
+ 
+-- 
+1.9.4.msysgit.0
+

@@ -27,7 +27,7 @@ LINKER  = link
 !if "$(QMAKESPEC)" == "win32-msvc2005"
 CFLAGS_EXTRA      = /Zc:wchar_t-
 !elseif "$(QMAKESPEC)" == "win32-msvc2008" || "$(QMAKESPEC)" == "win32-msvc2010" || "$(QMAKESPEC)" == "win32-msvc2012" || "$(QMAKESPEC)" == "win32-msvc2013"
-CFLAGS_EXTRA      = /MP
+CFLAGS_EXTRA      = /MP /D_CRT_SECURE_NO_WARNINGS $(CFLAGS_CRT)
 !endif
 
 CFLAGS_BARE = -c -Fo./ -Fdqmake.pdb \
@@ -41,8 +41,8 @@ CFLAGS_BARE = -c -Fo./ -Fdqmake.pdb \
               -DQT_BUILD_QMAKE -DQT_BOOTSTRAPPED -DPROEVALUATOR_FULL \
               -DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_NO_COMPONENT -DQT_NO_COMPRESS \
               -DQT_NO_THREAD -DQT_NO_QOBJECT -DQT_NO_GEOM_VARIANT -DQT_NO_DATASTREAM \
-              -DUNICODE -DQT_CRYPTOGRAPHICHASH_ONLY_SHA1 -DQT_JSON_READONLY
-CFLAGS   = -Yuqmake_pch.h -FIqmake_pch.h -Fpqmake_pch.pch $(CFLAGS_BARE) $(CFLAGS) $(EXTRA_CPPFLAGS)
+              -DUNICODE -DQT_CRYPTOGRAPHICHASH_ONLY_SHA1 -DQT_JSON_READONLY -DQT_NO_STANDARDPATHS
+CFLAGS   = -Yuqmake_pch.h -FIqmake_pch.h -Fpqmake_pch.pch $(CFLAGS_BARE) $(CFLAGS)
 
 CXXFLAGS_BARE = $(CFLAGS_BARE)
 CXXFLAGS = $(CFLAGS)
@@ -61,7 +61,7 @@ OBJS        = project.obj main.obj ioutils.obj proitems.obj qmakevfs.obj \
               qmakeglobals.obj qmakeparser.obj qmakeevaluator.obj qmakebuiltins.obj \
               makefile.obj unixmake.obj unixmake2.obj mingw_make.obj \
               option.obj winmakefile.obj projectgenerator.obj property.obj meta.obj \
-              makefiledeps.obj metamakefile.obj xmloutput.obj pbuilder_pbx.obj \
+              makefiledeps.obj metamakefile.obj xmloutput.obj \
               msvc_nmake.obj msvc_vcproj.obj msvc_vcxproj.obj \
               msvc_objectmodel.obj msbuild_objectmodel.obj registry.obj \
               gbuild.obj cesdkhandler.obj
@@ -94,6 +94,7 @@ QTOBJS= \
 	qglobal.obj \
 	qhash.obj \
 	qiodevice.obj \
+	qdebug.obj \
 	qlist.obj \
 	qlinkedlist.obj \
 	qlocale.obj \
@@ -140,7 +141,6 @@ clean::
 	-del $(OBJS)
 	-del qmake_pch.obj
 	-del qmake_pch.pch
-	-del qsystemlibrary.obj
 	-del qmake.pdb
 	-del qmake.ilk
 	-del qmake.tds

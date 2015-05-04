@@ -1,0 +1,536 @@
+From d9a9219ea2181dd4c1939d05747a21b67f16a906 Mon Sep 17 00:00:00 2001
+From: Andrew Knight <andrew.knight@theqtcompany.com>
+Date: Thu, 13 Nov 2014 16:33:53 +0200
+Subject: [PATCH 15/16] ANGLE: Fix -angle-d3d11 on MSVC2010
+
+Allow the D3D11 renderer to build with the June 2010 DirectX SDK.
+
+Change-Id: I2343acedab16845d6a0d4a53cf3145f583efc4a7
+---
+ src/3rdparty/angle/src/common/platform.h           |   8 +-
+ src/3rdparty/angle/src/libGLESv2/Context.cpp       |   8 +-
+ src/3rdparty/angle/src/libGLESv2/Data.h            |   2 +-
+ src/3rdparty/angle/src/libGLESv2/State.cpp         |   6 +-
+ .../src/libGLESv2/renderer/d3d/RendererD3D.cpp     |   4 +-
+ .../libGLESv2/renderer/d3d/d3d11/Renderer11.cpp    |   4 +-
+ .../renderer/d3d/d3d11/renderer11_utils.cpp        | 137 +++++++++++++++++++++
+ 7 files changed, 156 insertions(+), 13 deletions(-)
+
+diff --git a/src/3rdparty/angle/src/common/platform.h b/src/3rdparty/angle/src/common/platform.h
+index 8b2190d..972eee2 100644
+--- a/src/3rdparty/angle/src/common/platform.h
++++ b/src/3rdparty/angle/src/common/platform.h
+@@ -52,17 +52,23 @@
+ 
+ #   if defined(ANGLE_ENABLE_D3D9)
+ #       include <d3d9.h>
++#      if !defined(COMPILER_IMPLEMENTATION)
+ #       include <d3dcompiler.h>
++#      endif
+ #   endif
+ 
+ #   if defined(ANGLE_ENABLE_D3D11)
+ #       include <d3d10_1.h>
+ #       include <d3d10.h>
+ #       include <d3d11.h>
+-#       include <d3d11_1.h>
+ #       include <dxgi.h>
++#      if defined(_MSC_VER) && (_MSC_VER >= 1700)
++#       include <d3d11_1.h>
+ #       include <dxgi1_2.h>
++#      endif
++#      if !defined(COMPILER_IMPLEMENTATION)
+ #       include <d3dcompiler.h>
++#      endif
+ #   endif
+ 
+ #   if defined(ANGLE_ENABLE_WINDOWS_STORE)
+diff --git a/src/3rdparty/angle/src/libGLESv2/Context.cpp b/src/3rdparty/angle/src/libGLESv2/Context.cpp
+index fe9b1a2..b87689c 100644
+--- a/src/3rdparty/angle/src/libGLESv2/Context.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/Context.cpp
+@@ -168,9 +168,9 @@ Context::~Context()
+     }
+     mIncompleteTextures.clear();
+ 
+-    for (auto &zeroTexture : mZeroTextures)
++    for (TextureMap::iterator i = mZeroTextures.begin(); i != mZeroTextures.end(); i++)
+     {
+-        zeroTexture.second.set(NULL);
++        i->second.set(NULL);
+     }
+     mZeroTextures.clear();
+ 
+@@ -354,7 +354,7 @@ void Context::deleteFenceSync(GLsync fenceSync)
+ 
+ void Context::deleteVertexArray(GLuint vertexArray)
+ {
+-    auto vertexArrayObject = mVertexArrayMap.find(vertexArray);
++    VertexArrayMap::iterator vertexArrayObject = mVertexArrayMap.find(vertexArray);
+ 
+     if (vertexArrayObject != mVertexArrayMap.end())
+     {
+@@ -460,7 +460,7 @@ FenceSync *Context::getFenceSync(GLsync handle) const
+ 
+ VertexArray *Context::getVertexArray(GLuint handle) const
+ {
+-    auto vertexArray = mVertexArrayMap.find(handle);
++    VertexArrayMap::const_iterator vertexArray = mVertexArrayMap.find(handle);
+ 
+     if (vertexArray == mVertexArrayMap.end())
+     {
+diff --git a/src/3rdparty/angle/src/libGLESv2/Data.h b/src/3rdparty/angle/src/libGLESv2/Data.h
+index cff872a..9234403 100644
+--- a/src/3rdparty/angle/src/libGLESv2/Data.h
++++ b/src/3rdparty/angle/src/libGLESv2/Data.h
+@@ -14,7 +14,7 @@
+ namespace gl
+ {
+ 
+-struct Data final
++struct Data
+ {
+   public:
+     Data(GLint clientVersion, const State &state, const Caps &caps,
+diff --git a/src/3rdparty/angle/src/libGLESv2/State.cpp b/src/3rdparty/angle/src/libGLESv2/State.cpp
+index e7acda2..b5b62f5 100644
+--- a/src/3rdparty/angle/src/libGLESv2/State.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/State.cpp
+@@ -665,13 +665,13 @@ void State::detachTexture(const TextureMap &zeroTextures, GLuint texture)
+ 
+ void State::initializeZeroTextures(const TextureMap &zeroTextures)
+ {
+-    for (const auto &zeroTexture : zeroTextures)
++    for (TextureMap::const_iterator i = zeroTextures.begin(); i != zeroTextures.end(); i++)
+     {
+-        auto &samplerTextureArray = mSamplerTextures[zeroTexture.first];
++        TextureBindingVector &samplerTextureArray = mSamplerTextures[i->first];
+ 
+         for (size_t textureUnit = 0; textureUnit < samplerTextureArray.size(); ++textureUnit)
+         {
+-            samplerTextureArray[textureUnit].set(zeroTexture.second.get());
++            samplerTextureArray[textureUnit].set(i->second.get());
+         }
+     }
+ }
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/RendererD3D.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/RendererD3D.cpp
+index 6f58243..97da6da 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/RendererD3D.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/RendererD3D.cpp
+@@ -27,9 +27,9 @@ RendererD3D::RendererD3D(egl::Display *display)
+ 
+ RendererD3D::~RendererD3D()
+ {
+-    for (auto &incompleteTexture : mIncompleteTextures)
++    for (gl::TextureMap::iterator i = mIncompleteTextures.begin(); i != mIncompleteTextures.end(); ++i)
+     {
+-        incompleteTexture.second.set(NULL);
++        i->second.set(NULL);
+     }
+     mIncompleteTextures.clear();
+ }
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp
+index 46b9984..a28fd78 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp
+@@ -873,7 +873,7 @@ bool Renderer11::applyPrimitiveType(GLenum mode, GLsizei count)
+ 
+ void Renderer11::unsetSRVsWithResource(gl::SamplerType samplerType, const ID3D11Resource *resource)
+ {
+-    auto &currentSRVs = (samplerType == gl::SAMPLER_VERTEX ? mCurVertexSRVs : mCurPixelSRVs);
++    std::vector<ID3D11ShaderResourceView *> &currentSRVs = (samplerType == gl::SAMPLER_VERTEX ? mCurVertexSRVs : mCurPixelSRVs);
+ 
+     for (size_t resourceIndex = 0; resourceIndex < currentSRVs.size(); ++resourceIndex)
+     {
+@@ -3398,7 +3398,7 @@ Workarounds Renderer11::generateWorkarounds() const
+ 
+ void Renderer11::setShaderResource(gl::SamplerType shaderType, UINT resourceSlot, ID3D11ShaderResourceView *srv)
+ {
+-    auto &currentSRVs = (shaderType == gl::SAMPLER_VERTEX ? mCurVertexSRVs : mCurPixelSRVs);
++    std::vector<ID3D11ShaderResourceView *> &currentSRVs = (shaderType == gl::SAMPLER_VERTEX ? mCurVertexSRVs : mCurPixelSRVs);
+ 
+     ASSERT(static_cast<size_t>(resourceSlot) < currentSRVs.size());
+ 
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/renderer11_utils.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/renderer11_utils.cpp
+index cbfe557..5831c57 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/renderer11_utils.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/renderer11_utils.cpp
+@@ -18,6 +18,85 @@
+ 
+ #include <algorithm>
+ 
++#ifndef D3D_FL9_1_DEFAULT_MAX_ANISOTROPY
++#  define D3D_FL9_1_DEFAULT_MAX_ANISOTROPY 2
++#endif
++#ifndef D3D_FL9_1_SIMULTANEOUS_RENDER_TARGET_COUNT
++#  define D3D_FL9_1_SIMULTANEOUS_RENDER_TARGET_COUNT 1
++#endif
++#ifndef D3D_FL9_3_SIMULTANEOUS_RENDER_TARGET_COUNT
++#  define D3D_FL9_3_SIMULTANEOUS_RENDER_TARGET_COUNT 4
++#endif
++#ifndef D3D_FL9_1_IA_PRIMITIVE_MAX_COUNT
++#  define D3D_FL9_1_IA_PRIMITIVE_MAX_COUNT 65535
++#endif
++#ifndef D3D_FL9_2_IA_PRIMITIVE_MAX_COUNT
++#  define D3D_FL9_2_IA_PRIMITIVE_MAX_COUNT 1048575
++#endif
++#ifndef D3D_FL9_1_REQ_TEXTURECUBE_DIMENSION
++#  define D3D_FL9_1_REQ_TEXTURECUBE_DIMENSION 512
++#endif
++#ifndef D3D_FL9_3_REQ_TEXTURECUBE_DIMENSION
++#  define D3D_FL9_3_REQ_TEXTURECUBE_DIMENSION 4096
++#endif
++#ifndef D3D_FL9_1_REQ_TEXTURE2D_U_OR_V_DIMENSION
++#  define D3D_FL9_1_REQ_TEXTURE2D_U_OR_V_DIMENSION 2048
++#endif
++#ifndef D3D_FL9_1_REQ_TEXTURE3D_U_V_OR_W_DIMENSION
++#  define D3D_FL9_1_REQ_TEXTURE3D_U_V_OR_W_DIMENSION 256
++#endif
++#ifndef D3D_FL9_3_REQ_TEXTURE2D_U_OR_V_DIMENSION
++#  define D3D_FL9_3_REQ_TEXTURE2D_U_OR_V_DIMENSION 4096
++#endif
++#ifndef D3D11_REQ_TEXTURECUBE_DIMENSION
++#  define D3D11_REQ_TEXTURECUBE_DIMENSION 16384
++#endif
++#ifndef D3D11_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION
++#  define D3D11_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION 2048
++#endif
++#ifndef D3D11_REQ_TEXTURE3D_U_V_OR_W_DIMENSION
++#  define D3D11_REQ_TEXTURE3D_U_V_OR_W_DIMENSION 2048
++#endif
++#ifndef D3D11_REQ_DRAWINDEXED_INDEX_COUNT_2_TO_EXP
++#  define D3D11_REQ_DRAWINDEXED_INDEX_COUNT_2_TO_EXP 32
++#endif
++#ifndef D3D11_REQ_DRAW_VERTEX_COUNT_2_TO_EXP
++#  define D3D11_REQ_DRAW_VERTEX_COUNT_2_TO_EXP 32
++#endif
++#ifndef D3D10_1_STANDARD_VERTEX_ELEMENT_COUNT
++#  define D3D10_1_STANDARD_VERTEX_ELEMENT_COUNT 32
++#endif
++#ifndef D3D11_STANDARD_VERTEX_ELEMENT_COUNT
++#  define D3D11_STANDARD_VERTEX_ELEMENT_COUNT 32
++#endif
++#ifndef D3D10_1_SO_BUFFER_SLOT_COUNT
++#  define D3D10_1_SO_BUFFER_SLOT_COUNT 4
++#endif
++#ifndef D3D11_SO_BUFFER_SLOT_COUNT
++#  define D3D11_SO_BUFFER_SLOT_COUNT 4
++#endif
++#ifndef D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT
++#  define D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT 14
++#endif
++#ifndef D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT
++#  define D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT 16
++#endif
++#ifndef D3D11_COMMONSHADER_TEXEL_OFFSET_MAX_NEGATIVE
++#  define D3D11_COMMONSHADER_TEXEL_OFFSET_MAX_NEGATIVE -8
++#endif
++#ifndef D3D11_COMMONSHADER_TEXEL_OFFSET_MAX_POSITIVE
++#  define D3D11_COMMONSHADER_TEXEL_OFFSET_MAX_POSITIVE 7
++#endif
++#ifndef D3D11_REQ_CONSTANT_BUFFER_ELEMENT_COUNT
++#  define D3D11_REQ_CONSTANT_BUFFER_ELEMENT_COUNT 4096
++#endif
++#ifndef D3D11_PS_INPUT_REGISTER_COUNT
++#  define D3D11_PS_INPUT_REGISTER_COUNT 32
++#endif
++#ifndef D3D10_1_VS_OUTPUT_REGISTER_COUNT
++#  define D3D10_1_VS_OUTPUT_REGISTER_COUNT 32
++#endif
++
+ namespace rx
+ {
+ 
+@@ -276,7 +355,9 @@ static bool GetNPOTTextureSupport(D3D_FEATURE_LEVEL featureLevel)
+ {
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0:
+       case D3D_FEATURE_LEVEL_10_1:
+       case D3D_FEATURE_LEVEL_10_0: return true;
+@@ -294,7 +375,9 @@ static float GetMaximumAnisotropy(D3D_FEATURE_LEVEL featureLevel)
+ {
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_MAX_MAXANISOTROPY;
+ 
+       case D3D_FEATURE_LEVEL_10_1:
+@@ -314,7 +397,9 @@ static bool GetOcclusionQuerySupport(D3D_FEATURE_LEVEL featureLevel)
+ {
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0:
+       case D3D_FEATURE_LEVEL_10_1:
+       case D3D_FEATURE_LEVEL_10_0: return true;
+@@ -334,7 +419,9 @@ static bool GetEventQuerySupport(D3D_FEATURE_LEVEL featureLevel)
+ 
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0:
+       case D3D_FEATURE_LEVEL_10_1:
+       case D3D_FEATURE_LEVEL_10_0:
+@@ -352,7 +439,9 @@ static bool GetInstancingSupport(D3D_FEATURE_LEVEL featureLevel)
+ 
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0:
+       case D3D_FEATURE_LEVEL_10_1:
+       case D3D_FEATURE_LEVEL_10_0:
+@@ -375,7 +464,9 @@ static bool GetDerivativeInstructionSupport(D3D_FEATURE_LEVEL featureLevel)
+ 
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0:
+       case D3D_FEATURE_LEVEL_10_1:
+       case D3D_FEATURE_LEVEL_10_0:
+@@ -393,7 +484,9 @@ static size_t GetMaximumSimultaneousRenderTargets(D3D_FEATURE_LEVEL featureLevel
+ 
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT;
+ 
+       case D3D_FEATURE_LEVEL_10_1:
+@@ -411,7 +504,9 @@ static size_t GetMaximum2DTextureSize(D3D_FEATURE_LEVEL featureLevel)
+ {
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;
+ 
+       case D3D_FEATURE_LEVEL_10_1:
+@@ -429,7 +524,9 @@ static size_t GetMaximumCubeMapTextureSize(D3D_FEATURE_LEVEL featureLevel)
+ {
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_REQ_TEXTURECUBE_DIMENSION;
+ 
+       case D3D_FEATURE_LEVEL_10_1:
+@@ -447,7 +544,9 @@ static size_t GetMaximum2DTextureArraySize(D3D_FEATURE_LEVEL featureLevel)
+ {
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION;
+ 
+       case D3D_FEATURE_LEVEL_10_1:
+@@ -465,7 +564,9 @@ static size_t GetMaximum3DTextureSize(D3D_FEATURE_LEVEL featureLevel)
+ {
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_REQ_TEXTURE3D_U_V_OR_W_DIMENSION;
+ 
+       case D3D_FEATURE_LEVEL_10_1:
+@@ -483,7 +584,9 @@ static size_t GetMaximumViewportSize(D3D_FEATURE_LEVEL featureLevel)
+ {
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_VIEWPORT_BOUNDS_MAX;
+ 
+       case D3D_FEATURE_LEVEL_10_1:
+@@ -507,7 +610,9 @@ static size_t GetMaximumDrawIndexedIndexCount(D3D_FEATURE_LEVEL featureLevel)
+ 
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0:
+       case D3D_FEATURE_LEVEL_10_1:
+       case D3D_FEATURE_LEVEL_10_0: return std::numeric_limits<GLint>::max();
+@@ -529,7 +634,9 @@ static size_t GetMaximumDrawVertexCount(D3D_FEATURE_LEVEL featureLevel)
+ 
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0:
+       case D3D_FEATURE_LEVEL_10_1:
+       case D3D_FEATURE_LEVEL_10_0: return std::numeric_limits<GLint>::max();
+@@ -546,7 +653,9 @@ static size_t GetMaximumVertexInputSlots(D3D_FEATURE_LEVEL featureLevel)
+ {
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_STANDARD_VERTEX_ELEMENT_COUNT;
+ 
+       case D3D_FEATURE_LEVEL_10_1: return D3D10_1_STANDARD_VERTEX_ELEMENT_COUNT;
+@@ -566,7 +675,9 @@ static size_t GetMaximumVertexUniformVectors(D3D_FEATURE_LEVEL featureLevel)
+     // TODO(geofflang): Remove hard-coded limit once the gl-uniform-arrays test can pass
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return 1024; // D3D11_REQ_CONSTANT_BUFFER_ELEMENT_COUNT;
+ 
+       case D3D_FEATURE_LEVEL_10_1:
+@@ -591,7 +702,9 @@ static size_t GetMaximumVertexUniformBlocks(D3D_FEATURE_LEVEL featureLevel)
+ {
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - GetReservedVertexUniformBuffers();
+ 
+       case D3D_FEATURE_LEVEL_10_1:
+@@ -618,7 +731,9 @@ static size_t GetMaximumVertexOutputVectors(D3D_FEATURE_LEVEL featureLevel)
+ 
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_VS_OUTPUT_REGISTER_COUNT - GetReservedVertexOutputVectors();
+ 
+       case D3D_FEATURE_LEVEL_10_1: return D3D10_1_VS_OUTPUT_REGISTER_COUNT - GetReservedVertexOutputVectors();
+@@ -637,7 +752,9 @@ static size_t GetMaximumVertexTextureUnits(D3D_FEATURE_LEVEL featureLevel)
+ {
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT;
+ 
+       case D3D_FEATURE_LEVEL_10_1:
+@@ -659,7 +776,9 @@ static size_t GetMaximumPixelUniformVectors(D3D_FEATURE_LEVEL featureLevel)
+     // TODO(geofflang): Remove hard-coded limit once the gl-uniform-arrays test can pass
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return 1024; // D3D11_REQ_CONSTANT_BUFFER_ELEMENT_COUNT;
+ 
+       case D3D_FEATURE_LEVEL_10_1:
+@@ -684,7 +803,9 @@ static size_t GetMaximumPixelUniformBlocks(D3D_FEATURE_LEVEL featureLevel)
+ {
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - GetReservedPixelUniformBuffers();
+ 
+       case D3D_FEATURE_LEVEL_10_1:
+@@ -703,7 +824,9 @@ static size_t GetMaximumPixelInputVectors(D3D_FEATURE_LEVEL featureLevel)
+ {
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_PS_INPUT_REGISTER_COUNT - GetReservedVertexOutputVectors();
+ 
+       case D3D_FEATURE_LEVEL_10_1:
+@@ -722,7 +845,9 @@ static size_t GetMaximumPixelTextureUnits(D3D_FEATURE_LEVEL featureLevel)
+ {
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT;
+ 
+       case D3D_FEATURE_LEVEL_10_1:
+@@ -741,7 +866,9 @@ static int GetMinimumTexelOffset(D3D_FEATURE_LEVEL featureLevel)
+ {
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_COMMONSHADER_TEXEL_OFFSET_MAX_NEGATIVE;
+ 
+       case D3D_FEATURE_LEVEL_10_1:
+@@ -760,7 +887,9 @@ static int GetMaximumTexelOffset(D3D_FEATURE_LEVEL featureLevel)
+ {
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_COMMONSHADER_TEXEL_OFFSET_MAX_POSITIVE;
+       case D3D_FEATURE_LEVEL_10_1:
+       case D3D_FEATURE_LEVEL_10_0: return D3D11_COMMONSHADER_TEXEL_OFFSET_MAX_POSITIVE;
+@@ -783,7 +912,9 @@ static size_t GetMaximumConstantBufferSize(D3D_FEATURE_LEVEL featureLevel)
+ 
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_REQ_CONSTANT_BUFFER_ELEMENT_COUNT * bytesPerComponent;
+ 
+       case D3D_FEATURE_LEVEL_10_1:
+@@ -802,7 +933,9 @@ static size_t GetMaximumStreamOutputBuffers(D3D_FEATURE_LEVEL featureLevel)
+ {
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_SO_BUFFER_SLOT_COUNT;
+ 
+       case D3D_FEATURE_LEVEL_10_1: return D3D10_1_SO_BUFFER_SLOT_COUNT;
+@@ -820,7 +953,9 @@ static size_t GetMaximumStreamOutputInterleavedComponents(D3D_FEATURE_LEVEL feat
+ {
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0:
+ 
+       case D3D_FEATURE_LEVEL_10_1:
+@@ -838,7 +973,9 @@ static size_t GetMaximumStreamOutputSeparateComponents(D3D_FEATURE_LEVEL feature
+ {
+     switch (featureLevel)
+     {
++#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
+       case D3D_FEATURE_LEVEL_11_1:
++#endif
+       case D3D_FEATURE_LEVEL_11_0: return GetMaximumStreamOutputInterleavedComponents(featureLevel) /
+                                           GetMaximumStreamOutputBuffers(featureLevel);
+ 
+-- 
+1.9.4.msysgit.1
+

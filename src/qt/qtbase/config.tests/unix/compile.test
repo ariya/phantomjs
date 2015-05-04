@@ -69,14 +69,10 @@ rm -f "$EXE" "${EXE}.exe"
 
 set -- "$OUTDIR/bin/qmake" -nocache -spec "$QMKSPEC" "CONFIG+=$QMAKE_CONFIG" "CONFIG+=android_app" "CONFIG-=debug_and_release app_bundle lib_bundle" "LIBS*=$LFLAGS" "LIBS+=$MAC_ARCH_LFLAGS" "INCLUDEPATH*=$INCLUDEPATH" "QMAKE_CXXFLAGS*=$CXXFLAGS" "QMAKE_CXXFLAGS+=$MAC_ARCH_CXXFLAGS" "QT_BUILD_TREE=$OUTDIR" "$SRCDIR/$TEST/$EXE.pro" -o "$OUTDIR/$TEST/Makefile"
 if [ "$VERBOSE" = "yes" ]; then
-    OUTDIR=$OUTDIR "$@"
-    $MAKE
+    OUTDIR=$OUTDIR "$@" && $MAKE && SUCCESS=yes
 else
-    OUTDIR=$OUTDIR "$@" >/dev/null 2>&1
-    $MAKE >/dev/null 2>&1
+    OUTDIR=$OUTDIR "$@" >/dev/null 2>&1 && $MAKE >/dev/null 2>&1 && SUCCESS=yes
 fi
-
-( [ -f "$EXE" ] || [ -f "${EXE}.exe" ] ) && SUCCESS=yes
 
 # done
 if [ "$SUCCESS" != "yes" ]; then

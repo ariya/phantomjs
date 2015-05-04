@@ -248,7 +248,7 @@ determining the feature support:
         \li Linux uses the \l {http://projects.gnome.org/NetworkManager}{NetworkManager}
            and \l {http://connman.net/}{ConnMan} / \l {http://ofono.org/}{oFono} APIs
            which support interface notifications and starting and stopping of network
-           interfaces.
+           interfaces. Network Manager version 0.9 and above is supported.
     \row
         \li Windows\unicode{0xAE} XP
         \li This platform supports interface notifications without active polling.

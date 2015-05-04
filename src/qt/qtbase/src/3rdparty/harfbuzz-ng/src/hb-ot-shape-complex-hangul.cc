@@ -86,26 +86,26 @@ data_destroy_hangul (void *data)
 }
 
 /* Constants for algorithmic hangul syllable [de]composition. */
-#define LBase 0x1100
-#define VBase 0x1161
-#define TBase 0x11A7
-#define LCount 19
-#define VCount 21
-#define TCount 28
-#define SBase 0xAC00
+#define LBase 0x1100u
+#define VBase 0x1161u
+#define TBase 0x11A7u
+#define LCount 19u
+#define VCount 21u
+#define TCount 28u
+#define SBase 0xAC00u
 #define NCount (VCount * TCount)
 #define SCount (LCount * NCount)
 
-#define isCombiningL(u) (hb_in_range<hb_codepoint_t> ((u), LBase, LBase+LCount-1))
-#define isCombiningV(u) (hb_in_range<hb_codepoint_t> ((u), VBase, VBase+VCount-1))
-#define isCombiningT(u) (hb_in_range<hb_codepoint_t> ((u), TBase+1, TBase+TCount-1))
-#define isCombinedS(u) (hb_in_range<hb_codepoint_t> ((u), SBase, SBase+SCount-1))
+#define isCombiningL(u) (hb_in_range ((u), LBase, LBase+LCount-1))
+#define isCombiningV(u) (hb_in_range ((u), VBase, VBase+VCount-1))
+#define isCombiningT(u) (hb_in_range ((u), TBase+1, TBase+TCount-1))
+#define isCombinedS(u) (hb_in_range ((u), SBase, SBase+SCount-1))
 
-#define isL(u) (hb_in_ranges<hb_codepoint_t> ((u), 0x1100, 0x115F, 0xA960, 0xA97C))
-#define isV(u) (hb_in_ranges<hb_codepoint_t> ((u), 0x1160, 0x11A7, 0xD7B0, 0xD7C6))
-#define isT(u) (hb_in_ranges<hb_codepoint_t> ((u), 0x11A8, 0x11FF, 0xD7CB, 0xD7FB))
+#define isL(u) (hb_in_ranges ((u), 0x1100u, 0x115Fu, 0xA960u, 0xA97Cu))
+#define isV(u) (hb_in_ranges ((u), 0x1160u, 0x11A7u, 0xD7B0u, 0xD7C6u))
+#define isT(u) (hb_in_ranges ((u), 0x11A8u, 0x11FFu, 0xD7CBu, 0xD7FBu))
 
-#define isHangulTone(u) (hb_in_range<hb_codepoint_t> ((u), 0x302e, 0x302f))
+#define isHangulTone(u) (hb_in_range ((u), 0x302Eu, 0x302Fu))
 
 /* buffer var allocations */
 #define hangul_shaping_feature() complex_var_u8_0() /* hangul jamo shaping feature */
@@ -211,14 +211,14 @@ preprocess_text_hangul (const hb_ot_shape_plan_t *plan,
       else
       {
 	/* No valid syllable as base for tone mark; try to insert dotted circle. */
-	if (font->has_glyph (0x25cc))
+	if (font->has_glyph (0x25CCu))
 	{
 	  hb_codepoint_t chars[2];
 	  if (!is_zero_width_char (font, u)) {
 	    chars[0] = u;
-	    chars[1] = 0x25cc;
+	    chars[1] = 0x25CCu;
 	  } else {
-	    chars[0] = 0x25cc;
+	    chars[0] = 0x25CCu;
 	    chars[1] = u;
 	  }
 	  buffer->replace_glyphs (1, 2, chars);

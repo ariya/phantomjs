@@ -46,20 +46,46 @@
 
 #include <QtGui/QFont>
 
+#include <QtPlatformSupport/private/qcoretextfontdatabase_p.h>
+#include <QtGui/private/qguiapplication_p.h>
+#include <qpa/qplatformintegration.h>
+
 #include <UIKit/UIFont.h>
 #include <UIKit/UIInterface.h>
+
+#include "qiosmenu.h"
 
 QT_BEGIN_NAMESPACE
 
 const char *QIOSTheme::name = "ios";
 
 QIOSTheme::QIOSTheme()
+    : m_systemPalette(*QPlatformTheme::palette(QPlatformTheme::SystemPalette))
 {
+    m_systemPalette.setBrush(QPalette::Highlight, QColor(204, 221, 237));
+    m_systemPalette.setBrush(QPalette::HighlightedText, Qt::black);
 }
 
 QIOSTheme::~QIOSTheme()
 {
     qDeleteAll(m_fonts);
+}
+
+const QPalette *QIOSTheme::palette(QPlatformTheme::Palette type) const
+{
+    if (type == QPlatformTheme::SystemPalette)
+        return &m_systemPalette;
+    return 0;
+}
+
+QPlatformMenuItem* QIOSTheme::createPlatformMenuItem() const
+{
+    return new QIOSMenuItem();
+}
+
+QPlatformMenu* QIOSTheme::createPlatformMenu() const
+{
+    return new QIOSMenu();
 }
 
 QVariant QIOSTheme::themeHint(ThemeHint hint) const
@@ -75,19 +101,8 @@ QVariant QIOSTheme::themeHint(ThemeHint hint) const
 const QFont *QIOSTheme::font(Font type) const
 {
     if (m_fonts.isEmpty()) {
-        // The real system font on iOS is '.Helvetica Neue UI', as returned by both [UIFont systemFontOfSize]
-        // and CTFontCreateUIFontForLanguage(kCTFontSystemFontType, ...), but this font is not included when
-        // populating the available fonts in QCoreTextFontDatabase::populateFontDatabase(), since the font
-        // is internal to iOS and not supposed to be used by applications. We could potentially add this
-        // font to the font-database, but it would then show up when enumerating user fonts from Qt
-        // applications since we don't have a flag in Qt to mark a font as a private system font.
-        // For now we hard-code the font to Helvetica, which should be very close to the actual
-        // system font.
-        QLatin1String systemFontFamilyName("Helvetica");
-        m_fonts.insert(QPlatformTheme::SystemFont, new QFont(systemFontFamilyName, [UIFont systemFontSize]));
-        m_fonts.insert(QPlatformTheme::SmallFont, new QFont(systemFontFamilyName, [UIFont smallSystemFontSize]));
-        m_fonts.insert(QPlatformTheme::LabelFont, new QFont(systemFontFamilyName, [UIFont labelFontSize]));
-        m_fonts.insert(QPlatformTheme::PushButtonFont, new QFont(systemFontFamilyName, [UIFont buttonFontSize]));
+        QCoreTextFontDatabase *ctfd = static_cast<QCoreTextFontDatabase *>(QGuiApplicationPrivate::platformIntegration()->fontDatabase());
+        m_fonts = ctfd->themeFonts();
     }
 
     return m_fonts.value(type, 0);

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -133,11 +125,11 @@ void QWindowSystemInterface::handleWindowScreenChanged(QWindow *tlw, QScreen *sc
     QWindowSystemInterfacePrivate::handleWindowSystemEvent(e);
 }
 
-void QWindowSystemInterface::handleApplicationStateChanged(Qt::ApplicationState newState)
+void QWindowSystemInterface::handleApplicationStateChanged(Qt::ApplicationState newState, bool forcePropagate)
 {
     Q_ASSERT(QGuiApplicationPrivate::platformIntegration()->hasCapability(QPlatformIntegration::ApplicationState));
     QWindowSystemInterfacePrivate::ApplicationStateChangedEvent *e =
-        new QWindowSystemInterfacePrivate::ApplicationStateChangedEvent(newState);
+        new QWindowSystemInterfacePrivate::ApplicationStateChangedEvent(newState, forcePropagate);
     QWindowSystemInterfacePrivate::handleWindowSystemEvent(e);
 }
 
@@ -209,9 +201,13 @@ bool QWindowSystemInterface::tryHandleShortcutEvent(QWindow *w, ulong timestamp,
 #ifndef QT_NO_SHORTCUT
     QGuiApplicationPrivate::modifier_buttons = mods;
 
+    QObject *focus = w->focusObject();
+    if (!focus)
+        focus = w;
+
     QKeyEvent qevent(QEvent::ShortcutOverride, k, mods, text, autorep, count);
     qevent.setTimestamp(timestamp);
-    return QGuiApplicationPrivate::instance()->shortcutMap.tryShortcutEvent(w, &qevent);
+    return QGuiApplicationPrivate::instance()->shortcutMap.tryShortcutEvent(focus, &qevent);
 #else
     Q_UNUSED(w)
     Q_UNUSED(timestamp)
@@ -239,9 +235,13 @@ bool QWindowSystemInterface::tryHandleExtendedShortcutEvent(QWindow *w, ulong ti
 #ifndef QT_NO_SHORTCUT
     QGuiApplicationPrivate::modifier_buttons = mods;
 
+    QObject *focus = w->focusObject();
+    if (!focus)
+        focus = w;
+
     QKeyEvent qevent(QEvent::ShortcutOverride, k, mods, nativeScanCode, nativeVirtualKey, nativeModifiers, text, autorep, count);
     qevent.setTimestamp(timestamp);
-    return QGuiApplicationPrivate::instance()->shortcutMap.tryShortcutEvent(w, &qevent);
+    return QGuiApplicationPrivate::instance()->shortcutMap.tryShortcutEvent(focus, &qevent);
 #else
     Q_UNUSED(w)
     Q_UNUSED(timestamp)
@@ -493,17 +493,10 @@ void QWindowSystemInterface::handleScreenOrientationChange(QScreen *screen, Qt::
     QWindowSystemInterfacePrivate::handleWindowSystemEvent(e);
 }
 
-void QWindowSystemInterface::handleScreenGeometryChange(QScreen *screen, const QRect &geometry)
+void QWindowSystemInterface::handleScreenGeometryChange(QScreen *screen, const QRect &geometry, const QRect &availableGeometry)
 {
     QWindowSystemInterfacePrivate::ScreenGeometryEvent *e =
-            new QWindowSystemInterfacePrivate::ScreenGeometryEvent(screen, geometry);
-    QWindowSystemInterfacePrivate::handleWindowSystemEvent(e);
-}
-
-void QWindowSystemInterface::handleScreenAvailableGeometryChange(QScreen *screen, const QRect &availableGeometry)
-{
-    QWindowSystemInterfacePrivate::ScreenAvailableGeometryEvent *e =
-            new QWindowSystemInterfacePrivate::ScreenAvailableGeometryEvent(screen, availableGeometry);
+            new QWindowSystemInterfacePrivate::ScreenGeometryEvent(screen, geometry, availableGeometry);
     QWindowSystemInterfacePrivate::handleWindowSystemEvent(e);
 }
 
@@ -533,16 +526,16 @@ void QWindowSystemInterface::handleExposeEvent(QWindow *tlw, const QRegion &regi
     QWindowSystemInterfacePrivate::handleWindowSystemEvent(e);
 }
 
-void QWindowSystemInterface::deferredFlushWindowSystemEvents()
+void QWindowSystemInterface::deferredFlushWindowSystemEvents(QEventLoop::ProcessEventsFlags flags)
 {
     Q_ASSERT(QThread::currentThread() == QGuiApplication::instance()->thread());
 
     QMutexLocker locker(&QWindowSystemInterfacePrivate::flushEventMutex);
-    flushWindowSystemEvents();
+    flushWindowSystemEvents(flags);
     QWindowSystemInterfacePrivate::eventsFlushed.wakeOne();
 }
 
-void QWindowSystemInterface::flushWindowSystemEvents()
+void QWindowSystemInterface::flushWindowSystemEvents(QEventLoop::ProcessEventsFlags flags)
 {
     const int count = QWindowSystemInterfacePrivate::windowSystemEventQueue.count();
     if (!count)
@@ -556,11 +549,11 @@ void QWindowSystemInterface::flushWindowSystemEvents()
     }
     if (QThread::currentThread() != QGuiApplication::instance()->thread()) {
         QMutexLocker locker(&QWindowSystemInterfacePrivate::flushEventMutex);
-        QWindowSystemInterfacePrivate::FlushEventsEvent *e = new QWindowSystemInterfacePrivate::FlushEventsEvent();
+        QWindowSystemInterfacePrivate::FlushEventsEvent *e = new QWindowSystemInterfacePrivate::FlushEventsEvent(flags);
         QWindowSystemInterfacePrivate::handleWindowSystemEvent(e);
         QWindowSystemInterfacePrivate::eventsFlushed.wait(&QWindowSystemInterfacePrivate::flushEventMutex);
     } else {
-        sendWindowSystemEvents(QEventLoop::AllEvents);
+        sendWindowSystemEvents(flags);
     }
 }
 
@@ -629,15 +622,34 @@ void QWindowSystemInterface::handleFileOpenEvent(const QUrl &url)
     QGuiApplicationPrivate::processWindowSystemEvent(&e);
 }
 
+void QWindowSystemInterface::handleTabletEvent(QWindow *w, ulong timestamp, const QPointF &local, const QPointF &global,
+                                               int device, int pointerType, Qt::MouseButtons buttons, qreal pressure, int xTilt, int yTilt,
+                                               qreal tangentialPressure, qreal rotation, int z, qint64 uid,
+                                               Qt::KeyboardModifiers modifiers)
+{
+    QWindowSystemInterfacePrivate::TabletEvent *e =
+            new QWindowSystemInterfacePrivate::TabletEvent(w, timestamp, local, global, device, pointerType, buttons, pressure,
+                                                           xTilt, yTilt, tangentialPressure, rotation, z, uid, modifiers);
+    QWindowSystemInterfacePrivate::handleWindowSystemEvent(e);
+}
+
+void QWindowSystemInterface::handleTabletEvent(QWindow *w, const QPointF &local, const QPointF &global,
+                                               int device, int pointerType, Qt::MouseButtons buttons, qreal pressure, int xTilt, int yTilt,
+                                               qreal tangentialPressure, qreal rotation, int z, qint64 uid,
+                                               Qt::KeyboardModifiers modifiers)
+{
+    ulong time = QWindowSystemInterfacePrivate::eventTime.elapsed();
+    handleTabletEvent(w, time, local, global, device, pointerType, buttons, pressure,
+                      xTilt, yTilt, tangentialPressure, rotation, z, uid, modifiers);
+}
+
 void QWindowSystemInterface::handleTabletEvent(QWindow *w, ulong timestamp, bool down, const QPointF &local, const QPointF &global,
                                                int device, int pointerType, qreal pressure, int xTilt, int yTilt,
                                                qreal tangentialPressure, qreal rotation, int z, qint64 uid,
                                                Qt::KeyboardModifiers modifiers)
 {
-    QWindowSystemInterfacePrivate::TabletEvent *e =
-            new QWindowSystemInterfacePrivate::TabletEvent(w, timestamp, down, local, global, device, pointerType, pressure,
-                                                           xTilt, yTilt, tangentialPressure, rotation, z, uid, modifiers);
-    QWindowSystemInterfacePrivate::handleWindowSystemEvent(e);
+    handleTabletEvent(w, timestamp, local, global, device, pointerType, (down ? Qt::LeftButton : Qt::NoButton), pressure,
+                      xTilt, yTilt, tangentialPressure, rotation, z, uid, modifiers);
 }
 
 void QWindowSystemInterface::handleTabletEvent(QWindow *w, bool down, const QPointF &local, const QPointF &global,
@@ -645,8 +657,7 @@ void QWindowSystemInterface::handleTabletEvent(QWindow *w, bool down, const QPoi
                                                qreal tangentialPressure, qreal rotation, int z, qint64 uid,
                                                Qt::KeyboardModifiers modifiers)
 {
-    ulong time = QWindowSystemInterfacePrivate::eventTime.elapsed();
-    handleTabletEvent(w, time, down, local, global, device, pointerType, pressure,
+    handleTabletEvent(w, local, global, device, pointerType, (down ? Qt::LeftButton : Qt::NoButton), pressure,
                       xTilt, yTilt, tangentialPressure, rotation, z, uid, modifiers);
 }
 

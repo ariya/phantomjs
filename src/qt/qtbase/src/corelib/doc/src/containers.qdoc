@@ -386,7 +386,7 @@
     \l{QMapIterator::hasPrevious()}{hasPrevious()},
     \l{QMapIterator::previous()}{previous()}, and
     \l{QMapIterator::peekPrevious()}{peekPrevious()}. The key and
-    value components are extracted by calling key() and value() on
+    value components are extracted by calling \l{QMapIterator::key()}{key()} and \l{QMapIterator::value()}{value()} on
     the object returned by next(), peekNext(), previous(), or
     peekPrevious().
 
@@ -395,7 +395,7 @@
 
     \snippet code/doc_src_containers.cpp 7
 
-    QMapIterator also provides a key() and a value() function that
+    QMapIterator also provides a \l{QMapIterator::key()}{key()} and a \l{QMapIterator::value()}{value()} function that
     operate directly on the iterator and that return the key and
     value of the last item that the iterator jumped above. For
     example, the following code copies the contents of a QMap into a
@@ -459,13 +459,13 @@
     \snippet code/doc_src_containers.cpp 10
 
     Unlike \l{Java-style iterators}, STL-style iterators point
-    directly at items. The begin() function of a container returns an
+    directly at items. The \l{QList::begin()}{begin()} function of a container returns an
     iterator that points to the first item in the container. The
-    end() function of a container returns an iterator to the
+    \l{QList::end()}{end()} function of a container returns an iterator to the
     imaginary item one position past the last item in the container.
-    end() marks an invalid position; it must never be dereferenced.
+    \l {QList::end()}{end()} marks an invalid position; it must never be dereferenced.
     It is typically used in a loop's break condition. If the list is
-    empty, begin() equals end(), so we never execute the loop.
+    empty, \l{QList::begin}{begin()} equals \l{QList:end()}{end()}, so we never execute the loop.
 
     The diagram below shows the valid iterator positions as red
     arrows for a vector containing four items:
@@ -484,8 +484,8 @@
     compilers also allow us to write \c{i->toLower()}, but some
     don't.
 
-    For read-only access, you can use const_iterator, constBegin(),
-    and constEnd(). For example:
+    For read-only access, you can use const_iterator, \l{QList::constBegin}{constBegin()},
+    and \l{QList::constEnd()}{constEnd()}. For example:
 
     \snippet code/doc_src_containers.cpp 12
 
@@ -759,7 +759,7 @@
     QString.
 
     QVector<T> also uses that algorithm for data types that can be
-    moved around in memory using memcpy() (including the basic C++
+    moved around in memory using \c memcpy() (including the basic C++
     types, the pointer types, and Qt's \l{shared classes}) but uses a
     different algorithm for data types that can only be moved by
     calling the copy constructor and a destructor. Since the cost of
@@ -790,7 +790,7 @@
     \endlist
 
     If you know approximately how many items you will store in a
-    container, you can start by calling reserve(), and when you are
-    done populating the container, you can call squeeze() to release
+    container, you can start by calling \l{QString::reserve()}{reserve()}, and when you are
+    done populating the container, you can call \l{QString::squeeze()}{squeeze()} to release
     the extra preallocated memory.
 */

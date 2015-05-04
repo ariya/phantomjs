@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -52,6 +44,11 @@
 #include <qcommandlineoption.h>
 #include <qcommandlineparser.h>
 
+#ifdef Q_OS_WIN
+#  include <fcntl.h>
+#  include <io.h>
+#  include <stdio.h>
+#endif // Q_OS_WIN
 
 QT_BEGIN_NAMESPACE
 
@@ -108,13 +105,13 @@ int createProject(const QString &outFileName)
 int runRcc(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
-    QCoreApplication::setApplicationVersion(QString::fromLatin1(QT_VERSION_STR));
+    QCoreApplication::setApplicationVersion(QStringLiteral(QT_VERSION_STR));
 
     // Note that rcc isn't translated.
     // If you use this code as an example for a translated app, make sure to translate the strings.
     QCommandLineParser parser;
     parser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
-    parser.setApplicationDescription(QStringLiteral("Qt Resource Compiler version %1").arg(QString::fromLatin1(QT_VERSION_STR)));
+    parser.setApplicationDescription(QLatin1String("Qt Resource Compiler version " QT_VERSION_STR));
     parser.addHelpOption();
     parser.addVersionOption();
 
@@ -122,6 +119,11 @@ int runRcc(int argc, char *argv[])
     outputOption.setDescription(QStringLiteral("Write output to <file> rather than stdout."));
     outputOption.setValueName(QStringLiteral("file"));
     parser.addOption(outputOption);
+
+    QCommandLineOption tempOption(QStringList() << QStringLiteral("t") << QStringLiteral("temp"));
+    tempOption.setDescription(QStringLiteral("Use temporary <file> for big resources."));
+    tempOption.setValueName(QStringLiteral("file"));
+    parser.addOption(tempOption);
 
     QCommandLineOption nameOption(QStringLiteral("name"), QStringLiteral("Create an external initialization function with <name>."), QStringLiteral("name"));
     parser.addOption(nameOption);
@@ -140,6 +142,9 @@ int runRcc(int argc, char *argv[])
 
     QCommandLineOption binaryOption(QStringLiteral("binary"), QStringLiteral("Output a binary file for use as a dynamic resource."));
     parser.addOption(binaryOption);
+
+    QCommandLineOption passOption(QStringLiteral("pass"), QStringLiteral("Pass number for big resources"), QStringLiteral("number"));
+    parser.addOption(passOption);
 
     QCommandLineOption namespaceOption(QStringLiteral("namespace"), QStringLiteral("Turn off namespace macros."));
     parser.addOption(namespaceOption);
@@ -161,7 +166,6 @@ int runRcc(int argc, char *argv[])
 
     QString errorMsg;
     RCCResourceLibrary library;
-    QString outFilename = parser.value(outputOption);
     if (parser.isSet(nameOption))
         library.setInitName(parser.value(nameOption));
     if (parser.isSet(rootOption)) {
@@ -178,6 +182,14 @@ int runRcc(int argc, char *argv[])
         library.setCompressThreshold(parser.value(thresholdOption).toInt());
     if (parser.isSet(binaryOption))
         library.setFormat(RCCResourceLibrary::Binary);
+    if (parser.isSet(passOption)) {
+        if (parser.value(passOption) == QLatin1String("1"))
+            library.setFormat(RCCResourceLibrary::Pass1);
+        else if (parser.value(passOption) == QLatin1String("2"))
+            library.setFormat(RCCResourceLibrary::Pass2);
+        else
+            errorMsg = QLatin1String("Pass number must be 1 or 2");
+    }
     if (parser.isSet(namespaceOption))
         library.setUseNameSpace(!library.useNameSpace());
     if (parser.isSet(verboseOption))
@@ -193,6 +205,9 @@ int runRcc(int argc, char *argv[])
             return 1;
         }
     }
+
+    QString outFilename = parser.value(outputOption);
+    QString tempFilename = parser.value(tempOption);
 
     if (projectRequested) {
         return createProject(outFilename);
@@ -217,19 +232,34 @@ int runRcc(int argc, char *argv[])
     if (!library.readFiles(list, errorDevice))
         return 1;
 
-    // open output
     QFile out;
-    QIODevice::OpenMode mode = QIODevice::WriteOnly;
-    if (library.format() == RCCResourceLibrary::C_Code)
-        mode |= QIODevice::Text;
+
+    // open output
+    QIODevice::OpenMode mode = QIODevice::NotOpen;
+    switch (library.format()) {
+        case RCCResourceLibrary::C_Code:
+        case RCCResourceLibrary::Pass1:
+            mode = QIODevice::WriteOnly | QIODevice::Text;
+            break;
+        case RCCResourceLibrary::Pass2:
+        case RCCResourceLibrary::Binary:
+            mode = QIODevice::WriteOnly;
+            break;
+    }
+
 
     if (outFilename.isEmpty() || outFilename == QLatin1String("-")) {
+#ifdef Q_OS_WIN
+        // Make sure fwrite to stdout doesn't do LF->CRLF
+        if (library.format() == RCCResourceLibrary::Binary)
+            _setmode(_fileno(stdout), _O_BINARY);
+#endif // Q_OS_WIN
         // using this overload close() only flushes.
         out.open(stdout, mode);
     } else {
         out.setFileName(outFilename);
         if (!out.open(mode)) {
-            const QString msg = QString::fromUtf8("Unable to open %1 for writing: %2\n").arg(outFilename).arg(out.errorString());
+            const QString msg = QString::fromLatin1("Unable to open %1 for writing: %2\n").arg(outFilename).arg(out.errorString());
             errorDevice.write(msg.toUtf8());
             return 1;
         }
@@ -245,7 +275,23 @@ int runRcc(int argc, char *argv[])
         return 0;
     }
 
-    return library.output(out, errorDevice) ? 0 : 1;
+    QFile temp;
+    if (!tempFilename.isEmpty()) {
+        temp.setFileName(tempFilename);
+        if (!temp.open(QIODevice::ReadOnly)) {
+            const QString msg = QString::fromUtf8("Unable to open temporary file %1 for reading: %2\n")
+                    .arg(outFilename).arg(out.errorString());
+            errorDevice.write(msg.toUtf8());
+            return 1;
+        }
+    }
+    bool success = library.output(out, temp, errorDevice);
+    if (!success) {
+        // erase the output file if we failed
+        out.remove();
+        return 1;
+    }
+    return 0;
 }
 
 Q_CORE_EXPORT extern QBasicAtomicInt qt_qhash_seed; // from qhash.cpp

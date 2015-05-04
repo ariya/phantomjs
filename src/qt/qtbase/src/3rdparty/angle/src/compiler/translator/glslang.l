@@ -1,6 +1,6 @@
 /*
 //
-// Copyright (c) 2002-2012 The ANGLE Project Authors. All rights reserved.
+// Copyright (c) 2002-2013 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -15,7 +15,7 @@ WHICH GENERATES THE GLSL ES LEXER (glslang_lex.cpp).
 
 %top{
 //
-// Copyright (c) 2012 The ANGLE Project Authors. All rights reserved.
+// Copyright (c) 2012-2013 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -40,6 +40,7 @@ WHICH GENERATES THE GLSL ES LEXER (glslang_lex.cpp).
 #include "compiler/translator/ParseContext.h"
 #include "compiler/preprocessor/Token.h"
 #include "compiler/translator/util.h"
+#include "compiler/translator/length_limits.h"
 #include "glslang_tab.h"
 
 /* windows only pragma */
@@ -57,8 +58,13 @@ WHICH GENERATES THE GLSL ES LEXER (glslang_lex.cpp).
 static yy_size_t string_input(char* buf, yy_size_t max_size, yyscan_t yyscanner);
 static int check_type(yyscan_t yyscanner);
 static int reserved_word(yyscan_t yyscanner);
+static int ES2_reserved_ES3_keyword(TParseContext *context, int token);
+static int ES2_keyword_ES3_reserved(TParseContext *context, int token);
+static int ES2_ident_ES3_keyword(TParseContext *context, int token);
+static int uint_constant(TParseContext *context);
 static int int_constant(yyscan_t yyscanner);
 static int float_constant(yyscan_t yyscanner);
+static int floatsuffix_check(TParseContext* context);
 %}
 
 %option noyywrap nounput never-interactive
@@ -73,16 +79,20 @@ O           [0-7]
 
 %%
 
+%{
+    TParseContext* context = yyextra;
+%}
+
 "invariant"    { return INVARIANT; }
 "highp"        { return HIGH_PRECISION; }
 "mediump"      { return MEDIUM_PRECISION; }
 "lowp"         { return LOW_PRECISION; }
 "precision"    { return PRECISION; }
 
-"attribute"    { return ATTRIBUTE; }
+"attribute"    { return ES2_keyword_ES3_reserved(context, ATTRIBUTE); }
 "const"        { return CONST_QUAL; }
 "uniform"      { return UNIFORM; }
-"varying"      { return VARYING; }
+"varying"      { return ES2_keyword_ES3_reserved(context, VARYING); }
 
 "break"        { return BREAK; }
 "continue"     { return CONTINUE; }
@@ -92,6 +102,13 @@ O           [0-7]
 
 "if"           { return IF; }
 "else"         { return ELSE; }
+"switch"       { return ES2_reserved_ES3_keyword(context, SWITCH); }
+"case"         { return ES2_ident_ES3_keyword(context, CASE); }
+"default"      { return ES2_reserved_ES3_keyword(context, DEFAULT); }
+
+"centroid"     { return ES2_ident_ES3_keyword(context, CENTROID); }
+"flat"         { return ES2_reserved_ES3_keyword(context, FLAT); }
+"smooth"       { return ES2_ident_ES3_keyword(context, SMOOTH); }
 
 "in"           { return IN_QUAL; }
 "out"          { return OUT_QUAL; }
@@ -99,6 +116,7 @@ O           [0-7]
 
 "float"        { return FLOAT_TYPE; }
 "int"          { return INT_TYPE; }
+"uint"         { return ES2_ident_ES3_keyword(context, UINT_TYPE); }
 "void"         { return VOID_TYPE; }
 "bool"         { return BOOL_TYPE; }
 "true"         { yylval->lex.b = true;  return BOOLCONSTANT; }
@@ -111,6 +129,17 @@ O           [0-7]
 "mat3"         { return MATRIX3; }
 "mat4"         { return MATRIX4; }
 
+"mat2x2"         { return ES2_ident_ES3_keyword(context, MATRIX2); }
+"mat3x3"         { return ES2_ident_ES3_keyword(context, MATRIX3); }
+"mat4x4"         { return ES2_ident_ES3_keyword(context, MATRIX4); }
+
+"mat2x3"         { return ES2_ident_ES3_keyword(context, MATRIX2x3); }
+"mat3x2"         { return ES2_ident_ES3_keyword(context, MATRIX3x2); }
+"mat2x4"         { return ES2_ident_ES3_keyword(context, MATRIX2x4); }
+"mat4x2"         { return ES2_ident_ES3_keyword(context, MATRIX4x2); }
+"mat3x4"         { return ES2_ident_ES3_keyword(context, MATRIX3x4); }
+"mat4x3"         { return ES2_ident_ES3_keyword(context, MATRIX4x3); }
+
 "vec2"         { return VEC2; }
 "vec3"         { return VEC3; }
 "vec4"         { return VEC4; }
@@ -120,70 +149,160 @@ O           [0-7]
 "bvec2"        { return BVEC2; }
 "bvec3"        { return BVEC3; }
 "bvec4"        { return BVEC4; }
+"uvec2"        { return ES2_ident_ES3_keyword(context, UVEC2); }
+"uvec3"        { return ES2_ident_ES3_keyword(context, UVEC3); }
+"uvec4"        { return ES2_ident_ES3_keyword(context, UVEC4); }
 
-"sampler2D"          { return SAMPLER2D; }
-"samplerCube"        { return SAMPLERCUBE; }
-"samplerExternalOES" { return SAMPLER_EXTERNAL_OES; }
-"sampler2DRect"      { return SAMPLER2DRECT; }
+"sampler2D"            { return SAMPLER2D; }
+"samplerCube"          { return SAMPLERCUBE; }
+"samplerExternalOES"   { return SAMPLER_EXTERNAL_OES; }
+"sampler3D"            { return ES2_reserved_ES3_keyword(context, SAMPLER3D); }
+"sampler3DRect"        { return ES2_reserved_ES3_keyword(context, SAMPLER3DRECT); }
+"sampler2DRect"        { return SAMPLER2DRECT; }
+"sampler2DArray"       { return ES2_ident_ES3_keyword(context, SAMPLER2DARRAY); }
+"isampler2D"           { return ES2_ident_ES3_keyword(context, ISAMPLER2D); }
+"isampler3D"           { return ES2_ident_ES3_keyword(context, ISAMPLER3D); }
+"isamplerCube"         { return ES2_ident_ES3_keyword(context, ISAMPLERCUBE); }
+"isampler2DArray"      { return ES2_ident_ES3_keyword(context, ISAMPLER2DARRAY); }
+"usampler2D"           { return ES2_ident_ES3_keyword(context, USAMPLER2D); }
+"usampler3D"           { return ES2_ident_ES3_keyword(context, USAMPLER3D); }
+"usamplerCube"         { return ES2_ident_ES3_keyword(context, USAMPLERCUBE); }
+"usampler2DArray"      { return ES2_ident_ES3_keyword(context, USAMPLER2DARRAY); }
+"sampler2DShadow"      { return ES2_reserved_ES3_keyword(context, SAMPLER2DSHADOW); }
+"samplerCubeShadow"    { return ES2_ident_ES3_keyword(context, SAMPLERCUBESHADOW); }
+"sampler2DArrayShadow" { return ES2_ident_ES3_keyword(context, SAMPLER2DARRAYSHADOW); }
 
 "struct"       { return STRUCT; }
 
-"asm"          { return reserved_word(yyscanner); }
+"layout"  { return ES2_ident_ES3_keyword(context, LAYOUT); }
 
-"class"        { return reserved_word(yyscanner); }
-"union"        { return reserved_word(yyscanner); }
-"enum"         { return reserved_word(yyscanner); }
-"typedef"      { return reserved_word(yyscanner); }
-"template"     { return reserved_word(yyscanner); }
-"this"         { return reserved_word(yyscanner); }
-"packed"       { return reserved_word(yyscanner); }
+    /* Reserved keywords for GLSL ES 3.00 that are not reserved for GLSL ES 1.00 */
+"coherent"          |
+"restrict"          |
+"readonly"          |
+"writeonly"         |
+"resource"          |
+"atomic_uint"       |
+"noperspective"     |
+"patch"             |
+"sample"            |
+"subroutine"        |
+"common"            |
+"partition"         |
+"active"            |
 
-"goto"         { return reserved_word(yyscanner); }
-"switch"       { return reserved_word(yyscanner); }
-"default"      { return reserved_word(yyscanner); }
+"filter"            |
+"image1D"           |
+"image2D"           |
+"image3D"           |
+"imageCube"	        |
+"iimage1D"          |
+"iimage2D"          |
+"iimage3D"          |
+"iimageCube"        |
+"uimage1D"          |
+"uimage2D"          |
+"uimage3D"          |
+"uimageCube"        |
+"image1DArray"      |
+"image2DArray"      |
+"iimage1DArray"     |
+"iimage2DArray"     |
+"uimage1DArray"     |
+"uimage2DArray"     |
+"image1DShadow"     |
+"image2DShadow"     |
+"image1DArrayShadow" |
+"image2DArrayShadow" |
+"imageBuffer"       |
+"iimageBuffer"      |
+"uimageBuffer"      |
 
-"inline"       { return reserved_word(yyscanner); }
-"noinline"     { return reserved_word(yyscanner); }
-"volatile"     { return reserved_word(yyscanner); }
-"public"       { return reserved_word(yyscanner); }
-"static"       { return reserved_word(yyscanner); }
-"extern"       { return reserved_word(yyscanner); }
-"external"     { return reserved_word(yyscanner); }
-"interface"    { return reserved_word(yyscanner); }
-"flat"         { return reserved_word(yyscanner); }
+"sampler1DArray"    |
+"sampler1DArrayShadow" |
+"isampler1D"        |
+"isampler1DArray"   |
+"usampler1D"        |
+"usampler1DArray"   |
+"isampler2DRect"    |
+"usampler2DRect"    |
+"samplerBuffer"     |
+"isamplerBuffer"    |
+"usamplerBuffer"    |
+"sampler2DMS"       |
+"isampler2DMS"      |
+"usampler2DMS"      |
+"sampler2DMSArray"  |
+"isampler2DMSArray" |
+"usampler2DMSArray" { 
+    if (context->shaderVersion < 300) {
+		yylval->lex.string = NewPoolTString(yytext); 
+	    return check_type(yyscanner); 
+	}
+	return reserved_word(yyscanner);
+}
 
-"long"         { return reserved_word(yyscanner); }
-"short"        { return reserved_word(yyscanner); }
-"double"       { return reserved_word(yyscanner); }
-"half"         { return reserved_word(yyscanner); }
-"fixed"        { return reserved_word(yyscanner); }
-"unsigned"     { return reserved_word(yyscanner); }
-"superp"       { return reserved_word(yyscanner); }
+    /* Reserved keywords in GLSL ES 1.00 that are not reserved in GLSL ES 3.00 */
+"packed"  {
+    if (context->shaderVersion >= 300)
+    {
+        yylval->lex.string = NewPoolTString(yytext);
+        return check_type(yyscanner);
+    }
 
-"input"        { return reserved_word(yyscanner); }
-"output"       { return reserved_word(yyscanner); }
+    return reserved_word(yyscanner);
+}
 
-"hvec2"        { return reserved_word(yyscanner); }
-"hvec3"        { return reserved_word(yyscanner); }
-"hvec4"        { return reserved_word(yyscanner); }
-"dvec2"        { return reserved_word(yyscanner); }
-"dvec3"        { return reserved_word(yyscanner); }
-"dvec4"        { return reserved_word(yyscanner); }
-"fvec2"        { return reserved_word(yyscanner); }
-"fvec3"        { return reserved_word(yyscanner); }
-"fvec4"        { return reserved_word(yyscanner); }
+    /* Reserved keywords */
+"asm"          |
 
-"sampler1D"           { return reserved_word(yyscanner); }
-"sampler3D"           { return reserved_word(yyscanner); }
-"sampler1DShadow"     { return reserved_word(yyscanner); }
-"sampler2DShadow"     { return reserved_word(yyscanner); }
-"sampler3DRect"       { return reserved_word(yyscanner); }
-"sampler2DRectShadow" { return reserved_word(yyscanner); }
+"class"        |
+"union"        |
+"enum"         |
+"typedef"      |
+"template"     |
+"this"         |
 
-"sizeof"       { return reserved_word(yyscanner); }
-"cast"         { return reserved_word(yyscanner); }
+"goto"         |
 
-"namespace"    { return reserved_word(yyscanner); }
+"inline"       |
+"noinline"     |
+"volatile"     |
+"public"       |
+"static"       |
+"extern"       |
+"external"     |
+"interface"    |
+
+"long"         |
+"short"        |
+"double"       |
+"half"         |
+"fixed"        |
+"unsigned"     |
+"superp"       |
+
+"input"        |
+"output"       |
+
+"hvec2"        |
+"hvec3"        |
+"hvec4"        |
+"dvec2"        |
+"dvec3"        |
+"dvec4"        |
+"fvec2"        |
+"fvec3"        |
+"fvec4"        |
+
+"sampler1D"    |
+"sampler1DShadow" |
+"sampler2DRectShadow" |
+
+"sizeof"       |
+"cast"         |
+
+"namespace"    |
 "using"        { return reserved_word(yyscanner); }
 
 {L}({L}|{D})*       {
@@ -195,9 +314,17 @@ O           [0-7]
 0{O}+             { return int_constant(yyscanner); }
 {D}+              { return int_constant(yyscanner); }
 
+0[xX]{H}+[uU]     { return uint_constant(context); }
+0{O}+[uU]         { return uint_constant(context); }
+{D}+[uU]          { return uint_constant(context); }
+
 {D}+{E}           { return float_constant(yyscanner); }
 {D}+"."{D}*({E})? { return float_constant(yyscanner); }
 "."{D}+({E})?     { return float_constant(yyscanner); }
+
+{D}+{E}[fF]           { return floatsuffix_check(context); }
+{D}+"."{D}*({E})?[fF] { return floatsuffix_check(context); }
+"."{D}+({E})?[fF]     { return floatsuffix_check(context); }
 
 "+="            { return ADD_ASSIGN; }
 "-="            { return SUB_ASSIGN; }
@@ -224,31 +351,31 @@ O           [0-7]
 ";"             { return SEMICOLON; }
 ("{"|"<%")      { return LEFT_BRACE; }
 ("}"|"%>")      { return RIGHT_BRACE; }
-","         { return COMMA; }
-":"         { return COLON; }
-"="         { return EQUAL; }
-"("         { return LEFT_PAREN; }
-")"         { return RIGHT_PAREN; }
-("["|"<:")  { return LEFT_BRACKET; }
-("]"|":>")  { return RIGHT_BRACKET; }
-"."         { return DOT; }
-"!"         { return BANG; }
-"-"         { return DASH; }
-"~"         { return TILDE; }
-"+"         { return PLUS; }
-"*"         { return STAR; }
-"/"         { return SLASH; }
-"%"         { return PERCENT; }
-"<"         { return LEFT_ANGLE; }
-">"         { return RIGHT_ANGLE; }
-"|"         { return VERTICAL_BAR; }
-"^"         { return CARET; }
-"&"         { return AMPERSAND; }
-"?"         { return QUESTION; }
+","             { return COMMA; }
+":"             { return COLON; }
+"="             { return EQUAL; }
+"("             { return LEFT_PAREN; }
+")"             { return RIGHT_PAREN; }
+("["|"<:")      { return LEFT_BRACKET; }
+("]"|":>")      { return RIGHT_BRACKET; }
+"."             { return DOT; }
+"!"             { return BANG; }
+"-"             { return DASH; }
+"~"             { return TILDE; }
+"+"             { return PLUS; }
+"*"             { return STAR; }
+"/"             { return SLASH; }
+"%"             { return PERCENT; }
+"<"             { return LEFT_ANGLE; }
+">"             { return RIGHT_ANGLE; }
+"|"             { return VERTICAL_BAR; }
+"^"             { return CARET; }
+"&"             { return AMPERSAND; }
+"?"             { return QUESTION; }
 
 [ \t\v\n\f\r] { }
-<<EOF>>    { yyterminate(); }
-.          { assert(false); return 0; }
+<<EOF>>       { yyterminate(); }
+.             { assert(false); return 0; }
 
 %%
 
@@ -272,11 +399,12 @@ int check_type(yyscan_t yyscanner) {
     struct yyguts_t* yyg = (struct yyguts_t*) yyscanner;
     
     int token = IDENTIFIER;
-    TSymbol* symbol = yyextra->symbolTable.find(yytext);
+    TSymbol* symbol = yyextra->symbolTable.find(yytext, yyextra->shaderVersion);
     if (symbol && symbol->isVariable()) {
         TVariable* variable = static_cast<TVariable*>(symbol);
-        if (variable->isUserType())
+        if (variable->isUserType()) {
             token = TYPE_NAME;
+        }
     }
     yylval->lex.symbol = symbol;
     return token;
@@ -288,6 +416,80 @@ int reserved_word(yyscan_t yyscanner) {
     yyextra->error(*yylloc, "Illegal use of reserved word", yytext, "");
     yyextra->recover();
     return 0;
+}
+
+int ES2_reserved_ES3_keyword(TParseContext *context, int token)
+{
+    yyscan_t yyscanner = (yyscan_t) context->scanner;
+
+    if (context->shaderVersion < 300)
+    {
+        return reserved_word(yyscanner);
+    }
+
+    return token;
+}
+
+int ES2_keyword_ES3_reserved(TParseContext *context, int token)
+{
+    yyscan_t yyscanner = (yyscan_t) context->scanner;
+
+    if (context->shaderVersion >= 300)
+    {
+        return reserved_word(yyscanner);
+    }
+
+    return token;
+}
+
+int ES2_ident_ES3_keyword(TParseContext *context, int token)
+{
+    struct yyguts_t* yyg = (struct yyguts_t*) context->scanner;
+    yyscan_t yyscanner = (yyscan_t) context->scanner;
+
+    // not a reserved word in GLSL ES 1.00, so could be used as an identifier/type name
+    if (context->shaderVersion < 300)
+    {
+        yylval->lex.string = NewPoolTString(yytext);
+        return check_type(yyscanner);
+    }
+
+    return token;
+}
+
+int uint_constant(TParseContext *context)
+{
+    struct yyguts_t* yyg = (struct yyguts_t*) context->scanner;
+    yyscan_t yyscanner = (yyscan_t) context->scanner;
+
+    if (context->shaderVersion < 300)
+    {
+        context->error(*yylloc, "Unsigned integers are unsupported prior to GLSL ES 3.00", yytext, "");
+        context->recover();
+        return 0;
+    }
+
+    if (!atoi_clamp(yytext, &(yylval->lex.i)))
+        yyextra->warning(*yylloc, "Integer overflow", yytext, "");
+
+    return UINTCONSTANT;
+}
+
+int floatsuffix_check(TParseContext* context)
+{
+    struct yyguts_t* yyg = (struct yyguts_t*) context->scanner;
+
+    if (context->shaderVersion < 300)
+    {
+        context->error(*yylloc, "Floating-point suffix unsupported prior to GLSL ES 3.00", yytext);
+        context->recover();
+        return 0;
+    }
+
+    if (!atof_clamp(yytext, &(yylval->lex.f)))
+        yyextra->warning(*yylloc, "Float overflow", yytext, "");
+
+    return(FLOATCONSTANT);
 }
 
 void yyerror(YYLTYPE* lloc, TParseContext* context, const char* reason) {
@@ -339,7 +541,6 @@ int glslang_scan(size_t count, const char* const string[], const int length[],
     // Initialize preprocessor.
     if (!context->preprocessor.init(count, string, length))
         return 1;
-    context->preprocessor.setMaxTokenLength(SH_MAX_TOKEN_LENGTH);
 
     // Define extension macros.
     const TExtensionBehavior& extBehavior = context->extensionBehavior();
@@ -349,6 +550,8 @@ int glslang_scan(size_t count, const char* const string[], const int length[],
     }
     if (context->fragmentPrecisionHigh)
         context->preprocessor.predefineMacro("GL_FRAGMENT_PRECISION_HIGH", 1);
+
+    context->preprocessor.setMaxTokenSize(GetGlobalMaxTokenSize(context->shaderSpec));
 
     return 0;
 }

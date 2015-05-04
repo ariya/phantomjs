@@ -297,3 +297,13 @@ while (i != hash.end() && i.key() == "plenty") {
     ++i;
 }
 //! [26]
+
+//! [qhashbits]
+inline uint qHash(const std::vector<int> &key, uint seed = 0)
+{
+    if (key.empty())
+        return seed;
+    else
+        return qHashBits(&key.front(), key.size() * sizeof(int), seed);
+}
+//! [qhashbits]

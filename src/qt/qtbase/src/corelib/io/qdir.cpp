@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -760,9 +752,13 @@ QString QDir::relativeFilePath(const QString &fileName) const
 #endif
 
     QString result;
+#if defined(Q_OS_WIN)
     QStringList dirElts = dir.split(QLatin1Char('/'), QString::SkipEmptyParts);
     QStringList fileElts = file.split(QLatin1Char('/'), QString::SkipEmptyParts);
-
+#else
+    QVector<QStringRef> dirElts = dir.splitRef(QLatin1Char('/'), QString::SkipEmptyParts);
+    QVector<QStringRef> fileElts = file.splitRef(QLatin1Char('/'), QString::SkipEmptyParts);
+#endif
     int i = 0;
     while (i < dirElts.size() && i < fileElts.size() &&
 #if defined(Q_OS_WIN)
@@ -2022,106 +2018,120 @@ bool QDir::match(const QString &filter, const QString &fileName)
     This method is shared with QUrl, so it doesn't deal with QDir::separator(),
     nor does it remove the trailing slash, if any.
 */
-QString qt_normalizePathSegments(const QString &name, bool allowUncPaths)
+Q_AUTOTEST_EXPORT QString qt_normalizePathSegments(const QString &name, bool allowUncPaths)
 {
-    int used = 0, levels = 0;
     const int len = name.length();
-    QVarLengthArray<QChar> outVector(len);
-    QChar *out = outVector.data();
 
+    if (len == 0)
+        return name;
+
+    int i = len - 1;
+    QVarLengthArray<QChar> outVector(len);
+    int used = len;
+    QChar *out = outVector.data();
     const QChar *p = name.unicode();
-    for (int i = 0, last = -1, iwrite = 0; i < len; ++i) {
-        if (p[i] == QLatin1Char('/')) {
-            while (i+1 < len && p[i+1] == QLatin1Char('/')) {
-                if (allowUncPaths && i == 0)
-                    break;
-                i++;
-            }
-            bool eaten = false;
-            if (i+1 < len && p[i+1] == QLatin1Char('.')) {
-                int dotcount = 1;
-                if (i+2 < len && p[i+2] == QLatin1Char('.'))
-                    dotcount++;
-                if (i == len - dotcount - 1) {
-                    if (dotcount == 1) {
-                        break;
-                    } else if (levels) {
-                        if (last == -1) {
-                            for (int i2 = iwrite-1; i2 >= 0; i2--) {
-                                if (out[i2] == QLatin1Char('/')) {
-                                    last = i2;
-                                    break;
-                                }
-                            }
-                        }
-                        used -= iwrite - last - 1;
-                        break;
-                    }
-                } else if (p[i+dotcount+1] == QLatin1Char('/')) {
-                    if (dotcount == 2 && levels) {
-                        if (last == -1 || iwrite - last == 1) {
-                            for (int i2 = (last == -1) ? (iwrite-1) : (last-1); i2 >= 0; i2--) {
-                                if (out[i2] == QLatin1Char('/')) {
-                                    eaten = true;
-                                    last = i2;
-                                    break;
-                                }
-                            }
-                        } else {
-                            eaten = true;
-                        }
-                        if (eaten) {
-                            levels--;
-                            used -= iwrite - last;
-                            iwrite = last;
-                            last = -1;
-                        }
-                    } else if (dotcount == 2 && i > 0 && p[i - 1] != QLatin1Char('.')) {
-                        eaten = true;
-                        used -= iwrite - qMax(0, last);
-                        iwrite = qMax(0, last);
-                        last = -1;
-                        ++i;
-                    } else if (dotcount == 1) {
-                        eaten = true;
-                    }
-                    if (eaten)
-                        i += dotcount;
-                } else {
-                    levels++;
-                }
-            } else if (last != -1 && iwrite - last == 1) {
-#if defined(Q_OS_WIN)
-                eaten = (iwrite > 2);
-#else
-                eaten = true;
+    const QChar *prefix = p;
+    int up = 0;
+
+    int prefixLength = 0;
+
+    if (allowUncPaths && len >= 2 && p[1].unicode() == '/' && p[0].unicode() == '/') {
+        // starts with double slash
+        prefixLength = 2;
+#ifdef Q_OS_WIN
+    } else if (len >= 2 && p[1].unicode() == ':') {
+        // remember the drive letter
+        prefixLength = (len > 2 && p[2].unicode() == '/') ? 3 : 2;
 #endif
-                last = -1;
-            } else {
-                levels++;
-            }
-            if (!eaten)
-                last = i - (i - iwrite);
-            else
-                continue;
-        } else if (!i && p[i] == QLatin1Char('.')) {
-            int dotcount = 1;
-            if (len >= 1 && p[1] == QLatin1Char('.'))
-                dotcount++;
-            if (len >= dotcount && p[dotcount] == QLatin1Char('/')) {
-                if (dotcount == 1) {
-                    i++;
-                    while (i+1 < len-1 && p[i+1] == QLatin1Char('/'))
-                        i++;
-                    continue;
-                }
-            }
-        }
-        out[iwrite++] = p[i];
-        used++;
+    } else if (p[0].unicode() == '/') {
+        prefixLength = 1;
+    }
+    p += prefixLength;
+    i -= prefixLength;
+
+    // replicate trailing slash (i > 0 checks for emptiness of input string p)
+    if (i > 0 && p[i].unicode() == '/') {
+        out[--used].unicode() = '/';
+        --i;
     }
 
-    QString ret = (used == len ? name : QString(out, used));
+    while (i >= 0) {
+        // remove trailing slashes
+        if (p[i].unicode() == '/') {
+            --i;
+            continue;
+        }
+
+        // remove current directory
+        if (p[i].unicode() == '.' && (i == 0 || p[i-1].unicode() == '/')) {
+            --i;
+            continue;
+        }
+
+        // detect up dir
+        if (i >= 1 && p[i].unicode() == '.' && p[i-1].unicode() == '.'
+                && (i == 1 || (i >= 2 && p[i-2].unicode() == '/'))) {
+            ++up;
+            i -= 2;
+            continue;
+        }
+
+        // prepend a slash before copying when not empty
+        if (!up && used != len && out[used].unicode() != '/')
+            out[--used] = QLatin1Char('/');
+
+        // skip or copy
+        while (i >= 0) {
+            if (p[i].unicode() == '/') { // do not copy slashes
+                --i;
+                break;
+            }
+
+            // actual copy
+            if (!up)
+                out[--used] = p[i];
+            --i;
+        }
+
+        // decrement up after copying/skipping
+        if (up)
+            --up;
+    }
+
+    // add remaining '..'
+    while (up) {
+        if (used != len && out[used].unicode() != '/') // is not empty and there isn't already a '/'
+            out[--used] = QLatin1Char('/');
+        out[--used] = QLatin1Char('.');
+        out[--used] = QLatin1Char('.');
+        --up;
+    }
+
+    bool isEmpty = used == len;
+
+    if (prefixLength) {
+        if (!isEmpty && out[used].unicode() == '/') {
+            // Eventhough there is a prefix the out string is a slash. This happens, if the input
+            // string only consists of a prefix followed by one or more slashes. Just skip the slash.
+            ++used;
+        }
+        for (int i = prefixLength - 1; i >= 0; --i)
+            out[--used] = prefix[i];
+    } else {
+        if (isEmpty) {
+            // After resolving the input path, the resulting string is empty (e.g. "foo/.."). Return
+            // a dot in that case.
+            out[--used] = QLatin1Char('.');
+        } else if (out[used].unicode() == '/') {
+            // After parsing the input string, out only contains a slash. That happens whenever all
+            // parts are resolved and there is a trailing slash ("./" or "foo/../" for example).
+            // Prepend a dot to have the correct return value.
+            out[--used] = QLatin1Char('.');
+        }
+    }
+
+    // If path was not modified return the original value
+    QString ret = (used == 0 ? name : QString(out + used, len - used));
     return ret;
 }
 

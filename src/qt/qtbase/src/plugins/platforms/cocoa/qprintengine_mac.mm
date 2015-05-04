@@ -412,7 +412,10 @@ void QMacPrintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 {
     Q_D(QMacPrintEngine);
     Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawTextItem(p, ti);
+    if (!d->embedFonts)
+        QPaintEngine::drawTextItem(p, ti);
+    else
+        d->paintEngine->drawTextItem(p, ti);
 }
 
 void QMacPrintEngine::drawTiledPixmap(const QRectF &dr, const QPixmap &pixmap, const QPointF &sr)
@@ -457,11 +460,6 @@ void QMacPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &va
         break;
     case PPK_CustomBase:
         break;
-    case PPK_Duplex:
-        // TODO Add support using PMSetDuplex / PMGetDuplex
-        break;
-    case PPK_FontEmbedding:
-        break;
     case PPK_PageOrder:
         // TODO Check if can be supported via Cups Options
         break;
@@ -474,6 +472,9 @@ void QMacPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &va
         break;
 
     // The following keys are properties and settings that are supported by the Mac PrintEngine
+    case PPK_FontEmbedding:
+        d->embedFonts = value.toBool();
+        break;
     case PPK_Resolution:  {
         // TODO It appears the old code didn't actually set the resolution???  Can we delete all this???
         int bestResolution = 0;
@@ -503,6 +504,29 @@ void QMacPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &va
     case PPK_DocumentName:
         PMPrintSettingsSetJobName(d->settings(), QCFString(value.toString()));
         break;
+    case PPK_Duplex: {
+        QPrint::DuplexMode mode = QPrint::DuplexMode(value.toInt());
+        if (mode == property(PPK_Duplex).toInt() || !d->m_printDevice->supportedDuplexModes().contains(mode))
+            break;
+        switch (mode) {
+        case QPrinter::DuplexNone:
+            PMSetDuplex(d->settings(), kPMDuplexNone);
+            break;
+        case QPrinter::DuplexAuto:
+            PMSetDuplex(d->settings(), d->m_pageLayout.orientation() == QPageLayout::Landscape ? kPMDuplexTumble : kPMDuplexNoTumble);
+            break;
+        case QPrinter::DuplexLongSide:
+            PMSetDuplex(d->settings(), kPMDuplexNoTumble);
+            break;
+        case QPrinter::DuplexShortSide:
+            PMSetDuplex(d->settings(), kPMDuplexTumble);
+            break;
+        default:
+            // Don't change
+            break;
+        }
+        break;
+    }
     case PPK_FullPage:
         if (value.toBool())
             d->m_pageLayout.setMode(QPageLayout::FullPageMode);
@@ -602,13 +626,6 @@ QVariant QMacPrintEngine::property(PrintEnginePropertyKey key) const
     case PPK_CustomBase:
         // Special case, leave null
         break;
-    case PPK_Duplex:
-        // TODO Add support using PMSetDuplex / PMGetDuplex
-        ret = QPrinter::DuplexNone;
-        break;
-    case PPK_FontEmbedding:
-        ret = false;
-        break;
     case PPK_PageOrder:
         // TODO Check if can be supported via Cups Options
         ret = QPrinter::FirstPageFirst;
@@ -632,6 +649,9 @@ QVariant QMacPrintEngine::property(PrintEnginePropertyKey key) const
         break;
 
     // The following keys are properties and settings that are supported by the Mac PrintEngine
+    case PPK_FontEmbedding:
+        ret = d->embedFonts;
+        break;
     case PPK_CollateCopies: {
         Boolean status;
         PMGetCollate(d->settings(), &status);
@@ -645,6 +665,23 @@ QVariant QMacPrintEngine::property(PrintEnginePropertyKey key) const
         CFStringRef name;
         PMPrintSettingsGetJobName(d->settings(), &name);
         ret = QCFString::toQString(name);
+        break;
+    }
+    case PPK_Duplex: {
+        PMDuplexMode mode = kPMDuplexNone;
+        PMGetDuplex(d->settings(), &mode);
+        switch (mode) {
+        case kPMDuplexNoTumble:
+            ret = QPrinter::DuplexLongSide;
+            break;
+        case kPMDuplexTumble:
+            ret = QPrinter::DuplexShortSide;
+            break;
+        case kPMDuplexNone:
+        default:
+            ret = QPrinter::DuplexNone;
+            break;
+        }
         break;
     }
     case PPK_FullPage:

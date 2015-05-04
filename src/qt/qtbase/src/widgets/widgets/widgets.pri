@@ -8,7 +8,6 @@ HEADERS += \
         widgets/qabstractslider_p.h \
         widgets/qabstractspinbox.h \
         widgets/qabstractspinbox_p.h \
-        widgets/qcalendartextnavigator_p.h \
         widgets/qcalendarwidget.h \
         widgets/qcheckbox.h \
         widgets/qcombobox.h \

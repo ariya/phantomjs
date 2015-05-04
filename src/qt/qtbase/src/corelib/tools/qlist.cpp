@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -386,8 +378,8 @@ void **QListData::erase(void **xi)
 
     Qt includes a QStringList class that inherits QList\<QString\>
     and adds a few convenience functions, such as QStringList::join()
-    and QStringList::find(). (QString::split() creates QStringLists
-    from strings.)
+    and QStringList::filter().  QString::split() creates QStringLists
+    from strings.
 
     QList stores a list of items. The default constructor creates an
     empty list. To insert items into the list, you can use
@@ -476,6 +468,11 @@ void **QListData::erase(void **xi)
     value that might not be in the valid range, check that it is less
     than the value returned by size() but \e not less than 0.
 
+    \section1 More Members
+
+    If T is a QByteArray, this class has a couple more members that can be
+    used. See the documentation for QByteArrayList for more information.
+
     \sa QListIterator, QMutableListIterator, QLinkedList, QVector
 */
 
@@ -491,11 +488,11 @@ void **QListData::erase(void **xi)
 /*!
     \fn QList<T> QList<T>::mid(int pos, int length) const
 
-    Returns a list whose elements are copied from this list,
+    Returns a sub-list which includes elements from this list,
     starting at position \a pos. If \a length is -1 (the default), all
-    elements from \a pos are copied; otherwise \a length elements (or
+    elements from \a pos are included; otherwise \a length elements (or
     all remaining elements if there are less than \a length elements)
-    are copied.
+    are included.
 */
 
 /*! \fn QList::QList()
@@ -1366,7 +1363,7 @@ void **QListData::erase(void **xi)
     \sa operator*()
 */
 
-/*! \fn T &QList::iterator::operator[](int j) const
+/*! \fn T &QList::iterator::operator[](difference_type j) const
 
     Returns a modifiable reference to the item at position *this +
     \a{j}.
@@ -1467,7 +1464,7 @@ void **QListData::erase(void **xi)
     current and returns an iterator to the previously current item.
 */
 
-/*! \fn QList::iterator &QList::iterator::operator+=(int j)
+/*! \fn QList::iterator &QList::iterator::operator+=(difference_type j)
 
     Advances the iterator by \a j items. (If \a j is negative, the
     iterator goes backward.)
@@ -1475,7 +1472,7 @@ void **QListData::erase(void **xi)
     \sa operator-=(), operator+()
 */
 
-/*! \fn QList::iterator &QList::iterator::operator-=(int j)
+/*! \fn QList::iterator &QList::iterator::operator-=(difference_type j)
 
     Makes the iterator go back by \a j items. (If \a j is negative,
     the iterator goes forward.)
@@ -1483,7 +1480,7 @@ void **QListData::erase(void **xi)
     \sa operator+=(), operator-()
 */
 
-/*! \fn QList::iterator QList::iterator::operator+(int j) const
+/*! \fn QList::iterator QList::iterator::operator+(difference_type j) const
 
     Returns an iterator to the item at \a j positions forward from
     this iterator. (If \a j is negative, the iterator goes backward.)
@@ -1491,7 +1488,7 @@ void **QListData::erase(void **xi)
     \sa operator-(), operator+=()
 */
 
-/*! \fn QList::iterator QList::iterator::operator-(int j) const
+/*! \fn QList::iterator QList::iterator::operator-(difference_type j) const
 
     Returns an iterator to the item at \a j positions backward from
     this iterator. (If \a j is negative, the iterator goes forward.)
@@ -1621,7 +1618,7 @@ void **QListData::erase(void **xi)
     \sa operator*()
 */
 
-/*! \fn const T &QList::const_iterator::operator[](int j) const
+/*! \fn const T &QList::const_iterator::operator[](difference_type j) const
 
     Returns the item at position *this + \a{j}.
 
@@ -1713,7 +1710,7 @@ void **QListData::erase(void **xi)
     current and returns an iterator to the previously current item.
 */
 
-/*! \fn QList::const_iterator &QList::const_iterator::operator+=(int j)
+/*! \fn QList::const_iterator &QList::const_iterator::operator+=(difference_type j)
 
     Advances the iterator by \a j items. (If \a j is negative, the
     iterator goes backward.)
@@ -1721,7 +1718,7 @@ void **QListData::erase(void **xi)
     \sa operator-=(), operator+()
 */
 
-/*! \fn QList::const_iterator &QList::const_iterator::operator-=(int j)
+/*! \fn QList::const_iterator &QList::const_iterator::operator-=(difference_type j)
 
     Makes the iterator go back by \a j items. (If \a j is negative,
     the iterator goes forward.)
@@ -1729,7 +1726,7 @@ void **QListData::erase(void **xi)
     \sa operator+=(), operator-()
 */
 
-/*! \fn QList::const_iterator QList::const_iterator::operator+(int j) const
+/*! \fn QList::const_iterator QList::const_iterator::operator+(difference_type j) const
 
     Returns an iterator to the item at \a j positions forward from
     this iterator. (If \a j is negative, the iterator goes backward.)
@@ -1737,7 +1734,7 @@ void **QListData::erase(void **xi)
     \sa operator-(), operator+=()
 */
 
-/*! \fn QList::const_iterator QList::const_iterator::operator-(int j) const
+/*! \fn QList::const_iterator QList::const_iterator::operator-(difference_type j) const
 
     Returns an iterator to the item at \a j positions backward from
     this iterator. (If \a j is negative, the iterator goes forward.)

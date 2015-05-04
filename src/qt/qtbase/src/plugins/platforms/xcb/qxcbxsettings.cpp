@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -42,8 +34,11 @@
 #include "qxcbxsettings.h"
 
 #include <QtCore/QByteArray>
+#include <QtCore/QtEndian>
 
+#ifdef XCB_USE_XLIB
 #include <X11/extensions/XIproto.h>
+#endif //XCB_USE_XLIB
 
 QT_BEGIN_NAMESPACE
 /* Implementation of http://standards.freedesktop.org/xsettings-spec/xsettings-0.5.html */
@@ -145,51 +140,72 @@ public:
         return value + 4 - remainder;
     }
 
+#ifdef XCB_USE_XLIB
     void populateSettings(const QByteArray &xSettings)
     {
         if (xSettings.length() < 12)
             return;
-        // we ignore byteorder for now
-        char byteOrder = xSettings.at(1);
-        Q_UNUSED(byteOrder);
-        uint number_of_settings = *reinterpret_cast<const uint *>(xSettings.mid(8,4).constData());
+        char byteOrder = xSettings.at(0);
+        if (byteOrder != LSBFirst && byteOrder != MSBFirst) {
+            qWarning("%s ByteOrder byte %d not 0 or 1", Q_FUNC_INFO , byteOrder);
+            return;
+        }
 
+#define ADJUST_BO(b, t, x) \
+        ((b == LSBFirst) ?                          \
+         qFromLittleEndian<t>((const uchar *)(x)) : \
+         qFromBigEndian<t>((const uchar *)(x)))
+#define VALIDATE_LENGTH(x)    \
+        if ((size_t)xSettings.length() < (offset + local_offset + 12 + x)) { \
+            qWarning("%s Length %d runs past end of data", Q_FUNC_INFO , x); \
+            return;                                                     \
+        }
+
+        uint number_of_settings = ADJUST_BO(byteOrder, quint32, xSettings.mid(8,4).constData());
         const char *data = xSettings.constData() + 12;
         size_t offset = 0;
         for (uint i = 0; i < number_of_settings; i++) {
             int local_offset = 0;
+            VALIDATE_LENGTH(2);
             XSettingsType type = static_cast<XSettingsType>(*reinterpret_cast<const quint8 *>(data + offset));
             local_offset += 2;
 
-            quint16 name_len = *reinterpret_cast<const quint16 *>(data + offset + local_offset);
+            VALIDATE_LENGTH(2);
+            quint16 name_len = ADJUST_BO(byteOrder, quint16, data + offset + local_offset);
             local_offset += 2;
 
+            VALIDATE_LENGTH(name_len);
             QByteArray name(data + offset + local_offset, name_len);
             local_offset += round_to_nearest_multiple_of_4(name_len);
 
-            int last_change_serial = *reinterpret_cast<const int *>(data + offset + local_offset);
+            VALIDATE_LENGTH(4);
+            int last_change_serial = ADJUST_BO(byteOrder, qint32, data + offset + local_offset);
             Q_UNUSED(last_change_serial);
             local_offset += 4;
 
             QVariant value;
             if (type == XSettingsTypeString) {
-                int value_length = *reinterpret_cast<const int *>(data + offset + local_offset);
+                VALIDATE_LENGTH(4);
+                int value_length = ADJUST_BO(byteOrder, qint32, data + offset + local_offset);
                 local_offset+=4;
+                VALIDATE_LENGTH(value_length);
                 QByteArray value_string(data + offset + local_offset, value_length);
                 value.setValue(value_string);
                 local_offset += round_to_nearest_multiple_of_4(value_length);
             } else if (type == XSettingsTypeInteger) {
-                int value_length = *reinterpret_cast<const int *>(data + offset + local_offset);
+                VALIDATE_LENGTH(4);
+                int value_length = ADJUST_BO(byteOrder, qint32, data + offset + local_offset);
                 local_offset += 4;
                 value.setValue(value_length);
             } else if (type == XSettingsTypeColor) {
-                quint16 red = *reinterpret_cast<const quint16 *>(data + offset + local_offset);
+                VALIDATE_LENGTH(2*4);
+                quint16 red = ADJUST_BO(byteOrder, quint16, data + offset + local_offset);
                 local_offset += 2;
-                quint16 green = *reinterpret_cast<const quint16 *>(data + offset + local_offset);
+                quint16 green = ADJUST_BO(byteOrder, quint16, data + offset + local_offset);
                 local_offset += 2;
-                quint16 blue = *reinterpret_cast<const quint16 *>(data + offset + local_offset);
+                quint16 blue = ADJUST_BO(byteOrder, quint16, data + offset + local_offset);
                 local_offset += 2;
-                quint16 alpha= *reinterpret_cast<const quint16 *>(data + offset + local_offset);
+                quint16 alpha= ADJUST_BO(byteOrder, quint16, data + offset + local_offset);
                 local_offset += 2;
                 QColor color_value(red,green,blue,alpha);
                 value.setValue(color_value);
@@ -199,6 +215,7 @@ public:
         }
 
     }
+#endif //XCB_USE_XLIB
 
     QXcbScreen *screen;
     xcb_window_t x_settings_window;
@@ -245,8 +262,16 @@ QXcbXSettings::QXcbXSettings(QXcbScreen *screen)
     const uint32_t event_mask[] = { XCB_EVENT_MASK_STRUCTURE_NOTIFY|XCB_EVENT_MASK_PROPERTY_CHANGE };
     xcb_change_window_attributes(screen->xcb_connection(),d_ptr->x_settings_window,event,event_mask);
 
+#ifdef XCB_USE_XLIB
     d_ptr->populateSettings(d_ptr->getSettings());
     d_ptr->initialized = true;
+#endif //XCB_USE_XLIB
+}
+
+QXcbXSettings::~QXcbXSettings()
+{
+    delete d_ptr;
+    d_ptr = 0;
 }
 
 bool QXcbXSettings::initialized() const
@@ -260,7 +285,9 @@ void QXcbXSettings::handlePropertyNotifyEvent(const xcb_property_notify_event_t 
     Q_D(QXcbXSettings);
     if (event->window != d->x_settings_window)
         return;
+#ifdef XCB_USE_XLIB
     d->populateSettings(d->getSettings());
+#endif //XCB_USE_XLIB
 }
 
 void QXcbXSettings::registerCallbackForProperty(const QByteArray &property, QXcbXSettings::PropertyChangeFunc func, void *handle)

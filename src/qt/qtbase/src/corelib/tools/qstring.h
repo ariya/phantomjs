@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -167,8 +159,8 @@ Q_STATIC_ASSERT_X(sizeof(qunicodechar) == 2,
             Q_STATIC_STRING_DATA_HEADER_INITIALIZER(Size), \
             QT_UNICODE_LITERAL(str) }; \
         QStringDataPtr holder = { qstring_literal.data_ptr() }; \
-        const QString s(holder); \
-        return s; \
+        const QString qstring_literal_temp(holder); \
+        return qstring_literal_temp; \
     }()) \
     /**/
 
@@ -441,13 +433,19 @@ public:
 
     QStringList split(const QString &sep, SplitBehavior behavior = KeepEmptyParts,
                       Qt::CaseSensitivity cs = Qt::CaseSensitive) const Q_REQUIRED_RESULT;
+    QVector<QStringRef> splitRef(const QString &sep, SplitBehavior behavior = KeepEmptyParts,
+                      Qt::CaseSensitivity cs = Qt::CaseSensitive) const Q_REQUIRED_RESULT;
     QStringList split(QChar sep, SplitBehavior behavior = KeepEmptyParts,
+                      Qt::CaseSensitivity cs = Qt::CaseSensitive) const Q_REQUIRED_RESULT;
+    QVector<QStringRef> splitRef(QChar sep, SplitBehavior behavior = KeepEmptyParts,
                       Qt::CaseSensitivity cs = Qt::CaseSensitive) const Q_REQUIRED_RESULT;
 #ifndef QT_NO_REGEXP
     QStringList split(const QRegExp &sep, SplitBehavior behavior = KeepEmptyParts) const Q_REQUIRED_RESULT;
+    QVector<QStringRef> splitRef(const QRegExp &sep, SplitBehavior behavior = KeepEmptyParts) const Q_REQUIRED_RESULT;
 #endif
 #ifndef QT_NO_REGULAREXPRESSION
     QStringList split(const QRegularExpression &sep, SplitBehavior behavior = KeepEmptyParts) const Q_REQUIRED_RESULT;
+    QVector<QStringRef> splitRef(const QRegularExpression &sep, SplitBehavior behavior = KeepEmptyParts) const Q_REQUIRED_RESULT;
 #endif
     enum NormalizationForm {
         NormalizationForm_D,
@@ -724,7 +722,6 @@ private:
 
     void reallocData(uint alloc, bool grow = false);
     void expand(int i);
-    void updateProperties() const;
     QString multiArg(int numArgs, const QString **args) const;
     static int compare_helper(const QChar *data1, int length1,
                               const QChar *data2, int length2,
@@ -949,7 +946,8 @@ public:
     QChar::Direction direction() const { return QChar(*this).direction(); }
     QChar::JoiningType joiningType() const { return QChar(*this).joiningType(); }
 #if QT_DEPRECATED_SINCE(5, 3)
-    QT_DEPRECATED QChar::Joining joining() const {
+    QT_DEPRECATED QChar::Joining joining() const
+    {
         switch (QChar(*this).joiningType()) {
         case QChar::Joining_Causing: return QChar::Center;
         case QChar::Joining_Dual: return QChar::Dual;
@@ -1221,7 +1219,7 @@ inline QT_ASCII_CAST_WARN const QString operator+(const QString &s, const QByteA
 #endif // QT_USE_QSTRINGBUILDER
 
 inline std::string QString::toStdString() const
-{ const QByteArray asc = toUtf8(); return std::string(asc.constData(), asc.length()); }
+{ return toUtf8().toStdString(); }
 
 inline QString QString::fromStdString(const std::string &s)
 { return fromUtf8(s.data(), int(s.size())); }
@@ -1258,6 +1256,12 @@ class Q_CORE_EXPORT QStringRef {
     int m_position;
     int m_size;
 public:
+    typedef QString::size_type size_type;
+    typedef QString::value_type value_type;
+    typedef QString::const_iterator const_iterator;
+    typedef QString::const_pointer const_pointer;
+    typedef QString::const_reference const_reference;
+
     // ### Qt 6: make this constructor constexpr, after the destructor is made trivial
     inline QStringRef():m_string(0), m_position(0), m_size(0){}
     inline QStringRef(const QString *string, int position, int size);
@@ -1299,6 +1303,11 @@ public:
     int count(QChar c, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
     int count(const QStringRef &s, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
 
+    QVector<QStringRef> split(const QString &sep, QString::SplitBehavior behavior = QString::KeepEmptyParts,
+                      Qt::CaseSensitivity cs = Qt::CaseSensitive) const Q_REQUIRED_RESULT;
+    QVector<QStringRef> split(QChar sep, QString::SplitBehavior behavior = QString::KeepEmptyParts,
+                      Qt::CaseSensitivity cs = Qt::CaseSensitive) const Q_REQUIRED_RESULT;
+
     QStringRef left(int n) const Q_REQUIRED_RESULT;
     QStringRef right(int n) const Q_REQUIRED_RESULT;
     QStringRef mid(int pos, int n = -1) const Q_REQUIRED_RESULT;
@@ -1322,6 +1331,10 @@ public:
     }
     inline const QChar *data() const { return unicode(); }
     inline const QChar *constData() const {  return unicode(); }
+    inline const QChar *begin() const { return unicode(); }
+    inline const QChar *cbegin() const { return unicode(); }
+    inline const QChar *end() const { return unicode() + size(); }
+    inline const QChar *cend() const { return unicode() + size(); }
 
 #if QT_DEPRECATED_SINCE(5, 0)
     QT_DEPRECATED QByteArray toAscii() const Q_REQUIRED_RESULT

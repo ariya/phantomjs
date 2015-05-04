@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -43,6 +35,7 @@
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QOffscreenSurface>
 #include <QtGui/QGuiApplication>
+#include <QtGui/private/qguiapplication_p.h>
 #include <qpa/qwindowsysteminterface.h>
 #include <qpa/qplatforminputcontextfactory_p.h>
 
@@ -56,6 +49,8 @@
 #include <QtPlatformSupport/private/qevdevkeyboardmanager_p.h>
 #include <QtPlatformSupport/private/qevdevtouch_p.h>
 #endif
+
+#include <QtPlatformHeaders/qeglfsfunctions.h>
 
 #include "qeglplatformintegration_p.h"
 #include "qeglplatformcontext_p.h"
@@ -93,7 +88,8 @@ QEGLPlatformIntegration::QEGLPlatformIntegration()
       m_display(EGL_NO_DISPLAY),
       m_inputContext(0),
       m_fontDb(new QGenericUnixFontDatabase),
-      m_services(new QGenericUnixServices)
+      m_services(new QGenericUnixServices),
+      m_kbdMgr(0)
 {
 }
 
@@ -158,9 +154,14 @@ QPlatformOpenGLContext *QEGLPlatformIntegration::createPlatformOpenGLContext(QOp
     // If there is a "root" window into which raster and QOpenGLWidget content is
     // composited, all other contexts must share with its context.
     QOpenGLContext *compositingContext = screen ? screen->compositingContext() : 0;
-    return createContext(context->format(),
-                         compositingContext ? compositingContext->handle() : context->shareHandle(),
-                         display());
+    QPlatformOpenGLContext *share = compositingContext ? compositingContext->handle() : context->shareHandle();
+    QVariant nativeHandle = context->nativeHandle();
+    QPlatformOpenGLContext *platformContext = createContext(context->format(),
+                                                            share,
+                                                            display(),
+                                                            &nativeHandle);
+    context->setNativeHandle(nativeHandle);
+    return platformContext;
 }
 
 QPlatformOffscreenSurface *QEGLPlatformIntegration::createPlatformOffscreenSurface(QOffscreenSurface *surface) const
@@ -189,7 +190,10 @@ QPlatformNativeInterface *QEGLPlatformIntegration::nativeInterface() const
 enum ResourceType {
     EglDisplay,
     EglWindow,
-    EglContext
+    EglContext,
+    EglConfig,
+    NativeDisplay,
+    XlibDisplay
 };
 
 static int resourceType(const QByteArray &key)
@@ -197,7 +201,10 @@ static int resourceType(const QByteArray &key)
     static const QByteArray names[] = { // match ResourceType
         QByteArrayLiteral("egldisplay"),
         QByteArrayLiteral("eglwindow"),
-        QByteArrayLiteral("eglcontext")
+        QByteArrayLiteral("eglcontext"),
+        QByteArrayLiteral("eglconfig"),
+        QByteArrayLiteral("nativedisplay"),
+        QByteArrayLiteral("display")
     };
     const QByteArray *end = names + sizeof(names) / sizeof(names[0]);
     const QByteArray *result = std::find(names, end, key);
@@ -213,6 +220,26 @@ void *QEGLPlatformIntegration::nativeResourceForIntegration(const QByteArray &re
     switch (resourceType(resource)) {
     case EglDisplay:
         result = m_screen->display();
+        break;
+    case NativeDisplay:
+        result = reinterpret_cast<void*>(nativeDisplay());
+        break;
+    default:
+        break;
+    }
+
+    return result;
+}
+
+void *QEGLPlatformIntegration::nativeResourceForScreen(const QByteArray &resource, QScreen *)
+{
+    void *result = 0;
+
+    switch (resourceType(resource)) {
+    case XlibDisplay:
+        // Play nice when using the x11 hooks: Be compatible with xcb that allows querying
+        // the X Display pointer, which is nothing but our native display.
+        result = reinterpret_cast<void*>(nativeDisplay());
         break;
     default:
         break;
@@ -252,6 +279,14 @@ void *QEGLPlatformIntegration::nativeResourceForContext(const QByteArray &resour
         if (context->handle())
             result = static_cast<QEGLPlatformContext *>(context->handle())->eglContext();
         break;
+    case EglConfig:
+        if (context->handle())
+            result = static_cast<QEGLPlatformContext *>(context->handle())->eglConfig();
+        break;
+    case EglDisplay:
+        if (context->handle())
+            result = static_cast<QEGLPlatformContext *>(context->handle())->eglDisplay();
+        break;
     default:
         break;
     }
@@ -279,10 +314,35 @@ QPlatformNativeInterface::NativeResourceForContextFunction QEGLPlatformIntegrati
     return 0;
 }
 
+QFunctionPointer QEGLPlatformIntegration::platformFunction(const QByteArray &function) const
+{
+#if !defined(QT_NO_EVDEV) && (!defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_NO_SDK))
+    if (function == QEglFSFunctions::loadKeymapTypeIdentifier())
+        return QFunctionPointer(loadKeymapStatic);
+#else
+    Q_UNUSED(function)
+#endif
+
+    return 0;
+}
+
+void QEGLPlatformIntegration::loadKeymapStatic(const QString &filename)
+{
+#if !defined(QT_NO_EVDEV) && (!defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_NO_SDK))
+    QEGLPlatformIntegration *self = static_cast<QEGLPlatformIntegration *>(QGuiApplicationPrivate::platformIntegration());
+    if (self->m_kbdMgr)
+        self->m_kbdMgr->loadKeymap(filename);
+    else
+        qWarning("QEGLPlatformIntegration: Cannot load keymap, no keyboard handler found");
+#else
+    Q_UNUSED(filename);
+#endif
+}
+
 void QEGLPlatformIntegration::createInputHandlers()
 {
 #if !defined(QT_NO_EVDEV) && (!defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_NO_SDK))
-    new QEvdevKeyboardManager(QLatin1String("EvdevKeyboard"), QString() /* spec */, this);
+    m_kbdMgr = new QEvdevKeyboardManager(QLatin1String("EvdevKeyboard"), QString() /* spec */, this);
     QEvdevMouseManager *mouseMgr = new QEvdevMouseManager(QLatin1String("EvdevMouse"), QString() /* spec */, this);
     Q_FOREACH (QScreen *screen, QGuiApplication::screens()) {
         QEGLPlatformCursor *cursor = static_cast<QEGLPlatformCursor *>(screen->handle()->cursor());

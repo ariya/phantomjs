@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -62,6 +54,7 @@ public:
     QPlatformBackingStorePrivate(QWindow *w)
         : window(w)
 #ifndef QT_NO_OPENGL
+        , textureId(0)
         , blitter(0)
 #endif
     {
@@ -80,6 +73,7 @@ public:
 #ifndef QT_NO_OPENGL
     mutable GLuint textureId;
     mutable QSize textureSize;
+    mutable bool needsSwizzle;
     QOpenGLTextureBlitter *blitter;
 #endif
 };
@@ -88,8 +82,10 @@ public:
 
 struct QBackingstoreTextureInfo
 {
+    QWidget *widget; // may be null
     GLuint textureId;
     QRect rect;
+    QPlatformTextureList::Flags flags;
 };
 
 Q_DECLARE_TYPEINFO(QBackingstoreTextureInfo, Q_MOVABLE_TYPE);
@@ -127,6 +123,18 @@ GLuint QPlatformTextureList::textureId(int index) const
     return d->textures.at(index).textureId;
 }
 
+QWidget *QPlatformTextureList::widget(int index)
+{
+    Q_D(const QPlatformTextureList);
+    return d->textures.at(index).widget;
+}
+
+QPlatformTextureList::Flags QPlatformTextureList::flags(int index) const
+{
+    Q_D(const QPlatformTextureList);
+    return d->textures.at(index).flags;
+}
+
 QRect QPlatformTextureList::geometry(int index) const
 {
     Q_D(const QPlatformTextureList);
@@ -148,12 +156,14 @@ bool QPlatformTextureList::isLocked() const
     return d->locked;
 }
 
-void QPlatformTextureList::appendTexture(GLuint textureId, const QRect &geometry)
+void QPlatformTextureList::appendTexture(QWidget *widget, GLuint textureId, const QRect &geometry, Flags flags)
 {
     Q_D(QPlatformTextureList);
     QBackingstoreTextureInfo bi;
+    bi.widget = widget;
     bi.textureId = textureId;
     bi.rect = geometry;
+    bi.flags = flags;
     d->textures.append(bi);
 }
 
@@ -221,13 +231,16 @@ static QRegion deviceRegion(const QRegion &region, QWindow *window)
 
 void QPlatformBackingStore::composeAndFlush(QWindow *window, const QRegion &region,
                                             const QPoint &offset,
-                                            QPlatformTextureList *textures, QOpenGLContext *context)
+                                            QPlatformTextureList *textures, QOpenGLContext *context,
+                                            bool translucentBackground)
 {
     Q_UNUSED(offset);
 
     context->makeCurrent(window);
     QOpenGLFunctions *funcs = context->functions();
     funcs->glViewport(0, 0, window->width() * window->devicePixelRatio(), window->height() * window->devicePixelRatio());
+    funcs->glClearColor(0, 0, 0, translucentBackground ? 0 : 1);
+    funcs->glClear(GL_COLOR_BUFFER_BIT);
 
     if (!d_ptr->blitter) {
         d_ptr->blitter = new QOpenGLTextureBlitter;
@@ -238,29 +251,46 @@ void QPlatformBackingStore::composeAndFlush(QWindow *window, const QRegion &regi
 
     QRect windowRect(QPoint(), window->size() * window->devicePixelRatio());
 
+    // Textures for renderToTexture widgets.
     for (int i = 0; i < textures->count(); ++i) {
-        GLuint textureId = textures->textureId(i);
-        funcs->glBindTexture(GL_TEXTURE_2D, textureId);
-
-        QRect targetRect = deviceRect(textures->geometry(i), window);
-        QMatrix4x4 target = QOpenGLTextureBlitter::targetTransform(targetRect, windowRect);
-        d_ptr->blitter->blit(textureId, target, QOpenGLTextureBlitter::OriginBottomLeft);
+        if (!textures->flags(i).testFlag(QPlatformTextureList::StacksOnTop)) {
+            QRect targetRect = deviceRect(textures->geometry(i), window);
+            QMatrix4x4 target = QOpenGLTextureBlitter::targetTransform(targetRect, windowRect);
+            d_ptr->blitter->blit(textures->textureId(i), target, QOpenGLTextureBlitter::OriginBottomLeft);
+        }
     }
-
-    GLuint textureId = toTexture(deviceRegion(region, window), &d_ptr->textureSize);
-    if (!textureId)
-        return;
 
     funcs->glEnable(GL_BLEND);
     funcs->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // Do not write out alpha. We need blending, but only for RGB. The toplevel may have
+    // alpha enabled in which case blending (writing out < 1.0 alpha values) would lead to
+    // semi-transparency even when it is not wanted.
+    funcs->glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 
-    QMatrix4x4 target = QOpenGLTextureBlitter::targetTransform(QRect(QPoint(), d_ptr->textureSize), windowRect);
-    d_ptr->blitter->setSwizzleRB(true);
-    d_ptr->blitter->blit(textureId, target, QOpenGLTextureBlitter::OriginTopLeft);
-    d_ptr->blitter->setSwizzleRB(false);
+    // Backingstore texture with the normal widgets.
+    GLuint textureId = toTexture(deviceRegion(region, window), &d_ptr->textureSize, &d_ptr->needsSwizzle);
+    if (textureId) {
+        QMatrix4x4 target = QOpenGLTextureBlitter::targetTransform(QRect(QPoint(), d_ptr->textureSize), windowRect);
+        if (d_ptr->needsSwizzle)
+            d_ptr->blitter->setSwizzleRB(true);
+        d_ptr->blitter->blit(textureId, target, QOpenGLTextureBlitter::OriginTopLeft);
+        if (d_ptr->needsSwizzle)
+            d_ptr->blitter->setSwizzleRB(false);
+    }
 
+    // Textures for renderToTexture widgets that have WA_AlwaysStackOnTop set.
+    for (int i = 0; i < textures->count(); ++i) {
+        if (textures->flags(i).testFlag(QPlatformTextureList::StacksOnTop)) {
+            QRect targetRect = deviceRect(textures->geometry(i), window);
+            QMatrix4x4 target = QOpenGLTextureBlitter::targetTransform(targetRect, windowRect);
+            d_ptr->blitter->blit(textures->textureId(i), target, QOpenGLTextureBlitter::OriginBottomLeft);
+        }
+    }
+
+    funcs->glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     funcs->glDisable(GL_BLEND);
     d_ptr->blitter->release();
+
     context->swapBuffers(window);
 }
 
@@ -290,9 +320,15 @@ QImage QPlatformBackingStore::toImage() const
   The default implementation returns a cached texture if \a dirtyRegion is
   empty and the window has not been resized, otherwise it retrieves the
   content using toImage() and performs a texture upload.
- */
 
-GLuint QPlatformBackingStore::toTexture(const QRegion &dirtyRegion, QSize *textureSize) const
+  If the red and blue components have to swapped, \a needsSwizzle will be set to \c true.
+  This allows creating textures from images in formats like QImage::Format_RGB32 without
+  any further image conversion. Instead, the swizzling will be done in the shaders when
+  performing composition. Other formats, that do not need such swizzling due to being
+  already byte ordered RGBA, for example QImage::Format_RGBA8888, must result in having \a
+  needsSwizzle set to false.
+ */
+GLuint QPlatformBackingStore::toTexture(const QRegion &dirtyRegion, QSize *textureSize, bool *needsSwizzle) const
 {
     QImage image = toImage();
     QSize imageSize = image.size();
@@ -303,8 +339,16 @@ GLuint QPlatformBackingStore::toTexture(const QRegion &dirtyRegion, QSize *textu
     if (dirtyRegion.isEmpty() && !resized)
         return d_ptr->textureId;
 
-    if (image.format() != QImage::Format_RGB32 && image.format() != QImage::Format_RGBA8888)
-        image = image.convertToFormat(QImage::Format_RGBA8888);
+    // Fast path for RGB32 and RGBA8888, convert everything else to RGBA8888.
+    if (image.format() == QImage::Format_RGB32) {
+        if (needsSwizzle)
+            *needsSwizzle = true;
+    } else {
+        if (needsSwizzle)
+            *needsSwizzle = false;
+        if (image.format() != QImage::Format_RGBA8888)
+            image = image.convertToFormat(QImage::Format_RGBA8888);
+    }
 
     QOpenGLFunctions *funcs = QOpenGLContext::currentContext()->functions();
 
@@ -321,8 +365,8 @@ GLuint QPlatformBackingStore::toTexture(const QRegion &dirtyRegion, QSize *textu
 #endif
         funcs->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         funcs->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        funcs->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        funcs->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        funcs->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        funcs->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
         funcs->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageSize.width(), imageSize.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE,
                             const_cast<uchar*>(image.constBits()));
@@ -334,29 +378,32 @@ GLuint QPlatformBackingStore::toTexture(const QRegion &dirtyRegion, QSize *textu
         QRect rect = dirtyRegion.boundingRect() & imageRect;
 
 #ifndef QT_OPENGL_ES_2
-        funcs->glPixelStorei(GL_UNPACK_ROW_LENGTH, image.width());
-        funcs->glTexSubImage2D(GL_TEXTURE_2D, 0, rect.x(), rect.y(), rect.width(), rect.height(), GL_RGBA, GL_UNSIGNED_BYTE,
-                               image.constScanLine(rect.y()) + rect.x() * 4);
-        funcs->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-#else
-        // if the rect is wide enough it's cheaper to just
-        // extend it instead of doing an image copy
-        if (rect.width() >= imageRect.width() / 2) {
-            rect.setX(0);
-            rect.setWidth(imageRect.width());
-        }
-
-        // if the sub-rect is full-width we can pass the image data directly to
-        // OpenGL instead of copying, since there's no gap between scanlines
-
-        if (rect.width() == imageRect.width()) {
-            funcs->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, rect.y(), rect.width(), rect.height(), GL_RGBA, GL_UNSIGNED_BYTE,
-                                   image.constScanLine(rect.y()));
-        } else {
+        if (!QOpenGLContext::currentContext()->isOpenGLES()) {
+            funcs->glPixelStorei(GL_UNPACK_ROW_LENGTH, image.width());
             funcs->glTexSubImage2D(GL_TEXTURE_2D, 0, rect.x(), rect.y(), rect.width(), rect.height(), GL_RGBA, GL_UNSIGNED_BYTE,
-                                   image.copy(rect).constBits());
-        }
+                                   image.constScanLine(rect.y()) + rect.x() * 4);
+            funcs->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+        } else
 #endif
+        {
+            // if the rect is wide enough it's cheaper to just
+            // extend it instead of doing an image copy
+            if (rect.width() >= imageRect.width() / 2) {
+                rect.setX(0);
+                rect.setWidth(imageRect.width());
+            }
+
+            // if the sub-rect is full-width we can pass the image data directly to
+            // OpenGL instead of copying, since there's no gap between scanlines
+
+            if (rect.width() == imageRect.width()) {
+                funcs->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, rect.y(), rect.width(), rect.height(), GL_RGBA, GL_UNSIGNED_BYTE,
+                                       image.constScanLine(rect.y()));
+            } else {
+                funcs->glTexSubImage2D(GL_TEXTURE_2D, 0, rect.x(), rect.y(), rect.width(), rect.height(), GL_RGBA, GL_UNSIGNED_BYTE,
+                                       image.copy(rect).constBits());
+            }
+        }
     }
 
     return d_ptr->textureId;

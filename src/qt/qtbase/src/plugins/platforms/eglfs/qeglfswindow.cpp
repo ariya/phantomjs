@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -82,8 +74,10 @@ void QEglFSWindow::create()
     // they will be composited onto the root window's surface.
     QEglFSScreen *screen = this->screen();
     if (screen->primarySurface() != EGL_NO_SURFACE) {
-        if (isRaster() && screen->compositingWindow())
+        if (isRaster() && screen->compositingWindow()) {
+            m_format = screen->compositingWindow()->format();
             return;
+        }
 
 #if !defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_NO_SDK)
         // We can have either a single OpenGL window or multiple raster windows.
@@ -96,7 +90,7 @@ void QEglFSWindow::create()
 
     m_flags |= HasNativeWindow;
     setGeometry(QRect()); // will become fullscreen
-    QWindowSystemInterface::handleExposeEvent(window(), geometry());
+    QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(0, 0), geometry().size()));
 
     EGLDisplay display = static_cast<QEglFSScreen *>(screen)->display();
     QSurfaceFormat platformFormat = QEglFSHooks::hooks()->surfaceFormatFor(window()->requestedFormat());
@@ -109,7 +103,7 @@ void QEglFSWindow::create()
 
     if (isRaster()) {
         QOpenGLContext *context = new QOpenGLContext(QGuiApplication::instance());
-        context->setFormat(window()->requestedFormat());
+        context->setFormat(m_format);
         context->setScreen(window()->screen());
         if (!context->create())
             qFatal("EGLFS: Failed to create compositing context");
@@ -166,8 +160,9 @@ void QEglFSWindow::resetSurface()
 void QEglFSWindow::setVisible(bool visible)
 {
     QList<QEGLPlatformWindow *> windows = screen()->windows();
+    QWindow *wnd = window();
 
-    if (window()->type() != Qt::Desktop) {
+    if (wnd->type() != Qt::Desktop) {
         if (visible) {
             screen()->addWindow(this);
         } else {
@@ -178,7 +173,7 @@ void QEglFSWindow::setVisible(bool visible)
         }
     }
 
-    QWindowSystemInterface::handleExposeEvent(window(), window()->geometry());
+    QWindowSystemInterface::handleExposeEvent(wnd, QRect(QPoint(0, 0), wnd->geometry().size()));
 
     if (visible)
         QWindowSystemInterface::flushWindowSystemEvents();
@@ -216,15 +211,17 @@ void QEglFSWindow::requestActivateWindow()
     if (window()->type() != Qt::Desktop)
         screen()->moveToTop(this);
 
-    QWindowSystemInterface::handleWindowActivated(window());
-    QWindowSystemInterface::handleExposeEvent(window(), window()->geometry());
+    QWindow *wnd = window();
+    QWindowSystemInterface::handleWindowActivated(wnd);
+    QWindowSystemInterface::handleExposeEvent(wnd, QRect(QPoint(0, 0), wnd->geometry().size()));
 }
 
 void QEglFSWindow::raise()
 {
-    if (window()->type() != Qt::Desktop) {
+    QWindow *wnd = window();
+    if (wnd->type() != Qt::Desktop) {
         screen()->moveToTop(this);
-        QWindowSystemInterface::handleExposeEvent(window(), window()->geometry());
+        QWindowSystemInterface::handleExposeEvent(wnd, QRect(QPoint(0, 0), wnd->geometry().size()));
     }
 }
 
@@ -235,7 +232,8 @@ void QEglFSWindow::lower()
         int idx = windows.indexOf(this);
         if (idx > 0) {
             screen()->changeWindowIndex(this, idx - 1);
-            QWindowSystemInterface::handleExposeEvent(windows.last()->window(), windows.last()->geometry());
+            QWindowSystemInterface::handleExposeEvent(windows.last()->window(),
+                                                      QRect(QPoint(0, 0), windows.last()->geometry().size()));
         }
     }
 }

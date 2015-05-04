@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -46,6 +38,10 @@
 #include <QtGui/private/qopengl_p.h>
 #include <QtGui/private/qguiapplication_p.h>
 #include <qpa/qplatformintegration.h>
+
+#ifndef GL_FRAMEBUFFER_SRGB_CAPABLE_EXT
+#define GL_FRAMEBUFFER_SRGB_CAPABLE_EXT   0x8DBA
+#endif
 
 QT_BEGIN_NAMESPACE
 
@@ -124,6 +120,18 @@ QT_BEGIN_NAMESPACE
     \code
     QOpenGLFunctions glFuncs(QOpenGLContext::currentContext());
     glFuncs.glActiveTexture(GL_TEXTURE1);
+    \endcode
+
+    An alternative approach is to query the context's associated
+    QOpenGLFunctions instance. This is somewhat faster than the previous
+    approach due to avoiding the creation of a new instance, but the difference
+    is fairly small since the internal data structures are shared, and function
+    resolving happens only once for a given context, regardless of the number of
+    QOpenGLFunctions instances initialized for it.
+
+    \code
+    QOpenGLFunctions *glFuncs = QOpenGLContext::currentContext()->functions();
+    glFuncs->glActiveTexture(GL_TEXTURE1);
     \endcode
 
     QOpenGLFunctions provides wrappers for all OpenGL ES 2.0
@@ -283,46 +291,48 @@ static int qt_gl_resolve_features()
         QSurfaceFormat format = QOpenGLContext::currentContext()->format();
         QOpenGLExtensionMatcher extensions;
 
-        // Recognize features by extension name.
-        if (extensions.match("GL_ARB_multitexture"))
-            features |= QOpenGLFunctions::Multitexture;
-        if (extensions.match("GL_ARB_shader_objects"))
-            features |= QOpenGLFunctions::Shaders;
-        if (extensions.match("GL_EXT_framebuffer_object") ||
-            extensions.match("GL_ARB_framebuffer_object"))
-            features |= QOpenGLFunctions::Framebuffers;
-        if (extensions.match("GL_EXT_blend_color"))
-            features |= QOpenGLFunctions::BlendColor;
-        if (extensions.match("GL_EXT_blend_equation_separate"))
-            features |= QOpenGLFunctions::BlendEquationSeparate;
-        if (extensions.match("GL_EXT_blend_func_separate"))
-            features |= QOpenGLFunctions::BlendFuncSeparate;
-        if (extensions.match("GL_EXT_blend_subtract"))
-            features |= QOpenGLFunctions::BlendSubtract;
-        if (extensions.match("GL_ARB_texture_compression"))
-            features |= QOpenGLFunctions::CompressedTextures;
-        if (extensions.match("GL_ARB_multisample"))
-            features |= QOpenGLFunctions::Multisample;
-        if (extensions.match("GL_ARB_texture_non_power_of_two"))
-            features |= QOpenGLFunctions::NPOTTextures |
-                QOpenGLFunctions::NPOTTextureRepeat;
-
-        // assume version 2.0 or higher
-        features |= QOpenGLFunctions::BlendColor |
-            QOpenGLFunctions::BlendEquation |
-            QOpenGLFunctions::Multitexture |
-            QOpenGLFunctions::CompressedTextures |
-            QOpenGLFunctions::Multisample |
-            QOpenGLFunctions::BlendFuncSeparate |
-            QOpenGLFunctions::Buffers |
-            QOpenGLFunctions::Shaders |
-            QOpenGLFunctions::StencilSeparate |
-            QOpenGLFunctions::BlendEquationSeparate |
-            QOpenGLFunctions::NPOTTextures |
-            QOpenGLFunctions::NPOTTextureRepeat;
-
         if (format.majorVersion() >= 3)
             features |= QOpenGLFunctions::Framebuffers;
+        else if (extensions.match("GL_EXT_framebuffer_object") ||
+                extensions.match("GL_ARB_framebuffer_object"))
+                features |= QOpenGLFunctions::Framebuffers;
+
+        if (format.majorVersion() >= 2) {
+            features |= QOpenGLFunctions::BlendColor |
+                QOpenGLFunctions::BlendEquation |
+                QOpenGLFunctions::BlendSubtract |
+                QOpenGLFunctions::Multitexture |
+                QOpenGLFunctions::CompressedTextures |
+                QOpenGLFunctions::Multisample |
+                QOpenGLFunctions::BlendFuncSeparate |
+                QOpenGLFunctions::Buffers |
+                QOpenGLFunctions::Shaders |
+                QOpenGLFunctions::StencilSeparate |
+                QOpenGLFunctions::BlendEquationSeparate |
+                QOpenGLFunctions::NPOTTextures |
+                QOpenGLFunctions::NPOTTextureRepeat;
+        } else {
+            // Recognize features by extension name.
+            if (extensions.match("GL_ARB_multitexture"))
+                features |= QOpenGLFunctions::Multitexture;
+            if (extensions.match("GL_ARB_shader_objects"))
+                features |= QOpenGLFunctions::Shaders;
+            if (extensions.match("GL_EXT_blend_color"))
+                features |= QOpenGLFunctions::BlendColor;
+            if (extensions.match("GL_EXT_blend_equation_separate"))
+                features |= QOpenGLFunctions::BlendEquationSeparate;
+            if (extensions.match("GL_EXT_blend_subtract"))
+                features |= QOpenGLFunctions::BlendSubtract;
+            if (extensions.match("GL_EXT_blend_func_separate"))
+                features |= QOpenGLFunctions::BlendFuncSeparate;
+            if (extensions.match("GL_ARB_texture_compression"))
+                features |= QOpenGLFunctions::CompressedTextures;
+            if (extensions.match("GL_ARB_multisample"))
+                features |= QOpenGLFunctions::Multisample;
+            if (extensions.match("GL_ARB_texture_non_power_of_two"))
+                features |= QOpenGLFunctions::NPOTTextures |
+                    QOpenGLFunctions::NPOTTextureRepeat;
+        }
 
         const QPair<int, int> version = format.version();
         if (version < qMakePair(3, 0)
@@ -346,8 +356,6 @@ static int qt_gl_resolve_extensions()
         extensions |= QOpenGLExtensions::BGRATextureFormat;
     if (extensionMatcher.match("GL_ARB_texture_rectangle"))
         extensions |= QOpenGLExtensions::TextureRectangle;
-    if (extensionMatcher.match("GL_SGIS_generate_mipmap"))
-        extensions |= QOpenGLExtensions::GenerateMipmap;
     if (extensionMatcher.match("GL_ARB_texture_compression"))
         extensions |= QOpenGLExtensions::TextureCompression;
     if (extensionMatcher.match("GL_EXT_texture_compression_s3tc"))
@@ -370,28 +378,56 @@ static int qt_gl_resolve_extensions()
     if (ctx->isOpenGLES()) {
         if (format.majorVersion() >= 2)
             extensions |= QOpenGLExtensions::GenerateMipmap;
+
+        if (format.majorVersion() >= 3) {
+            extensions |= QOpenGLExtensions::PackedDepthStencil
+                | QOpenGLExtensions::Depth24
+                | QOpenGLExtensions::ElementIndexUint
+                | QOpenGLExtensions::MapBufferRange
+                | QOpenGLExtensions::FramebufferBlit
+                | QOpenGLExtensions::FramebufferMultisample
+                | QOpenGLExtensions::Sized8Formats;
+        } else {
+            // Recognize features by extension name.
+            if (extensionMatcher.match("GL_OES_packed_depth_stencil"))
+                extensions |= QOpenGLExtensions::PackedDepthStencil;
+            if (extensionMatcher.match("GL_OES_depth24"))
+                extensions |= QOpenGLExtensions::Depth24;
+            if (extensionMatcher.match("GL_ANGLE_framebuffer_blit"))
+                extensions |= QOpenGLExtensions::FramebufferBlit;
+            if (extensionMatcher.match("GL_ANGLE_framebuffer_multisample"))
+                extensions |= QOpenGLExtensions::FramebufferMultisample;
+            if (extensionMatcher.match("GL_NV_framebuffer_blit"))
+                extensions |= QOpenGLExtensions::FramebufferBlit;
+            if (extensionMatcher.match("GL_NV_framebuffer_multisample"))
+                extensions |= QOpenGLExtensions::FramebufferMultisample;
+            if (extensionMatcher.match("GL_OES_rgb8_rgba8"))
+                extensions |= QOpenGLExtensions::Sized8Formats;
+        }
+
         if (extensionMatcher.match("GL_OES_mapbuffer"))
             extensions |= QOpenGLExtensions::MapBuffer;
-        if (extensionMatcher.match("GL_OES_packed_depth_stencil"))
-            extensions |= QOpenGLExtensions::PackedDepthStencil;
         if (extensionMatcher.match("GL_OES_element_index_uint"))
             extensions |= QOpenGLExtensions::ElementIndexUint;
-        if (extensionMatcher.match("GL_OES_depth24"))
-            extensions |= QOpenGLExtensions::Depth24;
-        // TODO: Consider matching GL_APPLE_texture_format_BGRA8888 as well, but it needs testing.
+        // We don't match GL_APPLE_texture_format_BGRA8888 here because it has different semantics.
         if (extensionMatcher.match("GL_IMG_texture_format_BGRA8888") || extensionMatcher.match("GL_EXT_texture_format_BGRA8888"))
             extensions |= QOpenGLExtensions::BGRATextureFormat;
     } else {
         extensions |= QOpenGLExtensions::ElementIndexUint | QOpenGLExtensions::MapBuffer;
 
-        // Recognize features by extension name.
-        if (format.majorVersion() >= 3
-            || extensionMatcher.match("GL_ARB_framebuffer_object"))
-        {
-            extensions |= QOpenGLExtensions::FramebufferMultisample |
-                QOpenGLExtensions::FramebufferBlit |
-                QOpenGLExtensions::PackedDepthStencil;
+        if (format.version() >= qMakePair(1, 2))
+            extensions |= QOpenGLExtensions::BGRATextureFormat;
+
+        if (format.version() >= qMakePair(1, 4) || extensionMatcher.match("GL_SGIS_generate_mipmap"))
+            extensions |= QOpenGLExtensions::GenerateMipmap;
+
+        if (format.majorVersion() >= 3 || extensionMatcher.match("GL_ARB_framebuffer_object")) {
+            extensions |= QOpenGLExtensions::FramebufferMultisample
+                | QOpenGLExtensions::FramebufferBlit
+                | QOpenGLExtensions::PackedDepthStencil
+                | QOpenGLExtensions::Sized8Formats;
         } else {
+            // Recognize features by extension name.
             if (extensionMatcher.match("GL_EXT_framebuffer_multisample"))
                 extensions |= QOpenGLExtensions::FramebufferMultisample;
             if (extensionMatcher.match("GL_EXT_framebuffer_blit"))
@@ -399,19 +435,20 @@ static int qt_gl_resolve_extensions()
             if (extensionMatcher.match("GL_EXT_packed_depth_stencil"))
                 extensions |= QOpenGLExtensions::PackedDepthStencil;
         }
-    }
 
-    if (format.renderableType() == QSurfaceFormat::OpenGL && format.version() >= qMakePair(3, 2))
-        extensions |= QOpenGLExtensions::GeometryShaders;
+        if (format.version() >= qMakePair(3, 2) || extensionMatcher.match("GL_ARB_geometry_shader4"))
+            extensions |= QOpenGLExtensions::GeometryShaders;
 
-#ifndef QT_OPENGL_ES
-    if (extensionMatcher.match("GL_EXT_framebuffer_sRGB")) {
-        GLboolean srgbCapableFramebuffers = false;
-        ctx->functions()->glGetBooleanv(GL_FRAMEBUFFER_SRGB_CAPABLE_EXT, &srgbCapableFramebuffers);
-        if (srgbCapableFramebuffers)
-            extensions |= QOpenGLExtensions::SRGBFrameBuffer;
+        if (extensionMatcher.match("GL_ARB_map_buffer_range"))
+            extensions |= QOpenGLExtensions::MapBufferRange;
+
+        if (extensionMatcher.match("GL_EXT_framebuffer_sRGB")) {
+            GLboolean srgbCapableFramebuffers = false;
+            ctx->functions()->glGetBooleanv(GL_FRAMEBUFFER_SRGB_CAPABLE_EXT, &srgbCapableFramebuffers);
+            if (srgbCapableFramebuffers)
+                extensions |= QOpenGLExtensions::SRGBFrameBuffer;
+        }
     }
-#endif
 
     return extensions;
 }
@@ -2021,7 +2058,9 @@ namespace {
 enum ResolvePolicy
 {
     ResolveOES = 0x1,
-    ResolveEXT = 0x2
+    ResolveEXT = 0x2,
+    ResolveANGLE = 0x4,
+    ResolveNV = 0x8
 };
 
 template <typename Base, typename FuncType, int Policy, typename ReturnType>
@@ -2143,6 +2182,12 @@ private:
     if ((Policy & ResolveEXT) && !(funcs->*funcPointerName)) \
         funcs->*funcPointerName = (FuncType)context->getProcAddress(funcName + "EXT"); \
  \
+    if ((Policy & ResolveANGLE) && !(funcs->*funcPointerName)) \
+        funcs->*funcPointerName = (FuncType)context->getProcAddress(funcName + "ANGLE"); \
+ \
+    if ((Policy & ResolveNV) && !(funcs->*funcPointerName)) \
+        funcs->*funcPointerName = (FuncType)context->getProcAddress(funcName + "NV"); \
+ \
     if (!alternateFuncName.isEmpty() && !(funcs->*funcPointerName)) { \
         funcs->*funcPointerName = (FuncType)context->getProcAddress(alternateFuncName); \
  \
@@ -2154,6 +2199,12 @@ private:
  \
         if ((Policy & ResolveEXT) && !(funcs->*funcPointerName)) \
             funcs->*funcPointerName = (FuncType)context->getProcAddress(alternateFuncName + "EXT"); \
+ \
+        if ((Policy & ResolveANGLE) && !(funcs->*funcPointerName)) \
+            funcs->*funcPointerName = (FuncType)context->getProcAddress(funcName + "ANGLE"); \
+ \
+        if ((Policy & ResolveNV) && !(funcs->*funcPointerName)) \
+            funcs->*funcPointerName = (FuncType)context->getProcAddress(funcName + "NV"); \
     }
 
 #define RESOLVER_COMMON_NON_VOID \
@@ -3136,30 +3187,105 @@ static void QOPENGLF_APIENTRY qopenglfResolveVertexAttribPointer(GLuint indx, GL
 
 #endif // !QT_OPENGL_ES_2
 
+// Functions part of the OpenGL ES 3.0+ standard need special handling. These,
+// just like the 2.0 functions, are not guaranteed to be resolvable via
+// eglGetProcAddress or similar. Calling them directly is, unlike the 2.0
+// functions, not feasible because one may build the binaries on a GLES3-capable
+// system and then deploy on a GLES2-only system that does not have these
+// symbols. Until ES3 gets universally available, they have to be dlsym'ed.
+
+Q_GLOBAL_STATIC(QOpenGLES3Helper, qgles3Helper)
+
+QOpenGLES3Helper::QOpenGLES3Helper()
+{
+#ifdef Q_OS_WIN
+#ifdef QT_DEBUG
+    m_gl.setFileName(QStringLiteral("libGLESv2"));
+#else
+    m_gl.setFileName(QStringLiteral("libGLESv2d"));
+#endif
+#else
+    m_gl.setFileName(QStringLiteral("GLESv2"));
+#endif
+    if (m_gl.load()) {
+        MapBufferRange = (GLvoid* (QOPENGLF_APIENTRYP)(GLenum, qopengl_GLintptr, qopengl_GLsizeiptr, GLbitfield)) m_gl.resolve("glMapBufferRange");
+        UnmapBuffer = (GLboolean (QOPENGLF_APIENTRYP)(GLenum)) m_gl.resolve("glUnmapBuffer");
+        BlitFramebuffer = (void (QOPENGLF_APIENTRYP)(GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLbitfield, GLenum)) m_gl.resolve("glBlitFramebuffer");
+        RenderbufferStorageMultisample = (void (QOPENGLF_APIENTRYP)(GLenum, GLsizei, GLenum, GLsizei, GLsizei)) m_gl.resolve("glRenderbufferStorageMultisample");
+
+        GenVertexArrays = (void (QOPENGLF_APIENTRYP)(GLsizei, GLuint *)) m_gl.resolve("glGenVertexArrays");
+        DeleteVertexArrays = (void (QOPENGLF_APIENTRYP)(GLsizei, const GLuint *)) m_gl.resolve("glDeleteVertexArrays");
+        BindVertexArray = (void (QOPENGLF_APIENTRYP)(GLuint)) m_gl.resolve("glBindVertexArray");
+        IsVertexArray = (GLboolean (QOPENGLF_APIENTRYP)(GLuint)) m_gl.resolve("glIsVertexArray");
+
+        TexImage3D = (void (QOPENGLF_APIENTRYP)(GLenum, GLint, GLint, GLsizei, GLsizei, GLsizei, GLint, GLenum, GLenum, const GLvoid *)) m_gl.resolve("glTexImage3D");
+        TexSubImage3D = (void (QOPENGLF_APIENTRYP)(GLenum, GLint, GLint, GLint, GLint, GLsizei, GLsizei, GLsizei, GLenum, GLenum, const GLvoid *)) m_gl.resolve("glTexSubImage3D");
+        CompressedTexImage3D = (void (QOPENGLF_APIENTRYP)(GLenum, GLint, GLenum, GLsizei, GLsizei, GLsizei, GLint, GLsizei, const GLvoid *)) m_gl.resolve("glCompressedTexImage3D");
+        CompressedTexSubImage3D = (void (QOPENGLF_APIENTRYP)(GLenum, GLint, GLint, GLint, GLint, GLsizei, GLsizei, GLsizei, GLenum, GLsizei, const GLvoid *)) m_gl.resolve("glCompressedTexSubImage3D");
+
+        if (!MapBufferRange || !GenVertexArrays || !TexImage3D)
+            qFatal("OpenGL ES 3.0 entry points not found");
+    } else {
+        qFatal("Failed to load libGLESv2");
+    }
+}
+
+static inline bool isES3()
+{
+    QOpenGLContext *ctx = QOpenGLContext::currentContext();
+    return ctx->isOpenGLES() && ctx->format().majorVersion() >= 3;
+}
+
 static GLvoid *QOPENGLF_APIENTRY qopenglfResolveMapBuffer(GLenum target, GLenum access)
 {
-    RESOLVE_FUNC(GLvoid *, ResolveOES, MapBuffer)(target, access);
+    // It is possible that GL_OES_map_buffer is present, but then having to
+    // differentiate between glUnmapBufferOES and glUnmapBuffer causes extra
+    // headache. QOpenGLBuffer::map() will handle this automatically, while direct
+    // calls are better off with migrating to the standard glMapBufferRange.
+    if (isES3()) {
+        qWarning("QOpenGLFunctions: glMapBuffer is not available in OpenGL ES 3.0 and up. Use glMapBufferRange instead.");
+        return 0;
+    } else {
+        RESOLVE_FUNC(GLvoid *, ResolveOES, MapBuffer)(target, access);
+    }
+}
+
+static GLvoid *QOPENGLF_APIENTRY qopenglfResolveMapBufferRange(GLenum target, qopengl_GLintptr offset, qopengl_GLsizeiptr length, GLbitfield access)
+{
+    if (isES3())
+        return qgles3Helper()->MapBufferRange(target, offset, length, access);
+    else
+        RESOLVE_FUNC(GLvoid *, 0, MapBufferRange)(target, offset, length, access);
 }
 
 static GLboolean QOPENGLF_APIENTRY qopenglfResolveUnmapBuffer(GLenum target)
 {
-    RESOLVE_FUNC(GLboolean, ResolveOES, UnmapBuffer)(target);
+    if (isES3())
+        return qgles3Helper()->UnmapBuffer(target);
+    else
+        RESOLVE_FUNC(GLboolean, ResolveOES, UnmapBuffer)(target);
 }
 
 static void QOPENGLF_APIENTRY qopenglfResolveBlitFramebuffer(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1,
                        GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1,
                        GLbitfield mask, GLenum filter)
 {
-    RESOLVE_FUNC_VOID(ResolveEXT, BlitFramebuffer)
-        (srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
+    if (isES3())
+        qgles3Helper()->BlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
+    else
+        RESOLVE_FUNC_VOID(ResolveEXT | ResolveANGLE | ResolveNV, BlitFramebuffer)
+            (srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
 }
 
 static void QOPENGLF_APIENTRY qopenglfResolveRenderbufferStorageMultisample(GLenum target, GLsizei samples,
                                       GLenum internalFormat,
                                       GLsizei width, GLsizei height)
 {
-    RESOLVE_FUNC_VOID(ResolveEXT, RenderbufferStorageMultisample)
-        (target, samples, internalFormat, width, height);
+    if (isES3())
+        qgles3Helper()->RenderbufferStorageMultisample(target, samples, internalFormat, width, height);
+    else
+        RESOLVE_FUNC_VOID(ResolveEXT | ResolveANGLE | ResolveNV, RenderbufferStorageMultisample)
+            (target, samples, internalFormat, width, height);
 }
 
 static void QOPENGLF_APIENTRY qopenglfResolveGetBufferSubData(GLenum target, qopengl_GLintptr offset, qopengl_GLsizeiptr size, GLvoid *data)
@@ -3401,10 +3527,16 @@ QOpenGLExtensionsPrivate::QOpenGLExtensionsPrivate(QOpenGLContext *ctx)
     : QOpenGLFunctionsPrivate(ctx)
 {
     MapBuffer = qopenglfResolveMapBuffer;
+    MapBufferRange = qopenglfResolveMapBufferRange;
     UnmapBuffer = qopenglfResolveUnmapBuffer;
     BlitFramebuffer = qopenglfResolveBlitFramebuffer;
     RenderbufferStorageMultisample = qopenglfResolveRenderbufferStorageMultisample;
     GetBufferSubData = qopenglfResolveGetBufferSubData;
+}
+
+QOpenGLES3Helper *QOpenGLExtensions::gles3Helper()
+{
+    return qgles3Helper();
 }
 
 QT_END_NAMESPACE

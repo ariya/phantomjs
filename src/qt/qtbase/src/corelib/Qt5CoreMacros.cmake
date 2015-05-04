@@ -221,7 +221,7 @@ function(QT5_ADD_RESOURCES outfiles )
             # let's make a configured file and add it as a dependency so cmake is run
             # again when dependencies need to be recomputed.
             qt5_make_output_file("${infile}" "" "qrc.depends" out_depends)
-            configure_file("${infile}" "${out_depends}" COPY_ONLY)
+            configure_file("${infile}" "${out_depends}" COPYONLY)
         else()
             # The .qrc file does not exist (yet). Let's add a dependency and hope
             # that it will be generated later

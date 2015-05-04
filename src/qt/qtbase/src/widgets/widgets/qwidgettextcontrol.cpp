@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -118,7 +110,7 @@ QWidgetTextControlPrivate::QWidgetTextControlPrivate()
 #ifndef Q_OS_ANDROID
       interactionFlags(Qt::TextEditorInteraction),
 #else
-      interactionFlags(Qt::TextEditable),
+      interactionFlags(Qt::TextEditable | Qt::TextSelectableByKeyboard),
 #endif
       dragEnabled(true),
 #ifndef QT_NO_DRAGANDDROP
@@ -645,13 +637,15 @@ void QWidgetTextControlPrivate::_q_emitCursorPosChanged(const QTextCursor &someC
 
 void QWidgetTextControlPrivate::_q_contentsChanged(int from, int charsRemoved, int charsAdded)
 {
-    Q_Q(QWidgetTextControl);
 #ifndef QT_NO_ACCESSIBILITY
+    Q_Q(QWidgetTextControl);
 
     if (QAccessible::isActive() && q->parent() && q->parent()->isWidgetType()) {
         QTextCursor tmp(doc);
         tmp.setPosition(from);
-        tmp.setPosition(from + charsAdded, QTextCursor::KeepAnchor);
+        // when setting a new text document the length is off
+        // QTBUG-32583 - characterCount is off by 1 requires the -1
+        tmp.setPosition(qMin(doc->characterCount() - 1, from + charsAdded), QTextCursor::KeepAnchor);
         QString newText = tmp.selectedText();
 
         // always report the right number of removed chars, but in lack of the real string use spaces
@@ -668,6 +662,10 @@ void QWidgetTextControlPrivate::_q_contentsChanged(int from, int charsRemoved, i
         QAccessible::updateAccessibility(ev);
         delete ev;
     }
+#else
+    Q_UNUSED(from)
+    Q_UNUSED(charsRemoved)
+    Q_UNUSED(charsAdded)
 #endif
 }
 
@@ -1692,9 +1690,6 @@ void QWidgetTextControlPrivate::mouseMoveEvent(QEvent *e, Qt::MouseButton button
             return;
         }
 
-        if (!mousePressed)
-            return;
-
         const qreal mouseX = qreal(mousePos.x());
 
         int newCursorPos = q->hitTest(mousePos, Qt::FuzzyHit);
@@ -1715,7 +1710,7 @@ void QWidgetTextControlPrivate::mouseMoveEvent(QEvent *e, Qt::MouseButton button
         if (newCursorPos == -1)
             return;
 
-        if (wordSelectionEnabled && !selectedWordOnDoubleClick.hasSelection()) {
+        if (mousePressed && wordSelectionEnabled && !selectedWordOnDoubleClick.hasSelection()) {
             selectedWordOnDoubleClick = cursor;
             selectedWordOnDoubleClick.select(QTextCursor::WordUnderCursor);
         }
@@ -1724,7 +1719,7 @@ void QWidgetTextControlPrivate::mouseMoveEvent(QEvent *e, Qt::MouseButton button
             extendBlockwiseSelection(newCursorPos);
         else if (selectedWordOnDoubleClick.hasSelection())
             extendWordwiseSelection(newCursorPos, mouseX);
-        else if (!isPreediting())
+        else if (mousePressed && !isPreediting())
             setCursorPosition(newCursorPos, QTextCursor::KeepAnchor);
 
         if (interactionFlags & Qt::TextEditable) {
@@ -2193,7 +2188,7 @@ void QWidgetTextControlPrivate::editFocusEvent(QEvent *e)
             setBlinkingCursorEnabled(false);
     }
 
-    hasEditFocus = e->type() == QEvent::EnterEditFocus ? true : false;
+    hasEditFocus = e->type() == QEvent::EnterEditFocus;
 }
 #endif
 

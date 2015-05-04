@@ -33,8 +33,8 @@ HEADERS += \
 	kernel/qstandardgestures_p.h \
 	kernel/qgesturerecognizer.h \
 	kernel/qgesturemanager_p.h \
-        kernel/qdesktopwidget_qpa_p.h \
-        kernel/qwidgetwindow_qpa_p.h \
+        kernel/qdesktopwidget_p.h \
+        kernel/qwidgetwindow_p.h \
         kernel/qwindowcontainer_p.h
 
 SOURCES += \
@@ -60,9 +60,6 @@ SOURCES += \
 	kernel/qgesturemanager.cpp \
         kernel/qdesktopwidget.cpp \
         kernel/qwidgetsvariant.cpp \
-        kernel/qapplication_qpa.cpp \
-        kernel/qdesktopwidget_qpa.cpp \
-        kernel/qwidget_qpa.cpp \
         kernel/qwidgetwindow.cpp \
         kernel/qwindowcontainer.cpp
 
@@ -81,6 +78,6 @@ wince*: {
 }
 
 contains(QT_CONFIG, opengl) {
-    HEADERS += kernel/qopenglwidget_p.h
+    HEADERS += kernel/qopenglwidget.h
     SOURCES += kernel/qopenglwidget.cpp
 }

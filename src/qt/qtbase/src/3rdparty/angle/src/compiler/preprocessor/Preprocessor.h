@@ -22,7 +22,7 @@ struct Token;
 class Preprocessor
 {
   public:
-    Preprocessor(Diagnostics* diagnostics, DirectiveHandler* directiveHandler);
+    Preprocessor(Diagnostics *diagnostics, DirectiveHandler *directiveHandler);
     ~Preprocessor();
 
     // count: specifies the number of elements in the string and length arrays.
@@ -34,22 +34,19 @@ class Preprocessor
     // Each element in the length array may contain the length of the
     // corresponding string or a value less than 0 to indicate that the string
     // is null terminated.
-    bool init(size_t count, const char* const string[], const int length[]);
+    bool init(size_t count, const char * const string[], const int length[]);
     // Adds a pre-defined macro.
-    void predefineMacro(const char* name, int value);
-    // Sets maximum allowed token length.
-    // If token length exceeds this limit,
-    // the token text will be truncated to the given maximum length, and
-    // TOKEN_TOO_LONG diagnostic will be generated.
-    // The maximum length defaults to 256.
-    void setMaxTokenLength(size_t maxLength);
+    void predefineMacro(const char *name, int value);
 
-    void lex(Token* token);
+    void lex(Token *token);
+
+    // Set maximum preprocessor token size
+    void setMaxTokenSize(size_t maxTokenSize);
 
   private:
     PP_DISALLOW_COPY_AND_ASSIGN(Preprocessor);
 
-    PreprocessorImpl* mImpl;
+    PreprocessorImpl *mImpl;
 };
 
 }  // namespace pp

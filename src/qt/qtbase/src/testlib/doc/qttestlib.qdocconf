@@ -1,0 +1,44 @@
+include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
+
+project                 = QtTestLib
+description             = Qt Test Reference Documentation
+version                 = $QT_VERSION
+
+examplesinstallpath     = testlib
+
+qhp.projects            = QtTestLib
+
+qhp.QtTestLib.file                = qttestlib.qhp
+qhp.QtTestLib.namespace           = org.qt-project.qttest.$QT_VERSION_TAG
+qhp.QtTestLib.virtualFolder       = qttest
+qhp.QtTestLib.indexTitle          = Qt Test
+qhp.QtTestLib.indexRoot           =
+
+qhp.QtTestLib.filterAttributes    = qttest $QT_VERSION qtrefdoc
+qhp.QtTestLib.customFilters.Qt.name = QtTest $QT_VERSION
+qhp.QtTestLib.customFilters.Qt.filterAttributes = qttest $QT_VERSION
+
+qhp.QtTestLib.subprojects         = classes
+qhp.QtTestLib.subprojects.classes.title = C++ Classes
+qhp.QtTestLib.subprojects.classes.indexTitle = Qt Test C++ Classes
+qhp.QtTestLib.subprojects.classes.selectors = class fake:headerfile
+qhp.QtTestLib.subprojects.classes.sortPages = true
+
+tagfile                 = ../../../doc/qttestlib/qttestlib.tags
+
+depends                 += qtcore qtdoc qtwidgets qtgui qmake qtquick
+
+headerdirs  += ..
+
+sourcedirs  += ..
+
+exampledirs += ../../../examples/qtestlib \
+               ../ \
+               snippets
+
+excludedirs += ../../../examples/widgets/doc
+
+imagedirs   += images
+
+navigation.landingpage = "Qt Test"
+navigation.cppclassespage = "Qt Test C++ Classes"

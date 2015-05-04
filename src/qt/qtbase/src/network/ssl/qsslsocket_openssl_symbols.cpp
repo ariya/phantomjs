@@ -1,40 +1,32 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Copyright (C) 2014 BlackBerry Limited. All rights reserved.
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -55,6 +47,7 @@
 **
 ****************************************************************************/
 
+#include "qssl_p.h"
 #include "qsslsocket_openssl_symbols_p.h"
 
 #ifdef Q_OS_WIN
@@ -70,6 +63,9 @@
 #endif
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 #include <link.h>
+#endif
+#ifdef Q_OS_DARWIN
+#include "private/qcore_mac_p.h"
 #endif
 
 #include <algorithm>
@@ -115,17 +111,21 @@ QT_BEGIN_NAMESPACE
     possibly with a different version of OpenSSL.
 */
 
+#ifndef QT_LINKED_OPENSSL
+
 namespace {
 void qsslSocketUnresolvedSymbolWarning(const char *functionName)
 {
-    qWarning("QSslSocket: cannot call unresolved function %s", functionName);
+    qCWarning(lcSsl, "QSslSocket: cannot call unresolved function %s", functionName);
 }
 
 void qsslSocketCannotResolveSymbolWarning(const char *functionName)
 {
-    qWarning("QSslSocket: cannot resolve %s", functionName);
+    qCWarning(lcSsl, "QSslSocket: cannot resolve %s", functionName);
 }
 }
+
+#endif // QT_LINKED_OPENSSL
 
 #ifdef SSLEAY_MACROS
 DEFINEFUNC3(void *, ASN1_dup, i2d_of_void *a, a, d2i_of_void *b, b, char *c, c, return 0, return)
@@ -146,6 +146,7 @@ DEFINEFUNC(int, CRYPTO_num_locks, DUMMYARG, DUMMYARG, return 0, return)
 DEFINEFUNC(void, CRYPTO_set_locking_callback, void (*a)(int, int, const char *, int), a, return, DUMMYARG)
 DEFINEFUNC(void, CRYPTO_set_id_callback, unsigned long (*a)(), a, return, DUMMYARG)
 DEFINEFUNC(void, CRYPTO_free, void *a, a, return, DUMMYARG)
+DEFINEFUNC(DSA *, DSA_new, DUMMYARG, DUMMYARG, return 0, return)
 DEFINEFUNC(void, DSA_free, DSA *a, a, return, DUMMYARG)
 #if  OPENSSL_VERSION_NUMBER < 0x00908000L
 DEFINEFUNC3(X509 *, d2i_X509, X509 **a, a, unsigned char **b, b, long c, c, return 0, return)
@@ -186,6 +187,7 @@ DEFINEFUNC2(int, PEM_write_bio_DSA_PUBKEY, BIO *a, a, DSA *b, b, return 0, retur
 DEFINEFUNC2(int, PEM_write_bio_RSA_PUBKEY, BIO *a, a, RSA *b, b, return 0, return)
 DEFINEFUNC2(void, RAND_seed, const void *a, a, int b, b, return, DUMMYARG)
 DEFINEFUNC(int, RAND_status, void, DUMMYARG, return -1, return)
+DEFINEFUNC(RSA *, RSA_new, DUMMYARG, DUMMYARG, return 0, return)
 DEFINEFUNC(void, RSA_free, RSA *a, a, return, DUMMYARG)
 DEFINEFUNC(int, sk_num, STACK *a, a, return -1, return)
 DEFINEFUNC2(void, sk_pop_free, STACK *a, a, void (*b)(void*), b, return, DUMMYARG)
@@ -203,6 +205,7 @@ DEFINEFUNC2(char *, sk_value, STACK *a, a, int b, b, return 0, return)
 DEFINEFUNC(int, SSL_accept, SSL *a, a, return -1, return)
 DEFINEFUNC(int, SSL_clear, SSL *a, a, return -1, return)
 DEFINEFUNC3(char *, SSL_CIPHER_description, SSL_CIPHER *a, a, char *b, b, int c, c, return 0, return)
+DEFINEFUNC2(int, SSL_CIPHER_get_bits, SSL_CIPHER *a, a, int *b, b, return 0, return)
 DEFINEFUNC(int, SSL_connect, SSL *a, a, return -1, return)
 #if OPENSSL_VERSION_NUMBER >= 0x00908000L
 // 0.9.8 broke SC and BC by changing this function's signature.
@@ -238,6 +241,7 @@ DEFINEFUNC(const SSL_CIPHER *, SSL_get_current_cipher, SSL *a, a, return 0, retu
 #else
 DEFINEFUNC(SSL_CIPHER *, SSL_get_current_cipher, SSL *a, a, return 0, return)
 #endif
+DEFINEFUNC(int, SSL_version, const SSL *a, a, return 0, return)
 DEFINEFUNC2(int, SSL_get_error, SSL *a, a, int b, b, return -1, return)
 DEFINEFUNC(STACK_OF(X509) *, SSL_get_peer_cert_chain, SSL *a, a, return 0, return)
 DEFINEFUNC(X509 *, SSL_get_peer_certificate, SSL *a, a, return 0, return)
@@ -266,7 +270,9 @@ DEFINEFUNC(SSL_SESSION*, SSL_get_session, const SSL *ssl, ssl, return 0, return)
 #ifndef OPENSSL_NO_SSL2
 DEFINEFUNC(const SSL_METHOD *, SSLv2_client_method, DUMMYARG, DUMMYARG, return 0, return)
 #endif
+#ifndef OPENSSL_NO_SSL3_METHOD
 DEFINEFUNC(const SSL_METHOD *, SSLv3_client_method, DUMMYARG, DUMMYARG, return 0, return)
+#endif
 DEFINEFUNC(const SSL_METHOD *, SSLv23_client_method, DUMMYARG, DUMMYARG, return 0, return)
 DEFINEFUNC(const SSL_METHOD *, TLSv1_client_method, DUMMYARG, DUMMYARG, return 0, return)
 #if OPENSSL_VERSION_NUMBER >= 0x10001000L
@@ -276,7 +282,9 @@ DEFINEFUNC(const SSL_METHOD *, TLSv1_2_client_method, DUMMYARG, DUMMYARG, return
 #ifndef OPENSSL_NO_SSL2
 DEFINEFUNC(const SSL_METHOD *, SSLv2_server_method, DUMMYARG, DUMMYARG, return 0, return)
 #endif
+#ifndef OPENSSL_NO_SSL3_METHOD
 DEFINEFUNC(const SSL_METHOD *, SSLv3_server_method, DUMMYARG, DUMMYARG, return 0, return)
+#endif
 DEFINEFUNC(const SSL_METHOD *, SSLv23_server_method, DUMMYARG, DUMMYARG, return 0, return)
 DEFINEFUNC(const SSL_METHOD *, TLSv1_server_method, DUMMYARG, DUMMYARG, return 0, return)
 #if OPENSSL_VERSION_NUMBER >= 0x10001000L
@@ -285,11 +293,15 @@ DEFINEFUNC(const SSL_METHOD *, TLSv1_2_server_method, DUMMYARG, DUMMYARG, return
 #endif
 #else
 DEFINEFUNC(SSL_METHOD *, SSLv2_client_method, DUMMYARG, DUMMYARG, return 0, return)
+#ifndef OPENSSL_NO_SSL3_METHOD
 DEFINEFUNC(SSL_METHOD *, SSLv3_client_method, DUMMYARG, DUMMYARG, return 0, return)
+#endif
 DEFINEFUNC(SSL_METHOD *, SSLv23_client_method, DUMMYARG, DUMMYARG, return 0, return)
 DEFINEFUNC(SSL_METHOD *, TLSv1_client_method, DUMMYARG, DUMMYARG, return 0, return)
 DEFINEFUNC(SSL_METHOD *, SSLv2_server_method, DUMMYARG, DUMMYARG, return 0, return)
+#ifndef OPENSSL_NO_SSL3_METHOD
 DEFINEFUNC(SSL_METHOD *, SSLv3_server_method, DUMMYARG, DUMMYARG, return 0, return)
+#endif
 DEFINEFUNC(SSL_METHOD *, SSLv23_server_method, DUMMYARG, DUMMYARG, return 0, return)
 DEFINEFUNC(SSL_METHOD *, TLSv1_server_method, DUMMYARG, DUMMYARG, return 0, return)
 #endif
@@ -315,6 +327,7 @@ DEFINEFUNC2(int, ASN1_STRING_print, BIO *a, a, const ASN1_STRING *b, b, return 0
 #else
 DEFINEFUNC2(int, ASN1_STRING_print, BIO *a, a, ASN1_STRING *b, b, return 0, return)
 #endif
+DEFINEFUNC2(int, X509_check_issued, X509 *a, a, X509 *b, b, return -1, return)
 DEFINEFUNC(X509_NAME *, X509_get_issuer_name, X509 *a, a, return 0, return)
 DEFINEFUNC(X509_NAME *, X509_get_subject_name, X509 *a, a, return 0, return)
 DEFINEFUNC(int, X509_verify_cert, X509_STORE_CTX *a, a, return -1, return)
@@ -364,8 +377,15 @@ DEFINEFUNC3(void, SSL_get0_next_proto_negotiated, const SSL *s, s,
 DEFINEFUNC(DH *, DH_new, DUMMYARG, DUMMYARG, return 0, return)
 DEFINEFUNC(void, DH_free, DH *dh, dh, return, DUMMYARG)
 DEFINEFUNC3(BIGNUM *, BN_bin2bn, const unsigned char *s, s, int len, len, BIGNUM *ret, ret, return 0, return)
+#ifndef OPENSSL_NO_EC
 DEFINEFUNC(EC_KEY *, EC_KEY_new_by_curve_name, int nid, nid, return 0, return)
 DEFINEFUNC(void, EC_KEY_free, EC_KEY *ecdh, ecdh, return, DUMMYARG)
+#endif // OPENSSL_NO_EC
+
+DEFINEFUNC5(int, PKCS12_parse, PKCS12 *p12, p12, const char *pass, pass, EVP_PKEY **pkey, pkey, \
+            X509 **cert, cert, STACK_OF(X509) **ca, ca, return 1, return);
+DEFINEFUNC2(PKCS12 *, d2i_PKCS12_bio, BIO *bio, bio, PKCS12 **pkcs12, pkcs12, return 0, return);
+DEFINEFUNC(void, PKCS12_free, PKCS12 *pkcs12, pkcs12, return, DUMMYARG)
 
 #define RESOLVEFUNC(func) \
     if (!(_q_##func = _q_PTR_##func(libs.first->resolve(#func)))     \
@@ -377,11 +397,11 @@ DEFINEFUNC(void, EC_KEY_free, EC_KEY *ecdh, ecdh, return, DUMMYARG)
 #ifdef QT_NO_LIBRARY
 bool q_resolveOpenSslSymbols()
 {
-    qWarning("QSslSocket: unable to resolve symbols. "
-             "QT_NO_LIBRARY is defined which means runtime resolving of "
-             "libraries won't work.");
-    qWarning("Either compile Qt statically or with support for runtime resolving "
-             "of libraries.");
+    qCWarning(lcSsl, "QSslSocket: unable to resolve symbols. "
+                     "QT_NO_LIBRARY is defined which means runtime resolving of "
+                     "libraries won't work.");
+    qCWarning(lcSsl, "Either compile Qt statically or with support for runtime resolving "
+                     "of libraries.");
     return false;
 }
 #else
@@ -444,6 +464,15 @@ static QStringList libraryPathList()
 #  ifdef Q_OS_DARWIN
     paths = QString::fromLatin1(qgetenv("DYLD_LIBRARY_PATH"))
             .split(QLatin1Char(':'), QString::SkipEmptyParts);
+
+    // search in .app/Contents/Frameworks
+    UInt32 packageType;
+    CFBundleGetPackageInfo(CFBundleGetMainBundle(), &packageType, NULL);
+    if (packageType == FOUR_CHAR_CODE('APPL')) {
+        QUrl bundleUrl = QUrl::fromCFURL(QCFType<CFURLRef>(CFBundleCopyBundleURL(CFBundleGetMainBundle())));
+        QUrl frameworksUrl = QUrl::fromCFURL(QCFType<CFURLRef>(CFBundleCopyPrivateFrameworksURL(CFBundleGetMainBundle())));
+        paths << bundleUrl.resolved(frameworksUrl).path();
+    }
 #  else
     paths = QString::fromLatin1(qgetenv("LD_LIBRARY_PATH"))
             .split(QLatin1Char(':'), QString::SkipEmptyParts);
@@ -593,7 +622,13 @@ static QPair<QLibrary*, QLibrary*> loadOpenSsl()
     }
 #endif
 
+#ifndef Q_OS_DARWIN
     // second attempt: find the development files libssl.so and libcrypto.so
+    //
+    // disabled on OS X/iOS:
+    //  OS X's /usr/lib/libssl.dylib, /usr/lib/libcrypto.dylib will be picked up in the third
+    //    attempt, _after_ <bundle>/Contents/Frameworks has been searched.
+    //  iOS does not ship a system libssl.dylib, libcrypto.dylib in the first place.
     libssl->setFileNameAndVersion(QLatin1String("ssl"), -1);
     libcrypto->setFileNameAndVersion(QLatin1String("crypto"), -1);
     if (libcrypto->load() && libssl->load()) {
@@ -603,6 +638,7 @@ static QPair<QLibrary*, QLibrary*> loadOpenSsl()
         libssl->unload();
         libcrypto->unload();
     }
+#endif
 
     // third attempt: loop on the most common library paths and find libssl
     QStringList sslList = findAllLibSsl();
@@ -685,6 +721,7 @@ bool q_resolveOpenSslSymbols()
     RESOLVEFUNC(CRYPTO_num_locks)
     RESOLVEFUNC(CRYPTO_set_id_callback)
     RESOLVEFUNC(CRYPTO_set_locking_callback)
+    RESOLVEFUNC(DSA_new)
     RESOLVEFUNC(DSA_free)
     RESOLVEFUNC(ERR_error_string)
     RESOLVEFUNC(ERR_get_error)
@@ -717,6 +754,7 @@ bool q_resolveOpenSslSymbols()
     RESOLVEFUNC(PEM_write_bio_RSA_PUBKEY)
     RESOLVEFUNC(RAND_seed)
     RESOLVEFUNC(RAND_status)
+    RESOLVEFUNC(RSA_new)
     RESOLVEFUNC(RSA_free)
     RESOLVEFUNC(sk_new_null)
     RESOLVEFUNC(sk_push)
@@ -725,6 +763,7 @@ bool q_resolveOpenSslSymbols()
     RESOLVEFUNC(sk_pop_free)
     RESOLVEFUNC(sk_value)
     RESOLVEFUNC(SSL_CIPHER_description)
+    RESOLVEFUNC(SSL_CIPHER_get_bits)
     RESOLVEFUNC(SSL_CTX_check_private_key)
     RESOLVEFUNC(SSL_CTX_ctrl)
     RESOLVEFUNC(SSL_CTX_free)
@@ -744,6 +783,7 @@ bool q_resolveOpenSslSymbols()
     RESOLVEFUNC(SSL_free)
     RESOLVEFUNC(SSL_get_ciphers)
     RESOLVEFUNC(SSL_get_current_cipher)
+    RESOLVEFUNC(SSL_version)
     RESOLVEFUNC(SSL_get_error)
     RESOLVEFUNC(SSL_get_peer_cert_chain)
     RESOLVEFUNC(SSL_get_peer_certificate)
@@ -767,7 +807,9 @@ bool q_resolveOpenSslSymbols()
 #ifndef OPENSSL_NO_SSL2
     RESOLVEFUNC(SSLv2_client_method)
 #endif
+#ifndef OPENSSL_NO_SSL3_METHOD
     RESOLVEFUNC(SSLv3_client_method)
+#endif
     RESOLVEFUNC(SSLv23_client_method)
     RESOLVEFUNC(TLSv1_client_method)
 #if OPENSSL_VERSION_NUMBER >= 0x10001000L
@@ -777,7 +819,9 @@ bool q_resolveOpenSslSymbols()
 #ifndef OPENSSL_NO_SSL2
     RESOLVEFUNC(SSLv2_server_method)
 #endif
+#ifndef OPENSSL_NO_SSL3_METHOD
     RESOLVEFUNC(SSLv3_server_method)
+#endif
     RESOLVEFUNC(SSLv23_server_method)
     RESOLVEFUNC(TLSv1_server_method)
 #if OPENSSL_VERSION_NUMBER >= 0x10001000L
@@ -817,6 +861,7 @@ bool q_resolveOpenSslSymbols()
     RESOLVEFUNC(BASIC_CONSTRAINTS_free)
     RESOLVEFUNC(AUTHORITY_KEYID_free)
     RESOLVEFUNC(ASN1_STRING_print)
+    RESOLVEFUNC(X509_check_issued)
     RESOLVEFUNC(X509_get_issuer_name)
     RESOLVEFUNC(X509_get_subject_name)
     RESOLVEFUNC(X509_verify_cert)
@@ -843,8 +888,13 @@ bool q_resolveOpenSslSymbols()
     RESOLVEFUNC(DH_new)
     RESOLVEFUNC(DH_free)
     RESOLVEFUNC(BN_bin2bn)
+#ifndef OPENSSL_NO_EC
     RESOLVEFUNC(EC_KEY_new_by_curve_name)
     RESOLVEFUNC(EC_KEY_free)
+#endif // OPENSSL_NO_EC
+    RESOLVEFUNC(PKCS12_parse)
+    RESOLVEFUNC(d2i_PKCS12_bio)
+    RESOLVEFUNC(PKCS12_free)
 
     symbolsResolved = true;
     delete libs.first;
@@ -955,7 +1005,7 @@ QDateTime q_getTimeFromASN1(const ASN1_TIME *aTime)
         return result;
 
     } else {
-        qWarning("unsupported date format detected");
+        qCWarning(lcSsl, "unsupported date format detected");
         return QDateTime();
     }
 

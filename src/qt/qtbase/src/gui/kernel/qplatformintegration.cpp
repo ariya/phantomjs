@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -271,13 +263,32 @@ QPlatformPixmap *QPlatformIntegration::createPlatformPixmap(QPlatformPixmap::Pix
 }
 
 #ifndef QT_NO_OPENGL
+/*!
+    Factory function for QPlatformOpenGLContext. The \a context parameter is a pointer to
+    the context for which a platform-specific context backend needs to be
+    created. Configuration settings like the format, share context and screen have to be
+    taken from this QOpenGLContext and the resulting platform context is expected to be
+    backed by a native context that fulfills these criteria.
+
+    If the context has native handles set, no new native context is expected to be created.
+    Instead, the provided handles have to be used. In this case the ownership of the handle
+    must not be taken and the platform implementation is not allowed to destroy the native
+    context. Configuration parameters like the format are also to be ignored. Instead, the
+    platform implementation is responsible for querying the configuriation from the provided
+    native context.
+
+    Returns a pointer to a QPlatformOpenGLContext instance or \c NULL if the context could
+    not be created.
+
+    \sa QOpenGLContext
+*/
 QPlatformOpenGLContext *QPlatformIntegration::createPlatformOpenGLContext(QOpenGLContext *context) const
 {
     Q_UNUSED(context);
     qWarning("This plugin does not support createPlatformOpenGLContext!");
     return 0;
 }
-#endif
+#endif // QT_NO_OPENGL
 
 /*!
    Factory function for QPlatformSharedGraphicsCache. This function will return 0 if the platform

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -87,12 +79,15 @@ QOpenGLTextureGlyphCache::~QOpenGLTextureGlyphCache()
 #ifdef QT_GL_TEXTURE_GLYPH_CACHE_DEBUG
     qDebug(" -> ~QOpenGLTextureGlyphCache() %p.", this);
 #endif
+    clear();
 }
 
+#if !defined(QT_OPENGL_ES_2)
 static inline bool isCoreProfile()
 {
     return QOpenGLContext::currentContext()->format().profile() == QSurfaceFormat::CoreProfile;
 }
+#endif
 
 void QOpenGLTextureGlyphCache::createTextureData(int width, int height)
 {
@@ -247,7 +242,7 @@ void QOpenGLTextureGlyphCache::resizeTextureData(int width, int height)
     QOpenGLShaderProgram *blitProgram = 0;
     if (pex == 0) {
         if (m_blitProgram == 0) {
-            m_blitProgram = new QOpenGLShaderProgram(ctx);
+            m_blitProgram = new QOpenGLShaderProgram;
             const bool isCoreProfile = ctx->format().profile() == QSurfaceFormat::CoreProfile;
 
             {
@@ -408,41 +403,14 @@ void QOpenGLTextureGlyphCache::fillTexture(const Coord &c, glyph_t glyph, QFixed
 #endif
         funcs->glTexSubImage2D(GL_TEXTURE_2D, 0, c.x, c.y, maskWidth, maskHeight, fmt, GL_UNSIGNED_BYTE, mask.bits());
     } else {
-        // glTexSubImage2D() might cause some garbage to appear in the texture if the mask width is
-        // not a multiple of four bytes. The bug appeared on a computer with 32-bit Windows Vista
-        // and nVidia GeForce 8500GT. GL_UNPACK_ALIGNMENT is set to four bytes, 'mask' has a
-        // multiple of four bytes per line, and most of the glyph shows up correctly in the
-        // texture, which makes me think that this is a driver bug.
-        // One workaround is to make sure the mask width is a multiple of four bytes, for instance
-        // by converting it to a format with four bytes per pixel. Another is to copy one line at a
-        // time.
-
-#if 0
-        if (!ctx->d_func()->workaround_brokenAlphaTexSubImage_init) {
-            // don't know which driver versions exhibit this bug, so be conservative for now
-            const QByteArray versionString(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
-            glctx->d_func()->workaround_brokenAlphaTexSubImage = versionString.indexOf("NVIDIA") >= 0;
-            glctx->d_func()->workaround_brokenAlphaTexSubImage_init = true;
-        }
-#endif
-
-#if 0
-        if (ctx->d_func()->workaround_brokenAlphaTexSubImage) {
-            for (int i = 0; i < maskHeight; ++i)
-                funcs->glTexSubImage2D(GL_TEXTURE_2D, 0, c.x, c.y + i, maskWidth, 1, GL_ALPHA, GL_UNSIGNED_BYTE, mask.scanLine(i));
-        } else {
-#endif
-
+        // The scanlines in mask are 32-bit aligned, even for mono or 8-bit formats. This
+        // is good because it matches the default of 4 bytes for GL_UNPACK_ALIGNMENT.
 #if !defined(QT_OPENGL_ES_2)
         const GLenum format = isCoreProfile() ? GL_RED : GL_ALPHA;
 #else
         const GLenum format = GL_ALPHA;
 #endif
         funcs->glTexSubImage2D(GL_TEXTURE_2D, 0, c.x, c.y, maskWidth, maskHeight, format, GL_UNSIGNED_BYTE, mask.bits());
-
-#if 0
-        }
-#endif
     }
 }
 
@@ -474,8 +442,12 @@ int QOpenGLTextureGlyphCache::maxTextureHeight() const
 
 void QOpenGLTextureGlyphCache::clear()
 {
-    m_textureResource->free();
+    if (m_textureResource)
+        m_textureResource->free();
     m_textureResource = 0;
+
+    delete m_blitProgram;
+    m_blitProgram = 0;
 
     m_w = 0;
     m_h = 0;

@@ -173,6 +173,10 @@ hb_ot_shape_complex_categorize (const hb_ot_shape_planner_t *planner)
     /* Unicode-6.0 additions */
     case HB_SCRIPT_MANDAIC:
 
+    /* Unicode-7.0 additions */
+    case HB_SCRIPT_MANICHAEAN:
+    case HB_SCRIPT_PSALTER_PAHLAVI:
+
       /* For Arabic script, use the Arabic shaper even if no OT script tag was found.
        * This is because we do fallback shaping for Arabic script (and not others). */
       if (planner->map.chosen_script[0] != HB_OT_TAG_DEFAULT_SCRIPT ||

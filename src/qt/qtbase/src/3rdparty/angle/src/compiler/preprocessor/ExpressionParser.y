@@ -195,15 +195,14 @@ expression
 
 %%
 
-int yylex(YYSTYPE* lvalp, Context* context)
+int yylex(YYSTYPE *lvalp, Context *context)
 {
     int type = 0;
 
-    pp::Token* token = context->token;
+    pp::Token *token = context->token;
     switch (token->type)
     {
-      case pp::Token::CONST_INT:
-      {
+      case pp::Token::CONST_INT: {
         unsigned int val = 0;
         if (!token->uValue(&val))
         {
@@ -214,39 +213,59 @@ int yylex(YYSTYPE* lvalp, Context* context)
         type = TOK_CONST_INT;
         break;
       }
-      case pp::Token::OP_OR: type = TOK_OP_OR; break;
-      case pp::Token::OP_AND: type = TOK_OP_AND; break;
-      case pp::Token::OP_NE: type = TOK_OP_NE; break;
-      case pp::Token::OP_EQ: type = TOK_OP_EQ; break;
-      case pp::Token::OP_GE: type = TOK_OP_GE; break;
-      case pp::Token::OP_LE: type = TOK_OP_LE; break;
-      case pp::Token::OP_RIGHT: type = TOK_OP_RIGHT; break;
-      case pp::Token::OP_LEFT: type = TOK_OP_LEFT; break;
-      case '|': type = '|'; break;
-      case '^': type = '^'; break;
-      case '&': type = '&'; break;
-      case '>': type = '>'; break;
-      case '<': type = '<'; break;
-      case '-': type = '-'; break;
-      case '+': type = '+'; break;
-      case '%': type = '%'; break;
-      case '/': type = '/'; break;
-      case '*': type = '*'; break;
-      case '!': type = '!'; break;
-      case '~': type = '~'; break;
-      case '(': type = '('; break;
-      case ')': type = ')'; break;
+      case pp::Token::OP_OR:
+        type = TOK_OP_OR;
+        break;
+      case pp::Token::OP_AND:
+        type = TOK_OP_AND;
+        break;
+      case pp::Token::OP_NE:
+        type = TOK_OP_NE;
+        break;
+      case pp::Token::OP_EQ:
+        type = TOK_OP_EQ;
+        break;
+      case pp::Token::OP_GE:
+        type = TOK_OP_GE;
+        break;
+      case pp::Token::OP_LE:
+        type = TOK_OP_LE;
+        break;
+      case pp::Token::OP_RIGHT:
+        type = TOK_OP_RIGHT;
+        break;
+      case pp::Token::OP_LEFT:
+        type = TOK_OP_LEFT;
+        break;
+      case '|':
+      case '^':
+      case '&':
+      case '>':
+      case '<':
+      case '-':
+      case '+':
+      case '%':
+      case '/':
+      case '*':
+      case '!':
+      case '~':
+      case '(':
+      case ')':
+        type = token->type;
+        break;
 
-      default: break;
+      default:
+        break;
     }
 
     // Advance to the next token if the current one is valid.
-    if (type != 0) context->lexer->lex(token);
+    if (type != 0)
+        context->lexer->lex(token);
 
     return type;
 }
 
-void yyerror(Context* context, const char* reason)
+void yyerror(Context *context, const char *reason)
 {
     context->diagnostics->report(pp::Diagnostics::PP_INVALID_EXPRESSION,
                                  context->token->location,
@@ -255,13 +274,13 @@ void yyerror(Context* context, const char* reason)
 
 namespace pp {
 
-ExpressionParser::ExpressionParser(Lexer* lexer, Diagnostics* diagnostics) :
-    mLexer(lexer),
-    mDiagnostics(diagnostics)
+ExpressionParser::ExpressionParser(Lexer *lexer, Diagnostics *diagnostics)
+    : mLexer(lexer),
+      mDiagnostics(diagnostics)
 {
 }
 
-bool ExpressionParser::parse(Token* token, int* result)
+bool ExpressionParser::parse(Token *token, int *result)
 {
     Context context;
     context.diagnostics = mDiagnostics;

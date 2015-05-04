@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -66,44 +58,40 @@ class QString;
 class QStringRef;
 class QLatin1String;
 
-inline uint qHash(char key, uint seed = 0) Q_DECL_NOTHROW { return uint(key) ^ seed; }
-inline uint qHash(uchar key, uint seed = 0) Q_DECL_NOTHROW { return uint(key) ^ seed; }
-inline uint qHash(signed char key, uint seed = 0) Q_DECL_NOTHROW { return uint(key) ^ seed; }
-inline uint qHash(ushort key, uint seed = 0) Q_DECL_NOTHROW { return uint(key) ^ seed; }
-inline uint qHash(short key, uint seed = 0) Q_DECL_NOTHROW { return uint(key) ^ seed; }
-inline uint qHash(uint key, uint seed = 0) Q_DECL_NOTHROW { return key ^ seed; }
-inline uint qHash(int key, uint seed = 0) Q_DECL_NOTHROW { return uint(key) ^ seed; }
-inline uint qHash(ulong key, uint seed = 0) Q_DECL_NOTHROW
+Q_CORE_EXPORT Q_DECL_PURE_FUNCTION uint qHashBits(const void *p, size_t size, uint seed = 0) Q_DECL_NOTHROW;
+
+Q_DECL_CONST_FUNCTION Q_DECL_CONSTEXPR inline uint qHash(char key, uint seed = 0) Q_DECL_NOTHROW { return uint(key) ^ seed; }
+Q_DECL_CONST_FUNCTION Q_DECL_CONSTEXPR inline uint qHash(uchar key, uint seed = 0) Q_DECL_NOTHROW { return uint(key) ^ seed; }
+Q_DECL_CONST_FUNCTION Q_DECL_CONSTEXPR inline uint qHash(signed char key, uint seed = 0) Q_DECL_NOTHROW { return uint(key) ^ seed; }
+Q_DECL_CONST_FUNCTION Q_DECL_CONSTEXPR inline uint qHash(ushort key, uint seed = 0) Q_DECL_NOTHROW { return uint(key) ^ seed; }
+Q_DECL_CONST_FUNCTION Q_DECL_CONSTEXPR inline uint qHash(short key, uint seed = 0) Q_DECL_NOTHROW { return uint(key) ^ seed; }
+Q_DECL_CONST_FUNCTION Q_DECL_CONSTEXPR inline uint qHash(uint key, uint seed = 0) Q_DECL_NOTHROW { return key ^ seed; }
+Q_DECL_CONST_FUNCTION Q_DECL_CONSTEXPR inline uint qHash(int key, uint seed = 0) Q_DECL_NOTHROW { return uint(key) ^ seed; }
+Q_DECL_CONST_FUNCTION Q_DECL_CONSTEXPR inline uint qHash(ulong key, uint seed = 0) Q_DECL_NOTHROW
 {
-    if (sizeof(ulong) > sizeof(uint)) {
-        return uint(((key >> (8 * sizeof(uint) - 1)) ^ key) & (~0U)) ^ seed;
-    } else {
-        return uint(key & (~0U)) ^ seed;
-    }
+    return (sizeof(ulong) > sizeof(uint))
+        ? (uint(((key >> (8 * sizeof(uint) - 1)) ^ key) & (~0U)) ^ seed)
+        : (uint(key & (~0U)) ^ seed);
 }
-inline uint qHash(long key, uint seed = 0) Q_DECL_NOTHROW { return qHash(ulong(key), seed); }
-inline uint qHash(quint64 key, uint seed = 0) Q_DECL_NOTHROW
+Q_DECL_CONST_FUNCTION Q_DECL_CONSTEXPR inline uint qHash(long key, uint seed = 0) Q_DECL_NOTHROW { return qHash(ulong(key), seed); }
+Q_DECL_CONST_FUNCTION Q_DECL_CONSTEXPR inline uint qHash(quint64 key, uint seed = 0) Q_DECL_NOTHROW
 {
-    if (sizeof(quint64) > sizeof(uint)) {
-        return uint(((key >> (8 * sizeof(uint) - 1)) ^ key) & (~0U)) ^ seed;
-    } else {
-        return uint(key & (~0U)) ^ seed;
-    }
+    return uint(((key >> (8 * sizeof(uint) - 1)) ^ key) & (~0U)) ^ seed;
 }
-inline uint qHash(qint64 key, uint seed = 0) Q_DECL_NOTHROW { return qHash(quint64(key), seed); }
-Q_CORE_EXPORT uint qHash(float key, uint seed = 0) Q_DECL_NOTHROW;
-Q_CORE_EXPORT uint qHash(double key, uint seed = 0) Q_DECL_NOTHROW;
+Q_DECL_CONST_FUNCTION Q_DECL_CONSTEXPR inline uint qHash(qint64 key, uint seed = 0) Q_DECL_NOTHROW { return qHash(quint64(key), seed); }
+Q_CORE_EXPORT Q_DECL_CONST_FUNCTION uint qHash(float key, uint seed = 0) Q_DECL_NOTHROW;
+Q_CORE_EXPORT Q_DECL_CONST_FUNCTION uint qHash(double key, uint seed = 0) Q_DECL_NOTHROW;
 #ifndef Q_OS_DARWIN
-Q_CORE_EXPORT uint qHash(long double key, uint seed = 0) Q_DECL_NOTHROW;
+Q_CORE_EXPORT Q_DECL_CONST_FUNCTION uint qHash(long double key, uint seed = 0) Q_DECL_NOTHROW;
 #endif
-inline uint qHash(QChar key, uint seed = 0) Q_DECL_NOTHROW { return qHash(key.unicode(), seed); }
-Q_CORE_EXPORT uint qHash(const QByteArray &key, uint seed = 0) Q_DECL_NOTHROW;
-Q_CORE_EXPORT uint qHash(const QString &key, uint seed = 0) Q_DECL_NOTHROW;
-Q_CORE_EXPORT uint qHash(const QStringRef &key, uint seed = 0) Q_DECL_NOTHROW;
-Q_CORE_EXPORT uint qHash(const QBitArray &key, uint seed = 0) Q_DECL_NOTHROW;
-Q_CORE_EXPORT uint qHash(QLatin1String key, uint seed = 0) Q_DECL_NOTHROW;
-Q_CORE_EXPORT uint qt_hash(const QString &key) Q_DECL_NOTHROW;
-Q_CORE_EXPORT uint qt_hash(const QStringRef &key) Q_DECL_NOTHROW;
+Q_DECL_CONST_FUNCTION Q_DECL_CONSTEXPR inline uint qHash(const QChar key, uint seed = 0) Q_DECL_NOTHROW { return qHash(key.unicode(), seed); }
+Q_CORE_EXPORT Q_DECL_PURE_FUNCTION uint qHash(const QByteArray &key, uint seed = 0) Q_DECL_NOTHROW;
+Q_CORE_EXPORT Q_DECL_PURE_FUNCTION uint qHash(const QString &key, uint seed = 0) Q_DECL_NOTHROW;
+Q_CORE_EXPORT Q_DECL_PURE_FUNCTION uint qHash(const QStringRef &key, uint seed = 0) Q_DECL_NOTHROW;
+Q_CORE_EXPORT Q_DECL_PURE_FUNCTION uint qHash(const QBitArray &key, uint seed = 0) Q_DECL_NOTHROW;
+Q_CORE_EXPORT Q_DECL_PURE_FUNCTION uint qHash(QLatin1String key, uint seed = 0) Q_DECL_NOTHROW;
+Q_CORE_EXPORT Q_DECL_PURE_FUNCTION uint qt_hash(const QString &key) Q_DECL_NOTHROW;
+Q_CORE_EXPORT Q_DECL_PURE_FUNCTION uint qt_hash(const QStringRef &key) Q_DECL_NOTHROW;
 
 template <class T> inline uint qHash(const T *key, uint seed = 0) Q_DECL_NOTHROW
 {
@@ -221,17 +209,23 @@ private:
     Q_DISABLE_COPY(QHashNode)
 };
 
-template <class Key, class T>
-struct QHashDummyNode
+// Specialize for QHashDummyValue in order to save some memory
+template <class Key>
+struct QHashNode<Key, QHashDummyValue>
 {
-    QHashNode<Key, T> *next;
+    union {
+        QHashNode *next;
+        QHashDummyValue value;
+    };
     const uint h;
     const Key key;
 
-    inline QHashDummyNode(const Key &key0, uint hash, QHashNode<Key, T> *n) : next(n), h(hash), key(key0) {}
+    inline QHashNode(const Key &key0, const QHashDummyValue &, uint hash, QHashNode *n)
+        : next(n), h(hash), key(key0) {}
+    inline bool same_key(uint h0, const Key &key0) const { return h0 == h && key0 == key; }
 
 private:
-    Q_DISABLE_COPY(QHashDummyNode)
+    Q_DISABLE_COPY(QHashNode)
 };
 
 
@@ -280,7 +274,6 @@ Q_HASH_DECLARE_INT_NODES(uint);
 template <class Key, class T>
 class QHash
 {
-    typedef QHashDummyNode<Key, T> DummyNode;
     typedef QHashNode<Key, T> Node;
 
     union {
@@ -293,7 +286,6 @@ class QHash
     }
 
     static inline int alignOfNode() { return qMax<int>(sizeof(void*), Q_ALIGNOF(Node)); }
-    static inline int alignOfDummyNode() { return qMax<int>(sizeof(void*), Q_ALIGNOF(DummyNode)); }
 
 public:
     inline QHash() : d(const_cast<QHashData *>(&QHashData::shared_null)) { }
@@ -301,7 +293,7 @@ public:
     inline QHash(std::initializer_list<std::pair<Key,T> > list)
         : d(const_cast<QHashData *>(&QHashData::shared_null))
     {
-        reserve(list.size());
+        reserve(int(list.size()));
         for (typename std::initializer_list<std::pair<Key,T> >::const_iterator it = list.begin(); it != list.end(); ++it)
             insert(it->first, it->second);
     }
@@ -558,25 +550,14 @@ template <class Key, class T>
 Q_INLINE_TEMPLATE void QHash<Key, T>::duplicateNode(QHashData::Node *node, void *newNode)
 {
     Node *concreteNode = concrete(node);
-    if (QTypeInfo<T>::isDummy) {
-        (void) new (newNode) DummyNode(concreteNode->key, concreteNode->h, 0);
-    } else {
-        (void) new (newNode) Node(concreteNode->key, concreteNode->value, concreteNode->h, 0);
-    }
+    new (newNode) Node(concreteNode->key, concreteNode->value, concreteNode->h, 0);
 }
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE typename QHash<Key, T>::Node *
 QHash<Key, T>::createNode(uint ah, const Key &akey, const T &avalue, Node **anextNode)
 {
-    Node *node;
-
-    if (QTypeInfo<T>::isDummy) {
-        node = reinterpret_cast<Node *>(new (d->allocateNode(alignOfDummyNode())) DummyNode(akey, ah, *anextNode));
-    } else {
-        node = new (d->allocateNode(alignOfNode())) Node(akey, avalue, ah, *anextNode);
-    }
-
+    Node *node = new (d->allocateNode(alignOfNode())) Node(akey, avalue, ah, *anextNode);
     *anextNode = node;
     ++d->size;
     return node;
@@ -609,9 +590,7 @@ Q_INLINE_TEMPLATE void QHash<Key, T>::clear()
 template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE void QHash<Key, T>::detach_helper()
 {
-    QHashData *x = d->detach_helper(duplicateNode, deleteNode2,
-        QTypeInfo<T>::isDummy ? sizeof(DummyNode) : sizeof(Node),
-        QTypeInfo<T>::isDummy ? alignOfDummyNode() : alignOfNode());
+    QHashData *x = d->detach_helper(duplicateNode, deleteNode2, sizeof(Node), alignOfNode());
     if (!d->ref.deref())
         freeData(d);
     d = x;
@@ -793,7 +772,7 @@ Q_INLINE_TEMPLATE typename QHash<Key, T>::iterator QHash<Key, T>::insert(const K
         return iterator(createNode(h, akey, avalue, node));
     }
 
-    if (!QTypeInfo<T>::isDummy)
+    if (!QtPrivate::is_same<T, QHashDummyValue>::value)
         (*node)->value = avalue;
     return iterator(*node);
 }
@@ -962,7 +941,7 @@ Q_OUTOFLINE_TEMPLATE bool QHash<Key, T>::operator==(const QHash<Key, T> &other) 
         do {
             if (it2 == other.end() || !(it2.key() == akey))
                 return false;
-            if (!QTypeInfo<T>::isDummy && !(it.value() == it2.value()))
+            if (!(it.value() == it2.value()))
                 return false;
             ++it;
             ++it2;
@@ -979,7 +958,7 @@ public:
 #ifdef Q_COMPILER_INITIALIZER_LISTS
     inline QMultiHash(std::initializer_list<std::pair<Key,T> > list)
     {
-        this->reserve(list.size());
+        this->reserve(int(list.size()));
         for (typename std::initializer_list<std::pair<Key,T> >::const_iterator it = list.begin(); it != list.end(); ++it)
             insert(it->first, it->second);
     }

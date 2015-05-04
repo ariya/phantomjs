@@ -1,40 +1,32 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Copyright (C) 2013 Olivier Goffart <ogoffart@woboq.com>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -61,6 +53,7 @@
 #include "qjsonobject.h"
 #include "qjsonarray.h"
 #include "qjsondocument.h"
+#include "qbytearraylist.h"
 #endif
 #include "private/qvariant_p.h"
 #include "qmetatype_p.h"
@@ -2461,9 +2454,8 @@ inline T qNumVariantToHelper(const QVariant::Private &d,
 
     T ret = 0;
     if ((d.type >= QMetaType::User || t >= QMetaType::User)
-        && QMetaType::convert(&val, d.type, &ret, t)) {
+        && QMetaType::convert(constData(d), d.type, &ret, t))
         return ret;
-    }
 
     if (!handlerManager[d.type]->convert(&d, t, &ret, ok) && ok)
         *ok = false;
@@ -2841,6 +2833,7 @@ bool QVariant::canConvert(int targetTypeId) const
     if (targetTypeId == QMetaType::QVariantList
             && (d.type == QMetaType::QVariantList
               || d.type == QMetaType::QStringList
+              || d.type == QMetaType::QByteArrayList
               || QMetaType::hasRegisteredConverterFunction(d.type,
                     qMetaTypeId<QtMetaTypePrivate::QSequentialIterableImpl>()))) {
         return true;
@@ -3197,7 +3190,12 @@ int QVariant::compare(const QVariant &v) const
         }
         if (v1.d.type != v2.d.type) {
             // if conversion fails, default to toString
-            return v1.toString().compare(v2.toString(), Qt::CaseInsensitive);
+            int r = v1.toString().compare(v2.toString(), Qt::CaseInsensitive);
+            if (r == 0) {
+                // cmp(v) returned false, so we should try to agree with it.
+                return (v1.d.type < v2.d.type) ? -1 : 1;
+            }
+            return r;
         }
     }
     if (v1.d.type >= QMetaType::User) {
@@ -3219,7 +3217,12 @@ int QVariant::compare(const QVariant &v) const
     case QVariant::DateTime:
         return v1.toDateTime() < v2.toDateTime() ? -1 : 1;
     }
-    return v1.toString().compare(v2.toString(), Qt::CaseInsensitive);
+    int r = v1.toString().compare(v2.toString(), Qt::CaseInsensitive);
+    if (r == 0) {
+        // cmp(v) returned false, so we should try to agree with it.
+        return (d.type < v.d.type) ? -1 : 1;
+    }
+    return r;
 }
 
 /*!
@@ -3629,11 +3632,13 @@ QSequentialIterable::const_iterator::const_iterator(const const_iterator &other)
 QSequentialIterable::const_iterator&
 QSequentialIterable::const_iterator::operator=(const const_iterator &other)
 {
-    if (!m_impl.equal(other.m_impl)) {
-        m_impl = other.m_impl;
-        ref = other.ref;
+    other.ref->ref();
+    if (!ref->deref()) {
+        m_impl.destroyIter();
+        delete ref;
     }
-    ref->ref();
+    m_impl = other.m_impl;
+    ref = other.ref;
     return *this;
 }
 
@@ -3839,6 +3844,13 @@ void QAssociativeIterable::const_iterator::end()
     m_impl.end();
 }
 
+void find(QAssociativeIterable::const_iterator &it, const QVariant &key)
+{
+    Q_ASSERT(key.userType() == it.m_impl._metaType_id_key);
+    const QtMetaTypePrivate::VariantData dkey(key.userType(), key.constData(), 0 /*key.flags()*/);
+    it.m_impl.find(dkey);
+}
+
 /*!
     Returns a QAssociativeIterable::const_iterator for the beginning of the container. This
     can be used in stl-style iteration.
@@ -3866,27 +3878,37 @@ QAssociativeIterable::const_iterator QAssociativeIterable::end() const
 }
 
 /*!
+    \internal
+
+    Returns a QAssociativeIterable::const_iterator for the given key \a key
+    in the container, if the types are convertible.
+
+    If the key is not found, returns end().
+
+    This can be used in stl-style iteration.
+
+    \sa begin(), end(), value()
+*/
+QAssociativeIterable::const_iterator find(const QAssociativeIterable &iterable, const QVariant &key)
+{
+    QAssociativeIterable::const_iterator it(iterable, new QAtomicInt(0));
+    QVariant key_ = key;
+    if (key_.canConvert(iterable.m_impl._metaType_id_key) && key_.convert(iterable.m_impl._metaType_id_key))
+        find(it, key_);
+    else
+        it.end();
+    return it;
+}
+
+/*!
     Returns the value for the given \a key in the container, if the types are convertible.
 */
 QVariant QAssociativeIterable::value(const QVariant &key) const
 {
-    QVariant key_ = key;
-    if (!key_.canConvert(m_impl._metaType_id_key))
+    const const_iterator it = find(*this, key);
+    if (it == end())
         return QVariant();
-    if (!key_.convert(m_impl._metaType_id_key))
-        return QVariant();
-    const QtMetaTypePrivate::VariantData dkey(key_.userType(), key_.constData(), 0 /*key.flags()*/);
-    QtMetaTypePrivate::QAssociativeIterableImpl impl = m_impl;
-    impl.find(dkey);
-    QtMetaTypePrivate::QAssociativeIterableImpl endIt = m_impl;
-    endIt.end();
-    if (impl.equal(endIt))
-        return QVariant();
-    const QtMetaTypePrivate::VariantData d = impl.getCurrentValue();
-    QVariant v(d.metaTypeId, d.data, d.flags);
-    if (d.metaTypeId == qMetaTypeId<QVariant>())
-        return *reinterpret_cast<const QVariant*>(d.data);
-    return v;
+    return *it;
 }
 
 /*!
@@ -3938,11 +3960,13 @@ QAssociativeIterable::const_iterator::const_iterator(const const_iterator &other
 QAssociativeIterable::const_iterator&
 QAssociativeIterable::const_iterator::operator=(const const_iterator &other)
 {
-    if (!m_impl.equal(other.m_impl)) {
-        m_impl = other.m_impl;
-        ref = other.ref;
+    other.ref->ref();
+    if (!ref->deref()) {
+        m_impl.destroyIter();
+        delete ref;
     }
-    ref->ref();
+    m_impl = other.m_impl;
+    ref = other.ref;
     return *this;
 }
 

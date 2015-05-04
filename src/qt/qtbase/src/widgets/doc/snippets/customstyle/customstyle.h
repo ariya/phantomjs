@@ -49,7 +49,7 @@ class CustomStyle : public QProxyStyle
     Q_OBJECT
 
 public:
-    CustomStyle()
+    CustomStyle();
     ~CustomStyle() {}
 
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option,

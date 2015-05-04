@@ -13,8 +13,8 @@
 #include <algorithm>
 #include <vector>
 
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
+#include "angle_gl.h"
+#include <EGL/eglext.h>
 
 #include "common/debug.h"
 
@@ -30,6 +30,13 @@ Config::Config(rx::ConfigDesc desc, EGLint minInterval, EGLint maxInterval, EGLi
     switch (desc.renderTargetFormat)
     {
       case GL_RGB5_A1:
+        mBufferSize = 16;
+        mRedSize = 5;
+        mGreenSize = 5;
+        mBlueSize = 5;
+        mAlphaSize = 1;
+        break;
+      case GL_BGR5_A1_ANGLEX:
         mBufferSize = 16;
         mRedSize = 5;
         mGreenSize = 5;
@@ -122,6 +129,12 @@ Config::Config(rx::ConfigDesc desc, EGLint minInterval, EGLint maxInterval, EGLi
     mTransparentRedValue = 0;
     mTransparentGreenValue = 0;
     mTransparentBlueValue = 0;
+
+    if (desc.es3Capable)
+    {
+        mRenderableType |= EGL_OPENGL_ES3_BIT_KHR;
+        mConformant |= EGL_OPENGL_ES3_BIT_KHR;
+    }
 }
 
 EGLConfig Config::getHandle() const

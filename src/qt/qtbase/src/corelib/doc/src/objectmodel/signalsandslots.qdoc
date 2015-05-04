@@ -36,7 +36,8 @@
     Signals and slots are used for communication between objects. The
     signals and slots mechanism is a central feature of Qt and
     probably the part that differs most from the features provided by
-    other frameworks.
+    other frameworks. Signals and slots are made possible by Qt's
+    \l{The Meta-Object System}{meta-object system}.
 
     \tableofcontents
 
@@ -48,17 +49,14 @@
     if a user clicks a \uicontrol{Close} button, we probably want the
     window's \l{QWidget::close()}{close()} function to be called.
 
-    Older toolkits achieve this kind of communication using
+    Other toolkits achieve this kind of communication using
     callbacks. A callback is a pointer to a function, so if you want
     a processing function to notify you about some event you pass a
     pointer to another function (the callback) to the processing
     function. The processing function then calls the callback when
-    appropriate. Callbacks have two fundamental flaws: Firstly, they
-    are not type-safe. We can never be certain that the processing
-    function will call the callback with the correct arguments.
-    Secondly, the callback is strongly coupled to the processing
-    function since the processing function must know which callback
-    to call.
+    appropriate. While successful frameworks using this method do exist,
+    callbacks can be unintuitive and may suffer from problems in ensuring
+    the type-correctness of callback arguments.
 
     \section1 Signals and Slots
 
@@ -112,87 +110,6 @@
     Together, signals and slots make up a powerful component programming
     mechanism.
 
-    \section1 A Small Example
-
-    A minimal C++ class declaration might read:
-
-    \snippet signalsandslots/signalsandslots.h 0
-
-    A small QObject-based class might read:
-
-    \snippet signalsandslots/signalsandslots.h 1
-    \codeline
-    \snippet signalsandslots/signalsandslots.h 2
-    \snippet signalsandslots/signalsandslots.h 3
-
-    The QObject-based version has the same internal state, and provides
-    public methods to access the state, but in addition it has support
-    for component programming using signals and slots. This class can
-    tell the outside world that its state has changed by emitting a
-    signal, \c{valueChanged()}, and it has a slot which other objects
-    can send signals to.
-
-    All classes that contain signals or slots must mention
-    Q_OBJECT at the top of their declaration. They must also derive
-    (directly or indirectly) from QObject.
-
-    Slots are implemented by the application programmer.
-    Here is a possible implementation of the \c{Counter::setValue()}
-    slot:
-
-    \snippet signalsandslots/signalsandslots.cpp 0
-
-    The \c{emit} line emits the signal \c valueChanged() from the
-    object, with the new value as argument.
-
-    In the following code snippet, we create two \c Counter objects
-    and connect the first object's \c valueChanged() signal to the
-    second object's \c setValue() slot using QObject::connect():
-
-    \snippet signalsandslots/signalsandslots.cpp 1
-    \snippet signalsandslots/signalsandslots.cpp 2
-    \codeline
-    \snippet signalsandslots/signalsandslots.cpp 3
-    \snippet signalsandslots/signalsandslots.cpp 4
-
-    Calling \c{a.setValue(12)} makes \c{a} emit a
-    \c{valueChanged(12)} signal, which \c{b} will receive in its
-    \c{setValue()} slot, i.e. \c{b.setValue(12)} is called. Then
-    \c{b} emits the same \c{valueChanged()} signal, but since no slot
-    has been connected to \c{b}'s \c{valueChanged()} signal, the
-    signal is ignored.
-
-    Note that the \c{setValue()} function sets the value and emits
-    the signal only if \c{value != m_value}. This prevents infinite
-    looping in the case of cyclic connections (e.g., if
-    \c{b.valueChanged()} were connected to \c{a.setValue()}).
-
-    By default, for every connection you make, a signal is emitted;
-    two signals are emitted for duplicate connections. You can break
-    all of these connections with a single disconnect() call.
-    If you pass the Qt::UniqueConnection \a type, the connection will only
-    be made if it is not a duplicate. If there is already a duplicate
-    (exact same signal to the exact same slot on the same objects),
-    the connection will fail and connect will return false
-
-    This example illustrates that objects can work together without needing to
-    know any information about each other. To enable this, the objects only
-    need to be connected together, and this can be achieved with some simple
-    QObject::connect() function calls, or with \c{uic}'s
-    \l{Using a Designer UI File in Your Application#Automatic Connections}
-    {automatic connections} feature.
-
-    \section1 Building the Example
-
-    The C++ preprocessor changes or removes the \c{signals},
-    \c{slots}, and \c{emit} keywords so that the compiler is
-    presented with standard C++.
-
-    By running the \l moc on class definitions that contain signals
-    or slots, a C++ source file is produced which should be compiled
-    and linked with the other object files for the application. If
-    you use \l qmake, the makefile rules to automatically invoke \c
-    moc will be added to your project's makefile.
 
     \section1 Signals
 
@@ -267,27 +184,75 @@
     alongside a Qt-based application. To solve this problem, \c
     #undef the offending preprocessor symbol.
 
-    \section1 Meta-Object Information
 
-    The meta-object compiler (\l moc) parses the class declaration in
-    a C++ file and generates C++ code that initializes the
-    meta-object. The meta-object contains the names of all the signal
-    and slot members, as well as pointers to these functions.
+    \section1 A Small Example
 
-    The meta-object contains additional information such as the
-    object's \l{QMetaObject::className()}{class name}. You can
-    also check if an object \l{QObject::inherits()}{inherits}
-    a specific class, for example:
+    A minimal C++ class declaration might read:
 
-    \snippet signalsandslots/signalsandslots.cpp 5
-    \snippet signalsandslots/signalsandslots.cpp 6
+    \snippet signalsandslots/signalsandslots.h 0
 
-    The meta-object information is also used by qobject_cast<T>(), which
-    is similar to QObject::inherits() but is less error-prone:
+    A small QObject-based class might read:
 
-    \snippet signalsandslots/signalsandslots.cpp 7
+    \snippet signalsandslots/signalsandslots.h 1
+    \codeline
+    \snippet signalsandslots/signalsandslots.h 2
+    \snippet signalsandslots/signalsandslots.h 3
 
-    See \l{Meta-Object System} for more information.
+    The QObject-based version has the same internal state, and provides
+    public methods to access the state, but in addition it has support
+    for component programming using signals and slots. This class can
+    tell the outside world that its state has changed by emitting a
+    signal, \c{valueChanged()}, and it has a slot which other objects
+    can send signals to.
+
+    All classes that contain signals or slots must mention
+    Q_OBJECT at the top of their declaration. They must also derive
+    (directly or indirectly) from QObject.
+
+    Slots are implemented by the application programmer.
+    Here is a possible implementation of the \c{Counter::setValue()}
+    slot:
+
+    \snippet signalsandslots/signalsandslots.cpp 0
+
+    The \c{emit} line emits the signal \c valueChanged() from the
+    object, with the new value as argument.
+
+    In the following code snippet, we create two \c Counter objects
+    and connect the first object's \c valueChanged() signal to the
+    second object's \c setValue() slot using QObject::connect():
+
+    \snippet signalsandslots/signalsandslots.cpp 1
+    \snippet signalsandslots/signalsandslots.cpp 2
+    \codeline
+    \snippet signalsandslots/signalsandslots.cpp 3
+    \snippet signalsandslots/signalsandslots.cpp 4
+
+    Calling \c{a.setValue(12)} makes \c{a} emit a
+    \c{valueChanged(12)} signal, which \c{b} will receive in its
+    \c{setValue()} slot, i.e. \c{b.setValue(12)} is called. Then
+    \c{b} emits the same \c{valueChanged()} signal, but since no slot
+    has been connected to \c{b}'s \c{valueChanged()} signal, the
+    signal is ignored.
+
+    Note that the \c{setValue()} function sets the value and emits
+    the signal only if \c{value != m_value}. This prevents infinite
+    looping in the case of cyclic connections (e.g., if
+    \c{b.valueChanged()} were connected to \c{a.setValue()}).
+
+    By default, for every connection you make, a signal is emitted;
+    two signals are emitted for duplicate connections. You can break
+    all of these connections with a single \l{QObject::disconnect()}{disconnect()} call.
+    If you pass the Qt::UniqueConnection \a type, the connection will only
+    be made if it is not a duplicate. If there is already a duplicate
+    (exact same signal to the exact same slot on the same objects),
+    the connection will fail and connect will return false
+
+    This example illustrates that objects can work together without needing to
+    know any information about each other. To enable this, the objects only
+    need to be connected together, and this can be achieved with some simple
+    QObject::connect() function calls, or with \c{uic}'s {automatic connections} feature.
+
 
     \section1 A Real Example
 
@@ -387,12 +352,12 @@
     connect(sender, &QObject::destroyed, this, &MyObject::objectDestroyed);
     \endcode
 
-    There are several advantages to using connect() with function pointers.
+    There are several advantages to using QObject::connect() with function pointers.
     First, it allows the compiler to check that the signal's arguments are
     compatible with the slot's arguments. Arguments can also be implicitly
     converted by the compiler, if needed.
 
-    You can also connect to functors or C++11 lamdas:
+    You can also connect to functors or C++11 lambdas:
 
     \code
     connect(sender, &QObject::destroyed, [=](){ this->m_objects.remove(sender); });
@@ -440,7 +405,7 @@
     will open: "Tax File", "Accounts File", or "Report File".
 
     In order to open the correct file, you use QSignalMapper::setMapping() to
-    map all the clicked() signals to a QSignalMapper object. Then you connect
+    map all the QPushButton::clicked() signals to a QSignalMapper object. Then you connect
     the file's QPushButton::clicked() signal to the QSignalMapper::map() slot.
 
     \snippet signalmapper/filereader.cpp 0

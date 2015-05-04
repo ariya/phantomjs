@@ -25,7 +25,7 @@ qml1_target: \
 else: \
     instbase = $$[QT_INSTALL_QML]
 
-!force_independent {
+!force_independent:if(!debug_and_release|!build_all|CONFIG(release, debug|release)) {
     # These bizarre rules copy the files to the qtbase build directory
 
     defineReplace(qmlModStripSrcDir) {

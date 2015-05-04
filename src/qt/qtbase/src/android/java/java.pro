@@ -1,8 +1,6 @@
 CONFIG -= qt android_install
 
 javaresources.files = \
-    $$PWD/AndroidManifest.xml \
-    $$PWD/version.xml \
     $$PWD/res \
     $$PWD/src
 
@@ -18,8 +16,6 @@ INSTALLS += javaresources
     OUT_PATH = $$shell_path($$OUT_PWD)
 
     QMAKE_POST_LINK += \
-        $${QMAKE_COPY} $$shell_path($$PWD/AndroidManifest.xml) $$OUT_PATH $$RETURN \
-        $${QMAKE_COPY} $$shell_path($$PWD/version.xml) $$OUT_PATH $$RETURN \
         $${QMAKE_COPY_DIR} $$shell_path($$PWD/res) $$OUT_PATH $$RETURN \
         $${QMAKE_COPY_DIR} $$shell_path($$PWD/src) $$OUT_PATH
 }

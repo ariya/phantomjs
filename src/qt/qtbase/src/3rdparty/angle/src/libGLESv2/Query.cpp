@@ -1,4 +1,3 @@
-#include "precompiled.h"
 //
 // Copyright (c) 2012 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -9,39 +8,38 @@
 
 #include "libGLESv2/Query.h"
 #include "libGLESv2/renderer/QueryImpl.h"
-#include "libGLESv2/renderer/Renderer.h"
 
 namespace gl
 {
-
-Query::Query(rx::Renderer *renderer, GLenum type, GLuint id) : RefCountObject(id)
-{ 
-    mQuery = renderer->createQuery(type);
+Query::Query(rx::QueryImpl *impl, GLuint id)
+    : RefCountObject(id),
+      mQuery(impl)
+{
 }
 
 Query::~Query()
 {
-    delete mQuery;
+    SafeDelete(mQuery);
 }
 
-void Query::begin()
+Error Query::begin()
 {
-    mQuery->begin();
+    return mQuery->begin();
 }
 
-void Query::end()
+Error Query::end()
 {
-    mQuery->end();
+    return mQuery->end();
 }
 
-GLuint Query::getResult()
+Error Query::getResult(GLuint *params)
 {
-    return mQuery->getResult();
+    return mQuery->getResult(params);
 }
 
-GLboolean Query::isResultAvailable()
+Error Query::isResultAvailable(GLuint *available)
 {
-    return mQuery->isResultAvailable();
+    return mQuery->isResultAvailable(available);
 }
 
 GLenum Query::getType() const

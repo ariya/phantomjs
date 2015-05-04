@@ -50,7 +50,7 @@ QT_BEGIN_NAMESPACE
 
 static float SYNTHETIC_ITALIC_SKEW = tanf(14 * acosf(0) / 90);
 
-static bool ct_getSfntTable(void *user_data, uint tag, uchar *buffer, uint *length)
+bool QCoreTextFontEngine::ct_getSfntTable(void *user_data, uint tag, uchar *buffer, uint *length)
 {
     CTFontRef ctfont = *(CTFontRef *)user_data;
 
@@ -353,7 +353,10 @@ QFixed QCoreTextFontEngine::averageCharWidth() const
 
 qreal QCoreTextFontEngine::maxCharWidth() const
 {
-    return 0;
+    // ### FIXME: 'W' might not be the widest character, but this is better than nothing
+    const glyph_t glyph = glyphIndex('W');
+    glyph_metrics_t bb = const_cast<QCoreTextFontEngine *>(this)->boundingBox(glyph);
+    return bb.xoff.toReal();
 }
 
 qreal QCoreTextFontEngine::minLeftBearing() const
@@ -559,6 +562,9 @@ QImage QCoreTextFontEngine::imageForGlyph(glyph_t glyph, QFixed subPixelPosition
     QImage im(br.width.ceil().toInt(), br.height.ceil().toInt(), imageFormat);
     im.fill(0);
 
+    if (!im.width() || !im.height())
+        return im;
+
 #ifndef Q_OS_IOS
     CGColorSpaceRef colorspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
 #else
@@ -568,13 +574,16 @@ QImage QCoreTextFontEngine::imageForGlyph(glyph_t glyph, QFixed subPixelPosition
 #ifdef kCGBitmapByteOrder32Host //only needed because CGImage.h added symbols in the minor version
     cgflags |= kCGBitmapByteOrder32Host;
 #endif
+
     CGContextRef ctx = CGBitmapContextCreate(im.bits(), im.width(), im.height(),
                                              8, im.bytesPerLine(), colorspace,
                                              cgflags);
+    Q_ASSERT(ctx);
     CGContextSetFontSize(ctx, fontDef.pixelSize);
-    CGContextSetShouldAntialias(ctx, (aa || fontDef.pointSize > antialiasingThreshold)
-                                 && !(fontDef.styleStrategy & QFont::NoAntialias));
-    CGContextSetShouldSmoothFonts(ctx, aa);
+    const bool antialias = (aa || fontDef.pointSize > antialiasingThreshold) && !(fontDef.styleStrategy & QFont::NoAntialias);
+    CGContextSetShouldAntialias(ctx, antialias);
+    const bool smoothing = antialias && !(fontDef.styleStrategy & QFont::NoSubpixelAntialias);
+    CGContextSetShouldSmoothFonts(ctx, smoothing);
 
     CGAffineTransform cgMatrix = CGAffineTransformIdentity;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2011,2012  Google, Inc.
+ * Copyright © 2011,2012,2014  Google, Inc.
  *
  *  This is part of HarfBuzz, a text shaping library.
  *
@@ -29,176 +29,221 @@
 
 #include "hb-private.hh"
 
+template <typename T, bool validate=true> struct hb_utf_t;
+
 
 /* UTF-8 */
 
-#define HB_UTF8_COMPUTE(Char, Mask, Len) \
-  if (Char < 128) { Len = 1; Mask = 0x7f; } \
-  else if ((Char & 0xe0) == 0xc0) { Len = 2; Mask = 0x1f; } \
-  else if ((Char & 0xf0) == 0xe0) { Len = 3; Mask = 0x0f; } \
-  else if ((Char & 0xf8) == 0xf0) { Len = 4; Mask = 0x07; } \
-  else Len = 0;
-
-static inline const uint8_t *
-hb_utf_next (const uint8_t *text,
-	     const uint8_t *end,
-	     hb_codepoint_t *unicode)
+template <>
+struct hb_utf_t<uint8_t, true>
 {
-  hb_codepoint_t c = *text, mask;
-  unsigned int len;
+  static inline const uint8_t *
+  next (const uint8_t *text,
+	const uint8_t *end,
+	hb_codepoint_t *unicode,
+	hb_codepoint_t replacement)
+  {
+    /* Written to only accept well-formed sequences.
+     * Based on ideas from ICU's U8_NEXT.
+     * Generates one "replacement" for each ill-formed byte. */
 
-  /* TODO check for overlong sequences? */
+    hb_codepoint_t c = *text++;
 
-  HB_UTF8_COMPUTE (c, mask, len);
-  if (unlikely (!len || (unsigned int) (end - text) < len)) {
-    *unicode = -1;
-    return text + 1;
-  } else {
-    hb_codepoint_t result;
-    unsigned int i;
-    result = c & mask;
-    for (i = 1; i < len; i++)
+    if (c > 0x7Fu)
+    {
+      if (hb_in_range (c, 0xC2u, 0xDFu)) /* Two-byte */
       {
-	if (unlikely ((text[i] & 0xc0) != 0x80))
-	  {
-	    *unicode = -1;
-	    return text + 1;
-	  }
-	result <<= 6;
-	result |= (text[i] & 0x3f);
+	unsigned int t1;
+	if (likely (text < end &&
+		    (t1 = text[0] - 0x80u) <= 0x3Fu))
+	{
+	  c = ((c&0x1Fu)<<6) | t1;
+	  text++;
+	}
+	else
+	  goto error;
       }
-    *unicode = result;
-    return text + len;
-  }
-}
-
-static inline const uint8_t *
-hb_utf_prev (const uint8_t *text,
-	     const uint8_t *start,
-	     hb_codepoint_t *unicode)
-{
-  const uint8_t *end = text--;
-  while (start < text && (*text & 0xc0) == 0x80 && end - text < 4)
-    text--;
-
-  hb_codepoint_t c = *text, mask;
-  unsigned int len;
-
-  /* TODO check for overlong sequences? */
-
-  HB_UTF8_COMPUTE (c, mask, len);
-  if (unlikely (!len || (unsigned int) (end - text) != len)) {
-    *unicode = -1;
-    return end - 1;
-  } else {
-    hb_codepoint_t result;
-    unsigned int i;
-    result = c & mask;
-    for (i = 1; i < len; i++)
+      else if (hb_in_range (c, 0xE0u, 0xEFu)) /* Three-byte */
       {
-	result <<= 6;
-	result |= (text[i] & 0x3f);
+	unsigned int t1, t2;
+	if (likely (1 < end - text &&
+		    (t1 = text[0] - 0x80u) <= 0x3Fu &&
+		    (t2 = text[1] - 0x80u) <= 0x3Fu))
+	{
+	  c = ((c&0xFu)<<12) | (t1<<6) | t2;
+	  if (unlikely (c < 0x0800u || hb_in_range (c, 0xD800u, 0xDFFFu)))
+	    goto error;
+	  text += 2;
+	}
+	else
+	  goto error;
       }
-    *unicode = result;
+      else if (hb_in_range (c, 0xF0u, 0xF4u)) /* Four-byte */
+      {
+	unsigned int t1, t2, t3;
+	if (likely (2 < end - text &&
+		    (t1 = text[0] - 0x80u) <= 0x3Fu &&
+		    (t2 = text[1] - 0x80u) <= 0x3Fu &&
+		    (t3 = text[2] - 0x80u) <= 0x3Fu))
+	{
+	  c = ((c&0x7u)<<18) | (t1<<12) | (t2<<6) | t3;
+	  if (unlikely (!hb_in_range (c, 0x10000u, 0x10FFFFu)))
+	    goto error;
+	  text += 3;
+	}
+	else
+	  goto error;
+      }
+      else
+	goto error;
+    }
+
+    *unicode = c;
+    return text;
+
+  error:
+    *unicode = replacement;
     return text;
   }
-}
 
+  static inline const uint8_t *
+  prev (const uint8_t *text,
+	const uint8_t *start,
+	hb_codepoint_t *unicode,
+	hb_codepoint_t replacement)
+  {
+    const uint8_t *end = text--;
+    while (start < text && (*text & 0xc0) == 0x80 && end - text < 4)
+      text--;
 
-static inline unsigned int
-hb_utf_strlen (const uint8_t *text)
-{
-  return strlen ((const char *) text);
-}
+    if (likely (next (text, end, unicode, replacement) == end))
+      return text;
+
+    *unicode = replacement;
+    return end - 1;
+  }
+
+  static inline unsigned int
+  strlen (const uint8_t *text)
+  {
+    return ::strlen ((const char *) text);
+  }
+};
 
 
 /* UTF-16 */
 
-static inline const uint16_t *
-hb_utf_next (const uint16_t *text,
-	     const uint16_t *end,
-	     hb_codepoint_t *unicode)
+template <>
+struct hb_utf_t<uint16_t, true>
 {
-  hb_codepoint_t c = *text++;
-
-  if (unlikely (hb_in_range<hb_codepoint_t> (c, 0xd800, 0xdbff)))
+  static inline const uint16_t *
+  next (const uint16_t *text,
+	const uint16_t *end,
+	hb_codepoint_t *unicode,
+	hb_codepoint_t replacement)
   {
-    /* high surrogate */
-    hb_codepoint_t l;
-    if (text < end && ((l = *text), likely (hb_in_range<hb_codepoint_t> (l, 0xdc00, 0xdfff))))
+    hb_codepoint_t c = *text++;
+
+    if (likely (!hb_in_range (c, 0xD800u, 0xDFFFu)))
     {
-      /* low surrogate */
-      *unicode = (c << 10) + l - ((0xd800 << 10) - 0x10000 + 0xdc00);
-       text++;
-    } else
-      *unicode = -1;
-  } else
-    *unicode = c;
+      *unicode = c;
+      return text;
+    }
 
-  return text;
-}
+    if (likely (hb_in_range (c, 0xD800u, 0xDBFFu)))
+    {
+      /* High-surrogate in c */
+      hb_codepoint_t l;
+      if (text < end && ((l = *text), likely (hb_in_range (l, 0xDC00u, 0xDFFFu))))
+      {
+	/* Low-surrogate in l */
+	*unicode = (c << 10) + l - ((0xD800u << 10) - 0x10000u + 0xDC00u);
+	 text++;
+	 return text;
+      }
+    }
 
-static inline const uint16_t *
-hb_utf_prev (const uint16_t *text,
-	     const uint16_t *start,
-	     hb_codepoint_t *unicode)
-{
-  hb_codepoint_t c = *--text;
+    /* Lonely / out-of-order surrogate. */
+    *unicode = replacement;
+    return text;
+  }
 
-  if (unlikely (hb_in_range<hb_codepoint_t> (c, 0xdc00, 0xdfff)))
+  static inline const uint16_t *
+  prev (const uint16_t *text,
+	const uint16_t *start,
+	hb_codepoint_t *unicode,
+	hb_codepoint_t replacement)
   {
-    /* low surrogate */
-    hb_codepoint_t h;
-    if (start < text && ((h = *(text - 1)), likely (hb_in_range<hb_codepoint_t> (h, 0xd800, 0xdbff))))
+    const uint16_t *end = text--;
+    hb_codepoint_t c = *text;
+
+    if (likely (!hb_in_range (c, 0xD800u, 0xDFFFu)))
     {
-      /* high surrogate */
-      *unicode = (h << 10) + c - ((0xd800 << 10) - 0x10000 + 0xdc00);
-       text--;
-    } else
-      *unicode = -1;
-  } else
-    *unicode = c;
+      *unicode = c;
+      return text;
+    }
 
-  return text;
-}
+    if (likely (start < text && hb_in_range (c, 0xDC00u, 0xDFFFu)))
+      text--;
+
+    if (likely (next (text, end, unicode, replacement) == end))
+      return text;
+
+    *unicode = replacement;
+    return end - 1;
+  }
 
 
-static inline unsigned int
-hb_utf_strlen (const uint16_t *text)
-{
-  unsigned int l = 0;
-  while (*text++) l++;
-  return l;
-}
+  static inline unsigned int
+  strlen (const uint16_t *text)
+  {
+    unsigned int l = 0;
+    while (*text++) l++;
+    return l;
+  }
+};
 
 
 /* UTF-32 */
 
-static inline const uint32_t *
-hb_utf_next (const uint32_t *text,
-	     const uint32_t *end HB_UNUSED,
-	     hb_codepoint_t *unicode)
+template <bool validate>
+struct hb_utf_t<uint32_t, validate>
 {
-  *unicode = *text++;
-  return text;
-}
+  static inline const uint32_t *
+  next (const uint32_t *text,
+	const uint32_t *end HB_UNUSED,
+	hb_codepoint_t *unicode,
+	hb_codepoint_t replacement)
+  {
+    hb_codepoint_t c = *text++;
+    if (validate && unlikely (c > 0x10FFFFu || hb_in_range (c, 0xD800u, 0xDFFFu)))
+      goto error;
+    *unicode = c;
+    return text;
 
-static inline const uint32_t *
-hb_utf_prev (const uint32_t *text,
-	     const uint32_t *start HB_UNUSED,
-	     hb_codepoint_t *unicode)
-{
-  *unicode = *--text;
-  return text;
-}
+  error:
+    *unicode = replacement;
+    return text;
+  }
 
-static inline unsigned int
-hb_utf_strlen (const uint32_t *text)
-{
-  unsigned int l = 0;
-  while (*text++) l++;
-  return l;
-}
+  static inline const uint32_t *
+  prev (const uint32_t *text,
+	const uint32_t *start HB_UNUSED,
+	hb_codepoint_t *unicode,
+	hb_codepoint_t replacement)
+  {
+    next (text - 1, text, unicode, replacement);
+    return text - 1;
+  }
+
+  static inline unsigned int
+  strlen (const uint32_t *text)
+  {
+    unsigned int l = 0;
+    while (*text++) l++;
+    return l;
+  }
+};
 
 
 #endif /* HB_UTF_PRIVATE_HH */

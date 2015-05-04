@@ -9,8 +9,7 @@
 
 #include <map>
 
-#include "compiler/translator/intermediate.h"
-#include "GLSLANG/ShaderLang.h"
+#include "compiler/translator/IntermNode.h"
 
 #define HASHED_NAME_PREFIX "webgl_"
 

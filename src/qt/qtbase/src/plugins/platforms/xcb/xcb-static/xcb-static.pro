@@ -10,6 +10,9 @@ XCB_DIR = ../../../../3rdparty/xcb
 
 INCLUDEPATH += $$XCB_DIR/include $$XCB_DIR/include/xcb $$XCB_DIR/sysinclude
 
+QMAKE_CXXFLAGS += $$QMAKE_CFLAGS_XCB
+QMAKE_CFLAGS += $$QMAKE_CFLAGS_XCB
+
 # ignore compiler warnings in 3rdparty code
 QMAKE_CFLAGS_STATIC_LIB+=-w
 

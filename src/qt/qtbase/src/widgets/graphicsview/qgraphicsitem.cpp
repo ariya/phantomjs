@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -332,6 +324,8 @@
     this flag is disabled; children can draw anywhere. This behavior is
     enforced by QGraphicsView::drawItems() or
     QGraphicsScene::drawItems(). This flag was introduced in Qt 4.3.
+    \note This flag is similar to ItemContainsChildrenInShape but in addition
+    enforces the containment by clipping the children.
 
     \value ItemIgnoresTransformations The item ignores inherited
     transformations (i.e., its position is still anchored to its parent, but
@@ -423,6 +417,19 @@
     ItemStopsClickFocusPropagation, but also suppresses focus-out. This flag
     allows you to completely take over focus handling.
     This flag was introduced in Qt 4.7. \endomit
+
+    \value ItemContainsChildrenInShape This flag indicates that all of the
+    item's direct or indirect children only draw within the item's shape.
+    Unlike ItemClipsChildrenToShape, this restriction is not enforced. Set
+    ItemContainsChildrenInShape when you manually assure that drawing
+    is bound to the item's shape and want to avoid the cost associated with
+    enforcing the clip. Setting this flag enables more efficient drawing and
+    collision detection. The flag is disabled by default.
+    \note If both this flag and ItemClipsChildrenToShape are set, the clip
+    will be enforced. This is equivalent to just setting
+    ItemClipsChildrenToShape.
+    .
+    This flag was introduced in Qt 5.4.
 */
 
 /*!
@@ -790,7 +797,7 @@ static QPainterPath qt_graphicsItem_shapeFromPath(const QPainterPath &path, cons
     // if we pass a value of 0.0 to QPainterPathStroker::setWidth()
     const qreal penWidthZero = qreal(0.00000001);
 
-    if (path == QPainterPath())
+    if (path == QPainterPath() || pen == Qt::NoPen)
         return path;
     QPainterPathStroker ps;
     ps.setCapStyle(pen.capStyle());
@@ -835,6 +842,10 @@ void QGraphicsItemPrivate::updateAncestorFlag(QGraphicsItem::GraphicsItemFlag ch
         case QGraphicsItem::ItemIgnoresTransformations:
             flag = AncestorIgnoresTransformations;
             enabled = flags & QGraphicsItem::ItemIgnoresTransformations;
+            break;
+        case QGraphicsItem::ItemContainsChildrenInShape:
+            flag = AncestorContainsChildren;
+            enabled = flags & QGraphicsItem::ItemContainsChildrenInShape;
             break;
         default:
             return;
@@ -895,6 +906,8 @@ void QGraphicsItemPrivate::updateAncestorFlags()
             flags |= AncestorClipsChildren;
         if (pd->flags & QGraphicsItem::ItemIgnoresTransformations)
             flags |= AncestorIgnoresTransformations;
+        if (pd->flags & QGraphicsItem::ItemContainsChildrenInShape)
+            flags |= AncestorContainsChildren;
     }
 
     if (ancestorFlags == flags)
@@ -1831,6 +1844,11 @@ void QGraphicsItem::setFlags(GraphicsItemFlags flags)
         d_ptr->markParentDirty(true);
     }
 
+    if ((flags & ItemContainsChildrenInShape) != (oldFlags & ItemContainsChildrenInShape)) {
+        // Item children containtment changes. Propagate the ancestor flag to all children.
+        d_ptr->updateAncestorFlag(ItemContainsChildrenInShape);
+    }
+
     if ((flags & ItemIgnoresTransformations) != (oldFlags & ItemIgnoresTransformations)) {
         // Item children clipping changes. Propagate the ancestor flag to
         // all children.
@@ -1950,8 +1968,10 @@ QGraphicsItem::CacheMode QGraphicsItem::cacheMode() const
     Caching can speed up rendering if your item spends a significant time
     redrawing itself. In some cases the cache can also slow down rendering, in
     particular when the item spends less time redrawing than QGraphicsItem
-    spends redrawing from the cache. When enabled, the item's paint() function
-    will be called only once for each call to update(); for any subsequent
+    spends redrawing from the cache.
+
+    When caching is enabled, an item's paint() function will generally draw into an
+    offscreen pixmap cache; for any subsequent
     repaint requests, the Graphics View framework will redraw from the
     cache. This approach works particularly well with QGLWidget, which stores
     all the cache as OpenGL textures.
@@ -1961,6 +1981,12 @@ QGraphicsItem::CacheMode QGraphicsItem::cacheMode() const
 
     You can read more about the different cache modes in the CacheMode
     documentation.
+
+    \note Enabling caching does not imply that the item's paint() function will be
+    called only in response to an explicit update() call. For instance, under
+    memory pressure, Qt may decide to drop some of the cache information;
+    in such cases an item's paint() function will be called even if there
+    was no update() call (that is, exactly as if there were no caching enabled).
 
     \sa CacheMode, QPixmapCache::setCacheLimit()
 */
@@ -2322,7 +2348,8 @@ void QGraphicsItemPrivate::setVisibleHelper(bool newVisible, bool explicitly,
     }
 
     // Update children with explicitly = false.
-    const bool updateChildren = update && !((flags & QGraphicsItem::ItemClipsChildrenToShape)
+    const bool updateChildren = update && !((flags & QGraphicsItem::ItemClipsChildrenToShape
+                                             || flags & QGraphicsItem::ItemContainsChildrenInShape)
                                             && !(flags & QGraphicsItem::ItemHasNoContents));
     foreach (QGraphicsItem *child, children) {
         if (!newVisible || !child->d_ptr->explicitlyHidden)
@@ -2420,7 +2447,12 @@ void QGraphicsItemPrivate::setVisibleHelper(bool newVisible, bool explicitly,
     Items are visible by default; it is unnecessary to call
     setVisible() on a new item.
 
-    \sa isVisible(), show(), hide()
+    \note An item with opacity set to 0 will still be considered visible,
+    although it will be treated like an invisible item: mouse events will pass
+    through it, it will not be included in the items returned by
+    QGraphicsView::items(), and so on. However, the item will retain the focus.
+
+    \sa isVisible(), show(), hide(), setOpacity()
 */
 void QGraphicsItem::setVisible(bool visible)
 {
@@ -2688,7 +2720,11 @@ qreal QGraphicsItem::effectiveOpacity() const
     with the parent: ItemIgnoresParentOpacity and
     ItemDoesntPropagateOpacityToChildren.
 
-    \sa opacity(), effectiveOpacity()
+    \note Setting the opacity of an item to 0 will not make the item invisible
+    (according to isVisible()), but the item will be treated like an invisible
+    one. See the documentation of setVisible() for more information.
+
+    \sa opacity(), effectiveOpacity(), setVisible()
 */
 void QGraphicsItem::setOpacity(qreal opacity)
 {
@@ -2835,7 +2871,9 @@ QRectF QGraphicsItemPrivate::effectiveBoundingRect(QGraphicsItem *topMostEffectI
 #ifndef QT_NO_GRAPHICSEFFECT
     Q_Q(const QGraphicsItem);
     QRectF brect = effectiveBoundingRect(q_ptr->boundingRect());
-    if (ancestorFlags & QGraphicsItemPrivate::AncestorClipsChildren || topMostEffectItem == q)
+    if (ancestorFlags & QGraphicsItemPrivate::AncestorClipsChildren
+        || ancestorFlags & QGraphicsItemPrivate::AncestorContainsChildren
+        || topMostEffectItem == q)
         return brect;
 
     const QGraphicsItem *effectParent = parent;
@@ -2847,6 +2885,7 @@ QRectF QGraphicsItemPrivate::effectiveBoundingRect(QGraphicsItem *topMostEffectI
             brect = effectParent->mapRectToItem(q, effectRectInParentSpace);
         }
         if (effectParent->d_ptr->ancestorFlags & QGraphicsItemPrivate::AncestorClipsChildren
+            || effectParent->d_ptr->ancestorFlags & QGraphicsItemPrivate::AncestorContainsChildren
             || topMostEffectItem == effectParent) {
             return brect;
         }
@@ -4465,7 +4504,7 @@ void QGraphicsItem::resetTransform()
     Use
 
     \code
-    setRotation(rotation() + angle);
+    item->setTransform(QTransform().rotate(angle), true);
     \endcode
 
     instead.
@@ -5314,6 +5353,16 @@ void QGraphicsItem::setBoundingRegionGranularity(qreal granularity)
     a non-zero width.
 
     All painting is done in local coordinates.
+
+    \note It is mandatory that an item will always redraw itself in the exact
+    same way, unless update() was called; otherwise visual artifacts may
+    occur. In other words, two subsequent calls to paint() must always produce
+    the same output, unless update() was called between them.
+
+    \note Enabling caching for an item does not guarantee that paint()
+    will be invoked only once by the Graphics View framework,
+    even without any explicit call to update(). See the documentation of
+    setCacheMode() for more details.
 
     \sa setCacheMode(), QPen::width(), {Item Coordinates}, ItemUsesExtendedStyleOption
 */
@@ -6543,7 +6592,7 @@ void QGraphicsItem::setData(int key, const QVariant &value)
 
     For example:
 
-    \snippet code/src_gui_graphicsview_qgraphicsitem.cpp QGraphicsItem type
+    \snippet code/src_gui_graphicsview_qgraphicsitem.cpp 1
 
     \sa UserType
 */
@@ -7442,7 +7491,8 @@ QVariant QGraphicsItem::extension(const QVariant &variant) const
 */
 void QGraphicsItem::addToIndex()
 {
-    if (d_ptr->ancestorFlags & QGraphicsItemPrivate::AncestorClipsChildren) {
+    if (d_ptr->ancestorFlags & QGraphicsItemPrivate::AncestorClipsChildren
+        || d_ptr->ancestorFlags & QGraphicsItemPrivate::AncestorContainsChildren) {
         // ### add to child index only if applicable
         return;
     }
@@ -7459,7 +7509,8 @@ void QGraphicsItem::addToIndex()
 */
 void QGraphicsItem::removeFromIndex()
 {
-    if (d_ptr->ancestorFlags & QGraphicsItemPrivate::AncestorClipsChildren) {
+    if (d_ptr->ancestorFlags & QGraphicsItemPrivate::AncestorClipsChildren
+        || d_ptr->ancestorFlags & QGraphicsItemPrivate::AncestorContainsChildren) {
         // ### remove from child index only if applicable
         return;
     }
@@ -9740,6 +9791,7 @@ QVariant QGraphicsPixmapItem::extension(const QVariant &variant) const
     using textWidth().
 
     \note In order to align HTML text in the center, the item's text width must be set.
+    Otherwise, you can call adjustSize() after setting the item's text.
 
     \image graphicsview-textitem.png
 
@@ -9911,7 +9963,7 @@ void QGraphicsTextItem::setDefaultTextColor(const QColor &col)
 }
 
 /*!
-    Returns the default text color that is used to for unformatted text.
+    Returns the default text color that is used for unformatted text.
 */
 QColor QGraphicsTextItem::defaultTextColor() const
 {
@@ -11450,6 +11502,9 @@ QDebug operator<<(QDebug debug, QGraphicsItem::GraphicsItemFlag flag)
         break;
     case QGraphicsItem::ItemStopsFocusHandling:
         str = "ItemStopsFocusHandling";
+        break;
+    case QGraphicsItem::ItemContainsChildrenInShape:
+        str = "ItemContainsChildrenInShape";
         break;
     }
     debug << str;

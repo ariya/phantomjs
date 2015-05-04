@@ -1,0 +1,48 @@
+From bbfd3cfcf6e1195d86368b61ce39504ce6acda50 Mon Sep 17 00:00:00 2001
+From: Andrew Knight <andrew.knight@theqtcompany.com>
+Date: Wed, 12 Nov 2014 17:09:23 +0200
+Subject: [PATCH 12/16] ANGLE: fix semantic index lookup
+
+The sorted semantic index table was returning a direct mapping to the
+new indices, instead of the old indices. This caused a mismatch in the
+GL type lookup for the translated attribute.
+
+Change-Id: I75d05ed707f56c45210e3dcbc277f894e3dc5a48
+---
+ src/3rdparty/angle/src/libGLESv2/ProgramBinary.cpp                    | 2 +-
+ .../angle/src/libGLESv2/renderer/d3d/d3d11/InputLayoutCache.cpp       | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/3rdparty/angle/src/libGLESv2/ProgramBinary.cpp b/src/3rdparty/angle/src/libGLESv2/ProgramBinary.cpp
+index 0619023..6d64b38 100644
+--- a/src/3rdparty/angle/src/libGLESv2/ProgramBinary.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/ProgramBinary.cpp
+@@ -1216,7 +1216,7 @@ void ProgramBinary::sortAttributesByLayout(rx::TranslatedAttribute attributes[MA
+     for (int i = 0; i < MAX_VERTEX_ATTRIBS; i++)
+     {
+         int oldIndex = mAttributesByLayout[i];
+-        sortedSemanticIndices[i] = mSemanticIndex[oldIndex];
++        sortedSemanticIndices[i] = oldIndex;
+         attributes[i] = oldTranslatedAttributes[oldIndex];
+     }
+ }
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/InputLayoutCache.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/InputLayoutCache.cpp
+index e41f238..ff90a6a 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/InputLayoutCache.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/InputLayoutCache.cpp
+@@ -113,10 +113,10 @@ gl::Error InputLayoutCache::applyVertexBuffers(TranslatedAttribute attributes[gl
+             // Record the type of the associated vertex shader vector in our key
+             // This will prevent mismatched vertex shaders from using the same input layout
+             GLint attributeSize;
+-            programBinary->getActiveAttribute(ilKey.elementCount, 0, NULL, &attributeSize, &ilKey.elements[ilKey.elementCount].glslElementType, NULL);
++            programBinary->getActiveAttribute(sortedSemanticIndices[i], 0, NULL, &attributeSize, &ilKey.elements[ilKey.elementCount].glslElementType, NULL);
+ 
+             ilKey.elements[ilKey.elementCount].desc.SemanticName = semanticName;
+-            ilKey.elements[ilKey.elementCount].desc.SemanticIndex = sortedSemanticIndices[i];
++            ilKey.elements[ilKey.elementCount].desc.SemanticIndex = i;
+             ilKey.elements[ilKey.elementCount].desc.Format = vertexFormatInfo.nativeFormat;
+             ilKey.elements[ilKey.elementCount].desc.InputSlot = i;
+             ilKey.elements[ilKey.elementCount].desc.AlignedByteOffset = 0;
+-- 
+1.9.4.msysgit.1
+

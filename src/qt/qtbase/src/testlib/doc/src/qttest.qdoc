@@ -1,0 +1,54 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \module QtTest
+    \title Qt Test C++ Classes
+    \ingroup modules
+    \qtvariable testlib
+
+    \keyword QtTest
+
+    \brief Provides classes for unit testing Qt applications and libraries.
+
+    Applications that use Qt's unit testing classes need to
+    be configured to be built against the Qt Test module.
+    To include the definitions of the module's classes, use the
+    following directive:
+
+    \snippet code/doc_src_qttest.cpp 0
+
+    To link against the module, add this line to your \l qmake \c
+    .pro file:
+
+    \snippet code/doc_src_qttest.pro 1
+
+    See \l{Qt Test Overview} for an introduction on how to use
+    Qt's unit testing features with your applications.
+
+*/
+

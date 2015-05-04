@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -109,6 +101,10 @@ QT_BEGIN_NAMESPACE
     its header. If this value is set to true, this property will override the
     resize mode set on the last section in the header.
 
+    By default, all columns in a tree view are movable except the first. To
+    disable movement of these columns, use QHeaderView's
+    \l {QHeaderView::}{setSectionsMovable()} function. For more information
+    about rearranging sections, see \l {Moving Header Sections}.
 
     \section1 Key Bindings
 
@@ -371,7 +367,9 @@ void QTreeView::setAutoExpandDelay(int delay)
   horizontal distance from the viewport edge to the items in the first column;
   for child items, it specifies their indentation from their parent items.
 
-  By default, this property has a value of 20.
+  By default, the value of this property is style dependent. Thus, when the style
+  changes, this property updates from it. Calling setIndentation() stops the updates,
+  calling resetIndentation() will restore default behavior.
 */
 int QTreeView::indentation() const
 {
@@ -382,9 +380,19 @@ int QTreeView::indentation() const
 void QTreeView::setIndentation(int i)
 {
     Q_D(QTreeView);
-    if (i != d->indent) {
+    if (!d->customIndent || (i != d->indent)) {
         d->indent = i;
+        d->customIndent = true;
         d->viewport->update();
+    }
+}
+
+void QTreeView::resetIndentation()
+{
+    Q_D(QTreeView);
+    if (d->customIndent) {
+        d->updateIndentationFromStyle();
+        d->customIndent = false;
     }
 }
 
@@ -1421,15 +1429,8 @@ void QTreeViewPrivate::adjustViewOptionsForIndex(QStyleOptionViewItem *option, c
     const int right = (spanning ? header->visualIndex(0) : header->count() - 1 );
     calcLogicalIndices(&logicalIndices, &viewItemPosList, left, right);
 
-    int columnIndex = 0;
-    for (int visualIndex = 0; visualIndex < current.column(); ++visualIndex) {
-        int logicalIndex = header->logicalIndex(visualIndex);
-        if (!header->isSectionHidden(logicalIndex)) {
-            ++columnIndex;
-        }
-    }
-
-    option->viewItemPosition = viewItemPosList.at(columnIndex);
+    const int visualIndex = logicalIndices.indexOf(current.column());
+    option->viewItemPosition = viewItemPosList.at(visualIndex);
 }
 
 
@@ -2088,6 +2089,12 @@ QModelIndex QTreeView::indexBelow(const QModelIndex &index) const
 void QTreeView::doItemsLayout()
 {
     Q_D(QTreeView);
+    if (!d->customIndent) {
+        // ### Qt 6: move to event()
+        // QAbstractItemView calls this method in case of a style change,
+        // so update the indentation here if it wasn't set manually.
+        d->updateIndentationFromStyle();
+    }
     if (d->hasRemovedItems) {
         //clean the QSet that may contains old (and this invalid) indexes
         d->hasRemovedItems = false;
@@ -3032,6 +3039,8 @@ bool QTreeView::isIndexHidden(const QModelIndex &index) const
 void QTreeViewPrivate::initialize()
 {
     Q_Q(QTreeView);
+
+    updateIndentationFromStyle();
     updateStyledFrameWidths();
     q->setSelectionBehavior(QAbstractItemView::SelectRows);
     q->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -3916,6 +3925,12 @@ int QTreeViewPrivate::accessibleTree2Index(const QModelIndex &index) const
 
     // Note that this will include the header, even if its hidden.
     return (q->visualIndex(index) + (q->header() ? 1 : 0)) * index.model()->columnCount() + index.column();
+}
+
+void QTreeViewPrivate::updateIndentationFromStyle()
+{
+    Q_Q(const QTreeView);
+    indent = q->style()->pixelMetric(QStyle::PM_TreeViewIndentation, 0, q);
 }
 
 /*!

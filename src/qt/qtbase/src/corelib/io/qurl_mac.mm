@@ -54,7 +54,13 @@ QUrl QUrl::fromCFURL(CFURLRef url)
 
 CFURLRef QUrl::toCFURL() const
 {
-    return CFURLCreateWithString(0, toString(FullyEncoded).toCFString(), 0);
+    CFURLRef url = 0;
+    CFStringRef str = toString(FullyEncoded).toCFString();
+    if (str) {
+        url = CFURLCreateWithString(0, str, 0);
+        CFRelease(str);
+    }
+    return url;
 }
 
 QUrl QUrl::fromNSURL(const NSURL *url)

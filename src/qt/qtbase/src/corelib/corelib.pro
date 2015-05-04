@@ -31,6 +31,7 @@ ANDROID_PERMISSIONS = \
     android.permission.WRITE_EXTERNAL_STORAGE
 
 load(qt_module)
+load(qfeatures)
 
 include(animation/animation.pri)
 include(arch/arch.pri)
@@ -84,7 +85,6 @@ cmake_umbrella_config_version_file.input = $$PWD/../../mkspecs/features/data/cma
 cmake_umbrella_config_version_file.output = $$DESTDIR/cmake/Qt5/Qt5ConfigVersion.cmake
 
 load(cmake_functions)
-load(qfeatures)
 
 CMAKE_DISABLED_FEATURES = $$join(QT_DISABLED_FEATURES, "$$escape_expand(\\n)    ")
 
@@ -116,17 +116,3 @@ ctest_qt5_module_files.files += $$ctest_macros_file.output $$cmake_extras_mkspec
 ctest_qt5_module_files.path = $$[QT_INSTALL_LIBS]/cmake/Qt5Core
 
 INSTALLS += ctest_qt5_module_files cmake_qt5_umbrella_module_files
-
-mips_dsp:*-g++* {
-    HEADERS += $$MIPS_DSP_HEADERS
-
-    mips_dsp_corelib_assembler.commands = $$QMAKE_CXX -c
-    mips_dsp_corelib_assembler.commands += $(CXXFLAGS) $(INCPATH) -mips32r2 -mdsp ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
-    mips_dsp_corelib_assembler.dependency_type = TYPE_C
-    mips_dsp_corelib_assembler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
-    mips_dsp_corelib_assembler.input = MIPS_DSP_ASM
-    mips_dsp_corelib_assembler.variable_out = OBJECTS
-    mips_dsp_corelib_assembler.name = assembling[mips_dsp] ${QMAKE_FILE_IN}
-    silent:mips_dsp_corelib_assembler.commands = @echo assembling[mips_dsp] ${QMAKE_FILE_IN} && $$mips_dsp_corelib_assembler.commands
-    QMAKE_EXTRA_COMPILERS += mips_dsp_corelib_assembler
-}

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -315,8 +307,9 @@ static void resolveTimerAPI()
 }
 
 QEventDispatcherWin32Private::QEventDispatcherWin32Private()
-    : threadId(GetCurrentThreadId()), interrupt(false), internalHwnd(0), getMessageHook(0),
-      serialNumber(0), lastSerialNumber(0), sendPostedEventsWindowsTimerId(0), wakeUps(0)
+    : threadId(GetCurrentThreadId()), interrupt(false), closingDown(false), internalHwnd(0),
+      getMessageHook(0), serialNumber(0), lastSerialNumber(0), sendPostedEventsWindowsTimerId(0),
+      wakeUps(0)
 {
     resolveTimerAPI();
 }
@@ -325,8 +318,6 @@ QEventDispatcherWin32Private::~QEventDispatcherWin32Private()
 {
     if (internalHwnd)
         DestroyWindow(internalHwnd);
-    QString className = QLatin1String("QEventDispatcherWin32_Internal_Widget") + QString::number(quintptr(qt_internal_proc));
-    UnregisterClass((wchar_t*)className.utf16(), qWinAppInst());
 }
 
 void QEventDispatcherWin32Private::activateEventNotifier(QWinEventNotifier * wen)
@@ -435,18 +426,19 @@ static inline UINT inputTimerMask()
     UINT result = QS_TIMER | QS_INPUT | QS_RAWINPUT;
     // QTBUG 28513, QTBUG-29097, QTBUG-29435: QS_TOUCH, QS_POINTER became part of
     // QS_INPUT in Windows Kit 8. They should not be used when running on pre-Windows 8.
-#if WINVER > 0x0602
+#if WINVER > 0x0601
     if (QSysInfo::WindowsVersion < QSysInfo::WV_WINDOWS8)
         result &= ~(QS_TOUCH | QS_POINTER);
-#endif //  WINVER > 0x0602
+#endif //  WINVER > 0x0601
     return result;
 }
 
 LRESULT QT_WIN_CALLBACK qt_GetMessageHook(int code, WPARAM wp, LPARAM lp)
 {
+    QEventDispatcherWin32 *q = qobject_cast<QEventDispatcherWin32 *>(QAbstractEventDispatcher::instance());
+    Q_ASSERT(q != 0);
+
     if (wp == PM_REMOVE) {
-        QEventDispatcherWin32 *q = qobject_cast<QEventDispatcherWin32 *>(QAbstractEventDispatcher::instance());
-        Q_ASSERT(q != 0);
         if (q) {
             MSG *msg = (MSG *) lp;
             QEventDispatcherWin32Private *d = q->d_func();
@@ -482,14 +474,30 @@ LRESULT QT_WIN_CALLBACK qt_GetMessageHook(int code, WPARAM wp, LPARAM lp)
 #ifdef Q_OS_WINCE
     return 0;
 #else
-    return CallNextHookEx(0, code, wp, lp);
+    return q->d_func()->getMessageHook ? CallNextHookEx(0, code, wp, lp) : 0;
 #endif
 }
 
-static HWND qt_create_internal_window(const QEventDispatcherWin32 *eventDispatcher)
+// Provide class name and atom for the message window used by
+// QEventDispatcherWin32Private via Q_GLOBAL_STATIC shared between threads.
+struct QWindowsMessageWindowClassContext
+{
+    QWindowsMessageWindowClassContext();
+    ~QWindowsMessageWindowClassContext();
+
+    ATOM atom;
+    wchar_t *className;
+};
+
+QWindowsMessageWindowClassContext::QWindowsMessageWindowClassContext()
+    : atom(0), className(0)
 {
     // make sure that multiple Qt's can coexist in the same process
-    QString className = QLatin1String("QEventDispatcherWin32_Internal_Widget") + QString::number(quintptr(qt_internal_proc));
+    const QString qClassName = QStringLiteral("QEventDispatcherWin32_Internal_Widget")
+        + QString::number(quintptr(qt_internal_proc));
+    className = new wchar_t[qClassName.size() + 1];
+    qClassName.toWCharArray(className);
+    className[qClassName.size()] = 0;
 
     WNDCLASS wc;
     wc.style = 0;
@@ -501,16 +509,37 @@ static HWND qt_create_internal_window(const QEventDispatcherWin32 *eventDispatch
     wc.hCursor = 0;
     wc.hbrBackground = 0;
     wc.lpszMenuName = NULL;
-    wc.lpszClassName = reinterpret_cast<const wchar_t *> (className.utf16());
+    wc.lpszClassName = className;
+    atom = RegisterClass(&wc);
+    if (!atom) {
+        qErrnoWarning("%s: RegisterClass() failed", Q_FUNC_INFO, qPrintable(qClassName));
+        delete [] className;
+        className = 0;
+    }
+}
 
-    RegisterClass(&wc);
+QWindowsMessageWindowClassContext::~QWindowsMessageWindowClassContext()
+{
+    if (className) {
+        UnregisterClass(className, qWinAppInst());
+        delete [] className;
+    }
+}
+
+Q_GLOBAL_STATIC(QWindowsMessageWindowClassContext, qWindowsMessageWindowClassContext)
+
+static HWND qt_create_internal_window(const QEventDispatcherWin32 *eventDispatcher)
+{
+    QWindowsMessageWindowClassContext *ctx = qWindowsMessageWindowClassContext();
+    if (!ctx->atom)
+        return 0;
 #ifdef Q_OS_WINCE
     HWND parent = 0;
 #else
     HWND parent = HWND_MESSAGE;
 #endif
-    HWND wnd = CreateWindow(wc.lpszClassName,  // classname
-                            wc.lpszClassName,  // window name
+    HWND wnd = CreateWindow(ctx->className,    // classname
+                            ctx->className,    // window name
                             0,                 // style
                             0, 0, 0, 0,        // geometry
                             parent,            // parent
@@ -519,7 +548,8 @@ static HWND qt_create_internal_window(const QEventDispatcherWin32 *eventDispatch
                             0);                // windows creation data.
 
     if (!wnd) {
-        qWarning("QEventDispatcher: Failed to create QEventDispatcherWin32 internal window: %d\n", (int)GetLastError());
+        qErrnoWarning("%s: CreateWindow() for QEventDispatcherWin32 internal window failed", Q_FUNC_INFO);
+        return 0;
     }
 
 #ifdef GWLP_USERDATA
@@ -611,18 +641,11 @@ void QEventDispatcherWin32::createInternalHwnd()
 {
     Q_D(QEventDispatcherWin32);
 
-    Q_ASSERT(!d->internalHwnd);
     if (d->internalHwnd)
         return;
     d->internalHwnd = qt_create_internal_window(this);
 
-#ifndef Q_OS_WINCE
-    // setup GetMessage hook needed to drive our posted events
-    d->getMessageHook = SetWindowsHookEx(WH_GETMESSAGE, (HOOKPROC) qt_GetMessageHook, NULL, GetCurrentThreadId());
-    if (!d->getMessageHook) {
-        qFatal("Qt: INTERNALL ERROR: failed to install GetMessage hook");
-    }
-#endif
+    installMessageHook();
 
     // register all socket notifiers
     QList<int> sockets = (d->sn_read.keys().toSet()
@@ -634,9 +657,35 @@ void QEventDispatcherWin32::createInternalHwnd()
     // start all normal timers
     for (int i = 0; i < d->timerVec.count(); ++i)
         d->registerTimer(d->timerVec.at(i));
+}
 
-    // trigger a call to sendPostedEvents()
-    wakeUp();
+void QEventDispatcherWin32::installMessageHook()
+{
+    Q_D(QEventDispatcherWin32);
+
+    if (d->getMessageHook)
+        return;
+
+#ifndef Q_OS_WINCE
+    // setup GetMessage hook needed to drive our posted events
+    d->getMessageHook = SetWindowsHookEx(WH_GETMESSAGE, (HOOKPROC) qt_GetMessageHook, NULL, GetCurrentThreadId());
+    if (!d->getMessageHook) {
+        int errorCode = GetLastError();
+        qFatal("Qt: INTERNAL ERROR: failed to install GetMessage hook: %d, %s",
+               errorCode, qPrintable(qt_error_string(errorCode)));
+    }
+#endif
+}
+
+void QEventDispatcherWin32::uninstallMessageHook()
+{
+    Q_D(QEventDispatcherWin32);
+
+#ifndef Q_OS_WINCE
+    if (d->getMessageHook)
+        UnhookWindowsHookEx(d->getMessageHook);
+#endif
+    d->getMessageHook = 0;
 }
 
 QEventDispatcherWin32::QEventDispatcherWin32(QObject *parent)
@@ -656,8 +705,10 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
 {
     Q_D(QEventDispatcherWin32);
 
-    if (!d->internalHwnd)
+    if (!d->internalHwnd) {
         createInternalHwnd();
+        wakeUp(); // trigger a call to sendPostedEvents()
+    }
 
     d->interrupt = false;
     emit awake();
@@ -722,10 +773,9 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
                 }
             }
             if (haveMessage) {
-#ifdef Q_OS_WINCE
                 // WinCE doesn't support hooks at all, so we have to call this by hand :(
-                (void) qt_GetMessageHook(0, PM_REMOVE, (LPARAM) &msg);
-#endif
+                if (!d->getMessageHook)
+                    (void) qt_GetMessageHook(0, PM_REMOVE, (LPARAM) &msg);
 
                 if (d->internalHwnd == msg.hwnd && msg.message == WM_QT_SENDPOSTEDEVENTS) {
                     if (seenWM_QT_SENDPOSTEDEVENTS) {
@@ -870,15 +920,22 @@ void QEventDispatcherWin32::unregisterSocketNotifier(QSocketNotifier *notifier)
 
 void QEventDispatcherWin32::registerTimer(int timerId, int interval, Qt::TimerType timerType, QObject *object)
 {
+#ifndef QT_NO_DEBUG
     if (timerId < 1 || interval < 0 || !object) {
         qWarning("QEventDispatcherWin32::registerTimer: invalid arguments");
         return;
     } else if (object->thread() != thread() || thread() != QThread::currentThread()) {
-        qWarning("QObject::startTimer: timers cannot be started from another thread");
+        qWarning("QEventDispatcherWin32::registerTimer: timers cannot be started from another thread");
         return;
     }
+#endif
 
     Q_D(QEventDispatcherWin32);
+
+    // exiting ... do not register new timers
+    // (QCoreApplication::closingDown() is set too late to be used here)
+    if (d->closingDown)
+        return;
 
     WinTimerInfo *t = new WinTimerInfo;
     t->dispatcher = this;
@@ -898,15 +955,17 @@ void QEventDispatcherWin32::registerTimer(int timerId, int interval, Qt::TimerTy
 
 bool QEventDispatcherWin32::unregisterTimer(int timerId)
 {
+#ifndef QT_NO_DEBUG
     if (timerId < 1) {
         qWarning("QEventDispatcherWin32::unregisterTimer: invalid argument");
         return false;
     }
     QThread *currentThread = QThread::currentThread();
     if (thread() != currentThread) {
-        qWarning("QObject::killTimer: timers cannot be stopped from another thread");
+        qWarning("QEventDispatcherWin32::unregisterTimer: timers cannot be stopped from another thread");
         return false;
     }
+#endif
 
     Q_D(QEventDispatcherWin32);
     if (d->timerVec.isEmpty() || timerId <= 0)
@@ -924,15 +983,17 @@ bool QEventDispatcherWin32::unregisterTimer(int timerId)
 
 bool QEventDispatcherWin32::unregisterTimers(QObject *object)
 {
+#ifndef QT_NO_DEBUG
     if (!object) {
         qWarning("QEventDispatcherWin32::unregisterTimers: invalid argument");
         return false;
     }
     QThread *currentThread = QThread::currentThread();
     if (object->thread() != thread() || thread() != currentThread) {
-        qWarning("QObject::killTimers: timers cannot be stopped from another thread");
+        qWarning("QEventDispatcherWin32::unregisterTimers: timers cannot be stopped from another thread");
         return false;
     }
+#endif
 
     Q_D(QEventDispatcherWin32);
     if (d->timerVec.isEmpty())
@@ -1100,11 +1161,9 @@ void QEventDispatcherWin32::closingDown()
     d->timerVec.clear();
     d->timerDict.clear();
 
-#ifndef Q_OS_WINCE
-    if (d->getMessageHook)
-        UnhookWindowsHookEx(d->getMessageHook);
-    d->getMessageHook = 0;
-#endif
+    d->closingDown = true;
+
+    uninstallMessageHook();
 }
 
 bool QEventDispatcherWin32::event(QEvent *e)

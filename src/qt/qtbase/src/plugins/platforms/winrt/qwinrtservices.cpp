@@ -1,48 +1,42 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
 
 #include "qwinrtservices.h"
+#include "qwinrtfileengine.h"
 #include <QtCore/QUrl>
 #include <QtCore/QDir>
 #include <QtCore/QCoreApplication>
+#include <QtCore/qfunctions_winrt.h>
 
 #include <wrl.h>
 #include <windows.foundation.h>
@@ -56,80 +50,90 @@ using namespace ABI::Windows::System;
 
 QT_BEGIN_NAMESPACE
 
-QWinRTServices::QWinRTServices()
+class QWinRTServicesPrivate
 {
-    GetActivationFactory(HString::MakeReference(RuntimeClass_Windows_Foundation_Uri).Get(), &m_uriFactory);
-    GetActivationFactory(HString::MakeReference(RuntimeClass_Windows_Storage_StorageFile).Get(), &m_fileFactory);
-    GetActivationFactory(HString::MakeReference(RuntimeClass_Windows_System_Launcher).Get(), &m_launcher);
+public:
+    ComPtr<IUriRuntimeClassFactory> uriFactory;
+    ComPtr<IStorageFileStatics> fileFactory;
+    ComPtr<ILauncherStatics> launcher;
+};
+
+QWinRTServices::QWinRTServices()
+    : d_ptr(new QWinRTServicesPrivate)
+{
+    Q_D(QWinRTServices);
+
+    HRESULT hr;
+    hr = RoGetActivationFactory(HString::MakeReference(RuntimeClass_Windows_Foundation_Uri).Get(),
+                                IID_PPV_ARGS(&d->uriFactory));
+    Q_ASSERT_X(SUCCEEDED(hr), Q_FUNC_INFO, qPrintable(qt_error_string(hr)));
+
+    hr = RoGetActivationFactory(HString::MakeReference(RuntimeClass_Windows_Storage_StorageFile).Get(),
+                                IID_PPV_ARGS(&d->fileFactory));
+    Q_ASSERT_X(SUCCEEDED(hr), Q_FUNC_INFO, qPrintable(qt_error_string(hr)));
+
+    hr = RoGetActivationFactory(HString::MakeReference(RuntimeClass_Windows_System_Launcher).Get(),
+                                IID_PPV_ARGS(&d->launcher));
+    Q_ASSERT_X(SUCCEEDED(hr), Q_FUNC_INFO, qPrintable(qt_error_string(hr)));
 }
 
 QWinRTServices::~QWinRTServices()
 {
-    if (m_uriFactory)
-        m_uriFactory->Release();
-
-    if (m_fileFactory)
-        m_fileFactory->Release();
-
-    if (m_launcher)
-        m_launcher->Release();
 }
 
 bool QWinRTServices::openUrl(const QUrl &url)
 {
-    if (!(m_uriFactory && m_launcher))
-        return QPlatformServices::openUrl(url);
+    Q_D(QWinRTServices);
 
-    IUriRuntimeClass *uri;
-    QString urlString = url.toString(); HSTRING uriString; HSTRING_HEADER header;
-    WindowsCreateStringReference((const wchar_t*)urlString.utf16(), urlString.length(), &header, &uriString);
-    m_uriFactory->CreateUri(uriString, &uri);
-    if (!uri)
-        return false;
+    ComPtr<IUriRuntimeClass> uri;
+    QString urlString = url.toString();
+    HStringReference uriString(reinterpret_cast<LPCWSTR>(urlString.utf16()), urlString.length());
+    HRESULT hr = d->uriFactory->CreateUri(uriString.Get(), &uri);
+    RETURN_FALSE_IF_FAILED("Failed to create URI from QUrl.");
 
-    IAsyncOperation<bool> *launchOp;
-    m_launcher->LaunchUriAsync(uri, &launchOp);
-    uri->Release();
-    if (!launchOp)
-        return false;
+    ComPtr<IAsyncOperation<bool>> op;
+    hr = d->launcher->LaunchUriAsync(uri.Get(), &op);
+    RETURN_FALSE_IF_FAILED("Failed to start URI launch.");
 
-    boolean result = false;
-    while (launchOp->GetResults(&result) == E_ILLEGAL_METHOD_CALL)
-        QCoreApplication::processEvents();
-    launchOp->Release();
+    boolean result;
+    hr = QWinRTFunctions::await(op, &result);
+    RETURN_FALSE_IF_FAILED("Failed to launch URI.");
 
     return result;
 }
 
 bool QWinRTServices::openDocument(const QUrl &url)
 {
-    if (!(m_fileFactory && m_launcher))
-        return QPlatformServices::openDocument(url);
+    Q_D(QWinRTServices);
 
-    const QString pathString = QDir::toNativeSeparators(url.toLocalFile());
-    HSTRING_HEADER header; HSTRING path;
-    WindowsCreateStringReference((const wchar_t*)pathString.utf16(), pathString.length(), &header, &path);
-    IAsyncOperation<StorageFile*> *fileOp;
-    m_fileFactory->GetFileFromPathAsync(path, &fileOp);
-    if (!fileOp)
-        return false;
+    HRESULT hr;
+    ComPtr<IStorageFile> file;
+    ComPtr<IStorageItem> item = QWinRTFileEngineHandler::registeredFile(url.toLocalFile());
+    if (item) {
+        hr = item.As(&file);
+        if (FAILED(hr))
+            qErrnoWarning(hr, "Failed to cast picked item to a file");
+    }
+    if (!file) {
+        const QString pathString = QDir::toNativeSeparators(url.toLocalFile());
+        HStringReference path(reinterpret_cast<LPCWSTR>(pathString.utf16()), pathString.length());
+        ComPtr<IAsyncOperation<StorageFile *>> op;
+        hr = d->fileFactory->GetFileFromPathAsync(path.Get(), &op);
+        RETURN_FALSE_IF_FAILED("Failed to initialize file URI.");
 
-    IStorageFile *file = nullptr;
-    while (fileOp->GetResults(&file) == E_ILLEGAL_METHOD_CALL)
-        QCoreApplication::processEvents();
-    fileOp->Release();
-    if (!file)
-        return false;
+        hr = QWinRTFunctions::await(op, file.GetAddressOf());
+        RETURN_FALSE_IF_FAILED("Failed to get file URI.");
+    }
 
-    IAsyncOperation<bool> *launchOp;
-    m_launcher->LaunchFileAsync(file, &launchOp);
-    if (!launchOp)
-        return false;
+    boolean result;
+    {
+        ComPtr<IAsyncOperation<bool>> op;
+        hr = d->launcher->LaunchFileAsync(file.Get(), &op);
+        RETURN_FALSE_IF_FAILED("Failed to start file launch.");
 
-    boolean result = false;
-    while (launchOp->GetResults(&result) == E_ILLEGAL_METHOD_CALL)
-        QCoreApplication::processEvents();
-    launchOp->Release();
+        hr = QWinRTFunctions::await(op, &result);
+        RETURN_FALSE_IF_FAILED("Failed to launch file.");
+    }
 
     return result;
 }

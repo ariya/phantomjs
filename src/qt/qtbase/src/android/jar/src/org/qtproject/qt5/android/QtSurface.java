@@ -45,7 +45,6 @@ package org.qtproject.qt5.android;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.PixelFormat;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -87,45 +86,6 @@ public class QtSurface extends SurfaceView implements SurfaceHolder.Callback
     @Override
     public void surfaceCreated(SurfaceHolder holder)
     {
-        QtNative.setSurface(getId(), holder.getSurface(), getWidth(), getHeight());
-        // Initialize Accessibility
-        // The accessibility code depends on android API level 16, so dynamically resolve it
-        if (android.os.Build.VERSION.SDK_INT >= 16) {
-            try {
-                final String a11yDelegateClassName = "org.qtproject.qt5.android.accessibility.QtAccessibilityDelegate";
-                Class<?> qtDelegateClass = Class.forName(a11yDelegateClassName);
-                Constructor constructor = qtDelegateClass.getConstructor(Class.forName("android.view.View"));
-                m_accessibilityDelegate = constructor.newInstance(this);
-
-                Class a11yDelegateClass = Class.forName("android.view.View$AccessibilityDelegate");
-                Method setDelegateMethod = this.getClass().getMethod("setAccessibilityDelegate", a11yDelegateClass);
-                setDelegateMethod.invoke(this, m_accessibilityDelegate);
-            } catch (ClassNotFoundException e) {
-                // Class not found is fine since we are compatible with Android API < 16, but the function will
-                // only be available with that API level.
-            } catch (Exception e) {
-                // Unknown exception means something went wrong.
-                Log.w("Qt A11y", "Unknown exception: " + e.toString());
-            }
-        }
-    }
-
-    public boolean dispatchHoverEvent(MotionEvent event) {
-        // Always attempt to dispatch hover events to accessibility first.
-        if (m_accessibilityDelegate != null) {
-            try {
-                Method dispHoverA11y = m_accessibilityDelegate.getClass().getMethod("dispatchHoverEvent", MotionEvent.class);
-                boolean ret = (Boolean) dispHoverA11y.invoke(m_accessibilityDelegate, event);
-                if (ret)
-                    return true;
-                SurfaceView view = (SurfaceView) this;
-                Method dispHoverView = view.getClass().getMethod("dispatchHoverEvent", MotionEvent.class);
-                return (Boolean) dispHoverView.invoke(view, event);
-            } catch (Exception e) {
-                Log.w("Qt A11y", "EXCEPTION in dispatchHoverEvent for Accessibility: " + e);
-            }
-        }
-        return false;
     }
 
     @Override

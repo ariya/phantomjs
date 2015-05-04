@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -62,6 +54,8 @@
 #include <private/qicon_p.h>
 #include <private/qfactoryloader_p.h>
 #include <QtCore/QHash>
+#include <QtCore/QVector>
+#include <QtCore/QTypeInfo>
 
 QT_BEGIN_NAMESPACE
 
@@ -84,6 +78,7 @@ struct QIconDirInfo
     short threshold;
     Type type : 4;
 };
+Q_DECLARE_TYPEINFO(QIconDirInfo, Q_MOVABLE_TYPE);
 
 class QIconLoaderEngineEntry
  {
@@ -99,13 +94,13 @@ public:
 
 struct ScalableEntry : public QIconLoaderEngineEntry
 {
-    QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state);
+    QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state) Q_DECL_OVERRIDE;
     QIcon svgIcon;
 };
 
 struct PixmapEntry : public QIconLoaderEngineEntry
 {
-    QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state);
+    QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state) Q_DECL_OVERRIDE;
     QPixmap basePixmap;
 };
 
@@ -144,18 +139,18 @@ public:
     QIconTheme(const QString &name);
     QIconTheme() : m_valid(false) {}
     QStringList parents() { return m_parents; }
-    QList <QIconDirInfo> keyList() { return m_keyList; }
+    QVector<QIconDirInfo> keyList() { return m_keyList; }
     QString contentDir() { return m_contentDir; }
     bool isValid() { return m_valid; }
 
 private:
     QString m_contentDir;
-    QList <QIconDirInfo> m_keyList;
+    QVector<QIconDirInfo> m_keyList;
     QStringList m_parents;
     bool m_valid;
 };
 
-class Q_GUI_EXPORT QIconLoader : public QObject
+class Q_GUI_EXPORT QIconLoader
 {
 public:
     QIconLoader();

@@ -5,35 +5,27 @@
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -45,6 +37,10 @@
 
 #ifndef DC_COLLATE
 #  define DC_COLLATE 22
+#endif
+
+#if defined (Q_CC_MINGW)
+# pragma GCC diagnostic ignored "-Wsign-compare"
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -78,6 +74,7 @@ static QPrint::InputSlot paperBinToInputSlot(int windowsId, const QString &name)
     }
     slot.key = inputSlotMap[i].key;
     slot.id = inputSlotMap[i].id;
+    slot.windowsId = windowsId;
     return slot;
 }
 
@@ -251,6 +248,9 @@ QMarginsF QWindowsPrintDevice::printableMargins(const QPageSize &pageSize,
     if (GetPrinter(m_hPrinter, 2, buffer.data(), needed, &needed)) {
         PPRINTER_INFO_2 info = reinterpret_cast<PPRINTER_INFO_2>(buffer.data());
         DEVMODE *devMode = info->pDevMode;
+        if (!devMode)
+            return margins;
+
         HDC pDC = CreateDC(NULL, (LPWSTR)m_id.utf16(), NULL, devMode);
         if (pageSize.id() == QPageSize::Custom || pageSize.windowsId() <= 0 || pageSize.windowsId() > DMPAPER_LAST) {
             devMode->dmPaperSize =  0;
@@ -275,7 +275,7 @@ QMarginsF QWindowsPrintDevice::printableMargins(const QPageSize &pageSize,
         const qreal rightMargin = physicalWidth - leftMargin - printableWidth;
         const qreal bottomMargin = physicalHeight - topMargin - printableHeight;
         margins = QMarginsF(leftMargin, topMargin, rightMargin, bottomMargin);
-        ReleaseDC(NULL, pDC);
+        DeleteDC(pDC);
     }
     return margins;
 }
@@ -284,11 +284,11 @@ void QWindowsPrintDevice::loadResolutions() const
 {
     DWORD resCount = DeviceCapabilities((LPWSTR)m_id.utf16(), NULL, DC_ENUMRESOLUTIONS, NULL, NULL);
     if (int(resCount) > 0) {
-        QScopedArrayPointer<LONG> resolutions(new LONG[resCount*sizeof(LONG)]);
+        QScopedArrayPointer<LONG> resolutions(new LONG[resCount*2]);
         // Get the details and match the default paper size
         if (DeviceCapabilities((LPWSTR)m_id.utf16(), NULL, DC_ENUMRESOLUTIONS, (LPWSTR)resolutions.data(), NULL) == resCount) {
-            for (int i = 0; i < int(resCount); ++i)
-                m_resolutions.append(resolutions[i]);
+            for (int i = 0; i < int(resCount * 2); i += 2)
+                m_resolutions.append(resolutions[i+1]);
         }
     }
     m_haveResolutions = true;
@@ -382,6 +382,7 @@ void QWindowsPrintDevice::loadDuplexModes() const
     DWORD duplex = DeviceCapabilities((LPWSTR)m_id.utf16(), NULL, DC_DUPLEX, NULL, NULL);
     if (int(duplex) == 1) {
         // TODO Assume if duplex flag supports both modes
+        m_duplexModes.append(QPrint::DuplexAuto);
         m_duplexModes.append(QPrint::DuplexLongSide);
         m_duplexModes.append(QPrint::DuplexShortSide);
     }

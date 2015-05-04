@@ -189,6 +189,12 @@ QT_BEGIN_NAMESPACE
 
 void qt_redirectNSApplicationSendEvent()
 {
+    if (QCoreApplication::testAttribute(Qt::AA_MacPluginApplication))
+        // In a plugin we cannot chain sendEvent hooks: a second plugin could
+        // store the implementation of the first, which during the program flow
+        // can be unloaded.
+        return;
+
     if ([NSApp isMemberOfClass:[QNSApplication class]]) {
         // No need to change implementation since Qt
         // already controls a subclass of NSApplication
@@ -209,6 +215,10 @@ void qt_redirectNSApplicationSendEvent()
 
 void qt_resetNSApplicationSendEvent()
 {
+    if (QCoreApplication::testAttribute(Qt::AA_MacPluginApplication))
+        return;
+
+
     qt_cocoa_change_back_implementation([NSApplication class],
                                          @selector(sendEvent:),
                                          @selector(QT_MANGLE_NAMESPACE(qt_sendEvent_original):));

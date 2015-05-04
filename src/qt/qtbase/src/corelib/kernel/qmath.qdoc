@@ -26,10 +26,15 @@
 ****************************************************************************/
 
 /*!
-    \headerfile <QtCore/qmath.h>
-    \title Math Functions
+    \headerfile <QtMath>
+    \title Generic Math Functions
     \ingroup funclists
-    \brief The <QtCore/qmath.h> header provides various math functions.
+
+    \brief The <QtMath> header file provides various math functions.
+
+    These functions are partly convenience definitions for basic math operations
+    not available in the C or Standard Template Libraries.
+
     \pagekeywords math trigonometry qmath floor ceiling absolute sine cosine tangent inverse tan exponent power natural logarithm
 */
 
@@ -40,7 +45,7 @@
     The ceiling is the smallest integer that is not less than \a v.
     For example, if \a v is 41.2, then the ceiling is 42.
 
-    \relates <QtCore/qmath.h>
+    \relates <QtMath>
     \sa qFloor()
 */
 
@@ -51,7 +56,7 @@
     The floor is the largest integer that is not greater than \a v.
     For example, if \a v is 41.2, then the floor is 41.
 
-    \relates <QtCore/qmath.h>
+    \relates <QtMath>
     \sa qCeil()
 */
 
@@ -59,14 +64,14 @@
     \fn qreal qFabs(qreal v)
     Returns the absolute value of \a v as a qreal.
 
-    \relates <QtCore/qmath.h>
+    \relates <QtMath>
 */
 
 /*!
     \fn qreal qSin(qreal v)
     Returns the sine of the angle \a v in radians.
 
-    \relates <QtCore/qmath.h>
+    \relates <QtMath>
     \sa qCos(), qTan()
 */
 
@@ -74,7 +79,7 @@
     \fn  qreal qCos(qreal v)
     Returns the cosine of an angle \a v in radians.
 
-    \relates <QtCore/qmath.h>
+    \relates <QtMath>
     \sa qSin(), qTan()
 */
 
@@ -82,7 +87,7 @@
     \fn qreal qTan(qreal v)
     Returns the tangent of an angle \a v in radians.
 
-    \relates <QtCore/qmath.h>
+    \relates <QtMath>
     \sa qSin(), qCos()
 */
 
@@ -91,7 +96,7 @@
     Returns the arccosine of \a v as an angle in radians.
     Arccosine is the inverse operation of cosine.
 
-    \relates <QtCore/qmath.h>
+    \relates <QtMath>
     \sa qAtan(), qAsin(), qCos()
 */
 
@@ -100,7 +105,7 @@
     Returns the arcsine of \a v as an angle in radians.
     Arcsine is the inverse operation of sine.
 
-    \relates <QtCore/qmath.h>
+    \relates <QtMath>
     \sa qSin(), qAtan(), qAcos()
 */
 
@@ -109,7 +114,7 @@
     Returns the arctangent of \a v as an angle in radians.
     Arctangent is the inverse operation of tangent.
 
-    \relates <QtCore/qmath.h>
+    \relates <QtMath>
     \sa qTan(), qAcos(), qAsin()
 */
 
@@ -118,7 +123,7 @@
     Returns the arctangent of a point specified by the coordinates \a y and \a x.
     This function will return the angle (argument) of that point.
 
-    \relates <QtCore/qmath.h>
+    \relates <QtMath>
     \sa qAtan()
 */
 
@@ -127,7 +132,7 @@
     Returns the square root of \a v.
     This function returns a NaN if \a v is a negative number.
 
-    \relates <QtCore/qmath.h>
+    \relates <QtMath>
     \sa qPow()
 */
 
@@ -135,7 +140,7 @@
     \fn qreal qLn(qreal v)
     Returns the natural logarithm of \a v. Natural logarithm uses base e.
 
-    \relates <QtCore/qmath.h>
+    \relates <QtMath>
     \sa qExp()
 */
 
@@ -143,7 +148,7 @@
     \fn qreal qExp(qreal v)
     Returns the exponential function of \c e to the power of \a v.
 
-    \relates <QtCore/qmath.h>
+    \relates <QtMath>
     \sa qLn()
 */
 
@@ -152,6 +157,95 @@
     Returns the value of \a x raised to the power of \a y.
     That is, \a x is the base and \a y is the exponent.
 
-    \relates <QtCore/qmath.h>
+    \relates <QtMath>
     \sa qSqrt()
+*/
+
+/*!
+    \fn float qDegreesToRadians(float degrees)
+    \relates <QtMath>
+    \since 5.1
+
+    This function converts the \a degrees in float to radians.
+
+    Example:
+
+    \snippet code/src_corelib_kernel_qmath.cpp 0
+
+    \sa qRadiansToDegrees()
+*/
+
+/*!
+    \fn double qDegreesToRadians(double degrees)
+    \relates <QtMath>
+    \since 5.1
+
+    This function converts the \a degrees in double to radians.
+
+    Example:
+
+    \snippet code/src_corelib_kernel_qmath.cpp 1
+
+    \sa qRadiansToDegrees()
+*/
+
+/*!
+    \fn float qRadiansToDegrees(float radians)
+    \relates <QtMath>
+    \since 5.1
+
+    This function converts the \a radians in float to degrees.
+
+    Example:
+
+    \snippet code/src_corelib_kernel_qmath.cpp 2
+
+    \sa qDegreesToRadians()
+*/
+
+/*!
+    \fn double qRadiansToDegrees(double radians)
+    \relates <QtMath>
+    \since 5.1
+
+    This function converts the \a radians in double to degrees.
+
+    Example:
+
+    \snippet code/src_corelib_kernel_qmath.cpp 3
+
+    \sa qDegreesToRadians()
+
+/*!
+    \fn quint32 qNextPowerOfTwo(quint32 value)
+    \relates <QtMath>
+    \since 5.4
+
+    This function returns the nearest power of two greater than \a value. For 0 it returns 1, and for values larger than or equal to 2^31 it returns 0.
+*/
+
+/*!
+    \fn quint32 qNextPowerOfTwo(qint32 value)
+    \relates <QtMath>
+    \since 5.4
+    \overload
+
+    This function returns the nearest power of two greater than \a value. For negative values it returns 0.
+*/
+
+/*!
+    \fn quint64 qNextPowerOfTwo(quint64 value)
+    \relates <QtMath>
+    \since 5.4
+
+    This function returns the nearest power of two greater than \a value. For 0 it returns 1, and for values larger than or equal to 2^63 it returns 0.
+*/
+
+/*!
+    \fn quint64 qNextPowerOfTwo(qint64 value)
+    \relates <QtMath>
+    \since 5.4
+    \overload
+
+    This function returns the nearest power of two greater than \a value. For negative values it returns 0.
 */

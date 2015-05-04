@@ -17,8 +17,8 @@ MODULE_BASE_OUTDIR = $$shadowed($$MODULE_BASE_INDIR)
 isEmpty(MODULE_SYNCQT_DIR): MODULE_SYNCQT_DIR = $$MODULE_BASE_INDIR
 isEmpty(MODULE_QMAKE_OUTDIR): MODULE_QMAKE_OUTDIR = $$MODULE_BASE_OUTDIR
 
-# force git build
-CONFIG += git_build
+exists($$MODULE_BASE_INDIR/.git): \
+    CONFIG += git_build
 
 !prefix_build {
     QTDIR = $$[QT_HOST_PREFIX]

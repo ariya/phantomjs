@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -111,11 +103,6 @@ static void resolveGetCharWidthI()
     ptrGetCharWidthI = (PtrGetCharWidthI)QSystemLibrary::resolve(QStringLiteral("gdi32"), "GetCharWidthI");
 }
 
-// defined in qtextengine_win.cpp
-typedef void *SCRIPT_CACHE;
-typedef HRESULT (WINAPI *fScriptFreeCache)(SCRIPT_CACHE *);
-extern fScriptFreeCache ScriptFreeCache;
-
 static inline quint32 getUInt(unsigned char *p)
 {
     quint32 val;
@@ -167,6 +154,20 @@ bool QWindowsFontEngine::hasCMapTable() const
     HDC hdc = m_fontEngineData->hdc;
     SelectObject(hdc, hfont);
     return GetFontData(hdc, MAKE_TAG('c', 'm', 'a', 'p'), 0, 0, 0) != GDI_ERROR;
+}
+
+bool QWindowsFontEngine::hasGlyfTable() const
+{
+    HDC hdc = m_fontEngineData->hdc;
+    SelectObject(hdc, hfont);
+    return GetFontData(hdc, MAKE_TAG('g', 'l', 'y', 'f'), 0, 0, 0) != GDI_ERROR;
+}
+
+bool QWindowsFontEngine::hasEbdtTable() const
+{
+    HDC hdc = m_fontEngineData->hdc;
+    SelectObject(hdc, hfont);
+    return GetFontData(hdc, MAKE_TAG('E', 'B', 'D', 'T'), 0, 0, 0) != GDI_ERROR;
 }
 
 void QWindowsFontEngine::getCMap()
@@ -288,13 +289,14 @@ QWindowsFontEngine::QWindowsFontEngine(const QString &name,
     qCDebug(lcQpaFonts) << __FUNCTION__ << name << lf.lfHeight;
     HDC hdc = m_fontEngineData->hdc;
     SelectObject(hdc, hfont);
-    fontDef.pixelSize = -lf.lfHeight;
     const BOOL res = GetTextMetrics(hdc, &tm);
-    fontDef.fixedPitch = !(tm.tmPitchAndFamily & TMPF_FIXED_PITCH);
     if (!res) {
         qErrnoWarning("%s: GetTextMetrics failed", __FUNCTION__);
         ZeroMemory(&tm, sizeof(TEXTMETRIC));
     }
+
+    fontDef.pixelSize = -lf.lfHeight;
+    fontDef.fixedPitch = !(tm.tmPitchAndFamily & TMPF_FIXED_PITCH);
 
     cache_cost = tm.tmHeight * tm.tmAveCharWidth * 2000;
     getCMap();
@@ -308,6 +310,8 @@ QWindowsFontEngine::QWindowsFontEngine(const QString &name,
     userData.insert(QStringLiteral("hFont"), QVariant::fromValue(hfont));
     userData.insert(QStringLiteral("trueType"), QVariant(bool(ttf)));
     setUserData(userData);
+
+    hasUnreliableOutline = hasGlyfTable() && hasEbdtTable();
 }
 
 QWindowsFontEngine::~QWindowsFontEngine()
@@ -662,6 +666,11 @@ void QWindowsFontEngine::getGlyphBearings(glyph_t glyph, qreal *leftBearing, qre
 }
 #endif // Q_CC_MINGW
 
+bool QWindowsFontEngine::hasUnreliableGlyphOutline() const
+{
+    return hasUnreliableOutline;
+}
+
 qreal QWindowsFontEngine::minLeftBearing() const
 {
     if (lbearing == SHRT_MIN)
@@ -784,13 +793,32 @@ static bool addGlyphToPath(glyph_t glyph, const QFixedPoint &position, HDC hdc,
     mat.eM11.fract = mat.eM22.fract = 0;
     mat.eM21.value = mat.eM12.value = 0;
     mat.eM21.fract = mat.eM12.fract = 0;
+
+    GLYPHMETRICS gMetric;
+    memset(&gMetric, 0, sizeof(GLYPHMETRICS));
+
+#ifndef Q_OS_WINCE
+    if (metric) {
+        // If metrics requested, retrieve first using GGO_METRICS, because the returned
+        // values are incorrect for OpenType PS fonts if obtained at the same time as the
+        // glyph paths themselves (ie. with GGO_NATIVE as the format).
+        uint format = GGO_METRICS;
+        if (ttf)
+            format |= GGO_GLYPH_INDEX;
+        if (GetGlyphOutline(hdc, glyph, format, &gMetric, 0, 0, &mat) == GDI_ERROR)
+            return false;
+        // #### obey scale
+        *metric = glyph_metrics_t(gMetric.gmptGlyphOrigin.x, -gMetric.gmptGlyphOrigin.y,
+                                  (int)gMetric.gmBlackBoxX, (int)gMetric.gmBlackBoxY,
+                                  gMetric.gmCellIncX, gMetric.gmCellIncY);
+    }
+#endif
+
     uint glyphFormat = GGO_NATIVE;
 
     if (ttf)
         glyphFormat |= GGO_GLYPH_INDEX;
 
-    GLYPHMETRICS gMetric;
-    memset(&gMetric, 0, sizeof(GLYPHMETRICS));
     int bufferSize = GDI_ERROR;
     bufferSize = GetGlyphOutline(hdc, glyph, glyphFormat, &gMetric, 0, 0, &mat);
     if ((DWORD)bufferSize == GDI_ERROR) {
@@ -805,12 +833,14 @@ static bool addGlyphToPath(glyph_t glyph, const QFixedPoint &position, HDC hdc,
         return false;
     }
 
-    if(metric) {
+#ifdef Q_OS_WINCE
+    if (metric) {
         // #### obey scale
         *metric = glyph_metrics_t(gMetric.gmptGlyphOrigin.x, -gMetric.gmptGlyphOrigin.y,
                                   (int)gMetric.gmBlackBoxX, (int)gMetric.gmBlackBoxY,
                                   gMetric.gmCellIncX, gMetric.gmCellIncY);
     }
+#endif
 
     int offset = 0;
     int headerOffset = 0;
@@ -987,7 +1017,7 @@ QFontEngine::Properties QWindowsFontEngine::properties() const
 void QWindowsFontEngine::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics)
 {
     LOGFONT lf = m_logfont;
-    lf.lfHeight = unitsPerEm;
+    lf.lfHeight = -unitsPerEm;
     int flags = synthesized();
     if(flags & SynthesizedItalic)
         lf.lfItalic = false;
@@ -1032,7 +1062,7 @@ QWindowsNativeImage *QWindowsFontEngine::drawGDIGlyph(HFONT font, glyph_t glyph,
     int iw = gm.width.toInt();
     int ih = gm.height.toInt();
 
-    if (iw <= 0 || iw <= 0)
+    if (iw <= 0 || ih <= 0)
         return 0;
 
     bool has_transformation = t.type() > QTransform::TxTranslate;
@@ -1279,7 +1309,7 @@ void QWindowsFontEngine::initFontInfo(const QFontDef &request,
     Will probably be superseded by a common Free Type font engine in Qt 5.X.
 */
 QWindowsMultiFontEngine::QWindowsMultiFontEngine(QFontEngine *fe, int script)
-    : QFontEngineMultiQPA(fe, script)
+    : QFontEngineMultiBasicImpl(fe, script)
 {
 }
 
@@ -1329,6 +1359,7 @@ void QWindowsMultiFontEngine::loadEngine(int at)
                                                                                         fontEngine->fontDef.pixelSize,
                                                                                         data);
                 fedw->fontDef = fontDef;
+                fedw->fontDef.family = fam;
                 fedw->ref.ref();
                 engines[at] = fedw;
 
@@ -1354,6 +1385,7 @@ void QWindowsMultiFontEngine::loadEngine(int at)
     engines[at] = new QWindowsFontEngine(fam, hfont, stockFont, lf, data);
     engines[at]->ref.ref();
     engines[at]->fontDef = fontDef;
+    engines[at]->fontDef.family = fam;
     qCDebug(lcQpaFonts) << __FUNCTION__ << at << fam;
 
     // TODO: increase cost in QFontCache for the font engine loaded here

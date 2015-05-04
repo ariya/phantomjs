@@ -6,6 +6,8 @@
 	<string>FMWK</string>
 	<key>CFBundleShortVersionString</key>
 	<string>@SHORT_VERSION@</string>
+	<key>CFBundleVersion</key>
+	<string>@FULL_VERSION@</string>
 	<key>CFBundleGetInfoString</key>
 	<string>Created by Qt/QMake</string>
 	<key>CFBundleSignature</key>
