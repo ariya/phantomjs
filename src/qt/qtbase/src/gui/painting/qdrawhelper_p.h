@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -672,6 +664,36 @@ static Q_ALWAYS_INLINE uint BYTE_MUL_RGB16_32(uint x, uint a) {
     return t;
 }
 
+#if defined(Q_CC_RVCT)
+#  pragma push
+#  pragma arm
+#endif
+static Q_ALWAYS_INLINE int qt_div_255(int x) { return (x + (x>>8) + 0x80) >> 8; }
+#if defined(Q_CC_RVCT)
+#  pragma pop
+#endif
+
+static Q_ALWAYS_INLINE uint BYTE_MUL_RGB30(uint x, uint a) {
+    uint xa = x >> 30;
+    uint xr = (x >> 20) & 0x3ff;
+    uint xg = (x >> 10) & 0x3ff;
+    uint xb = x & 0x3ff;
+    xa = qt_div_255(xa * a);
+    xr = qt_div_255(xr * a);
+    xg = qt_div_255(xg * a);
+    xb = qt_div_255(xb * a);
+    return (xa << 30) | (xr << 20) | (xg << 10) | xb;
+}
+
+static Q_ALWAYS_INLINE uint qAlphaRgb30(uint c)
+{
+    uint a = c >> 30;
+    a |= a << 2;
+    a |= a << 4;
+    return a;
+}
+
+
 // FIXME: Remove when all Qt modules have stopped using PREMUL and INV_PREMUL
 #define PREMUL(x) qPremultiply(x)
 #define INV_PREMUL(p) qUnpremultiply(p)
@@ -795,15 +817,6 @@ do {                                          \
     }                                         \
 } while (0)
 
-#if defined(Q_CC_RVCT)
-#  pragma push
-#  pragma arm
-#endif
-static Q_ALWAYS_INLINE int qt_div_255(int x) { return (x + (x>>8) + 0x80) >> 8; }
-#if defined(Q_CC_RVCT)
-#  pragma pop
-#endif
-
 inline ushort qConvertRgb32To16(uint c)
 {
    return (((c) >> 3) & 0x001f)
@@ -817,6 +830,84 @@ inline QRgb qConvertRgb16To32(uint c)
         | ((((c) << 3) & 0xf8) | (((c) >> 2) & 0x7))
         | ((((c) << 5) & 0xfc00) | (((c) >> 1) & 0x300))
         | ((((c) << 8) & 0xf80000) | (((c) << 3) & 0x70000));
+}
+
+enum QtPixelOrder {
+    PixelOrderRGB,
+    PixelOrderBGR
+};
+
+template<enum QtPixelOrder> inline uint qConvertArgb32ToA2rgb30(QRgb);
+
+template<enum QtPixelOrder> inline uint qConvertRgb32ToRgb30(QRgb);
+
+template<enum QtPixelOrder> inline QRgb qConvertA2rgb30ToArgb32(uint c);
+
+template<>
+inline uint qConvertArgb32ToA2rgb30<PixelOrderBGR>(QRgb c)
+{
+    return (c & 0xc0000000)
+        | (((c << 22) & 0x3fc00000) | ((c << 14) & 0x00300000))
+        | (((c << 4) & 0x000ff000) | ((c >> 4) & 0x00000c00))
+        | (((c >> 14) & 0x000003fc) | ((c >> 22) & 0x00000003));
+}
+
+template<>
+inline uint qConvertArgb32ToA2rgb30<PixelOrderRGB>(QRgb c)
+{
+    return (c & 0xc0000000)
+        | (((c << 6) & 0x3fc00000) | ((c >> 2) & 0x00300000))
+        | (((c << 4) & 0x000ff000) | ((c >> 4) & 0x00000c00))
+        | (((c << 2) & 0x000003fc) | ((c >> 6) & 0x00000003));
+}
+
+template<>
+inline uint qConvertRgb32ToRgb30<PixelOrderBGR>(QRgb c)
+{
+    return 0xc0000000
+        | (((c << 22) & 0x3fc00000) | ((c << 14) & 0x00300000))
+        | (((c << 4) & 0x000ff000) | ((c >> 4) & 0x00000c00))
+        | (((c >> 14) & 0x000003fc) | ((c >> 22) & 0x00000003));
+}
+
+template<>
+inline uint qConvertRgb32ToRgb30<PixelOrderRGB>(QRgb c)
+{
+    return 0xc0000000
+        | (((c << 6) & 0x3fc00000) | ((c >> 2) & 0x00300000))
+        | (((c << 4) & 0x000ff000) | ((c >> 4) & 0x00000c00))
+        | (((c << 2) & 0x000003fc) | ((c >> 6) & 0x00000003));
+}
+
+template<>
+inline QRgb qConvertA2rgb30ToArgb32<PixelOrderBGR>(uint c)
+{
+    uint a = c >> 30;
+    a |= a << 2;
+    a |= a << 4;
+    return (a << 24)
+        | ((c << 14) & 0x00ff0000)
+        | ((c >> 4) & 0x0000ff00)
+        | ((c >> 22) & 0x000000ff);
+}
+
+template<>
+inline QRgb qConvertA2rgb30ToArgb32<PixelOrderRGB>(uint c)
+{
+    uint a = c >> 30;
+    a |= a << 2;
+    a |= a << 4;
+    return (a << 24)
+        | ((c >> 6) & 0x00ff0000)
+        | ((c >> 4) & 0x0000ff00)
+        | ((c >> 2) & 0x000000ff);
+}
+
+inline uint qRgbSwapRgb30(uint c)
+{
+    const uint ag = c & 0xc00ffc00;
+    const uint rb = c & 0x3ff003ff;
+    return ag | (rb << 20) | (rb >> 20);
 }
 
 inline int qRed565(quint16 rgb) {

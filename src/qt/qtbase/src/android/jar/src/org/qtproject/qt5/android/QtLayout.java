@@ -205,8 +205,17 @@ public class QtLayout extends ViewGroup
         }
     }
 
-    public void bringChildFront(int child)
+    public void moveChild(View view, int index)
     {
-        bringChildToFront(getChildAt(child));
+        if (view == null)
+            return;
+
+        if (indexOfChild(view) == -1)
+            return;
+
+        detachViewFromParent(view);
+        requestLayout();
+        invalidate();
+        attachViewToParent(view, index, view.getLayoutParams());
     }
 }

@@ -1,40 +1,32 @@
 /****************************************************************************
 **
 ** Copyright (C) 2013 Samuel Gaist <samuel.gaist@edeltech.ch>
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -77,9 +69,11 @@ enum WindowsEventType // Simplify event types
     LeaveEvent = WindowEventFlag + 5,
     CloseEvent = WindowEventFlag + 6,
     ShowEvent = WindowEventFlag + 7,
+    ShowEventOnParentRestoring = WindowEventFlag + 20,
     HideEvent = WindowEventFlag + 8,
     DestroyEvent = WindowEventFlag + 9,
-    MoveEvent = WindowEventFlag + 10,
+    GeometryChangingEvent = WindowEventFlag + 10,
+    MoveEvent = WindowEventFlag + 11,
     ResizeEvent = WindowEventFlag + 12,
     QuerySizeHints = WindowEventFlag + 15,
     CalculateSize = WindowEventFlag + 16,
@@ -103,6 +97,7 @@ enum WindowsEventType // Simplify event types
     AccessibleObjectFromWindowRequest = ApplicationEventFlag + 3,
     QueryEndSessionApplicationEvent = ApplicationEventFlag + 4,
     EndSessionApplicationEvent = ApplicationEventFlag + 5,
+    AppCommandEvent = ApplicationEventFlag + 6,
     InputMethodStartCompositionEvent = InputMethodEventFlag + 1,
     InputMethodCompositionEvent = InputMethodEventFlag + 2,
     InputMethodEndCompositionEvent = InputMethodEventFlag + 3,
@@ -117,9 +112,17 @@ enum WindowsEventType // Simplify event types
     UnknownEvent = 542
 };
 
+// Matches Process_DPI_Awareness (Windows 8.1 onwards), used for SetProcessDpiAwareness()
+enum ProcessDpiAwareness
+{
+    ProcessDpiUnaware,
+    ProcessSystemDpiAware,
+    ProcessPerMonitorDpiAware
+};
+
 } // namespace QtWindows
 
-inline QtWindows::WindowsEventType windowsEventType(UINT message, WPARAM wParamIn)
+inline QtWindows::WindowsEventType windowsEventType(UINT message, WPARAM wParamIn, LPARAM lParamIn)
 {
     switch (message) {
     case WM_PAINT:
@@ -144,10 +147,16 @@ inline QtWindows::WindowsEventType windowsEventType(UINT message, WPARAM wParamI
     case WM_MOUSEWHEEL:
     case WM_MOUSEHWHEEL:
         return QtWindows::MouseWheelEvent;
+#ifndef Q_OS_WINCE
+    case WM_WINDOWPOSCHANGING:
+        return QtWindows::GeometryChangingEvent;
+#endif
     case WM_MOVE:
         return QtWindows::MoveEvent;
     case WM_SHOWWINDOW:
-        return wParamIn ? QtWindows::ShowEvent : QtWindows::HideEvent;
+        if (wParamIn)
+            return lParamIn == SW_PARENTOPENING ? QtWindows::ShowEventOnParentRestoring : QtWindows::ShowEvent;
+        return QtWindows::HideEvent;
     case WM_SIZE:
         return QtWindows::ResizeEvent;
     case WM_NCCALCSIZE:
@@ -233,6 +242,10 @@ inline QtWindows::WindowsEventType windowsEventType(UINT message, WPARAM wParamI
         return QtWindows::QueryEndSessionApplicationEvent;
     case WM_ENDSESSION:
         return QtWindows::EndSessionApplicationEvent;
+#endif
+#if defined(WM_APPCOMMAND)
+    case WM_APPCOMMAND:
+        return QtWindows::AppCommandEvent;
 #endif
     default:
         break;

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtSql module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -314,7 +306,7 @@ class QIBaseDriverPrivate : public QSqlDriverPrivate
 {
     Q_DECLARE_PUBLIC(QIBaseDriver)
 public:
-    QIBaseDriverPrivate() : QSqlDriverPrivate(), ibase(0), trans(0), tc(0) { dbmsType = Interbase; }
+    QIBaseDriverPrivate() : QSqlDriverPrivate(), ibase(0), trans(0), tc(0) { dbmsType = QSqlDriver::Interbase; }
 
     bool isError(const char *msg, QSqlError::ErrorType typ = QSqlError::UnknownError)
     {
@@ -1030,11 +1022,15 @@ bool QIBaseResult::exec()
                     *((qint64*)d->inda->sqlvar[para].sqldata) = val.toLongLong();
                 break;
             case SQL_LONG:
-                if (d->inda->sqlvar[para].sqlscale < 0)
-                    *((long*)d->inda->sqlvar[para].sqldata) =
-                        (long)floor(0.5 + val.toDouble() * pow(10.0, d->inda->sqlvar[para].sqlscale * -1));
-                else
-                    *((long*)d->inda->sqlvar[para].sqldata) = (long)val.toLongLong();
+                if (d->inda->sqlvar[para].sqllen == 4) {
+                    if (d->inda->sqlvar[para].sqlscale < 0)
+                        *((qint32*)d->inda->sqlvar[para].sqldata) =
+                            (qint32)floor(0.5 + val.toDouble() * pow(10.0, d->inda->sqlvar[para].sqlscale * -1));
+                    else
+                        *((qint32*)d->inda->sqlvar[para].sqldata) = (qint32)val.toInt();
+                } else {
+                    *((qint64*)d->inda->sqlvar[para].sqldata) = val.toLongLong();
+                }
                 break;
             case SQL_SHORT:
                 if (d->inda->sqlvar[para].sqlscale < 0)
@@ -1683,7 +1679,7 @@ QSqlRecord QIBaseDriver::record(const QString& tablename) const
             f.setLength(q.value(2).toInt());
             f.setPrecision(0);
         }
-        f.setRequired(q.value(5).toInt() > 0 ? true : false);
+        f.setRequired(q.value(5).toInt() > 0);
         f.setSqlType(type);
 
         rec.append(f);

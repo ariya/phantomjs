@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the qmake application of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -437,8 +429,9 @@ QByteArray QMakeEvaluator::getCommandOutput(const QString &args) const
 
 void QMakeEvaluator::populateDeps(
         const ProStringList &deps, const ProString &prefix, const ProStringList &suffixes,
+        const ProString &priosfx,
         QHash<ProKey, QSet<ProKey> > &dependencies, ProValueMap &dependees,
-        ProStringList &rootSet) const
+        QMultiMap<int, ProString> &rootSet) const
 {
     foreach (const ProString &item, deps)
         if (!dependencies.contains(item.toKey())) {
@@ -447,13 +440,13 @@ void QMakeEvaluator::populateDeps(
             foreach (const ProString &suffix, suffixes)
                 depends += values(ProKey(prefix + item + suffix));
             if (depends.isEmpty()) {
-                rootSet << item;
+                rootSet.insert(first(ProKey(prefix + item + priosfx)).toInt(), item);
             } else {
                 foreach (const ProString &dep, depends) {
                     dset.insert(dep.toKey());
                     dependees[dep.toKey()] << item;
                 }
-                populateDeps(depends, prefix, suffixes, dependencies, dependees, rootSet);
+                populateDeps(depends, prefix, suffixes, priosfx, dependencies, dependees, rootSet);
             }
         }
 }
@@ -974,27 +967,31 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
         break;
     case E_SORT_DEPENDS:
     case E_RESOLVE_DEPENDS:
-        if (args.count() < 1 || args.count() > 3) {
-            evalError(fL1S("%1(var, [prefix, [suffixes]]) requires one to three arguments.")
+        if (args.count() < 1 || args.count() > 4) {
+            evalError(fL1S("%1(var, [prefix, [suffixes, [prio-suffix]]]) requires one to four arguments.")
                       .arg(func.toQString(m_tmp1)));
         } else {
             QHash<ProKey, QSet<ProKey> > dependencies;
             ProValueMap dependees;
-            ProStringList rootSet;
+            QMultiMap<int, ProString> rootSet;
             ProStringList orgList = values(args.at(0).toKey());
-            populateDeps(orgList, (args.count() < 2 ? ProString() : args.at(1)),
+            ProString prefix = args.count() < 2 ? ProString() : args.at(1);
+            ProString priosfx = args.count() < 4 ? ProString(".priority") : args.at(3);
+            populateDeps(orgList, prefix,
                          args.count() < 3 ? ProStringList(ProString(".depends"))
                                           : split_value_list(args.at(2).toQString(m_tmp2)),
-                         dependencies, dependees, rootSet);
-            for (int i = 0; i < rootSet.size(); ++i) {
-                const ProString &item = rootSet.at(i);
+                         priosfx, dependencies, dependees, rootSet);
+            while (!rootSet.isEmpty()) {
+                QMultiMap<int, ProString>::iterator it = rootSet.begin();
+                const ProString item = *it;
+                rootSet.erase(it);
                 if ((func_t == E_RESOLVE_DEPENDS) || orgList.contains(item))
                     ret.prepend(item);
                 foreach (const ProString &dep, dependees[item.toKey()]) {
                     QSet<ProKey> &dset = dependencies[dep.toKey()];
-                    dset.remove(rootSet.at(i).toKey()); // *Don't* use 'item' - rootSet may have changed!
+                    dset.remove(item.toKey());
                     if (dset.isEmpty())
-                        rootSet << dep;
+                        rootSet.insert(first(ProKey(prefix + dep + priosfx)).toInt(), dep);
                 }
             }
         }
@@ -1064,10 +1061,18 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
             evalError(fL1S("shell_path(path) requires one argument."));
         } else {
             QString rstr = args.at(0).toQString(m_tmp1);
-            if (m_dirSep.startsWith(QLatin1Char('\\')))
+            if (m_dirSep.startsWith(QLatin1Char('\\'))) {
                 rstr.replace(QLatin1Char('/'), QLatin1Char('\\'));
-            else
+            } else {
                 rstr.replace(QLatin1Char('\\'), QLatin1Char('/'));
+#ifdef Q_OS_WIN
+                // Convert d:/foo/bar to msys-style /d/foo/bar.
+                if (rstr.length() > 2 && rstr.at(1) == QLatin1Char(':') && rstr.at(2) == QLatin1Char('/')) {
+                    rstr[1] = rstr.at(0);
+                    rstr[0] = QLatin1Char('/');
+                }
+#endif
+            }
             ret << (rstr.isSharedWith(m_tmp1) ? args.at(0) : ProString(rstr).setSource(args.at(0)));
         }
         break;
@@ -1737,14 +1742,14 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         if (target == TargetSuper) {
             if (m_superfile.isEmpty()) {
                 m_superfile = QDir::cleanPath(m_outputDir + QLatin1String("/.qmake.super"));
-                printf("Info: creating super cache file %s\n", qPrintable(m_superfile));
+                printf("Info: creating super cache file %s\n", qPrintable(QDir::toNativeSeparators(m_superfile)));
                 valuesRef(ProKey("_QMAKE_SUPER_CACHE_")) << ProString(m_superfile);
             }
             fn = m_superfile;
         } else if (target == TargetCache) {
             if (m_cachefile.isEmpty()) {
                 m_cachefile = QDir::cleanPath(m_outputDir + QLatin1String("/.qmake.cache"));
-                printf("Info: creating cache file %s\n", qPrintable(m_cachefile));
+                printf("Info: creating cache file %s\n", qPrintable(QDir::toNativeSeparators(m_cachefile)));
                 valuesRef(ProKey("_QMAKE_CACHE_")) << ProString(m_cachefile);
                 // We could update m_{source,build}Root and m_featureRoots here, or even
                 // "re-home" our rootEnv, but this doesn't sound too useful - if somebody
@@ -1758,7 +1763,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             if (fn.isEmpty())
                 fn = QDir::cleanPath(m_outputDir + QLatin1String("/.qmake.stash"));
             if (!m_vfs->exists(fn)) {
-                printf("Info: creating stash file %s\n", qPrintable(fn));
+                printf("Info: creating stash file %s\n", qPrintable(QDir::toNativeSeparators(fn)));
                 valuesRef(ProKey("_QMAKE_STASH_")) << ProString(fn);
             }
         }

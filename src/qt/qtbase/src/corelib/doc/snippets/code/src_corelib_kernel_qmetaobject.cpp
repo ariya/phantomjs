@@ -124,7 +124,7 @@ QMetaMethod::invoke: Unable to handle unregistered datatype 'MyType'
 QString retVal;
 QByteArray normalizedSignature = QMetaObject::normalizedSignature("compute(QString, int, double)");
 int methodIndex = obj->metaObject()->indexOfMethod(normalizedSignature);
-QMetaMethod method = metaObject->method(methodIndex);
+QMetaMethod method = obj->metaObject()->method(methodIndex);
 method.invoke(obj,
               Qt::DirectConnection,
               Q_RETURN_ARG(QString, retVal),

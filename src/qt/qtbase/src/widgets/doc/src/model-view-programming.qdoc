@@ -214,7 +214,7 @@
     classes, such as QListView, QTableView, and QTreeView with
     QStandardItemModel.
 
-    \section1 Using models and views
+    \section1 Using Models and Views
 
     The following sections explain how to use the model/view pattern
     in Qt. Each section includes an example and is followed by a
@@ -282,7 +282,7 @@
     of items. This subject is covered in more detail in the section about
     \l{Handling Selections in Item Views}.
 
-    \section1 Model classes
+    \section1 Model Classes
 
     Before examining how selections are handled, you may find it
     useful to examine the concepts used in the model/view framework.
@@ -518,7 +518,7 @@
     section, we demonstrate this by creating a convenient ready-to-use
     model for holding lists of strings.
 
-    \section1 View classes
+    \section1 View Classes
 
     \section2 Concepts
 
@@ -678,7 +678,7 @@
     each view; for example, a contiguous selection in a table view can be
     represented as a fragmented set of highlighted items in a tree view.
 
-    \section1 Delegate classes
+    \section1 Delegate Classes
 
     \section2 Concepts
 
@@ -863,7 +863,7 @@
     be less integrated into applications, and will be less usable than
     those that emit hints to support common editing actions.
 
-    \section1 Handling selections in item views
+    \section1 Handling Selections in Item Views
 
     \section2 Concepts
 
@@ -1139,7 +1139,7 @@
     determine whether any given item is the parent of another level of
     items.
 
-    \section1 Creating new models
+    \section1 Creating New Models
 
     The separation of functionality between the model/view components allows
     models to be created that can take advantage of existing views. This
@@ -1405,7 +1405,7 @@
     virtual functions that must be implemented to enable various features in
     different types of models.
 
-    \section1 Item view convenience classes
+    \section1 Item View Convenience Classes
 
     The item-based widgets have names which reflect their uses:
     \c QListWidget provides a list of items, \c QTreeWidget displays a
@@ -1769,6 +1769,9 @@
     dropped onto existing items separately to data dropped into the top level
     of the model (i.e., onto an invalid item).
 
+    Models can forbid dropping on certain items, or depending on the dropped data,
+    by reimplementing QAbstractItemModel::canDropMimeData().
+
     The model first has to make sure that the operation should be acted on,
     the data supplied is in a format that can be used, and that its destination
     within the model is valid:
@@ -1832,7 +1835,7 @@
 
     \sa {itemviews/puzzle}{Item Views Puzzle Example}
 
-    \section1 Proxy models
+    \section1 Proxy Models
 
     In the model/view framework, items of data supplied by a single model can be shared
     by any number of views, and each of these can possibly represent the same information
@@ -1917,7 +1920,7 @@
     \l{QSortFilterProxyModel::lessThan()}{lessThan()} function to perform custom
     comparisons.
 
-    \section1 Model subclassing reference
+    \section1 Model Subclassing Reference
 
     Model subclasses need to provide implementations of many of the virtual functions
     defined in the QAbstractItemModel base class. The number of these functions that need
@@ -2299,7 +2302,7 @@
     false and does nothing.
 
     \keyword Model/View Classes
-    \section1 The model/view classes
+    \section1 The Model/View Classes
 
     These classes use the model/view design pattern in which the
     underlying data (in the model) is kept separate from the way the
@@ -2307,7 +2310,7 @@
 
     \annotatedlist model-view
 
-    \section1 Related examples
+    \section1 Related Examples
 
     \list
     \li \l{itemviews/dirview}{Dir View}

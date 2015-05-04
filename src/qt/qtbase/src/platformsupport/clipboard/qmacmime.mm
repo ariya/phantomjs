@@ -39,8 +39,16 @@
 **
 ****************************************************************************/
 
+#include <QtCore/qsystemdetection.h>
+#if defined(Q_OS_IOS)
+#import <UIKit/UIKit.h>
+#elif defined(Q_OS_OSX)
+#import <Cocoa/Cocoa.h>
+#endif
+
 #include "qmacmime_p.h"
 #include "qguiapplication.h"
+#include "private/qcore_mac_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -115,6 +123,7 @@ const QStringList& qt_mac_enabledDraggedTypes()
   \list
     \i public.utf8-plain-text - converts to "text/plain"
     \i public.utf16-plain-text - converts to "text/plain"
+    \i public.text - converts to "text/plain"
     \i public.html - converts to "text/html"
     \i public.url - converts to "text/uri-list"
     \i public.file-url - converts to "text/uri-list"
@@ -282,9 +291,9 @@ QList<QByteArray> QMacPasteboardMimeTypeName::convertFromMime(const QString &, Q
     return ret;
 }
 
-class QMacPasteboardMimePlainText : public QMacInternalPasteboardMime {
+class QMacPasteboardMimePlainTextFallback : public QMacInternalPasteboardMime {
 public:
-    QMacPasteboardMimePlainText() : QMacInternalPasteboardMime(MIME_ALL) { }
+    QMacPasteboardMimePlainTextFallback() : QMacInternalPasteboardMime(MIME_ALL) { }
     QString convertorName();
 
     QString flavorFor(const QString &mime);
@@ -294,52 +303,54 @@ public:
     QList<QByteArray> convertFromMime(const QString &mime, QVariant data, QString flav);
 };
 
-QString QMacPasteboardMimePlainText::convertorName()
+QString QMacPasteboardMimePlainTextFallback::convertorName()
 {
-    return QLatin1String("PlainText");
+    return QLatin1String("PlainText (public.text)");
 }
 
-QString QMacPasteboardMimePlainText::flavorFor(const QString &mime)
+QString QMacPasteboardMimePlainTextFallback::flavorFor(const QString &mime)
 {
     if (mime == QLatin1String("text/plain"))
-        return QLatin1String("com.apple.traditional-mac-plain-text");
+        return QLatin1String("public.text");
     return QString();
 }
 
-QString QMacPasteboardMimePlainText::mimeFor(QString flav)
+QString QMacPasteboardMimePlainTextFallback::mimeFor(QString flav)
 {
-    if (flav == QLatin1String("com.apple.traditional-mac-plain-text"))
+    if (flav == QLatin1String("public.text"))
         return QLatin1String("text/plain");
     return QString();
 }
 
-bool QMacPasteboardMimePlainText::canConvert(const QString &mime, QString flav)
+bool QMacPasteboardMimePlainTextFallback::canConvert(const QString &mime, QString flav)
 {
-    return flavorFor(mime) == flav;
+    return mime == mimeFor(flav);
 }
 
-QVariant QMacPasteboardMimePlainText::convertToMime(const QString &mimetype, QList<QByteArray> data, QString flavor)
+QVariant QMacPasteboardMimePlainTextFallback::convertToMime(const QString &mimetype, QList<QByteArray> data, QString flavor)
 {
     if (data.count() > 1)
-        qWarning("QMacPasteboardMimePlainText: Cannot handle multiple member data");
-    const QByteArray &firstData = data.first();
-    QVariant ret;
-    if (flavor == QLatin1String("com.apple.traditional-mac-plain-text")) {
-        return QString::fromCFString(CFStringCreateWithBytes(kCFAllocatorDefault,
+        qWarning("QMacPasteboardMimePlainTextFallback: Cannot handle multiple member data");
+
+    if (flavor == QLatin1String("public.text")) {
+        // Note that public.text is documented by Apple to have an undefined encoding. From
+        // testing it seems that utf8 is normally used, at least by Safari on iOS.
+        const QByteArray &firstData = data.first();
+        return QString(QCFString(CFStringCreateWithBytes(kCFAllocatorDefault,
                                              reinterpret_cast<const UInt8 *>(firstData.constData()),
-                                             firstData.size(), CFStringGetSystemEncoding(), false));
+                                             firstData.size(), kCFStringEncodingUTF8, false)));
     } else {
         qWarning("QMime::convertToMime: unhandled mimetype: %s", qPrintable(mimetype));
     }
-    return ret;
+    return QVariant();
 }
 
-QList<QByteArray> QMacPasteboardMimePlainText::convertFromMime(const QString &, QVariant data, QString flavor)
+QList<QByteArray> QMacPasteboardMimePlainTextFallback::convertFromMime(const QString &, QVariant data, QString flavor)
 {
     QList<QByteArray> ret;
     QString string = data.toString();
-    if (flavor == QLatin1String("com.apple.traditional-mac-plain-text"))
-        ret.append(string.toLatin1());
+    if (flavor == QLatin1String("public.text"))
+        ret.append(string.toUtf8());
     return ret;
 }
 
@@ -400,9 +411,9 @@ QVariant QMacPasteboardMimeUnicodeText::convertToMime(const QString &mimetype, Q
     // I can only handle two types (system and unicode) so deal with them that way
     QVariant ret;
     if (flavor == QLatin1String("public.utf8-plain-text")) {
-        ret = QString::fromCFString(CFStringCreateWithBytes(kCFAllocatorDefault,
+        ret = QString(QCFString(CFStringCreateWithBytes(kCFAllocatorDefault,
                                              reinterpret_cast<const UInt8 *>(firstData.constData()),
-                                             firstData.size(), CFStringGetSystemEncoding(), false));
+                                             firstData.size(), CFStringGetSystemEncoding(), false)));
     } else if (flavor == QLatin1String("public.utf16-plain-text")) {
         ret = QString(reinterpret_cast<const QChar *>(firstData.constData()),
                       firstData.size() / sizeof(QChar));
@@ -477,6 +488,86 @@ QList<QByteArray> QMacPasteboardMimeHTMLText::convertFromMime(const QString &mim
     return ret;
 }
 
+class QMacPasteboardMimeRtfText : public QMacInternalPasteboardMime {
+public:
+    QMacPasteboardMimeRtfText() : QMacInternalPasteboardMime(MIME_ALL) { }
+    QString convertorName();
+
+    QString flavorFor(const QString &mime);
+    QString mimeFor(QString flav);
+    bool canConvert(const QString &mime, QString flav);
+    QVariant convertToMime(const QString &mime, QList<QByteArray> data, QString flav);
+    QList<QByteArray> convertFromMime(const QString &mime, QVariant data, QString flav);
+};
+
+QString QMacPasteboardMimeRtfText::convertorName()
+{
+    return QLatin1String("Rtf");
+}
+
+QString QMacPasteboardMimeRtfText::flavorFor(const QString &mime)
+{
+    if (mime == QLatin1String("text/html"))
+        return QLatin1String("public.rtf");
+    return QString();
+}
+
+QString QMacPasteboardMimeRtfText::mimeFor(QString flav)
+{
+    if (flav == QLatin1String("public.rtf"))
+        return QLatin1String("text/html");
+    return QString();
+}
+
+bool QMacPasteboardMimeRtfText::canConvert(const QString &mime, QString flav)
+{
+#if defined(Q_OS_IOS)
+    if (QSysInfo::MacintoshVersion < QSysInfo::MV_IOS_7_0)
+        return false;
+#endif
+
+    return mime == mimeFor(flav);
+}
+
+QVariant QMacPasteboardMimeRtfText::convertToMime(const QString &mimeType, QList<QByteArray> data, QString flavor)
+{
+    if (!canConvert(mimeType, flavor))
+        return QVariant();
+    if (data.count() > 1)
+        qWarning("QMacPasteboardMimeHTMLText: Cannot handle multiple member data");
+
+    // Read RTF into to NSAttributedString, then convert the string to HTML
+    NSAttributedString *string = [[NSAttributedString alloc] initWithData:data.at(0).toNSData()
+            options:[NSDictionary dictionaryWithObject:NSRTFTextDocumentType forKey:NSDocumentTypeDocumentAttribute]
+            documentAttributes:nil
+            error:nil];
+
+    NSError *error;
+    NSRange range = NSMakeRange(0, [string length]);
+    NSDictionary *dict = [NSDictionary dictionaryWithObject:NSHTMLTextDocumentType forKey:NSDocumentTypeDocumentAttribute];
+    NSData *htmlData = [string dataFromRange:range documentAttributes:dict error:&error];
+    return QByteArray::fromNSData(htmlData);
+}
+
+QList<QByteArray> QMacPasteboardMimeRtfText::convertFromMime(const QString &mime, QVariant data, QString flavor)
+{
+    QList<QByteArray> ret;
+    if (!canConvert(mime, flavor))
+        return ret;
+
+    NSAttributedString *string = [[NSAttributedString alloc] initWithData:data.toByteArray().toNSData()
+            options:[NSDictionary dictionaryWithObject:NSHTMLTextDocumentType forKey:NSDocumentTypeDocumentAttribute]
+            documentAttributes:nil
+            error:nil];
+
+    NSError *error;
+    NSRange range = NSMakeRange(0, [string length]);
+    NSDictionary *dict = [NSDictionary dictionaryWithObject:NSRTFTextDocumentType forKey:NSDocumentTypeDocumentAttribute];
+    NSData *rtfData = [string dataFromRange:range documentAttributes:dict error:&error];
+    ret << QByteArray::fromNSData(rtfData);
+    return ret;
+}
+
 class QMacPasteboardMimeFileUri : public QMacInternalPasteboardMime {
 public:
     QMacPasteboardMimeFileUri() : QMacInternalPasteboardMime(MIME_ALL) { }
@@ -520,9 +611,21 @@ QVariant QMacPasteboardMimeFileUri::convertToMime(const QString &mime, QList<QBy
         return QVariant();
     QList<QVariant> ret;
     for (int i = 0; i < data.size(); ++i) {
-        QUrl url = QUrl::fromEncoded(data.at(i));
+        const QByteArray &a = data.at(i);
+        NSString *urlString = [[[NSString alloc] initWithBytesNoCopy:(void *)a.data() length:a.size()
+                                                 encoding:NSUTF8StringEncoding freeWhenDone:NO] autorelease];
+        NSURL *nsurl = [NSURL URLWithString:urlString];
+        QUrl url;
+        // OS X 10.10 sends file references instead of file paths
+        if ([nsurl isFileReferenceURL]) {
+            url = QUrl::fromNSURL([nsurl filePathURL]);
+        } else {
+            url = QUrl::fromNSURL(nsurl);
+        }
+
         if (url.host().toLower() == QLatin1String("localhost"))
             url.setHost(QString());
+
         url.setPath(url.path().normalized(QString::NormalizationForm_C));
         ret.append(url);
     }
@@ -696,8 +799,9 @@ void QMacInternalPasteboardMime::initializeMimeTypes()
         new QMacPasteboardMimeAny;
 
         //standard types that we wrap
+        new QMacPasteboardMimePlainTextFallback;
         new QMacPasteboardMimeUnicodeText;
-        new QMacPasteboardMimePlainText;
+        new QMacPasteboardMimeRtfText;
         new QMacPasteboardMimeHTMLText;
         new QMacPasteboardMimeFileUri;
         new QMacPasteboardMimeUrl;

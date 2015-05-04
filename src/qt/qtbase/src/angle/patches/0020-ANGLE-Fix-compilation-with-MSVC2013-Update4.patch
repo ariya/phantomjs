@@ -1,0 +1,43 @@
+From a48dfb3f1ecb57a59084c0e87155506586b73188 Mon Sep 17 00:00:00 2001
+From: Maurice Kalinowski <maurice.kalinowski@theqtcompany.com>
+Date: Thu, 11 Dec 2014 13:11:55 +0100
+Subject: [PATCH] [ANGLE] Fix compilation with MSVC2013 Update4
+
+Update4 provides a native Sleep implementation. Hence the wrapper
+needs to be disabled.
+
+Change-Id: I162da45934b02c262ac09b557c66c3363c276e54
+---
+ src/3rdparty/angle/src/common/utilities.cpp | 2 +-
+ src/3rdparty/angle/src/common/utilities.h   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/3rdparty/angle/src/common/utilities.cpp b/src/3rdparty/angle/src/common/utilities.cpp
+index 9d797a6..924573e 100644
+--- a/src/3rdparty/angle/src/common/utilities.cpp
++++ b/src/3rdparty/angle/src/common/utilities.cpp
+@@ -486,7 +486,7 @@ void writeFile(const char* path, const void* content, size_t size)
+ }
+ #endif // !ANGLE_ENABLE_WINDOWS_STORE
+ 
+-#if defined(ANGLE_ENABLE_WINDOWS_STORE)
++#if defined(ANGLE_ENABLE_WINDOWS_STORE) && _MSC_FULL_VER < 180031101
+ 
+ void Sleep(unsigned long dwMilliseconds)
+ {
+diff --git a/src/3rdparty/angle/src/common/utilities.h b/src/3rdparty/angle/src/common/utilities.h
+index 2cf6bed..7583d3e 100644
+--- a/src/3rdparty/angle/src/common/utilities.h
++++ b/src/3rdparty/angle/src/common/utilities.h
+@@ -51,7 +51,7 @@ std::string getTempPath();
+ void writeFile(const char* path, const void* data, size_t size);
+ #endif
+ 
+-#if defined(ANGLE_ENABLE_WINDOWS_STORE)
++#if defined(ANGLE_ENABLE_WINDOWS_STORE) && _MSC_FULL_VER < 180031101
+ void Sleep(_In_ unsigned long dwMilliseconds);
+ #endif
+ 
+-- 
+1.9.4.msysgit.2
+

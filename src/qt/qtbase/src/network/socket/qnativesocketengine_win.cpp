@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -182,7 +174,8 @@ static inline void qt_socket_getPortAndAddress(SOCKET socketDescriptor, const qt
         if (address) {
             QHostAddress a;
             a.setAddress(tmp);
-            a.setScopeId(QString::number(sa6->sin6_scope_id));
+            if (sa6->sin6_scope_id)
+                a.setScopeId(QString::number(sa6->sin6_scope_id));
             *address = a;
         }
         if (port)
@@ -859,9 +852,6 @@ bool QNativeSocketEnginePrivate::nativeBind(const QHostAddress &a, quint16 port)
         return false;
     }
 
-    localPort = port;
-    localAddress = address;
-
 #if defined (QNATIVESOCKETENGINE_DEBUG)
     qDebug("QNativeSocketEnginePrivate::nativeBind(%s, %i) == true",
            address.toString().toLatin1().constData(), port);
@@ -1147,7 +1137,7 @@ bool QNativeSocketEnginePrivate::nativeHasPendingDatagrams() const
     int err = WSAGetLastError();
     if (ret == SOCKET_ERROR && err !=  WSAEMSGSIZE) {
         WS_ERROR_DEBUG(err);
-        if (err == WSAECONNRESET) {
+        if (err == WSAECONNRESET || err == WSAENETRESET) {
             // Discard error message to prevent QAbstractSocket from
             // getting this message repeatedly after reenabling the
             // notifiers.
@@ -1170,7 +1160,7 @@ bool QNativeSocketEnginePrivate::nativeHasPendingDatagrams() const
     timeout.tv_sec = 0;
     timeout.tv_usec = 5000;
     int available = ::select(1, &readS, 0, 0, &timeout);
-    result = available > 0 ? true : false;
+    result = available > 0;
 #endif
 
 #if defined (QNATIVESOCKETENGINE_DEBUG)

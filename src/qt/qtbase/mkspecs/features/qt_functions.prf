@@ -19,10 +19,9 @@ defineReplace(qtLibraryTarget) {
       QMAKE_FRAMEWORK_BUNDLE_NAME = $$LIBRARY_NAME
       export(QMAKE_FRAMEWORK_BUNDLE_NAME)
    } else {
-       # insert the major version in the library name
+       # insert the major version of Qt in the library name
        # unless it's a framework build
-       MAJOR_VERSION = $$section(VERSION, ., 0, 0)
-       LIBRARY_NAME ~= s,^Qt,Qt$$MAJOR_VERSION,
+       LIBRARY_NAME ~= s,^Qt,Qt$$QT_MAJOR_VERSION,
    }
    return($$LIBRARY_NAME$$qtPlatformTargetSuffix())
 }
@@ -64,12 +63,12 @@ defineTest(qtAddModule) {
     MODULE_INCLUDES = $$eval(QT.$${1}.includes)
     MODULE_LIBS = $$eval(QT.$${1}.libs)
     MODULE_CONFIG = $$eval(QT.$${1}.module_config)
-    MODULE_MAJOR_VERSION = $$eval(QT.$${1}.MAJOR_VERSION)
 
     contains(MODULE_CONFIG, internal_module) {
         using_privates = true
         export(using_privates)
     }
+    contains(MODULE_CONFIG, ltcg): CONFIG += link_ltcg
 
     qtProcessModuleFlags(CONFIG, QT.$${1}.CONFIG)
     qtProcessModuleFlags(DEFINES, QT.$${1}.DEFINES)
@@ -104,7 +103,7 @@ defineTest(qtAddModule) {
         # Re-insert the major version in the library name (cf qtLibraryTarget above)
         # unless it's a framework build
         !mac|!contains(MODULE_CONFIG, lib_bundle): \
-            MODULE_NAME ~= s,^Qt,Qt$$MODULE_MAJOR_VERSION,
+            MODULE_NAME ~= s,^Qt,Qt$$QT_MAJOR_VERSION,
 
         win32 {
             # Make sure the version number isn't appended again to the lib name
@@ -189,29 +188,35 @@ defineTest(qtAddRpathLink) {
     export(QMAKE_RPATHLINKDIR)
 }
 
-# variable, default, [suffix for variable for system() use]
+# variable, default, [suffix for variable for system() use], [prepare primary variable for system() use]
 defineTest(qtPrepareTool) {
-    $$1 = $$eval(QT_TOOL.$${2}.binary)
-    isEmpty($$1) {
-        $$1 = $$[QT_HOST_BINS]/$$2
-        exists($$eval($$1).pl) {
-            $$1 = perl -w $$eval($$1).pl
+    cmd = $$eval(QT_TOOL.$${2}.binary)
+    isEmpty(cmd) {
+        cmd = $$[QT_HOST_BINS]/$$2
+        exists($${cmd}.pl) {
+            cmd = perl -w $$system_path($${cmd}.pl)
         } else: contains(QMAKE_HOST.os, Windows) {
-            $$1 = $$eval($$1).exe
+            cmd = $$system_path($${cmd}.exe)
         } else:contains(QMAKE_HOST.os, Darwin) {
-            BUNDLENAME = $$eval($$1).app/Contents/MacOS/$$2
+            BUNDLENAME = $${cmd}.app/Contents/MacOS/$$2
             exists($$BUNDLENAME) {
-                $$1 = $$BUNDLENAME
+                cmd = $$BUNDLENAME
             }
         }
     }
     QT_TOOL_ENV += $$eval(QT_TOOL.$${2}.envvars)
-    !isEmpty(3) {
-        $$1$$3 = $$system_path($$eval($$1))
+    !isEmpty(3)|!isEmpty(4) {
+        $$1$$3 =
+        for (arg, cmd): \
+            $$1$$3 += $$system_quote($$arg)
         qtAddTargetEnv($$1$$3, QT_TOOL.$${2}.depends, system)
     }
-    $$1 = $$shell_path($$eval($$1))
-    qtAddTargetEnv($$1, QT_TOOL.$${2}.depends, )
+    isEmpty(4) {
+        $$1 =
+        for (arg, cmd): \
+            $$1 += $$shell_quote($$arg)
+        qtAddTargetEnv($$1, QT_TOOL.$${2}.depends, )
+    }
 }
 
 # target variable, list of env var names, [non-empty: prepare for system(), not make]
@@ -249,11 +254,13 @@ defineTest(qtAddTargetEnv) {
     deps = $$replace($$2, -private$, _private)
     deps = $$resolve_depends(deps, "QT.", ".depends" ".private_depends" ".run_depends")
     !isEmpty(deps) {
+        ptypes =
         for(dep, deps) {
             isEmpty(3): \
                 deppath += $$shell_path($$eval(QT.$${dep}.libs))
             else: \
                 deppath += $$system_path($$eval(QT.$${dep}.libs))
+            ptypes += $$eval(QT.$${dep}.plugin_types)
         }
         equals(QMAKE_HOST.os, Windows) {
             deppath.name = PATH
@@ -273,14 +280,16 @@ defineTest(qtAddTargetEnv) {
         deppath.CONFIG = prepend
 
         pluginpath.value =
-        for(qmod, QMAKEMODULES) {
-            qmod = $$section(qmod, /, 0, -3)/plugins
-            exists($$qmod) {
-                isEmpty(3): \
-                    pluginpath.value += $$shell_path($$qmod)
-                else: \
-                    pluginpath.value += $$system_path($$qmod)
-            }
+        ppaths = $$[QT_INSTALL_PLUGINS/get]
+        for(qplug, QT_PLUGINS): \
+            contains(ptypes, QT_PLUGIN.$${qplug}.TYPE): \
+                ppaths += $$eval(QT_PLUGIN.$${qplug}.PATH)
+        ppaths = $$unique(ppaths)
+        for(qplug, ppaths) {
+            isEmpty(3): \
+                pluginpath.value += $$shell_path($$qplug)
+            else: \
+                pluginpath.value += $$system_path($$qplug)
         }
         pluginpath.name = QT_PLUGIN_PATH
 

@@ -55,3 +55,14 @@
     \externalpage http://www.iana.org/assignments/character-sets/character-sets.xml
     \title IANA character-sets encoding file
 */
+
+/*!
+    \externalpage http://doc-snapshot.qt-project.org/qt5-5.4/qtdesigner-manual.html
+    \title Using a Designer UI File in Your Application
+*/
+
+/*!
+    \externalpage http://doc-snapshot.qt-project.org/qt5-5.4/designer-widget-mode.html#the-property-editor
+    \title Qt Designer's Widget Editing Mode#The Property Editor
+*/
+*/

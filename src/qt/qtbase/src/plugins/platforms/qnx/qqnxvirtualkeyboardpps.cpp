@@ -5,35 +5,27 @@
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -128,15 +120,16 @@ bool QQnxVirtualKeyboardPps::connect()
     m_fd = ::open(ms_PPSPath, O_RDWR);
     if (m_fd == -1)
     {
-        qCritical("QQnxVirtualKeyboard: Unable to open \"%s\" for keyboard: %s (%d).",
-                ms_PPSPath, strerror(errno), errno);
+        qVirtualKeyboardDebug() << Q_FUNC_INFO << ": Unable to open" << ms_PPSPath
+                                               << ":" << strerror(errno);
         close();
         return false;
     }
 
     m_buffer = new char[ms_bufferSize];
     if (!m_buffer) {
-        qCritical("QQnxVirtualKeyboard: Unable to allocate buffer of %d bytes. Size is unavailable.",  ms_bufferSize);
+        qCritical("QQnxVirtualKeyboard: Unable to allocate buffer of %d bytes. "
+                  "Size is unavailable.",  ms_bufferSize);
         return false;
     }
 
@@ -156,7 +149,7 @@ bool QQnxVirtualKeyboardPps::queryPPSInfo()
 
     // Request info, requires id to regenerate res message.
     pps_encoder_add_string(m_encoder, "msg", "info");
-    pps_encoder_add_string(m_encoder, "id", "libWebView");
+    pps_encoder_add_string(m_encoder, "id", "1");
 
     return writeCurrentPPSEncoder();
 }
@@ -220,7 +213,6 @@ void QQnxVirtualKeyboardPps::ppsDataReady()
 void QQnxVirtualKeyboardPps::handleKeyboardInfoMessage()
 {
     int newHeight = 0;
-    const char *value;
 
     if (pps_decoder_push(m_decoder, "dat") != PPS_DECODER_OK) {
         qCritical("QQnxVirtualKeyboard: Keyboard PPS dat object not found");
@@ -230,27 +222,9 @@ void QQnxVirtualKeyboardPps::handleKeyboardInfoMessage()
         qCritical("QQnxVirtualKeyboard: Keyboard PPS size field not found");
         return;
     }
-    if (pps_decoder_push(m_decoder, "locale") != PPS_DECODER_OK) {
-        qCritical("QQnxVirtualKeyboard: Keyboard PPS locale object not found");
-        return;
-    }
-    if (pps_decoder_get_string(m_decoder, "languageId", &value) != PPS_DECODER_OK) {
-        qCritical("QQnxVirtualKeyboard: Keyboard PPS languageId field not found");
-        return;
-    }
-    const QString languageId = QString::fromLatin1(value);
-    if (pps_decoder_get_string(m_decoder, "countryId", &value) != PPS_DECODER_OK) {
-        qCritical("QQnxVirtualKeyboard: Keyboard PPS size countryId not found");
-        return;
-    }
-    const QString countryId = QString::fromLatin1(value);
-
     setHeight(newHeight);
 
-    const QLocale locale = QLocale(languageId + QLatin1Char('_') + countryId);
-    setLocale(locale);
-
-    qVirtualKeyboardDebug() << Q_FUNC_INFO << "size=" << newHeight << "locale=" << locale;
+    qVirtualKeyboardDebug() << Q_FUNC_INFO << "size=" << newHeight;
 }
 
 bool QQnxVirtualKeyboardPps::showKeyboard()

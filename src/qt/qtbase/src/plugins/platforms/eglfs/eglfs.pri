@@ -8,6 +8,11 @@ DEFINES += MESA_EGL_NO_X11_HEADERS
 # EGLFS_PLATFORM_HOOKS_SOURCES += qeglfshooks_x11.cpp
 # LIBS += -lX11 -lX11-xcb -lxcb
 
+# Uncomment these to enable the KMS hooks.
+# EGLFS_PLATFORM_HOOKS_SOURCES += qeglfshooks_kms.cpp
+# CONFIG += link_pkgconfig
+# PKGCONFIG += libdrm gbm
+
 SOURCES +=  $$PWD/qeglfsintegration.cpp \
             $$PWD/qeglfswindow.cpp \
             $$PWD/qeglfsscreen.cpp \

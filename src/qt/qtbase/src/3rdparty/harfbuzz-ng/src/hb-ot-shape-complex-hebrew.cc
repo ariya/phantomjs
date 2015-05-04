@@ -35,116 +35,116 @@ compose_hebrew (const hb_ot_shape_normalize_context_t *c,
 {
   /* Hebrew presentation-form shaping.
    * https://bugzilla.mozilla.org/show_bug.cgi?id=728866
-   * Hebrew presentation forms with dagesh, for characters 0x05D0..0x05EA;
+   * Hebrew presentation forms with dagesh, for characters U+05D0..05EA;
    * Note that some letters do not have a dagesh presForm encoded.
    */
-  static const hb_codepoint_t sDageshForms[0x05EA - 0x05D0 + 1] = {
-    0xFB30, /* ALEF */
-    0xFB31, /* BET */
-    0xFB32, /* GIMEL */
-    0xFB33, /* DALET */
-    0xFB34, /* HE */
-    0xFB35, /* VAV */
-    0xFB36, /* ZAYIN */
-    0x0000, /* HET */
-    0xFB38, /* TET */
-    0xFB39, /* YOD */
-    0xFB3A, /* FINAL KAF */
-    0xFB3B, /* KAF */
-    0xFB3C, /* LAMED */
-    0x0000, /* FINAL MEM */
-    0xFB3E, /* MEM */
-    0x0000, /* FINAL NUN */
-    0xFB40, /* NUN */
-    0xFB41, /* SAMEKH */
-    0x0000, /* AYIN */
-    0xFB43, /* FINAL PE */
-    0xFB44, /* PE */
-    0x0000, /* FINAL TSADI */
-    0xFB46, /* TSADI */
-    0xFB47, /* QOF */
-    0xFB48, /* RESH */
-    0xFB49, /* SHIN */
-    0xFB4A /* TAV */
+  static const hb_codepoint_t sDageshForms[0x05EAu - 0x05D0u + 1] = {
+    0xFB30u, /* ALEF */
+    0xFB31u, /* BET */
+    0xFB32u, /* GIMEL */
+    0xFB33u, /* DALET */
+    0xFB34u, /* HE */
+    0xFB35u, /* VAV */
+    0xFB36u, /* ZAYIN */
+    0x0000u, /* HET */
+    0xFB38u, /* TET */
+    0xFB39u, /* YOD */
+    0xFB3Au, /* FINAL KAF */
+    0xFB3Bu, /* KAF */
+    0xFB3Cu, /* LAMED */
+    0x0000u, /* FINAL MEM */
+    0xFB3Eu, /* MEM */
+    0x0000u, /* FINAL NUN */
+    0xFB40u, /* NUN */
+    0xFB41u, /* SAMEKH */
+    0x0000u, /* AYIN */
+    0xFB43u, /* FINAL PE */
+    0xFB44u, /* PE */
+    0x0000u, /* FINAL TSADI */
+    0xFB46u, /* TSADI */
+    0xFB47u, /* QOF */
+    0xFB48u, /* RESH */
+    0xFB49u, /* SHIN */
+    0xFB4Au /* TAV */
   };
 
   bool found = c->unicode->compose (a, b, ab);
 
-  if (!found)
+  if (!found && !c->plan->has_mark)
   {
       /* Special-case Hebrew presentation forms that are excluded from
        * standard normalization, but wanted for old fonts. */
       switch (b) {
-      case 0x05B4: /* HIRIQ */
-	  if (a == 0x05D9) { /* YOD */
-	      *ab = 0xFB1D;
+      case 0x05B4u: /* HIRIQ */
+	  if (a == 0x05D9u) { /* YOD */
+	      *ab = 0xFB1Du;
 	      found = true;
 	  }
 	  break;
-      case 0x05B7: /* patah */
-	  if (a == 0x05F2) { /* YIDDISH YOD YOD */
-	      *ab = 0xFB1F;
+      case 0x05B7u: /* patah */
+	  if (a == 0x05F2u) { /* YIDDISH YOD YOD */
+	      *ab = 0xFB1Fu;
 	      found = true;
-	  } else if (a == 0x05D0) { /* ALEF */
-	      *ab = 0xFB2E;
-	      found = true;
-	  }
-	  break;
-      case 0x05B8: /* QAMATS */
-	  if (a == 0x05D0) { /* ALEF */
-	      *ab = 0xFB2F;
+	  } else if (a == 0x05D0u) { /* ALEF */
+	      *ab = 0xFB2Eu;
 	      found = true;
 	  }
 	  break;
-      case 0x05B9: /* HOLAM */
-	  if (a == 0x05D5) { /* VAV */
-	      *ab = 0xFB4B;
+      case 0x05B8u: /* QAMATS */
+	  if (a == 0x05D0u) { /* ALEF */
+	      *ab = 0xFB2Fu;
 	      found = true;
 	  }
 	  break;
-      case 0x05BC: /* DAGESH */
-	  if (a >= 0x05D0 && a <= 0x05EA) {
-	      *ab = sDageshForms[a - 0x05D0];
+      case 0x05B9u: /* HOLAM */
+	  if (a == 0x05D5u) { /* VAV */
+	      *ab = 0xFB4Bu;
+	      found = true;
+	  }
+	  break;
+      case 0x05BCu: /* DAGESH */
+	  if (a >= 0x05D0u && a <= 0x05EAu) {
+	      *ab = sDageshForms[a - 0x05D0u];
 	      found = (*ab != 0);
-	  } else if (a == 0xFB2A) { /* SHIN WITH SHIN DOT */
-	      *ab = 0xFB2C;
+	  } else if (a == 0xFB2Au) { /* SHIN WITH SHIN DOT */
+	      *ab = 0xFB2Cu;
 	      found = true;
-	  } else if (a == 0xFB2B) { /* SHIN WITH SIN DOT */
-	      *ab = 0xFB2D;
+	  } else if (a == 0xFB2Bu) { /* SHIN WITH SIN DOT */
+	      *ab = 0xFB2Du;
 	      found = true;
 	  }
 	  break;
-      case 0x05BF: /* RAFE */
+      case 0x05BFu: /* RAFE */
 	  switch (a) {
-	  case 0x05D1: /* BET */
-	      *ab = 0xFB4C;
+	  case 0x05D1u: /* BET */
+	      *ab = 0xFB4Cu;
 	      found = true;
 	      break;
-	  case 0x05DB: /* KAF */
-	      *ab = 0xFB4D;
+	  case 0x05DBu: /* KAF */
+	      *ab = 0xFB4Du;
 	      found = true;
 	      break;
-	  case 0x05E4: /* PE */
-	      *ab = 0xFB4E;
+	  case 0x05E4u: /* PE */
+	      *ab = 0xFB4Eu;
 	      found = true;
 	      break;
 	  }
 	  break;
-      case 0x05C1: /* SHIN DOT */
-	  if (a == 0x05E9) { /* SHIN */
-	      *ab = 0xFB2A;
+      case 0x05C1u: /* SHIN DOT */
+	  if (a == 0x05E9u) { /* SHIN */
+	      *ab = 0xFB2Au;
 	      found = true;
-	  } else if (a == 0xFB49) { /* SHIN WITH DAGESH */
-	      *ab = 0xFB2C;
+	  } else if (a == 0xFB49u) { /* SHIN WITH DAGESH */
+	      *ab = 0xFB2Cu;
 	      found = true;
 	  }
 	  break;
-      case 0x05C2: /* SIN DOT */
-	  if (a == 0x05E9) { /* SHIN */
-	      *ab = 0xFB2B;
+      case 0x05C2u: /* SIN DOT */
+	  if (a == 0x05E9u) { /* SHIN */
+	      *ab = 0xFB2Bu;
 	      found = true;
-	  } else if (a == 0xFB49) { /* SHIN WITH DAGESH */
-	      *ab = 0xFB2D;
+	  } else if (a == 0xFB49u) { /* SHIN WITH DAGESH */
+	      *ab = 0xFB2Du;
 	      found = true;
 	  }
 	  break;

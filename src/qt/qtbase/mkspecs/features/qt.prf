@@ -80,13 +80,16 @@ qt_module_deps = $$resolve_depends(qt_module_deps, "QT.")
 # static builds: link qml import plugins into the app.
 contains(qt_module_deps, qml): \
         contains(QT_CONFIG, static):contains(TEMPLATE, .*app):!host_build:!no_import_scan {
-    # run qmlimportscanner
-    qtPrepareTool(QMLIMPORTSCANNER, qmlimportscanner)
-    for (MODULE, QT_MODULES) {
-        PATH = $$eval(QT.$${MODULE}.qml)
-        !isEmpty(PATH):exists($$PATH): QMLPATHS += $$PATH
+    !isEmpty(QTREPOS) {
+        for (qrep, QTREPOS): \
+            exists($$qrep/qml): \
+                QMLPATHS += $$qrep/qml
+    } else {
+        QMLPATHS += $$[QT_INSTALL_QML/get]
     }
-    QMLPATHS = $$unique(QMLPATHS)
+
+    # run qmlimportscanner
+    qtPrepareTool(QMLIMPORTSCANNER, qmlimportscanner, , system)
     for (QMLPATH, QMLPATHS): \
         IMPORTPATHS += -importPath $$QMLPATH
 
@@ -125,7 +128,7 @@ contains(qt_module_deps, qml): \
         QML_IMPORT_CPP = $$OUT_PWD/$$lower($$basename(TARGET))_qml_plugin_import.cpp
         write_file($$QML_IMPORT_CPP, IMPORT_FILE_CONT)|error("Aborting.")
         SOURCES += $$QML_IMPORT_CPP
-        QMAKE_CLEAN += $$QML_IMPORT_CPP
+        QMAKE_DISTCLEAN += $$QML_IMPORT_CPP
 
         # copy qml files. this part is platform spesific.
         mac {

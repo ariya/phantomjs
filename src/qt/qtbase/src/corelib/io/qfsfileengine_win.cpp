@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -369,15 +361,15 @@ qint64 QFSFileEnginePrivate::nativeRead(char *data, qint64 maxlen)
     if (fileHandle == INVALID_HANDLE_VALUE)
         return -1;
 
-    DWORD bytesToRead = DWORD(maxlen); // <- lossy
+    qint64 bytesToRead = maxlen;
 
     // Reading on Windows fails with ERROR_NO_SYSTEM_RESOURCES when
     // the chunks are too large, so we limit the block size to 32MB.
-    static const DWORD maxBlockSize = 32 * 1024 * 1024;
+    static const qint64 maxBlockSize = 32 * 1024 * 1024;
 
     qint64 totalRead = 0;
     do {
-        DWORD blockSize = qMin<DWORD>(bytesToRead, maxBlockSize);
+        DWORD blockSize = DWORD(qMin(bytesToRead, maxBlockSize));
         DWORD bytesRead;
         if (!ReadFile(fileHandle, data + totalRead, blockSize, &bytesRead, NULL)) {
             if (totalRead == 0) {
@@ -392,7 +384,7 @@ qint64 QFSFileEnginePrivate::nativeRead(char *data, qint64 maxlen)
         totalRead += bytesRead;
         bytesToRead -= bytesRead;
     } while (totalRead < maxlen);
-    return qint64(totalRead);
+    return totalRead;
 }
 
 /*
@@ -965,6 +957,21 @@ uchar *QFSFileEnginePrivate::map(qint64 offset, qint64 size,
         return 0;
     }
 
+    // check/setup args to map
+    DWORD access = 0;
+    if (flags & QFileDevice::MapPrivateOption) {
+#ifdef FILE_MAP_COPY
+        access = FILE_MAP_COPY;
+#else
+        q->setError(QFile::UnspecifiedError, "MapPrivateOption unsupported");
+        return 0;
+#endif
+    } else if (openMode & QIODevice::WriteOnly) {
+        access = FILE_MAP_WRITE;
+    } else if (openMode & QIODevice::ReadOnly) {
+        access = FILE_MAP_READ;
+    }
+
     if (mapHandle == NULL) {
         // get handle to the file
         HANDLE handle = fileHandle;
@@ -1010,11 +1017,6 @@ uchar *QFSFileEnginePrivate::map(qint64 offset, qint64 size,
             return 0;
         }
     }
-
-    // setup args to map
-    DWORD access = 0;
-    if (openMode & QIODevice::ReadOnly) access = FILE_MAP_READ;
-    if (openMode & QIODevice::WriteOnly) access = FILE_MAP_WRITE;
 
     DWORD offsetHi = offset >> 32;
     DWORD offsetLo = offset & Q_UINT64_C(0xffffffff);

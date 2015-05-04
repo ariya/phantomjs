@@ -121,7 +121,7 @@ process.start("dir \"My Documents\"");
 
 //! [7]
 QProcess process;
-process.start("dir \"\"\"My Documents\"\"\"");
+process.start("dir \"Epic 12\"\"\" Singles\"");
 //! [7]
 
 

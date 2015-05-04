@@ -22,10 +22,27 @@ qtPrepareTool(QDOC, qdoc)
 QDOC += -outputdir $$QMAKE_DOCS_OUTPUTDIR
 !build_online_docs: \
     QDOC += -installdir $$[QT_INSTALL_DOCS]
+PREP_DOC_INDEXES =
 DOC_INDEXES =
-for(qrep, QTREPOS): \
-    exists($$qrep/doc): \
+!isEmpty(QTREPOS) {
+    prepare_docs {
+        # This is not for linking, but for providing type information.
+        mps =
+        deps = $$replace(QT, -private$, )
+        deps = $$resolve_depends(deps, "QT.")
+        for (d, deps): \
+            mps += $$dirname(QT.$${d}.libs)
+        mps = $$unique(mps)
+        for (mp, mps): \
+            PREP_DOC_INDEXES += -indexdir $$mp/doc
+    }
+    for(qrep, QTREPOS): \
         DOC_INDEXES += -indexdir $$qrep/doc
+} else {
+    prepare_docs: \
+        PREP_DOC_INDEXES += -indexdir $$[QT_INSTALL_DOCS/get]
+    DOC_INDEXES += -indexdir $$[QT_INSTALL_DOCS/get]
+}
 qtver.name = QT_VERSION
 qtver.value = $$VERSION
 isEmpty(qtver.value): qtver.value = $$MODULE_VERSION
@@ -39,7 +56,7 @@ qtdocs.value = $$[QT_INSTALL_DOCS/src]
 qtAddToolEnv(QDOC, qtver qtmver qtvertag qtdocs)
 doc_command = $$QDOC $$QMAKE_DOCS
 prepare_docs {
-    prepare_docs.commands += $$doc_command -prepare -no-link-errors
+    prepare_docs.commands += $$doc_command -prepare $$PREP_DOC_INDEXES -no-link-errors
     generate_docs.commands += $$doc_command -generate $$DOC_INDEXES
 } else {
     html_docs.commands += $$doc_command $$DOC_INDEXES

@@ -97,7 +97,10 @@
     of the property changes.
     \c NOTIFY signals for \c MEMBER variables must take zero or one parameter,
     which must be of the same type as the property. The parameter will take the
-    new value of the property.
+    new value of the property. The \c NOTIFY signal should only be emitted when
+    the property has really been changed, to avoid bindings being unnecessarily
+    re-evaluated in QML, for example. Qt emits automatically that signal when
+    needed for MEMBER properties that do not have an explicit setter.
 
     \li A \c REVISION number is optional. If included, it defines
     the property and its notifier signal to be used in a particular
@@ -226,7 +229,7 @@
     In the example, the enumeration type that is the property type is
     declared in MyClass and registered with the \l{Meta-Object System}
     using the Q_ENUMS() macro. This makes the enumeration values
-    available as strings for use as in the call to setProperty(). Had
+    available as strings for use as in the call to \l{QObject::}{setProperty()}. Had
     the enumeration type been declared in another class, its fully
     qualified name (i.e., OtherClass::Priority) would be required, and
     that other class would also have to inherit QObject and register
@@ -249,7 +252,7 @@
     If the value is \e not compatible with the property's type, the
     property is \e not changed, and false is returned. But if the
     property with the given name doesn't exist in the QObject (i.e.,
-    if it wasn't declared with Q_PROPERTY(), a new property with the
+    if it wasn't declared with Q_PROPERTY()), a new property with the
     given name and value is automatically added to the QObject, but
     false is still returned. This means that a return of false can't
     be used to determine whether a particular property was actually

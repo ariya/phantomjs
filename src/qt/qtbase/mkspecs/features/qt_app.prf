@@ -16,6 +16,9 @@ DESTDIR = $$MODULE_BASE_OUTDIR/bin
 
 isEmpty(QMAKE_INFO_PLIST): CONFIG -= app_bundle
 
+# This decreases the binary size for tools if statically linked
+QMAKE_LFLAGS += $$QMAKE_LFLAGS_GCSECTIONS
+
 host_build: QT -= gui   # no host tool will ever use gui
 host_build:force_bootstrap {
     !build_pass: CONFIG += release

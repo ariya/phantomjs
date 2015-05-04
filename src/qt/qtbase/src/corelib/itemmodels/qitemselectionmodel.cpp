@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -979,6 +971,22 @@ static QItemSelection mergeIndexes(const QVector<QPersistentModelIndex> &indexes
 /*!
     \internal
 
+    Sort predicate function for QItemSelectionModelPrivate::_q_layoutChanged(),
+    sorting by parent first in addition to operator<(). This is to prevent
+    fragmentation of the selection by grouping indexes with the same row, column
+    of different parents next to each other, which may happen when a selection
+    spans sub-trees.
+*/
+static bool qt_PersistentModelIndexLessThan(const QPersistentModelIndex &i1, const QPersistentModelIndex &i2)
+{
+    const QModelIndex parent1 = i1.parent();
+    const QModelIndex parent2 = i2.parent();
+    return parent1 == parent2 ? i1 < i2 : parent1 < parent2;
+}
+
+/*!
+    \internal
+
     Merge the selected indexes into selection ranges again.
 */
 void QItemSelectionModelPrivate::_q_layoutChanged(const QList<QPersistentModelIndex> &, QAbstractItemModel::LayoutChangeHint hint)
@@ -1011,8 +1019,10 @@ void QItemSelectionModelPrivate::_q_layoutChanged(const QList<QPersistentModelIn
 
     if (hint != QAbstractItemModel::VerticalSortHint) {
         // sort the "new" selection, as preparation for merging
-        std::stable_sort(savedPersistentIndexes.begin(), savedPersistentIndexes.end());
-        std::stable_sort(savedPersistentCurrentIndexes.begin(), savedPersistentCurrentIndexes.end());
+        std::stable_sort(savedPersistentIndexes.begin(), savedPersistentIndexes.end(),
+                         qt_PersistentModelIndexLessThan);
+        std::stable_sort(savedPersistentCurrentIndexes.begin(), savedPersistentCurrentIndexes.end(),
+                         qt_PersistentModelIndexLessThan);
 
         // update the selection by merging the individual indexes
         ranges = mergeIndexes(savedPersistentIndexes);
@@ -1066,7 +1076,7 @@ void QItemSelectionModelPrivate::_q_layoutChanged(const QList<QPersistentModelIn
     If you omit the QItemSelectionModel::Current command, a new current
     selection will be created, and the previous one added to the whole
     selection. All functions operate on both layers; for example,
-    selectedItems() will return items from both layers.
+    \l {QTableWidget::selectedItems()}{selecteditems()} will return items from both layers.
 
     \sa {Model/View Programming}, QAbstractItemModel, {Chart Example}
 */

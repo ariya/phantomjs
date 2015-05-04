@@ -45,6 +45,67 @@
 
 QT_BEGIN_NAMESPACE
 
+class QMacPasteboardMimeTraditionalMacPlainText : public QMacInternalPasteboardMime {
+public:
+    QMacPasteboardMimeTraditionalMacPlainText() : QMacInternalPasteboardMime(MIME_ALL) { }
+    QString convertorName();
+
+    QString flavorFor(const QString &mime);
+    QString mimeFor(QString flav);
+    bool canConvert(const QString &mime, QString flav);
+    QVariant convertToMime(const QString &mime, QList<QByteArray> data, QString flav);
+    QList<QByteArray> convertFromMime(const QString &mime, QVariant data, QString flav);
+};
+
+QString QMacPasteboardMimeTraditionalMacPlainText::convertorName()
+{
+    return QLatin1String("PlainText (traditional-mac-plain-text)");
+}
+
+QString QMacPasteboardMimeTraditionalMacPlainText::flavorFor(const QString &mime)
+{
+    if (mime == QLatin1String("text/plain"))
+        return QLatin1String("com.apple.traditional-mac-plain-text");
+    return QString();
+}
+
+QString QMacPasteboardMimeTraditionalMacPlainText::mimeFor(QString flav)
+{
+    if (flav == QLatin1String("com.apple.traditional-mac-plain-text"))
+        return QLatin1String("text/plain");
+    return QString();
+}
+
+bool QMacPasteboardMimeTraditionalMacPlainText::canConvert(const QString &mime, QString flav)
+{
+    return flavorFor(mime) == flav;
+}
+
+QVariant QMacPasteboardMimeTraditionalMacPlainText::convertToMime(const QString &mimetype, QList<QByteArray> data, QString flavor)
+{
+    if (data.count() > 1)
+        qWarning("QMacPasteboardMimeTraditionalMacPlainText: Cannot handle multiple member data");
+    const QByteArray &firstData = data.first();
+    QVariant ret;
+    if (flavor == QLatin1String("com.apple.traditional-mac-plain-text")) {
+        return QString(QCFString(CFStringCreateWithBytes(kCFAllocatorDefault,
+                                             reinterpret_cast<const UInt8 *>(firstData.constData()),
+                                             firstData.size(), CFStringGetSystemEncoding(), false)));
+    } else {
+        qWarning("QMime::convertToMime: unhandled mimetype: %s", qPrintable(mimetype));
+    }
+    return ret;
+}
+
+QList<QByteArray> QMacPasteboardMimeTraditionalMacPlainText::convertFromMime(const QString &, QVariant data, QString flavor)
+{
+    QList<QByteArray> ret;
+    QString string = data.toString();
+    if (flavor == QLatin1String("com.apple.traditional-mac-plain-text"))
+        ret.append(string.toLatin1());
+    return ret;
+}
+
 class QMacPasteboardMimeTiff : public QMacInternalPasteboardMime {
 public:
     QMacPasteboardMimeTiff() : QMacInternalPasteboardMime(MIME_ALL) { }
@@ -136,76 +197,10 @@ QList<QByteArray> QMacPasteboardMimeTiff::convertFromMime(const QString &mime, Q
     return ret;
 }
 
-// This handler is special: It supports converting public.rtf top text/html,
-// but not the other way around.
-class QMacPasteboardMimeRtfText : public QMacInternalPasteboardMime {
-public:
-    QMacPasteboardMimeRtfText() : QMacInternalPasteboardMime(MIME_ALL) { }
-    QString convertorName();
-
-    QString flavorFor(const QString &mime);
-    QString mimeFor(QString flav);
-    bool canConvert(const QString &mime, QString flav);
-    QVariant convertToMime(const QString &mime, QList<QByteArray> data, QString flav);
-    QList<QByteArray> convertFromMime(const QString &mime, QVariant data, QString flav);
-};
-
-QString QMacPasteboardMimeRtfText::convertorName()
-{
-    return QLatin1String("Rtf");
-}
-
-QString QMacPasteboardMimeRtfText::flavorFor(const QString &mime)
-{
-    if (mime == QLatin1String("text/html"))
-        return QLatin1String("public.rtf");
-    return QString();
-}
-
-QString QMacPasteboardMimeRtfText::mimeFor(QString flav)
-{
-    if (flav == QLatin1String("public.rtf"))
-        return QLatin1String("text/html");
-    return QString();
-}
-
-bool QMacPasteboardMimeRtfText::canConvert(const QString &mime, QString flav)
-{
-    return flavorFor(mime) == flav;
-}
-
-QVariant QMacPasteboardMimeRtfText::convertToMime(const QString &mimeType, QList<QByteArray> data, QString flavor)
-{
-    if (!canConvert(mimeType, flavor))
-        return QVariant();
-    if (data.count() > 1)
-        qWarning("QMacPasteboardMimeHTMLText: Cannot handle multiple member data");
-
-    // Convert Rtf to Html.
-    NSAttributedString *string = [[NSAttributedString alloc] initWithRTF:data.at(0).toNSData() documentAttributes:NULL];
-    NSError *error;
-    NSRange range = NSMakeRange(0,[string length]);
-    NSDictionary *dict = [NSDictionary dictionaryWithObject:NSHTMLTextDocumentType forKey:NSDocumentTypeDocumentAttribute];
-    NSData *htmldata = [string dataFromRange:range documentAttributes:dict error:&error];
-    [string release];
-    return QByteArray::fromNSData(htmldata);
-}
-
-QList<QByteArray> QMacPasteboardMimeRtfText::convertFromMime(const QString &mime, QVariant data, QString flavor)
-{
-    Q_UNUSED(mime);
-    Q_UNUSED(data);
-    Q_UNUSED(flavor);
-
-    qWarning("QMacPasteboardMimeRtfText: Conversion from Html to Rtf is not supported");
-    QList<QByteArray> ret;
-    return ret;
-}
-
 void QCocoaMimeTypes::initializeMimeTypes()
 {
+    new QMacPasteboardMimeTraditionalMacPlainText;
     new QMacPasteboardMimeTiff;
-    new QMacPasteboardMimeRtfText;
 }
 
 QT_END_NAMESPACE

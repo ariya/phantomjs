@@ -5,35 +5,27 @@
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -97,9 +89,9 @@ static QSize determineScreenSize(screen_display_t display, bool primaryScreen) {
         const int envHeight = envPhySizeStrList.size() == 2 ? envPhySizeStrList[1].toInt() : -1;
 
         if (envWidth <= 0 || envHeight <= 0) {
-            qFatal("QQnxScreen: The value of QQNX_PHYSICAL_SCREEN_SIZE must be in the format "
-                   "\"width,height\" in mm, with width, height > 0. "
-                   "Example: QQNX_PHYSICAL_SCREEN_SIZE=150,90");
+            qWarning("QQnxScreen: The value of QQNX_PHYSICAL_SCREEN_SIZE must be in the format "
+                     "\"width,height\" in mm, with width, height > 0. Defaulting to 150x90. "
+                     "Example: QQNX_PHYSICAL_SCREEN_SIZE=150,90");
             return QSize(150, 90);
         }
 
@@ -114,8 +106,8 @@ static QSize determineScreenSize(screen_display_t display, bool primaryScreen) {
     return defSize;
 #else
     if (primaryScreen)
-        qFatal("QQnxScreen: QQNX_PHYSICAL_SCREEN_SIZE variable not set. "
-               "Could not determine physical screen size.");
+        qWarning("QQnxScreen: QQNX_PHYSICAL_SCREEN_SIZE variable not set. "
+                 "Could not determine physical screen size. Defaulting to 150x90.");
     return QSize(150, 90);
 #endif
 }
@@ -209,6 +201,103 @@ QQnxScreen::~QQnxScreen()
     delete m_cursor;
 }
 
+QPixmap QQnxScreen::grabWindow(WId window, int x, int y, int width, int height) const
+{
+    QQnxWindow *qnxWin = findWindow(reinterpret_cast<screen_window_t>(window));
+    if (!qnxWin) {
+        qWarning("grabWindow: unknown window");
+        return QPixmap();
+    }
+
+    QRect bound = qnxWin->geometry();
+
+    if (width < 0)
+        width = bound.width();
+    if (height < 0)
+        height = bound.height();
+
+    bound &= QRect(x + bound.x(), y + bound.y(), width, height);
+
+    if (bound.width() <= 0 || bound.height() <= 0) {
+        qWarning("grabWindow: size is null");
+        return QPixmap();
+    }
+
+    // Create new context, only SCREEN_DISPLAY_MANAGER_CONTEXT can read from screen
+    screen_context_t context;
+    if (screen_create_context(&context, SCREEN_DISPLAY_MANAGER_CONTEXT)) {
+        if (errno == EPERM)
+            qWarning("grabWindow: root privileges required");
+        else
+            qWarning("grabWindow: cannot create context");
+        return QPixmap();
+    }
+
+    // Find corresponding display in SCREEN_DISPLAY_MANAGER_CONTEXT
+    int count = 0;
+    screen_display_t display = 0;
+    screen_get_context_property_iv(context, SCREEN_PROPERTY_DISPLAY_COUNT, &count);
+    if (count > 0) {
+        const size_t idLen = 30;
+        char matchId[idLen];
+        char id[idLen];
+        bool found = false;
+
+        screen_display_t *displays = static_cast<screen_display_t*>
+                                     (calloc(count, sizeof(screen_display_t)));
+        screen_get_context_property_pv(context, SCREEN_PROPERTY_DISPLAYS, (void **)displays);
+        screen_get_display_property_cv(m_display,  SCREEN_PROPERTY_ID_STRING, idLen, matchId);
+
+        while (count && !found) {
+            --count;
+            screen_get_display_property_cv(displays[count], SCREEN_PROPERTY_ID_STRING, idLen, id);
+            found = !strncmp(id, matchId, idLen);
+        }
+
+        if (found)
+            display = displays[count];
+
+        free(displays);
+    }
+
+    // Create screen and Qt pixmap
+    screen_pixmap_t pixmap;
+    QPixmap result;
+    if (display && !screen_create_pixmap(&pixmap, context)) {
+        screen_buffer_t buffer;
+        void *pointer;
+        int stride;
+        const int rect[4] = { bound.x(), bound.y(), bound.width(), bound.height() };
+
+        int val = SCREEN_USAGE_READ | SCREEN_USAGE_NATIVE;
+        screen_set_pixmap_property_iv(pixmap, SCREEN_PROPERTY_USAGE, &val);
+        val = SCREEN_FORMAT_RGBA8888;
+        screen_set_pixmap_property_iv(pixmap, SCREEN_PROPERTY_FORMAT, &val);
+
+        int err =    screen_set_pixmap_property_iv(pixmap, SCREEN_PROPERTY_BUFFER_SIZE, rect+2);
+        err = err || screen_create_pixmap_buffer(pixmap);
+        err = err || screen_get_pixmap_property_pv(pixmap, SCREEN_PROPERTY_RENDER_BUFFERS,
+                                                   reinterpret_cast<void**>(&buffer));
+        err = err || screen_get_buffer_property_pv(buffer, SCREEN_PROPERTY_POINTER, &pointer);
+        err = err || screen_get_buffer_property_iv(buffer, SCREEN_PROPERTY_STRIDE, &stride);
+        err = err || screen_read_display(display, buffer, 1, rect, 0);
+
+        if (!err) {
+            const QImage img(static_cast<unsigned char*>(pointer),
+                             bound.width(), bound.height(), stride, QImage::Format_ARGB32);
+            result = QPixmap::fromImage(img);
+        } else {
+            qWarning("grabWindow: capture error");
+        }
+        screen_destroy_pixmap(pixmap);
+    } else {
+        qWarning("grabWindow: display/pixmap error ");
+    }
+    screen_destroy_context(context);
+
+    return result;
+}
+
 static int defaultDepth()
 {
     qScreenDebug() << Q_FUNC_INFO;
@@ -240,7 +329,8 @@ qreal QQnxScreen::refreshRate() const
 {
     screen_display_mode_t displayMode;
     int result = screen_get_display_property_pv(m_display, SCREEN_PROPERTY_MODE, reinterpret_cast<void **>(&displayMode));
-    if (result != 0) {
+    // Screen shouldn't really return 0 but it does so default to 60 or things break.
+    if (result != 0 || displayMode.refresh == 0) {
         qWarning("QQnxScreen: Failed to query screen mode. Using default value of 60Hz");
         return 60.0;
     }
@@ -284,6 +374,18 @@ Qt::ScreenOrientation QQnxScreen::orientation() const
     }
     qScreenDebug() << Q_FUNC_INFO << "orientation =" << orient;
     return orient;
+}
+
+QWindow *QQnxScreen::topLevelAt(const QPoint &point) const
+{
+    QListIterator<QQnxWindow*> it(m_childWindows);
+    it.toBack();
+    while (it.hasPrevious()) {
+        QWindow *win = it.previous()->window();
+        if (win->geometry().contains(point))
+            return win;
+    }
+    return 0;
 }
 
 /*!
@@ -336,7 +438,7 @@ void QQnxScreen::setRotation(int rotation)
         // Rotating only the primary screen is what we had in the navigator event handler before refactoring
         if (m_primaryScreen) {
             QWindowSystemInterface::handleScreenOrientationChange(screen(), orientation());
-            QWindowSystemInterface::handleScreenGeometryChange(screen(), m_currentGeometry);
+            QWindowSystemInterface::handleScreenGeometryChange(screen(), m_currentGeometry, availableGeometry());
         }
 
         // Flush everything, so that the windows rotations are applied properly.
@@ -451,7 +553,7 @@ void QQnxScreen::resizeWindows(const QRect &previousScreenGeometry)
     }
 }
 
-QQnxWindow *QQnxScreen::findWindow(screen_window_t windowHandle)
+QQnxWindow *QQnxScreen::findWindow(screen_window_t windowHandle) const
 {
     Q_FOREACH (QQnxWindow *window, m_childWindows) {
         QQnxWindow * const result = window->findWindow(windowHandle);
@@ -596,7 +698,7 @@ void QQnxScreen::keyboardHeightChanged(int height)
 
     m_keyboardHeight = height;
 
-    QWindowSystemInterface::handleScreenAvailableGeometryChange(screen(), availableGeometry());
+    QWindowSystemInterface::handleScreenGeometryChange(screen(), geometry(), availableGeometry());
 }
 
 void QQnxScreen::addOverlayWindow(screen_window_t window)
@@ -765,19 +867,6 @@ void QQnxScreen::setRootWindow(QQnxWindow *window)
             qWarning("QQnxRootWindow: failed to disable power saving mode");
     }
     m_rootWindow = window;
-}
-
-QWindow * QQnxScreen::topMostChildWindow() const
-{
-    if (!m_childWindows.isEmpty()) {
-
-        // We're picking up the last window of the list here
-        // because this list is ordered by stacking order.
-        // Last window is effectively the one on top.
-        return m_childWindows.last()->window();
-    }
-
-    return 0;
 }
 
 QT_END_NAMESPACE

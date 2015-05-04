@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -48,8 +40,10 @@
 #include "qlocale_p.h"
 #include "qscopedpointer.h"
 #include <qdatastream.h>
+#include <qmath.h>
 
 #ifndef QT_NO_COMPRESS
+#include <zconf.h>
 #include <zlib.h>
 #endif
 #include <ctype.h>
@@ -67,24 +61,12 @@ int qFindByteArray(
     const char *needle0, int needleLen);
 
 
-int qAllocMore(int alloc, int extra)
+int qAllocMore(int alloc, int extra) Q_DECL_NOTHROW
 {
     Q_ASSERT(alloc >= 0 && extra >= 0);
-    Q_ASSERT_X(alloc < (1 << 30) - extra, "qAllocMore", "Requested size is too large!");
+    Q_ASSERT_X(uint(alloc) < QByteArray::MaxSize, "qAllocMore", "Requested size is too large!");
 
-    unsigned nalloc = alloc + extra;
-
-    // Round up to next power of 2
-
-    // Assuming container is growing, always overshoot
-    //--nalloc;
-
-    nalloc |= nalloc >> 1;
-    nalloc |= nalloc >> 2;
-    nalloc |= nalloc >> 4;
-    nalloc |= nalloc >> 8;
-    nalloc |= nalloc >> 16;
-    ++nalloc;
+    unsigned nalloc = qNextPowerOfTwo(alloc + extra);
 
     Q_ASSERT(nalloc > unsigned(alloc + extra));
 
@@ -744,7 +726,7 @@ static inline char qToLower(char c)
     occurrences of a particular value with another, use one of the
     two-parameter replace() overloads.
 
-    QByteArrays can be compared using overloaded operators such as
+    {QByteArray}s can be compared using overloaded operators such as
     operator<(), operator<=(), operator==(), operator>=(), and so on.
     The comparison is based exclusively on the numeric values
     of the characters and is very fast, but is not what a human would
@@ -789,10 +771,19 @@ static inline char qToLower(char c)
     lastIndexOf(), operator<(), operator<=(), operator>(),
     operator>=(), toLower() and toUpper().
 
-    This issue does not apply to QStrings since they represent
+    This issue does not apply to {QString}s since they represent
     characters using Unicode.
 
     \sa QString, QBitArray
+*/
+
+/*!
+    \variable QByteArray::MaxSize
+    \internal
+    \since 5.4
+
+    The maximum size of a QByteArray, in bytes. Also applies to a the maximum
+    storage size of QString and QVector, though not the number of elements.
 */
 
 /*!
@@ -2677,19 +2668,22 @@ QByteArray QByteArray::right(int len) const
 
 QByteArray QByteArray::mid(int pos, int len) const
 {
-    if ((d->size == 0 && d->ref.isStatic()) || pos > d->size)
+    using namespace QtPrivate;
+    switch (QContainerImplHelper::mid(size(), &pos, &len)) {
+    case QContainerImplHelper::Null:
         return QByteArray();
-    if (len < 0)
-        len = d->size - pos;
-    if (pos < 0) {
-        len += pos;
-        pos = 0;
+    case QContainerImplHelper::Empty:
+    {
+        QByteArrayDataPtr empty = { Data::allocate(0) };
+        return QByteArray(empty);
     }
-    if (len + pos > d->size)
-        len = d->size - pos;
-    if (pos == 0 && len == d->size)
+    case QContainerImplHelper::Full:
         return *this;
-    return QByteArray(d->data() + pos, len);
+    case QContainerImplHelper::Subset:
+        return QByteArray(d->data() + pos, len);
+    }
+    Q_UNREACHABLE();
+    return QByteArray();
 }
 
 /*!
@@ -2705,8 +2699,9 @@ QByteArray QByteArray::toLower() const
 {
     QByteArray s(*this);
     uchar *p = reinterpret_cast<uchar *>(s.data());
+    uchar *e = reinterpret_cast<uchar *>(s.end());
     if (p) {
-        while (*p) {
+        while (p != e) {
             *p = QChar::toLower((ushort)*p);
             p++;
         }
@@ -2728,8 +2723,9 @@ QByteArray QByteArray::toUpper() const
 {
     QByteArray s(*this);
     uchar *p = reinterpret_cast<uchar *>(s.data());
+    uchar *e = reinterpret_cast<uchar *>(s.end());
     if (p) {
-        while (*p) {
+        while (p != e) {
             *p = QChar::toUpper((ushort)*p);
             p++;
         }
@@ -3119,7 +3115,8 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     replaced with a single space.
 
     Whitespace means any character for which the standard C++
-    isspace() function returns \c true. This includes the ASCII
+    \c isspace() function returns \c true in the C locale. This includes the ASCII
+    isspace() function returns \c true in the C locale. This includes the ASCII
     characters '\\t', '\\n', '\\v', '\\f', '\\r', and ' '.
 
     Example:
@@ -3137,9 +3134,9 @@ QByteArray QByteArray::simplified() const
     int outc=0;
     char *to = result.d->data();
     for (;;) {
-        while (from!=fromend && isspace(uchar(*from)))
+        while (from!=fromend && ascii_isspace(uchar(*from)))
             from++;
-        while (from!=fromend && !isspace(uchar(*from)))
+        while (from!=fromend && !ascii_isspace(uchar(*from)))
             to[outc++] = *from++;
         if (from!=fromend)
             to[outc++] = ' ';
@@ -3157,13 +3154,13 @@ QByteArray QByteArray::simplified() const
     and the end.
 
     Whitespace means any character for which the standard C++
-    isspace() function returns \c true. This includes the ASCII
+    \c isspace() function returns \c true in the C locale. This includes the ASCII
     characters '\\t', '\\n', '\\v', '\\f', '\\r', and ' '.
 
     Example:
     \snippet code/src_corelib_tools_qbytearray.cpp 33
 
-    Unlike simplified(), trimmed() leaves internal whitespace alone.
+    Unlike simplified(), \l {QByteArray::trimmed()}{trimmed()} leaves internal whitespace alone.
 
     \sa simplified()
 */
@@ -3172,14 +3169,14 @@ QByteArray QByteArray::trimmed() const
     if (d->size == 0)
         return *this;
     const char *s = d->data();
-    if (!isspace(uchar(*s)) && !isspace(uchar(s[d->size-1])))
+    if (!ascii_isspace(uchar(*s)) && !ascii_isspace(uchar(s[d->size-1])))
         return *this;
     int start = 0;
     int end = d->size - 1;
-    while (start<=end && isspace(uchar(s[start])))  // skip white space from start
+    while (start<=end && ascii_isspace(uchar(s[start])))  // skip white space from start
         start++;
     if (start <= end) {                          // only white space
-        while (end && isspace(uchar(s[end])))           // skip white space from end
+        while (end && ascii_isspace(uchar(s[end])))           // skip white space from end
             end--;
     }
     int l = end - start + 1;
@@ -3584,7 +3581,7 @@ QByteArray QByteArray::toBase64(Base64Options options) const
     const char padchar = '=';
     int padlen = 0;
 
-    QByteArray tmp((d->size * 4) / 3 + 3, Qt::Uninitialized);
+    QByteArray tmp((d->size + 2) / 3 * 4, Qt::Uninitialized);
 
     int i = 0;
     char *out = tmp.data();
@@ -3622,8 +3619,9 @@ QByteArray QByteArray::toBase64(Base64Options options) const
             *out++ = alphabet[m];
         }
     }
-
-    tmp.truncate(out - tmp.data());
+    Q_ASSERT((options & OmitTrailingEquals) || (out == tmp.size() + tmp.data()));
+    if (options & OmitTrailingEquals)
+        tmp.truncate(out - tmp.data());
     return tmp;
 }
 
@@ -4186,6 +4184,27 @@ QByteArray QByteArray::fromPercentEncoding(const QByteArray &input, char percent
     return tmp;
 }
 
+/*! \fn QByteArray QByteArray::fromStdString(const std::string &str)
+    \since 5.4
+
+    Returns a copy of the \a str string as a QByteArray.
+
+    \sa toStdString(), QString::fromStdString()
+*/
+
+/*!
+    \fn std::string QByteArray::toStdString() const
+    \since 5.4
+
+    Returns a std::string object with the data contained in this
+    QByteArray.
+
+    This operator is mostly useful to pass a QByteArray to a function
+    that accepts a std::string object.
+
+    \sa fromStdString(), QString::toStdString()
+*/
+
 /*! \fn QByteArray QByteArray::fromCFData(CFDataRef data)
     \since 5.3
 
@@ -4410,11 +4429,27 @@ QByteArray QByteArray::toPercentEncoding(const QByteArray &exclude, const QByteA
     \internal
 */
 
+/*! \typedef QByteArray::size_type
+    \internal
+*/
+
+/*! \typedef QByteArray::difference_type
+    \internal
+*/
+
 /*! \typedef QByteArray::const_reference
     \internal
 */
 
 /*! \typedef QByteArray::reference
+    \internal
+*/
+
+/*! \typedef QByteArray::const_pointer
+    \internal
+*/
+
+/*! \typedef QByteArray::pointer
     \internal
 */
 

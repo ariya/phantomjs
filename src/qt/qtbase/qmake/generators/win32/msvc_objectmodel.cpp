@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the qmake application of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -311,6 +303,18 @@ static QString vcCommandSeparator()
     QLatin1String("&#x000D;&#x000A;if errorlevel 1 goto VCReportError&#x000D;&#x000A;");
     return cmdSep;
 }
+
+static void unknownOptionWarning(const char *tool, const char *option)
+{
+    static bool firstCall = true;
+    warn_msg(WarnLogic, "Could not parse %s option '%s'; added to AdditionalOptions.", tool, option);
+    if (firstCall) {
+        firstCall = false;
+        warn_msg(WarnLogic,
+                 "You can suppress these warnings with CONFIG+=suppress_vcproj_warnings.");
+    }
+}
+
 
 // VCCLCompilerTool -------------------------------------------------
 VCCLCompilerTool::VCCLCompilerTool()
@@ -916,6 +920,8 @@ bool VCCLCompilerTool::parseOption(const char* option)
                     ForceConformanceInForLoopScope = ((*c) == '-' ? _False : _True);
                 else if(fourth == 'w')
                     TreatWChar_tAsBuiltInType = ((*c) == '-' ? _False : _True);
+                else if (config->CompilerVersion >= NET2013 && strncmp(option + 4, "strictStrings", 13) == 0)
+                    AdditionalOptions += option;
                 else
                     found = false;
             } else {
@@ -1146,7 +1152,8 @@ bool VCCLCompilerTool::parseOption(const char* option)
         break;
     }
     if(!found) {
-        warn_msg(WarnLogic, "Could not parse Compiler option: %s, added as AdditionalOption", option);
+        if (!config->suppressUnknownOptionWarnings)
+            unknownOptionWarning("Compiler", option);
         AdditionalOptions += option;
     }
     return true;
@@ -1741,7 +1748,8 @@ bool VCLinkerTool::parseOption(const char* option)
         break;
     }
     if(!found) {
-        warn_msg(WarnLogic, "Could not parse Linker options: %s, added as AdditionalOption", option);
+        if (!config->suppressUnknownOptionWarnings)
+            unknownOptionWarning("Linker", option);
         AdditionalOptions += option;
     }
     return found;
@@ -2129,6 +2137,7 @@ VCPreLinkEventTool::VCPreLinkEventTool()
 VCConfiguration::VCConfiguration()
     :   WinRT(false),
         WinPhone(false),
+        WinPhone80(false),
         ATLMinimizesCRunTimeLibraryUsage(unset),
         BuildBrowserInformation(unset),
         CharacterSet(charSetNotSet),
@@ -2230,6 +2239,19 @@ void VCFilter::modifyPCHstage(QString str)
     CompilerTool.UsePrecompiledHeader     = (isCFile ? pchNone : pchCreateUsingSpecific);
     CompilerTool.PrecompiledHeaderThrough = (isCPPFile ? Project->precompHFilename : QString("$(NOINHERIT)"));
     CompilerTool.ForcedIncludeFiles       = QStringList("$(NOINHERIT)");
+}
+
+VCFilterFile VCFilter::findFile(const QString &filePath, bool *found) const
+{
+    for (int i = 0; i < Files.count(); ++i) {
+        const VCFilterFile &f = Files.at(i);
+        if (f.file == filePath) {
+            *found = true;
+            return f;
+        }
+    }
+    *found = false;
+    return VCFilterFile();
 }
 
 bool VCFilter::addExtraCompiler(const VCFilterFile &info)
@@ -2375,7 +2397,11 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
         if (!CustomBuildTool.Description.isEmpty())
             CustomBuildTool.Description += ", ";
         CustomBuildTool.Description += cmd_name;
+        // Execute custom build steps in an environment variable scope to prevent unwanted
+        // side effects for downstream build steps
+        CustomBuildTool.CommandLine += QLatin1String("setlocal");
         CustomBuildTool.CommandLine += VCToolBase::fixCommandLine(cmd.trimmed());
+        CustomBuildTool.CommandLine += QLatin1String("endlocal");
         int space = cmd.indexOf(' ');
         QFileInfo finf(cmd.left(space));
         if (CustomBuildTool.ToolPath.isEmpty())
@@ -2405,11 +2431,34 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
 }
 
 // VCProjectSingleConfig --------------------------------------------
-VCFilter& VCProjectSingleConfig::filterForExtraCompiler(const QString &compilerName)
+const VCFilter &VCProjectSingleConfig::filterByName(const QString &name) const
+{
+    if (name == "Root Files")
+        return RootFiles;
+    if (name == "Source Files")
+        return SourceFiles;
+    if (name == "Header Files")
+        return HeaderFiles;
+    if (name == "Generated Files")
+        return GeneratedFiles;
+    if (name == "LexYacc Files")
+        return LexYaccFiles;
+    if (name == "Translation Files")
+        return TranslationFiles;
+    if (name == "Form Files")
+        return FormFiles;
+    if (name == "Resource Files")
+        return ResourceFiles;
+    if (name == "Deployment Files")
+        return DeploymentFiles;
+    return filterForExtraCompiler(name);
+}
+
+const VCFilter &VCProjectSingleConfig::filterForExtraCompiler(const QString &compilerName) const
 {
     for (int i = 0; i < ExtraCompilersFiles.count(); ++i)
         if (ExtraCompilersFiles.at(i).Name == compilerName)
-            return ExtraCompilersFiles[i];
+            return ExtraCompilersFiles.at(i);
 
     static VCFilter nullFilter;
     return nullFilter;
@@ -2476,14 +2525,14 @@ void VCProjectWriter::write(XmlOutput &xml, VCProjectSingleConfig &tool)
     // XML output functionality
     VCProject tempProj;
     tempProj.SingleProjects += tool;
-    outputFilter(tempProj, xml, "Sources");
-    outputFilter(tempProj, xml, "Headers");
-    outputFilter(tempProj, xml, "GeneratedFiles");
-    outputFilter(tempProj, xml, "LexYaccFiles");
-    outputFilter(tempProj, xml, "TranslationFiles");
-    outputFilter(tempProj, xml, "FormFiles");
-    outputFilter(tempProj, xml, "ResourceFiles");
-    outputFilter(tempProj, xml, "DeploymentFiles");
+    outputFilter(tempProj, xml, "Source Files");
+    outputFilter(tempProj, xml, "Header Files");
+    outputFilter(tempProj, xml, "Generated Files");
+    outputFilter(tempProj, xml, "LexYacc Files");
+    outputFilter(tempProj, xml, "Translation Files");
+    outputFilter(tempProj, xml, "Form Files");
+    outputFilter(tempProj, xml, "Resource Files");
+    outputFilter(tempProj, xml, "Deployment Files");
 
     QSet<QString> extraCompilersInProject;
     for (int i = 0; i < tool.ExtraCompilersFiles.count(); ++i) {
@@ -2497,7 +2546,7 @@ void VCProjectWriter::write(XmlOutput &xml, VCProjectSingleConfig &tool)
     for (int x = 0; x < tempProj.ExtraCompilers.count(); ++x) {
         outputFilter(tempProj, xml, tempProj.ExtraCompilers.at(x));
     }
-    outputFilter(tempProj, xml, "RootFiles");
+    outputFilter(tempProj, xml, "Root Files");
     xml     << closetag(q_Files)
             << tag(_Globals)
                 << data(); // No "/>" end tag
@@ -2529,18 +2578,18 @@ void VCProjectWriter::write(XmlOutput &xml, VCProject &tool)
         write(xml, tool.SingleProjects.at(i).Configuration);
     xml     << closetag(_Configurations)
             << tag(q_Files);
-    outputFilter(tool, xml, "Sources");
-    outputFilter(tool, xml, "Headers");
-    outputFilter(tool, xml, "GeneratedFiles");
-    outputFilter(tool, xml, "LexYaccFiles");
-    outputFilter(tool, xml, "TranslationFiles");
-    outputFilter(tool, xml, "FormFiles");
-    outputFilter(tool, xml, "ResourceFiles");
-    outputFilter(tool, xml, "DeploymentFiles");
+    outputFilter(tool, xml, "Source Files");
+    outputFilter(tool, xml, "Header Files");
+    outputFilter(tool, xml, "Generated Files");
+    outputFilter(tool, xml, "LexYacc Files");
+    outputFilter(tool, xml, "Translation Files");
+    outputFilter(tool, xml, "Form Files");
+    outputFilter(tool, xml, "Resource Files");
+    outputFilter(tool, xml, "Deployment Files");
     for (int x = 0; x < tool.ExtraCompilers.count(); ++x) {
         outputFilter(tool, xml, tool.ExtraCompilers.at(x));
     }
-    outputFilter(tool, xml, "RootFiles");
+    outputFilter(tool, xml, "Root Files");
     xml     << closetag(q_Files)
             << tag(_Globals)
             << data(); // No "/>" end tag
@@ -2876,30 +2925,7 @@ void VCProjectWriter::outputFilter(VCProject &project, XmlOutput &xml, const QSt
     triState parse = unset;
 
     for (int i = 0; i < project.SingleProjects.count(); ++i) {
-        VCFilter filter;
-        const VCProjectSingleConfig &projectSingleConfig = project.SingleProjects.at(i);
-        if (filtername == "RootFiles") {
-            filter = projectSingleConfig.RootFiles;
-        } else if (filtername == "Sources") {
-            filter = projectSingleConfig.SourceFiles;
-        } else if (filtername == "Headers") {
-            filter = projectSingleConfig.HeaderFiles;
-        } else if (filtername == "GeneratedFiles") {
-            filter = projectSingleConfig.GeneratedFiles;
-        } else if (filtername == "LexYaccFiles") {
-            filter = projectSingleConfig.LexYaccFiles;
-        } else if (filtername == "TranslationFiles") {
-            filter = projectSingleConfig.TranslationFiles;
-        } else if (filtername == "FormFiles") {
-            filter = projectSingleConfig.FormFiles;
-        } else if (filtername == "ResourceFiles") {
-            filter = projectSingleConfig.ResourceFiles;
-        } else if (filtername == "DeploymentFiles") {
-            filter = projectSingleConfig.DeploymentFiles;
-        } else {
-            // ExtraCompilers
-            filter = project.SingleProjects[i].filterForExtraCompiler(filtername);
-        }
+        const VCFilter filter = project.SingleProjects.at(i).filterByName(filtername);
 
         // Merge all files in this filter to root tree
         for (int x = 0; x < filter.Files.count(); ++x)
@@ -2938,31 +2964,7 @@ void VCProjectWriter::outputFileConfigs(VCProject &project, XmlOutput &xml, cons
     xml << tag(q_File)
             << attrS(_RelativePath, Option::fixPathToLocalOS(info.file));
     for (int i = 0; i < project.SingleProjects.count(); ++i) {
-        VCFilter filter;
-        const VCProjectSingleConfig &projectSingleConfig = project.SingleProjects.at(i);
-        if (filtername == "RootFiles") {
-            filter = projectSingleConfig.RootFiles;
-        } else if (filtername == "Sources") {
-            filter = projectSingleConfig.SourceFiles;
-        } else if (filtername == "Headers") {
-            filter = projectSingleConfig.HeaderFiles;
-        } else if (filtername == "GeneratedFiles") {
-            filter = projectSingleConfig.GeneratedFiles;
-        } else if (filtername == "LexYaccFiles") {
-            filter = projectSingleConfig.LexYaccFiles;
-        } else if (filtername == "TranslationFiles") {
-            filter = projectSingleConfig.TranslationFiles;
-        } else if (filtername == "FormFiles") {
-            filter = projectSingleConfig.FormFiles;
-        } else if (filtername == "ResourceFiles") {
-            filter = projectSingleConfig.ResourceFiles;
-        } else if (filtername == "DeploymentFiles") {
-            filter = projectSingleConfig.DeploymentFiles;
-        } else {
-            // ExtraCompilers
-            filter = project.SingleProjects[i].filterForExtraCompiler(filtername);
-        }
-
+        VCFilter filter = project.SingleProjects.at(i).filterByName(filtername);
         if (filter.Config) // only if the filter is not empty
             outputFileConfig(filter, xml, info.file);
     }
@@ -2989,14 +2991,8 @@ void VCProjectWriter::outputFileConfig(VCFilter &filter, XmlOutput &xml, const Q
     filter.CompilerTool.WarningLevel = warningLevelUnknown;
     filter.CompilerTool.config = filter.Config;
 
-    bool inBuild = false;
-    VCFilterFile info;
-    for (int i = 0; i < filter.Files.count(); ++i) {
-        if (filter.Files.at(i).file == filename) {
-            info = filter.Files.at(i);
-            inBuild = true;
-        }
-    }
+    bool inBuild;
+    VCFilterFile info = filter.findFile(filename, &inBuild);
     inBuild &= !info.excludeFromBuild;
 
     if (inBuild) {

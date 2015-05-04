@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -58,6 +50,7 @@
     \inmodule QtCore
     \brief The QAtomicInteger class provides platform-independent atomic operations on integers.
     \ingroup thread
+    \since 5.3
 
     For atomic operations on pointers, see the QAtomicPointer class.
 
@@ -257,7 +250,7 @@
 
 
 /*!
-    \fn int QAtomicInteger::load() const
+    \fn T QAtomicInteger::load() const
 
     Atomically loads the value of this QAtomicInteger using relaxed memory
     ordering. The value is not modified in any way, but note that there's no
@@ -267,7 +260,7 @@
 */
 
 /*!
-    \fn int QAtomicInteger::loadAcquire() const
+    \fn T QAtomicInteger::loadAcquire() const
 
     Atomically loads the value of this QAtomicInteger using the "Acquire" memory
     ordering. The value is not modified in any way, but note that there's no
@@ -277,7 +270,7 @@
 */
 
 /*!
-    \fn void QAtomicInteger::store(int newValue)
+    \fn void QAtomicInteger::store(T newValue)
 
     Atomically stores the \a newValue value into this atomic type, using
     relaxed memory ordering.
@@ -286,7 +279,7 @@
 */
 
 /*!
-    \fn void QAtomicInteger::storeRelease(int newValue)
+    \fn void QAtomicInteger::storeRelease(T newValue)
 
     Atomically stores the \a newValue value into this atomic type, using
     the "Release" memory ordering.
@@ -295,7 +288,7 @@
 */
 
 /*!
-    \fn QAtomicInteger::operator int() const
+    \fn QAtomicInteger::operator T() const
     \since 5.3
 
     Atomically loads the value of this QAtomicInteger using a sequentially
@@ -307,7 +300,7 @@
 */
 
 /*!
-    \fn QAtomicInteger &QAtomicInteger::operator=(int newValue)
+    \fn QAtomicInteger &QAtomicInteger::operator=(T newValue)
     \since 5.3
 
     Atomically stores the \a newValue value into this atomic type using a
@@ -342,7 +335,7 @@
 */
 
 /*!
-    \fn int QAtomicInteger::operator++()
+    \fn T QAtomicInteger::operator++()
     \since 5.3
 
     Atomically pre-increments the value of this QAtomicInteger. Returns the new
@@ -355,7 +348,7 @@
 */
 
 /*!
-    \fn int QAtomicInteger::operator++(int)
+    \fn T QAtomicInteger::operator++(int)
     \since 5.3
 
     Atomically post-increments the value of this QAtomicInteger. Returns the old
@@ -380,7 +373,7 @@
 */
 
 /*!
-    \fn int QAtomicInteger::operator--()
+    \fn T QAtomicInteger::operator--()
     \since 5.3
 
     Atomically pre-decrements the value of this QAtomicInteger. Returns the new
@@ -393,7 +386,7 @@
 */
 
 /*!
-    \fn int QAtomicInteger::operator--(int)
+    \fn T QAtomicInteger::operator--(int)
     \since 5.3
 
     Atomically post-decrements the value of this QAtomicInteger. Returns the old
@@ -416,7 +409,7 @@
     Returns \c true if atomic test-and-set is wait-free, false otherwise.
 */
 
-/*! \fn bool QAtomicInteger::testAndSetRelaxed(int expectedValue, int newValue)
+/*! \fn bool QAtomicInteger::testAndSetRelaxed(T expectedValue, T newValue)
 
     Atomic test-and-set.
 
@@ -430,7 +423,7 @@
     processor to freely reorder memory accesses.
 */
 
-/*! \fn bool QAtomicInteger::testAndSetAcquire(int expectedValue, int newValue)
+/*! \fn bool QAtomicInteger::testAndSetAcquire(T expectedValue, T newValue)
 
     Atomic test-and-set.
 
@@ -445,7 +438,7 @@
     be re-ordered before the atomic operation.
 */
 
-/*! \fn bool QAtomicInteger::testAndSetRelease(int expectedValue, int newValue)
+/*! \fn bool QAtomicInteger::testAndSetRelease(T expectedValue, T newValue)
 
     Atomic test-and-set.
 
@@ -460,7 +453,7 @@
     re-ordered after the atomic operation.
 */
 
-/*! \fn bool QAtomicInteger::testAndSetOrdered(int expectedValue, int newValue)
+/*! \fn bool QAtomicInteger::testAndSetOrdered(T expectedValue, T newValue)
 
     Atomic test-and-set.
 
@@ -487,7 +480,7 @@
     otherwise.
 */
 
-/*! \fn int QAtomicInteger::fetchAndStoreRelaxed(int newValue)
+/*! \fn T QAtomicInteger::fetchAndStoreRelaxed(T newValue)
 
     Atomic fetch-and-store.
 
@@ -499,7 +492,7 @@
     processor to freely reorder memory accesses.
 */
 
-/*! \fn int QAtomicInteger::fetchAndStoreAcquire(int newValue)
+/*! \fn T QAtomicInteger::fetchAndStoreAcquire(T newValue)
 
     Atomic fetch-and-store.
 
@@ -512,7 +505,7 @@
     be re-ordered before the atomic operation.
 */
 
-/*! \fn int QAtomicInteger::fetchAndStoreRelease(int newValue)
+/*! \fn T QAtomicInteger::fetchAndStoreRelease(T newValue)
 
     Atomic fetch-and-store.
 
@@ -525,7 +518,7 @@
     re-ordered after the atomic operation.
 */
 
-/*! \fn int QAtomicInteger::fetchAndStoreOrdered(int newValue)
+/*! \fn T QAtomicInteger::fetchAndStoreOrdered(T newValue)
 
     Atomic fetch-and-store.
 
@@ -550,7 +543,7 @@
     otherwise.
 */
 
-/*! \fn int QAtomicInteger::fetchAndAddRelaxed(int valueToAdd)
+/*! \fn T QAtomicInteger::fetchAndAddRelaxed(T valueToAdd)
 
     Atomic fetch-and-add.
 
@@ -564,7 +557,7 @@
     \sa operator+=(), fetchAndSubRelaxed()
 */
 
-/*! \fn int QAtomicInteger::fetchAndAddAcquire(int valueToAdd)
+/*! \fn T QAtomicInteger::fetchAndAddAcquire(T valueToAdd)
 
     Atomic fetch-and-add.
 
@@ -579,7 +572,7 @@
     \sa operator+=(), fetchAndSubAcquire()
 */
 
-/*! \fn int QAtomicInteger::fetchAndAddRelease(int valueToAdd)
+/*! \fn T QAtomicInteger::fetchAndAddRelease(T valueToAdd)
 
     Atomic fetch-and-add.
 
@@ -594,7 +587,7 @@
     \sa operator+=(), fetchAndSubRelease()
 */
 
-/*! \fn int QAtomicInteger::fetchAndAddOrdered(int valueToAdd)
+/*! \fn T QAtomicInteger::fetchAndAddOrdered(T valueToAdd)
 
     Atomic fetch-and-add.
 
@@ -609,7 +602,7 @@
     \sa operator+=(), fetchAndSubOrdered()
 */
 
-/*! \fn int QAtomicInteger::operator+=(int valueToAdd)
+/*! \fn T QAtomicInteger::operator+=(T valueToAdd)
     \since 5.3
 
     Atomic add-and-fetch.
@@ -623,7 +616,7 @@
     \sa fetchAndAddOrdered(), operator-=()
 */
 
-/*! \fn int QAtomicInteger::fetchAndSubRelaxed(int valueToSub)
+/*! \fn T QAtomicInteger::fetchAndSubRelaxed(T valueToSub)
     \since 5.3
 
     Atomic fetch-and-sub.
@@ -638,7 +631,7 @@
     \sa operator-=(), fetchAndAddRelaxed()
 */
 
-/*! \fn int QAtomicInteger::fetchAndSubAcquire(int valueToSub)
+/*! \fn T QAtomicInteger::fetchAndSubAcquire(T valueToSub)
     \since 5.3
 
     Atomic fetch-and-sub.
@@ -654,7 +647,7 @@
     \sa operator-=(), fetchAndAddAcquire()
 */
 
-/*! \fn int QAtomicInteger::fetchAndSubRelease(int valueToSub)
+/*! \fn T QAtomicInteger::fetchAndSubRelease(T valueToSub)
     \since 5.3
 
     Atomic fetch-and-sub.
@@ -670,7 +663,7 @@
     \sa operator-=(), fetchAndAddRelease()
 */
 
-/*! \fn int QAtomicInteger::fetchAndSubOrdered(int valueToSub)
+/*! \fn T QAtomicInteger::fetchAndSubOrdered(T valueToSub)
     \since 5.3
 
     Atomic fetch-and-sub.
@@ -686,7 +679,7 @@
     \sa operator-=(), fetchAndAddOrdered()
 */
 
-/*! \fn int QAtomicInteger::operator-=(int valueToSub)
+/*! \fn T QAtomicInteger::operator-=(T valueToSub)
     \since 5.3
 
     Atomic sub-and-fetch.
@@ -700,7 +693,7 @@
     \sa fetchAndSubOrdered(), operator+=()
 */
 
-/*! \fn int QAtomicInteger::fetchAndOrRelaxed(int valueToOr)
+/*! \fn T QAtomicInteger::fetchAndOrRelaxed(T valueToOr)
     \since 5.3
 
     Atomic fetch-and-or.
@@ -715,7 +708,7 @@
     \sa operator|=()
 */
 
-/*! \fn int QAtomicInteger::fetchAndOrAcquire(int valueToOr)
+/*! \fn T QAtomicInteger::fetchAndOrAcquire(T valueToOr)
     \since 5.3
 
     Atomic fetch-and-or.
@@ -731,7 +724,7 @@
     \sa operator|=()
 */
 
-/*! \fn int QAtomicInteger::fetchAndOrRelease(int valueToOr)
+/*! \fn T QAtomicInteger::fetchAndOrRelease(T valueToOr)
     \since 5.3
 
     Atomic fetch-and-or.
@@ -747,7 +740,7 @@
     \sa operator|=()
 */
 
-/*! \fn int QAtomicInteger::fetchAndOrOrdered(int valueToOr)
+/*! \fn T QAtomicInteger::fetchAndOrOrdered(T valueToOr)
     \since 5.3
 
     Atomic fetch-and-or.
@@ -763,7 +756,7 @@
     \sa operator|=()
 */
 
-/*! \fn int QAtomicInteger::operator|=(int valueToOr)
+/*! \fn T QAtomicInteger::operator|=(T valueToOr)
     \since 5.3
 
     Atomic or-and-fetch.
@@ -777,7 +770,7 @@
     \sa fetchAndOrOrdered()
 */
 
-/*! \fn int QAtomicInteger::fetchAndXorRelaxed(int valueToXor)
+/*! \fn T QAtomicInteger::fetchAndXorRelaxed(T valueToXor)
     \since 5.3
 
     Atomic fetch-and-xor.
@@ -792,7 +785,7 @@
     \sa operator^=()
 */
 
-/*! \fn int QAtomicInteger::fetchAndXorAcquire(int valueToXor)
+/*! \fn T QAtomicInteger::fetchAndXorAcquire(T valueToXor)
     \since 5.3
 
     Atomic fetch-and-xor.
@@ -808,7 +801,7 @@
     \sa operator^=()
 */
 
-/*! \fn int QAtomicInteger::fetchAndXorRelease(int valueToXor)
+/*! \fn T QAtomicInteger::fetchAndXorRelease(T valueToXor)
     \since 5.3
 
     Atomic fetch-and-xor.
@@ -824,7 +817,7 @@
     \sa operator^=()
 */
 
-/*! \fn int QAtomicInteger::fetchAndXorOrdered(int valueToXor)
+/*! \fn T QAtomicInteger::fetchAndXorOrdered(T valueToXor)
     \since 5.3
 
     Atomic fetch-and-xor.
@@ -840,7 +833,7 @@
     \sa operator^=()
 */
 
-/*! \fn int QAtomicInteger::operator^=(int valueToXor)
+/*! \fn T QAtomicInteger::operator^=(T valueToXor)
     \since 5.3
 
     Atomic xor-and-fetch.
@@ -854,7 +847,7 @@
     \sa fetchAndXorOrdered()
 */
 
-/*! \fn int QAtomicInteger::fetchAndAndRelaxed(int valueToAnd)
+/*! \fn T QAtomicInteger::fetchAndAndRelaxed(T valueToAnd)
     \since 5.3
 
     Atomic fetch-and-and.
@@ -869,7 +862,7 @@
     \sa operator&=()
 */
 
-/*! \fn int QAtomicInteger::fetchAndAndAcquire(int valueToAnd)
+/*! \fn T QAtomicInteger::fetchAndAndAcquire(T valueToAnd)
     \since 5.3
 
     Atomic fetch-and-and.
@@ -885,7 +878,7 @@
     \sa operator&=()
 */
 
-/*! \fn int QAtomicInteger::fetchAndAndRelease(int valueToAnd)
+/*! \fn T QAtomicInteger::fetchAndAndRelease(T valueToAnd)
     \since 5.3
 
     Atomic fetch-and-and.
@@ -901,7 +894,7 @@
     \sa operator&=()
 */
 
-/*! \fn int QAtomicInteger::fetchAndAndOrdered(int valueToAnd)
+/*! \fn T QAtomicInteger::fetchAndAndOrdered(T valueToAnd)
     \since 5.3
 
     Atomic fetch-and-and.
@@ -917,7 +910,7 @@
     \sa operator&=()
 */
 
-/*! \fn int QAtomicInteger::operator&=(int valueToAnd)
+/*! \fn T QAtomicInteger::operator&=(T valueToAnd)
     \since 5.3
 
     Atomic add-and-fetch.

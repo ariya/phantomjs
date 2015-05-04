@@ -32,17 +32,19 @@ equals(TEMPLATE, app):contains(QT, gui(-private)?) {
         # called 'qt_main' now.
 
         macx-xcode {
-            objects_dir = "${OBJECT_FILE_DIR}-${CURRENT_VARIANT}/${CURRENT_ARCH}"
+            objects_dir = "${OBJECT_FILE_DIR}-${CURRENT_VARIANT}"
+            archs = "${ARCHS}"
         } else {
             objects_dir = $$OBJECTS_DIR
             isEmpty(objects_dir): \
                 objects_dir = .
+            archs = "$$QMAKE_IOS_DEVICE_ARCHS $$QMAKE_IOS_SIMULATOR_ARCHS"
         }
 
         !isEmpty(QMAKE_PRE_LINK): \
             QMAKE_PRE_LINK += ";"
 
-        QMAKE_PRE_LINK += $$QMAKESPEC/rename_main.sh $${objects_dir}
+        QMAKE_PRE_LINK += $$QMAKESPEC/rename_main.sh $${objects_dir} \"$${archs}\"
     }
 }
 

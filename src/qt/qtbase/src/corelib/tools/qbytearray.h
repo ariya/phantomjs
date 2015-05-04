@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -49,6 +41,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+
+#include <string>
 
 #ifdef truncate
 #error qbytearray.h must be included before any header file that defines truncate
@@ -179,6 +173,9 @@ private:
     typedef QTypedArrayData<char> Data;
 
 public:
+    // undocumented:
+    static const quint64 MaxSize = (1 << 30) - sizeof(Data);
+
     enum Base64Option {
         Base64Encoding = 0,
         Base64UrlEncoding = 1,
@@ -247,9 +244,9 @@ public:
     int count(const char *a) const;
     int count(const QByteArray &a) const;
 
-    QByteArray left(int len) const;
-    QByteArray right(int len) const;
-    QByteArray mid(int index, int len = -1) const;
+    QByteArray left(int len) const Q_REQUIRED_RESULT;
+    QByteArray right(int len) const Q_REQUIRED_RESULT;
+    QByteArray mid(int index, int len = -1) const Q_REQUIRED_RESULT;
 
     bool startsWith(const QByteArray &a) const;
     bool startsWith(char c) const;
@@ -262,13 +259,13 @@ public:
     void truncate(int pos);
     void chop(int n);
 
-    QByteArray toLower() const;
-    QByteArray toUpper() const;
+    QByteArray toLower() const Q_REQUIRED_RESULT;
+    QByteArray toUpper() const Q_REQUIRED_RESULT;
 
-    QByteArray trimmed() const;
-    QByteArray simplified() const;
-    QByteArray leftJustified(int width, char fill = ' ', bool truncate = false) const;
-    QByteArray rightJustified(int width, char fill = ' ', bool truncate = false) const;
+    QByteArray trimmed() const Q_REQUIRED_RESULT;
+    QByteArray simplified() const Q_REQUIRED_RESULT;
+    QByteArray leftJustified(int width, char fill = ' ', bool truncate = false) const Q_REQUIRED_RESULT;
+    QByteArray rightJustified(int width, char fill = ' ', bool truncate = false) const Q_REQUIRED_RESULT;
 
     QByteArray &prepend(char c);
     QByteArray &prepend(const char *s);
@@ -300,7 +297,7 @@ public:
 
     QList<QByteArray> split(char sep) const;
 
-    QByteArray repeated(int times) const;
+    QByteArray repeated(int times) const Q_REQUIRED_RESULT;
 
 #ifndef QT_NO_CAST_TO_ASCII
     QT_ASCII_CAST_WARN QByteArray &append(const QString &s);
@@ -349,16 +346,16 @@ public:
     QByteArray &setNum(double, char f = 'g', int prec = 6);
     QByteArray &setRawData(const char *a, uint n); // ### Qt 6: use an int
 
-    static QByteArray number(int, int base = 10);
-    static QByteArray number(uint, int base = 10);
-    static QByteArray number(qlonglong, int base = 10);
-    static QByteArray number(qulonglong, int base = 10);
-    static QByteArray number(double, char f = 'g', int prec = 6);
-    static QByteArray fromRawData(const char *, int size);
-    static QByteArray fromBase64(const QByteArray &base64, Base64Options options);
-    static QByteArray fromBase64(const QByteArray &base64); // ### Qt6 merge with previous
-    static QByteArray fromHex(const QByteArray &hexEncoded);
-    static QByteArray fromPercentEncoding(const QByteArray &pctEncoded, char percent = '%');
+    static QByteArray number(int, int base = 10) Q_REQUIRED_RESULT;
+    static QByteArray number(uint, int base = 10) Q_REQUIRED_RESULT;
+    static QByteArray number(qlonglong, int base = 10) Q_REQUIRED_RESULT;
+    static QByteArray number(qulonglong, int base = 10) Q_REQUIRED_RESULT;
+    static QByteArray number(double, char f = 'g', int prec = 6) Q_REQUIRED_RESULT;
+    static QByteArray fromRawData(const char *, int size) Q_REQUIRED_RESULT;
+    static QByteArray fromBase64(const QByteArray &base64, Base64Options options) Q_REQUIRED_RESULT;
+    static QByteArray fromBase64(const QByteArray &base64) Q_REQUIRED_RESULT; // ### Qt6 merge with previous
+    static QByteArray fromHex(const QByteArray &hexEncoded) Q_REQUIRED_RESULT;
+    static QByteArray fromPercentEncoding(const QByteArray &pctEncoded, char percent = '%') Q_REQUIRED_RESULT;
 
 #if defined(Q_OS_MAC) || defined(Q_QDOC)
     static QByteArray fromCFData(CFDataRef data);
@@ -387,8 +384,12 @@ public:
     const_iterator constEnd() const;
 
     // stl compatibility
+    typedef int size_type;
+    typedef qptrdiff difference_type;
     typedef const char & const_reference;
     typedef char & reference;
+    typedef char *pointer;
+    typedef const char *const_pointer;
     typedef char value_type;
     void push_back(char c);
     void push_back(const char *c);
@@ -396,6 +397,9 @@ public:
     void push_front(char c);
     void push_front(const char *c);
     void push_front(const QByteArray &a);
+
+    static inline QByteArray fromStdString(const std::string &s);
+    inline std::string toStdString() const;
 
     inline int count() const { return d->size; }
     int length() const { return d->size; }
@@ -620,6 +624,11 @@ inline QByteArray &QByteArray::setNum(uint n, int base)
 inline QByteArray &QByteArray::setNum(float n, char f, int prec)
 { return setNum(double(n),f,prec); }
 
+inline std::string QByteArray::toStdString() const
+{ return std::string(constData(), length()); }
+
+inline QByteArray QByteArray::fromStdString(const std::string &s)
+{ return QByteArray(s.data(), int(s.size())); }
 
 #if !defined(QT_NO_DATASTREAM) || (defined(QT_BOOTSTRAPPED) && !defined(QT_BUILD_QMAKE))
 Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QByteArray &);

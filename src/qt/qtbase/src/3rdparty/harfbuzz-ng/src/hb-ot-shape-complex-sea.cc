@@ -139,11 +139,11 @@ set_sea_properties (hb_glyph_info_t &info)
 {
   hb_codepoint_t u = info.codepoint;
   unsigned int type = hb_indic_get_categories (u);
-  indic_category_t cat = (indic_category_t) (type & 0x7F);
+  indic_category_t cat = (indic_category_t) (type & 0x7Fu);
   indic_position_t pos = (indic_position_t) (type >> 8);
 
   /* Medial Ra */
-  if (u == 0x1A55 || u == 0xAA34)
+  if (u == 0x1A55u || u == 0xAA34u)
     cat = (indic_category_t) OT_MR;
 
   if (cat == OT_M)
@@ -174,8 +174,9 @@ setup_masks_sea (const hb_ot_shape_plan_t *plan HB_UNUSED,
    * and setup masks later on in a pause-callback. */
 
   unsigned int count = buffer->len;
+  hb_glyph_info_t *info = buffer->info;
   for (unsigned int i = 0; i < count; i++)
-    set_sea_properties (buffer->info[i]);
+    set_sea_properties (info[i]);
 }
 
 static void
@@ -278,8 +279,10 @@ insert_dotted_circles (const hb_ot_shape_plan_t *plan HB_UNUSED,
   /* Note: This loop is extra overhead, but should not be measurable. */
   bool has_broken_syllables = false;
   unsigned int count = buffer->len;
+  hb_glyph_info_t *info = buffer->info;
   for (unsigned int i = 0; i < count; i++)
-    if ((buffer->info[i].syllable() & 0x0F) == broken_cluster) {
+    if ((info[i].syllable() & 0x0F) == broken_cluster)
+    {
       has_broken_syllables = true;
       break;
     }
@@ -288,11 +291,11 @@ insert_dotted_circles (const hb_ot_shape_plan_t *plan HB_UNUSED,
 
 
   hb_codepoint_t dottedcircle_glyph;
-  if (!font->get_glyph (0x25CC, 0, &dottedcircle_glyph))
+  if (!font->get_glyph (0x25CCu, 0, &dottedcircle_glyph))
     return;
 
   hb_glyph_info_t dottedcircle = {0};
-  dottedcircle.codepoint = 0x25CC;
+  dottedcircle.codepoint = 0x25CCu;
   set_sea_properties (dottedcircle);
   dottedcircle.codepoint = dottedcircle_glyph;
 

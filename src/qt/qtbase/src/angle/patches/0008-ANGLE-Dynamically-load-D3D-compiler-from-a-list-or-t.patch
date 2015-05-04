@@ -1,0 +1,64 @@
+From 4a5960465d1632ab089320fcbba4af294d58fd9a Mon Sep 17 00:00:00 2001
+From: Andrew Knight <andrew.knight@theqtcompany.com>
+Date: Fri, 7 Nov 2014 14:05:36 +0200
+Subject: [PATCH 08/16] ANGLE: Dynamically load D3D compiler from a list or the
+ environment
+
+If the default compiler cannot be found, load it from a list of DLL names,
+including a non-versioned proxy DLL provided by Qt. On Desktop Windows,
+the default compiler can also be specified by an environment variable,
+QT_D3DCOMPILER_DLL.
+
+Change-Id: I0d7a8a8a36cc571836f8fa59ea14513b9b19c19b
+---
+ .../src/libGLESv2/renderer/d3d/HLSLCompiler.cpp    | 27 ++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/HLSLCompiler.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/HLSLCompiler.cpp
+index bfeaf51..9d003b4 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/HLSLCompiler.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/HLSLCompiler.cpp
+@@ -11,6 +11,10 @@
+ #include "common/features.h"
+ #include "common/utilities.h"
+ 
++#ifndef QT_D3DCOMPILER_DLL
++#define QT_D3DCOMPILER_DLL D3DCOMPILER_DLL
++#endif
++
+ // Definitions local to the translation unit
+ namespace
+ {
+@@ -132,6 +136,29 @@ bool HLSLCompiler::initialize()
+     }
+ #endif  // ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES
+ 
++    // Load the compiler DLL specified by the environment, or default to QT_D3DCOMPILER_DLL
++    const wchar_t *defaultCompiler = _wgetenv(L"QT_D3DCOMPILER_DLL");
++    if (!defaultCompiler)
++        defaultCompiler = QT_D3DCOMPILER_DLL;
++
++    const wchar_t *compilerDlls[] = {
++        defaultCompiler,
++        L"d3dcompiler_47.dll",
++        L"d3dcompiler_46.dll",
++        L"d3dcompiler_45.dll",
++        L"d3dcompiler_44.dll",
++        L"d3dcompiler_43.dll",
++        0
++    };
++
++    // Load the first available known compiler DLL
++    for (int i = 0; compilerDlls[i]; ++i)
++    {
++        mD3DCompilerModule = LoadLibrary(compilerDlls[i]);
++        if (mD3DCompilerModule)
++            break;
++    }
++
+     if (!mD3DCompilerModule)
+     {
+         // Load the version of the D3DCompiler DLL associated with the Direct3D version ANGLE was built with.
+-- 
+1.9.4.msysgit.1
+

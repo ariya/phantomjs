@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -167,7 +159,7 @@ QAbstractFileEngine *QFilePrivate::engine() const
     disk into a 16-bit Unicode QString. By default, it assumes that
     the user system's local 8-bit encoding is used (e.g., UTF-8
     on most unix based operating systems; see QTextCodec::codecForLocale() for
-    details). This can be changed using setCodec().
+    details). This can be changed using \l QTextStream::setCodec().
 
     To write text, we can use operator<<(), which is overloaded to
     take a QTextStream on the left and various data types (including
@@ -213,6 +205,13 @@ QAbstractFileEngine *QFilePrivate::engine() const
     the case on Windows, where, for instance, the 'My Documents'
     directory usually is not writable, but it is still possible to
     create files in it.
+
+    Qt's understanding of file permissions is limited, which affects especially
+    the \l QFile::setPermissions() function. On Windows, Qt will set only the
+    legacy read-only flag, and that only when none of the Write* flags are
+    passed. Qt does not manipulate access control lists (ACLs), which makes this
+    function mostly useless for NTFS volumes. It may still be of use for USB
+    sticks that use VFAT file systems. POSIX ACLs are not manipulated, either.
 
     \sa QTextStream, QDataStream, QFileInfo, QDir, {The Qt Resource System}
 */
@@ -987,8 +986,8 @@ bool QFile::open(FILE *fh, OpenMode mode, FileHandleFlags handleFlags)
     those cases, size() returns \c 0.  See QIODevice::isSequential()
     for more information.
 
-    \warning For Windows CE you may not be able to call seek(), setSize(),
-    fileTime(). size() returns \c 0.
+    \warning For Windows CE you may not be able to call seek(), and size()
+             returns \c 0.
 
     \warning Since this function opens the file without specifying the file name,
              you cannot use this QFile with a QFileInfo.
@@ -1071,8 +1070,11 @@ QFile::permissions(const QString &fileName)
 
 /*!
     Sets the permissions for the file to the \a permissions specified.
-    Returns \c true if successful, or false if the permissions cannot be
+    Returns \c true if successful, or \c false if the permissions cannot be
     modified.
+
+    \warning This function does not manipulate ACLs, which may limit its
+    effectiveness.
 
     \sa permissions(), setFileName()
 */

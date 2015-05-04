@@ -349,11 +349,7 @@ struct hb_apply_context_t
     may_skip (const hb_apply_context_t *c,
 	      const hb_glyph_info_t    &info) const
     {
-      unsigned int property;
-
-      property = _hb_glyph_info_get_glyph_props (&info);
-
-      if (!c->match_properties (info.codepoint, property, lookup_props))
+      if (!c->check_glyph_property (&info, lookup_props))
 	return SKIP_YES;
 
       if (unlikely (_hb_glyph_info_is_default_ignorable (&info) &&
@@ -487,7 +483,6 @@ struct hb_apply_context_t
 	const hb_glyph_info_t &info = c->buffer->out_info[idx];
 
 	matcher_t::may_skip_t skip = matcher.may_skip (c, info);
-
 	if (unlikely (skip == matcher_t::SKIP_YES))
 	  continue;
 
@@ -538,10 +533,12 @@ struct hb_apply_context_t
   }
 
   inline bool
-  match_properties (hb_codepoint_t  glyph,
-		    unsigned int    glyph_props,
-		    unsigned int    lookup_props) const
+  check_glyph_property (const hb_glyph_info_t *info,
+			unsigned int  lookup_props) const
   {
+    hb_codepoint_t glyph = info->codepoint;
+    unsigned int glyph_props = _hb_glyph_info_get_glyph_props (info);
+
     /* Not covered, if, for example, glyph class is ligature and
      * lookup_props includes LookupFlags::IgnoreLigatures
      */
@@ -554,26 +551,27 @@ struct hb_apply_context_t
     return true;
   }
 
-  inline bool
-  check_glyph_property (hb_glyph_info_t *info,
-			unsigned int  lookup_props) const
-  {
-    unsigned int property;
-
-    property = _hb_glyph_info_get_glyph_props (info);
-
-    return match_properties (info->codepoint, property, lookup_props);
-  }
-
   inline void _set_glyph_props (hb_codepoint_t glyph_index,
 			  unsigned int class_guess = 0,
-			  bool ligature = false) const
+			  bool ligature = false,
+			  bool component = false) const
   {
     unsigned int add_in = _hb_glyph_info_get_glyph_props (&buffer->cur()) &
 			  HB_OT_LAYOUT_GLYPH_PROPS_PRESERVE;
     add_in |= HB_OT_LAYOUT_GLYPH_PROPS_SUBSTITUTED;
     if (ligature)
+    {
       add_in |= HB_OT_LAYOUT_GLYPH_PROPS_LIGATED;
+      /* In the only place that the MULTIPLIED bit is used, Uniscribe
+       * seems to only care about the "last" transformation between
+       * Ligature and Multiple substitions.  Ie. if you ligate, expand,
+       * and ligate again, it forgives the multiplication and acts as
+       * if only ligation happened.  As such, clear MULTIPLIED bit.
+       */
+      add_in &= ~HB_OT_LAYOUT_GLYPH_PROPS_MULTIPLIED;
+    }
+    if (component)
+      add_in |= HB_OT_LAYOUT_GLYPH_PROPS_MULTIPLIED;
     if (likely (has_glyph_classes))
       _hb_glyph_info_set_glyph_props (&buffer->cur(), add_in | gdef.get_glyph_props (glyph_index));
     else if (class_guess)
@@ -596,10 +594,10 @@ struct hb_apply_context_t
     _set_glyph_props (glyph_index, class_guess, true);
     buffer->replace_glyph (glyph_index);
   }
-  inline void output_glyph (hb_codepoint_t glyph_index,
-			    unsigned int class_guess) const
+  inline void output_glyph_for_component (hb_codepoint_t glyph_index,
+					  unsigned int class_guess) const
   {
-    _set_glyph_props (glyph_index, class_guess);
+    _set_glyph_props (glyph_index, class_guess, false, true);
     buffer->output_glyph (glyph_index);
   }
 };
@@ -882,6 +880,7 @@ static inline void ligate_input (hb_apply_context_t *c,
 	break;
     }
   }
+  TRACE_RETURN (true);
 }
 
 static inline bool match_backtrack (hb_apply_context_t *c,
@@ -994,7 +993,9 @@ static inline bool apply_lookup (hb_apply_context_t *c,
 
     /* Recursed lookup changed buffer len.  Adjust. */
 
-    /* end can't go back past the current match position. */
+    /* end can't go back past the current match position.
+     * Note: this is only true because we do NOT allow MultipleSubst
+     * with zero sequence len. */
     end = MAX ((int) match_positions[idx] + 1, int (end) + delta);
 
     unsigned int next = idx + 1; /* next now is the position after the recursed lookup. */
@@ -2253,8 +2254,8 @@ struct GSUBGPOS
 
   inline unsigned int get_feature_count (void) const
   { return (this+featureList).len; }
-  inline const Tag& get_feature_tag (unsigned int i) const
-  { return (this+featureList).get_tag (i); }
+  inline hb_tag_t get_feature_tag (unsigned int i) const
+  { return i == Index::NOT_FOUND_INDEX ? HB_TAG_NONE : (this+featureList).get_tag (i); }
   inline unsigned int get_feature_tags (unsigned int start_offset,
 					unsigned int *feature_count /* IN/OUT */,
 					hb_tag_t     *feature_tags /* OUT */) const
@@ -2279,7 +2280,7 @@ struct GSUBGPOS
 
   protected:
   FixedVersion	version;	/* Version of the GSUB/GPOS table--initially set
-				 * to 0x00010000 */
+				 * to 0x00010000u */
   OffsetTo<ScriptList>
 		scriptList;  	/* ScriptList table */
   OffsetTo<FeatureList>

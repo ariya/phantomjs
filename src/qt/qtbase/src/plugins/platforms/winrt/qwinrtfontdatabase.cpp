@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -44,13 +36,13 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
 
-#ifndef Q_OS_WINPHONE
+#ifdef QT_WINRT_USE_DWRITE
 #include <QtCore/QUuid>
 #include <QtGui/private/qfontengine_ft_p.h>
 #include <dwrite_1.h>
 #include <wrl.h>
 using namespace Microsoft::WRL;
-#endif // !Q_OS_WINPHONE
+#endif // QT_WINRT_USE_DWRITE
 
 QT_BEGIN_NAMESPACE
 
@@ -62,7 +54,7 @@ QString QWinRTFontDatabase::fontDir() const
         const QString applicationDirPath = QCoreApplication::applicationDirPath();
         fontDirectory = applicationDirPath + QLatin1String("/fonts");
         if (!QFile::exists(fontDirectory)) {
-#ifndef Q_OS_WINPHONE
+#ifdef QT_WINRT_USE_DWRITE
             if (m_fontFamilies.isEmpty())
 #endif
                 qWarning("No fonts directory found in application package.");
@@ -72,7 +64,7 @@ QString QWinRTFontDatabase::fontDir() const
     return fontDirectory;
 }
 
-#ifndef Q_OS_WINPHONE
+#ifdef QT_WINRT_USE_DWRITE
 
 QWinRTFontDatabase::~QWinRTFontDatabase()
 {
@@ -398,6 +390,13 @@ void QWinRTFontDatabase::releaseHandle(void *handle)
     QBasicFontDatabase::releaseHandle(handle);
 }
 
-#endif // !Q_OS_WINPHONE
+#else // QT_WINRT_USE_DWRITE
+
+QFont QWinRTFontDatabase::defaultFont() const
+{
+    return QFont(QFontDatabase().families().value(0));
+}
+
+#endif // !QT_WINRT_USE_DWRITE
 
 QT_END_NAMESPACE

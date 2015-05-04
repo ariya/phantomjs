@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -453,6 +445,8 @@ QHostAddress::QHostAddress(const struct sockaddr *sockaddr)
         setAddress(htonl(((sockaddr_in *)sockaddr)->sin_addr.s_addr));
     else if (sockaddr->sa_family == AF_INET6)
         setAddress(((qt_sockaddr_in6 *)sockaddr)->sin6_addr.qt_s6_addr);
+#else
+    Q_UNUSED(sockaddr)
 #endif
 }
 
@@ -612,6 +606,8 @@ void QHostAddress::setAddress(const struct sockaddr *sockaddr)
         setAddress(htonl(((sockaddr_in *)sockaddr)->sin_addr.s_addr));
     else if (sockaddr->sa_family == AF_INET6)
         setAddress(((qt_sockaddr_in6 *)sockaddr)->sin6_addr.qt_s6_addr);
+#else
+    Q_UNUSED(sockaddr)
 #endif
 }
 
@@ -782,18 +778,34 @@ bool QHostAddress::operator==(const QHostAddress &other) const
 bool QHostAddress::operator ==(SpecialAddress other) const
 {
     QT_ENSURE_PARSED(this);
-    QHostAddress otherAddress(other);
-    QT_ENSURE_PARSED(&otherAddress);
+    switch (other) {
+    case Null:
+        return d->protocol == QAbstractSocket::UnknownNetworkLayerProtocol;
 
-    if (d->protocol == QAbstractSocket::IPv4Protocol)
-        return otherAddress.d->protocol == QAbstractSocket::IPv4Protocol && d->a == otherAddress.d->a;
-    if (d->protocol == QAbstractSocket::IPv6Protocol) {
-        return otherAddress.d->protocol == QAbstractSocket::IPv6Protocol
-               && memcmp(&d->a6, &otherAddress.d->a6, sizeof(Q_IPV6ADDR)) == 0;
+    case Broadcast:
+        return d->protocol == QAbstractSocket::IPv4Protocol && d->a == INADDR_BROADCAST;
+
+    case LocalHost:
+        return d->protocol == QAbstractSocket::IPv4Protocol && d->a == INADDR_LOOPBACK;
+
+    case Any:
+        return d->protocol == QAbstractSocket::AnyIPProtocol;
+
+    case AnyIPv4:
+        return d->protocol == QAbstractSocket::IPv4Protocol && d->a == INADDR_ANY;
+
+    case LocalHostIPv6:
+    case AnyIPv6:
+        if (d->protocol == QAbstractSocket::IPv6Protocol) {
+            Q_IPV6ADDR ip6 = { { 0 } };
+            ip6[15] = quint8(other == LocalHostIPv6);  // 1 for localhost, 0 for any
+            return memcmp(&d->a6, &ip6, sizeof ip6) == 0;
+        }
+        return false;
     }
-    if (d->protocol == QAbstractSocket::AnyIPProtocol)
-        return other == QHostAddress::Any;
-    return int(other) == int(Null);
+
+    Q_UNREACHABLE();
+    return false;
 }
 
 /*!
@@ -1028,7 +1040,10 @@ bool QHostAddress::isLoopback() const
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug d, const QHostAddress &address)
 {
-    d.maybeSpace() << "QHostAddress(" << address.toString() << ')';
+    if (address == QHostAddress::Any)
+        d.maybeSpace() << "QHostAddress(QHostAddress::Any)";
+    else
+        d.maybeSpace() << "QHostAddress(" << address.toString() << ')';
     return d.space();
 }
 #endif

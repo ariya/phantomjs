@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2002-2010 The ANGLE Project Authors. All rights reserved.
+// Copyright (c) 2002-2014 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -7,47 +7,50 @@
 #include "compiler/translator/ParseContext.h"
 
 //
-// Use this class to carry along data from node to node in 
+// Use this class to carry along data from node to node in
 // the traversal
 //
-class TConstTraverser : public TIntermTraverser {
-public:
-    TConstTraverser(ConstantUnion* cUnion, bool singleConstParam, TOperator constructType, TInfoSink& sink, TSymbolTable& symTable, TType& t)
+class TConstTraverser : public TIntermTraverser
+{
+  public:
+    TConstTraverser(ConstantUnion *cUnion, bool singleConstParam,
+                    TOperator constructType, TInfoSink &sink, TType &t)
         : error(false),
-          index(0),
-          unionArray(cUnion),
-          type(t),
-          constructorType(constructType),
-          singleConstantParam(singleConstParam),
-          infoSink(sink),
-          symbolTable(symTable),
-          size(0),
-          isMatrix(false),
-          matrixSize(0) {
+          mIndex(0),
+          mUnionArray(cUnion),
+          mType(t),
+          mConstructorType(constructType),
+          mSingleConstantParam(singleConstParam),
+          mInfoSink(sink),
+          mSize(0),
+          mIsDiagonalMatrixInit(false),
+          mMatrixCols(0),
+          mMatrixRows(0)
+    {
     }
 
     bool error;
 
-protected:
-    void visitSymbol(TIntermSymbol*);
-    void visitConstantUnion(TIntermConstantUnion*);
-    bool visitBinary(Visit visit, TIntermBinary*);
-    bool visitUnary(Visit visit, TIntermUnary*);
-    bool visitSelection(Visit visit, TIntermSelection*);
-    bool visitAggregate(Visit visit, TIntermAggregate*);
-    bool visitLoop(Visit visit, TIntermLoop*);
-    bool visitBranch(Visit visit, TIntermBranch*);
+  protected:
+    void visitSymbol(TIntermSymbol *);
+    void visitConstantUnion(TIntermConstantUnion *);
+    bool visitBinary(Visit visit, TIntermBinary *);
+    bool visitUnary(Visit visit, TIntermUnary *);
+    bool visitSelection(Visit visit, TIntermSelection *);
+    bool visitAggregate(Visit visit, TIntermAggregate *);
+    bool visitLoop(Visit visit, TIntermLoop *);
+    bool visitBranch(Visit visit, TIntermBranch *);
 
-    size_t index;
-    ConstantUnion *unionArray;
-    TType type;
-    TOperator constructorType;
-    bool singleConstantParam;
-    TInfoSink& infoSink;
-    TSymbolTable& symbolTable;
-    size_t size; // size of the constructor ( 4 for vec4)
-    bool isMatrix;
-    size_t matrixSize; // dimension of the matrix (nominal size and not the instance size)
+    size_t mIndex;
+    ConstantUnion *mUnionArray;
+    TType mType;
+    TOperator mConstructorType;
+    bool mSingleConstantParam;
+    TInfoSink &mInfoSink;
+    size_t mSize; // size of the constructor ( 4 for vec4)
+    bool mIsDiagonalMatrixInit;
+    int mMatrixCols; // columns of the matrix
+    int mMatrixRows; // rows of the matrix
 };
 
 //
@@ -58,169 +61,182 @@ protected:
 // continue on to children.  If you process children yourself,
 // return false.
 //
-
-void TConstTraverser::visitSymbol(TIntermSymbol* node)
+void TConstTraverser::visitSymbol(TIntermSymbol *node)
 {
-    infoSink.info.message(EPrefixInternalError, node->getLine(), "Symbol Node found in constant constructor");
+    mInfoSink.info.message(EPrefixInternalError, node->getLine(),
+                           "Symbol Node found in constant constructor");
     return;
-
 }
 
-bool TConstTraverser::visitBinary(Visit visit, TIntermBinary* node)
+bool TConstTraverser::visitBinary(Visit visit, TIntermBinary *node)
 {
     TQualifier qualifier = node->getType().getQualifier();
-    
-    if (qualifier != EvqConst) {
+
+    if (qualifier != EvqConst)
+    {
         TString buf;
         buf.append("'constructor' : assigning non-constant to ");
-        buf.append(type.getCompleteString());
-        infoSink.info.message(EPrefixError, node->getLine(), buf.c_str());
-        error = true;
-        return false;  
-    }
-
-   infoSink.info.message(EPrefixInternalError, node->getLine(), "Binary Node found in constant constructor");
-    
-    return false;
-}
-
-bool TConstTraverser::visitUnary(Visit visit, TIntermUnary* node)
-{
-    TString buf;
-    buf.append("'constructor' : assigning non-constant to ");
-    buf.append(type.getCompleteString());
-    infoSink.info.message(EPrefixError, node->getLine(), buf.c_str());
-    error = true;
-    return false;  
-}
-
-bool TConstTraverser::visitAggregate(Visit visit, TIntermAggregate* node)
-{
-    if (!node->isConstructor() && node->getOp() != EOpComma) {
-        TString buf;
-        buf.append("'constructor' : assigning non-constant to ");
-        buf.append(type.getCompleteString());
-        infoSink.info.message(EPrefixError, node->getLine(), buf.c_str());
-        error = true;
-        return false;  
-    }
-
-    if (node->getSequence().size() == 0) {
+        buf.append(mType.getCompleteString());
+        mInfoSink.info.message(EPrefixError, node->getLine(), buf.c_str());
         error = true;
         return false;
     }
 
-    bool flag = node->getSequence().size() == 1 && node->getSequence()[0]->getAsTyped()->getAsConstantUnion();
-    if (flag) 
-    {
-        singleConstantParam = true; 
-        constructorType = node->getOp();
-        size = node->getType().getObjectSize();
-
-        if (node->getType().isMatrix()) {
-            isMatrix = true;
-            matrixSize = node->getType().getNominalSize();
-        }
-    }       
-
-    for (TIntermSequence::iterator p = node->getSequence().begin(); 
-                                   p != node->getSequence().end(); p++) {
-
-        if (node->getOp() == EOpComma)
-            index = 0;           
-
-        (*p)->traverse(this);
-    }   
-    if (flag) 
-    {
-        singleConstantParam = false;   
-        constructorType = EOpNull;
-        size = 0;
-        isMatrix = false;
-        matrixSize = 0;
-    }
+    mInfoSink.info.message(EPrefixInternalError, node->getLine(),
+                           "Binary Node found in constant constructor");
     return false;
 }
 
-bool TConstTraverser::visitSelection(Visit visit, TIntermSelection* node)
+bool TConstTraverser::visitUnary(Visit visit, TIntermUnary *node)
 {
-    infoSink.info.message(EPrefixInternalError, node->getLine(), "Selection Node found in constant constructor");
+    TString buf;
+    buf.append("'constructor' : assigning non-constant to ");
+    buf.append(mType.getCompleteString());
+    mInfoSink.info.message(EPrefixError, node->getLine(), buf.c_str());
     error = true;
     return false;
 }
 
-void TConstTraverser::visitConstantUnion(TIntermConstantUnion* node)
+bool TConstTraverser::visitAggregate(Visit visit, TIntermAggregate *node)
+{
+    if (!node->isConstructor() && node->getOp() != EOpComma)
+    {
+        TString buf;
+        buf.append("'constructor' : assigning non-constant to ");
+        buf.append(mType.getCompleteString());
+        mInfoSink.info.message(EPrefixError, node->getLine(), buf.c_str());
+        error = true;
+        return false;
+    }
+
+    if (node->getSequence()->size() == 0)
+    {
+        error = true;
+        return false;
+    }
+
+    bool flag = node->getSequence()->size() == 1 &&
+                (*node->getSequence())[0]->getAsTyped()->getAsConstantUnion();
+    if (flag)
+    {
+        mSingleConstantParam = true;
+        mConstructorType = node->getOp();
+        mSize = node->getType().getObjectSize();
+
+        if (node->getType().isMatrix())
+        {
+            mIsDiagonalMatrixInit = true;
+            mMatrixCols = node->getType().getCols();
+            mMatrixRows = node->getType().getRows();
+        }
+    }
+
+    for (TIntermSequence::iterator p = node->getSequence()->begin();
+         p != node->getSequence()->end(); p++)
+    {
+        if (node->getOp() == EOpComma)
+            mIndex = 0;
+        (*p)->traverse(this);
+    }
+    if (flag)
+    {
+        mSingleConstantParam = false;
+        mConstructorType = EOpNull;
+        mSize = 0;
+        mIsDiagonalMatrixInit = false;
+        mMatrixCols = 0;
+        mMatrixRows = 0;
+    }
+    return false;
+}
+
+bool TConstTraverser::visitSelection(Visit visit, TIntermSelection *node)
+{
+    mInfoSink.info.message(EPrefixInternalError, node->getLine(),
+                           "Selection Node found in constant constructor");
+    error = true;
+    return false;
+}
+
+void TConstTraverser::visitConstantUnion(TIntermConstantUnion *node)
 {
     if (!node->getUnionArrayPointer())
     {
         // The constant was not initialized, this should already have been logged
-        assert(infoSink.info.size() != 0);
+        ASSERT(mInfoSink.info.size() != 0);
         return;
     }
 
-    ConstantUnion* leftUnionArray = unionArray;
-    size_t instanceSize = type.getObjectSize();
+    ConstantUnion *leftUnionArray = mUnionArray;
+    size_t instanceSize = mType.getObjectSize();
+    TBasicType basicType = mType.getBasicType();
 
-    if (index >= instanceSize)
+    if (mIndex >= instanceSize)
         return;
 
-    if (!singleConstantParam) {
-        size_t size = node->getType().getObjectSize();
-    
+    if (!mSingleConstantParam)
+    {
+        size_t objectSize = node->getType().getObjectSize();
         ConstantUnion *rightUnionArray = node->getUnionArrayPointer();
-        for (size_t i = 0; i < size; i++) {
-            if (index >= instanceSize)
+        for (size_t i=0; i < objectSize; i++)
+        {
+            if (mIndex >= instanceSize)
                 return;
-            leftUnionArray[index] = rightUnionArray[i];
-
-            (index)++;
+            leftUnionArray[mIndex].cast(basicType, rightUnionArray[i]);
+            mIndex++;
         }
-    } else {
-        size_t totalSize = index + size;
+    }
+    else
+    {
+        size_t totalSize = mIndex + mSize;
         ConstantUnion *rightUnionArray = node->getUnionArrayPointer();
-        if (!isMatrix) {
-            size_t count = 0;
-            for (size_t i = index; i < totalSize; i++) {
+        if (!mIsDiagonalMatrixInit)
+        {
+            int count = 0;
+            for (size_t i = mIndex; i < totalSize; i++)
+            {
                 if (i >= instanceSize)
                     return;
-
-                leftUnionArray[i] = rightUnionArray[count];
-
-                (index)++;
-                
+                leftUnionArray[i].cast(basicType, rightUnionArray[count]);
+                mIndex++;
                 if (node->getType().getObjectSize() > 1)
                     count++;
             }
-        } else {  // for matrix constructors
-            size_t count = 0;
-            size_t element = index;
-            for (size_t i = index; i < totalSize; i++) {
-                if (i >= instanceSize)
-                    return;
-                if (element - i == 0 || (i - element) % (matrixSize + 1) == 0 )
-                    leftUnionArray[i] = rightUnionArray[count];
-                else 
-                    leftUnionArray[i].setFConst(0.0f);
-
-                (index)++;
-
-                if (node->getType().getObjectSize() > 1)
-                    count++;                
+        }
+        else
+        {
+            // for matrix diagonal constructors from a single scalar
+            for (int i = 0, col = 0; col < mMatrixCols; col++)
+            {
+                for (int row = 0; row < mMatrixRows; row++, i++)
+                {
+                    if (col == row)
+                    {
+                        leftUnionArray[i].cast(basicType, rightUnionArray[0]);
+                    }
+                    else
+                    {
+                        leftUnionArray[i].setFConst(0.0f);
+                    }
+                    mIndex++;
+                }
             }
         }
     }
 }
 
-bool TConstTraverser::visitLoop(Visit visit, TIntermLoop* node)
+bool TConstTraverser::visitLoop(Visit visit, TIntermLoop *node)
 {
-    infoSink.info.message(EPrefixInternalError, node->getLine(), "Loop Node found in constant constructor");
+    mInfoSink.info.message(EPrefixInternalError, node->getLine(),
+                           "Loop Node found in constant constructor");
     error = true;
     return false;
 }
 
-bool TConstTraverser::visitBranch(Visit visit, TIntermBranch* node)
+bool TConstTraverser::visitBranch(Visit visit, TIntermBranch *node)
 {
-    infoSink.info.message(EPrefixInternalError, node->getLine(), "Branch Node found in constant constructor");
+    mInfoSink.info.message(EPrefixInternalError, node->getLine(),
+                           "Branch Node found in constant constructor");
     error = true;
     return false;
 }
@@ -230,12 +246,15 @@ bool TConstTraverser::visitBranch(Visit visit, TIntermBranch* node)
 // Individual functions can be initialized to 0 to skip processing of that
 // type of node.  It's children will still be processed.
 //
-bool TIntermediate::parseConstTree(const TSourceLoc& line, TIntermNode* root, ConstantUnion* unionArray, TOperator constructorType, TSymbolTable& symbolTable, TType t, bool singleConstantParam)
+bool TIntermediate::parseConstTree(
+    const TSourceLoc &line, TIntermNode *root, ConstantUnion *unionArray,
+    TOperator constructorType, TType t, bool singleConstantParam)
 {
     if (root == 0)
         return false;
 
-    TConstTraverser it(unionArray, singleConstantParam, constructorType, infoSink, symbolTable, t);
+    TConstTraverser it(unionArray, singleConstantParam, constructorType,
+                       mInfoSink, t);
 
     root->traverse(&it);
     if (it.error)

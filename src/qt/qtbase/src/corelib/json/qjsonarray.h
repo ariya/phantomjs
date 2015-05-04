@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -44,6 +36,9 @@
 
 #include <QtCore/qjsonvalue.h>
 #include <QtCore/qiterator.h>
+#if defined(Q_COMPILER_INITIALIZER_LISTS)
+#include <initializer_list>
+#endif
 
 QT_BEGIN_NAMESPACE
 
@@ -56,6 +51,16 @@ class Q_CORE_EXPORT QJsonArray
 {
 public:
     QJsonArray();
+
+#if defined(Q_COMPILER_INITIALIZER_LISTS) || defined(Q_QDOC)
+    QJsonArray(std::initializer_list<QJsonValue> args)
+    {
+        initialize();
+        for (std::initializer_list<QJsonValue>::const_iterator i = args.begin(); i != args.end(); ++i)
+            append(*i);
+    }
+#endif
+
     ~QJsonArray();
 
     QJsonArray(const QJsonArray &other);
@@ -99,14 +104,18 @@ public:
         typedef std::random_access_iterator_tag  iterator_category;
         typedef int difference_type;
         typedef QJsonValue value_type;
-        //typedef T *pointer;
         typedef QJsonValueRef reference;
+        typedef QJsonValueRefPtr pointer;
 
         inline iterator() : a(0), i(0) { }
         explicit inline iterator(QJsonArray *array, int index) : a(array), i(index) { }
 
         inline QJsonValueRef operator*() const { return QJsonValueRef(a, i); }
-        //inline T *operator->() const { return &concrete(i)->value; }
+#ifdef Q_QDOC
+        inline QJsonValueRef* operator->() const;
+#else
+        inline QJsonValueRefPtr operator->() const { return QJsonValueRefPtr(a, i); }
+#endif
         inline QJsonValueRef operator[](int j) const { return QJsonValueRef(a, i + j); }
 
         inline bool operator==(const iterator &o) const { return i == o.i; }
@@ -140,8 +149,8 @@ public:
         typedef std::random_access_iterator_tag  iterator_category;
         typedef qptrdiff difference_type;
         typedef QJsonValue value_type;
-        //typedef const T *pointer;
         typedef QJsonValue reference;
+        typedef QJsonValuePtr pointer;
 
         inline const_iterator() : a(0), i(0) { }
         explicit inline const_iterator(const QJsonArray *array, int index) : a(array), i(index) { }
@@ -149,7 +158,11 @@ public:
         inline const_iterator(const iterator &o) : a(o.a), i(o.i) {}
 
         inline QJsonValue operator*() const { return a->at(i); }
-        //inline T *operator->() const { return &concrete(i)->value; }
+#ifdef Q_QDOC
+        inline QJsonValue* operator->() const;
+#else
+        inline QJsonValuePtr operator->() const { return QJsonValuePtr(a->at(i)); }
+#endif
         inline QJsonValue operator[](int j) const { return a->at(i+j); }
         inline bool operator==(const const_iterator &o) const { return i == o.i; }
         inline bool operator!=(const const_iterator &o) const { return i != o.i; }
@@ -212,6 +225,7 @@ private:
     friend Q_CORE_EXPORT QDebug operator<<(QDebug, const QJsonArray &);
 
     QJsonArray(QJsonPrivate::Data *data, QJsonPrivate::Array *array);
+    void initialize();
     void compact();
     void detach(uint reserve = 0);
 

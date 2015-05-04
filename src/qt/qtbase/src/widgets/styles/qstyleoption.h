@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -619,7 +611,7 @@ public:
     enum StyleOptionType { Type = SO_GroupBox };
     enum StyleOptionVersion { Version = 1 };
 
-    QStyleOptionFrameV2::FrameFeatures features;
+    QStyleOptionFrame::FrameFeatures features;
     QString text;
     Qt::Alignment textAlignment;
     QColor textColor;
@@ -666,9 +658,10 @@ protected:
 template <typename T>
 T qstyleoption_cast(const QStyleOption *opt)
 {
-    if (opt && opt->version >= static_cast<T>(0)->Version && (opt->type == static_cast<T>(0)->Type
-        || int(static_cast<T>(0)->Type) == QStyleOption::SO_Default
-        || (int(static_cast<T>(0)->Type) == QStyleOption::SO_Complex
+    typedef typename QtPrivate::remove_cv<typename QtPrivate::remove_pointer<T>::type>::type Opt;
+    if (opt && opt->version >= Opt::Version && (opt->type == Opt::Type
+        || int(Opt::Type) == QStyleOption::SO_Default
+        || (int(Opt::Type) == QStyleOption::SO_Complex
             && opt->type > QStyleOption::SO_Complex)))
         return static_cast<T>(opt);
     return 0;
@@ -677,9 +670,10 @@ T qstyleoption_cast(const QStyleOption *opt)
 template <typename T>
 T qstyleoption_cast(QStyleOption *opt)
 {
-    if (opt && opt->version >= static_cast<T>(0)->Version && (opt->type == static_cast<T>(0)->Type
-        || int(static_cast<T>(0)->Type) == QStyleOption::SO_Default
-        || (int(static_cast<T>(0)->Type) == QStyleOption::SO_Complex
+    typedef typename QtPrivate::remove_cv<typename QtPrivate::remove_pointer<T>::type>::type Opt;
+    if (opt && opt->version >= Opt::Version && (opt->type == Opt::Type
+        || int(Opt::Type) == QStyleOption::SO_Default
+        || (int(Opt::Type) == QStyleOption::SO_Complex
             && opt->type > QStyleOption::SO_Complex)))
         return static_cast<T>(opt);
     return 0;
@@ -727,8 +721,9 @@ public:
 template <typename T>
 T qstyleoption_cast(const QStyleHintReturn *hint)
 {
-    if (hint && hint->version <= static_cast<T>(0)->Version &&
-        (hint->type == static_cast<T>(0)->Type || int(static_cast<T>(0)->Type) == QStyleHintReturn::SH_Default))
+    typedef typename QtPrivate::remove_cv<typename QtPrivate::remove_pointer<T>::type>::type Opt;
+    if (hint && hint->version <= Opt::Version &&
+        (hint->type == Opt::Type || int(Opt::Type) == QStyleHintReturn::SH_Default))
         return static_cast<T>(hint);
     return 0;
 }
@@ -736,8 +731,9 @@ T qstyleoption_cast(const QStyleHintReturn *hint)
 template <typename T>
 T qstyleoption_cast(QStyleHintReturn *hint)
 {
-    if (hint && hint->version <= static_cast<T>(0)->Version &&
-        (hint->type == static_cast<T>(0)->Type || int(static_cast<T>(0)->Type) == QStyleHintReturn::SH_Default))
+    typedef typename QtPrivate::remove_cv<typename QtPrivate::remove_pointer<T>::type>::type Opt;
+    if (hint && hint->version <= Opt::Version &&
+        (hint->type == Opt::Type || int(Opt::Type) == QStyleHintReturn::SH_Default))
         return static_cast<T>(hint);
     return 0;
 }

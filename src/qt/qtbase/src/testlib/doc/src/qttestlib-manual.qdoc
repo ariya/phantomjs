@@ -1,0 +1,852 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page qtest-overview.html
+    \title Qt Test Overview
+    \brief Overview of the Qt unit testing framework.
+
+    \ingroup frameworks-technologies
+    \ingroup qt-basic-concepts
+
+    \keyword qtestlib
+
+    Qt Test is a framework for unit testing Qt based applications and libraries.
+    Qt Test provides
+    all the functionality commonly found in unit testing frameworks as
+    well as extensions for testing graphical user interfaces.
+
+    Qt Test is designed to ease the writing of unit tests for Qt
+    based applications and libraries:
+
+    \table
+    \header \li Feature \li Details
+    \row
+        \li \b Lightweight
+        \li Qt Test consists of about 6000 lines of code and 60
+           exported symbols.
+    \row
+        \li \b Self-contained
+        \li Qt Test requires only a few symbols from the Qt Core module
+           for non-gui testing.
+    \row
+        \li \b {Rapid testing}
+        \li Qt Test needs no special test-runners; no special
+           registration for tests.
+    \row
+        \li \b {Data-driven testing}
+        \li A test can be executed multiple times with different test data.
+    \row
+        \li \b {Basic GUI testing}
+        \li Qt Test offers functionality for mouse and keyboard simulation.
+    \row
+        \li \b {Benchmarking}
+        \li Qt Test supports benchmarking and provides several measurement back-ends.
+    \row
+         \li \b {IDE friendly}
+         \li Qt Test outputs messages that can be interpreted by Visual
+            Studio and KDevelop.
+    \row
+         \li \b Thread-safety
+         \li The error reporting is thread safe and atomic.
+    \row
+         \li \b Type-safety
+         \li Extensive use of templates prevent errors introduced by
+            implicit type casting.
+    \row
+         \li \b {Easily extendable}
+         \li Custom types can easily be added to the test data and test output.
+    \endtable
+
+    \section1 Creating a Test
+
+    To create a test, subclass QObject and add one or more private slots to it. Each
+    private slot is a test function in your test. QTest::qExec() can be used to execute
+    all test functions in the test object.
+
+    In addition, there are four private slots that are \e not treated as test functions.
+    They will be executed by the testing framework and can be used to initialize and
+    clean up either the entire test or the current test function.
+
+    \list
+    \li \c{initTestCase()} will be called before the first test function is executed.
+    \li \c{cleanupTestCase()} will be called after the last test function was executed.
+    \li \c{init()} will be called before each test function is executed.
+    \li \c{cleanup()} will be called after every test function.
+    \endlist
+
+    If \c{initTestCase()} fails, no test function will be executed. If \c{init()} fails,
+    the following test function will not be executed, the test will proceed to the next
+    test function.
+
+    Example:
+    \snippet code/doc_src_qtestlib.cpp 0
+
+    For more examples, refer to the \l{Qt Test Tutorial}.
+
+    \section1 Building a Test
+
+    If you are using \c qmake as your build tool, just add the
+    following to your project file:
+
+    \snippet code/doc_src_qtestlib.pro 1
+
+    If you would like to run the test via \c{make check}, add the
+    additional line:
+
+    \snippet code/doc_src_qtestlib.pro 2
+
+    See the \l{Building a Testcase}{qmake manual} for
+    more information about \c{make check}.
+
+    If you are using other build tools, make sure that you add the location
+    of the Qt Test header files to your include path (usually \c{include/QtTest}
+    under your Qt installation directory). If you are using a release build
+    of Qt, link your test to the \c QtTest library. For debug builds, use
+    \c{QtTest_debug}.
+
+    See \l {Chapter 1: Writing a Unit Test}{Writing a Unit Test} for a step by
+    step explanation.
+
+    \section1 Qt Test Command Line Arguments
+
+    \section2 Syntax
+
+    The syntax to execute an autotest takes the following simple form:
+
+    \snippet code/doc_src_qtestlib.qdoc 2
+
+    Substitute \c testname with the name of your executable. \c
+    testfunctions can contain names of test functions to be
+    executed. If no \c testfunctions are passed, all tests are run. If you
+    append the name of an entry in \c testdata, the test function will be
+    run only with that test data.
+
+    For example:
+
+    \snippet code/doc_src_qtestlib.qdoc 3
+
+    Runs the test function called \c toUpper with all available test data.
+
+    \snippet code/doc_src_qtestlib.qdoc 4
+
+    Runs the \c toUpper test function with all available test data,
+    and the \c toInt test function with the test data called \c
+    zero (if the specified test data doesn't exist, the associated test
+    will fail).
+
+    \snippet code/doc_src_qtestlib.qdoc 5
+
+    Runs the \c testMyWidget function test, outputs every signal
+    emission and waits 500 milliseconds after each simulated
+    mouse/keyboard event.
+
+    \section2 Options
+
+    \section3 Logging Options
+
+    The following command line options determine how test results are reported:
+
+    \list
+    \li \c -o \e{filename,format} \br
+    Writes output to the specified file, in the specified format (one of
+    \c txt, \c xml, \c lightxml or \c xunitxml).  The special filename \c -
+    may be used to log to standard output.
+    \li \c -o \e filename \br
+    Writes output to the specified file.
+    \li \c -txt \br
+    Outputs results in plain text.
+    \li \c -xml \br
+    Outputs results as an XML document.
+    \li \c -lightxml \br
+    Outputs results as a stream of XML tags.
+    \li \c -xunitxml \br
+    Outputs results as an Xunit XML document.
+    \li \c -csv \br
+    Outputs results as comma-separated values (CSV). This mode is only suitable for
+    benchmarks, since it suppresses normal pass/fail messages.
+    \endlist
+
+    The first version of the \c -o option may be repeated in order to log
+    test results in multiple formats, but no more than one instance of this
+    option can log test results to standard output.
+
+    If the first version of the \c -o option is used, neither the second version
+    of the \c -o option nor the \c -txt, \c -xml, \c -lightxml or \c -xunitxml
+    options should be used.
+
+    If neither version of the \c -o option is used, test results will be logged to
+    standard output.  If no format option is used, test results will be logged in
+    plain text.
+
+    \section3 Test Log Detail Options
+
+    The following command line options control how much detail is reported
+    in test logs:
+
+    \list
+    \li \c -silent \br
+    Silent output; only shows fatal errors, test failures and minimal status
+    messages.
+    \li \c -v1 \br
+    Verbose output; shows when each test function is entered.
+    (This option only affects plain text output.)
+    \li \c -v2 \br
+    Extended verbose output; shows each \l QCOMPARE() and \l QVERIFY().
+    (This option affects all output formats and implies \c -v1 for plain text output.)
+    \li \c -vs \br
+    Shows all signals that get emitted and the slot invocations resulting from
+    those signals.
+    (This option affects all output formats.)
+    \endlist
+
+    \section3 Testing Options
+
+    The following command-line options influence how tests are run:
+
+    \list
+    \li \c -functions \br
+    Outputs all test functions available in the test, then quits.
+    \li \c -datatags \br
+    Outputs all data tags available in the test.
+    A global data tag is preceded by ' __global__ '.
+    \li \c -eventdelay \e ms \br
+    If no delay is specified for keyboard or mouse simulation
+    (\l QTest::keyClick(),
+    \l QTest::mouseClick() etc.), the value from this parameter
+    (in milliseconds) is substituted.
+    \li \c -keydelay \e ms \br
+    Like -eventdelay, but only influences keyboard simulation and not mouse
+    simulation.
+    \li \c -mousedelay \e ms \br
+    Like -eventdelay, but only influences mouse simulation and not keyboard
+    simulation.
+    \li \c -maxwarnings \e number \br
+    Sets the maximum number of warnings to output. 0 for unlimited, defaults to
+    2000.
+    \li \c -nocrashhandler \br
+    Disables the crash handler on Unix platforms.
+    On Windows, it re-enables the Windows Error Reporting dialog, which is
+    turned off by default.
+
+    \li \c -platform \e name \br
+    This command line argument applies to all Qt applications, but might be
+    especially useful in the context of auto-testing. By using the "offscreen"
+    platform plugin (-platform offscreen) it's possible to have tests that use
+    QWidget or QWindow run without showing anything on the screen. Currently
+    the offscreen platform plugin is only fully supported on X11.
+    \endlist
+
+    \section3 Benchmarking Options
+
+    The following command line options control benchmark testing:
+
+    \list
+    \li \c -callgrind \br
+    Uses Callgrind to time benchmarks (Linux only).
+    \li \c -tickcounter \br
+    Uses CPU tick counters to time benchmarks.
+    \li \c -eventcounter \br
+    Counts events received during benchmarks.
+    \li \c -minimumvalue \e n \br
+    Sets the minimum acceptable measurement value.
+    \li \c -minimumtotal \e n \br
+    Sets the minimum acceptable total for repeated executions of a test function.
+    \li \c -iterations \e n \br
+    Sets the number of accumulation iterations.
+    \li \c -median \e n \br
+    Sets the number of median iterations.
+    \li \c -vb \br
+    Outputs verbose benchmarking information.
+    \endlist
+
+    \section3 Miscellaneous Options
+
+    \list
+    \li \c -help \br
+    Outputs the possible command line arguments and gives some useful help.
+    \endlist
+
+    \section1 Creating a Benchmark
+
+    To create a benchmark, follow the instructions for creating a test and then add a
+    QBENCHMARK macro to the test function that you want to benchmark.
+
+    \snippet code/doc_src_qtestlib.cpp 12
+
+    The code inside the QBENCHMARK macro will be measured, and possibly also repeated
+    several times in order to get an accurate measurement. This depends on the selected
+    measurement back-end. Several back-ends are available. They can be selected on the
+    command line:
+
+    \target testlib-benchmarking-measurement
+
+    \table
+    \header \li Name
+         \li Command-line Argument
+         \li Availability
+    \row \li Walltime
+         \li (default)
+         \li All platforms
+    \row \li CPU tick counter
+         \li -tickcounter
+         \li Windows, Mac OS X, Linux, many UNIX-like systems.
+    \row \li Event Counter
+         \li -eventcounter
+         \li All platforms
+    \row \li Valgrind Callgrind
+         \li -callgrind
+         \li Linux (if installed)
+    \row \li Linux Perf
+         \li -perf
+         \li Linux
+    \endtable
+
+    In short, walltime is always available but requires many repetitions to
+    get a useful result.
+    Tick counters are usually available and can provide
+    results with fewer repetitions, but can be susceptible to CPU frequency
+    scaling issues.
+    Valgrind provides exact results, but does not take
+    I/O waits into account, and is only available on a limited number of
+    platforms.
+    Event counting is available on all platforms and it provides the number of events
+    that were received by the event loop before they are sent to their corresponding
+    targets (this might include non-Qt events).
+
+    The Linux Performance Monitoring solution is available only on Linux and
+    provides many different counters, which can be selected by passing an
+    additional option \c {-perfcounter countername}, such as \c {-perfcounter
+    cache-misses}, \c {-perfcounter branch-misses}, or \c {-perfcounter
+    l1d-load-misses}. The default counter is \c {cpu-cycles}. The full list of
+    counters can be obtained by running any benchmark executable with the
+    option \c -perfcounterlist.
+
+    Note that using the performance counter may require enabling access to non-privileged applications.
+
+    \note Depending on the device configuration, tick counters on the
+     Windows CE platform may not be as fine-grained, compared to other platforms.
+     Devices that do not support high-resolution timers default to
+     one-millisecond granularity.
+
+    See \l {Chapter 5: Writing a Benchmark}{Writing a Benchmark} in the Qt Test
+    Tutorial for more benchmarking examples.
+
+    \section1 Using Qt Test Remotely on Windows CE
+
+    The \c cetest convenience application enables you to launch an
+    application remotely on a Windows CE device or emulator.
+
+    It needs to be executed after the unit test has been successfully compiled.
+
+    Prior to launching, the following files are copied to the device:
+
+    \list
+    \li all Qt libraries the project links to
+    \li \l {QtRemote}{QtRemote.dll}
+    \li the c runtime library specified during installation
+    \li all files specified in the \c .pro file following the \l DEPLOYMENT rules.
+    \endlist
+
+    \section2 Syntax
+    The syntax to execute an autotest takes the following simple form:
+
+    \snippet code/doc_src_qtestlib.qdoc 6
+
+    \section2 Options
+    \c cetest provides the same options as those for unit-testing on non cross-compiled
+    platforms. See \l {Qt Test Command Line Arguments} {Command Line Arguments} for
+    more information.
+
+    The following commands are also included:
+
+    \list
+    \li \c -debug \br
+    Compiles the test version in debug mode.
+    \li \c -release \br
+    Compiles the test version in release mode.
+    \li \c -libpath \e path \br
+    Copies Qt libraries to the specified path.
+    \li \c -qt-delete \br
+    Deletes Qt libraries after execution.
+    \li \c -project-delete \br
+    Deletes project files after execution.
+    \li \c -delete \br
+    Deletes project and Qt libraries after execution.
+    \li \c -conf \br
+    Specifies a qt.conf file to be deployed to remote directory.
+    \endlist
+
+    \note \c{debug} is the default build option.
+
+    \section2 QtRemote
+    \c QtRemote is a small library which is built after Qt Test. It allows the host
+    system to create a process on a remote device and waits until its execution has
+    been finished.
+
+    \section2 Requirements
+    \c cetest uses Microsoft ActiveSync to establish a remote connection between the
+    host computer and the device. Thus header files and libraries are needed to compile
+    cetest and QtRemote successfully.
+
+    Prior to \l{Installing Qt for Windows CE}{installation} of Qt, you need to set your
+    \c INCLUDE and \c LIB environment variables properly.
+
+    A default installation of Windows Mobile 5 for Pocket PC can be obtained by:
+
+    \snippet code/doc_src_qtestlib.qdoc 7
+
+    Note that Qt will remember the path, so you do not need to set it again
+    after switching the environments for cross-compilation.
+
+    \section1 3rd Party Code
+
+    The CPU tick counters used for benchmarking are licensed under the following
+    license: (from src/testlib/3rdparty/cycle.h)
+
+    \legalese
+    Copyright (c) 2003, 2006 Matteo Frigo\br
+    Copyright (c) 2003, 2006 Massachusetts Institute of Technology
+
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+    LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+    OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    \endlegalese
+*/
+
+/*!
+    \page qtest-tutorial.html
+    \brief A short introduction to testing with Qt Test.
+    \contentspage Qt Test Overview
+    \nextpage {Chapter 1: Writing a Unit Test}{Chapter 1}
+    \ingroup best-practices
+
+    \title Qt Test Tutorial
+
+    This tutorial gives a short introduction to how to use some of the
+    features of the Qt Test framework. It is divided into five
+    chapters:
+
+    \list 1
+    \li \l {Chapter 1: Writing a Unit Test}{Writing a Unit Test}
+    \li \l {Chapter 2: Data Driven Testing}{Data Driven Testing}
+    \li \l {Chapter 3: Simulating GUI Events}{Simulating GUI Events}
+    \li \l {Chapter 4: Replaying GUI Events}{Replaying GUI Events}
+    \li \l {Chapter 5: Writing a Benchmark}{Writing a Benchmark}
+    \endlist
+
+*/
+
+
+/*!
+    \example tutorial1
+
+    \contentspage {Qt Test Tutorial}{Contents}
+    \nextpage {Chapter 2: Data Driven Testing}{Chapter 2}
+
+    \title Chapter 1: Writing a Unit Test
+
+    In this first chapter we will see how to write a simple unit test
+    for a class, and how to execute it.
+
+    \section1 Writing a Test
+
+    Let's assume you want to test the behavior of our QString class.
+    First, you need a class that contains your test functions. This class
+    has to inherit from QObject:
+
+    \snippet tutorial1/testqstring.cpp 0
+
+    \note You need to include the QTest header and declare the test functions as
+    private slots so the test framework finds and executes it.
+
+    Then you need to implement the test function itself. The
+    implementation could look like this:
+
+    \snippet code/doc_src_qtestlib.cpp 8
+
+    The \l QVERIFY() macro evaluates the expression passed as its
+    argument. If the expression evaluates to true, the execution of
+    the test function continues. Otherwise, a message describing the
+    failure is appended to the test log, and the test function stops
+    executing.
+
+    But if you want a more verbose output to the test log, you should
+    use the \l QCOMPARE() macro instead:
+
+    \snippet tutorial1/testqstring.cpp 1
+
+    If the strings are not equal, the contents of both strings are
+    appended to the test log, making it immediately visible why the
+    comparison failed.
+
+    Finally, to make our test case a stand-alone executable, the
+    following two lines are needed:
+
+    \snippet tutorial1/testqstring.cpp 2
+
+    The \l QTEST_MAIN() macro expands to a simple \c main()
+    method that runs all the test functions. Note that if both the
+    declaration and the implementation of our test class are in a \c
+    .cpp file, we also need to include the generated moc file to make
+    Qt's introspection work.
+
+    \section1 Executing a Test
+
+    Now that we finished writing our test, we want to execute
+    it. Assuming that our test was saved as \c testqstring.cpp in an
+    empty directory, we build the test using qmake to create a project
+    and generate a makefile.
+
+    \snippet code/doc_src_qtestlib.qdoc 9
+
+    \note If you're using windows, replace \c make with \c
+    nmake or whatever build tool you use.
+
+    Running the resulting executable should give you the following
+    output:
+
+    \snippet code/doc_src_qtestlib.qdoc 10
+
+    Congratulations! You just wrote and executed your first unit test
+    using the Qt Test framework.
+*/
+
+/*!
+    \example tutorial2
+
+    \previouspage {Chapter 1: Writing a Unit Test}{Chapter 1}
+    \contentspage {Qt Test Tutorial}{Contents}
+    \nextpage {Chapter 3: Simulating Gui Events}{Chapter 3}
+
+    \title Chapter 2: Data Driven Testing
+
+    In this chapter we will demonstrate how to execute a test
+    multiple times with different test data.
+
+    So far, we have hard coded the data we wanted to test into our
+    test function. If we add more test data, the function might look like
+    this:
+
+    \snippet code/doc_src_qtestlib.cpp 11
+
+    To prevent that the function ends up being cluttered by repetitive
+    code, Qt Test supports adding test data to a test function. All
+    we need is to add another private slot to our test class:
+
+    \snippet tutorial2/testqstring.cpp 0
+
+    \section1 Writing the Data Function
+
+    A test function's associated data function carries the same name,
+    appended by \c{_data}. Our data function looks like this:
+
+    \snippet tutorial2/testqstring.cpp 1
+
+    First, we define the two elements of our test table using the \l
+    QTest::addColumn() function: a test string, and the
+    expected result of applying the QString::toUpper() function to
+    that string.
+
+    Then we add some data to the table using the \l
+    QTest::newRow() function. Each set of data will become a
+    separate row in the test table.
+
+    \l QTest::newRow() takes one argument: a name that will be
+    associated with the data set. If the test fails, the name will be
+    used in the test log, referencing the failed data. Then we
+    stream the data set into the new table row. First an arbitrary
+    string, and then the expected result of applying the
+    QString::toUpper() function to that string.
+
+    You can think of the test data as a two-dimensional table. In
+    our case, it has two columns called \c string and \c result and
+    three rows. In addition a name as well as an index is associated
+    with each row:
+
+    \table
+    \header
+        \li index
+        \li name
+        \li string
+        \li result
+    \row
+        \li 0
+        \li all lower
+        \li "hello"
+        \li HELLO
+    \row
+        \li 1
+        \li mixed
+        \li "Hello"
+        \li HELLO
+    \row
+        \li 2
+        \li all upper
+        \li "HELLO"
+        \li HELLO
+    \endtable
+
+    \section1 Rewriting the Test Function
+
+    Our test function can now be rewritten:
+
+    \snippet tutorial2/testqstring.cpp 2
+
+    The TestQString::toUpper() function will be executed three times,
+    once for each entry in the test table that we created in the
+    associated TestQString::toUpper_data() function.
+
+    First, we fetch the two elements of the data set using the \l
+    QFETCH() macro. \l QFETCH() takes two arguments: The data type of
+    the element and the element name. Then we perform the test using
+    the \l QCOMPARE() macro.
+
+    This approach makes it very easy to add new data to the test
+    without modifying the test itself.
+
+    And again, to make our test case a stand-alone executable,
+    the following two lines are needed:
+
+    \snippet tutorial2/testqstring.cpp 3
+
+    As before, the QTEST_MAIN() macro expands to a simple main()
+    method that runs all the test functions, and since both the
+    declaration and the implementation of our test class are in a .cpp
+    file, we also need to include the generated moc file to make Qt's
+    introspection work.
+*/
+
+/*!
+    \example tutorial3
+
+    \previouspage {Chapter 2: Data Driven Testing}{Chapter 2}
+    \contentspage {Qt Test Tutorial}{Contents}
+    \nextpage {Chapter 4: Replaying GUI Events}{Chapter 4}
+
+    \title Chapter 3: Simulating GUI Events
+
+    Qt Test features some mechanisms to test graphical user
+    interfaces. Instead of simulating native window system events,
+    Qt Test sends internal Qt events. That means there are no
+    side-effects on the machine the tests are running on.
+
+    In this chapter we will see how to write a simple GUI test.
+
+    \section1 Writing a GUI Test
+
+    This time, let's assume you want to test the behavior of our
+    QLineEdit class. As before, you will need a class that contains
+    your test function:
+
+    \snippet tutorial3/testgui.cpp 0
+
+    The only difference is that you need to include the Qt GUI class
+    definitions in addition to the QTest namespace.
+
+    \snippet tutorial3/testgui.cpp 1
+
+    In the implementation of the test function we first create a
+    QLineEdit. Then we simulate writing "hello world" in the line edit
+    using the \l QTest::keyClicks() function.
+
+    \note The widget must also be shown in order to correctly test keyboard
+    shortcuts.
+
+    QTest::keyClicks() simulates clicking a sequence of keys on a
+    widget. Optionally, a keyboard modifier can be specified as well
+    as a delay (in milliseconds) of the test after each key click. In
+    a similar way, you can use the QTest::keyClick(),
+    QTest::keyPress(), QTest::keyRelease(), QTest::mouseClick(),
+    QTest::mouseDClick(), QTest::mouseMove(), QTest::mousePress()
+    and QTest::mouseRelease() functions to simulate the associated
+    GUI events.
+
+    Finally, we use the \l QCOMPARE() macro to check if the line edit's
+    text is as expected.
+
+    As before, to make our test case a stand-alone executable, the
+    following two lines are needed:
+
+    \snippet tutorial3/testgui.cpp 2
+
+    The QTEST_MAIN() macro expands to a simple main() method that
+    runs all the test functions, and since both the declaration and
+    the implementation of our test class are in a .cpp file, we also
+    need to include the generated moc file to make Qt's introspection
+    work.
+*/
+
+/*!
+    \example tutorial4
+
+    \previouspage {Chapter 3: Simulating GUI Events}{Chapter 3}
+    \contentspage {Qt Test Tutorial}{Contents}
+    \nextpage {Chapter 5: Writing a Benchmark}{Chapter 5}
+
+    \title Chapter 4: Replaying GUI Events
+
+    In this chapter, we will show how to simulate a GUI event,
+    and how to store a series of GUI events as well as replay them on
+    a widget.
+
+    The approach to storing a series of events and replaying them is
+    quite similar to the approach explained in \l {Chapter 2:
+    Data Driven Testing}{chapter 2}. All you need to do is to add a data
+    function to your test class:
+
+    \snippet tutorial4/testgui.cpp 0
+
+    \section1 Writing the Data Function
+
+    As before, a test function's associated data function carries the
+    same name, appended by \c{_data}.
+
+    \snippet tutorial4/testgui.cpp 1
+
+    First, we define the elements of the table using the
+    QTest::addColumn() function: A list of GUI events, and the
+    expected result of applying the list of events on a QWidget. Note
+    that the type of the first element is \l QTestEventList.
+
+    A QTestEventList can be populated with GUI events that can be
+    stored as test data for later usage, or be replayed on any
+    QWidget.
+
+    In our current data function, we create two \l
+    {QTestEventList} elements. The first list consists of a single click to
+    the 'a' key. We add the event to the list using the
+    QTestEventList::addKeyClick() function. Then we use the
+    QTest::newRow() function to give the data set a name, and
+    stream the event list and the expected result into the table.
+
+    The second list consists of two key clicks: an 'a' with a
+    following 'backspace'. Again we use the
+    QTestEventList::addKeyClick() to add the events to the list, and
+    QTest::newRow() to put the event list and the expected
+    result into the table with an associated name.
+
+    \section1 Rewriting the Test Function
+
+    Our test can now be rewritten:
+
+    \snippet tutorial4/testgui.cpp 2
+
+    The TestGui::testGui() function will be executed two times,
+    once for each entry in the test data that we created in the
+    associated TestGui::testGui_data() function.
+
+    First, we fetch the two elements of the data set using the \l
+    QFETCH() macro. \l QFETCH() takes two arguments: the data type of
+    the element and the element name. Then we create a QLineEdit, and
+    apply the list of events on that widget using the
+    QTestEventList::simulate() function.
+
+    Finally, we use the QCOMPARE() macro to check if the line edit's
+    text is as expected.
+
+    As before, to make our test case a stand-alone executable,
+    the following two lines are needed:
+
+    \snippet tutorial4/testgui.cpp 3
+
+    The QTEST_MAIN() macro expands to a simple main() method that
+    runs all the test functions, and since both the declaration and
+    the implementation of our test class are in a .cpp file, we also
+    need to include the generated moc file to make Qt's introspection
+    work.
+*/
+
+/*!
+    \example tutorial5
+
+    \previouspage {Chapter 4: Replaying GUI Events}{Chapter 4}
+    \contentspage {Qt Test Tutorial}{Contents}
+
+    \title Chapter 5: Writing a Benchmark
+
+    In this final chapter we will demonstrate how to write benchmarks
+    using Qt Test.
+
+    \section1 Writing a Benchmark
+    To create a benchmark we extend a test function with a QBENCHMARK macro.
+    A benchmark test function will then typically consist of setup code and
+    a QBENCHMARK macro that contains the code to be measured. This test
+    function benchmarks QString::localeAwareCompare().
+
+    \snippet tutorial5/benchmarking.cpp 0
+
+    Setup can be done at the beginning of the function, the clock is not
+    running at this point. The code inside the QBENCHMARK macro will be
+    measured, and possibly repeated several times in order to  get an
+    accurate measurement.
+
+    Several \l {testlib-benchmarking-measurement}{back-ends} are available
+    and can be selected on the command line.
+
+    \section1 Data Functions
+
+    Data functions are useful for creating benchmarks that compare
+    multiple data inputs, for example locale aware compare against standard
+    compare.
+
+    \snippet tutorial5/benchmarking.cpp 1
+
+    The test function then uses the data to determine what to benchmark.
+
+    \snippet tutorial5/benchmarking.cpp 2
+
+    The "if (useLocaleCompare)" switch is placed outside the QBENCHMARK
+    macro to avoid measuring its overhead. Each benchmark test function
+    can have one active QBENCHMARK macro.
+
+    \section1 External Tools
+
+    Tools for handling and visualizing test data are available as part of
+    the \l {qtestlib-tools} project.
+    These include a tool for comparing performance data obtained from test
+    runs and a utility to generate Web-based graphs of performance data.
+
+    See the \l{qtestlib-tools Announcement}{qtestlib-tools announcement}
+    for more information on these tools and a simple graphing example.
+
+*/

@@ -12,7 +12,8 @@ OBJS=project.o option.o property.o main.o ioutils.o proitems.o \
      gbuild.o cesdkhandler.o
 
 #qt code
-QOBJS=qtextcodec.o qutfcodec.o qstring.o qstring_compat.o qstringbuilder.o qtextstream.o qiodevice.o qmalloc.o qglobal.o \
+QOBJS=qtextcodec.o qutfcodec.o qstring.o qstring_compat.o qstringbuilder.o qtextstream.o qiodevice.o \
+      qdebug.o qmalloc.o qglobal.o \
       qarraydata.o qbytearray.o qbytearraymatcher.o qdatastream.o qbuffer.o qlist.o qfiledevice.o qfile.o \
       qfilesystementry.o qfilesystemengine.o qfsfileengine.o qfsfileengine_iterator.o qregexp.o qvector.o \
       qbitarray.o qdir.o qdiriterator.o quuid.o qhash.o qfileinfo.o qdatetime.o qstringlist.o \
@@ -43,6 +44,7 @@ DEPEND_SRC = \
 	   $(SOURCE_PATH)/src/corelib/tools/qstring_compat.cpp \
 	   $(SOURCE_PATH)/src/corelib/io/qfiledevice.cpp \
 	   $(SOURCE_PATH)/src/corelib/io/qtextstream.cpp $(SOURCE_PATH)/src/corelib/io/qiodevice.cpp \
+	   $(SOURCE_PATH)/src/corelib/io/qdebug.cpp \
 	   $(SOURCE_PATH)/src/corelib/global/qmalloc.cpp \
 	   $(SOURCE_PATH)/src/corelib/global/qglobal.cpp $(SOURCE_PATH)/src/corelib/tools/qregexp.cpp \
 	   $(SOURCE_PATH)/src/corelib/tools/qarraydata.cpp $(SOURCE_PATH)/src/corelib/tools/qbytearray.cpp\
@@ -101,7 +103,7 @@ CPPFLAGS = -g $(EXTRA_CPPFLAGS) \
 	   -DQT_BUILD_QMAKE -DQT_BOOTSTRAPPED -DPROEVALUATOR_FULL \
 	   -DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_NO_COMPONENT -DQT_NO_COMPRESS \
 	   -DQT_NO_THREAD -DQT_NO_QOBJECT -DQT_NO_GEOM_VARIANT -DQT_NO_DATASTREAM \
-	   -DQT_CRYPTOGRAPHICHASH_ONLY_SHA1 -DQT_JSON_READONLY
+	   -DQT_CRYPTOGRAPHICHASH_ONLY_SHA1 -DQT_JSON_READONLY -DQT_NO_STANDARDPATHS
 
 CXXFLAGS = $(EXTRA_CXXFLAGS) $(CPPFLAGS)
 
@@ -239,6 +241,9 @@ qsettings_win.o: $(SOURCE_PATH)/src/corelib/io/qsettings_win.cpp
 
 qiodevice.o: $(SOURCE_PATH)/src/corelib/io/qiodevice.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qiodevice.cpp
+
+qdebug.o: $(SOURCE_PATH)/src/corelib/io/qdebug.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qdebug.cpp
 
 qmalloc.o: $(SOURCE_PATH)/src/corelib/global/qmalloc.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/global/qmalloc.cpp

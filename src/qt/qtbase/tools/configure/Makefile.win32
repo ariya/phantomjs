@@ -5,7 +5,7 @@ CONFSRC = $(TOOLSRC)\configure
 PCH           = configure_pch.pch
 DEFINES       = -DUNICODE -DQT_NO_CODECS -DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT -DQT_NO_COMPRESS -DQT_NO_THREAD -DQT_NO_QOBJECT -DQT_NO_GEOM_VARIANT -D_CRT_SECURE_NO_DEPRECATE -DQT_BOOTSTRAPPED -DQT_BUILD_CONFIGURE -DCOMMERCIAL_VERSION
 INCPATH       = -I"..\..\include" -I"..\..\include\QtCore" -I"..\..\include\QtCore\$(QTVERSION)" -I"..\..\include\QtCore\$(QTVERSION)\QtCore" -I"$(TOOLSRC)\shared" -I"$(QTSRC)mkspecs\win32-msvc2008"
-CXXFLAGS_BARE = -nologo -Zm200 -Zc:wchar_t -MT -W3 -GR -EHsc -w34100 -w34189 $(EXTRA_CXXFLAGS) $(DEFINES) $(INCPATH)
+CXXFLAGS_BARE = -nologo -Zm200 -Zc:wchar_t -W3 -GR -EHsc -w34100 -w34189 $(CFLAGS_CRT) $(EXTRA_CXXFLAGS) $(DEFINES) $(INCPATH)
 CXXFLAGS      = -FIconfigure_pch.h -Yuconfigure_pch.h -Fp$(PCH) -MP $(CXXFLAGS_BARE)
 LINK          = link
 LFLAGS        = /NOLOGO /DYNAMICBASE /NXCOMPAT /INCREMENTAL:NO /SUBSYSTEM:CONSOLE "/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" /MANIFEST /MANIFESTFILE:"configure.intermediate.manifest"
@@ -47,6 +47,7 @@ OBJECTS = \
     qfsfileengine_win.obj \
     qfsfileengine_iterator.obj \
     qiodevice.obj \
+    qdebug.obj \
     qtextstream.obj \
     qlogging.obj \
     qtemporaryfile.obj \
@@ -121,6 +122,7 @@ qfsfileengine.obj: $(CORESRC)\io\qfsfileengine.cpp $(PCH)
 qfsfileengine_win.obj: $(CORESRC)\io\qfsfileengine_win.cpp $(PCH)
 qfsfileengine_iterator.obj: $(CORESRC)\io\qfsfileengine_iterator.cpp $(PCH)
 qiodevice.obj: $(CORESRC)\io\qiodevice.cpp $(PCH)
+qdebug.obj: $(CORESRC)\io\qdebug.cpp $(PCH)
 qtextstream.obj: $(CORESRC)\io\qtextstream.cpp $(PCH)
 qtemporaryfile.obj: $(CORESRC)\io\qtemporaryfile.cpp $(PCH)
 qstandardpaths.obj: $(CORESRC)\io\qstandardpaths.cpp $(PCH)

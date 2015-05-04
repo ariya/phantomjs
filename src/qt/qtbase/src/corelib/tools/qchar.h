@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -353,7 +345,8 @@ public:
     inline Direction direction() const { return QChar::direction(ucs); }
     inline JoiningType joiningType() const { return QChar::joiningType(ucs); }
 #if QT_DEPRECATED_SINCE(5, 3)
-    QT_DEPRECATED inline Joining joining() const {
+    QT_DEPRECATED inline Joining joining() const
+    {
         switch (QChar::joiningType(ucs)) {
         case QChar::Joining_Causing: return QChar::Center;
         case QChar::Joining_Dual: return QChar::Dual;
@@ -387,7 +380,7 @@ public:
     QT_DEPRECATED inline char toAscii() const { return toLatin1(); }
 #endif
     inline char toLatin1() const;
-    inline ushort unicode() const { return ucs; }
+    Q_DECL_CONSTEXPR inline ushort unicode() const { return ucs; }
     inline ushort &unicode() { return ucs; }
 
 #if QT_DEPRECATED_SINCE(5, 0)
@@ -449,50 +442,50 @@ public:
         return ushort(ucs4%0x400 + 0xdc00);
     }
 
-    static Category QT_FASTCALL category(uint ucs4);
-    static Direction QT_FASTCALL direction(uint ucs4);
-    static JoiningType QT_FASTCALL joiningType(uint ucs4);
+    static Category QT_FASTCALL category(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static Direction QT_FASTCALL direction(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static JoiningType QT_FASTCALL joiningType(uint ucs4) Q_DECL_CONST_FUNCTION;
 #if QT_DEPRECATED_SINCE(5, 3)
-    QT_DEPRECATED static Joining QT_FASTCALL joining(uint ucs4);
+    QT_DEPRECATED static Joining QT_FASTCALL joining(uint ucs4) Q_DECL_CONST_FUNCTION;
 #endif
-    static unsigned char QT_FASTCALL combiningClass(uint ucs4);
+    static unsigned char QT_FASTCALL combiningClass(uint ucs4) Q_DECL_CONST_FUNCTION;
 
-    static uint QT_FASTCALL mirroredChar(uint ucs4);
-    static bool QT_FASTCALL hasMirrored(uint ucs4);
+    static uint QT_FASTCALL mirroredChar(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static bool QT_FASTCALL hasMirrored(uint ucs4) Q_DECL_CONST_FUNCTION;
 
     static QString QT_FASTCALL decomposition(uint ucs4);
-    static Decomposition QT_FASTCALL decompositionTag(uint ucs4);
+    static Decomposition QT_FASTCALL decompositionTag(uint ucs4) Q_DECL_CONST_FUNCTION;
 
-    static int QT_FASTCALL digitValue(uint ucs4);
-    static uint QT_FASTCALL toLower(uint ucs4);
-    static uint QT_FASTCALL toUpper(uint ucs4);
-    static uint QT_FASTCALL toTitleCase(uint ucs4);
-    static uint QT_FASTCALL toCaseFolded(uint ucs4);
+    static int QT_FASTCALL digitValue(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static uint QT_FASTCALL toLower(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static uint QT_FASTCALL toUpper(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static uint QT_FASTCALL toTitleCase(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static uint QT_FASTCALL toCaseFolded(uint ucs4) Q_DECL_CONST_FUNCTION;
 
-    static Script QT_FASTCALL script(uint ucs4);
+    static Script QT_FASTCALL script(uint ucs4) Q_DECL_CONST_FUNCTION;
 
-    static UnicodeVersion QT_FASTCALL unicodeVersion(uint ucs4);
+    static UnicodeVersion QT_FASTCALL unicodeVersion(uint ucs4) Q_DECL_CONST_FUNCTION;
 
-    static UnicodeVersion QT_FASTCALL currentUnicodeVersion();
+    static UnicodeVersion QT_FASTCALL currentUnicodeVersion() Q_DECL_CONST_FUNCTION;
 
-    static bool QT_FASTCALL isPrint(uint ucs4);
-    static inline bool isSpace(uint ucs4);
-    static bool QT_FASTCALL isMark(uint ucs4);
-    static bool QT_FASTCALL isPunct(uint ucs4);
-    static bool QT_FASTCALL isSymbol(uint ucs4);
-    static inline bool isLetter(uint ucs4);
-    static inline bool isNumber(uint ucs4);
-    static inline bool isLetterOrNumber(uint ucs4);
-    static inline bool isDigit(uint ucs4);
-    static inline bool isLower(uint ucs4);
-    static inline bool isUpper(uint ucs4);
-    static inline bool isTitleCase(uint ucs4);
+    static bool QT_FASTCALL isPrint(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static inline bool isSpace(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static bool QT_FASTCALL isMark(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static bool QT_FASTCALL isPunct(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static bool QT_FASTCALL isSymbol(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static inline bool isLetter(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static inline bool isNumber(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static inline bool isLetterOrNumber(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static inline bool isDigit(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static inline bool isLower(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static inline bool isUpper(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static inline bool isTitleCase(uint ucs4) Q_DECL_CONST_FUNCTION;
 
 private:
-    static bool QT_FASTCALL isSpace_helper(uint ucs4);
-    static bool QT_FASTCALL isLetter_helper(uint ucs4);
-    static bool QT_FASTCALL isNumber_helper(uint ucs4);
-    static bool QT_FASTCALL isLetterOrNumber_helper(uint ucs4);
+    static bool QT_FASTCALL isSpace_helper(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static bool QT_FASTCALL isLetter_helper(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static bool QT_FASTCALL isNumber_helper(uint ucs4) Q_DECL_CONST_FUNCTION;
+    static bool QT_FASTCALL isLetterOrNumber_helper(uint ucs4) Q_DECL_CONST_FUNCTION;
 
 #ifdef QT_NO_CAST_FROM_ASCII
     QChar(char c);

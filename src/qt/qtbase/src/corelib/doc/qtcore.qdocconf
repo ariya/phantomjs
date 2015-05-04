@@ -2,10 +2,9 @@ include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
 
 project                 = QtCore
 description             = Qt Core Reference Documentation
-url                     = http://qt-project.org/doc/qt-$QT_VER
 version                 = $QT_VERSION
 
-examplesinstallpath     = core
+examplesinstallpath     = corelib
 
 qhp.projects            = QtCore
 
@@ -36,10 +35,7 @@ sourcedirs  += ..
 exampledirs += \
                ../ \
                snippets \
-               ../../../examples/threads/ \
-               ../../../examples/tools/ \
-               ../../../examples/ipc/ \
-               ../../../examples/json/ \
+               ../../../examples/corelib \
                ../../../examples/network/dnslookup
 
 imagedirs   += images

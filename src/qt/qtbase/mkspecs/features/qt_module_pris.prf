@@ -66,6 +66,8 @@ MODULE_FWD_PRI = $$mod_work_pfx/qt_lib_$${MODULE_ID}.pri
         module_build_type =
     internal_module: \
         module_build_type += internal_module
+    ltcg: \
+        module_build_type += ltcg
     !isEmpty(MODULE_CONFIG): \
         module_config = "QT.$${MODULE_ID}.CONFIG = $$MODULE_CONFIG"
     else: \
@@ -74,6 +76,10 @@ MODULE_FWD_PRI = $$mod_work_pfx/qt_lib_$${MODULE_ID}.pri
         module_plugtypes = "QT.$${MODULE_ID}.plugin_types = $$replace(MODULE_PLUGIN_TYPES, /.*$, )"
     else: \
         module_plugtypes =
+    !isEmpty(MODULE_MASTER_HEADER): \
+        module_master = "QT.$${MODULE_ID}.master_header = $$MODULE_MASTER_HEADER"
+    else: \
+        module_master =
     !no_module_headers:!minimal_syncqt {
         MODULE_INCLUDES = \$\$QT_MODULE_INCLUDE_BASE \$\$QT_MODULE_INCLUDE_BASE/$$MODULE_INCNAME
         MODULE_PRIVATE_INCLUDES = \$\$QT_MODULE_INCLUDE_BASE/$$MODULE_INCNAME/$$VERSION \
@@ -97,6 +103,7 @@ MODULE_FWD_PRI = $$mod_work_pfx/qt_lib_$${MODULE_ID}.pri
         "QT.$${MODULE_ID}.name = $$TARGET" \
         "QT.$${MODULE_ID}.libs = $$module_libs" \
         $$module_rpath \
+        $$module_master \
         "QT.$${MODULE_ID}.includes = $$MODULE_INCLUDES"
     !host_build: MODULE_PRI_CONT += \
         "QT.$${MODULE_ID}.bins = \$\$QT_MODULE_BIN_BASE" \
@@ -148,9 +155,11 @@ MODULE_FWD_PRI = $$mod_work_pfx/qt_lib_$${MODULE_ID}.pri
             "QT_MODULE_HOST_LIB_BASE = $$MODULE_BASE_OUTDIR/lib" \
             "QT_MODULE_LIBEXEC_BASE = $$MODULE_BASE_OUTDIR/libexec" \
             "QT_MODULE_PLUGIN_BASE = $$MODULE_BASE_OUTDIR/plugins" \
-            "include($$MODULE_PRI)"
+            "include($$MODULE_PRI)" \
+            "QT.$${MODULE_ID}.priority = 1"
         !internal_module: MODULE_FWD_PRI_CONT += \
-            "include($$MODULE_PRIVATE_PRI)"
+            "include($$MODULE_PRIVATE_PRI)" \
+            "QT.$${MODULE}_private.priority = 1"
         MODULE_FWD_PRI_CONT += $$MODULE_FWD_PRI_CONT_SUFFIX
         write_file($$MODULE_FWD_PRI, MODULE_FWD_PRI_CONT)|error("Aborting.")
         touch($$MODULE_FWD_PRI, $$MODULE_PRI)
@@ -177,9 +186,8 @@ MODULE_FWD_PRI = $$mod_work_pfx/qt_lib_$${MODULE_ID}.pri
         include($$mod_work_pfx/qt_lib_$${pri}.pri)
     for(mod, mods_to_load) {
         for(var, $$list(VERSION MAJOR_VERSION MINOR_VERSION PATCH_VERSION \
-                        name depends module_config CONFIG DEFINES sources \
-                        includes bins libs libexecs plugins imports qml \
-                        rpath_link \
+                        name depends run_depends plugin_types module_config CONFIG DEFINES \
+                        priority includes bins libs libexecs plugins imports qml \
                 )):defined(QT.$${mod}.$$var, var):cache(QT.$${mod}.$$var, transient)
     }
     cache(QT_MODULES, transient)

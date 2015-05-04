@@ -6,210 +6,77 @@
 
 #include "compiler/translator/ForLoopUnroll.h"
 
-namespace {
-
-class IntegerForLoopUnrollMarker : public TIntermTraverser {
-public:
-
-    virtual bool visitLoop(Visit, TIntermLoop* node)
-    {
-        // This is called after ValidateLimitations pass, so all the ASSERT
-        // should never fail.
-        // See ValidateLimitations::validateForLoopInit().
-        ASSERT(node);
-        ASSERT(node->getType() == ELoopFor);
-        ASSERT(node->getInit());
-        TIntermAggregate* decl = node->getInit()->getAsAggregate();
-        ASSERT(decl && decl->getOp() == EOpDeclaration);
-        TIntermSequence& declSeq = decl->getSequence();
-        ASSERT(declSeq.size() == 1);
-        TIntermBinary* declInit = declSeq[0]->getAsBinaryNode();
-        ASSERT(declInit && declInit->getOp() == EOpInitialize);
-        ASSERT(declInit->getLeft());
-        TIntermSymbol* symbol = declInit->getLeft()->getAsSymbolNode();
-        ASSERT(symbol);
-        TBasicType type = symbol->getBasicType();
-        ASSERT(type == EbtInt || type == EbtFloat);
-        if (type == EbtInt)
-            node->setUnrollFlag(true);
+bool ForLoopUnrollMarker::visitBinary(Visit, TIntermBinary *node)
+{
+    if (mUnrollCondition != kSamplerArrayIndex)
         return true;
-    }
 
-};
-
-}  // anonymous namepsace
-
-void ForLoopUnroll::FillLoopIndexInfo(TIntermLoop* node, TLoopIndexInfo& info)
-{
-    ASSERT(node->getType() == ELoopFor);
-    ASSERT(node->getUnrollFlag());
-
-    TIntermNode* init = node->getInit();
-    ASSERT(init != NULL);
-    TIntermAggregate* decl = init->getAsAggregate();
-    ASSERT((decl != NULL) && (decl->getOp() == EOpDeclaration));
-    TIntermSequence& declSeq = decl->getSequence();
-    ASSERT(declSeq.size() == 1);
-    TIntermBinary* declInit = declSeq[0]->getAsBinaryNode();
-    ASSERT((declInit != NULL) && (declInit->getOp() == EOpInitialize));
-    TIntermSymbol* symbol = declInit->getLeft()->getAsSymbolNode();
-    ASSERT(symbol != NULL);
-    ASSERT(symbol->getBasicType() == EbtInt);
-
-    info.id = symbol->getId();
-
-    ASSERT(declInit->getRight() != NULL);
-    TIntermConstantUnion* initNode = declInit->getRight()->getAsConstantUnion();
-    ASSERT(initNode != NULL);
-
-    info.initValue = evaluateIntConstant(initNode);
-    info.currentValue = info.initValue;
-
-    TIntermNode* cond = node->getCondition();
-    ASSERT(cond != NULL);
-    TIntermBinary* binOp = cond->getAsBinaryNode();
-    ASSERT(binOp != NULL);
-    ASSERT(binOp->getRight() != NULL);
-    ASSERT(binOp->getRight()->getAsConstantUnion() != NULL);
-
-    info.incrementValue = getLoopIncrement(node);
-    info.stopValue = evaluateIntConstant(
-        binOp->getRight()->getAsConstantUnion());
-    info.op = binOp->getOp();
-}
-
-void ForLoopUnroll::Step()
-{
-    ASSERT(mLoopIndexStack.size() > 0);
-    TLoopIndexInfo& info = mLoopIndexStack[mLoopIndexStack.size() - 1];
-    info.currentValue += info.incrementValue;
-}
-
-bool ForLoopUnroll::SatisfiesLoopCondition()
-{
-    ASSERT(mLoopIndexStack.size() > 0);
-    TLoopIndexInfo& info = mLoopIndexStack[mLoopIndexStack.size() - 1];
-    // Relational operator is one of: > >= < <= == or !=.
-    switch (info.op) {
-      case EOpEqual:
-        return (info.currentValue == info.stopValue);
-      case EOpNotEqual:
-        return (info.currentValue != info.stopValue);
-      case EOpLessThan:
-        return (info.currentValue < info.stopValue);
-      case EOpGreaterThan:
-        return (info.currentValue > info.stopValue);
-      case EOpLessThanEqual:
-        return (info.currentValue <= info.stopValue);
-      case EOpGreaterThanEqual:
-        return (info.currentValue >= info.stopValue);
+    // If a sampler array index is also the loop index,
+    //   1) if the index type is integer, mark the loop for unrolling;
+    //   2) if the index type if float, set a flag to later fail compile.
+    switch (node->getOp())
+    {
+      case EOpIndexIndirect:
+        if (node->getLeft() != NULL && node->getRight() != NULL && node->getLeft()->getAsSymbolNode())
+        {
+            TIntermSymbol *symbol = node->getLeft()->getAsSymbolNode();
+            if (IsSampler(symbol->getBasicType()) && symbol->isArray() && !mLoopStack.empty())
+            {
+                mVisitSamplerArrayIndexNodeInsideLoop = true;
+                node->getRight()->traverse(this);
+                mVisitSamplerArrayIndexNodeInsideLoop = false;
+                // We have already visited all the children.
+                return false;
+            }
+        }
+        break;
       default:
-        UNREACHABLE();
+        break;
     }
+    return true;
+}
+
+bool ForLoopUnrollMarker::visitLoop(Visit, TIntermLoop *node)
+{
+    if (mUnrollCondition == kIntegerIndex)
+    {
+        // Check if loop index type is integer.
+        // This is called after ValidateLimitations pass, so all the calls
+        // should be valid. See ValidateLimitations::validateForLoopInit().
+        TIntermSequence *declSeq = node->getInit()->getAsAggregate()->getSequence();
+        TIntermSymbol *symbol = (*declSeq)[0]->getAsBinaryNode()->getLeft()->getAsSymbolNode();
+        if (symbol->getBasicType() == EbtInt)
+            node->setUnrollFlag(true);
+    }
+
+    TIntermNode *body = node->getBody();
+    if (body != NULL)
+    {
+        mLoopStack.push(node);
+        body->traverse(this);
+        mLoopStack.pop();
+    }
+    // The loop is fully processed - no need to visit children.
     return false;
 }
 
-bool ForLoopUnroll::NeedsToReplaceSymbolWithValue(TIntermSymbol* symbol)
+void ForLoopUnrollMarker::visitSymbol(TIntermSymbol* symbol)
 {
-    for (TVector<TLoopIndexInfo>::iterator i = mLoopIndexStack.begin();
-         i != mLoopIndexStack.end();
-         ++i) {
-        if (i->id == symbol->getId())
-            return true;
-    }
-    return false;
-}
-
-int ForLoopUnroll::GetLoopIndexValue(TIntermSymbol* symbol)
-{
-    for (TVector<TLoopIndexInfo>::iterator i = mLoopIndexStack.begin();
-         i != mLoopIndexStack.end();
-         ++i) {
-        if (i->id == symbol->getId())
-            return i->currentValue;
-    }
-    UNREACHABLE();
-    return false;
-}
-
-void ForLoopUnroll::Push(TLoopIndexInfo& info)
-{
-    mLoopIndexStack.push_back(info);
-}
-
-void ForLoopUnroll::Pop()
-{
-    mLoopIndexStack.pop_back();
-}
-
-// static
-void ForLoopUnroll::MarkForLoopsWithIntegerIndicesForUnrolling(
-    TIntermNode* root)
-{
-    ASSERT(root);
-
-    IntegerForLoopUnrollMarker marker;
-    root->traverse(&marker);
-}
-
-int ForLoopUnroll::getLoopIncrement(TIntermLoop* node)
-{
-    TIntermNode* expr = node->getExpression();
-    ASSERT(expr != NULL);
-    // for expression has one of the following forms:
-    //     loop_index++
-    //     loop_index--
-    //     loop_index += constant_expression
-    //     loop_index -= constant_expression
-    //     ++loop_index
-    //     --loop_index
-    // The last two forms are not specified in the spec, but I am assuming
-    // its an oversight.
-    TIntermUnary* unOp = expr->getAsUnaryNode();
-    TIntermBinary* binOp = unOp ? NULL : expr->getAsBinaryNode();
-
-    TOperator op = EOpNull;
-    TIntermConstantUnion* incrementNode = NULL;
-    if (unOp != NULL) {
-        op = unOp->getOp();
-    } else if (binOp != NULL) {
-        op = binOp->getOp();
-        ASSERT(binOp->getRight() != NULL);
-        incrementNode = binOp->getRight()->getAsConstantUnion();
-        ASSERT(incrementNode != NULL);
-    }
-
-    int increment = 0;
-    // The operator is one of: ++ -- += -=.
-    switch (op) {
-        case EOpPostIncrement:
-        case EOpPreIncrement:
-            ASSERT((unOp != NULL) && (binOp == NULL));
-            increment = 1;
+    if (!mVisitSamplerArrayIndexNodeInsideLoop)
+        return;
+    TIntermLoop *loop = mLoopStack.findLoop(symbol);
+    if (loop)
+    {
+        switch (symbol->getBasicType())
+        {
+          case EbtFloat:
+            mSamplerArrayIndexIsFloatLoopIndex = true;
             break;
-        case EOpPostDecrement:
-        case EOpPreDecrement:
-            ASSERT((unOp != NULL) && (binOp == NULL));
-            increment = -1;
+          case EbtInt:
+            loop->setUnrollFlag(true);
             break;
-        case EOpAddAssign:
-            ASSERT((unOp == NULL) && (binOp != NULL));
-            increment = evaluateIntConstant(incrementNode);
-            break;
-        case EOpSubAssign:
-            ASSERT((unOp == NULL) && (binOp != NULL));
-            increment = - evaluateIntConstant(incrementNode);
-            break;
-        default:
-            ASSERT(false);
+          default:
+            UNREACHABLE();
+        }
     }
-
-    return increment;
 }
-
-int ForLoopUnroll::evaluateIntConstant(TIntermConstantUnion* node)
-{
-    ASSERT((node != NULL) && (node->getUnionArrayPointer() != NULL));
-    return node->getIConst(0);
-}
-

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -299,6 +291,7 @@ QGraphicsScenePrivate::QGraphicsScenePrivate()
       painterStateProtection(true),
       sortCacheEnabled(false),
       allItemsIgnoreTouchEvents(true),
+      minimumRenderSize(0.0),
       selectionChanging(0),
       rectAdjust(2),
       focusItem(0),
@@ -399,7 +392,7 @@ void QGraphicsScenePrivate::_q_emitUpdated()
 */
 void QGraphicsScenePrivate::registerTopLevelItem(QGraphicsItem *item)
 {
-    item->d_ptr->ensureSequentialSiblingIndex();
+    ensureSequentialTopLevelSiblingIndexes();
     needSortTopLevelItems = true; // ### maybe false
     item->d_ptr->siblingIndex = topLevelItems.size();
     topLevelItems.append(item);
@@ -1607,9 +1600,9 @@ void QGraphicsScenePrivate::updatePalette(const QPalette &palette)
     // whose parent is not a widget.
     foreach (QGraphicsItem *item, q->items()) {
         if (!item->parentItem()) {
-            // Resolvefont for an item is a noop operation, but
+            // ResolvePalette for an item is a noop operation, but
             // every item can be a widget, or can have a widget
-            // childre.
+            // children.
             item->d_ptr->resolvePalette(palette.resolve());
         }
     }
@@ -4716,19 +4709,40 @@ void QGraphicsScenePrivate::drawSubtreeRecursive(QGraphicsItem *item, QPainter *
         wasDirtyParentSceneTransform = true;
     }
 
-    const bool itemClipsChildrenToShape = (item->d_ptr->flags & QGraphicsItem::ItemClipsChildrenToShape);
+    const bool itemClipsChildrenToShape = (item->d_ptr->flags & QGraphicsItem::ItemClipsChildrenToShape
+                                           || item->d_ptr->flags & QGraphicsItem::ItemContainsChildrenInShape);
     bool drawItem = itemHasContents && !itemIsFullyTransparent;
-    if (drawItem) {
+    if (drawItem || minimumRenderSize > 0.0) {
         const QRectF brect = adjustedItemEffectiveBoundingRect(item);
         ENSURE_TRANSFORM_PTR
-        QRect viewBoundingRect = translateOnlyTransform ? brect.translated(transformPtr->dx(), transformPtr->dy()).toAlignedRect()
-                                                        : transformPtr->mapRect(brect).toAlignedRect();
-        viewBoundingRect.adjust(-int(rectAdjust), -int(rectAdjust), rectAdjust, rectAdjust);
-        if (widget)
-            item->d_ptr->paintedViewBoundingRects.insert(widget, viewBoundingRect);
-        drawItem = exposedRegion ? exposedRegion->intersects(viewBoundingRect)
-                                 : !viewBoundingRect.normalized().isEmpty();
-        if (!drawItem) {
+        QRectF preciseViewBoundingRect = translateOnlyTransform ? brect.translated(transformPtr->dx(), transformPtr->dy())
+                                                                : transformPtr->mapRect(brect);
+
+        bool itemIsTooSmallToRender = false;
+        if (minimumRenderSize > 0.0
+            && (preciseViewBoundingRect.width() < minimumRenderSize
+                || preciseViewBoundingRect.height() < minimumRenderSize)) {
+           itemIsTooSmallToRender = true;
+           drawItem = false;
+        }
+
+        bool itemIsOutsideVisibleRect = false;
+        if (drawItem) {
+            QRect viewBoundingRect = preciseViewBoundingRect.toAlignedRect();
+            viewBoundingRect.adjust(-int(rectAdjust), -int(rectAdjust), rectAdjust, rectAdjust);
+            if (widget)
+                item->d_ptr->paintedViewBoundingRects.insert(widget, viewBoundingRect);
+            drawItem = exposedRegion ? exposedRegion->intersects(viewBoundingRect)
+                                     : !viewBoundingRect.normalized().isEmpty();
+            itemIsOutsideVisibleRect = !drawItem;
+        }
+
+        if (itemIsTooSmallToRender || itemIsOutsideVisibleRect) {
+            // We cannot simply use !drawItem here. If we did it is possible
+            // to enter the outter if statement with drawItem == false and minimumRenderSize > 0
+            // and finally end up inside this inner if, even though none of the above two
+            // conditions are met. In that case we should not return from this function
+            // but call draw() instead.
             if (!itemHasChildren)
                 return;
             if (itemClipsChildrenToShape) {
@@ -5200,7 +5214,8 @@ void QGraphicsScenePrivate::processDirtyItemsRecursive(QGraphicsItem *item, bool
 
     // Process children.
     if (itemHasChildren && item->d_ptr->dirtyChildren) {
-        const bool itemClipsChildrenToShape = item->d_ptr->flags & QGraphicsItem::ItemClipsChildrenToShape;
+        const bool itemClipsChildrenToShape = item->d_ptr->flags & QGraphicsItem::ItemClipsChildrenToShape
+                                              || item->d_ptr->flags & QGraphicsItem::ItemContainsChildrenInShape;
         // Items with no content are threated as 'dummy' items which means they are never drawn and
         // 'processed', so the painted view bounding rect is never up-to-date. This means that whenever
         // such an item changes geometry, its children have to take care of the update regardless
@@ -5727,6 +5742,49 @@ bool QGraphicsScene::sendEvent(QGraphicsItem *item, QEvent *event)
         return false;
     }
     return d->sendEvent(item, event);
+}
+
+/*!
+    \property QGraphicsScene::minimumRenderSize
+    \since 5.4
+    \brief the minimal view-transformed size an item must have to be drawn
+
+    When the scene is rendered, any item whose width or height, transformed
+    to the target view, is smaller that minimumRenderSize(), will not be
+    rendered. If an item is not rendered and it clips its children items
+    they will also not be rendered. Set this value to speed up rendering
+    of scenes with many objects rendered on a zoomed out view.
+
+    The default value is 0. If unset, or if set to 0 or a negative value,
+    all items will always be rendered.
+
+    For example, setting this property can be especially useful if a scene
+    is rendered by multiple views, one of which serves as an overview which
+    always displays all items. In scenes with many items, such a view will
+    use a high scaling factor so that all items can be shown. Due to the
+    scaling, smaller items will only make an insignificant contribution to
+    the final rendered scene. To avoid drawing these items and reduce the
+    time necessary to render the scene, you can call setMinimumRenderSize()
+    with a non-negative value.
+
+    \note Items that are not drawn as a result of being too small, are still
+    returned by methods such as items() and itemAt(), and participate in
+    collision detection and interactions. It is recommended that you set
+    minimumRenderSize() to a value less than or equal to 1 in order to
+    avoid large unrendered items that are interactive.
+
+    \sa QStyleOptionGraphicsItem::levelOfDetailFromTransform()
+*/
+qreal QGraphicsScene::minimumRenderSize() const
+{
+    Q_D(const QGraphicsScene);
+    return d->minimumRenderSize;
+}
+void QGraphicsScene::setMinimumRenderSize(qreal minSize)
+{
+    Q_D(QGraphicsScene);
+    d->minimumRenderSize = minSize;
+    update();
 }
 
 void QGraphicsScenePrivate::addView(QGraphicsView *view)

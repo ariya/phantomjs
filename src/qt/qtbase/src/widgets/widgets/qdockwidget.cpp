@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -591,10 +583,6 @@ void QDockWidgetPrivate::init()
     QObject::connect(button, SIGNAL(clicked()), q, SLOT(close()));
     layout->setWidgetForRole(QDockWidgetLayout::CloseButton, button);
 
-    resizer = new QWidgetResizeHandler(q);
-    resizer->setMovingEnabled(false);
-    resizer->setActive(false);
-
 #ifndef QT_NO_ACTION
     toggleViewAction = new QAction(q);
     toggleViewAction->setCheckable(true);
@@ -760,13 +748,12 @@ void QDockWidgetPrivate::endDrag(bool abort)
                     Qt::WindowFlags flags = q->windowFlags();
                     flags &= ~Qt::X11BypassWindowManagerHint;
                     q->setWindowFlags(flags);
-                    resizer->setActive(QWidgetResizeHandler::Resize, true);
+                    setResizerActive(true);
                     q->show();
                 } else {
                     QDockWidgetLayout *myLayout
                             = qobject_cast<QDockWidgetLayout*>(layout);
-                    resizer->setActive(QWidgetResizeHandler::Resize,
-                                       myLayout->widgetForRole(QDockWidgetLayout::TitleBar) != 0);
+                    setResizerActive(myLayout->widgetForRole(QDockWidgetLayout::TitleBar) != 0);
                 }
                 undockedGeometry = q->geometry();
                 q->activateWindow();
@@ -777,6 +764,17 @@ void QDockWidgetPrivate::endDrag(bool abort)
     }
     delete state;
     state = 0;
+}
+
+void QDockWidgetPrivate::setResizerActive(bool active)
+{
+    Q_Q(QDockWidget);
+    if (active && !resizer) {
+        resizer = new QWidgetResizeHandler(q);
+        resizer->setMovingEnabled(false);
+    }
+    if (resizer)
+        resizer->setActive(QWidgetResizeHandler::Resize, active);
 }
 
 bool QDockWidgetPrivate::isAnimating() const
@@ -932,12 +930,7 @@ void QDockWidgetPrivate::nonClientAreaMouseEvent(QMouseEvent *event)
             initDrag(event->pos(), true);
             if (state == 0)
                 break;
-#ifdef Q_WS_WIN
-            // On Windows, NCA mouse events don't contain modifier info
-            state->ctrlDrag = GetKeyState(VK_CONTROL) & 0x8000;
-#else
             state->ctrlDrag = event->modifiers() & Qt::ControlModifier;
-#endif
             startDrag();
             break;
         case QEvent::NonClientAreaMouseMove:
@@ -1011,6 +1004,8 @@ void QDockWidgetPrivate::setWindowState(bool floating, bool unplug, const QRect 
     }
 
     bool wasFloating = q->isFloating();
+    if (wasFloating) // Prevent repetitive unplugging from nested invocations (QTBUG-42818)
+        unplug = false;
     bool hidden = q->isHidden();
 
     if (q->isVisible())
@@ -1052,7 +1047,7 @@ void QDockWidgetPrivate::setWindowState(bool floating, bool unplug, const QRect 
         }
     }
 
-    resizer->setActive(QWidgetResizeHandler::Resize, !unplug && floating && !nativeDeco);
+    setResizerActive(!unplug && floating && !nativeDeco);
 }
 
 /*!

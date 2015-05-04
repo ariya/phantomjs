@@ -64,6 +64,26 @@ QT_BEGIN_NAMESPACE
    QMacPasteboard code
 *****************************************************************************/
 
+class QMacMimeData : public QMimeData
+{
+public:
+    QVariant variantData(const QString &mime) { return retrieveData(mime, QVariant::Invalid); }
+private:
+    QMacMimeData();
+};
+
+QMacPasteboard::Promise::Promise(int itemId, QMacInternalPasteboardMime *c, QString m, QMacMimeData *md, int o, DataRequestType drt)
+    : itemId(itemId), offset(o), convertor(c), mime(m), dataRequestType(drt)
+{
+    // Request the data from the application immediately for eager requests.
+    if (dataRequestType == QMacPasteboard::EagerRequest) {
+        variantData = md->variantData(m);
+        mimeData = 0;
+    } else {
+        mimeData = md;
+    }
+}
+
 QMacPasteboard::QMacPasteboard(PasteboardRef p, uchar mt)
 {
     mac_mime_source = false;
@@ -103,6 +123,11 @@ QMacPasteboard::~QMacPasteboard()
     // commit all promises for paste after exit close
     for (int i = 0; i < promises.count(); ++i) {
         const Promise &promise = promises.at(i);
+        // At this point app teardown has started and control is somewhere in the Q[Core]Application
+        // destructor. Skip "lazy" promises where the application has not provided data;
+        // the application will generally not be in a state to provide it.
+        if (promise.dataRequestType == LazyRequest)
+            continue;
         QCFString flavor = QCFString(promise.convertor->flavorFor(promise.mime));
         NSInteger pbItemId = promise.itemId;
         promiseKeeper(paste, reinterpret_cast<PasteboardItemID>(pbItemId), flavor, this);
@@ -155,7 +180,17 @@ OSStatus QMacPasteboard::promiseKeeper(PasteboardRef paste, PasteboardItemID id,
            qPrintable(flavorAsQString), qPrintable(promise.convertor->convertorName()), promise.offset);
 #endif
 
-    QList<QByteArray> md = promise.convertor->convertFromMime(promise.mime, promise.data, flavorAsQString);
+    // Get the promise data. If this is a "lazy" promise call variantData()
+    // to request the data from the application.
+    QVariant promiseData;
+    if (promise.dataRequestType == LazyRequest) {
+        if (!promise.mimeData.isNull())
+            promiseData = promise.mimeData->variantData(promise.mime);
+    } else {
+        promiseData = promise.variantData;
+    }
+
+    QList<QByteArray> md = promise.convertor->convertFromMime(promise.mime, promiseData, flavorAsQString);
     if (md.size() <= promise.offset)
         return cantGetFlavorErr;
     const QByteArray &ba = md[promise.offset];
@@ -266,16 +301,8 @@ QMimeData
     return mime;
 }
 
-class QMacMimeData : public QMimeData
-{
-public:
-    QVariant variantData(const QString &mime) { return retrieveData(mime, QVariant::Invalid); }
-private:
-    QMacMimeData();
-};
-
 void
-QMacPasteboard::setMimeData(QMimeData *mime_src)
+QMacPasteboard::setMimeData(QMimeData *mime_src, DataRequestType dataRequestType)
 {
     if (!paste)
         return;
@@ -308,16 +335,21 @@ QMacPasteboard::setMimeData(QMimeData *mime_src)
                 // Hack: The Rtf handler converts incoming Rtf to Html. We do
                 // not want to convert outgoing Html to Rtf but instead keep
                 // posting it as Html. Skip the Rtf handler here.
-                if (c->convertorName() == QStringLiteral("Rtf"))
+                if (c->convertorName() == QLatin1String("Rtf"))
                     continue;
                 QString flavor(c->flavorFor(mimeType));
                 if (!flavor.isEmpty()) {
-                    QVariant mimeData = static_cast<QMacMimeData*>(mime_src)->variantData(mimeType);
+                    QMacMimeData *mimeData = static_cast<QMacMimeData*>(mime_src);
 
                     int numItems = c->count(mime_src);
                     for (int item = 0; item < numItems; ++item) {
                         const NSInteger itemID = item+1; //id starts at 1
-                        promises.append(QMacPasteboard::Promise(itemID, c, mimeType, mimeData, item));
+                        //QMacPasteboard::Promise promise = (dataRequestType == QMacPasteboard::EagerRequest) ?
+                        //    QMacPasteboard::Promise::eagerPromise(itemID, c, mimeType, mimeData, item) :
+                        //    QMacPasteboard::Promise::lazyPromise(itemID, c, mimeType, mimeData, item);
+
+                        QMacPasteboard::Promise promise(itemID, c, mimeType, mimeData, item, dataRequestType);
+                        promises.append(promise);
                         PasteboardPutItemFlavor(paste, reinterpret_cast<PasteboardItemID>(itemID), QCFString(flavor), 0, kPasteboardFlavorNoFlags);
 #ifdef DEBUG_PASTEBOARD
                         qDebug(" -  adding %d %s [%s] <%s> [%d]",

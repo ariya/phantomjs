@@ -47,19 +47,33 @@
 #include <QtGui/QOpenGLContext>
 
 #import <OpenGLES/EAGL.h>
+#import <OpenGLES/ES2/glext.h>
 #import <QuartzCore/CAEAGLLayer.h>
 
 QIOSContext::QIOSContext(QOpenGLContext *context)
     : QPlatformOpenGLContext()
     , m_sharedContext(static_cast<QIOSContext *>(context->shareHandle()))
-    , m_eaglContext([[EAGLContext alloc]
-        initWithAPI:kEAGLRenderingAPIOpenGLES2
-        sharegroup:m_sharedContext ? [m_sharedContext->m_eaglContext sharegroup] : nil])
     , m_format(context->format())
 {
     m_format.setRenderableType(QSurfaceFormat::OpenGLES);
-    m_format.setMajorVersion(2);
-    m_format.setMinorVersion(0);
+    m_eaglContext = [[EAGLContext alloc]
+            initWithAPI:EAGLRenderingAPI(m_format.majorVersion())
+            sharegroup:m_sharedContext ? [m_sharedContext->m_eaglContext sharegroup] : nil];
+
+    if (m_eaglContext != nil) {
+        EAGLContext *originalContext = [EAGLContext currentContext];
+        [EAGLContext setCurrentContext:m_eaglContext];
+        const GLubyte *s = glGetString(GL_VERSION);
+        if (s) {
+            QByteArray version = QByteArray(reinterpret_cast<const char *>(s));
+            int major, minor;
+            if (QPlatformOpenGLContext::parseOpenGLVersion(version, major, minor)) {
+                m_format.setMajorVersion(major);
+                m_format.setMinorVersion(minor);
+            }
+        }
+        [EAGLContext setCurrentContext:originalContext];
+    }
 
     // iOS internally double-buffers its rendering using copy instead of flipping,
     // so technically we could report that we are single-buffered so that clients

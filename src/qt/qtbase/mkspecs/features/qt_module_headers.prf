@@ -12,7 +12,7 @@
 load(qt_build_paths)
 
 !build_pass:git_build {
-    qtPrepareTool(QMAKE_SYNCQT, syncqt)
+    qtPrepareTool(QMAKE_SYNCQT, syncqt, , system)
     minimal_syncqt {
         QMAKE_SYNCQT += -minimal $$QMAKE_SYNCQT_OPTIONS
     } else {
@@ -56,12 +56,23 @@ autogen_warning = \
 MODULE_MASTER_DEPS_HEADER = $$MODULE_BASE_OUTDIR/include/$$MODULE_INCNAME/$${MODULE_INCNAME}Depends
 !build_pass {
     MODULE_MASTER_DEPS_HEADER_CONT = $$autogen_warning
+    MODULE_MASTER_DEPS_HEADER_CONT += "$${LITERAL_HASH}ifdef __cplusplus /* create empty PCH in C mode */"
     for(dep, MODULE_DEPENDS) {
-        depname = $$eval(QT.$${dep}.name)
+        depname = $$eval(QT.$${dep}.master_header)
+        isEmpty(depname): \
+            depname = $$eval(QT.$${dep}.name)
         MODULE_MASTER_DEPS_HEADER_CONT += "$${LITERAL_HASH}include <$$depname/$$depname>"
     }
+    MODULE_MASTER_DEPS_HEADER_CONT += "$${LITERAL_HASH}endif"
     write_file($$MODULE_MASTER_DEPS_HEADER, MODULE_MASTER_DEPS_HEADER_CONT)|error("Aborting.")
 }
 SYNCQT.HEADER_FILES += $$MODULE_MASTER_DEPS_HEADER
+
+# Automatically enable precompiled headers for Qt modules,
+# except for Gcc/Windows: Larger precompiled headers crash cc1plus.exe
+# (e.g. with i686-4.8.2-release-posix-dwarf-rt_v3-rev3)
+!gcc|!equals(QMAKE_HOST.os, Windows) {
+    isEmpty(PRECOMPILED_HEADER): PRECOMPILED_HEADER = $$MODULE_MASTER_DEPS_HEADER
+}
 
 CONFIG += qt_install_headers

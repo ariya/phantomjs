@@ -1,0 +1,33 @@
+//
+// Copyright (c) 2012 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+
+sampler2D tex : s0;
+
+uniform float4 mult : c0;
+uniform float4 add  : c1;
+
+// Passthrough Pixel Shader
+// Outputs texture 0 sampled at texcoord 0.
+float4 PS_passthrough(float4 texcoord : TEXCOORD0) : COLOR
+{
+    return tex2D(tex, texcoord.xy);
+};
+
+// Luminance Conversion Pixel Shader
+// Performs a mad operation using the LA data from the texture with mult.xw and add.xw.
+// Returns data in the form of llla
+float4 PS_luminance(float4 texcoord : TEXCOORD0) : COLOR
+{
+    return (tex2D(tex, texcoord.xy).xw * mult.xw + add.xw).xxxy;
+};
+
+// RGB/A Component Mask Pixel Shader
+// Performs a mad operation using the texture's RGBA data with mult.xyzw and add.xyzw.
+// Returns data in the form of rgba
+float4 PS_componentmask(float4 texcoord : TEXCOORD0) : COLOR
+{
+    return tex2D(tex, texcoord.xy) * mult + add;
+};

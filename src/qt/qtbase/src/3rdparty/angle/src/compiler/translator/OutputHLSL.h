@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2002-2013 The ANGLE Project Authors. All rights reserved.
+// Copyright (c) 2002-2014 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -11,42 +11,40 @@
 #include <set>
 #include <map>
 
-#define GL_APICALL
-#include <GLES2/gl2.h>
+#include "angle_gl.h"
 
-#include "compiler/translator/intermediate.h"
+#include "compiler/translator/IntermNode.h"
 #include "compiler/translator/ParseContext.h"
-#include "compiler/translator/Uniform.h"
 
 namespace sh
 {
 class UnfoldShortCircuit;
+class StructureHLSL;
+class UniformHLSL;
+
+typedef std::map<TString, TIntermSymbol*> ReferencedSymbols;
 
 class OutputHLSL : public TIntermTraverser
 {
   public:
-    OutputHLSL(TParseContext &context, const ShBuiltInResources& resources, ShShaderOutput outputType);
+    OutputHLSL(TParseContext &context, TranslatorHLSL *parentTranslator);
     ~OutputHLSL();
 
     void output();
 
     TInfoSinkBase &getBodyStream();
-    const ActiveUniforms &getUniforms();
 
-    TString typeString(const TType &type);
-    TString textureString(const TType &type);
-    static TString qualifierString(TQualifier qualifier);
-    static TString arrayString(const TType &type);
+    const std::map<std::string, unsigned int> &getInterfaceBlockRegisterMap() const;
+    const std::map<std::string, unsigned int> &getUniformRegisterMap() const;
+
     static TString initializer(const TType &type);
-    static TString decorate(const TString &string);                      // Prepends an underscore to avoid naming clashes
-    static TString decorateUniform(const TString &string, const TType &type);
-    static TString decorateField(const TString &string, const TType &structure);
 
   protected:
     void header();
 
     // Visit AST nodes and output their code to the body stream
     void visitSymbol(TIntermSymbol*);
+    void visitRaw(TIntermRaw*);
     void visitConstantUnion(TIntermConstantUnion*);
     bool visitBinary(Visit visit, TIntermBinary*);
     bool visitUnary(Visit visit, TIntermUnary*);
@@ -63,12 +61,8 @@ class OutputHLSL : public TIntermTraverser
     TString argumentString(const TIntermSymbol *symbol);
     int vectorSize(const TType &type) const;
 
-    void addConstructor(const TType &type, const TString &name, const TIntermSequence *parameters);
+    void outputConstructor(Visit visit, const TType &type, const TString &name, const TIntermSequence *parameters);
     const ConstantUnion *writeConstantUnion(const TType &type, const ConstantUnion *constUnion);
-
-    TString scopeString(unsigned int depthLimit);
-    TString scopedStruct(const TString &typeName);
-    TString structLookup(const TString &typeName);
 
     TParseContext &mContext;
     const ShShaderOutput mOutputType;
@@ -80,27 +74,44 @@ class OutputHLSL : public TIntermTraverser
     TInfoSinkBase mBody;
     TInfoSinkBase mFooter;
 
-    typedef std::map<TString, TIntermSymbol*> ReferencedSymbols;
     ReferencedSymbols mReferencedUniforms;
+    ReferencedSymbols mReferencedInterfaceBlocks;
     ReferencedSymbols mReferencedAttributes;
     ReferencedSymbols mReferencedVaryings;
+    ReferencedSymbols mReferencedOutputVariables;
+
+    StructureHLSL *mStructureHLSL;
+    UniformHLSL *mUniformHLSL;
+
+    struct TextureFunction
+    {
+        enum Method
+        {
+            IMPLICIT,   // Mipmap LOD determined implicitly (standard lookup)
+            BIAS,
+            LOD,
+            LOD0,
+            LOD0BIAS,
+            SIZE,   // textureSize()
+            FETCH,
+            GRAD
+        };
+
+        TBasicType sampler;
+        int coords;
+        bool proj;
+        bool offset;
+        Method method;
+
+        TString name() const;
+
+        bool operator<(const TextureFunction &rhs) const;
+    };
+
+    typedef std::set<TextureFunction> TextureFunctionSet;
 
     // Parameters determining what goes in the header output
-    bool mUsesTexture2D;
-    bool mUsesTexture2D_bias;
-    bool mUsesTexture2DLod;
-    bool mUsesTexture2DProj;
-    bool mUsesTexture2DProj_bias;
-    bool mUsesTexture2DProjLod;
-    bool mUsesTextureCube;
-    bool mUsesTextureCube_bias;
-    bool mUsesTextureCubeLod;
-    bool mUsesTexture2DLod0;
-    bool mUsesTexture2DLod0_bias;
-    bool mUsesTexture2DProjLod0;
-    bool mUsesTexture2DProjLod0_bias;
-    bool mUsesTextureCubeLod0;
-    bool mUsesTextureCubeLod0_bias;
+    TextureFunctionSet mUsesTexture;
     bool mUsesFragColor;
     bool mUsesFragData;
     bool mUsesDepthRange;
@@ -126,42 +137,28 @@ class OutputHLSL : public TIntermTraverser
     bool mUsesAtan2_3;
     bool mUsesAtan2_4;
     bool mUsesDiscardRewriting;
+    bool mUsesNestedBreak;
 
     int mNumRenderTargets;
-
-    typedef std::set<TString> Constructors;
-    Constructors mConstructors;
-
-    typedef std::set<TString> StructNames;
-    StructNames mStructNames;
-
-    typedef std::list<TString> StructDeclarations;
-    StructDeclarations mStructDeclarations;
-
-    typedef std::vector<int> ScopeBracket;
-    ScopeBracket mScopeBracket;
-    unsigned int mScopeDepth;
 
     int mUniqueIndex;   // For creating unique names
 
     bool mContainsLoopDiscontinuity;
+    bool mContainsAnyLoop;
     bool mOutputLod0Function;
     bool mInsideDiscontinuousLoop;
+    int mNestedLoopDepth;
 
     TIntermSymbol *mExcessiveLoopIndex;
 
-    int mUniformRegister;
-    int mSamplerRegister;
+    TString structInitializerString(int indent, const TStructure &structure, const TString &rhsStructName);
 
-    TString registerString(TIntermSymbol *operand);
-    int samplerRegister(TIntermSymbol *sampler);
-    int uniformRegister(TIntermSymbol *uniform);
-    void declareUniform(const TType &type, const TString &name, int index);
-    static GLenum glVariableType(const TType &type);
-    static GLenum glVariablePrecision(const TType &type);
+    std::map<TIntermTyped*, TString> mFlaggedStructMappedNames;
+    std::map<TIntermTyped*, TString> mFlaggedStructOriginalNames;
 
-    ActiveUniforms mActiveUniforms;
+    void makeFlaggedStructMaps(const std::vector<TIntermTyped *> &flaggedStructs);
 };
+
 }
 
 #endif   // COMPILER_OUTPUTHLSL_H_

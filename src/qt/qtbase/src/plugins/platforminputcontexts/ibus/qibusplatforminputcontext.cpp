@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -43,6 +35,7 @@
 #include <QtDebug>
 #include <QTextCharFormat>
 #include <QGuiApplication>
+#include <QDBusVariant>
 #include <qwindow.h>
 #include <qevent.h>
 
@@ -78,6 +71,7 @@ public:
 
     bool valid;
     QString predit;
+    bool needsSurroundingText;
 };
 
 
@@ -87,6 +81,8 @@ QIBusPlatformInputContext::QIBusPlatformInputContext ()
     if (d->context) {
         connect(d->context, SIGNAL(CommitText(QDBusVariant)), SLOT(commitText(QDBusVariant)));
         connect(d->context, SIGNAL(UpdatePreeditText(QDBusVariant,uint,bool)), this, SLOT(updatePreeditText(QDBusVariant,uint,bool)));
+        connect(d->context, SIGNAL(DeleteSurroundingText(int,uint)), this, SLOT(deleteSurroundingText(int,uint)));
+        connect(d->context, SIGNAL(RequireSurroundingText()), this, SLOT(surroundingTextRequired()));
     }
     QInputMethod *p = qApp->inputMethod();
     connect(p, SIGNAL(cursorRectangleChanged()), this, SLOT(cursorRectChanged()));
@@ -135,9 +131,11 @@ void QIBusPlatformInputContext::commit()
         return;
     }
 
-    QInputMethodEvent event;
-    event.setCommitString(d->predit);
-    QCoreApplication::sendEvent(input, &event);
+    if (!d->predit.isEmpty()) {
+        QInputMethodEvent event;
+        event.setCommitString(d->predit);
+        QCoreApplication::sendEvent(input, &event);
+    }
 
     d->context->Reset();
     d->predit = QString();
@@ -146,6 +144,33 @@ void QIBusPlatformInputContext::commit()
 
 void QIBusPlatformInputContext::update(Qt::InputMethodQueries q)
 {
+    QObject *input = qApp->focusObject();
+
+    if (d->needsSurroundingText && input
+            && (q.testFlag(Qt::ImSurroundingText)
+                || q.testFlag(Qt::ImCursorPosition)
+                || q.testFlag(Qt::ImAnchorPosition))) {
+        QInputMethodQueryEvent srrndTextQuery(Qt::ImSurroundingText);
+        QInputMethodQueryEvent cursorPosQuery(Qt::ImCursorPosition);
+        QInputMethodQueryEvent anchorPosQuery(Qt::ImAnchorPosition);
+
+        QCoreApplication::sendEvent(input, &srrndTextQuery);
+        QCoreApplication::sendEvent(input, &cursorPosQuery);
+        QCoreApplication::sendEvent(input, &anchorPosQuery);
+
+        QString surroundingText = srrndTextQuery.value(Qt::ImSurroundingText).toString();
+        uint cursorPosition = cursorPosQuery.value(Qt::ImCursorPosition).toUInt();
+        uint anchorPosition = anchorPosQuery.value(Qt::ImAnchorPosition).toUInt();
+
+        QIBusText text;
+        text.text = surroundingText;
+
+        QVariant variant;
+        variant.setValue(text);
+        QDBusVariant dbusText(variant);
+
+        d->context->SetSurroundingText(dbusText, cursorPosition, anchorPosition);
+    }
     QPlatformInputContext::update(q);
 }
 
@@ -191,7 +216,7 @@ void QIBusPlatformInputContext::commitText(const QDBusVariant &text)
     QIBusText t;
     if (debug)
         qDebug() << arg.currentSignature();
-    t.fromDBusArgument(arg);
+    arg >> t;
     if (debug)
         qDebug() << "commit text:" << t.text;
 
@@ -211,7 +236,7 @@ void QIBusPlatformInputContext::updatePreeditText(const QDBusVariant &text, uint
     const QDBusArgument arg = text.variant().value<QDBusArgument>();
 
     QIBusText t;
-    t.fromDBusArgument(arg);
+    arg >> t;
     if (debug)
         qDebug() << "preedit text:" << t.text;
 
@@ -225,6 +250,27 @@ void QIBusPlatformInputContext::updatePreeditText(const QDBusVariant &text, uint
     d->predit = t.text;
 }
 
+void QIBusPlatformInputContext::surroundingTextRequired()
+{
+    if (debug)
+        qDebug() << "surroundingTextRequired";
+    d->needsSurroundingText = true;
+    update(Qt::ImSurroundingText);
+}
+
+void QIBusPlatformInputContext::deleteSurroundingText(int offset, uint n_chars)
+{
+    QObject *input = qApp->focusObject();
+    if (!input)
+        return;
+
+    if (debug)
+        qDebug() << "deleteSurroundingText" << offset << n_chars;
+
+    QInputMethodEvent event;
+    event.setCommitString("", offset, n_chars);
+    QCoreApplication::sendEvent(input, &event);
+}
 
 bool
 QIBusPlatformInputContext::x11FilterEvent(uint keyval, uint keycode, uint state, bool press)
@@ -250,7 +296,8 @@ QIBusPlatformInputContextPrivate::QIBusPlatformInputContextPrivate()
     : connection(createConnection()),
       bus(0),
       context(0),
-      valid(false)
+      valid(false),
+      needsSurroundingText(false)
 {
     if (!connection || !connection->isConnected())
         return;
@@ -284,7 +331,7 @@ QIBusPlatformInputContextPrivate::QIBusPlatformInputContextPrivate()
         IBUS_CAP_PROPERTY           = 1 << 4,
         IBUS_CAP_SURROUNDING_TEXT   = 1 << 5
     };
-    context->SetCapabilities(IBUS_CAP_PREEDIT_TEXT|IBUS_CAP_FOCUS);
+    context->SetCapabilities(IBUS_CAP_PREEDIT_TEXT|IBUS_CAP_FOCUS|IBUS_CAP_SURROUNDING_TEXT);
 
     if (debug)
         qDebug(">>>> valid!");

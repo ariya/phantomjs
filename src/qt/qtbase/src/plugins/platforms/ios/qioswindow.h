@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -49,11 +41,6 @@
 
 class QIOSContext;
 class QIOSWindow;
-
-@interface UIView (QIOS)
-@property(readonly) QWindow *qwindow;
-@property(readonly) UIViewController *viewController;
-@end
 
 QT_BEGIN_NAMESPACE
 
@@ -73,11 +60,15 @@ public:
     void setParent(const QPlatformWindow *window);
     void handleContentOrientationChange(Qt::ScreenOrientation orientation);
     void setVisible(bool visible);
+    void setOpacity(qreal level) Q_DECL_OVERRIDE;
 
     bool isExposed() const Q_DECL_OVERRIDE;
+    void propagateSizeHints() Q_DECL_OVERRIDE {}
 
     void raise() { raiseOrLower(true); }
     void lower() { raiseOrLower(false); }
+
+    bool shouldAutoActivateWindow() const;
     void requestActivateWindow();
 
     qreal devicePixelRatio() const;
@@ -86,6 +77,8 @@ public:
     bool setKeyboardGrabEnabled(bool grab) { return grab; }
 
     WId winId() const { return WId(m_view); };
+
+    void clearAccessibleCache();
 
 private:
     void applicationStateChanged(Qt::ApplicationState state);
@@ -99,9 +92,6 @@ private:
     void raiseOrLower(bool raise);
     void updateWindowLevel();
     bool blockedByModal();
-
-    inline Qt::WindowType windowType() { return static_cast<Qt::WindowType>(int(window()->flags() & Qt::WindowType_Mask)); }
-    inline bool windowIsPopup() { return windowType() & Qt::Popup & ~Qt::Window; }
 
     friend class QIOSScreen;
 };

@@ -90,6 +90,7 @@ public:
     void setHeader(QNetworkRequest::KnownHeaders header, const QVariant &value);
     void setRawHeader(const QByteArray &headerName, const QByteArray &value);
     void setError(QNetworkReply::NetworkError errorCode, const QString &errorString);
+    void setAttribute(QNetworkRequest::Attribute code, const QVariant &value);
 };
 
 @interface QtNSURLConnectionDelegate : NSObject
@@ -140,6 +141,7 @@ QNetworkReplyNSURLConnectionImplPrivate::~QNetworkReplyNSURLConnectionImplPrivat
 void QNetworkReplyNSURLConnectionImplPrivate::setFinished()
 {
     q_func()->setFinished(true);
+    QMetaObject::invokeMethod(q_func(), "finished", Qt::QueuedConnection);
 }
 
 void QNetworkReplyNSURLConnectionImplPrivate::setHeader(QNetworkRequest::KnownHeaders header, const QVariant &value)
@@ -155,6 +157,11 @@ void QNetworkReplyNSURLConnectionImplPrivate::setRawHeader(const QByteArray &hea
 void QNetworkReplyNSURLConnectionImplPrivate::setError(QNetworkReply::NetworkError errorCode, const QString &errorString)
 {
     q_func()->setError(errorCode, errorString);
+}
+
+void QNetworkReplyNSURLConnectionImplPrivate::setAttribute(QNetworkRequest::Attribute code, const QVariant &value)
+{
+    q_func()->setAttribute(code, value);
 }
 
 void QNetworkReplyNSURLConnectionImpl::readyReadOutgoingData()
@@ -238,7 +245,7 @@ void QNetworkReplyNSURLConnectionImpl::readyReadOutgoingData()
     Q_UNUSED(connection)
 
     QNetworkReply::NetworkError qtError = QNetworkReply::UnknownNetworkError;
-    if ([error domain] == NSURLErrorDomain) {
+    if ([[error domain] isEqualToString:NSURLErrorDomain]) {
         switch ([error code]) {
         case NSURLErrorTimedOut: qtError = QNetworkReply::TimeoutError; break;
         case NSURLErrorUnsupportedURL: qtError = QNetworkReply::ProtocolUnknownError; break;
@@ -253,6 +260,7 @@ void QNetworkReplyNSURLConnectionImpl::readyReadOutgoingData()
     }
 
     replyprivate->setError(qtError, QString::fromNSString([error localizedDescription]));
+    replyprivate->setFinished();
 }
 
 - (void)connection:(NSURLConnection*)connection didReceiveResponse:(NSURLResponse*)aResponse
@@ -269,6 +277,9 @@ void QNetworkReplyNSURLConnectionImpl::readyReadOutgoingData()
             NSString *value = [headers objectForKey:key];
             replyprivate->setRawHeader(QString::fromNSString(key).toUtf8(), QString::fromNSString(value).toUtf8());
         }
+
+        int code = [httpResponse statusCode];
+        replyprivate->setAttribute(QNetworkRequest::HttpStatusCodeAttribute, code);
     } else {
         if ([aResponse expectedContentLength] != NSURLResponseUnknownLength)
             replyprivate->setHeader(QNetworkRequest::ContentLengthHeader, [aResponse expectedContentLength]);
@@ -317,8 +328,7 @@ void QNetworkReplyNSURLConnectionImpl::readyReadOutgoingData()
 - (void)connectionDidFinishLoading:(NSURLConnection*)connection
 {
     Q_UNUSED(connection)
-        replyprivate->setFinished();
-    QMetaObject::invokeMethod(replyprivate->q_func(), "finished", Qt::QueuedConnection);
+    replyprivate->setFinished();
 }
 
 - (BOOL)connectionShouldUseCredentialStorage:(NSURLConnection*)connection

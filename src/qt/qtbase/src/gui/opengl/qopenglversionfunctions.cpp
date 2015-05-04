@@ -5,35 +5,27 @@
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -98,8 +90,10 @@ void QAbstractOpenGLFunctionsPrivate::removeFunctionsBackend(QOpenGLContext *con
     Qt now provides a family of classes which all inherit from
     QAbstractOpenGLFunctions which expose every core OpenGL function by way of a
     corresponding member function. There is a class for every valid combination
-    of OpenGL version and profile. Each class follows the naming convention
-    QOpenGLFunctions_<MAJOR VERSION>_<MINOR VERSION>[_PROFILE].
+    of OpenGL version and profile. Each class follows the naming convention:
+    \badcode
+    QOpenGLFunctions_<MAJOR VERSION>_<MINOR VERSION>[_PROFILE]
+    \endcode
 
     For OpenGL versions 1.0 through to 3.0 there are no profiles, leading to the
     classes:
@@ -160,7 +154,7 @@ void QAbstractOpenGLFunctionsPrivate::removeFunctionsBackend(QOpenGLContext *con
 
     A pointer to an object of the class corresponding to the version and
     profile of OpenGL in use can be obtained from
-    QOpenGLFunctions::versionFunctions(). If obtained in this way, note that
+    QOpenGLContext::versionFunctions(). If obtained in this way, note that
     the QOpenGLContext retains ownership of the object. This is so that only
     one instance need be created.
 
@@ -227,7 +221,9 @@ QOpenGLFunctions_1_0_CoreBackend::QOpenGLFunctions_1_0_CoreBackend(QOpenGLContex
 {
     // OpenGL 1.0 core functions
 #if defined(Q_OS_WIN)
-    HMODULE handle = GetModuleHandleA("opengl32.dll");
+    HMODULE handle = static_cast<HMODULE>(QOpenGLContext::openGLModuleHandle());
+    if (!handle)
+        handle = GetModuleHandleA("opengl32.dll");
     Viewport = reinterpret_cast<void (QOPENGLF_APIENTRYP)(GLint , GLint , GLsizei , GLsizei )>(GetProcAddress(handle, "glViewport"));
     DepthRange = reinterpret_cast<void (QOPENGLF_APIENTRYP)(GLdouble , GLdouble )>(GetProcAddress(handle, "glDepthRange"));
     IsEnabled = reinterpret_cast<GLboolean (QOPENGLF_APIENTRYP)(GLenum )>(GetProcAddress(handle, "glIsEnabled"));
@@ -339,7 +335,9 @@ QOpenGLFunctions_1_1_CoreBackend::QOpenGLFunctions_1_1_CoreBackend(QOpenGLContex
 {
     // OpenGL 1.1 core functions
 #if defined(Q_OS_WIN)
-    HMODULE handle = GetModuleHandleA("opengl32.dll");
+    HMODULE handle = static_cast<HMODULE>(QOpenGLContext::openGLModuleHandle());
+    if (!handle)
+        handle = GetModuleHandleA("opengl32.dll");
     Indexubv = reinterpret_cast<void (QOPENGLF_APIENTRYP)(const GLubyte *)>(GetProcAddress(handle, "glIndexubv"));
     Indexub = reinterpret_cast<void (QOPENGLF_APIENTRYP)(GLubyte )>(GetProcAddress(handle, "glIndexub"));
     IsTexture = reinterpret_cast<GLboolean (QOPENGLF_APIENTRYP)(GLuint )>(GetProcAddress(handle, "glIsTexture"));
@@ -991,7 +989,9 @@ QOpenGLFunctions_1_0_DeprecatedBackend::QOpenGLFunctions_1_0_DeprecatedBackend(Q
 {
     // OpenGL 1.0 deprecated functions
 #if defined(Q_OS_WIN)
-    HMODULE handle = GetModuleHandleA("opengl32.dll");
+    HMODULE handle = static_cast<HMODULE>(QOpenGLContext::openGLModuleHandle());
+    if (!handle)
+        handle = GetModuleHandleA("opengl32.dll");
     Translatef = reinterpret_cast<void (QOPENGLF_APIENTRYP)(GLfloat , GLfloat , GLfloat )>(GetProcAddress(handle, "glTranslatef"));
     Translated = reinterpret_cast<void (QOPENGLF_APIENTRYP)(GLdouble , GLdouble , GLdouble )>(GetProcAddress(handle, "glTranslated"));
     Scalef = reinterpret_cast<void (QOPENGLF_APIENTRYP)(GLfloat , GLfloat , GLfloat )>(GetProcAddress(handle, "glScalef"));
@@ -1523,7 +1523,9 @@ QOpenGLFunctions_1_1_DeprecatedBackend::QOpenGLFunctions_1_1_DeprecatedBackend(Q
 {
     // OpenGL 1.1 deprecated functions
 #if defined(Q_OS_WIN)
-    HMODULE handle = GetModuleHandleA("opengl32.dll");
+    HMODULE handle = static_cast<HMODULE>(QOpenGLContext::openGLModuleHandle());
+    if (!handle)
+        handle = GetModuleHandleA("opengl32.dll");
     PushClientAttrib = reinterpret_cast<void (QOPENGLF_APIENTRYP)(GLbitfield )>(GetProcAddress(handle, "glPushClientAttrib"));
     PopClientAttrib = reinterpret_cast<void (QOPENGLF_APIENTRYP)()>(GetProcAddress(handle, "glPopClientAttrib"));
     PrioritizeTextures = reinterpret_cast<void (QOPENGLF_APIENTRYP)(GLsizei , const GLuint *, const GLfloat *)>(GetProcAddress(handle, "glPrioritizeTextures"));

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -180,11 +172,11 @@
 /*!
     \fn QVector<T> QVector::mid(int pos, int length = -1) const
 
-    Returns a vector whose elements are copied from this vector,
+    Returns a sub-vector which contains elements from this vector,
     starting at position \a pos. If \a length is -1 (the default), all
-    elements after \a pos are copied; otherwise \a length elements (or
+    elements after \a pos are included; otherwise \a length elements (or
     all remaining elements if there are less than \a length elements)
-    are copied.
+    are included.
 */
 
 
@@ -574,6 +566,28 @@
     Provided for compatibility with QList.
 
     \sa remove(), QList::removeAt()
+*/
+
+/*! \fn int QVector::removeAll(const T &t)
+    \since 5.4
+
+    Removes all elements that compare equal to \a t from the
+    vector. Returns the number of elements removed, if any.
+
+    Provided for compatibility with QList.
+
+    \sa removeOne(), QList::removeAll()
+*/
+
+/*! \fn bool QVector::removeOne(const T &t)
+    \since 5.4
+
+    Removes the first element that compares equal to \a t from the
+    vector. Returns whether an element was, in fact, removed.
+
+    Provided for compatibility with QList.
+
+    \sa removeAll(), QList::removeOne()
 */
 
 /*! \fn int QVector::length() const

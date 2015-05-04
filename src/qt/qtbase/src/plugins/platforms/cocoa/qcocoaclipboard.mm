@@ -40,7 +40,6 @@
 ****************************************************************************/
 
 #include "qcocoaclipboard.h"
-#include "qmacclipboard.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -48,7 +47,7 @@ QCocoaClipboard::QCocoaClipboard()
     :m_clipboard(new QMacPasteboard(kPasteboardClipboard, QMacInternalPasteboardMime::MIME_CLIP))
     ,m_find(new QMacPasteboard(kPasteboardFind, QMacInternalPasteboardMime::MIME_CLIP))
 {
-
+    connect(qGuiApp, &QGuiApplication::applicationStateChanged, this, &QCocoaClipboard::handleApplicationStateChanged);
 }
 
 QMimeData *QCocoaClipboard::mimeData(QClipboard::Mode mode)
@@ -93,5 +92,18 @@ QMacPasteboard *QCocoaClipboard::pasteboardForMode(QClipboard::Mode mode) const
     else
         return 0;
 }
+
+void QCocoaClipboard::handleApplicationStateChanged(Qt::ApplicationState state)
+{
+    if (state != Qt::ApplicationActive)
+        return;
+
+    if (m_clipboard->sync())
+        emitChanged(QClipboard::Clipboard);
+    if (m_find->sync())
+        emitChanged(QClipboard::FindBuffer);
+}
+
+#include "moc_qcocoaclipboard.cpp"
 
 QT_END_NAMESPACE

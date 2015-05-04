@@ -265,13 +265,19 @@ struct sljit_compiler {
 	sljit_sw cache_argw;
 #endif
 
+#if (defined SLJIT_CONFIG_ARM_64 && SLJIT_CONFIG_ARM_64)
+	sljit_si locals_offset;
+	sljit_si cache_arg;
+	sljit_sw cache_argw;
+#endif
+
 #if (defined SLJIT_CONFIG_PPC_32 && SLJIT_CONFIG_PPC_32) || (defined SLJIT_CONFIG_PPC_64 && SLJIT_CONFIG_PPC_64)
 	sljit_sw imm;
 	sljit_si cache_arg;
 	sljit_sw cache_argw;
 #endif
 
-#if (defined SLJIT_CONFIG_MIPS_32 && SLJIT_CONFIG_MIPS_32)
+#if (defined SLJIT_CONFIG_MIPS_32 && SLJIT_CONFIG_MIPS_32) || (defined SLJIT_CONFIG_MIPS_64 && SLJIT_CONFIG_MIPS_64)
 	sljit_si delay_slot;
 	sljit_si cache_arg;
 	sljit_sw cache_argw;
@@ -478,11 +484,11 @@ SLJIT_API_FUNC_ATTRIBUTE sljit_si sljit_emit_fast_return(struct sljit_compiler *
 
 /* Register output: simply the name of the register.
    For destination, you can use SLJIT_UNUSED as well. */
-#define SLJIT_MEM		0x100
+#define SLJIT_MEM		0x80
 #define SLJIT_MEM0()		(SLJIT_MEM)
 #define SLJIT_MEM1(r1)		(SLJIT_MEM | (r1))
-#define SLJIT_MEM2(r1, r2)	(SLJIT_MEM | (r1) | ((r2) << 4))
-#define SLJIT_IMM		0x200
+#define SLJIT_MEM2(r1, r2)	(SLJIT_MEM | (r1) | ((r2) << 8))
+#define SLJIT_IMM		0x40
 
 /* Set 32 bit operation mode (I) on 64 bit CPUs. The flag is totally ignored on
    32 bit CPUs. If this flag is set for an arithmetic operation, it uses only the
@@ -494,12 +500,12 @@ SLJIT_API_FUNC_ATTRIBUTE sljit_si sljit_emit_fast_return(struct sljit_compiler *
    is specified, all register arguments must be the result of other operations with
    the same SLJIT_INT_OP flag. In other words, although a register can hold either
    a 64 or 32 bit value, these values cannot be mixed. The only exceptions are
-   SLJIT_IMOV and SLJIT_IMOVU (SLJIT_MOV_SI/SLJIT_MOV_UI/SLJIT_MOVU_SI/SLJIT_MOV_UI
-   with SLJIT_INT_OP flag) which can convert any source argument to SLJIT_INT_OP
-   compatible result. This conversion might be unnecessary on some CPUs like x86-64,
-   since the upper 32 bit is always ignored. In this case SLJIT is clever enough
-   to not generate any instructions if the source and destination operands are the
-   same registers. Affects sljit_emit_op0, sljit_emit_op1 and sljit_emit_op2. */
+   SLJIT_IMOV and SLJIT_IMOVU (SLJIT_MOV_SI/SLJIT_MOVU_SI with SLJIT_INT_OP flag)
+   which can convert any source argument to SLJIT_INT_OP compatible result. This
+   conversion might be unnecessary on some CPUs like x86-64, since the upper 32
+   bit is always ignored. In this case SLJIT is clever enough to not generate any
+   instructions if the source and destination operands are the same registers.
+   Affects sljit_emit_op0, sljit_emit_op1 and sljit_emit_op2. */
 #define SLJIT_INT_OP		0x100
 
 /* Single precision mode (SP). This flag is similar to SLJIT_INT_OP, just
@@ -525,10 +531,10 @@ SLJIT_API_FUNC_ATTRIBUTE sljit_si sljit_emit_fast_return(struct sljit_compiler *
 
 /* Set Equal (Zero) status flag (E). */
 #define SLJIT_SET_E			0x0200
+/* Set unsigned status flag (U). */
+#define SLJIT_SET_U			0x0400
 /* Set signed status flag (S). */
-#define SLJIT_SET_S			0x0400
-/* Set unsgined status flag (U). */
-#define SLJIT_SET_U			0x0800
+#define SLJIT_SET_S			0x0800
 /* Set signed overflow flag (O). */
 #define SLJIT_SET_O			0x1000
 /* Set carry flag (C).
@@ -575,7 +581,7 @@ SLJIT_API_FUNC_ATTRIBUTE sljit_si sljit_emit_fast_return(struct sljit_compiler *
 SLJIT_API_FUNC_ATTRIBUTE sljit_si sljit_emit_op0(struct sljit_compiler *compiler, sljit_si op);
 
 /* Notes for MOV instructions:
-   U = Mov with update (post form). If source or destination defined as SLJIT_MEM1(r1)
+   U = Mov with update (pre form). If source or destination defined as SLJIT_MEM1(r1)
        or SLJIT_MEM2(r1, r2), r1 is increased by the sum of r2 and the constant argument
    UB = unsigned byte (8 bit)
    SB = signed byte (8 bit)
@@ -602,7 +608,7 @@ SLJIT_API_FUNC_ATTRIBUTE sljit_si sljit_emit_op0(struct sljit_compiler *compiler
 /* Flags: I - (never set any flags)
    Note: see SLJIT_INT_OP for further details. */
 #define SLJIT_MOV_UI			11
-/* No SLJIT_INT_OP form, since it the same as SLJIT_IMOVU. */
+/* No SLJIT_INT_OP form, since it is the same as SLJIT_IMOV. */
 /* Flags: I - (never set any flags)
    Note: see SLJIT_INT_OP for further details. */
 #define SLJIT_MOV_SI			12
@@ -626,7 +632,7 @@ SLJIT_API_FUNC_ATTRIBUTE sljit_si sljit_emit_op0(struct sljit_compiler *compiler
 /* Flags: I - (never set any flags)
    Note: see SLJIT_INT_OP for further details. */
 #define SLJIT_MOVU_UI			19
-/* No SLJIT_INT_OP form, since it the same as SLJIT_IMOVU. */
+/* No SLJIT_INT_OP form, since it is the same as SLJIT_IMOVU. */
 /* Flags: I - (never set any flags)
    Note: see SLJIT_INT_OP for further details. */
 #define SLJIT_MOVU_SI			20
@@ -656,7 +662,7 @@ SLJIT_API_FUNC_ATTRIBUTE sljit_si sljit_emit_op1(struct sljit_compiler *compiler
 /* Flags: I | C | K */
 #define SLJIT_ADDC			26
 #define SLJIT_IADDC			(SLJIT_ADDC | SLJIT_INT_OP)
-/* Flags: I | E | S | U | O | C | K */
+/* Flags: I | E | U | S | O | C | K */
 #define SLJIT_SUB			27
 #define SLJIT_ISUB			(SLJIT_SUB | SLJIT_INT_OP)
 /* Flags: I | C | K */
@@ -851,8 +857,7 @@ SLJIT_API_FUNC_ATTRIBUTE struct sljit_jump* sljit_emit_fcmp(struct sljit_compile
 
 /* Set the destination of the jump to this label. */
 SLJIT_API_FUNC_ATTRIBUTE void sljit_set_label(struct sljit_jump *jump, struct sljit_label* label);
-/* Only for jumps defined with SLJIT_REWRITABLE_JUMP flag.
-   Note: use sljit_emit_ijump for fixed jumps. */
+/* Set the destination address of the jump to this label. */
 SLJIT_API_FUNC_ATTRIBUTE void sljit_set_target(struct sljit_jump *jump, sljit_uw target);
 
 /* Call function or jump anywhere. Both direct and indirect form

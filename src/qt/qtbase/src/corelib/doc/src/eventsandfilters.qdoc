@@ -194,7 +194,7 @@
     \l{QCoreApplication::}{sendEvent()} processes the event immediately.
     When it returns, the event filters and/or the object itself have
     already processed the event. For many event classes there is a function
-    called isAccepted() that tells you whether the event was accepted
+    called \l{QEvent::}{isAccepted()} that tells you whether the event was accepted
     or rejected by the last handler that was called.
 
     \l{QCoreApplication::}{postEvent()} posts the event on a queue for

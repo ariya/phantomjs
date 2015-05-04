@@ -22,6 +22,7 @@
         target.path = $$[QT_HOST_LIBS]
     else: \
         target.path = $$[QT_INSTALL_LIBS]
+    !static: target.CONFIG = no_dll
     INSTALLS += target
 }
 

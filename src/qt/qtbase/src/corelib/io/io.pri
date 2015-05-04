@@ -32,6 +32,8 @@ HEADERS +=  \
         io/qresource_iterator_p.h \
         io/qsavefile.h \
         io/qstandardpaths.h \
+        io/qstorageinfo.h \
+        io/qstorageinfo_p.h \
         io/qurl.h \
         io/qurl_p.h \
         io/qurlquery.h \
@@ -51,7 +53,6 @@ HEADERS +=  \
         io/qfileselector.h \
         io/qfileselector_p.h \
         io/qloggingcategory.h \
-        io/qloggingcategory_p.h \
         io/qloggingregistry_p.h
 
 SOURCES += \
@@ -71,6 +72,7 @@ SOURCES += \
         io/qlockfile.cpp \
         io/qnoncontiguousbytedevice.cpp \
         io/qprocess.cpp \
+        io/qstorageinfo.cpp \
         io/qtextstream.cpp \
         io/qtemporarydir.cpp \
         io/qtemporaryfile.cpp \
@@ -109,7 +111,8 @@ win32 {
         SOURCES += io/qstandardpaths_win.cpp
 
         wince* {
-            SOURCES += io/qprocess_wince.cpp
+            SOURCES += io/qprocess_wince.cpp \
+                io/qstorageinfo_stub.cpp
         } else {
             HEADERS += \
                 io/qwinoverlappedionotifier_p.h \
@@ -117,10 +120,15 @@ win32 {
             SOURCES += \
                 io/qprocess_win.cpp \
                 io/qwinoverlappedionotifier.cpp \
-                io/qwindowspipereader.cpp
+                io/qwindowspipereader.cpp \
+                io/qstorageinfo_win.cpp
+            LIBS += -lmpr
         }
     } else {
-        SOURCES += io/qstandardpaths_winrt.cpp
+        SOURCES += \
+                io/qstandardpaths_winrt.cpp \
+                io/qsettings_winrt.cpp \
+                io/qstorageinfo_stub.cpp
     }
 } else:unix|integrity {
         SOURCES += \
@@ -140,18 +148,27 @@ win32 {
                 HEADERS += io/qfilesystemwatcher_fsevents_p.h
             }
             macx {
-                SOURCES += io/qstandardpaths_mac.cpp
+                SOURCES += io/qstorageinfo_mac.cpp
+                OBJECTIVE_SOURCES += io/qstandardpaths_mac.mm
+                LIBS += -framework DiskArbitration -framework IOKit
             } else:ios {
                 OBJECTIVE_SOURCES += io/qstandardpaths_ios.mm
+                SOURCES += io/qstorageinfo_mac.cpp
             } else {
                 SOURCES += io/qstandardpaths_unix.cpp
             }
         } else:blackberry {
-            SOURCES += io/qstandardpaths_blackberry.cpp
+            SOURCES += \
+                io/qstandardpaths_blackberry.cpp \
+                io/qstorageinfo_unix.cpp
         } else:android:!android-no-sdk {
-            SOURCES += io/qstandardpaths_android.cpp
+            SOURCES += \
+                io/qstandardpaths_android.cpp \
+                io/qstorageinfo_unix.cpp
         } else {
-            SOURCES += io/qstandardpaths_unix.cpp
+            SOURCES += \
+                io/qstandardpaths_unix.cpp \
+                io/qstorageinfo_unix.cpp
         }
 
         linux|if(qnx:contains(QT_CONFIG, inotify)) {

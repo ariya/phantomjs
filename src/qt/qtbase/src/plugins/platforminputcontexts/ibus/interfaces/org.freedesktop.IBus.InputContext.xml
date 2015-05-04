@@ -35,6 +35,11 @@
     <method name="GetEngine">
       <arg name="desc" direction="out" type="v"/>
     </method>
+    <method name="SetSurroundingText">
+      <arg name="text" direction="in" type="v"/>
+      <arg name="cursor_pos" direction="in" type="u"/>
+      <arg name="anchor_pos" direction="in" type="u"/>
+    </method>
     <method name="Destroy"/>
     <signal name="CommitText">
       <arg name="text" type="v"/>
@@ -74,6 +79,11 @@
     </signal>
     <signal name="UpdateProperty">
       <arg name="prop" type="v"/>
+    </signal>
+    <signal name="RequireSurroundingText"/>
+    <signal name="DeleteSurroundingText">
+        <arg name="offset" type="i"/>
+        <arg name="n_chars" type="u"/>
     </signal>
   </interface>
 </node>

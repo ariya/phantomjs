@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -84,7 +76,7 @@ QT_BEGIN_NAMESPACE
     QFileSystemModel can be accessed using the standard interface provided by
     QAbstractItemModel, but it also provides some convenience functions that are
     specific to a directory model.
-    The fileInfo(), isDir(), name(), and path() functions provide information
+    The fileInfo(), isDir(), fileName() and filePath() functions provide information
     about the underlying files and directories related to items in the model.
     Directories can be created and removed using mkdir(), rmdir().
 
@@ -200,8 +192,8 @@ QT_BEGIN_NAMESPACE
 bool QFileSystemModel::remove(const QModelIndex &aindex)
 {
     const QString path = filePath(aindex);
-    QFileSystemModelPrivate * d = const_cast<QFileSystemModelPrivate*>(d_func());
 #ifndef QT_NO_FILESYSTEMWATCHER
+    QFileSystemModelPrivate * d = const_cast<QFileSystemModelPrivate*>(d_func());
     d->fileInfoGatherer.removePath(path);
 #endif
     if (QFileInfo(path).isFile())
@@ -1549,6 +1541,8 @@ void QFileSystemModel::setResolveSymlinks(bool enable)
 #ifndef QT_NO_FILESYSTEMWATCHER
     Q_D(QFileSystemModel);
     d->fileInfoGatherer.setResolveSymlinks(enable);
+#else
+    Q_UNUSED(enable)
 #endif
 }
 
@@ -1664,21 +1658,21 @@ QStringList QFileSystemModel::nameFilters() const
 */
 bool QFileSystemModel::event(QEvent *event)
 {
+#ifndef QT_NO_FILESYSTEMWATCHER
     Q_D(QFileSystemModel);
     if (event->type() == QEvent::LanguageChange) {
-#ifndef QT_NO_FILESYSTEMWATCHER
         d->root.retranslateStrings(d->fileInfoGatherer.iconProvider(), QString());
-#endif
         return true;
     }
+#endif
     return QAbstractItemModel::event(event);
 }
 
 bool QFileSystemModel::rmdir(const QModelIndex &aindex)
 {
     QString path = filePath(aindex);
-    QFileSystemModelPrivate * d = const_cast<QFileSystemModelPrivate*>(d_func());
 #ifndef QT_NO_FILESYSTEMWATCHER
+    QFileSystemModelPrivate * d = const_cast<QFileSystemModelPrivate*>(d_func());
     d->fileInfoGatherer.removePath(path);
 #endif
     return QDir().rmdir(path);
@@ -1723,6 +1717,8 @@ QFileSystemModelPrivate::QFileSystemNode* QFileSystemModelPrivate::addNode(QFile
     QFileSystemModelPrivate::QFileSystemNode *node = new QFileSystemModelPrivate::QFileSystemNode(fileName, parentNode);
 #ifndef QT_NO_FILESYSTEMWATCHER
     node->populate(info);
+#else
+    Q_UNUSED(info)
 #endif
 #if defined(Q_OS_WIN) && !defined(Q_OS_WINCE) && !defined(Q_OS_WINRT)
     //The parentNode is "" so we are listing the drives
@@ -1943,6 +1939,9 @@ void QFileSystemModelPrivate::_q_fileSystemChanged(const QString &path, const QL
         forceSort = true;
         delayedSort();
     }
+#else
+    Q_UNUSED(path)
+    Q_UNUSED(updates)
 #endif // !QT_NO_FILESYSTEMWATCHER
 }
 

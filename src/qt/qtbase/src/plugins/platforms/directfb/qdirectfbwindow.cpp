@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -67,27 +59,39 @@ void QDirectFbWindow::createDirectFBWindow()
 
     DFBWindowDescription description;
     memset(&description,0,sizeof(DFBWindowDescription));
-    description.flags = DFBWindowDescriptionFlags(DWDESC_WIDTH|DWDESC_HEIGHT|DWDESC_POSX|DWDESC_POSY|DWDESC_SURFACE_CAPS
-                                                  |DWDESC_OPTIONS
-                                                  |DWDESC_CAPS);
-    description.width = qMax(1, window()->width());
-    description.height = qMax(1, window()->height());
-    description.posx = window()->x();
-    description.posy = window()->y();
 
-    if (layerConfig.surface_caps & DSCAPS_PREMULTIPLIED)
-        description.surface_caps = DSCAPS_PREMULTIPLIED;
-    description.pixelformat = layerConfig.pixelformat;
+    if (window()->type() == Qt::Desktop) {
+        QRect fullscreenRect(QPoint(), screen()->availableGeometry().size());
+        window()->setGeometry(fullscreenRect);
 
-    description.options = DFBWindowOptions(DWOP_ALPHACHANNEL);
-    description.caps = DFBWindowCapabilities(DWCAPS_DOUBLEBUFFER|DWCAPS_ALPHACHANNEL);
+        DFBResult result = layer->CreateWindow(layer, &description, m_dfbWindow.outPtr());
+        if (result != DFB_OK)
+            DirectFBError("QDirectFbWindow: failed to create window", result);
 
-    DFBResult result = layer->CreateWindow(layer, &description, m_dfbWindow.outPtr());
-    if (result != DFB_OK)
-        DirectFBError("QDirectFbWindow: failed to create window", result);
+    } else {
+        description.flags = DFBWindowDescriptionFlags(DWDESC_WIDTH|DWDESC_HEIGHT|DWDESC_POSX|DWDESC_POSY|DWDESC_SURFACE_CAPS
+                                                      |DWDESC_OPTIONS
+                                                      |DWDESC_CAPS);
+        description.width = qMax(1, window()->width());
+        description.height = qMax(1, window()->height());
+        description.posx = window()->x();
+        description.posy = window()->y();
 
-    m_dfbWindow->SetOpacity(m_dfbWindow.data(), 0xff);
-    m_inputHandler->addWindow(m_dfbWindow.data(), window());
+        if (layerConfig.surface_caps & DSCAPS_PREMULTIPLIED)
+            description.surface_caps = DSCAPS_PREMULTIPLIED;
+        description.pixelformat = layerConfig.pixelformat;
+
+        description.options = DFBWindowOptions(DWOP_ALPHACHANNEL);
+        description.caps = DFBWindowCapabilities(DWCAPS_DOUBLEBUFFER|DWCAPS_ALPHACHANNEL);
+
+
+        DFBResult result = layer->CreateWindow(layer, &description, m_dfbWindow.outPtr());
+        if (result != DFB_OK)
+            DirectFBError("QDirectFbWindow: failed to create window", result);
+
+        m_dfbWindow->SetOpacity(m_dfbWindow.data(), 0xff);
+        m_inputHandler->addWindow(m_dfbWindow.data(), window());
+    }
 }
 
 QDirectFbWindow::~QDirectFbWindow()
@@ -98,21 +102,9 @@ QDirectFbWindow::~QDirectFbWindow()
 
 void QDirectFbWindow::setGeometry(const QRect &rect)
 {
-//    bool isMoveOnly = (rect.topLeft() != geometry().topLeft()) && (rect.size() == geometry().size());
-
     QPlatformWindow::setGeometry(rect);
-    if (window()->isVisible()) {
-        m_dfbWindow->SetBounds(m_dfbWindow.data(), rect.x(),rect.y(),
-                               rect.width(), rect.height());
-// ### TODO port, verify if this is needed
-#if 0
-        //Hack. When moving since the WindowSurface of a window becomes invalid when moved
-        if (isMoveOnly) { //if resize then windowsurface is updated.
-            widget()->windowSurface()->resize(rect.size());
-            window()->update();
-        }
-#endif
-    }
+    m_dfbWindow->SetBounds(m_dfbWindow.data(), rect.x(),rect.y(),
+                           rect.width(), rect.height());
 }
 
 void QDirectFbWindow::setOpacity(qreal level)
@@ -123,21 +115,23 @@ void QDirectFbWindow::setOpacity(qreal level)
 
 void QDirectFbWindow::setVisible(bool visible)
 {
-    if (visible) {
-        int x = geometry().x();
-        int y = geometry().y();
-        m_dfbWindow->MoveTo(m_dfbWindow.data(), x, y);
-    } else {
-        QDirectFBPointer<IDirectFBDisplayLayer> displayLayer;
-        QDirectFbConvenience::dfbInterface()->GetDisplayLayer(QDirectFbConvenience::dfbInterface(), DLID_PRIMARY, displayLayer.outPtr());
+    if (window()->type() != Qt::Desktop) {
+        if (visible) {
+            int x = geometry().x();
+            int y = geometry().y();
+            m_dfbWindow->MoveTo(m_dfbWindow.data(), x, y);
+        } else {
+            QDirectFBPointer<IDirectFBDisplayLayer> displayLayer;
+            QDirectFbConvenience::dfbInterface()->GetDisplayLayer(QDirectFbConvenience::dfbInterface(), DLID_PRIMARY, displayLayer.outPtr());
 
-        DFBDisplayLayerConfig config;
-        displayLayer->GetConfiguration(displayLayer.data(), &config);
-        m_dfbWindow->MoveTo(m_dfbWindow.data(), config. width + 1, config.height + 1);
+            DFBDisplayLayerConfig config;
+            displayLayer->GetConfiguration(displayLayer.data(), &config);
+            m_dfbWindow->MoveTo(m_dfbWindow.data(), config. width + 1, config.height + 1);
+        }
+
+        if (window()->isTopLevel() && visible)
+            QPlatformWindow::setVisible(visible);
     }
-
-    if (window()->isTopLevel() && visible)
-        QWindowSystemInterface::handleExposeEvent(window(), window()->geometry());
 }
 
 void QDirectFbWindow::setWindowFlags(Qt::WindowFlags flags)
@@ -158,12 +152,14 @@ void QDirectFbWindow::setWindowFlags(Qt::WindowFlags flags)
 
 void QDirectFbWindow::raise()
 {
-    m_dfbWindow->RaiseToTop(m_dfbWindow.data());
+    if (window()->type() != Qt::Desktop)
+        m_dfbWindow->RaiseToTop(m_dfbWindow.data());
 }
 
 void QDirectFbWindow::lower()
 {
-    m_dfbWindow->LowerToBottom(m_dfbWindow.data());
+    if (window()->type() != Qt::Desktop)
+        m_dfbWindow->LowerToBottom(m_dfbWindow.data());
 }
 
 WId QDirectFbWindow::winId() const

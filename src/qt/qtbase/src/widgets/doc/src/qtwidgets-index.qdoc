@@ -139,6 +139,7 @@ interfaces
     \section2 Examples
     \list
         \li \l{Qt Widgets Examples}
+        \li \l{Layout Examples}
     \endlist
 
     \section1 API Reference

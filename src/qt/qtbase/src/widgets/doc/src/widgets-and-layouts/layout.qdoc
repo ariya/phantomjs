@@ -386,5 +386,13 @@
             then set it. (This does not only apply to layouts, you should do
             the same if you implement your own resizeEvent(), for example.)
     \endlist
-*/
 
+    \section1 Layout Examples
+
+    Many Qt Widgets \l{Qt Widgets Examples}{examples} already use layouts,
+    however, several examples exist to showcase various layouts.
+
+    \list
+    \li \l{Layout Examples}
+    \endlist
+*/

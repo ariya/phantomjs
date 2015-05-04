@@ -27,6 +27,7 @@
 
 /*!
     \group statemachine
+    \brief How to create and execute state graphs.
     \title State Machine Classes
 
     These \l{Qt Core} classes are part of the \l{The State Machine Framework}{

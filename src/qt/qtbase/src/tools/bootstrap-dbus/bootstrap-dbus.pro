@@ -15,7 +15,7 @@ MODULE_PRIVATE_INCLUDES = \
 
 load(qt_module)
 
-QMAKE_CXXFLAGS += $$QT_CFLAGS_DBUS
+QMAKE_CXXFLAGS += $$QT_HOST_CFLAGS_DBUS
 
 SOURCES = \
     ../../dbus/qdbusintrospection.cpp \

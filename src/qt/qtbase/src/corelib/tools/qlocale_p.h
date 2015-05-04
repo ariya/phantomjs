@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -259,7 +251,9 @@ public:
     inline char digitToCLocale(QChar c) const;
 
     // this function is used in QIntValidator (QtGui)
-    Q_CORE_EXPORT bool validateChars(const QString &str, NumberMode numMode, QByteArray *buff, int decDigits = -1) const;
+    Q_CORE_EXPORT bool validateChars(const QString &str, NumberMode numMode,
+                                     QByteArray *buff, int decDigits = -1,
+                                     bool rejectGroupSeparators = false) const;
 
 public:
     quint16 m_language_id, m_script_id, m_country_id;
@@ -401,6 +395,33 @@ inline char QLocaleData::digitToCLocale(QChar in) const
 QString qt_readEscapedFormatString(const QString &format, int *idx);
 bool qt_splitLocaleName(const QString &name, QString &lang, QString &script, QString &cntry);
 int qt_repeatCount(const QString &s, int i);
+
+enum { AsciiSpaceMask = (1 << (' ' - 1)) |
+                        (1 << ('\t' - 1)) |   // 9: HT - horizontal tab
+                        (1 << ('\n' - 1)) |   // 10: LF - line feed
+                        (1 << ('\v' - 1)) |   // 11: VT - vertical tab
+                        (1 << ('\f' - 1)) |   // 12: FF - form feed
+                        (1 << ('\r' - 1)) };  // 13: CR - carriage return
+Q_DECL_CONSTEXPR inline bool ascii_isspace(uchar c)
+{
+    return c >= 1U && c <= 32U && (uint(AsciiSpaceMask) >> uint(c - 1)) & 1U;
+}
+
+#if defined(Q_COMPILER_CONSTEXPR)
+Q_STATIC_ASSERT(ascii_isspace(' '));
+Q_STATIC_ASSERT(ascii_isspace('\t'));
+Q_STATIC_ASSERT(ascii_isspace('\n'));
+Q_STATIC_ASSERT(ascii_isspace('\v'));
+Q_STATIC_ASSERT(ascii_isspace('\f'));
+Q_STATIC_ASSERT(ascii_isspace('\r'));
+Q_STATIC_ASSERT(!ascii_isspace('\0'));
+Q_STATIC_ASSERT(!ascii_isspace('\a'));
+Q_STATIC_ASSERT(!ascii_isspace('a'));
+Q_STATIC_ASSERT(!ascii_isspace('\177'));
+Q_STATIC_ASSERT(!ascii_isspace(uchar('\200')));
+Q_STATIC_ASSERT(!ascii_isspace(uchar('\xA0')));
+Q_STATIC_ASSERT(!ascii_isspace(uchar('\377')));
+#endif
 
 QT_END_NAMESPACE
 

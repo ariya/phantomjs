@@ -1,0 +1,637 @@
+From 829bf86c57357d3c8ec598b92fcfdb1849e84075 Mon Sep 17 00:00:00 2001
+From: Andrew Knight <andrew.knight@theqtcompany.com>
+Date: Tue, 11 Nov 2014 17:11:54 +0200
+Subject: [PATCH 10/16] ANGLE: Enable D3D11 for feature level 9 cards
+
+Enable use of ANGLE on lower-end hardware, such as Surface RT and
+Windows Phone 8.
+
+Change-Id: Ice536802e4eedc1d264abd0dd65960638fce59e4
+---
+ src/3rdparty/angle/src/libGLESv2/angletypes.cpp    |   6 +-
+ .../src/libGLESv2/renderer/d3d/d3d11/Blit11.cpp    |  69 ++++---
+ .../src/libGLESv2/renderer/d3d/d3d11/Buffer11.cpp  |   4 +-
+ .../src/libGLESv2/renderer/d3d/d3d11/Clear11.cpp   |   7 +-
+ .../renderer/d3d/d3d11/PixelTransfer11.cpp         |   9 +-
+ .../libGLESv2/renderer/d3d/d3d11/Renderer11.cpp    | 226 +++++++++++++--------
+ .../src/libGLESv2/renderer/d3d/d3d11/Renderer11.h  |   1 +
+ .../renderer/d3d/d3d11/TextureStorage11.cpp        |   4 +-
+ .../libGLESv2/renderer/d3d/d3d11/formatutils11.cpp |   4 +-
+ .../renderer/d3d/d3d11/renderer11_utils.cpp        |   2 +-
+ 10 files changed, 208 insertions(+), 124 deletions(-)
+
+diff --git a/src/3rdparty/angle/src/libGLESv2/angletypes.cpp b/src/3rdparty/angle/src/libGLESv2/angletypes.cpp
+index 6fd02e0..5a0cfc5 100644
+--- a/src/3rdparty/angle/src/libGLESv2/angletypes.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/angletypes.cpp
+@@ -12,6 +12,8 @@
+ #include "libGLESv2/State.h"
+ #include "libGLESv2/VertexArray.h"
+ 
++#include <float.h>
++
+ namespace gl
+ {
+ 
+@@ -24,8 +26,8 @@ SamplerState::SamplerState()
+       maxAnisotropy(1.0f),
+       baseLevel(0),
+       maxLevel(1000),
+-      minLod(-1000.0f),
+-      maxLod(1000.0f),
++      minLod(-FLT_MAX),
++      maxLod(FLT_MAX),
+       compareMode(GL_NONE),
+       compareFunc(GL_LEQUAL),
+       swizzleRed(GL_RED),
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Blit11.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Blit11.cpp
+index 91e7552..06aea9b 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Blit11.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Blit11.cpp
+@@ -209,7 +209,7 @@ Blit11::Blit11(Renderer11 *renderer)
+     pointSamplerDesc.BorderColor[2] = 0.0f;
+     pointSamplerDesc.BorderColor[3] = 0.0f;
+     pointSamplerDesc.MinLOD = 0.0f;
+-    pointSamplerDesc.MaxLOD = 0.0f;
++    pointSamplerDesc.MaxLOD = mRenderer->isLevel9() ? D3D11_FLOAT32_MAX : 0.0f;
+ 
+     result = device->CreateSamplerState(&pointSamplerDesc, &mPointSampler);
+     ASSERT(SUCCEEDED(result));
+@@ -228,7 +228,7 @@ Blit11::Blit11(Renderer11 *renderer)
+     linearSamplerDesc.BorderColor[2] = 0.0f;
+     linearSamplerDesc.BorderColor[3] = 0.0f;
+     linearSamplerDesc.MinLOD = 0.0f;
+-    linearSamplerDesc.MaxLOD = 0.0f;
++    linearSamplerDesc.MaxLOD = mRenderer->isLevel9() ? D3D11_FLOAT32_MAX : 0.0f;
+ 
+     result = device->CreateSamplerState(&linearSamplerDesc, &mLinearSampler);
+     ASSERT(SUCCEEDED(result));
+@@ -290,28 +290,31 @@ Blit11::Blit11(Renderer11 *renderer)
+     ASSERT(SUCCEEDED(result));
+     d3d11::SetDebugName(mQuad2DVS, "Blit11 2D vertex shader");
+ 
+-    result = device->CreatePixelShader(g_PS_PassthroughDepth2D, ArraySize(g_PS_PassthroughDepth2D), NULL, &mDepthPS);
+-    ASSERT(SUCCEEDED(result));
+-    d3d11::SetDebugName(mDepthPS, "Blit11 2D depth pixel shader");
+-
+-    D3D11_INPUT_ELEMENT_DESC quad3DLayout[] =
++    if (!renderer->isLevel9())
+     {
+-        { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,    0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+-        { "LAYER",    0, DXGI_FORMAT_R32_UINT,        0,  8, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+-    };
+-
+-    result = device->CreateInputLayout(quad3DLayout, ArraySize(quad3DLayout), g_VS_Passthrough3D, ArraySize(g_VS_Passthrough3D), &mQuad3DIL);
+-    ASSERT(SUCCEEDED(result));
+-    d3d11::SetDebugName(mQuad3DIL, "Blit11 3D input layout");
+-
+-    result = device->CreateVertexShader(g_VS_Passthrough3D, ArraySize(g_VS_Passthrough3D), NULL, &mQuad3DVS);
+-    ASSERT(SUCCEEDED(result));
+-    d3d11::SetDebugName(mQuad3DVS, "Blit11 3D vertex shader");
++        result = device->CreatePixelShader(g_PS_PassthroughDepth2D, ArraySize(g_PS_PassthroughDepth2D), NULL, &mDepthPS);
++        ASSERT(SUCCEEDED(result));
++        d3d11::SetDebugName(mDepthPS, "Blit11 2D depth pixel shader");
+ 
+-    result = device->CreateGeometryShader(g_GS_Passthrough3D, ArraySize(g_GS_Passthrough3D), NULL, &mQuad3DGS);
+-    ASSERT(SUCCEEDED(result));
+-    d3d11::SetDebugName(mQuad3DGS, "Renderer11 copy 3D texture geometry shader");
++        D3D11_INPUT_ELEMENT_DESC quad3DLayout[] =
++        {
++            { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,    0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
++            { "LAYER",    0, DXGI_FORMAT_R32_UINT,        0,  8, D3D11_INPUT_PER_VERTEX_DATA, 0 },
++            { "TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
++        };
++
++        result = device->CreateInputLayout(quad3DLayout, ArraySize(quad3DLayout), g_VS_Passthrough3D, ArraySize(g_VS_Passthrough3D), &mQuad3DIL);
++        ASSERT(SUCCEEDED(result));
++        d3d11::SetDebugName(mQuad3DIL, "Blit11 3D input layout");
++
++        result = device->CreateVertexShader(g_VS_Passthrough3D, ArraySize(g_VS_Passthrough3D), NULL, &mQuad3DVS);
++        ASSERT(SUCCEEDED(result));
++        d3d11::SetDebugName(mQuad3DVS, "Blit11 3D vertex shader");
++
++        result = device->CreateGeometryShader(g_GS_Passthrough3D, ArraySize(g_GS_Passthrough3D), NULL, &mQuad3DGS);
++        ASSERT(SUCCEEDED(result));
++        d3d11::SetDebugName(mQuad3DGS, "Renderer11 copy 3D texture geometry shader");
++    }
+ 
+     buildShaderMap();
+ 
+@@ -970,22 +973,27 @@ void Blit11::buildShaderMap()
+     ID3D11Device *device = mRenderer->getDevice();
+ 
+     add2DBlitShaderToMap(GL_RGBA,            false, d3d11::CompilePS(device, g_PS_PassthroughRGBA2D,     "Blit11 2D RGBA pixel shader"           ));
+-    add2DBlitShaderToMap(GL_RGBA_INTEGER,    false, d3d11::CompilePS(device, g_PS_PassthroughRGBA2DUI,   "Blit11 2D RGBA UI pixel shader"        ));
+-    add2DBlitShaderToMap(GL_RGBA_INTEGER,    true,  d3d11::CompilePS(device, g_PS_PassthroughRGBA2DI,    "Blit11 2D RGBA I pixel shader"         ));
+     add2DBlitShaderToMap(GL_BGRA_EXT,        false, d3d11::CompilePS(device, g_PS_PassthroughRGBA2D,     "Blit11 2D BGRA pixel shader"           ));
+     add2DBlitShaderToMap(GL_RGB,             false, d3d11::CompilePS(device, g_PS_PassthroughRGB2D,      "Blit11 2D RGB pixel shader"            ));
+-    add2DBlitShaderToMap(GL_RGB_INTEGER,     false, d3d11::CompilePS(device, g_PS_PassthroughRGB2DUI,    "Blit11 2D RGB UI pixel shader"         ));
+-    add2DBlitShaderToMap(GL_RGB_INTEGER,     true,  d3d11::CompilePS(device, g_PS_PassthroughRGB2DI,     "Blit11 2D RGB I pixel shader"          ));
+     add2DBlitShaderToMap(GL_RG,              false, d3d11::CompilePS(device, g_PS_PassthroughRG2D,       "Blit11 2D RG pixel shader"             ));
+-    add2DBlitShaderToMap(GL_RG_INTEGER,      false, d3d11::CompilePS(device, g_PS_PassthroughRG2DUI,     "Blit11 2D RG UI pixel shader"          ));
+-    add2DBlitShaderToMap(GL_RG_INTEGER,      true,  d3d11::CompilePS(device, g_PS_PassthroughRG2DI,      "Blit11 2D RG I pixel shader"           ));
+     add2DBlitShaderToMap(GL_RED,             false, d3d11::CompilePS(device, g_PS_PassthroughR2D,        "Blit11 2D R pixel shader"              ));
+-    add2DBlitShaderToMap(GL_RED_INTEGER,     false, d3d11::CompilePS(device, g_PS_PassthroughR2DUI,      "Blit11 2D R UI pixel shader"           ));
+-    add2DBlitShaderToMap(GL_RED_INTEGER,     true,  d3d11::CompilePS(device, g_PS_PassthroughR2DI,       "Blit11 2D R I pixel shader"            ));
+     add2DBlitShaderToMap(GL_ALPHA,           false, d3d11::CompilePS(device, g_PS_PassthroughRGBA2D,     "Blit11 2D alpha pixel shader"          ));
+     add2DBlitShaderToMap(GL_LUMINANCE,       false, d3d11::CompilePS(device, g_PS_PassthroughLum2D,      "Blit11 2D lum pixel shader"            ));
+     add2DBlitShaderToMap(GL_LUMINANCE_ALPHA, false, d3d11::CompilePS(device, g_PS_PassthroughLumAlpha2D, "Blit11 2D luminance alpha pixel shader"));
+ 
++    addSwizzleShaderToMap(GL_FLOAT,        D3D_SRV_DIMENSION_TEXTURE2D,      d3d11::CompilePS(device, g_PS_SwizzleF2D,       "Blit11 2D F swizzle pixel shader" ));
++
++    if (mRenderer->isLevel9())
++        return;
++
++    add2DBlitShaderToMap(GL_RGBA_INTEGER,    false, d3d11::CompilePS(device, g_PS_PassthroughRGBA2DUI,   "Blit11 2D RGBA UI pixel shader"        ));
++    add2DBlitShaderToMap(GL_RGBA_INTEGER,    true,  d3d11::CompilePS(device, g_PS_PassthroughRGBA2DI,    "Blit11 2D RGBA I pixel shader"         ));
++    add2DBlitShaderToMap(GL_RGB_INTEGER,     false, d3d11::CompilePS(device, g_PS_PassthroughRGB2DUI,    "Blit11 2D RGB UI pixel shader"         ));
++    add2DBlitShaderToMap(GL_RGB_INTEGER,     true,  d3d11::CompilePS(device, g_PS_PassthroughRGB2DI,     "Blit11 2D RGB I pixel shader"          ));
++    add2DBlitShaderToMap(GL_RG_INTEGER,      false, d3d11::CompilePS(device, g_PS_PassthroughRG2DUI,     "Blit11 2D RG UI pixel shader"          ));
++    add2DBlitShaderToMap(GL_RG_INTEGER,      true,  d3d11::CompilePS(device, g_PS_PassthroughRG2DI,      "Blit11 2D RG I pixel shader"           ));
++    add2DBlitShaderToMap(GL_RED_INTEGER,     false, d3d11::CompilePS(device, g_PS_PassthroughR2DUI,      "Blit11 2D R UI pixel shader"           ));
++    add2DBlitShaderToMap(GL_RED_INTEGER,     true,  d3d11::CompilePS(device, g_PS_PassthroughR2DI,       "Blit11 2D R I pixel shader"            ));
+     add3DBlitShaderToMap(GL_RGBA,            false, d3d11::CompilePS(device, g_PS_PassthroughRGBA3D,     "Blit11 3D RGBA pixel shader"           ));
+     add3DBlitShaderToMap(GL_RGBA_INTEGER,    false, d3d11::CompilePS(device, g_PS_PassthroughRGBA3DUI,   "Blit11 3D UI RGBA pixel shader"        ));
+     add3DBlitShaderToMap(GL_RGBA_INTEGER,    true,  d3d11::CompilePS(device, g_PS_PassthroughRGBA3DI,    "Blit11 3D I RGBA pixel shader"         ));
+@@ -1003,7 +1011,6 @@ void Blit11::buildShaderMap()
+     add3DBlitShaderToMap(GL_LUMINANCE,       false, d3d11::CompilePS(device, g_PS_PassthroughLum3D,      "Blit11 3D luminance pixel shader"      ));
+     add3DBlitShaderToMap(GL_LUMINANCE_ALPHA, false, d3d11::CompilePS(device, g_PS_PassthroughLumAlpha3D, "Blit11 3D luminance alpha pixel shader"));
+ 
+-    addSwizzleShaderToMap(GL_FLOAT,        D3D_SRV_DIMENSION_TEXTURE2D,      d3d11::CompilePS(device, g_PS_SwizzleF2D,       "Blit11 2D F swizzle pixel shader" ));
+     addSwizzleShaderToMap(GL_UNSIGNED_INT, D3D_SRV_DIMENSION_TEXTURE2D,      d3d11::CompilePS(device, g_PS_SwizzleUI2D,      "Blit11 2D UI swizzle pixel shader"));
+     addSwizzleShaderToMap(GL_INT,          D3D_SRV_DIMENSION_TEXTURE2D,      d3d11::CompilePS(device, g_PS_SwizzleI2D,       "Blit11 2D I swizzle pixel shader" ));
+ 
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Buffer11.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Buffer11.cpp
+index 2d5fa3c..5aab379 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Buffer11.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Buffer11.cpp
+@@ -753,7 +753,9 @@ void Buffer11::NativeBuffer11::fillBufferDesc(D3D11_BUFFER_DESC* bufferDesc, Ren
+ 
+       case BUFFER_USAGE_VERTEX_OR_TRANSFORM_FEEDBACK:
+         bufferDesc->Usage = D3D11_USAGE_DEFAULT;
+-        bufferDesc->BindFlags = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_STREAM_OUTPUT;
++        bufferDesc->BindFlags = D3D11_BIND_VERTEX_BUFFER;
++        if (!renderer->isLevel9())
++            bufferDesc->BindFlags |= D3D11_BIND_STREAM_OUTPUT;
+         bufferDesc->CPUAccessFlags = 0;
+         break;
+ 
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Clear11.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Clear11.cpp
+index 4630762..7185a05 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Clear11.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Clear11.cpp
+@@ -104,7 +104,7 @@ Clear11::Clear11(Renderer11 *renderer)
+     rsDesc.DepthBias = 0;
+     rsDesc.DepthBiasClamp = 0.0f;
+     rsDesc.SlopeScaledDepthBias = 0.0f;
+-    rsDesc.DepthClipEnable = FALSE;
++    rsDesc.DepthClipEnable = renderer->isLevel9();
+     rsDesc.ScissorEnable = FALSE;
+     rsDesc.MultisampleEnable = FALSE;
+     rsDesc.AntialiasedLineEnable = FALSE;
+@@ -114,6 +114,11 @@ Clear11::Clear11(Renderer11 *renderer)
+     d3d11::SetDebugName(mRasterizerState, "Clear11 masked clear rasterizer state");
+ 
+     mFloatClearShader = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_FLOAT, g_VS_ClearFloat, g_PS_ClearFloat);
++    if (mRenderer->isLevel9()) {
++        memset(&mUintClearShader, 0, sizeof(ClearShader));
++        memset(&mIntClearShader, 0, sizeof(ClearShader));
++        return;
++    }
+     mUintClearShader  = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_UINT,  g_VS_ClearUint,  g_PS_ClearUint );
+     mIntClearShader   = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_SINT,  g_VS_ClearSint,  g_PS_ClearSint );
+ }
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/PixelTransfer11.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/PixelTransfer11.cpp
+index a4072d8..6a3d347 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/PixelTransfer11.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/PixelTransfer11.cpp
+@@ -133,10 +133,13 @@ gl::Error PixelTransfer11::loadResources()
+         return gl::Error(GL_OUT_OF_MEMORY, "Failed to create internal buffer to texture vertex shader.");
+     }
+ 
+-    mBufferToTextureGS = d3d11::CompileGS(device, g_GS_BufferToTexture, "BufferToTexture GS");
+-    if (!mBufferToTextureGS)
++    if (!mRenderer->isLevel9())
+     {
+-        return gl::Error(GL_OUT_OF_MEMORY, "Failed to create internal buffer to texture geometry shader.");
++        mBufferToTextureGS = d3d11::CompileGS(device, g_GS_BufferToTexture, "BufferToTexture GS");
++        if (!mBufferToTextureGS)
++        {
++            return gl::Error(GL_OUT_OF_MEMORY, "Failed to create internal buffer to texture geometry shader.");
++        }
+     }
+ 
+     gl::Error error = buildShaderMap();
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp
+index ffc6cc9..f6ba930 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp
+@@ -153,6 +153,24 @@ Renderer11::Renderer11(egl::Display *display, EGLNativeDisplayType hDc, const eg
+         }
+     }
+ 
++#if !defined(ANGLE_ENABLE_D3D9)
++    if (requestedMajorVersion == EGL_DONT_CARE || requestedMajorVersion >= 9)
++    {
++        if (requestedMinorVersion == EGL_DONT_CARE || requestedMinorVersion >= 3)
++        {
++            mAvailableFeatureLevels.push_back(D3D_FEATURE_LEVEL_9_3);
++        }
++        if (requestedMinorVersion == EGL_DONT_CARE || requestedMinorVersion >= 2)
++        {
++            mAvailableFeatureLevels.push_back(D3D_FEATURE_LEVEL_9_2);
++        }
++        if (requestedMinorVersion == EGL_DONT_CARE || requestedMinorVersion >= 1)
++        {
++            mAvailableFeatureLevels.push_back(D3D_FEATURE_LEVEL_9_1);
++        }
++    }
++#endif
++
+     mDriverType = (attributes.get(EGL_PLATFORM_ANGLE_USE_WARP_ANGLE, EGL_FALSE) == EGL_TRUE) ? D3D_DRIVER_TYPE_WARP
+                                                                                              : D3D_DRIVER_TYPE_HARDWARE;
+ }
+@@ -1170,6 +1188,83 @@ gl::Error Renderer11::drawElements(GLenum mode, GLsizei count, GLenum type, cons
+         return gl::Error(GL_NO_ERROR);
+     }
+ }
++template<typename T>
++static void fillLineLoopIndices(GLenum type, GLsizei count, const GLvoid *indices, T *data)
++{
++    switch (type)
++    {
++      case GL_NONE:   // Non-indexed draw
++        for (int i = 0; i < count; i++)
++        {
++            data[i] = i;
++        }
++        data[count] = 0;
++        break;
++      case GL_UNSIGNED_BYTE:
++        for (int i = 0; i < count; i++)
++        {
++            data[i] = static_cast<const GLubyte*>(indices)[i];
++        }
++        data[count] = static_cast<const GLubyte*>(indices)[0];
++        break;
++      case GL_UNSIGNED_SHORT:
++        for (int i = 0; i < count; i++)
++        {
++            data[i] = static_cast<const GLushort*>(indices)[i];
++        }
++        data[count] = static_cast<const GLushort*>(indices)[0];
++        break;
++      case GL_UNSIGNED_INT:
++        for (int i = 0; i < count; i++)
++        {
++            data[i] = static_cast<const GLuint*>(indices)[i];
++        }
++        data[count] = static_cast<const GLuint*>(indices)[0];
++        break;
++      default: UNREACHABLE();
++    }
++}
++
++template<typename T>
++static void fillTriangleFanIndices(GLenum type, unsigned int numTris, const GLvoid *indices, T *data)
++{
++    switch (type)
++    {
++      case GL_NONE:   // Non-indexed draw
++        for (unsigned int i = 0; i < numTris; i++)
++        {
++            data[i*3 + 0] = 0;
++            data[i*3 + 1] = i + 1;
++            data[i*3 + 2] = i + 2;
++        }
++        break;
++      case GL_UNSIGNED_BYTE:
++        for (unsigned int i = 0; i < numTris; i++)
++        {
++            data[i*3 + 0] = static_cast<const GLubyte*>(indices)[0];
++            data[i*3 + 1] = static_cast<const GLubyte*>(indices)[i + 1];
++            data[i*3 + 2] = static_cast<const GLubyte*>(indices)[i + 2];
++        }
++        break;
++      case GL_UNSIGNED_SHORT:
++        for (unsigned int i = 0; i < numTris; i++)
++        {
++            data[i*3 + 0] = static_cast<const GLushort*>(indices)[0];
++            data[i*3 + 1] = static_cast<const GLushort*>(indices)[i + 1];
++            data[i*3 + 2] = static_cast<const GLushort*>(indices)[i + 2];
++        }
++        break;
++      case GL_UNSIGNED_INT:
++        for (unsigned int i = 0; i < numTris; i++)
++        {
++            data[i*3 + 0] = static_cast<const GLuint*>(indices)[0];
++            data[i*3 + 1] = static_cast<const GLuint*>(indices)[i + 1];
++            data[i*3 + 2] = static_cast<const GLuint*>(indices)[i + 2];
++        }
++        break;
++      default: UNREACHABLE();
++    }
++}
+ 
+ gl::Error Renderer11::drawLineLoop(GLsizei count, GLenum type, const GLvoid *indices, int minIndex, gl::Buffer *elementArrayBuffer)
+ {
+@@ -1189,10 +1284,13 @@ gl::Error Renderer11::drawLineLoop(GLsizei count, GLenum type, const GLvoid *ind
+         indices = bufferData + offset;
+     }
+ 
++    // TODO: some level 9 hardware supports 32-bit indices; test and store support instead
++    const int indexType = isLevel9() ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
++
+     if (!mLineLoopIB)
+     {
+         mLineLoopIB = new StreamingIndexBufferInterface(this);
+-        gl::Error error = mLineLoopIB->reserveBufferSpace(INITIAL_INDEX_BUFFER_SIZE, GL_UNSIGNED_INT);
++        gl::Error error = mLineLoopIB->reserveBufferSpace(INITIAL_INDEX_BUFFER_SIZE, indexType);
+         if (error.isError())
+         {
+             SafeDelete(mLineLoopIB);
+@@ -1203,7 +1301,8 @@ gl::Error Renderer11::drawLineLoop(GLsizei count, GLenum type, const GLvoid *ind
+     // Checked by Renderer11::applyPrimitiveType
+     ASSERT(count >= 0);
+ 
+-    if (static_cast<unsigned int>(count) + 1 > (std::numeric_limits<unsigned int>::max() / sizeof(unsigned int)))
++    int indexTypeSize = indexType == GL_UNSIGNED_SHORT ? sizeof(unsigned short) : sizeof(unsigned int);
++    if (static_cast<unsigned int>(count) + 1 > (std::numeric_limits<unsigned int>::max() / indexTypeSize))
+     {
+         return gl::Error(GL_OUT_OF_MEMORY, "Failed to create a 32-bit looping index buffer for GL_LINE_LOOP, too many indices required.");
+     }
+@@ -1223,42 +1322,12 @@ gl::Error Renderer11::drawLineLoop(GLsizei count, GLenum type, const GLvoid *ind
+         return error;
+     }
+ 
+-    unsigned int *data = reinterpret_cast<unsigned int*>(mappedMemory);
++    if (indexType == GL_UNSIGNED_SHORT)
++        fillLineLoopIndices(type, count, indices, reinterpret_cast<unsigned short*>(mappedMemory));
++    else
++        fillLineLoopIndices(type, count, indices, reinterpret_cast<unsigned int*>(mappedMemory));
+     unsigned int indexBufferOffset = offset;
+ 
+-    switch (type)
+-    {
+-      case GL_NONE:   // Non-indexed draw
+-        for (int i = 0; i < count; i++)
+-        {
+-            data[i] = i;
+-        }
+-        data[count] = 0;
+-        break;
+-      case GL_UNSIGNED_BYTE:
+-        for (int i = 0; i < count; i++)
+-        {
+-            data[i] = static_cast<const GLubyte*>(indices)[i];
+-        }
+-        data[count] = static_cast<const GLubyte*>(indices)[0];
+-        break;
+-      case GL_UNSIGNED_SHORT:
+-        for (int i = 0; i < count; i++)
+-        {
+-            data[i] = static_cast<const GLushort*>(indices)[i];
+-        }
+-        data[count] = static_cast<const GLushort*>(indices)[0];
+-        break;
+-      case GL_UNSIGNED_INT:
+-        for (int i = 0; i < count; i++)
+-        {
+-            data[i] = static_cast<const GLuint*>(indices)[i];
+-        }
+-        data[count] = static_cast<const GLuint*>(indices)[0];
+-        break;
+-      default: UNREACHABLE();
+-    }
+-
+     error = mLineLoopIB->unmapBuffer();
+     if (error.isError())
+     {
+@@ -1300,10 +1369,12 @@ gl::Error Renderer11::drawTriangleFan(GLsizei count, GLenum type, const GLvoid *
+         indices = bufferData + offset;
+     }
+ 
++    const int indexType = isLevel9() ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
++
+     if (!mTriangleFanIB)
+     {
+         mTriangleFanIB = new StreamingIndexBufferInterface(this);
+-        gl::Error error = mTriangleFanIB->reserveBufferSpace(INITIAL_INDEX_BUFFER_SIZE, GL_UNSIGNED_INT);
++        gl::Error error = mTriangleFanIB->reserveBufferSpace(INITIAL_INDEX_BUFFER_SIZE, indexType);
+         if (error.isError())
+         {
+             SafeDelete(mTriangleFanIB);
+@@ -1316,13 +1387,14 @@ gl::Error Renderer11::drawTriangleFan(GLsizei count, GLenum type, const GLvoid *
+ 
+     const unsigned int numTris = count - 2;
+ 
+-    if (numTris > (std::numeric_limits<unsigned int>::max() / (sizeof(unsigned int) * 3)))
++    int indexTypeSize = indexType == GL_UNSIGNED_SHORT ? sizeof(unsigned short) : sizeof(unsigned int);
++    if (numTris > (std::numeric_limits<unsigned int>::max() / (indexTypeSize * 3)))
+     {
+         return gl::Error(GL_OUT_OF_MEMORY, "Failed to create a scratch index buffer for GL_TRIANGLE_FAN, too many indices required.");
+     }
+ 
+-    const unsigned int spaceNeeded = (numTris * 3) * sizeof(unsigned int);
+-    gl::Error error = mTriangleFanIB->reserveBufferSpace(spaceNeeded, GL_UNSIGNED_INT);
++    const unsigned int spaceNeeded = (numTris * 3) * indexTypeSize;
++    gl::Error error = mTriangleFanIB->reserveBufferSpace(spaceNeeded, indexType);
+     if (error.isError())
+     {
+         return error;
+@@ -1336,45 +1408,12 @@ gl::Error Renderer11::drawTriangleFan(GLsizei count, GLenum type, const GLvoid *
+         return error;
+     }
+ 
+-    unsigned int *data = reinterpret_cast<unsigned int*>(mappedMemory);
+-    unsigned int indexBufferOffset = offset;
++    if (indexType == GL_UNSIGNED_SHORT)
++        fillTriangleFanIndices(type, numTris, indices, reinterpret_cast<unsigned short*>(mappedMemory));
++    else
++        fillTriangleFanIndices(type, numTris, indices, reinterpret_cast<unsigned int*>(mappedMemory));
+ 
+-    switch (type)
+-    {
+-      case GL_NONE:   // Non-indexed draw
+-        for (unsigned int i = 0; i < numTris; i++)
+-        {
+-            data[i*3 + 0] = 0;
+-            data[i*3 + 1] = i + 1;
+-            data[i*3 + 2] = i + 2;
+-        }
+-        break;
+-      case GL_UNSIGNED_BYTE:
+-        for (unsigned int i = 0; i < numTris; i++)
+-        {
+-            data[i*3 + 0] = static_cast<const GLubyte*>(indices)[0];
+-            data[i*3 + 1] = static_cast<const GLubyte*>(indices)[i + 1];
+-            data[i*3 + 2] = static_cast<const GLubyte*>(indices)[i + 2];
+-        }
+-        break;
+-      case GL_UNSIGNED_SHORT:
+-        for (unsigned int i = 0; i < numTris; i++)
+-        {
+-            data[i*3 + 0] = static_cast<const GLushort*>(indices)[0];
+-            data[i*3 + 1] = static_cast<const GLushort*>(indices)[i + 1];
+-            data[i*3 + 2] = static_cast<const GLushort*>(indices)[i + 2];
+-        }
+-        break;
+-      case GL_UNSIGNED_INT:
+-        for (unsigned int i = 0; i < numTris; i++)
+-        {
+-            data[i*3 + 0] = static_cast<const GLuint*>(indices)[0];
+-            data[i*3 + 1] = static_cast<const GLuint*>(indices)[i + 1];
+-            data[i*3 + 2] = static_cast<const GLuint*>(indices)[i + 2];
+-        }
+-        break;
+-      default: UNREACHABLE();
+-    }
++    unsigned int indexBufferOffset = offset;
+ 
+     error = mTriangleFanIB->unmapBuffer();
+     if (error.isError())
+@@ -1634,7 +1673,7 @@ gl::Error Renderer11::applyUniforms(const ProgramImpl &program, const std::vecto
+     }
+ 
+     // needed for the point sprite geometry shader
+-    if (mCurrentGeometryConstantBuffer != mDriverConstantBufferPS)
++    if (mFeatureLevel >= D3D_FEATURE_LEVEL_10_0 && mCurrentGeometryConstantBuffer != mDriverConstantBufferPS)
+     {
+         mDeviceContext->GSSetConstantBuffers(0, 1, &mDriverConstantBufferPS);
+         mCurrentGeometryConstantBuffer = mDriverConstantBufferPS;
+@@ -1938,7 +1977,10 @@ int Renderer11::getMajorShaderModel() const
+     {
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_SHADER_MAJOR_VERSION;   // 5
+       case D3D_FEATURE_LEVEL_10_1: return D3D10_1_SHADER_MAJOR_VERSION; // 4
+-      case D3D_FEATURE_LEVEL_10_0: return D3D10_SHADER_MAJOR_VERSION;   // 4
++      case D3D_FEATURE_LEVEL_10_0:
++      case D3D_FEATURE_LEVEL_9_3:
++      case D3D_FEATURE_LEVEL_9_2:
++      case D3D_FEATURE_LEVEL_9_1:  return D3D10_SHADER_MAJOR_VERSION;   // 4
+       default: UNREACHABLE();      return 0;
+     }
+ }
+@@ -1949,7 +1991,10 @@ int Renderer11::getMinorShaderModel() const
+     {
+       case D3D_FEATURE_LEVEL_11_0: return D3D11_SHADER_MINOR_VERSION;   // 0
+       case D3D_FEATURE_LEVEL_10_1: return D3D10_1_SHADER_MINOR_VERSION; // 1
+-      case D3D_FEATURE_LEVEL_10_0: return D3D10_SHADER_MINOR_VERSION;   // 0
++      case D3D_FEATURE_LEVEL_10_0:
++      case D3D_FEATURE_LEVEL_9_3:
++      case D3D_FEATURE_LEVEL_9_2:
++      case D3D_FEATURE_LEVEL_9_1:  return D3D10_SHADER_MINOR_VERSION;   // 0
+       default: UNREACHABLE();      return 0;
+     }
+ }
+@@ -2455,6 +2500,7 @@ gl::Error Renderer11::compileToExecutable(gl::InfoLog &infoLog, const std::strin
+ 
+     unsigned int profileMajorVersion = 0;
+     unsigned int profileMinorVersion = 0;
++    const char *profileSuffix = NULL;
+     switch (mFeatureLevel)
+     {
+       case D3D_FEATURE_LEVEL_11_0:
+@@ -2469,12 +2515,30 @@ gl::Error Renderer11::compileToExecutable(gl::InfoLog &infoLog, const std::strin
+         profileMajorVersion = 4;
+         profileMinorVersion = 0;
+         break;
++      case D3D_FEATURE_LEVEL_9_3:
++        profileMajorVersion = 4;
++        profileMinorVersion = 0;
++        profileSuffix = "_level_9_3";
++        break;
++      case D3D_FEATURE_LEVEL_9_2:
++        profileMajorVersion = 4;
++        profileMinorVersion = 0;
++        profileSuffix = "_level_9_2";
++        break;
++      case D3D_FEATURE_LEVEL_9_1:
++        profileMajorVersion = 4;
++        profileMinorVersion = 0;
++        profileSuffix = "_level_9_1";
++        break;
++      break;
+       default:
+         UNREACHABLE();
+         return gl::Error(GL_INVALID_OPERATION);
+     }
+ 
+     std::string profile = FormatString("%s_%u_%u", profileType, profileMajorVersion, profileMinorVersion);
++    if (profileSuffix)
++        profile += profileSuffix;
+ 
+     UINT flags = D3DCOMPILE_OPTIMIZATION_LEVEL2;
+ 
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.h b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.h
+index c789cae..d44bd2f 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.h
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.h
+@@ -188,6 +188,7 @@ class Renderer11 : public RendererD3D
+     ID3D11Device *getDevice() { return mDevice; }
+     ID3D11DeviceContext *getDeviceContext() { return mDeviceContext; };
+     DXGIFactory *getDxgiFactory() { return mDxgiFactory; };
++    bool isLevel9() { return mFeatureLevel <= D3D_FEATURE_LEVEL_9_3; }
+ 
+     Blit11 *getBlitter() { return mBlit; }
+ 
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/TextureStorage11.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/TextureStorage11.cpp
+index 4287918..74af27e 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/TextureStorage11.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/TextureStorage11.cpp
+@@ -744,7 +744,7 @@ gl::Error TextureStorage11_2D::getResource(ID3D11Resource **outResource)
+         D3D11_TEXTURE2D_DESC desc;
+         desc.Width = mTextureWidth;      // Compressed texture size constraints?
+         desc.Height = mTextureHeight;
+-        desc.MipLevels = mMipLevels;
++        desc.MipLevels = mRenderer->isLevel9() ? 1 : mMipLevels;
+         desc.ArraySize = 1;
+         desc.Format = mTextureFormat;
+         desc.SampleDesc.Count = 1;
+@@ -863,7 +863,7 @@ gl::Error TextureStorage11_2D::createSRV(int baseLevel, int mipLevels, DXGI_FORM
+     srvDesc.Format = format;
+     srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+     srvDesc.Texture2D.MostDetailedMip = mTopLevel + baseLevel;
+-    srvDesc.Texture2D.MipLevels = mipLevels;
++    srvDesc.Texture2D.MipLevels = mRenderer->isLevel9() ? -1 : mipLevels;
+ 
+     ID3D11Device *device = mRenderer->getDevice();
+     HRESULT result = device->CreateShaderResourceView(texture, &srvDesc, outSRV);
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/formatutils11.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/formatutils11.cpp
+index 1ea916d..90a879e 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/formatutils11.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/formatutils11.cpp
+@@ -557,7 +557,7 @@ D3D11LoadFunctionMap BuildD3D11LoadFunctionMap()
+     InsertLoadFunction(&map, GL_ALPHA,              GL_HALF_FLOAT_OES,                 LoadA16FToRGBA16F                    );
+ 
+     // From GL_EXT_texture_storage
+-    InsertLoadFunction(&map, GL_ALPHA8_EXT,             GL_UNSIGNED_BYTE,              LoadToNative<GLubyte, 1>             );
++    InsertLoadFunction(&map, GL_ALPHA8_EXT,             GL_UNSIGNED_BYTE,              LoadA8ToRGBA8                        );
+     InsertLoadFunction(&map, GL_LUMINANCE8_EXT,         GL_UNSIGNED_BYTE,              LoadL8ToRGBA8                        );
+     InsertLoadFunction(&map, GL_LUMINANCE8_ALPHA8_EXT,  GL_UNSIGNED_BYTE,              LoadLA8ToRGBA8                       );
+     InsertLoadFunction(&map, GL_ALPHA32F_EXT,           GL_FLOAT,                      LoadA32FToRGBA32F                    );
+@@ -795,7 +795,7 @@ static D3D11ES3FormatMap BuildD3D11FormatMap()
+ 
+     // From GL_EXT_texture_storage
+     //                           | GL internal format     | D3D11 texture format          | D3D11 SRV format                    | D3D11 RTV format              | D3D11 DSV format               |
+-    InsertD3D11FormatInfo(&map, GL_ALPHA8_EXT,             DXGI_FORMAT_A8_UNORM,           DXGI_FORMAT_A8_UNORM,                 DXGI_FORMAT_A8_UNORM,           DXGI_FORMAT_UNKNOWN           );
++    InsertD3D11FormatInfo(&map, GL_ALPHA8_EXT,             DXGI_FORMAT_R8G8B8A8_UNORM,     DXGI_FORMAT_R8G8B8A8_UNORM,           DXGI_FORMAT_R8G8B8A8_UNORM,     DXGI_FORMAT_UNKNOWN           );
+     InsertD3D11FormatInfo(&map, GL_LUMINANCE8_EXT,         DXGI_FORMAT_R8G8B8A8_UNORM,     DXGI_FORMAT_R8G8B8A8_UNORM,           DXGI_FORMAT_R8G8B8A8_UNORM,     DXGI_FORMAT_UNKNOWN           );
+     InsertD3D11FormatInfo(&map, GL_ALPHA32F_EXT,           DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT,       DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_UNKNOWN           );
+     InsertD3D11FormatInfo(&map, GL_LUMINANCE32F_EXT,       DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT,       DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_UNKNOWN           );
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/renderer11_utils.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/renderer11_utils.cpp
+index 9ffc32e..cbfe557 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/renderer11_utils.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/renderer11_utils.cpp
+@@ -284,7 +284,7 @@ static bool GetNPOTTextureSupport(D3D_FEATURE_LEVEL featureLevel)
+         // From http://msdn.microsoft.com/en-us/library/windows/desktop/ff476876.aspx
+       case D3D_FEATURE_LEVEL_9_3:
+       case D3D_FEATURE_LEVEL_9_2:
+-      case D3D_FEATURE_LEVEL_9_1:  return false;
++      case D3D_FEATURE_LEVEL_9_1:  return true; // Provided that mipmaps & wrap modes are not used
+ 
+       default: UNREACHABLE();      return false;
+     }
+-- 
+1.9.4.msysgit.1
+

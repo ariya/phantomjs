@@ -5,7 +5,9 @@ DEVICE_PRI = $$[QT_HOST_DATA/get]/mkspecs/qdevice.pri
 exists($$DEVICE_PRI):include($$DEVICE_PRI)
 unset(DEVICE_PRI)
 
-isEmpty(CROSS_COMPILE) {
+host_build {
+    CROSS_COMPILE =
+} else: isEmpty(CROSS_COMPILE) {
     #this variable can be persisted via qmake -set CROSS_COMPILE /foo
     CROSS_COMPILE = $$[CROSS_COMPILE]
 }

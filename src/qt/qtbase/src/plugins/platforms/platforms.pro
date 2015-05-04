@@ -4,8 +4,6 @@ android:!android-no-sdk: SUBDIRS += android
 
 SUBDIRS += minimal
 
-!win32:!winrt: SUBDIRS += phantom
-
 !win32|contains(QT_CONFIG, freetype):SUBDIRS += offscreen
 
 contains(QT_CONFIG, xcb) {
@@ -37,7 +35,7 @@ contains(QT_CONFIG, directfb) {
     SUBDIRS += directfb
 }
 
-contains(QT_CONFIG, kms) {
+contains(QT_CONFIG, kms):contains(QT_CONFIG, opengl) {
     SUBDIRS += kms
 }
 

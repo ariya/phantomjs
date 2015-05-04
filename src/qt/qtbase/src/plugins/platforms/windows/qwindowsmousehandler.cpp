@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -117,6 +109,30 @@ static inline void compressMouseMove(MSG *msg)
     }
 }
 
+static inline QTouchDevice *createTouchDevice()
+{
+    enum { QT_SM_TABLETPC = 86, QT_SM_DIGITIZER = 94, QT_SM_MAXIMUMTOUCHES = 95,
+           QT_NID_INTEGRATED_TOUCH = 0x1, QT_NID_EXTERNAL_TOUCH = 0x02,
+           QT_NID_MULTI_INPUT = 0x40, QT_NID_READY = 0x80 };
+
+    if (QSysInfo::windowsVersion() < QSysInfo::WV_WINDOWS7)
+        return 0;
+    const int digitizers = GetSystemMetrics(QT_SM_DIGITIZER);
+    if (!(digitizers & (QT_NID_INTEGRATED_TOUCH | QT_NID_EXTERNAL_TOUCH)))
+        return 0;
+    const int tabletPc = GetSystemMetrics(QT_SM_TABLETPC);
+    const int maxTouchPoints = GetSystemMetrics(QT_SM_MAXIMUMTOUCHES);
+    qCDebug(lcQpaEvents) << "Digitizers:" << hex << showbase << (digitizers & ~QT_NID_READY)
+        << "Ready:" << (digitizers & QT_NID_READY) << dec << noshowbase
+        << "Tablet PC:" << tabletPc << "Max touch points:" << maxTouchPoints;
+    QTouchDevice *result = new QTouchDevice;
+    result->setType(digitizers & QT_NID_INTEGRATED_TOUCH
+                    ? QTouchDevice::TouchScreen : QTouchDevice::TouchPad);
+    result->setCapabilities(QTouchDevice::Position | QTouchDevice::Area | QTouchDevice::NormalizedPosition);
+    result->setMaximumTouchPoints(maxTouchPoints);
+    return result;
+}
+
 /*!
     \class QWindowsMouseHandler
     \brief Windows mouse handler
@@ -130,10 +146,12 @@ static inline void compressMouseMove(MSG *msg)
 QWindowsMouseHandler::QWindowsMouseHandler() :
     m_windowUnderMouse(0),
     m_trackedWindow(0),
-    m_touchDevice(0),
+    m_touchDevice(createTouchDevice()),
     m_leftButtonDown(false),
     m_previousCaptureWindow(0)
 {
+    if (m_touchDevice)
+        QWindowSystemInterface::registerTouchDevice(m_touchDevice);
 }
 
 Qt::MouseButtons QWindowsMouseHandler::queryMouseButtons()
@@ -178,10 +196,11 @@ bool QWindowsMouseHandler::translateMouseEvent(QWindow *window, HWND hwnd,
     // since we do not want to ignore mouse events coming from a tablet.
     const quint64 extraInfo = GetMessageExtraInfo();
     if ((extraInfo & signatureMask) == miWpSignature) {
-        source = Qt::MouseEventSynthesizedBySystem;
-        const bool fromTouch = extraInfo & 0x80; // (else: Tablet PC)
-        if (fromTouch && !passSynthesizedMouseEvents)
-            return false;
+        if (extraInfo & 0x80) { // Bit 7 indicates touch event, else tablet pen.
+            source = Qt::MouseEventSynthesizedBySystem;
+            if (!passSynthesizedMouseEvents)
+                return false;
+        }
     }
 #endif // !Q_OS_WINCE
 
@@ -190,8 +209,10 @@ bool QWindowsMouseHandler::translateMouseEvent(QWindow *window, HWND hwnd,
         const QPoint globalPosition = winEventPosition;
         const QPoint clientPosition = QWindowsGeometryHint::mapFromGlobal(hwnd, globalPosition);
         const Qt::MouseButtons buttons = QWindowsMouseHandler::queryMouseButtons();
-        QWindowSystemInterface::handleFrameStrutMouseEvent(window, clientPosition,
-                                                           globalPosition, buttons,
+        QWindowSystemInterface::handleFrameStrutMouseEvent(window,
+                                                           clientPosition  / QWindowsScaling::factor(),
+                                                           globalPosition  / QWindowsScaling::factor(),
+                                                           buttons,
                                                            QWindowsKeyMapper::queryKeyboardModifiers(),
                                                            source);
         return false; // Allow further event processing (dragging of windows).
@@ -333,7 +354,10 @@ bool QWindowsMouseHandler::translateMouseEvent(QWindow *window, HWND hwnd,
         m_windowUnderMouse = currentWindowUnderMouse;
     }
 
-    QWindowSystemInterface::handleMouseEvent(window, winEventPosition, globalPosition, buttons,
+    QWindowSystemInterface::handleMouseEvent(window,
+                                             winEventPosition / QWindowsScaling::factor(),
+                                             globalPosition / QWindowsScaling::factor(),
+                                             buttons,
                                              QWindowsKeyMapper::queryKeyboardModifiers(),
                                              source);
     m_previousCaptureWindow = hasCapture ? window : 0;
@@ -354,7 +378,6 @@ static bool isValidWheelReceiver(QWindow *candidate)
 bool QWindowsMouseHandler::translateMouseWheelEvent(QWindow *window, HWND,
                                                     MSG msg, LRESULT *)
 {
-    const Qt::MouseButtons buttons = keyStateToMouseButtons((int)msg.wParam);
     const Qt::KeyboardModifiers mods = keyStateToModifiers((int)msg.wParam);
 
     int delta;
@@ -364,7 +387,7 @@ bool QWindowsMouseHandler::translateMouseWheelEvent(QWindow *window, HWND,
         delta = (int) msg.wParam;
 
     Qt::Orientation orientation = (msg.message == WM_MOUSEHWHEEL
-                                  || (buttons & Qt::AltModifier)) ?
+                                  || (mods & Qt::AltModifier)) ?
                                   Qt::Horizontal : Qt::Vertical;
 
     // according to the MSDN documentation on WM_MOUSEHWHEEL:
@@ -379,7 +402,7 @@ bool QWindowsMouseHandler::translateMouseWheelEvent(QWindow *window, HWND,
     // 2) The window receiving the event
     // If a window is blocked by modality, it can't get the event.
     const QPoint globalPos(GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
-    QWindow *receiver = QWindowsScreen::windowAt(globalPos);
+    QWindow *receiver = QWindowsScreen::windowAt(globalPos, CWP_SKIPINVISIBLE);
     bool handleEvent = true;
     if (!isValidWheelReceiver(receiver)) {
         receiver = window;
@@ -388,10 +411,11 @@ bool QWindowsMouseHandler::translateMouseWheelEvent(QWindow *window, HWND,
     }
 
     if (handleEvent) {
+        const QPoint posDip = QWindowsGeometryHint::mapFromGlobal(receiver, globalPos) / QWindowsScaling::factor();
         QWindowSystemInterface::handleWheelEvent(receiver,
-                                                 QWindowsGeometryHint::mapFromGlobal(receiver, globalPos),
-                                                 globalPos,
-                                                 delta, orientation, mods);
+                                                 posDip, globalPos / QWindowsScaling::factor(),
+                                                 delta / QWindowsScaling::factor(),
+                                                 orientation, mods);
     }
 
     return true;
@@ -406,6 +430,7 @@ bool QWindowsMouseHandler::translateTouchEvent(QWindow *window, HWND,
     typedef QWindowSystemInterface::TouchPoint QTouchPoint;
     typedef QList<QWindowSystemInterface::TouchPoint> QTouchPointList;
 
+    Q_ASSERT(m_touchDevice);
     const QRect screenGeometry = window->screen()->geometry();
 
     const int winTouchPointCount = msg.wParam;
@@ -419,6 +444,7 @@ bool QWindowsMouseHandler::translateTouchEvent(QWindow *window, HWND,
     Q_ASSERT(QWindowsContext::user32dll.getTouchInputInfo);
 
     QWindowsContext::user32dll.getTouchInputInfo((HANDLE) msg.lParam, msg.wParam, winTouchInputs.data(), sizeof(TOUCHINPUT));
+    const qreal screenPosFactor = 0.01 / qreal(QWindowsScaling::factor());
     for (int i = 0; i < winTouchPointCount; ++i) {
         const TOUCHINPUT &winTouchInput = winTouchInputs[i];
         int id = m_touchInputIDToTouchPointID.value(winTouchInput.dwID, -1);
@@ -432,10 +458,9 @@ bool QWindowsMouseHandler::translateTouchEvent(QWindow *window, HWND,
         if (m_lastTouchPositions.contains(id))
             touchPoint.normalPosition = m_lastTouchPositions.value(id);
 
-        QPointF screenPos = QPointF(qreal(winTouchInput.x) / qreal(100.), qreal(winTouchInput.y) / qreal(100.));
+        const QPointF screenPos = QPointF(winTouchInput.x, winTouchInput.y) * screenPosFactor;
         if (winTouchInput.dwMask & TOUCHINPUTMASKF_CONTACTAREA)
-            touchPoint.area.setSize(QSizeF(qreal(winTouchInput.cxContact) / qreal(100.),
-                                           qreal(winTouchInput.cyContact) / qreal(100.)));
+            touchPoint.area.setSize(QSizeF(winTouchInput.cxContact, winTouchInput.cyContact) * screenPosFactor);
         touchPoint.area.moveCenter(screenPos);
         QPointF normalPosition = QPointF(screenPos.x() / screenGeometry.width(),
                                          screenPos.y() / screenGeometry.height());
@@ -465,14 +490,6 @@ bool QWindowsMouseHandler::translateTouchEvent(QWindow *window, HWND,
     // all touch points released, forget the ids we've seen, they may not be reused
     if (allStates == Qt::TouchPointReleased)
         m_touchInputIDToTouchPointID.clear();
-
-    if (!m_touchDevice) {
-        m_touchDevice = new QTouchDevice;
-        // TODO: Device used to be hardcoded to screen in previous code.
-        m_touchDevice->setType(QTouchDevice::TouchScreen);
-        m_touchDevice->setCapabilities(QTouchDevice::Position | QTouchDevice::Area | QTouchDevice::NormalizedPosition);
-        QWindowSystemInterface::registerTouchDevice(m_touchDevice);
-    }
 
     QWindowSystemInterface::handleTouchEvent(window,
                                              m_touchDevice,

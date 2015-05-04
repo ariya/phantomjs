@@ -12,6 +12,6 @@ void RestrictVertexShaderTiming::visitSymbol(TIntermSymbol* node)
         ++mNumErrors;
         mSink.message(EPrefixError,
                       node->getLine(),
-                      "Samplers are not permitted in vertex shaders");
+                      "Samplers are not permitted in vertex shaders.\n");
     }
 }

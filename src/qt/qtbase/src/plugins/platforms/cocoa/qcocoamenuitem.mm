@@ -91,6 +91,7 @@ NSUInteger keySequenceModifierMask(const QKeySequence &accel)
 
 QCocoaMenuItem::QCocoaMenuItem() :
     m_native(NULL),
+    m_itemView(nil),
     m_textSynced(false),
     m_menu(NULL),
     m_isVisible(true),
@@ -99,7 +100,8 @@ QCocoaMenuItem::QCocoaMenuItem() :
     m_role(NoRole),
     m_checked(false),
     m_merged(false),
-    m_tag(0)
+    m_tag(0),
+    m_iconSize(16)
 {
 }
 
@@ -112,11 +114,13 @@ QCocoaMenuItem::~QCocoaMenuItem()
     } else {
         [m_native release];
     }
+
+    [m_itemView release];
 }
 
 void QCocoaMenuItem::setText(const QString &text)
 {
-    m_text = qt_mac_removeAmpersandEscapes(text);
+    m_text = text;
 }
 
 void QCocoaMenuItem::setIcon(const QIcon &icon)
@@ -128,19 +132,31 @@ void QCocoaMenuItem::setMenu(QPlatformMenu *menu)
 {
     if (menu == m_menu)
         return;
-    if (m_menu && COCOA_MENU_ANCESTOR(m_menu) == this)
-        SET_COCOA_MENU_ANCESTOR(m_menu, 0);
+
+    if (m_menu) {
+        if (COCOA_MENU_ANCESTOR(m_menu) == this)
+            SET_COCOA_MENU_ANCESTOR(m_menu, 0);
+        if (m_menu->containingMenuItem() == this)
+            m_menu->setContainingMenuItem(0);
+    }
 
     QCocoaAutoReleasePool pool;
     m_menu = static_cast<QCocoaMenu *>(menu);
     if (m_menu) {
         SET_COCOA_MENU_ANCESTOR(m_menu, this);
+        m_menu->setContainingMenuItem(this);
     } else {
         // we previously had a menu, but no longer
         // clear out our item so the nexy sync() call builds a new one
         [m_native release];
         m_native = nil;
     }
+}
+
+void QCocoaMenuItem::clearMenu(QCocoaMenu *menu)
+{
+    if (menu == m_menu)
+        m_menu = 0;
 }
 
 void QCocoaMenuItem::setVisible(bool isVisible)
@@ -178,6 +194,17 @@ void QCocoaMenuItem::setChecked(bool isChecked)
 void QCocoaMenuItem::setEnabled(bool enabled)
 {
     m_enabled = enabled;
+}
+
+void QCocoaMenuItem::setNativeContents(WId item)
+{
+    NSView *itemView = (NSView *)item;
+    [m_itemView release];
+    m_itemView = [itemView retain];
+    [m_itemView setAutoresizesSubviews:YES];
+    [m_itemView setAutoresizingMask:NSViewWidthSizable];
+    [m_itemView setHidden:NO];
+    [m_itemView setNeedsDisplay:YES];
 }
 
 NSMenuItem *QCocoaMenuItem::sync()
@@ -283,6 +310,7 @@ NSMenuItem *QCocoaMenuItem::sync()
 
     [m_native setHidden: !m_isVisible];
     [m_native setEnabled: m_enabled];
+    [m_native setView:m_itemView];
 
     QString text = mergeText();
     QKeySequence accel = mergeAccel();
@@ -292,17 +320,22 @@ NSMenuItem *QCocoaMenuItem::sync()
         text += QLatin1String(" (") + accel.toString(QKeySequence::NativeText) + QLatin1String(")");
 
     QString finalString = qt_mac_removeMnemonics(text);
+    bool useAttributedTitle = false;
     // Cocoa Font and title
     if (m_font.resolve()) {
         NSFont *customMenuFont = [NSFont fontWithName:QCFString::toNSString(m_font.family())
                                   size:m_font.pointSize()];
-        NSArray *keys = [NSArray arrayWithObjects:NSFontAttributeName, nil];
-        NSArray *objects = [NSArray arrayWithObjects:customMenuFont, nil];
-        NSDictionary *attributes = [NSDictionary dictionaryWithObjects:objects forKeys:keys];
-        NSAttributedString *str = [[[NSAttributedString alloc] initWithString:QCFString::toNSString(finalString)
-                                 attributes:attributes] autorelease];
-       [m_native setAttributedTitle: str];
-    } else {
+        if (customMenuFont) {
+            NSArray *keys = [NSArray arrayWithObjects:NSFontAttributeName, nil];
+            NSArray *objects = [NSArray arrayWithObjects:customMenuFont, nil];
+            NSDictionary *attributes = [NSDictionary dictionaryWithObjects:objects forKeys:keys];
+            NSAttributedString *str = [[[NSAttributedString alloc] initWithString:QCFString::toNSString(finalString)
+                                     attributes:attributes] autorelease];
+            [m_native setAttributedTitle: str];
+            useAttributedTitle = true;
+        }
+    }
+    if (!useAttributedTitle) {
        [m_native setTitle: QCFString::toNSString(finalString)];
     }
 
@@ -314,12 +347,13 @@ NSMenuItem *QCocoaMenuItem::sync()
         [m_native setKeyEquivalentModifierMask:NSCommandKeyMask];
     }
 
+    NSImage *img = nil;
     if (!m_icon.isNull()) {
-        NSImage *img = qt_mac_create_nsimage(m_icon);
-        [img setSize:NSMakeSize(16, 16)];
-        [m_native setImage: img];
-        [img release];
+        img = qt_mac_create_nsimage(m_icon);
+        [img setSize:NSMakeSize(m_iconSize, m_iconSize)];
     }
+    [m_native setImage:img];
+    [img release];
 
     [m_native setState:m_checked ?  NSOnState : NSOffState];
     return m_native;
@@ -386,4 +420,9 @@ QPlatformMenuItem::MenuRole QCocoaMenuItem::effectiveRole() const
         return m_role;
     else
         return m_detectedRole;
+}
+
+void QCocoaMenuItem::setIconSize(int size)
+{
+    m_iconSize = size;
 }

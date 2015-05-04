@@ -144,7 +144,7 @@
 
     QList and QVector's non-const iterator types are random access iterators.
 
-    \section1 Qt and the STL algorithms
+    \section1 Qt and the STL Algorithms
 
     Historically, Qt used to provide functions which were direct equivalents of
     many STL algorithmic functions. Starting with Qt 5.0, you are instead
@@ -168,43 +168,43 @@
         \li STL function
     \row
         \li qBinaryFind
-        \li std::binary_search or std::lower_bound
+        \li \c std::binary_search or \c std::lower_bound
     \row
         \li qCopy
-        \li std::copy
+        \li \c std::copy
     \row
         \li qCopyBackward
-        \li std::copy_backward
+        \li \c std::copy_backward
     \row
         \li qEqual
-        \li std::equal
+        \li \c std::equal
     \row
         \li qFill
-        \li std::fill
+        \li \c std::fill
     \row
         \li qFind
-        \li std::find
+        \li \c std::find
     \row
         \li qCount
-        \li std::count
+        \li \c std::count
     \row
         \li qSort
-        \li std::sort
+        \li \c std::sort
     \row
         \li qStableSort
-        \li std::stable_sort
+        \li \c std::stable_sort
     \row
         \li qLowerBound
-        \li std::lower_bound
+        \li \c std::lower_bound
     \row
         \li qUpperBound
-        \li std::upper_bound
+        \li \c std::upper_bound
     \row
         \li qLess
-        \li std::less
+        \li \c std::less
     \row
         \li qGreater
-        \li std::greater
+        \li \c std::greater
 
     \endtable
 
@@ -223,7 +223,7 @@
 
     Instead, since it's not possible to pass a custom swapper functor to STL
     functions, the only workaround for a template specialization for qSwap() is
-    providing the same specialization for std::swap().
+    providing the same specialization for \c std::swap().
 
     \sa {container classes}, <QtGlobal>
 */
@@ -232,7 +232,7 @@
     \relates <QtAlgorithms>
     \deprecated
 
-    Use std::copy instead.
+    Use \c std::copy instead.
 
     Copies the items from range [\a begin1, \a end1) to range [\a
     begin2, ...), in the order in which they appear.
@@ -251,7 +251,7 @@
     \relates <QtAlgorithms>
     \deprecated
 
-    Use std::copy_backward instead.
+    Use \c std::copy_backward instead.
 
     Copies the items from range [\a begin1, \a end1) to range [...,
     \a end2).
@@ -270,7 +270,7 @@
     \relates <QtAlgorithms>
     \deprecated
 
-    Use std::equal instead.
+    Use \c std::equal instead.
 
     Compares the items in the range [\a begin1, \a end1) with the
     items in the range [\a begin2, ...). Returns \c true if all the
@@ -289,7 +289,7 @@
     \relates <QtAlgorithms>
     \deprecated
 
-    Use std::fill instead.
+    Use \c std::fill instead.
 
     Fills the range [\a begin, \a end) with \a value.
 
@@ -304,7 +304,7 @@
     \deprecated
     \overload
 
-    Use std::fill instead.
+    Use \c std::fill instead.
 
     This is the same as qFill(\a{container}.begin(), \a{container}.end(), \a value);
 */
@@ -313,7 +313,7 @@
     \relates <QtAlgorithms>
     \deprecated
 
-    Use std::find instead.
+    Use \c std::find instead.
 
     Returns an iterator to the first occurrence of \a value in a
     container in the range [\a begin, \a end). Returns \a end if \a
@@ -337,16 +337,16 @@
     \deprecated
     \overload
 
-    Use std::find instead.
+    Use \c std::find instead.
 
-    This is the same as qFind(\a{container}.constBegin(), \a{container}.constEnd(), value);
+    This is the same as qFind(\a{container}.constBegin(), \a{container}.constEnd(), \a value);
 */
 
 /*! \fn void qCount(InputIterator begin, InputIterator end, const T &value, Size &n)
     \relates <QtAlgorithms>
     \deprecated
 
-    Use std::count instead.
+    Use \c std::count instead.
 
     Returns the number of occurrences of \a value in the range [\a begin, \a end),
     which is returned in \a n. \a n is never initialized, the count is added to \a n.
@@ -367,7 +367,7 @@
     \deprecated
     \overload
 
-    Use std::count instead.
+    Use \c std::count instead.
 
     Instead of operating on iterators, as in the other overload, this function
     operates on the specified \a container to obtain the number of instances
@@ -378,7 +378,7 @@
     \relates <QtAlgorithms>
     \deprecated
 
-    Use std::swap instead.
+    Use \c std::swap instead.
 
     Exchanges the values of variables \a var1 and \a var2.
 
@@ -390,7 +390,7 @@
     \relates <QtAlgorithms>
     \deprecated
 
-    Use std::sort instead.
+    Use \c std::sort instead.
 
     Sorts the items in range [\a begin, \a end) in ascending order
     using the quicksort algorithm.
@@ -416,7 +416,7 @@
     \deprecated
     \overload
 
-    Use std::sort instead.
+    Use \c std::sort instead.
 
     Uses the \a lessThan function instead of \c operator<() to
     compare the items.
@@ -452,7 +452,7 @@
     \deprecated
     \overload
 
-    Use std::sort instead.
+    Use \c std::sort instead.
 
     This is the same as qSort(\a{container}.begin(), \a{container}.end());
 */
@@ -462,7 +462,7 @@
     \relates <QtAlgorithms>
     \deprecated
 
-    Use std::stable_sort instead.
+    Use \c std::stable_sort instead.
 
     Sorts the items in range [\a begin, \a end) in ascending order
     using a stable sorting algorithm.
@@ -490,7 +490,7 @@
     \deprecated
     \overload
 
-    Use std::stable_sort instead.
+    Use \c std::stable_sort instead.
 
     Uses the \a lessThan function instead of \c operator<() to
     compare the items.
@@ -522,7 +522,7 @@
     \deprecated
     \overload
 
-    Use std::stable_sort instead.
+    Use \c std::stable_sort instead.
 
     This is the same as qStableSort(\a{container}.begin(), \a{container}.end());
 */
@@ -531,7 +531,7 @@
     \relates <QtAlgorithms>
     \deprecated
 
-    Use std::lower_bound instead.
+    Use \c std::lower_bound instead.
 
     Performs a binary search of the range [\a begin, \a end) and
     returns the position of the first occurrence of \a value. If no
@@ -561,7 +561,7 @@
     \deprecated
     \overload
 
-    Use std::lower_bound instead.
+    Use \c std::lower_bound instead.
 
     Uses the \a lessThan function instead of \c operator<() to
     compare the items.
@@ -576,7 +576,7 @@
     \deprecated
     \overload
 
-    Use std::lower_bound instead.
+    Use \c std::lower_bound instead.
 
     For read-only iteration over containers, this function is broadly equivalent to
     qLowerBound(\a{container}.begin(), \a{container}.end(), value). However, since it
@@ -588,7 +588,7 @@
     \relates <QtAlgorithms>
     \deprecated
 
-    Use std::upper_bound instead.
+    Use \c std::upper_bound instead.
 
     Performs a binary search of the range [\a begin, \a end) and
     returns the position of the one-past-the-last occurrence of \a
@@ -618,7 +618,7 @@
     \deprecated
     \overload
 
-    Use std::upper_bound instead.
+    Use \c std::upper_bound instead.
 
     Uses the \a lessThan function instead of \c operator<() to
     compare the items.
@@ -633,9 +633,9 @@
     \deprecated
     \overload
 
-    Use std::upper_bound instead.
+    Use \c std::upper_bound instead.
 
-    This is the same as qUpperBound(\a{container}.begin(), \a{container}.end(), value);
+    This is the same as qUpperBound(\a{container}.begin(), \a{container}.end(), \a value);
 */
 
 
@@ -643,7 +643,7 @@
     \relates <QtAlgorithms>
     \deprecated
 
-    Use std::binary_search or std::lower_bound instead.
+    Use \c std::binary_search or \c std::lower_bound instead.
 
     Performs a binary search of the range [\a begin, \a end) and
     returns the position of an occurrence of \a value. If there are
@@ -670,7 +670,7 @@
     \deprecated
     \overload
 
-    Use std::binary_search or std::lower_bound instead.
+    Use \c std::binary_search or \c std::lower_bound instead.
 
     Uses the \a lessThan function instead of \c operator<() to
     compare the items.
@@ -685,9 +685,9 @@
     \deprecated
     \overload
 
-    Use std::binary_search or std::lower_bound instead.
+    Use \c std::binary_search or \c std::lower_bound instead.
 
-    This is the same as qBinaryFind(\a{container}.begin(), \a{container}.end(), value);
+    This is the same as qBinaryFind(\a{container}.begin(), \a{container}.end(), \a value);
 */
 
 
@@ -727,7 +727,7 @@
     \relates <QtAlgorithms>
     \deprecated
 
-    Use std::less instead.
+    Use \c std::less instead.
 
     Returns a functional object, or functor, that can be passed to qSort()
     or qStableSort().
@@ -743,7 +743,7 @@
     \relates <QtAlgorithms>
     \deprecated
 
-    Use std::greater instead.
+    Use \c std::greater instead.
 
     Returns a functional object, or functor, that can be passed to qSort()
     or qStableSort().

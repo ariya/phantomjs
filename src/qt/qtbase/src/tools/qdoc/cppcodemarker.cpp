@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -220,7 +212,7 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node,
                 bracketed += "slot";
             }
             if (!bracketed.isEmpty())
-                extra += " [" + bracketed.join(' ') + QLatin1Char(']');
+                extra += QLatin1Char('[') + bracketed.join(' ') + QStringLiteral("] ");
         }
         break;
     case Node::Enum:
@@ -291,13 +283,13 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node,
 
     if (style == Summary) {
         if (node->status() == Node::Preliminary) {
-            extra += " (preliminary)";
+            extra += "(preliminary) ";
         }
         else if (node->status() == Node::Deprecated) {
-            extra += " (deprecated)";
+            extra += "(deprecated) ";
         }
         else if (node->status() == Node::Obsolete) {
-            extra += " (obsolete)";
+            extra += "(obsolete) ";
         }
     }
 
@@ -305,7 +297,7 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node,
         extra.prepend("<@extra>");
         extra.append("</@extra>");
     }
-    return synopsis + extra;
+    return extra + synopsis;
 }
 
 /*!
@@ -403,12 +395,14 @@ QString CppCodeMarker::markedUpFullName(const Node *node, const Node *relative)
 
 QString CppCodeMarker::markedUpEnumValue(const QString &enumValue, const Node *relative)
 {
+    if (relative->type() != Node::Enum)
+        return enumValue;
+
     const Node *node = relative->parent();
     QString fullName;
     while (node->parent()) {
         fullName.prepend(markedUpName(node));
-        if (node->parent() == relative || node->parent()->name().isEmpty() ||
-            node->parent()->isCollisionNode())
+        if (node->parent() == relative || node->parent()->name().isEmpty())
             break;
         fullName.prepend("<@op>::</@op>");
         node = node->parent();
@@ -629,7 +623,8 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner,
                 QList<RelatedClass>::ConstIterator r =
                         ancestorClass->baseClasses().constBegin();
                 while (r != ancestorClass->baseClasses().constEnd()) {
-                    stack.prepend((*r).node);
+                    if ((*r).node_)
+                        stack.prepend((*r).node_);
                     ++r;
                 }
             }
@@ -724,7 +719,8 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner,
                 QList<RelatedClass>::ConstIterator r =
                         ancestorClass->baseClasses().constBegin();
                 while (r != ancestorClass->baseClasses().constEnd()) {
-                    stack.prepend((*r).node);
+                    if ((*r).node_)
+                        stack.prepend((*r).node_);
                     ++r;
                 }
             }
@@ -748,6 +744,16 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner,
                               style == Detailed ? "types" : QString(),
                               "type",
                               "types");
+            FastSection variables(inner,
+                                  style == Summary ? "Variables" : "Variable Documentation",
+                                  style == Detailed ? "vars" : QString(),
+                                  "variable",
+                                  "variables");
+            FastSection staticVariables(inner,
+                                        "Static Variables",
+                                        QString(),
+                                        "static variable",
+                                        "static variables");
             FastSection functions(inner,
                                   style == Summary ?
                                       "Functions" : "Function Documentation",
@@ -786,14 +792,27 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner,
                         insert(functions, *n, style, status);
                 }
                     break;
+                case Node::Variable:
+                    {
+                        const VariableNode* var = static_cast<const VariableNode*>(*n);
+                        if (!var->doc().isEmpty()) {
+                            if (var->isStatic())
+                                insert(staticVariables,*n,style,status);
+                            else
+                                insert(variables, *n, style, status);
+                        }
+                    }
+                    break;
                 default:
-                    ;
+                    break;
                 }
                 ++n;
             }
             append(sections, namespaces);
             append(sections, classes);
             append(sections, types);
+            append(sections, variables);
+            append(sections, staticVariables);
             append(sections, functions);
             append(sections, macros);
         }
@@ -1066,7 +1085,7 @@ QString CppCodeMarker::addMarkUp(const QString &in,
   the list of documentation sections for the children of the
   \a qmlClassNode.
  */
-QList<Section> CppCodeMarker::qmlSections(const QmlClassNode* qmlClassNode, SynopsisStyle style)
+QList<Section> CppCodeMarker::qmlSections(QmlClassNode* qmlClassNode, SynopsisStyle style, Status status)
 {
     QList<Section> sections;
     if (qmlClassNode) {
@@ -1107,7 +1126,7 @@ QList<Section> CppCodeMarker::qmlSections(const QmlClassNode* qmlClassNode, Syno
                                            "method",
                                            "methods");
 
-            const QmlClassNode* qcn = qmlClassNode;
+            QmlClassNode* qcn = qmlClassNode;
             while (qcn != 0) {
                 NodeList::ConstIterator c = qcn->childNodes().constBegin();
                 while (c != qcn->childNodes().constEnd()) {
@@ -1116,37 +1135,37 @@ QList<Section> CppCodeMarker::qmlSections(const QmlClassNode* qmlClassNode, Syno
                         continue;
                     }
                     if ((*c)->type() == Node::QmlPropertyGroup) {
-                        insert(qmlproperties, *c, style, Okay);
+                        insert(qmlproperties, *c, style, status);
                     }
                     else if ((*c)->type() == Node::QmlProperty) {
                         const QmlPropertyNode* pn = static_cast<const QmlPropertyNode*>(*c);
                         if (pn->isAttached())
-                            insert(qmlattachedproperties,*c,style,Okay);
+                            insert(qmlattachedproperties,*c,style, status);
                         else {
-                            insert(qmlproperties,*c,style,Okay);
+                            insert(qmlproperties,*c,style, status);
                         }
                     }
                     else if ((*c)->type() == Node::QmlSignal) {
                         const FunctionNode* sn = static_cast<const FunctionNode*>(*c);
                         if (sn->isAttached())
-                            insert(qmlattachedsignals,*c,style,Okay);
+                            insert(qmlattachedsignals,*c,style, status);
                         else
-                            insert(qmlsignals,*c,style,Okay);
+                            insert(qmlsignals,*c,style, status);
                     }
                     else if ((*c)->type() == Node::QmlSignalHandler) {
-                        insert(qmlsignalhandlers,*c,style,Okay);
+                        insert(qmlsignalhandlers,*c,style, status);
                     }
                     else if ((*c)->type() == Node::QmlMethod) {
                         const FunctionNode* mn = static_cast<const FunctionNode*>(*c);
                         if (mn->isAttached())
-                            insert(qmlattachedmethods,*c,style,Okay);
+                            insert(qmlattachedmethods,*c,style, status);
                         else
-                            insert(qmlmethods,*c,style,Okay);
+                            insert(qmlmethods,*c,style, status);
                     }
                     ++c;
                 }
                 if (qcn->qmlBaseNode() != 0) {
-                    qcn = static_cast<const QmlClassNode*>(qcn->qmlBaseNode());
+                    qcn = static_cast<QmlClassNode*>(qcn->qmlBaseNode());
                     if (!qcn->isAbstract())
                         qcn = 0;
                 }
@@ -1172,7 +1191,7 @@ QList<Section> CppCodeMarker::qmlSections(const QmlClassNode* qmlClassNode, Syno
             FastSection qmlmethods(qmlClassNode,"Method Documentation","qmlmeth","member","members");
             FastSection qmlattachedmethods(qmlClassNode,"Attached Method Documentation","qmlattmeth",
                                            "member","members");
-            const QmlClassNode* qcn = qmlClassNode;
+            QmlClassNode* qcn = qmlClassNode;
             while (qcn != 0) {
                 NodeList::ConstIterator c = qcn->childNodes().constBegin();
                 while (c != qcn->childNodes().constEnd()) {
@@ -1181,36 +1200,36 @@ QList<Section> CppCodeMarker::qmlSections(const QmlClassNode* qmlClassNode, Syno
                         continue;
                     }
                     if ((*c)->type() == Node::QmlPropertyGroup) {
-                        insert(qmlproperties,*c,style,Okay);
+                        insert(qmlproperties,*c,style, status);
                     }
                     else if ((*c)->type() == Node::QmlProperty) {
                         const QmlPropertyNode* pn = static_cast<const QmlPropertyNode*>(*c);
                         if (pn->isAttached())
-                            insert(qmlattachedproperties,*c,style,Okay);
+                            insert(qmlattachedproperties,*c,style, status);
                         else
-                            insert(qmlproperties,*c,style,Okay);
+                            insert(qmlproperties,*c,style, status);
                     }
                     else if ((*c)->type() == Node::QmlSignal) {
                         const FunctionNode* sn = static_cast<const FunctionNode*>(*c);
                         if (sn->isAttached())
-                            insert(qmlattachedsignals,*c,style,Okay);
+                            insert(qmlattachedsignals,*c,style, status);
                         else
-                            insert(qmlsignals,*c,style,Okay);
+                            insert(qmlsignals,*c,style, status);
                     }
                     else if ((*c)->type() == Node::QmlSignalHandler) {
-                        insert(qmlsignalhandlers,*c,style,Okay);
+                        insert(qmlsignalhandlers,*c,style, status);
                     }
                     else if ((*c)->type() == Node::QmlMethod) {
                         const FunctionNode* mn = static_cast<const FunctionNode*>(*c);
                         if (mn->isAttached())
-                            insert(qmlattachedmethods,*c,style,Okay);
+                            insert(qmlattachedmethods,*c,style, status);
                         else
-                            insert(qmlmethods,*c,style,Okay);
+                            insert(qmlmethods,*c,style, status);
                     }
                     ++c;
                 }
                 if (qcn->qmlBaseNode() != 0) {
-                    qcn = static_cast<const QmlClassNode*>(qcn->qmlBaseNode());
+                    qcn = static_cast<QmlClassNode*>(qcn->qmlBaseNode());
                     if (!qcn->isAbstract())
                         qcn = 0;
                 }
@@ -1232,7 +1251,7 @@ QList<Section> CppCodeMarker::qmlSections(const QmlClassNode* qmlClassNode, Syno
              */
             ClassMap* classMap = 0;
             FastSection all(qmlClassNode,QString(),QString(),"member","members");
-            const QmlClassNode* current = qmlClassNode;
+            QmlClassNode* current = qmlClassNode;
             while (current != 0) {
                 /*
                   If the QML type is abstract, do not create

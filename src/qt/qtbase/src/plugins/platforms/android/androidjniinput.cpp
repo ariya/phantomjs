@@ -5,35 +5,27 @@
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -47,19 +39,18 @@
 #include <QTouchEvent>
 #include <QPointer>
 
+#include <QGuiApplication>
 #include <QDebug>
+
+QT_BEGIN_NAMESPACE
 
 using namespace QtAndroid;
 
 namespace QtAndroidInput
 {
-    static jmethodID m_showSoftwareKeyboardMethodID = 0;
-    static jmethodID m_resetSoftwareKeyboardMethodID = 0;
-    static jmethodID m_hideSoftwareKeyboardMethodID = 0;
-    static jmethodID m_isSoftwareKeyboardVisibleMethodID = 0;
-    static jmethodID m_updateSelectionMethodID = 0;
 
     static bool m_ignoreMouseEvents = false;
+    static bool m_softwareKeyboardVisible = false;
 
     static QList<QWindowSystemInterface::TouchPoint> m_touchPoints;
 
@@ -67,30 +58,28 @@ namespace QtAndroidInput
 
     void updateSelection(int selStart, int selEnd, int candidatesStart, int candidatesEnd)
     {
-        AttachedJNIEnv env;
-        if (!env.jniEnv)
-            return;
-
 #ifdef QT_DEBUG_ANDROID_IM_PROTOCOL
         qDebug() << ">>> UPDATESELECTION" << selStart << selEnd << candidatesStart << candidatesEnd;
 #endif
-        env.jniEnv->CallStaticVoidMethod(applicationClass(), m_updateSelectionMethodID,
-                                         selStart, selEnd, candidatesStart, candidatesEnd);
+        QJNIObjectPrivate::callStaticMethod<void>(applicationClass(),
+                                                  "updateSelection",
+                                                  "(IIII)V",
+                                                  selStart,
+                                                  selEnd,
+                                                  candidatesStart,
+                                                  candidatesEnd);
     }
 
     void showSoftwareKeyboard(int left, int top, int width, int height, int inputHints)
     {
-        AttachedJNIEnv env;
-        if (!env.jniEnv)
-            return;
-
-        env.jniEnv->CallStaticVoidMethod(applicationClass(),
-                                         m_showSoftwareKeyboardMethodID,
-                                         left,
-                                         top,
-                                         width,
-                                         height,
-                                         inputHints);
+        QJNIObjectPrivate::callStaticMethod<void>(applicationClass(),
+                                                  "showSoftwareKeyboard",
+                                                  "(IIIII)V",
+                                                  left,
+                                                  top,
+                                                  width,
+                                                  height,
+                                                  inputHints);
 #ifdef QT_DEBUG_ANDROID_IM_PROTOCOL
         qDebug() << "@@@ SHOWSOFTWAREKEYBOARD" << left << top << width << height << inputHints;
 #endif
@@ -98,11 +87,7 @@ namespace QtAndroidInput
 
     void resetSoftwareKeyboard()
     {
-        AttachedJNIEnv env;
-        if (!env.jniEnv)
-            return;
-
-        env.jniEnv->CallStaticVoidMethod(applicationClass(), m_resetSoftwareKeyboardMethodID);
+        QJNIObjectPrivate::callStaticMethod<void>(applicationClass(), "resetSoftwareKeyboard");
 #ifdef QT_DEBUG_ANDROID_IM_PROTOCOL
         qDebug() << "@@@ RESETSOFTWAREKEYBOARD";
 #endif
@@ -110,11 +95,7 @@ namespace QtAndroidInput
 
     void hideSoftwareKeyboard()
     {
-        AttachedJNIEnv env;
-        if (!env.jniEnv)
-            return;
-
-        env.jniEnv->CallStaticVoidMethod(applicationClass(), m_hideSoftwareKeyboardMethodID);
+        QJNIObjectPrivate::callStaticMethod<void>(applicationClass(), "hideSoftwareKeyboard");
 #ifdef QT_DEBUG_ANDROID_IM_PROTOCOL
         qDebug() << "@@@ HIDESOFTWAREKEYBOARD";
 #endif
@@ -122,15 +103,7 @@ namespace QtAndroidInput
 
     bool isSoftwareKeyboardVisible()
     {
-        AttachedJNIEnv env;
-        if (!env.jniEnv)
-            return false;
-
-        bool visibility = env.jniEnv->CallStaticBooleanMethod(applicationClass(), m_isSoftwareKeyboardVisibleMethodID);
-#ifdef QT_DEBUG_ANDROID_IM_PROTOCOL
-        qDebug() << "@@@ ISSOFTWAREKEYBOARDVISIBLE" << visibility;
-#endif
-        return visibility;
+        return m_softwareKeyboardVisible;
     }
 
 
@@ -665,6 +638,25 @@ namespace QtAndroidInput
         }
     }
 
+    static Qt::KeyboardModifiers mapAndroidModifiers(jint modifiers)
+    {
+        Qt::KeyboardModifiers qmodifiers;
+
+        if (modifiers & 0x00000001) // META_SHIFT_ON
+            qmodifiers |= Qt::ShiftModifier;
+
+        if (modifiers & 0x00000002) // META_ALT_ON
+            qmodifiers |= Qt::AltModifier;
+
+        if (modifiers & 0x00000004) // META_SYM_ON
+            qmodifiers |= Qt::MetaModifier;
+
+        if (modifiers & 0x00001000) // META_CTRL_ON
+            qmodifiers |= Qt::ControlModifier;
+
+        return qmodifiers;
+    }
+
     // maps 0 to the empty string, and anything else to a single-character string
     static inline QString toString(jint unicode)
     {
@@ -673,48 +665,29 @@ namespace QtAndroidInput
 
     static void keyDown(JNIEnv */*env*/, jobject /*thiz*/, jint key, jint unicode, jint modifier)
     {
-        Qt::KeyboardModifiers modifiers;
-        if (modifier & 1)
-            modifiers |= Qt::ShiftModifier;
-
-        if (modifier & 2)
-            modifiers |= Qt::AltModifier;
-
-        if (modifier & 4)
-            modifiers |= Qt::MetaModifier;
-
         QWindowSystemInterface::handleKeyEvent(0,
                                                QEvent::KeyPress,
                                                mapAndroidKey(key),
-                                               modifiers,
+                                               mapAndroidModifiers(modifier),
                                                toString(unicode),
                                                false);
     }
 
     static void keyUp(JNIEnv */*env*/, jobject /*thiz*/, jint key, jint unicode, jint modifier)
     {
-        Qt::KeyboardModifiers modifiers;
-        if (modifier & 1)
-            modifiers |= Qt::ShiftModifier;
-
-        if (modifier & 2)
-            modifiers |= Qt::AltModifier;
-
-        if (modifier & 4)
-            modifiers |= Qt::MetaModifier;
-
         QWindowSystemInterface::handleKeyEvent(0,
                                                QEvent::KeyRelease,
                                                mapAndroidKey(key),
-                                               modifiers,
+                                               mapAndroidModifiers(modifier),
                                                toString(unicode),
                                                false);
     }
 
-    static void keyboardVisibilityChanged(JNIEnv */*env*/, jobject /*thiz*/, jboolean /*visibility*/)
+    static void keyboardVisibilityChanged(JNIEnv */*env*/, jobject /*thiz*/, jboolean visibility)
     {
+        m_softwareKeyboardVisible = visibility;
         QAndroidInputContext *inputContext = QAndroidInputContext::androidInputContext();
-        if (inputContext)
+        if (inputContext && qGuiApp)
             inputContext->emitInputPanelVisibleChanged();
 #ifdef QT_DEBUG_ANDROID_IM_PROTOCOL
         qDebug() << "@@@ KEYBOARDVISIBILITYCHANGED" << inputContext;
@@ -734,13 +707,6 @@ namespace QtAndroidInput
         {"keyboardVisibilityChanged", "(Z)V", (void *)keyboardVisibilityChanged}
     };
 
-#define GET_AND_CHECK_STATIC_METHOD(VAR, CLASS, METHOD_NAME, METHOD_SIGNATURE) \
-    VAR = env->GetStaticMethodID(CLASS, METHOD_NAME, METHOD_SIGNATURE); \
-    if (!VAR) { \
-        __android_log_print(ANDROID_LOG_FATAL, qtTagText(), methodErrorMsgFmt(), METHOD_NAME, METHOD_SIGNATURE); \
-        return false; \
-    }
-
     bool registerNatives(JNIEnv *env)
     {
         jclass appClass = QtAndroid::applicationClass();
@@ -750,11 +716,8 @@ namespace QtAndroidInput
             return false;
         }
 
-        GET_AND_CHECK_STATIC_METHOD(m_showSoftwareKeyboardMethodID, appClass, "showSoftwareKeyboard", "(IIIII)V");
-        GET_AND_CHECK_STATIC_METHOD(m_resetSoftwareKeyboardMethodID, appClass, "resetSoftwareKeyboard", "()V");
-        GET_AND_CHECK_STATIC_METHOD(m_hideSoftwareKeyboardMethodID, appClass, "hideSoftwareKeyboard", "()V");
-        GET_AND_CHECK_STATIC_METHOD(m_isSoftwareKeyboardVisibleMethodID, appClass, "isSoftwareKeyboardVisible", "()Z");
-        GET_AND_CHECK_STATIC_METHOD(m_updateSelectionMethodID, appClass, "updateSelection", "(IIII)V");
         return true;
     }
 }
+
+QT_END_NAMESPACE

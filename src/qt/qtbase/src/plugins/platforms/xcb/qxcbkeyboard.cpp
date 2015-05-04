@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -198,8 +190,10 @@
 #define XF86XK_MenuKB              0x1008FF65
 #define XF86XK_MenuPB              0x1008FF66
 #define XF86XK_MySites             0x1008FF67
+#define XF86XK_New                 0x1008FF68
 #define XF86XK_News                0x1008FF69
 #define XF86XK_OfficeHome          0x1008FF6A
+#define XF86XK_Open                0x1008FF6B
 #define XF86XK_Option              0x1008FF6C
 #define XF86XK_Paste               0x1008FF6D
 #define XF86XK_Phone               0x1008FF6E
@@ -497,8 +491,10 @@ static const unsigned int KeyTbl[] = {
     XF86XK_MenuKB,              Qt::Key_MenuKB,
     XF86XK_MenuPB,              Qt::Key_MenuPB,
     XF86XK_MySites,             Qt::Key_MySites,
+    XF86XK_New,                 Qt::Key_New,
     XF86XK_News,                Qt::Key_News,
     XF86XK_OfficeHome,          Qt::Key_OfficeHome,
+    XF86XK_Open,                Qt::Key_Open,
     XF86XK_Option,              Qt::Key_Option,
     XF86XK_Paste,               Qt::Key_Paste,
     XF86XK_Phone,               Qt::Key_Phone,
@@ -725,7 +721,7 @@ void QXcbKeyboard::updateKeymap()
         if (xkb_keymap) {
             new_state = xkb_state_new(xkb_keymap);
         } else {
-            printKeymapError("Failed to compile a keymap!");
+            printKeymapError("Qt: Failed to compile a keymap!");
             m_config = false;
             return;
         }
@@ -741,6 +737,8 @@ void QXcbKeyboard::updateKeymap()
     xkb_state = new_state;
     if (!connection()->hasXKB())
         updateXKBMods();
+
+    checkForLatinLayout();
 }
 
 #ifndef QT_NO_XKB
@@ -828,92 +826,194 @@ void QXcbKeyboard::updateXKBMods()
     xkb_mods.mod5 = xkb_keymap_mod_get_index(xkb_keymap, "Mod5");
 }
 
+static bool isLatin(xkb_keysym_t sym)
+{
+    return ((sym >= 'a' && sym <= 'z') || (sym >= 'A' && sym <= 'Z'));
+}
+
+void QXcbKeyboard::checkForLatinLayout()
+{
+    m_hasLatinLayout = false;
+    const xkb_layout_index_t layoutCount = xkb_keymap_num_layouts(xkb_keymap);
+    const xcb_keycode_t minKeycode = connection()->setup()->min_keycode;
+    const xcb_keycode_t maxKeycode = connection()->setup()->max_keycode;
+    struct xkb_state *kb_state = xkb_state_new(xkb_keymap);
+    for (xkb_layout_index_t layout = 0; layout < layoutCount; ++layout) {
+        xkb_state_update_mask(kb_state, 0, 0, 0, 0, 0, layout);
+        for (xcb_keycode_t code = minKeycode; code < maxKeycode; ++code) {
+            xkb_keysym_t sym = xkb_state_key_get_one_sym(kb_state, code);
+            // if layout can produce any of these latin letters (chosen
+            // arbitrarily) then it must be a latin key based layout
+            if (sym == XK_q || sym == XK_a || sym == XK_e) {
+                m_hasLatinLayout = true;
+                xkb_state_unref(kb_state);
+                return;
+            }
+        }
+    }
+    xkb_state_unref(kb_state);
+}
+
+xkb_keysym_t QXcbKeyboard::lookupLatinKeysym(xkb_keycode_t keycode) const
+{
+    xkb_layout_index_t layout;
+    xkb_keysym_t sym = XKB_KEY_NoSymbol;
+    const xkb_layout_index_t layoutCount = xkb_keymap_num_layouts_for_key(xkb_keymap, keycode);
+    const xkb_layout_index_t currentLayout = xkb_state_key_get_layout(xkb_state, keycode);
+    // Look at user layouts in the order in which they are defined in system
+    // settings to find a latin keysym.
+    for (layout = 0; layout < layoutCount; ++layout) {
+        if (layout == currentLayout)
+            continue;
+        const xkb_keysym_t *syms;
+        xkb_level_index_t level = xkb_state_key_get_level(xkb_state, keycode, layout);
+        if (xkb_keymap_key_get_syms_by_level(xkb_keymap, keycode, layout, level, &syms) != 1)
+            continue;
+        if (isLatin(syms[0])) {
+            sym = syms[0];
+            break;
+        }
+    }
+    // If user layouts don't contain any layout that results in a latin key, we query a
+    // key from "US" layout, this allows for latin-key-based shorcuts to work even when
+    // users have only one (non-latin) layout set.
+    xkb_mod_mask_t latchedMods = xkb_state_serialize_mods(xkb_state, XKB_STATE_MODS_LATCHED);
+    xkb_mod_mask_t lockedMods = xkb_state_serialize_mods(xkb_state, XKB_STATE_MODS_LOCKED);
+    if (sym == XKB_KEY_NoSymbol && !m_hasLatinLayout) {
+        if (!latin_keymap) {
+            const struct xkb_rule_names names = { xkb_names.rules, xkb_names.model, "us", 0, 0 };
+            latin_keymap = xkb_keymap_new_from_names(xkb_context, &names, (xkb_keymap_compile_flags)0);
+            static bool printFailure = true;
+            if (!latin_keymap && printFailure) {
+                // print message about failure to compile US keymap only once,
+                // no need to do this on every key press.
+                printFailure = false;
+                printKeymapError("Qt: Failed to compile US keymap, shortcut handling with "
+                                 "non-Latin keyboard layouts may not be fully functional!");
+            }
+        }
+        if (latin_keymap) {
+            struct xkb_state *latin_state = xkb_state_new(latin_keymap);
+            if (latin_state) {
+                xkb_state_update_mask(latin_state, 0, latchedMods, lockedMods, 0, 0, 0);
+                sym = xkb_state_key_get_one_sym(latin_state, keycode);
+                xkb_state_unref(latin_state);
+            } else {
+                qWarning("QXcbKeyboard: failed to create a state for US keymap!");
+            }
+        }
+    }
+    if (sym == XKB_KEY_NoSymbol)
+        return sym;
+    // Check for uniqueness, consider the following setup:
+    // setxkbmap -layout us,ru,us -variant dvorak,, -option 'grp:ctrl_alt_toggle' (set 'ru' as active).
+    // In this setup, the user would expect to trigger a ctrl+q shortcut by pressing ctrl+<physical x key>,
+    // because "US dvorak" is higher up in the layout settings list. This check verifies that an obtained
+    // 'sym' can not be acquired by any other layout higher up in the user's layout list. If it can be acquired
+    // then the obtained key is not unique. This prevents ctrl+<physical q key> from generating a ctrl+q
+    // shortcut in the above described setup. We don't want ctrl+<physical x key> and ctrl+<physical q key> to
+    // generate the same shortcut event in this case.
+    const xcb_keycode_t minKeycode = connection()->setup()->min_keycode;
+    const xcb_keycode_t maxKeycode = connection()->setup()->max_keycode;
+    struct xkb_state *kb_state = xkb_state_new(xkb_keymap);
+    for (xkb_layout_index_t prevLayout = 0; prevLayout < layout; ++prevLayout) {
+        xkb_state_update_mask(kb_state, 0, latchedMods, lockedMods, 0, 0, prevLayout);
+        for (xcb_keycode_t code = minKeycode; code < maxKeycode; ++code) {
+            xkb_keysym_t prevSym = xkb_state_key_get_one_sym(kb_state, code);
+            if (prevSym == sym) {
+                sym = XKB_KEY_NoSymbol;
+                break;
+            }
+        }
+    }
+    xkb_state_unref(kb_state);
+    return sym;
+}
+
 QList<int> QXcbKeyboard::possibleKeys(const QKeyEvent *event) const
 {
     // turn off the modifier bits which doesn't participate in shortcuts
     Qt::KeyboardModifiers notNeeded = Qt::MetaModifier | Qt::KeypadModifier | Qt::GroupSwitchModifier;
     Qt::KeyboardModifiers modifiers = event->modifiers() &= ~notNeeded;
     // create a fresh kb state and test against the relevant modifier combinations
-    // NOTE: it should be possible to query the keymap directly, once it gets
-    // supported by libxkbcommon
-    struct xkb_state * kb_state = xkb_state_new(xkb_keymap);
+    struct xkb_state *kb_state = xkb_state_new(xkb_keymap);
     if (!kb_state) {
-        qWarning("QXcbKeyboard: failed to compile xkb keymap");
+        qWarning("QXcbKeyboard: failed to compile xkb keymap!");
         return QList<int>();
     }
     // get kb state from the master xkb_state and update the temporary kb_state
-    xkb_layout_index_t baseLayout = xkb_state_serialize_layout(xkb_state, XKB_STATE_LAYOUT_DEPRESSED);
-    xkb_layout_index_t latchedLayout = xkb_state_serialize_layout(xkb_state, XKB_STATE_LAYOUT_LATCHED);
     xkb_layout_index_t lockedLayout = xkb_state_serialize_layout(xkb_state, XKB_STATE_LAYOUT_LOCKED);
-    xkb_mod_index_t latchedMods = xkb_state_serialize_mods(xkb_state, XKB_STATE_MODS_LATCHED);
-    xkb_mod_index_t lockedMods = xkb_state_serialize_mods(xkb_state, XKB_STATE_MODS_LOCKED);
+    xkb_mod_mask_t latchedMods = xkb_state_serialize_mods(xkb_state, XKB_STATE_MODS_LATCHED);
+    xkb_mod_mask_t lockedMods = xkb_state_serialize_mods(xkb_state, XKB_STATE_MODS_LOCKED);
 
-    xkb_state_update_mask(kb_state, 0, latchedMods, lockedMods,
-                                    baseLayout, latchedLayout, lockedLayout);
+    xkb_state_update_mask(kb_state, 0, latchedMods, lockedMods, 0, 0, lockedLayout);
 
-    xkb_keysym_t sym = xkb_state_key_get_one_sym(kb_state, event->nativeScanCode());
-    if (sym == XKB_KEY_NoSymbol)
+    quint32 keycode = event->nativeScanCode();
+    xkb_keysym_t sym = xkb_state_key_get_one_sym(kb_state, keycode);
+    if (sym == XKB_KEY_NoSymbol) {
+        xkb_state_unref(kb_state);
         return QList<int>();
+    }
 
     QList<int> result;
-    int baseQtKey = keysymToQtKey(sym, modifiers, lookupString(kb_state, event->nativeScanCode()));
-    result += (baseQtKey + modifiers); // The base key is _always_ valid, of course
+    int baseQtKey = keysymToQtKey(sym, modifiers, lookupString(kb_state, keycode));
+    if (baseQtKey)
+        result += (baseQtKey + modifiers);
 
     xkb_mod_index_t shiftMod = xkb_keymap_mod_get_index(xkb_keymap, "Shift");
     xkb_mod_index_t altMod = xkb_keymap_mod_get_index(xkb_keymap, "Alt");
     xkb_mod_index_t controlMod = xkb_keymap_mod_get_index(xkb_keymap, "Control");
 
+    Q_ASSERT(shiftMod < 32);
+    Q_ASSERT(altMod < 32);
+    Q_ASSERT(controlMod < 32);
+
     xkb_mod_mask_t depressed;
-    struct xkb_keymap *fallback_keymap = 0;
     int qtKey = 0;
-    //obtain a list of possible shortcuts for the given key event
+    // obtain a list of possible shortcuts for the given key event
     for (uint i = 1; i < sizeof(ModsTbl) / sizeof(*ModsTbl) ; ++i) {
         Qt::KeyboardModifiers neededMods = ModsTbl[i];
         if ((modifiers & neededMods) == neededMods) {
-
-            depressed = 0;
-            if (neededMods & Qt::AltModifier)
-                depressed |= (1 << altMod);
-            if (neededMods & Qt::ShiftModifier)
-                depressed |= (1 << shiftMod);
-            if (neededMods & Qt::ControlModifier)
-                depressed |= (1 << controlMod);
-
-            // update a keyboard state from a set of explicit masks
             if (i == 8) {
-                // Add a fall back key for layouts with non Latin-1 characters
-                if (baseQtKey > 255) {
-                    struct xkb_rule_names names = { xkb_names.rules, xkb_names.model, "us", 0, 0 };
-                    fallback_keymap = xkb_keymap_new_from_names(xkb_context, &names, (xkb_keymap_compile_flags)0);
-                    if (!fallback_keymap)
-                        continue;
-                    xkb_state_unref(kb_state);
-                    kb_state = xkb_state_new(fallback_keymap);
-                    if (!kb_state)
-                        continue;
-                } else
+                if (isLatin(baseQtKey))
                     continue;
+                // add a latin key as a fall back key
+                sym = lookupLatinKeysym(keycode);
             } else {
-                xkb_state_update_mask(kb_state, depressed, latchedMods, lockedMods,
-                                                baseLayout, latchedLayout, lockedLayout);
+                depressed = 0;
+                if (neededMods & Qt::AltModifier)
+                    depressed |= (1 << altMod);
+                if (neededMods & Qt::ShiftModifier)
+                    depressed |= (1 << shiftMod);
+                if (neededMods & Qt::ControlModifier)
+                    depressed |= (1 << controlMod);
+                xkb_state_update_mask(kb_state, depressed, latchedMods, lockedMods, 0, 0, lockedLayout);
+                sym = xkb_state_key_get_one_sym(kb_state, keycode);
             }
-            sym = xkb_state_key_get_one_sym(kb_state, event->nativeScanCode());
-
             if (sym == XKB_KEY_NoSymbol)
                 continue;
 
             Qt::KeyboardModifiers mods = modifiers & ~neededMods;
-            qtKey = keysymToQtKey(sym, mods, lookupString(kb_state, event->nativeScanCode()));
+            qtKey = keysymToQtKey(sym, mods, lookupString(kb_state, keycode));
+            if (!qtKey || qtKey == baseQtKey)
+                continue;
 
-            if (qtKey == baseQtKey)
+            // catch only more specific shortcuts, i.e. Ctrl+Shift+= also generates Ctrl++ and +,
+            // but Ctrl++ is more specific than +, so we should skip the last one
+            bool ambiguous = false;
+            foreach (int shortcut, result) {
+                if (int(shortcut & ~Qt::KeyboardModifierMask) == qtKey && (shortcut & mods) == mods) {
+                    ambiguous = true;
+                    break;
+                }
+            }
+            if (ambiguous)
                 continue;
 
             result += (qtKey + mods);
         }
     }
     xkb_state_unref(kb_state);
-    xkb_keymap_unref(fallback_keymap);
-
     return result;
  }
 
@@ -927,6 +1027,15 @@ int QXcbKeyboard::keysymToQtKey(xcb_keysym_t key) const
             break;
         }
         i += 2;
+    }
+
+    if (rmod_masks.meta) {
+        // translate Super/Hyper keys to Meta if we're using them as the MetaModifier
+        if (rmod_masks.meta == rmod_masks.super && (code == Qt::Key_Super_L || code == Qt::Key_Super_R)) {
+            code = Qt::Key_Meta;
+        } else if (rmod_masks.meta == rmod_masks.hyper && (code == Qt::Key_Hyper_L || code == Qt::Key_Hyper_R)) {
+            code = Qt::Key_Meta;
+        }
     }
 
     return code;
@@ -979,6 +1088,8 @@ QXcbKeyboard::QXcbKeyboard(QXcbConnection *connection)
     , xkb_context(0)
     , xkb_keymap(0)
     , xkb_state(0)
+    , latin_keymap(0)
+    , m_hasLatinLayout(false)
 {
     memset(&xkb_names, 0, sizeof(xkb_names));
 #ifndef QT_NO_XKB
@@ -1006,6 +1117,7 @@ QXcbKeyboard::~QXcbKeyboard()
     xkb_state_unref(xkb_state);
     xkb_keymap_unref(xkb_keymap);
     xkb_context_unref(xkb_context);
+    xkb_keymap_unref(latin_keymap);
     if (!connection()->hasXKB())
         xcb_key_symbols_free(m_key_symbols);
     clearXKBConfig();
@@ -1286,7 +1398,7 @@ private:
     bool m_release;
 };
 
-void QXcbKeyboard::handleKeyEvent(QWindow *window, QEvent::Type type, xcb_keycode_t code,
+void QXcbKeyboard::handleKeyEvent(xcb_window_t sourceWindow, QEvent::Type type, xcb_keycode_t code,
                                   quint16 state, xcb_timestamp_t time)
 {
     Q_XCB_NOOP(connection());
@@ -1294,7 +1406,13 @@ void QXcbKeyboard::handleKeyEvent(QWindow *window, QEvent::Type type, xcb_keycod
     if (!m_config)
         return;
 
-    // It is crucial the order of xkb_state_key_get_one_sym & xkb_state_update_key operations is not reversed!
+    QXcbWindow *source = connection()->platformWindowFromId(sourceWindow);
+    QXcbWindow *targetWindow = connection()->focusWindow() ? connection()->focusWindow() : source;
+    if (!targetWindow || !source)
+        return;
+    if (type == QEvent::KeyPress)
+        targetWindow->updateNetWmUserTime(time);
+
     xcb_keysym_t sym = xkb_state_key_get_one_sym(xkb_state, code);
 
     QPlatformInputContext *inputContext = QGuiApplicationPrivate::platformIntegration()->inputContext();
@@ -1318,15 +1436,22 @@ void QXcbKeyboard::handleKeyEvent(QWindow *window, QEvent::Type type, xcb_keycod
             return;
     }
 
-    Qt::KeyboardModifiers modifiers = translateModifiers(state);
-
     QString string = lookupString(xkb_state, code);
     int count = string.size();
     string.truncate(count);
 
-    int qtcode = keysymToQtKey(sym, modifiers, string);
-    bool isAutoRepeat = false;
+    // Ιf control modifier is set we should prefer latin character, this is
+    // used for standard shortcuts in checks like "key == QKeySequence::Copy",
+    // users can still see the actual X11 keysym with QKeyEvent::nativeVirtualKey
+    Qt::KeyboardModifiers modifiers = translateModifiers(state);
+    xcb_keysym_t translatedSym = XKB_KEY_NoSymbol;
+    if (modifiers & Qt::ControlModifier && !isLatin(sym))
+        translatedSym = lookupLatinKeysym(code);
+    if (translatedSym == XKB_KEY_NoSymbol)
+        translatedSym = sym;
+    int qtcode = keysymToQtKey(translatedSym, modifiers, string);
 
+    bool isAutoRepeat = false;
     if (type == QEvent::KeyPress) {
         if (m_autorepeat_code == code) {
             isAutoRepeat = true;
@@ -1334,7 +1459,7 @@ void QXcbKeyboard::handleKeyEvent(QWindow *window, QEvent::Type type, xcb_keycod
         }
     } else {
         // look ahead for auto-repeat
-        KeyChecker checker(((QXcbWindow *)window->handle())->xcb_window(), code, time);
+        KeyChecker checker(source->xcb_window(), code, time);
         xcb_generic_event_t *event = connection()->checkEvent(checker);
         if (event) {
             isAutoRepeat = true;
@@ -1350,6 +1475,7 @@ void QXcbKeyboard::handleKeyEvent(QWindow *window, QEvent::Type type, xcb_keycod
         filtered = inputContext->filterEvent(&event);
     }
 
+    QWindow *window = targetWindow->window();
     if (!filtered) {
         if (type == QEvent::KeyPress && qtcode == Qt::Key_Menu) {
             const QPoint globalPos = window->screen()->handle()->cursor()->pos();
@@ -1392,21 +1518,14 @@ QString QXcbKeyboard::lookupString(struct xkb_state *state, xcb_keycode_t code) 
     return QString::fromUtf8(chars);
 }
 
-void QXcbKeyboard::handleKeyPressEvent(QXcbWindowEventListener *eventListener, const xcb_key_press_event_t *event)
+void QXcbKeyboard::handleKeyPressEvent(const xcb_key_press_event_t *event)
 {
-    QXcbWindow *window = eventListener->toWindow();
-    if (!window)
-        return;
-    window->updateNetWmUserTime(event->time);
-    handleKeyEvent(window->window(), QEvent::KeyPress, event->detail, event->state, event->time);
+    handleKeyEvent(event->event, QEvent::KeyPress, event->detail, event->state, event->time);
 }
 
-void QXcbKeyboard::handleKeyReleaseEvent(QXcbWindowEventListener *eventListener, const xcb_key_release_event_t *event)
+void QXcbKeyboard::handleKeyReleaseEvent(const xcb_key_release_event_t *event)
 {
-    QXcbWindow *window = eventListener->toWindow();
-    if (!window)
-        return;
-    handleKeyEvent(window->window(), QEvent::KeyRelease, event->detail, event->state, event->time);
+    handleKeyEvent(event->event, QEvent::KeyRelease, event->detail, event->state, event->time);
 }
 
 void QXcbKeyboard::handleMappingNotifyEvent(const void *event)

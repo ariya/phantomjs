@@ -39,7 +39,9 @@ SOURCES += \
     $$PWD/qwindowsdialoghelpers.cpp \
     $$PWD/qwindowsservices.cpp \
     $$PWD/qwindowsnativeimage.cpp \
-    $$PWD/qwindowsnativeinterface.cpp
+    $$PWD/qwindowsnativeinterface.cpp \
+    $$PWD/qwindowsscaling.cpp \
+    $$PWD/qwindowsopengltester.cpp
 
 HEADERS += \
     $$PWD/qwindowswindow.h \
@@ -64,9 +66,13 @@ HEADERS += \
     $$PWD/qwindowsservices.h \
     $$PWD/qplatformfunctions_wince.h \
     $$PWD/qwindowsnativeimage.h \
-    $$PWD/qwindowsnativeinterface.h
+    $$PWD/qwindowsnativeinterface.h \
+    $$PWD/qwindowsscaling.h \
+    $$PWD/qwindowsopengltester.h
 
 INCLUDEPATH += $$PWD
+
+contains(QT_CONFIG,opengl): HEADERS += $$PWD/qwindowsopenglcontext.h
 
 contains(QT_CONFIG, opengles2) {
     SOURCES += $$PWD/qwindowseglcontext.cpp
@@ -106,6 +112,10 @@ contains(QT_CONFIG,dynamicgl) {
 !wince*:!contains( DEFINES, QT_NO_SESSIONMANAGER ) {
     SOURCES += $$PWD/qwindowssessionmanager.cpp
     HEADERS += $$PWD/qwindowssessionmanager.h
+}
+
+!wince*:!contains( DEFINES, QT_NO_IMAGEFORMAT_PNG ) {
+    RESOURCES += $$PWD/cursors.qrc
 }
 
 contains(QT_CONFIG, freetype) {

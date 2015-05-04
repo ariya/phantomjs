@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2002-2012 The ANGLE Project Authors. All rights reserved.
+// Copyright (c) 2002-2014 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -10,12 +10,16 @@
 #ifndef LIBGLESV2_PROGRAM_H_
 #define LIBGLESV2_PROGRAM_H_
 
-#include <string>
-#include <set>
-
 #include "common/angleutils.h"
 #include "common/RefCountObject.h"
 #include "libGLESv2/Constants.h"
+#include "libGLESv2/ProgramBinary.h"
+
+#include <GLES2/gl2.h>
+
+#include <vector>
+#include <string>
+#include <set>
 
 namespace rx
 {
@@ -24,10 +28,9 @@ class Renderer;
 
 namespace gl
 {
+struct Caps;
+struct Data;
 class ResourceManager;
-class FragmentShader;
-class VertexShader;
-class ProgramBinary;
 class Shader;
 
 extern const char * const g_fakepath;
@@ -75,10 +78,10 @@ class Program
 
     void bindAttributeLocation(GLuint index, const char *name);
 
-    bool link();
+    Error link(const Data &data);
     bool isLinked();
-    bool setProgramBinary(const void *binary, GLsizei length);
-    ProgramBinary *getProgramBinary();
+    Error setProgramBinary(GLenum binaryFormat, const void *binary, GLsizei length);
+    ProgramBinary *getProgramBinary() const;
 
     int getInfoLogLength() const;
     void getInfoLog(GLsizei bufSize, GLsizei *length, char *infoLog);
@@ -92,13 +95,25 @@ class Program
     GLint getActiveUniformCount();
     GLint getActiveUniformMaxLength();
 
+    GLint getActiveUniformBlockCount();
+    GLint getActiveUniformBlockMaxLength();
+
+    void bindUniformBlock(GLuint uniformBlockIndex, GLuint uniformBlockBinding);
+    GLuint getUniformBlockBinding(GLuint uniformBlockIndex) const;
+
+    void setTransformFeedbackVaryings(GLsizei count, const GLchar *const *varyings, GLenum bufferMode);
+    void getTransformFeedbackVarying(GLuint index, GLsizei bufSize, GLsizei *length, GLsizei *size, GLenum *type, GLchar *name) const;
+    GLsizei getTransformFeedbackVaryingCount() const;
+    GLsizei getTransformFeedbackVaryingMaxLength() const;
+    GLenum getTransformFeedbackBufferMode() const;
+
     void addRef();
     void release();
     unsigned int getRefCount() const;
     void flagForDeletion();
     bool isFlaggedForDeletion() const;
 
-    void validate();
+    void validate(const Caps &caps);
     bool isValidated() const;
 
     GLint getProgramBinaryLength() const;
@@ -107,11 +122,17 @@ class Program
     DISALLOW_COPY_AND_ASSIGN(Program);
 
     void unlink(bool destroy = false);
+    void resetUniformBlockBindings();
 
-    FragmentShader *mFragmentShader;
-    VertexShader *mVertexShader;
+    Shader *mFragmentShader;
+    Shader *mVertexShader;
 
     AttributeBindings mAttributeBindings;
+
+    GLuint mUniformBlockBindings[IMPLEMENTATION_MAX_COMBINED_SHADER_UNIFORM_BUFFERS];
+
+    std::vector<std::string> mTransformFeedbackVaryings;
+    GLuint mTransformFeedbackBufferMode;
 
     BindingPointer<ProgramBinary> mProgramBinary;
     bool mLinked;

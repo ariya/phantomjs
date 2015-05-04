@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -648,14 +640,14 @@ void QPixmap::setMask(const QBitmap &mask)
 
 /*!
     Returns the device pixel ratio for the pixmap. This is the
-    ratio between pixmap pixels and device-independent pixels.
+    ratio between \e{device pixels} and \e{device independent pixels}.
 
     Use this function when calculating layout geometry based on
     the pixmap size: QSize layoutSize = image.size() / image.devicePixelRatio()
 
     The default value is 1.0.
 
-    \sa setDevicePixelRatio()
+    \sa setDevicePixelRatio(), QImageReader
 */
 qreal QPixmap::devicePixelRatio() const
 {
@@ -680,7 +672,8 @@ qreal QPixmap::devicePixelRatio() const
     pixmap size will take the ratio into account:
     QSize layoutSize = pixmap.size() / pixmap.devicePixelRatio()
     The net effect of this is that the pixmap is displayed as
-    high-dpi pixmap rather than a large pixmap.
+    high-DPI pixmap rather than a large pixmap
+    (see \l{Drawing High Resolution Versions of Pixmaps and Images}).
 
         \sa devicePixelRatio()
 */
@@ -1098,6 +1091,7 @@ bool QPixmap::isDetached() const
 */
 bool QPixmap::convertFromImage(const QImage &image, Qt::ImageConversionFlags flags)
 {
+    detach();
     if (image.isNull() || !data)
         *this = QPixmap::fromImage(image, flags);
     else
@@ -1510,7 +1504,8 @@ QBitmap QPixmap::mask() const
         return QBitmap();
 
     const QImage img = toImage();
-    const QImage image = (img.depth() < 32 ? img.convertToFormat(QImage::Format_ARGB32_Premultiplied) : img);
+    bool shouldConvert = (img.format() != QImage::Format_ARGB32 && img.format() != QImage::Format_ARGB32_Premultiplied);
+    const QImage image = (shouldConvert ? img.convertToFormat(QImage::Format_ARGB32_Premultiplied) : img);
     const int w = image.width();
     const int h = image.height();
 
@@ -1722,8 +1717,19 @@ QPlatformPixmap* QPixmap::handle() const
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const QPixmap &r)
 {
-    dbg.nospace() << "QPixmap(" << r.size() << ')';
-    return dbg.space();
+    QDebugStateSaver saver(dbg);
+    dbg.resetFormat();
+    dbg.nospace();
+    dbg << "QPixmap(";
+    if (r.isNull()) {
+        dbg << "null";
+    } else {
+        dbg << r.size() << ",depth=" << r.depth()
+            << ",devicePixelRatio=" << r.devicePixelRatio()
+            << ",cacheKey=" << showbase << hex << r.cacheKey() << dec << noshowbase;
+    }
+    dbg << ')';
+    return dbg;
 }
 #endif
 

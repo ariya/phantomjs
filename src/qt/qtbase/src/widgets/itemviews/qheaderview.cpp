@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -124,7 +116,7 @@ static const int maxSizeSection = 1048575; // since section size is in a bitfiel
 
     A header can be fixed in place, or made movable with setSectionsMovable(). It can
     be made clickable with setSectionsClickable(), and has resizing behavior in
-    accordance with setSectionResizeMode()
+    accordance with setSectionResizeMode().
 
     \note Double-clicking on a header to resize a section only applies for
     visible rows.
@@ -1558,7 +1550,7 @@ int QHeaderView::minimumSectionSize() const
     Q_D(const QHeaderView);
     if (d->minimumSectionSize == -1) {
         QSize strut = QApplication::globalStrut();
-        int margin = style()->pixelMetric(QStyle::PM_HeaderMargin, 0, this);
+        int margin = 2 * style()->pixelMetric(QStyle::PM_HeaderMargin, 0, this);
         if (d->orientation == Qt::Horizontal)
             return qMax(strut.width(), (fontMetrics().maxWidth() + margin));
         return qMax(strut.height(), (fontMetrics().height() + margin));
@@ -2671,8 +2663,16 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
     opt.iconAlignment = Qt::AlignVCenter;
     opt.text = d->model->headerData(logicalIndex, d->orientation,
                                     Qt::DisplayRole).toString();
+
+    int margin = 2 * style()->pixelMetric(QStyle::PM_HeaderMargin, 0, this);
+
+    const Qt::Alignment headerArrowAlignment = static_cast<Qt::Alignment>(style()->styleHint(QStyle::SH_Header_ArrowAlignment, 0, this));
+    const bool isHeaderArrowOnTheSide = headerArrowAlignment & Qt::AlignVCenter;
+    if (isSortIndicatorShown() && sortIndicatorSection() == logicalIndex && isHeaderArrowOnTheSide)
+        margin += style()->pixelMetric(QStyle::PM_HeaderMarkSize, 0, this);
+
     if (d->textElideMode != Qt::ElideNone)
-        opt.text = opt.fontMetrics.elidedText(opt.text, d->textElideMode , rect.width() - 4);
+        opt.text = opt.fontMetrics.elidedText(opt.text, d->textElideMode , rect.width() - margin);
 
     QVariant variant = d->model->headerData(logicalIndex, d->orientation,
                                     Qt::DecorationRole);
@@ -2762,15 +2762,9 @@ QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
     opt.icon = qvariant_cast<QIcon>(variant);
     if (opt.icon.isNull())
         opt.icon = qvariant_cast<QPixmap>(variant);
-    QSize size = style()->sizeFromContents(QStyle::CT_HeaderSection, &opt, QSize(), this);
-    if (isSortIndicatorShown()) {
-        int margin = style()->pixelMetric(QStyle::PM_HeaderMargin, &opt, this);
-        if (d->orientation == Qt::Horizontal)
-            size.rwidth() += size.height() + margin;
-        else
-            size.rheight() += size.width() + margin;
-    }
-    return size;
+    if (isSortIndicatorShown())
+        opt.sortIndicator = QStyleOptionHeader::SortDown;
+    return style()->sizeFromContents(QStyle::CT_HeaderSection, &opt, QSize(), this);
 }
 
 /*!
@@ -3641,25 +3635,42 @@ void QHeaderViewPrivate::write(QDataStream &out) const
 bool QHeaderViewPrivate::read(QDataStream &in)
 {
     int orient, order, align, global;
+    int sortIndicatorSectionIn;
+    bool sortIndicatorShownIn;
+    int lengthIn;
+    QVector<int> visualIndicesIn;
+    QVector<int> logicalIndicesIn;
+    QHash<int, int> hiddenSectionSizeIn;
+
     in >> orient;
-    orientation = (Qt::Orientation)orient;
-
     in >> order;
-    sortIndicatorOrder = (Qt::SortOrder)order;
 
-    in >> sortIndicatorSection;
-    in >> sortIndicatorShown;
+    in >> sortIndicatorSectionIn;
+    in >> sortIndicatorShownIn;
 
-    in >> visualIndices;
-    in >> logicalIndices;
+    in >> visualIndicesIn;
+    in >> logicalIndicesIn;
 
     QBitArray sectionHidden;
     in >> sectionHidden;
-    in >> hiddenSectionSize;
+    in >> hiddenSectionSizeIn;
+    in >> lengthIn;
 
-    in >> length;
     int unusedSectionCount; // For compatibility
     in >> unusedSectionCount;
+
+    if (in.status() != QDataStream::Ok || lengthIn < 0)
+        return false;
+
+    orientation = static_cast<Qt::Orientation>(orient);
+    sortIndicatorOrder = static_cast<Qt::SortOrder>(order);
+    sortIndicatorSection = sortIndicatorSectionIn;
+    sortIndicatorShown = sortIndicatorShownIn;
+    visualIndices = visualIndicesIn;
+    logicalIndices = logicalIndicesIn;
+    hiddenSectionSize = hiddenSectionSizeIn;
+    length = lengthIn;
+
     in >> movableSections;
     in >> clickableSections;
     in >> highlightSelected;

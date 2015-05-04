@@ -46,13 +46,13 @@ enum thai_consonant_type_t
 static thai_consonant_type_t
 get_consonant_type (hb_codepoint_t u)
 {
-  if (u == 0x0E1B || u == 0x0E1D || u == 0x0E1F/* || u == 0x0E2C*/)
+  if (u == 0x0E1Bu || u == 0x0E1Du || u == 0x0E1Fu/* || u == 0x0E2Cu*/)
     return AC;
-  if (u == 0x0E0D || u == 0x0E10)
+  if (u == 0x0E0Du || u == 0x0E10u)
     return RC;
-  if (u == 0x0E0E || u == 0x0E0F)
+  if (u == 0x0E0Eu || u == 0x0E0Fu)
     return DC;
-  if (hb_in_range<hb_codepoint_t> (u, 0x0E01, 0x0E2E))
+  if (hb_in_range (u, 0x0E01u, 0x0E2Eu))
     return NC;
   return NOT_CONSONANT;
 }
@@ -70,12 +70,12 @@ enum thai_mark_type_t
 static thai_mark_type_t
 get_mark_type (hb_codepoint_t u)
 {
-  if (u == 0x0E31 || hb_in_range<hb_codepoint_t> (u, 0x0E34, 0x0E37) ||
-      u == 0x0E47 || hb_in_range<hb_codepoint_t> (u, 0x0E4D, 0x0E4E))
+  if (u == 0x0E31u || hb_in_range (u, 0x0E34u, 0x0E37u) ||
+      u == 0x0E47u || hb_in_range (u, 0x0E4Du, 0x0E4Eu))
     return AV;
-  if (hb_in_range<hb_codepoint_t> (u, 0x0E38, 0x0E3A))
+  if (hb_in_range (u, 0x0E38u, 0x0E3Au))
     return BV;
-  if (hb_in_range<hb_codepoint_t> (u, 0x0E48, 0x0E4C))
+  if (hb_in_range (u, 0x0E48u, 0x0E4Cu))
     return T;
   return NOT_MARK;
 }
@@ -99,43 +99,43 @@ thai_pua_shape (hb_codepoint_t u, thai_action_t action, hb_font_t *font)
     hb_codepoint_t mac_pua;
   } const *pua_mappings = NULL;
   static const thai_pua_mapping_t SD_mappings[] = {
-    {0x0E48, 0xF70A, 0xF88B}, /* MAI EK */
-    {0x0E49, 0xF70B, 0xF88E}, /* MAI THO */
-    {0x0E4A, 0xF70C, 0xF891}, /* MAI TRI */
-    {0x0E4B, 0xF70D, 0xF894}, /* MAI CHATTAWA */
-    {0x0E4C, 0xF70E, 0xF897}, /* THANTHAKHAT */
-    {0x0E38, 0xF718, 0xF89B}, /* SARA U */
-    {0x0E39, 0xF719, 0xF89C}, /* SARA UU */
-    {0x0E3A, 0xF71A, 0xF89D}, /* PHINTHU */
-    {0x0000, 0x0000, 0x0000}
+    {0x0E48u, 0xF70Au, 0xF88Bu}, /* MAI EK */
+    {0x0E49u, 0xF70Bu, 0xF88Eu}, /* MAI THO */
+    {0x0E4Au, 0xF70Cu, 0xF891u}, /* MAI TRI */
+    {0x0E4Bu, 0xF70Du, 0xF894u}, /* MAI CHATTAWA */
+    {0x0E4Cu, 0xF70Eu, 0xF897u}, /* THANTHAKHAT */
+    {0x0E38u, 0xF718u, 0xF89Bu}, /* SARA U */
+    {0x0E39u, 0xF719u, 0xF89Cu}, /* SARA UU */
+    {0x0E3Au, 0xF71Au, 0xF89Du}, /* PHINTHU */
+    {0x0000u, 0x0000u, 0x0000u}
   };
   static const thai_pua_mapping_t SDL_mappings[] = {
-    {0x0E48, 0xF705, 0xF88C}, /* MAI EK */
-    {0x0E49, 0xF706, 0xF88F}, /* MAI THO */
-    {0x0E4A, 0xF707, 0xF892}, /* MAI TRI */
-    {0x0E4B, 0xF708, 0xF895}, /* MAI CHATTAWA */
-    {0x0E4C, 0xF709, 0xF898}, /* THANTHAKHAT */
-    {0x0000, 0x0000, 0x0000}
+    {0x0E48u, 0xF705u, 0xF88Cu}, /* MAI EK */
+    {0x0E49u, 0xF706u, 0xF88Fu}, /* MAI THO */
+    {0x0E4Au, 0xF707u, 0xF892u}, /* MAI TRI */
+    {0x0E4Bu, 0xF708u, 0xF895u}, /* MAI CHATTAWA */
+    {0x0E4Cu, 0xF709u, 0xF898u}, /* THANTHAKHAT */
+    {0x0000u, 0x0000u, 0x0000u}
   };
   static const thai_pua_mapping_t SL_mappings[] = {
-    {0x0E48, 0xF713, 0xF88A}, /* MAI EK */
-    {0x0E49, 0xF714, 0xF88D}, /* MAI THO */
-    {0x0E4A, 0xF715, 0xF890}, /* MAI TRI */
-    {0x0E4B, 0xF716, 0xF893}, /* MAI CHATTAWA */
-    {0x0E4C, 0xF717, 0xF896}, /* THANTHAKHAT */
-    {0x0E31, 0xF710, 0xF884}, /* MAI HAN-AKAT */
-    {0x0E34, 0xF701, 0xF885}, /* SARA I */
-    {0x0E35, 0xF702, 0xF886}, /* SARA II */
-    {0x0E36, 0xF703, 0xF887}, /* SARA UE */
-    {0x0E37, 0xF704, 0xF888}, /* SARA UEE */
-    {0x0E47, 0xF712, 0xF889}, /* MAITAIKHU */
-    {0x0E4D, 0xF711, 0xF899}, /* NIKHAHIT */
-    {0x0000, 0x0000, 0x0000}
+    {0x0E48u, 0xF713u, 0xF88Au}, /* MAI EK */
+    {0x0E49u, 0xF714u, 0xF88Du}, /* MAI THO */
+    {0x0E4Au, 0xF715u, 0xF890u}, /* MAI TRI */
+    {0x0E4Bu, 0xF716u, 0xF893u}, /* MAI CHATTAWA */
+    {0x0E4Cu, 0xF717u, 0xF896u}, /* THANTHAKHAT */
+    {0x0E31u, 0xF710u, 0xF884u}, /* MAI HAN-AKAT */
+    {0x0E34u, 0xF701u, 0xF885u}, /* SARA I */
+    {0x0E35u, 0xF702u, 0xF886u}, /* SARA II */
+    {0x0E36u, 0xF703u, 0xF887u}, /* SARA UE */
+    {0x0E37u, 0xF704u, 0xF888u}, /* SARA UEE */
+    {0x0E47u, 0xF712u, 0xF889u}, /* MAITAIKHU */
+    {0x0E4Du, 0xF711u, 0xF899u}, /* NIKHAHIT */
+    {0x0000u, 0x0000u, 0x0000u}
   };
   static const thai_pua_mapping_t RD_mappings[] = {
-    {0x0E0D, 0xF70F, 0xF89A}, /* YO YING */
-    {0x0E10, 0xF700, 0xF89E}, /* THO THAN */
-    {0x0000, 0x0000, 0x0000}
+    {0x0E0Du, 0xF70Fu, 0xF89Au}, /* YO YING */
+    {0x0E10u, 0xF700u, 0xF89Eu}, /* THO THAN */
+    {0x0000u, 0x0000u, 0x0000u}
   };
 
   switch (action) {
@@ -308,10 +308,10 @@ preprocess_text_thai (const hb_ot_shape_plan_t *plan,
 
   /* We only get one script at a time, so a script-agnostic implementation
    * is adequate here. */
-#define IS_SARA_AM(x) (((x) & ~0x0080) == 0x0E33)
-#define NIKHAHIT_FROM_SARA_AM(x) ((x) - 0xE33 + 0xE4D)
+#define IS_SARA_AM(x) (((x) & ~0x0080u) == 0x0E33u)
+#define NIKHAHIT_FROM_SARA_AM(x) ((x) - 0x0E33u + 0x0E4Du)
 #define SARA_AA_FROM_SARA_AM(x) ((x) - 1)
-#define IS_TONE_MARK(x) (hb_in_ranges<hb_codepoint_t> ((x) & ~0x0080, 0x0E34, 0x0E37, 0x0E47, 0x0E4E, 0x0E31, 0x0E31))
+#define IS_TONE_MARK(x) (hb_in_ranges ((x) & ~0x0080u, 0x0E34u, 0x0E37u, 0x0E47u, 0x0E4Eu, 0x0E31u, 0x0E31u))
 
   buffer->clear_output ();
   unsigned int count = buffer->len;
@@ -330,8 +330,11 @@ preprocess_text_thai (const hb_ot_shape_plan_t *plan,
     if (unlikely (buffer->in_error))
       return;
 
-    /* Ok, let's see... */
+    /* Make Nikhahit be recognized as a mark when zeroing widths. */
     unsigned int end = buffer->out_len;
+    _hb_glyph_info_set_general_category (&buffer->out_info[end - 2], HB_UNICODE_GENERAL_CATEGORY_NON_SPACING_MARK);
+
+    /* Ok, let's see... */
     unsigned int start = end - 2;
     while (start > 0 && IS_TONE_MARK (buffer->out_info[start - 1].codepoint))
       start--;

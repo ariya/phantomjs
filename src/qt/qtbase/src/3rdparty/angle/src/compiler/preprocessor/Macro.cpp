@@ -11,7 +11,7 @@
 namespace pp
 {
 
-bool Macro::equals(const Macro& other) const
+bool Macro::equals(const Macro &other) const
 {
     return (type == other.type) &&
            (name == other.name) &&

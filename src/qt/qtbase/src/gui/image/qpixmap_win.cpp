@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -133,6 +125,68 @@ int qt_wince_GetDIBits(HDC /*hdc*/ , HBITMAP hSourceBitmap, uint, uint, LPVOID l
 }
 #endif
 
+static inline void initBitMapInfoHeader(int width, int height, bool topToBottom, BITMAPINFOHEADER *bih)
+{
+    memset(bih, 0, sizeof(BITMAPINFOHEADER));
+    bih->biSize        = sizeof(BITMAPINFOHEADER);
+    bih->biWidth       = width;
+    bih->biHeight      = topToBottom ? -height : height;
+    bih->biPlanes      = 1;
+    bih->biBitCount    = 32;
+    bih->biCompression = BI_RGB;
+    bih->biSizeImage   = width * height * 4;
+}
+
+static inline void initBitMapInfo(int width, int height, bool topToBottom, BITMAPINFO *bmi)
+{
+    initBitMapInfoHeader(width, height, topToBottom, &bmi->bmiHeader);
+    memset(bmi->bmiColors, 0, sizeof(RGBQUAD));
+}
+
+static inline uchar *getDiBits(HDC hdc, HBITMAP bitmap, int width, int height, bool topToBottom = true)
+{
+    BITMAPINFO bmi;
+    initBitMapInfo(width, height, topToBottom, &bmi);
+    uchar *result = new uchar[bmi.bmiHeader.biSizeImage];
+    if (!GetDIBits(hdc, bitmap, 0, height, result, &bmi, DIB_RGB_COLORS)) {
+        delete [] result;
+        qErrnoWarning("%s: GetDIBits() failed to get bitmap bits.", __FUNCTION__);
+        return 0;
+    }
+    return result;
+}
+
+static inline void copyImageDataCreateAlpha(const uchar *data, QImage *target)
+{
+    const uint mask = target->format() == QImage::Format_RGB32 ? 0xff000000 : 0;
+    const int height = target->height();
+    const int width = target->width();
+    const int bytesPerLine = width * int(sizeof(QRgb));
+    for (int y = 0; y < height; ++y) {
+        QRgb *dest = reinterpret_cast<QRgb *>(target->scanLine(y));
+        const QRgb *src = reinterpret_cast<const QRgb *>(data + y * bytesPerLine);
+        for (int x = 0; x < width; ++x) {
+            const uint pixel = src[x];
+            if ((pixel & 0xff000000) == 0 && (pixel & 0x00ffffff) != 0)
+                dest[x] = pixel | 0xff000000;
+            else
+                dest[x] = pixel | mask;
+        }
+    }
+}
+
+static inline void copyImageData(const uchar *data, QImage *target)
+{
+    const int height = target->height();
+    const int bytesPerLine = target->bytesPerLine();
+    for (int y = 0; y < height; ++y) {
+        void *dest = static_cast<void *>(target->scanLine(y));
+        const void *src = data + y * bytesPerLine;
+        memcpy(dest, src, bytesPerLine);
+    }
+
+}
+
 enum HBitmapFormat
 {
     HBitmapNoAlpha,
@@ -176,14 +230,7 @@ Q_GUI_EXPORT HBITMAP qt_pixmapToWinHBITMAP(const QPixmap &p, int hbitmapFormat =
 
     // Define the header
     BITMAPINFO bmi;
-    memset(&bmi, 0, sizeof(bmi));
-    bmi.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
-    bmi.bmiHeader.biWidth       = w;
-    bmi.bmiHeader.biHeight      = -h;
-    bmi.bmiHeader.biPlanes      = 1;
-    bmi.bmiHeader.biBitCount    = 32;
-    bmi.bmiHeader.biCompression = BI_RGB;
-    bmi.bmiHeader.biSizeImage   = w * h * 4;
+    initBitMapInfo(w, h, true, &bmi);
 
     // Create the pixmap
     uchar *pixels = 0;
@@ -227,31 +274,16 @@ Q_GUI_EXPORT QPixmap qt_pixmapFromWinHBITMAP(HBITMAP bitmap, int hbitmapFormat =
     const int w = bitmap_info.bmWidth;
     const int h = bitmap_info.bmHeight;
 
-    BITMAPINFO bmi;
-    memset(&bmi, 0, sizeof(bmi));
-    bmi.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
-    bmi.bmiHeader.biWidth       = w;
-    bmi.bmiHeader.biHeight      = -h;
-    bmi.bmiHeader.biPlanes      = 1;
-    bmi.bmiHeader.biBitCount    = 32;
-    bmi.bmiHeader.biCompression = BI_RGB;
-    bmi.bmiHeader.biSizeImage   = w * h * 4;
-
     // Get bitmap bits
-    QScopedArrayPointer<uchar> data(new uchar[bmi.bmiHeader.biSizeImage]);
     HDC display_dc = GetDC(0);
-    if (!GetDIBits(display_dc, bitmap, 0, h, data.data(), &bmi, DIB_RGB_COLORS)) {
+    QScopedArrayPointer<uchar> data(getDiBits(display_dc, bitmap, w, h, true));
+    if (data.isNull()) {
         ReleaseDC(0, display_dc);
-        qWarning("%s, failed to get bitmap bits", __FUNCTION__);
         return QPixmap();
     }
 
-    QImage::Format imageFormat = QImage::Format_ARGB32_Premultiplied;
-    uint mask = 0;
-    if (hbitmapFormat == HBitmapNoAlpha) {
-        imageFormat = QImage::Format_RGB32;
-        mask = 0xff000000;
-    }
+    const QImage::Format imageFormat = hbitmapFormat == HBitmapNoAlpha ?
+        QImage::Format_RGB32 : QImage::Format_ARGB32_Premultiplied;
 
     // Create image and copy data into image.
     QImage image(w, h, imageFormat);
@@ -260,18 +292,7 @@ Q_GUI_EXPORT QPixmap qt_pixmapFromWinHBITMAP(HBITMAP bitmap, int hbitmapFormat =
         qWarning("%s, failed create image of %dx%d", __FUNCTION__, w, h);
         return QPixmap();
     }
-    const int bytes_per_line = w * sizeof(QRgb);
-    for (int y = 0; y < h; ++y) {
-        QRgb *dest = (QRgb *) image.scanLine(y);
-        const QRgb *src = (const QRgb *) (data.data() + y * bytes_per_line);
-        for (int x = 0; x < w; ++x) {
-            const uint pixel = src[x];
-            if ((pixel & 0xff000000) == 0 && (pixel & 0x00ffffff) != 0)
-                dest[x] = pixel | 0xff000000;
-            else
-                dest[x] = pixel | mask;
-        }
-    }
+    copyImageDataCreateAlpha(data.data(), &image);
     ReleaseDC(0, display_dc);
     return QPixmap::fromImage(image);
 }
@@ -307,32 +328,25 @@ Q_GUI_EXPORT HICON qt_pixmapToWinHICON(const QPixmap &p)
 
 Q_GUI_EXPORT QImage qt_imageFromWinHBITMAP(HDC hdc, HBITMAP bitmap, int w, int h)
 {
-    BITMAPINFO bmi;
-    memset(&bmi, 0, sizeof(bmi));
-    bmi.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
-    bmi.bmiHeader.biWidth       = w;
-    bmi.bmiHeader.biHeight      = -h;
-    bmi.bmiHeader.biPlanes      = 1;
-    bmi.bmiHeader.biBitCount    = 32;
-    bmi.bmiHeader.biCompression = BI_RGB;
-    bmi.bmiHeader.biSizeImage   = w * h * 4;
-
     QImage image(w, h, QImage::Format_ARGB32_Premultiplied);
     if (image.isNull())
         return image;
-
-    // Get bitmap bits
-    QScopedArrayPointer<uchar> data(new uchar [bmi.bmiHeader.biSizeImage]);
-    if (!GetDIBits(hdc, bitmap, 0, h, data.data(), &bmi, DIB_RGB_COLORS)) {
-        qErrnoWarning("%s: failed to get bitmap bits", __FUNCTION__);
+    QScopedArrayPointer<uchar> data(getDiBits(hdc, bitmap, w, h, true));
+    if (data.isNull())
         return QImage();
-    }
-    // Create image and copy data into image.
-    for (int y = 0; y < h; ++y) {
-        void *dest = (void *) image.scanLine(y);
-        void *src = data.data() + y * image.bytesPerLine();
-        memcpy(dest, src, image.bytesPerLine());
-    }
+    copyImageDataCreateAlpha(data.data(), &image);
+    return image;
+}
+
+static QImage qt_imageFromWinIconHBITMAP(HDC hdc, HBITMAP bitmap, int w, int h)
+{
+    QImage image(w, h, QImage::Format_ARGB32_Premultiplied);
+    if (image.isNull())
+        return image;
+    QScopedArrayPointer<uchar> data(getDiBits(hdc, bitmap, w, h, true));
+    if (data.isNull())
+        return QImage();
+    copyImageData(data.data(), &image);
     return image;
 }
 
@@ -354,23 +368,13 @@ Q_GUI_EXPORT QPixmap qt_pixmapFromWinHICON(HICON icon)
     const int h = iconinfo.yHotspot * 2;
 
     BITMAPINFOHEADER bitmapInfo;
-    bitmapInfo.biSize        = sizeof(BITMAPINFOHEADER);
-    bitmapInfo.biWidth       = w;
-    bitmapInfo.biHeight      = h;
-    bitmapInfo.biPlanes      = 1;
-    bitmapInfo.biBitCount    = 32;
-    bitmapInfo.biCompression = BI_RGB;
-    bitmapInfo.biSizeImage   = 0;
-    bitmapInfo.biXPelsPerMeter = 0;
-    bitmapInfo.biYPelsPerMeter = 0;
-    bitmapInfo.biClrUsed       = 0;
-    bitmapInfo.biClrImportant  = 0;
+    initBitMapInfoHeader(w, h, false, &bitmapInfo);
     DWORD* bits;
 
     HBITMAP winBitmap = CreateDIBSection(hdc, (BITMAPINFO*)&bitmapInfo, DIB_RGB_COLORS, (VOID**)&bits, NULL, 0);
     HGDIOBJ oldhdc = (HBITMAP)SelectObject(hdc, winBitmap);
     DrawIconEx( hdc, 0, 0, icon, iconinfo.xHotspot * 2, iconinfo.yHotspot * 2, 0, 0, DI_NORMAL);
-    QImage image = qt_imageFromWinHBITMAP(hdc, winBitmap, w, h);
+    QImage image = qt_imageFromWinIconHBITMAP(hdc, winBitmap, w, h);
 
     for (int y = 0 ; y < h && !foundAlpha ; y++) {
         const QRgb *scanLine= reinterpret_cast<const QRgb *>(image.scanLine(y));
@@ -384,7 +388,7 @@ Q_GUI_EXPORT QPixmap qt_pixmapFromWinHICON(HICON icon)
     if (!foundAlpha) {
         //If no alpha was found, we use the mask to set alpha values
         DrawIconEx( hdc, 0, 0, icon, w, h, 0, 0, DI_MASK);
-        const QImage mask = qt_imageFromWinHBITMAP(hdc, winBitmap, w, h);
+        const QImage mask = qt_imageFromWinIconHBITMAP(hdc, winBitmap, w, h);
 
         for (int y = 0 ; y < h ; y++){
             QRgb *scanlineImage = reinterpret_cast<QRgb *>(image.scanLine(y));

@@ -1,40 +1,32 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Copyright (C) 2013 Olivier Goffart <ogoffart@woboq.com>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -63,6 +55,7 @@
 #include <qsharedpointer.h>
 
 #include <private/qorderedmutexlocker_p.h>
+#include <private/qhooks_p.h>
 
 #include <new>
 
@@ -138,6 +131,7 @@ static inline QMutex *signalSlotLock(const QObject *o)
         uint(quintptr(o)) % sizeof(_q_ObjectMutexPool)/sizeof(QBasicMutex)]);
 }
 
+// ### Qt >= 5.6, remove qt_add/removeObject
 extern "C" Q_CORE_EXPORT void qt_addObject(QObject *)
 {}
 
@@ -223,13 +217,17 @@ QObjectPrivate::QObjectPrivate(int version)
 QObjectPrivate::~QObjectPrivate()
 {
     if (extraData && !extraData->runningTimers.isEmpty()) {
-        // unregister pending timers
-        if (threadData->eventDispatcher.load())
-            threadData->eventDispatcher.load()->unregisterTimers(q_ptr);
+        if (Q_LIKELY(threadData->thread == QThread::currentThread())) {
+            // unregister pending timers
+            if (threadData->eventDispatcher.load())
+                threadData->eventDispatcher.load()->unregisterTimers(q_ptr);
 
-        // release the timer ids back to the pool
-        for (int i = 0; i < extraData->runningTimers.size(); ++i)
-            QAbstractEventDispatcherPrivate::releaseTimerId(extraData->runningTimers.at(i));
+            // release the timer ids back to the pool
+            for (int i = 0; i < extraData->runningTimers.size(); ++i)
+                QAbstractEventDispatcherPrivate::releaseTimerId(extraData->runningTimers.at(i));
+        } else {
+            qWarning("QObject::~QObject: Timers cannot be stopped from another thread");
+        }
     }
 
     if (postedEvents)
@@ -513,7 +511,7 @@ void QMetaCallEvent::placeMetaCall(QObject *object)
     \code
     const bool wasBlocked = someQObject->blockSignals(true);
     // no signals here
-    someQObject->blockSignals(false);
+    someQObject->blockSignals(wasBlocked);
     \endcode
 
     except the code using QSignalBlocker is safe in the face of
@@ -680,7 +678,7 @@ void QMetaCallEvent::placeMetaCall(QObject *object)
     will remain in the old thread when moveToThread() is called.
 
     \target No copy constructor
-    \section1 No copy constructor or assignment operator
+    \section1 No Copy Constructor or Assignment Operator
 
     QObject has neither a copy constructor nor an assignment operator.
     This is by design. Actually, they are declared, but in a
@@ -725,7 +723,7 @@ void QMetaCallEvent::placeMetaCall(QObject *object)
     and both standard Qt widgets and user-created forms can be given dynamic
     properties.
 
-    \section1 Internationalization (i18n)
+    \section1 Internationalization (I18n)
 
     All QObject subclasses support Qt's translation features, making it possible
     to translate an application's user interface into different languages.
@@ -820,6 +818,8 @@ QObject::QObject(QObject *parent)
         }
     }
     qt_addObject(this);
+    if (Q_UNLIKELY(qtHookData[QHooks::AddQObject]))
+        reinterpret_cast<QHooks::AddQObjectCallback>(qtHookData[QHooks::AddQObject])(this);
 }
 
 /*!
@@ -851,6 +851,8 @@ QObject::QObject(QObjectPrivate &dd, QObject *parent)
         }
     }
     qt_addObject(this);
+    if (Q_UNLIKELY(qtHookData[QHooks::AddQObject]))
+        reinterpret_cast<QHooks::AddQObjectCallback>(qtHookData[QHooks::AddQObject])(this);
 }
 
 /*!
@@ -1028,6 +1030,8 @@ QObject::~QObject()
         d->deleteChildren();
 
     qt_removeObject(this);
+    if (Q_UNLIKELY(qtHookData[QHooks::RemoveQObject]))
+        reinterpret_cast<QHooks::RemoveQObjectCallback>(qtHookData[QHooks::RemoveQObject])(this);
 
     if (d->parent)        // remove it from parent object
         d->setParent_helper(0);
@@ -1461,14 +1465,14 @@ void QObject::moveToThread(QThread *targetThread)
     }
 
     QThreadData *currentData = QThreadData::current();
-    QThreadData *targetData = targetThread ? QThreadData::get2(targetThread) : new QThreadData(0);
+    QThreadData *targetData = targetThread ? QThreadData::get2(targetThread) : Q_NULLPTR;
     if (d->threadData->thread == 0 && currentData == targetData) {
         // one exception to the rule: we allow moving objects with no thread affinity to the current thread
         currentData = d->threadData;
     } else if (d->threadData != currentData) {
         qWarning("QObject::moveToThread: Current thread (%p) is not the object's thread (%p).\n"
                  "Cannot move to target thread (%p)\n",
-                 currentData->thread, d->threadData->thread, targetData->thread);
+                 currentData->thread, d->threadData->thread, targetData ? targetData->thread : Q_NULLPTR);
 
 #ifdef Q_OS_MAC
         qWarning("On Mac OS X, you might be loading two sets of Qt binaries into the same process. "
@@ -1481,6 +1485,9 @@ void QObject::moveToThread(QThread *targetThread)
 
     // prepare to move
     d->moveToThread_helper();
+
+    if (!targetData)
+        targetData = new QThreadData(0);
 
     QOrderedMutexLocker locker(&currentData->postEventList.mutex,
                                &targetData->postEventList.mutex);
@@ -1604,13 +1611,16 @@ int QObject::startTimer(int interval, Qt::TimerType timerType)
 {
     Q_D(QObject);
 
-    if (interval < 0) {
+    if (Q_UNLIKELY(interval < 0)) {
         qWarning("QObject::startTimer: Timers cannot have negative intervals");
         return 0;
     }
-
-    if (!d->threadData->eventDispatcher.load()) {
+    if (Q_UNLIKELY(!d->threadData->eventDispatcher.load())) {
         qWarning("QObject::startTimer: Timers can only be used with threads started with QThread");
+        return 0;
+    }
+    if (Q_UNLIKELY(thread() != QThread::currentThread())) {
+        qWarning("QObject::startTimer: Timers cannot be started from another thread");
         return 0;
     }
     int timerId = d->threadData->eventDispatcher.load()->registerTimer(interval, timerType, this);
@@ -1632,13 +1642,18 @@ int QObject::startTimer(int interval, Qt::TimerType timerType)
 void QObject::killTimer(int id)
 {
     Q_D(QObject);
+    if (Q_UNLIKELY(thread() != QThread::currentThread())) {
+        qWarning("QObject::killTimer: Timers cannot be stopped from another thread");
+        return;
+    }
     if (id) {
         int at = d->extraData ? d->extraData->runningTimers.indexOf(id) : -1;
         if (at == -1) {
             // timer isn't owned by this object
-            qWarning("QObject::killTimer(): Error: timer id %d is not valid for object %p (%s), timer has not been killed",
+            qWarning("QObject::killTimer(): Error: timer id %d is not valid for object %p (%s, %s), timer has not been killed",
                      id,
                      this,
+                     metaObject()->className(),
                      qPrintable(objectName()));
             return;
         }
@@ -2726,9 +2741,9 @@ QMetaObject::Connection QObject::connect(const QObject *sender, const char *sign
     You can check if the QMetaObject::Connection is valid by casting it to a bool.
 
     This function works in the same way as
-    connect(const QObject *sender, const char *signal,
+    \c {connect(const QObject *sender, const char *signal,
             const QObject *receiver, const char *method,
-            Qt::ConnectionType type)
+            Qt::ConnectionType type)}
     but it uses QMetaMethod to specify signal and method.
 
     \sa connect(const QObject *sender, const char *signal, const QObject *receiver, const char *method, Qt::ConnectionType type)
@@ -2981,7 +2996,7 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
     otherwise returns \c false.
 
     This function provides the same possibilities like
-    disconnect(const QObject *sender, const char *signal, const QObject *receiver, const char *method)
+    \c {disconnect(const QObject *sender, const char *signal, const QObject *receiver, const char *method) }
     but uses QMetaMethod to represent the signal and the method to be disconnected.
 
     Additionally this function returnsfalse and no signals and slots disconnected
@@ -3230,7 +3245,7 @@ QObjectPrivate::Connection *QMetaObjectPrivate::connect(const QObject *sender,
             int method_index_absolute = method_index + method_offset;
 
             while (c2) {
-                if (c2->receiver == receiver && c2->method() == method_index_absolute)
+                if (!c2->isSlotObject && c2->receiver == receiver && c2->method() == method_index_absolute)
                     return 0;
                 c2 = c2->nextConnectionList;
             }
@@ -3301,7 +3316,7 @@ bool QMetaObjectPrivate::disconnectHelper(QObjectPrivate::Connection *c,
     while (c) {
         if (c->receiver
             && (receiver == 0 || (c->receiver == receiver
-                           && (method_index < 0 || c->method() == method_index)
+                           && (method_index < 0 || (!c->isSlotObject && c->method() == method_index))
                            && (slot == 0 || (c->isSlotObject && c->slotObj->compare(slot)))))) {
             bool needToUnlock = false;
             QMutex *receiverMutex = 0;
@@ -3504,7 +3519,8 @@ void QMetaObject::connectSlotsByName(QObject *o)
 
     \a signal must be in the signal index range (see QObjectPrivate::signalIndex()).
 */
-static void queued_activate(QObject *sender, int signal, QObjectPrivate::Connection *c, void **argv)
+static void queued_activate(QObject *sender, int signal, QObjectPrivate::Connection *c, void **argv,
+                            QMutexLocker &locker)
 {
     const int *argumentTypes = c->argumentTypes.load();
     if (!argumentTypes && argumentTypes != &DIRECT_CONNECTION_ONLY) {
@@ -3529,8 +3545,28 @@ static void queued_activate(QObject *sender, int signal, QObjectPrivate::Connect
     Q_CHECK_PTR(args);
     types[0] = 0; // return type
     args[0] = 0; // return value
-    for (int n = 1; n < nargs; ++n)
-        args[n] = QMetaType::create((types[n] = argumentTypes[n-1]), argv[n]);
+
+    if (nargs > 1) {
+        for (int n = 1; n < nargs; ++n)
+            types[n] = argumentTypes[n-1];
+
+        locker.unlock();
+        for (int n = 1; n < nargs; ++n)
+            args[n] = QMetaType::create(types[n], argv[n]);
+        locker.relock();
+
+        if (!c->receiver) {
+            locker.unlock();
+            // we have been disconnected while the mutex was unlocked
+            for (int n = 1; n < nargs; ++n)
+                QMetaType::destroy(types[n], args[n]);
+            free(types);
+            free(args);
+            locker.relock();
+            return;
+        }
+    }
+
     QMetaCallEvent *ev = c->isSlotObject ?
         new QMetaCallEvent(c->slotObj, sender, signal, nargs, types, args) :
         new QMetaCallEvent(c->method_offset, c->method_relative, c->callFunction, sender, signal, nargs, types, args);
@@ -3630,7 +3666,7 @@ void QMetaObject::activate(QObject *sender, int signalOffset, int local_signal_i
             // put into the event queue
             if ((c->connectionType == Qt::AutoConnection && !receiverInSameThread)
                 || (c->connectionType == Qt::QueuedConnection)) {
-                queued_activate(sender, signal_index, c, argv ? argv : empty_argv);
+                queued_activate(sender, signal_index, c, argv ? argv : empty_argv, locker);
                 continue;
 #ifndef QT_NO_THREAD
             } else if (c->connectionType == Qt::BlockingQueuedConnection) {
@@ -3970,6 +4006,11 @@ void QObject::dumpObjectInfo()
                     c = c->nextConnectionList;
                     continue;
                 }
+                if (c->isSlotObject) {
+                    qDebug("          <functor or function pointer>");
+                    c = c->nextConnectionList;
+                    continue;
+                }
                 const QMetaObject *receiverMetaObject = c->receiver->metaObject();
                 const QMetaMethod method = receiverMetaObject->method(c->method());
                 qDebug("          --> %s::%s %s",
@@ -3988,11 +4029,15 @@ void QObject::dumpObjectInfo()
 
     if (d->senders) {
         for (QObjectPrivate::Connection *s = d->senders; s; s = s->next) {
-            const QMetaMethod slot = metaObject()->method(s->method());
-            qDebug("          <-- %s::%s  %s",
+            QByteArray slotName = QByteArrayLiteral("<unknown>");
+            if (!s->isSlotObject) {
+                const QMetaMethod slot = metaObject()->method(s->method());
+                slotName = slot.methodSignature();
+            }
+            qDebug("          <-- %s::%s %s",
                    s->sender->metaObject()->className(),
                    s->sender->objectName().isEmpty() ? "unnamed" : qPrintable(s->sender->objectName()),
-                   slot.methodSignature().constData());
+                   slotName.constData());
         }
     } else {
         qDebug("        <None>");
@@ -4065,7 +4110,7 @@ QDebug operator<<(QDebug dbg, const QObject *o) {
 
     This macro associates extra information to the class, which is available
     using QObject::metaObject(). Qt makes only limited use of this feature, in
-    the \l{Active Qt}, \l{Qt D-Bus} and \l{Qt QML} modules.
+    the \l{Active Qt}, \l{Qt D-Bus} and \l{Qt QML module}{Qt QML}.
 
     The extra information takes the form of a \a Name string and a \a Value
     literal string.
@@ -4077,7 +4122,7 @@ QDebug operator<<(QDebug dbg, const QObject *o) {
     \sa QMetaObject::classInfo()
     \sa QAxFactory
     \sa {Using Qt D-Bus Adaptors}
-    \sa {Extending QML - Default Property Example}
+    \sa {Extending QML}
 */
 
 /*!
@@ -4436,6 +4481,8 @@ void qDeleteInEventHandler(QObject *o)
     \snippet code/src_corelib_kernel_qobject.cpp 46
 
     The connection will automatically disconnect if the sender is destroyed.
+    However, you should take care that any objects used within the functor
+    are still alive when the signal is emitted.
 
     \note If the compiler does not support C++11 variadic templates, the number
     of arguments in the signal or slot are limited to 6, and the functor object
@@ -4473,6 +4520,8 @@ void qDeleteInEventHandler(QObject *o)
 
     The connection will automatically disconnect if the sender or the context
     is destroyed.
+    However, you should take care that any objects used within the functor
+    are still alive when the signal is emitted.
 
     \note If the compiler does not support C++11 variadic templates, the number
     of arguments in the signal or slot are limited to 6, and the functor object
@@ -4707,10 +4756,14 @@ bool QObject::disconnectImpl(const QObject *sender, void **signal, const QObject
     int signal_index = -1;
     if (signal) {
         void *args[] = { &signal_index, signal };
-        senderMetaObject->static_metacall(QMetaObject::IndexOfMethod, 0, args);
-        if (signal_index < 0 || signal_index >= QMetaObjectPrivate::get(senderMetaObject)->signalCount) {
-            qWarning("QObject::disconnect: signal not found in %s", senderMetaObject->className());
-            return false;
+        for (; senderMetaObject && signal_index < 0; senderMetaObject = senderMetaObject->superClass()) {
+            senderMetaObject->static_metacall(QMetaObject::IndexOfMethod, 0, args);
+            if (signal_index >= 0 && signal_index < QMetaObjectPrivate::get(senderMetaObject)->signalCount)
+                break;
+        }
+        if (!senderMetaObject) {
+            qWarning("QObject::disconnect: signal not found in %s", sender->metaObject()->className());
+            return QMetaObject::Connection(0);
         }
         signal_index += QMetaObjectPrivate::signalOffset(senderMetaObject);
     }

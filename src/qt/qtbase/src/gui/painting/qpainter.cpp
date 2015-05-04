@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -147,8 +139,9 @@ static inline uint line_emulation(uint emulation)
 }
 
 #ifndef QT_NO_DEBUG
-static bool qt_painter_thread_test(int devType, const char *what)
+static bool qt_painter_thread_test(int devType, int engineType, const char *what)
 {
+    const QPlatformIntegration *platformIntegration = QGuiApplicationPrivate::platformIntegration();
     switch (devType) {
     case QInternal::Image:
     case QInternal::Printer:
@@ -157,8 +150,13 @@ static bool qt_painter_thread_test(int devType, const char *what)
         break;
     default:
         if (QThread::currentThread() != qApp->thread()
-                && (devType!=QInternal::Pixmap || !QGuiApplicationPrivate::platformIntegration()->hasCapability(QPlatformIntegration::ThreadedPixmaps))
-                && (devType!=QInternal::OpenGL || !QGuiApplicationPrivate::platformIntegration()->hasCapability(QPlatformIntegration::ThreadedOpenGL))) {
+                // pixmaps cannot be targets unless threaded pixmaps are supported
+                && (devType != QInternal::Pixmap || !platformIntegration->hasCapability(QPlatformIntegration::ThreadedPixmaps))
+                // framebuffer objects and such cannot be targets unless threaded GL is supported
+                && (devType != QInternal::OpenGL || !platformIntegration->hasCapability(QPlatformIntegration::ThreadedOpenGL))
+                // widgets cannot be targets except for QGLWidget
+                && (devType != QInternal::Widget || !platformIntegration->hasCapability(QPlatformIntegration::ThreadedOpenGL)
+                    || (engineType != QPaintEngine::OpenGL && engineType != QPaintEngine::OpenGL2))) {
             qWarning("QPainter: It is not safe to use %s outside the GUI thread", what);
             return false;
         }
@@ -223,16 +221,11 @@ QTransform QPainterPrivate::viewTransform() const
 
 int QPainterPrivate::effectiveDevicePixelRatio() const
 {
-    // Limited feature introduction for Qt 5.0.0, remove ifdef in a later release.
-#ifdef Q_OS_MAC
     // Special cases for devices that does not support PdmDevicePixelRatio go here:
     if (device->devType() == QInternal::Printer)
         return 1;
 
     return qMax(1, device->metric(QPaintDevice::PdmDevicePixelRatio));
-#else
-    return 1;
-#endif
 }
 
 QTransform QPainterPrivate::hidpiScaleTransform() const
@@ -1105,6 +1098,11 @@ void QPainterPrivate::updateState(QPainterState *newState)
     \li \inlineimage qpainter-pathstroking.png
     \endtable
 
+    Text drawing is done using drawText(). When you need
+    fine-grained positioning, boundingRect() tells you where a given
+    drawText() command will draw.
+
+    \section1 Drawing Pixmaps and Images
 
     There are functions to draw pixmaps/images, namely drawPixmap(),
     drawImage() and drawTiledPixmap(). Both drawPixmap() and drawImage()
@@ -1112,14 +1110,24 @@ void QPainterPrivate::updateState(QPainterState *newState)
     on-screen while drawImage() may be faster on a QPrinter or other
     devices.
 
-    Text drawing is done using drawText(). When you need
-    fine-grained positioning, boundingRect() tells you where a given
-    drawText() command will draw.
-
     There is a drawPicture() function that draws the contents of an
     entire QPicture. The drawPicture() function is the only function
     that disregards all the painter's settings as QPicture has its own
     settings.
+
+    \section2 Drawing High Resolution Versions of Pixmaps and Images
+
+    High resolution versions of pixmaps have a \e{device pixel ratio} value larger
+    than 1 (see QImageReader, QPixmap::devicePixelRatio()). Should it match the value
+    of the underlying QPaintDevice, it is drawn directly onto the device with no
+    additional transformation applied.
+
+    This is for example the case when drawing a QPixmap of 64x64 pixels size with
+    a device pixel ratio of 2 onto a high DPI screen which also has
+    a device pixel ratio of 2. Note that the pixmap is then effectively 32x32
+    pixels in \e{user space}. Code paths in Qt that calculate layout geometry
+    based on the pixmap size will use this size. The net effect of this is that
+    the pixmap is displayed as high DPI pixmap rather than a large pixmap.
 
     \section1 Rendering Quality
 
@@ -1342,14 +1350,7 @@ void QPainterPrivate::updateState(QPainterState *newState)
     and embedded devices supporting the OpenGL 2.0 or OpenGL/ES 2.0
     specification. This includes most graphics chips produced in the
     last couple of years. The engine can be enabled by using QPainter
-    onto a QOpenGLWidget or by passing \c {-graphicssystem opengl} on the
-    command line when the underlying system supports it.
-
-    \li OpenVG - This backend implements the Khronos standard for 2D
-    and Vector Graphics. It is primarily for embedded devices with
-    hardware support for OpenVG.  The engine can be enabled by
-    passing \c {-graphicssystem openvg} on the command line when
-    the underlying system supports it.
+    onto a QOpenGLWidget.
 
     \endlist
 
@@ -2599,8 +2600,7 @@ QRegion QPainter::clipRegion() const
 extern QPainterPath qt_regionToPath(const QRegion &region);
 
 /*!
-    Returns the currently clip as a path. Note that the clip path is
-    given in logical coordinates.
+    Returns the current clip path in logical coordinates.
 
     \warning QPainter does not store the combined clip explicitly as
     this is handled by the underlying QPaintEngine, so the path is
@@ -5023,6 +5023,8 @@ static inline QPointF roundInDeviceCoordinates(const QPointF &p, const QTransfor
     into the given \a target in the paint device.
 
     \note The pixmap is scaled to fit the rectangle, if both the pixmap and rectangle size disagree.
+    \note See \l{Drawing High Resolution Versions of Pixmaps and Images} on how this is affected
+    by QPixmap::devicePixelRatio().
 
     \table 100%
     \row
@@ -5037,7 +5039,7 @@ static inline QPointF roundInDeviceCoordinates(const QPointF &p, const QTransfor
     transparent. Drawing bitmaps with gradient or texture colors is
     not supported.
 
-    \sa drawImage()
+    \sa drawImage(), QPixmap::devicePixelRatio()
 */
 void QPainter::drawPixmap(const QPointF &p, const QPixmap &pm)
 {
@@ -5054,7 +5056,7 @@ void QPainter::drawPixmap(const QPointF &p, const QPixmap &pm)
         return;
 
 #ifndef QT_NO_DEBUG
-    qt_painter_thread_test(d->device->devType(), "drawPixmap()");
+    qt_painter_thread_test(d->device->devType(), d->engine->type(), "drawPixmap()");
 #endif
 
     if (d->extended) {
@@ -5125,7 +5127,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
     if (!d->engine || pm.isNull())
         return;
 #ifndef QT_NO_DEBUG
-    qt_painter_thread_test(d->device->devType(), "drawPixmap()");
+    qt_painter_thread_test(d->device->devType(), d->engine->type(), "drawPixmap()");
 #endif
 
     qreal x = r.x();
@@ -5601,6 +5603,8 @@ void QPainterPrivate::drawGlyphs(const quint32 *glyphArray, QFixedPoint *positio
         staticTextItem.numGlyphs = glyphCount;
         staticTextItem.glyphs = reinterpret_cast<glyph_t *>(const_cast<glyph_t *>(glyphArray));
         staticTextItem.glyphPositions = positions;
+        // The font property is meaningless, the fontengine must be used directly:
+        staticTextItem.usesRawFont = true;
 
         extended->drawStaticTextItem(&staticTextItem);
     } else {
@@ -6358,7 +6362,7 @@ void QPainterPrivate::drawTextItem(const QPointF &p, const QTextItem &_ti, QText
         return;
 
     const QPainter::RenderHints oldRenderHints = state->renderHints;
-    if (!state->renderHints & QPainter::Antialiasing && state->matrix.type() >= QTransform::TxScale) {
+    if (!(state->renderHints & QPainter::Antialiasing) && state->matrix.type() >= QTransform::TxScale) {
         // draw antialias decoration (underline/overline/strikeout) with
         // transformed text
 
@@ -6416,6 +6420,7 @@ void QPainterPrivate::drawTextItem(const QPointF &p, const QTextItem &_ti, QText
                 continue;
 
 
+            multi->ensureEngineAt(which);
             QTextItemInt ti2 = ti.midItem(multi->engine(which), start, end - start);
             ti2.width = 0;
             // set the high byte to zero and calc the width
@@ -6427,7 +6432,10 @@ void QPainterPrivate::drawTextItem(const QPointF &p, const QTextItem &_ti, QText
             if (rtl)
                 x -= ti2.width.toReal();
 
-            engine->drawTextItem(QPointF(x, y), ti2);
+            if (extended)
+                extended->drawTextItem(QPointF(x, y), ti2);
+            else
+                engine->drawTextItem(QPointF(x, y), ti2);
 
             if (!rtl)
                 x += ti2.width.toReal();
@@ -6443,6 +6451,7 @@ void QPainterPrivate::drawTextItem(const QPointF &p, const QTextItem &_ti, QText
             which = e;
         }
 
+        multi->ensureEngineAt(which);
         QTextItemInt ti2 = ti.midItem(multi->engine(which), start, end - start);
         ti2.width = 0;
         // set the high byte to zero and calc the width
@@ -6610,7 +6619,7 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
         return;
 
 #ifndef QT_NO_DEBUG
-    qt_painter_thread_test(d->device->devType(), "drawTiledPixmap()");
+    qt_painter_thread_test(d->device->devType(), d->engine->type(), "drawTiledPixmap()");
 #endif
 
     qreal sw = pixmap.width();
@@ -7398,8 +7407,6 @@ void qt_format_text(const QFont &fnt, const QRectF &_r,
         tf |= Qt::TextDontPrint;
 
     uint maxUnderlines = 0;
-    int numUnderlines = 0;
-    QVarLengthArray<int, 32> underlinePositions(1);
 
     QFontMetricsF fm(fnt);
     QString text = str;
@@ -7430,11 +7437,11 @@ start_lengthVariant:
         }
     }
 
+    QList<QTextLayout::FormatRange> underlineFormats;
     int length = offset - old_offset;
     if ((hidemnmemonic || showmnemonic) && maxUnderlines > 0) {
-        underlinePositions.resize(maxUnderlines + 1);
-
         QChar *cout = text.data() + old_offset;
+        QChar *cout0 = cout;
         QChar *cin = cout;
         int l = length;
         while (l) {
@@ -7444,8 +7451,24 @@ start_lengthVariant:
                 --l;
                 if (!l)
                     break;
-                if (*cin != QLatin1Char('&') && !hidemnmemonic)
-                    underlinePositions[numUnderlines++] = cout - text.data() - old_offset;
+                if (*cin != QLatin1Char('&') && !hidemnmemonic && !(tf & Qt::TextDontPrint)) {
+                    QTextLayout::FormatRange range;
+                    range.start = cout - cout0;
+                    range.length = 1;
+                    range.format.setFontUnderline(true);
+                    underlineFormats.append(range);
+                }
+            } else if (hidemnmemonic && *cin == QLatin1Char('(') && l >= 4 &&
+                       cin[1] == QLatin1Char('&') && cin[2] != QLatin1Char('&') &&
+                       cin[3] == QLatin1Char(')')) {
+                int n = 0;
+                while ((cout - n) > cout0 && (cout - n - 1)->isSpace())
+                    ++n;
+                cout -= n;
+                cin += 4;
+                length -= n + 4;
+                l -= 4;
+                continue;
             }
             *cout = *cin;
             ++cout;
@@ -7454,11 +7477,6 @@ start_lengthVariant:
         }
     }
 
-    // no need to do extra work for underlines if we don't paint
-    if (tf & Qt::TextDontPrint)
-        numUnderlines = 0;
-
-    underlinePositions[numUnderlines] = -1;
     qreal height = 0;
     qreal width = 0;
 
@@ -7491,7 +7509,7 @@ start_lengthVariant:
         engine.forceJustification = true;
     QTextLayout textLayout(&engine);
     textLayout.setCacheEnabled(true);
-    textLayout.engine()->underlinePositions = underlinePositions.data();
+    textLayout.setAdditionalFormats(underlineFormats);
 
     if (finalText.isEmpty()) {
         height = fm.height();
@@ -7679,6 +7697,8 @@ void QPainterState::init(QPainter *p) {
     into the \a target rectangle in the paint device.
 
     \note The image is scaled to fit the rectangle, if both the image and rectangle size disagree.
+    \note See \l{Drawing High Resolution Versions of Pixmaps and Images} on how this is affected
+    by QImage::devicePixelRatio().
 
     If the image needs to be modified to fit in a lower-resolution
     result (e.g. converting from 32-bit to 8-bit), use the \a flags to
@@ -7690,7 +7710,7 @@ void QPainterState::init(QPainter *p) {
     \snippet code/src_gui_painting_qpainter.cpp 20
     \endtable
 
-    \sa drawPixmap()
+    \sa drawPixmap(), QImage::devicePixelRatio()
 */
 
 /*!

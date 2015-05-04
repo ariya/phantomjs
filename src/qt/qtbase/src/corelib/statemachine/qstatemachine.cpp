@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -161,6 +153,13 @@ QT_BEGIN_NAMESPACE
 
     The default value of this property is
     QState::DontRestoreProperties.
+*/
+
+/*!
+    \property QStateMachine::running
+    \since 5.4
+
+    \brief the running state of this state machine
 */
 
 #ifndef QT_NO_ANIMATION
@@ -519,10 +518,6 @@ QList<QAbstractState*> QStateMachinePrivate::computeStatesToEnter(const QList<QA
                 QAbstractState *s = lst.at(j);
                 addStatesToEnter(s, lca, statesToEnter, statesForDefaultEntry);
             }
-            for (int j = src ? 1 : 0; j < lst.size(); ++j) {
-                QAbstractState *s = lst.at(j);
-                addAncestorStatesToEnter(s, lca, statesToEnter, statesForDefaultEntry);
-            }
             if (isParallel(lca)) {
                 QList<QAbstractState*> lcac = QStatePrivate::get(lca)->childStates();
                 foreach (QAbstractState* child,lcac) {
@@ -720,6 +715,7 @@ void QStateMachinePrivate::addStatesToEnter(QAbstractState *s, QState *root,
                 return;
             }
         }
+        addAncestorStatesToEnter(s, root, statesToEnter, statesForDefaultEntry);
     }
 }
 
@@ -1088,7 +1084,6 @@ void QStateMachinePrivate::setError(QStateMachine::Error errorCode, QAbstractSta
     if (currentErrorState != 0) {
         QState *lca = findLCA(QList<QAbstractState*>() << currentErrorState << currentContext);
         addStatesToEnter(currentErrorState, lca, pendingErrorStates, pendingErrorStatesForDefaultEntry);
-        addAncestorStatesToEnter(currentErrorState, lca, pendingErrorStates, pendingErrorStatesForDefaultEntry);
     } else {
         qWarning("Unrecoverable error detected in running state machine: %s",
                  qPrintable(errorString));
@@ -1362,6 +1357,11 @@ void QStateMachinePrivate::_q_start()
 {
     Q_Q(QStateMachine);
     Q_ASSERT(state == Starting);
+    foreach (QAbstractState *state, configuration) {
+        QAbstractStatePrivate *abstractStatePrivate = QAbstractStatePrivate::get(state);
+        abstractStatePrivate->active = false;
+        emit state->activeChanged(false);
+    }
     configuration.clear();
     qDeleteAll(internalEventQueue);
     internalEventQueue.clear();
@@ -1409,6 +1409,7 @@ void QStateMachinePrivate::_q_start()
 #endif
 
     emit q->started(QStateMachine::QPrivateSignal());
+    emit q->runningChanged(true);
 
     if (stopProcessingReason == Finished) {
         // The state machine immediately reached a final state.
@@ -1416,6 +1417,7 @@ void QStateMachinePrivate::_q_start()
         state = NotRunning;
         unregisterAllTransitions();
         emitFinished();
+        emit q->runningChanged(false);
     } else {
         _q_process();
     }
@@ -1498,12 +1500,14 @@ void QStateMachinePrivate::_q_process()
         cancelAllDelayedEvents();
         unregisterAllTransitions();
         emitFinished();
+        emit q->runningChanged(false);
         break;
     case Stopped:
         state = NotRunning;
         cancelAllDelayedEvents();
         unregisterAllTransitions();
         emit q->stopped(QStateMachine::QPrivateSignal());
+        emit q->runningChanged(false);
         break;
     }
 }
@@ -2117,7 +2121,7 @@ bool QStateMachine::isRunning() const
   the main application event loop started with QCoreApplication::exec() or
   QApplication::exec().
 
-  \sa started(), finished(), stop(), initialState()
+  \sa started(), finished(), stop(), initialState(), setRunning()
 */
 void QStateMachine::start()
 {
@@ -2145,7 +2149,7 @@ void QStateMachine::start()
   Stops this state machine. The state machine will stop processing events and
   then emit the stopped() signal.
 
-  \sa stopped(), start()
+  \sa stopped(), start(), setRunning()
 */
 void QStateMachine::stop()
 {
@@ -2162,6 +2166,19 @@ void QStateMachine::stop()
         d->processEvents(QStateMachinePrivate::QueuedProcessing);
         break;
     }
+}
+
+/*!
+    Convenience functions to start/stop this state machine.
+
+    \sa start(), stop(), started(), finished(), stopped()
+*/
+void QStateMachine::setRunning(bool running)
+{
+    if (running)
+        start();
+    else
+        stop();
 }
 
 /*!
@@ -2710,6 +2727,15 @@ QStateMachine::WrappedEvent::~WrappedEvent()
   \fn QStateMachine::WrappedEvent::event() const
 
   Returns a clone of the original event.
+*/
+
+/*!
+  \fn QStateMachine::runningChanged(bool running)
+  \since 5.4
+
+  This signal is emitted when the running property is changed.
+
+  \sa QStateMachine::running
 */
 
 QT_END_NAMESPACE

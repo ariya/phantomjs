@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -74,17 +66,32 @@
     that occurred, or errorString() to get a human readable
     description of what went wrong.
 
+    \section1 Formats
+
     Call supportedImageFormats() for a list of formats that
     QImageReader can read. QImageReader supports all built-in image
     formats, in addition to any image format plugins that support
-    reading.
+    reading. Call supportedMimeTypes() to obtain a list of supported MIME
+    types, which for example can be passed to QFileDialog::setMimeTypeFilters().
 
     QImageReader autodetects the image format by default, by looking at the
     provided (optional) format string, the file name suffix, and the data
     stream contents. You can enable or disable this feature, by calling
     setAutoDetectImageFormat().
 
-    \sa QImageWriter, QImageIOHandler, QImageIOPlugin
+    \section1 High Resolution Versions of Images
+
+    It is possible to provide high resolution versions of images should a scaling
+    between \e{device pixels} and \e{device independent pixels} be in effect.
+
+    The high resolution version is marked by the suffix \c @2x on the base name.
+    The image read will have its \e{device pixel ratio} set to a value of 2.
+
+    This can be disabled by setting the environment variable
+    \c QT_HIGHDPI_DISABLE_2X_IMAGE_LOADING.
+
+    \sa QImageWriter, QImageIOHandler, QImageIOPlugin, QMimeDatabase
+    \sa QImage::devicePixelRatio(), QPixmap::devicePixelRatio(), QIcon, QPainter::drawPixmap(), QPainter::drawImage(), Qt::AA_UseHighDpiPixmaps
 */
 
 /*!
@@ -125,7 +132,6 @@
 #include <qimageiohandler.h>
 #include <qlist.h>
 #include <qrect.h>
-#include <qset.h>
 #include <qsize.h>
 #include <qcolor.h>
 #include <qvariant.h>
@@ -568,7 +574,7 @@ bool QImageReaderPrivate::initHandler()
     // check some preconditions
     if (!device || (!deleteDevice && !device->isOpen() && !device->open(QIODevice::ReadOnly))) {
         imageReaderError = QImageReader::DeviceError;
-        errorString = QLatin1String(QT_TRANSLATE_NOOP(QImageReader, "Invalid device"));
+        errorString = QImageReader::tr("Invalid device");
         return false;
     }
 
@@ -595,7 +601,7 @@ bool QImageReaderPrivate::initHandler()
 
         if (!device->isOpen()) {
             imageReaderError = QImageReader::FileNotFoundError;
-            errorString = QLatin1String(QT_TRANSLATE_NOOP(QImageReader, "File not found"));
+            errorString = QImageReader::tr("File not found");
             file->setFileName(fileName); // restore the old file name
             return false;
         }
@@ -604,7 +610,7 @@ bool QImageReaderPrivate::initHandler()
     // assign a handler
     if (!handler && (handler = createReadHandlerHelper(device, format, autoDetectImageFormat, ignoresFormatAndExtension)) == 0) {
         imageReaderError = QImageReader::UnsupportedFormatError;
-        errorString = QLatin1String(QT_TRANSLATE_NOOP(QImageReader, "Unsupported image format"));
+        errorString = QImageReader::tr("Unsupported image format");
         return false;
     }
     return true;
@@ -871,15 +877,22 @@ QString QImageReader::fileName() const
 /*!
     \since 4.2
 
-    This is an image format specific function that sets the quality
-    level of the image to \a quality. For image formats that do not
-    support setting the quality, this value is ignored.
+    Sets the quality setting of the image format to \a quality.
 
-    The value range of \a quality depends on the image format. For
-    example, the "jpeg" format supports a quality range from 0 (low
-    quality, high compression) to 100 (high quality, low compression).
+    Some image formats, in particular lossy ones, entail a tradeoff between a)
+    visual quality of the resulting image, and b) decoding execution time.
+    This function sets the level of that tradeoff for image formats that
+    support it.
 
-    \sa quality()
+    In case of scaled image reading, the quality setting may also influence the
+    tradeoff level between visual quality and execution speed of the scaling
+    algorithm.
+
+    The value range of \a quality depends on the image format. For example,
+    the "jpeg" format supports a quality range from 0 (low visual quality) to
+    100 (high visual quality).
+
+    \sa quality() setScaledSize()
 */
 void QImageReader::setQuality(int quality)
 {
@@ -889,7 +902,7 @@ void QImageReader::setQuality(int quality)
 /*!
     \since 4.2
 
-    Returns the quality level of the image.
+    Returns the quality setting of the image format.
 
     \sa setQuality()
 */
@@ -1101,6 +1114,36 @@ bool QImageReader::supportsAnimation() const
 }
 
 /*!
+    \since 5.4
+
+    Returns the subtype of the image.
+*/
+QByteArray QImageReader::subType() const
+{
+    if (!d->initHandler())
+        return QByteArray();
+
+    if (d->handler->supportsOption(QImageIOHandler::SubType))
+        return d->handler->option(QImageIOHandler::SubType).toByteArray();
+    return QByteArray();
+}
+
+/*!
+    \since 5.4
+
+    Returns the list of subtypes supported by an image.
+*/
+QList<QByteArray> QImageReader::supportedSubTypes() const
+{
+    if (!d->initHandler())
+        return QList<QByteArray>();
+
+    if (!d->handler->supportsOption(QImageIOHandler::SupportedSubTypes))
+        return d->handler->option(QImageIOHandler::SupportedSubTypes).value< QList<QByteArray> >();
+    return QList<QByteArray>();
+}
+
+/*!
     Returns \c true if an image can be read for the device (i.e., the
     image format is supported, and the device seems to contain valid
     data); otherwise returns \c false.
@@ -1191,7 +1234,7 @@ bool QImageReader::read(QImage *image)
     // read the image
     if (!d->handler->read(image)) {
         d->imageReaderError = InvalidDataError;
-        d->errorString = QLatin1String(QT_TRANSLATE_NOOP(QImageReader, "Unable to read image data"));
+        d->errorString = QImageReader::tr("Unable to read image data");
         return false;
     }
 
@@ -1247,8 +1290,9 @@ bool QImageReader::read(QImage *image)
     }
 
     // successful read; check for "@2x" file name suffix and set device pixel ratio.
-    if (QFileInfo(fileName()).baseName().endsWith(QLatin1String("@2x"))) {
-        image->setDevicePixelRatio(2.0);
+    static bool disable2xImageLoading = !qgetenv("QT_HIGHDPI_DISABLE_2X_IMAGE_LOADING").isEmpty();
+    if (!disable2xImageLoading && QFileInfo(fileName()).baseName().endsWith(QLatin1String("@2x"))) {
+           image->setDevicePixelRatio(2.0);
     }
 
     return true;
@@ -1383,7 +1427,7 @@ QImageReader::ImageReaderError QImageReader::error() const
 QString QImageReader::errorString() const
 {
     if (d->errorString.isEmpty())
-        return QLatin1String(QT_TRANSLATE_NOOP(QImageReader, "Unknown error"));
+        return QImageReader::tr("Unknown error");
     return d->errorString;
 }
 
@@ -1444,11 +1488,11 @@ QByteArray QImageReader::imageFormat(QIODevice *device)
 #ifndef QT_NO_IMAGEFORMATPLUGIN
 void supportedImageHandlerFormats(QFactoryLoader *loader,
                                   QImageIOPlugin::Capability cap,
-                                  QSet<QByteArray> *result);
+                                  QList<QByteArray> *result);
 
 void supportedImageHandlerMimeTypes(QFactoryLoader *loader,
                                   QImageIOPlugin::Capability cap,
-                                  QSet<QByteArray> *result);
+                                  QList<QByteArray> *result);
 #endif
 
 /*!
@@ -1481,7 +1525,7 @@ void supportedImageHandlerMimeTypes(QFactoryLoader *loader,
 
 QList<QByteArray> QImageReader::supportedImageFormats()
 {
-    QSet<QByteArray> formats;
+    QList<QByteArray> formats;
     for (int i = 0; i < _qt_NumFormats; ++i)
         formats << _qt_BuiltInFormats[i].extension;
 
@@ -1489,12 +1533,9 @@ QList<QByteArray> QImageReader::supportedImageFormats()
     supportedImageHandlerFormats(loader(), QImageIOPlugin::CanRead, &formats);
 #endif // QT_NO_IMAGEFORMATPLUGIN
 
-    QList<QByteArray> sortedFormats;
-    for (QSet<QByteArray>::ConstIterator it = formats.constBegin(); it != formats.constEnd(); ++it)
-        sortedFormats << *it;
-
-    std::sort(sortedFormats.begin(), sortedFormats.end());
-    return sortedFormats;
+    std::sort(formats.begin(), formats.end());
+    formats.erase(std::unique(formats.begin(), formats.end()), formats.end());
+    return formats;
 }
 
 /*!
@@ -1508,7 +1549,7 @@ QList<QByteArray> QImageReader::supportedImageFormats()
 
 QList<QByteArray> QImageReader::supportedMimeTypes()
 {
-    QSet<QByteArray> mimeTypes;
+    QList<QByteArray> mimeTypes;
     for (int i = 0; i < _qt_NumFormats; ++i)
         mimeTypes << _qt_BuiltInFormats[i].mimeType;
 
@@ -1516,12 +1557,9 @@ QList<QByteArray> QImageReader::supportedMimeTypes()
     supportedImageHandlerMimeTypes(loader(), QImageIOPlugin::CanRead, &mimeTypes);
 #endif // QT_NO_IMAGEFORMATPLUGIN
 
-    QList<QByteArray> sortedMimeTypes;
-    for (QSet<QByteArray>::ConstIterator it = mimeTypes.constBegin(); it != mimeTypes.constEnd(); ++it)
-        sortedMimeTypes << *it;
-
-    std::sort(sortedMimeTypes.begin(), sortedMimeTypes.end());
-    return sortedMimeTypes;
+    std::sort(mimeTypes.begin(), mimeTypes.end());
+    mimeTypes.erase(std::unique(mimeTypes.begin(), mimeTypes.end()), mimeTypes.end());
+    return mimeTypes;
 }
 
 QT_END_NAMESPACE

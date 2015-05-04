@@ -49,6 +49,7 @@ OBJECTS = \
     qfsfileengine_win.o \
     qfsfileengine_iterator.o \
     qiodevice.o \
+    qdebug.o \
     qtextstream.o \
     qlogging.o \
     qtemporaryfile.o \

@@ -3,3 +3,4 @@ SOURCES     = main.cpp \
               model.cpp
 HEADERS     = mainwindow.h \
               model.h
+QT += widgets

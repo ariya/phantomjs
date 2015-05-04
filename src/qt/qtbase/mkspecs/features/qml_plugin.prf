@@ -75,18 +75,22 @@ load(qt_common)
         }
 
         load(resolve_target)
-        qml1_target: \
+        qml1_target {
             qmlplugindump = qml1plugindump
-        else: \
+            importpath.name = QML_IMPORT_PATH
+        } else {
             qmlplugindump = qmlplugindump
+            importpath.name = QML2_IMPORT_PATH
+        }
         qtPrepareTool(QMLPLUGINDUMP, $$qmlplugindump)
         importpath.value =
-        for(qmod, QMAKEMODULES) {
-            qmod = $$section(qmod, /, 0, -3)/imports
-            qml1_target: qmod = $$qmod/QtDeclarative
+        for(qmod, QTREPOS) {
+            qml1_target: \
+                qmod = $$qmod/imports
+            else: \
+                qmod = $$qmod/qml
             exists($$qmod): importpath.value += $$shell_path($$qmod)
         }
-        importpath.name = QML_IMPORT_PATH
         importpath.value = $$unique(importpath.value)
         qtAddToolEnv(QMLPLUGINDUMP, importpath)
         TARGETPATHBASE = $$replace(TARGETPATH, \\.\\d+\$, )
@@ -100,12 +104,3 @@ load(qt_common)
 }
 
 load(qml_module)
-
-unix|mingw {
-    !isEmpty(_QMAKE_SUPER_CACHE_): \
-        lib_replace.match = $$dirname(_QMAKE_SUPER_CACHE_)/[^/][^/]*/lib
-    else: \
-        lib_replace.match = $$MODULE_BASE_OUTDIR
-    lib_replace.replace = $$[QT_INSTALL_LIBS/raw]
-    QMAKE_PRL_INSTALL_REPLACE += lib_replace
-}

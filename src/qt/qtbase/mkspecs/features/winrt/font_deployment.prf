@@ -43,7 +43,7 @@ if(!build_pass:equals(TEMPLATE, "vcapp")) {
 
     !isEmpty(FONTS):equals(TEMPLATE, "app") {
         fonts.files = $$BUILD_DIR/fonts/*
-        isEmpty($$target.path) {
+        isEmpty(target.path) {
             fonts.path = $$OUT_PWD/fonts
         } else {
             fonts.path = $$target.path/fonts
@@ -54,7 +54,9 @@ if(!build_pass:equals(TEMPLATE, "vcapp")) {
 }
 
 !isEmpty(FONTS):winphone:equals(TEMPLATE, "vcapp"):build_pass {
-    fonts.files = $$OUT_PWD/fonts/*
+    for (FONT, FONTS) {
+        fonts.files += $$OUT_PWD/fonts/$$basename(FONT)
+    }
     fonts.path = fonts
     DEPLOYMENT += fonts
 }

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -95,10 +87,8 @@ extern void qt_mac_secure_keyboard(bool); //qapplication_mac.cpp
 
 /*!
     Initialize \a option with the values from this QLineEdit. This method
-    is useful for subclasses when they need a QStyleOptionFrame or QStyleOptionFrameV2, but don't want
-    to fill in all the information themselves. This function will check the version
-    of the QStyleOptionFrame and fill in the additional values for a
-    QStyleOptionFrameV2.
+    is useful for subclasses when they need a QStyleOptionFrame, but don't want
+    to fill in all the information themselves.
 
     \sa QStyleOption::initFrom()
 */
@@ -703,7 +693,7 @@ QSize QLineEdit::sizeHint() const
     int w = fm.width(QLatin1Char('x')) * 17 + 2*d->horizontalMargin
             + d->effectiveLeftTextMargin() + d->effectiveRightTextMargin()
             + d->leftmargin + d->rightmargin; // "some"
-    QStyleOptionFrameV2 opt;
+    QStyleOptionFrame opt;
     initStyleOption(&opt);
     return (style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w, h).
                                       expandedTo(QApplication::globalStrut()), this));
@@ -722,9 +712,12 @@ QSize QLineEdit::minimumSizeHint() const
     ensurePolished();
     QFontMetrics fm = fontMetrics();
     int h = fm.height() + qMax(2*d->verticalMargin, fm.leading())
+            + d->topTextMargin + d->bottomTextMargin
             + d->topmargin + d->bottommargin;
-    int w = fm.maxWidth() + d->leftmargin + d->rightmargin;
-    QStyleOptionFrameV2 opt;
+    int w = fm.maxWidth()
+            + d->effectiveLeftTextMargin() + d->effectiveRightTextMargin()
+            + d->leftmargin + d->rightmargin;
+    QStyleOptionFrame opt;
     initStyleOption(&opt);
     return (style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w, h).
                                       expandedTo(QApplication::globalStrut()), this));
@@ -1003,7 +996,7 @@ void QLineEdit::setSelection(int start, int length)
     d->control->setSelection(start, length);
 
     if (d->control->hasSelectedText()){
-        QStyleOptionFrameV2 opt;
+        QStyleOptionFrame opt;
         initStyleOption(&opt);
         if (!style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, this))
             d->setCursorVisible(false);
@@ -1348,6 +1341,8 @@ void QLineEdit::setReadOnly(bool enable)
 #ifndef QT_NO_CURSOR
         setCursor(enable ? Qt::ArrowCursor : Qt::IBeamCursor);
 #endif
+        QEvent event(QEvent::ReadOnlyChange);
+        QCoreApplication::sendEvent(this, &event);
         update();
     }
 }
@@ -1439,7 +1434,7 @@ bool QLineEdit::event(QEvent * e)
         //In order to get the cursor blinking if QComboBox::setEditable is called when the combobox has focus
         if (hasFocus()) {
             d->control->setCursorBlinkPeriod(QApplication::cursorFlashTime());
-            QStyleOptionFrameV2 opt;
+            QStyleOptionFrame opt;
             initStyleOption(&opt);
             if ((!hasSelectedText() && d->control->preeditAreaText().isEmpty())
                 || style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, this))
@@ -1528,13 +1523,16 @@ void QLineEdit::mouseMoveEvent(QMouseEvent * e)
 #else
             const bool select = (d->imHints & Qt::ImhNoPredictiveText);
 #endif
+#ifndef QT_NO_IM
             if (d->control->composeMode() && select) {
                 int startPos = d->xToPos(d->mousePressPos.x());
                 int currentPos = d->xToPos(e->pos().x());
                 if (startPos != currentPos)
                     d->control->setSelection(startPos, currentPos - startPos);
 
-            } else {
+            } else
+#endif
+            {
                 d->control->moveCursor(d->xToPos(e->pos().x()), select);
             }
         }
@@ -1585,6 +1583,7 @@ void QLineEdit::mouseDoubleClickEvent(QMouseEvent* e)
         int position = d->xToPos(e->pos().x());
 
         // exit composition mode
+#ifndef QT_NO_IM
         if (d->control->composeMode()) {
             int preeditPos = d->control->cursor();
             int posInPreedit = position - d->control->cursor();
@@ -1609,6 +1608,7 @@ void QLineEdit::mouseDoubleClickEvent(QMouseEvent* e)
                 position += (sizeChange - preeditLength);
             }
         }
+#endif
 
         if (position >= 0)
             d->control->selectWordAtPos(position);
@@ -1801,7 +1801,7 @@ void QLineEdit::focusInEvent(QFocusEvent *e)
     if (!QApplication::keypadNavigationEnabled() || (hasEditFocus() && ( e->reason() == Qt::PopupFocusReason))) {
 #endif
     d->control->setCursorBlinkPeriod(QApplication::cursorFlashTime());
-    QStyleOptionFrameV2 opt;
+    QStyleOptionFrame opt;
     initStyleOption(&opt);
     if((!hasSelectedText() && d->control->preeditAreaText().isEmpty())
        || style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, this))
@@ -1875,14 +1875,12 @@ void QLineEdit::paintEvent(QPaintEvent *)
 {
     Q_D(QLineEdit);
     QPainter p(this);
-
-    QRect r = rect();
     QPalette pal = palette();
 
-    QStyleOptionFrameV2 panel;
+    QStyleOptionFrame panel;
     initStyleOption(&panel);
     style()->drawPrimitive(QStyle::PE_PanelLineEdit, &panel, &p, this);
-    r = style()->subElementRect(QStyle::SE_LineEditContents, &panel, this);
+    QRect r = style()->subElementRect(QStyle::SE_LineEditContents, &panel, this);
     r.setX(r.x() + d->effectiveLeftTextMargin());
     r.setY(r.y() + d->topTextMargin);
     r.setRight(r.right() - d->effectiveRightTextMargin());
@@ -2185,9 +2183,10 @@ void QLineEdit::changeEvent(QEvent *ev)
         break;
     case QEvent::StyleChange:
         {
-            QStyleOptionFrameV2 opt;
+            QStyleOptionFrame opt;
             initStyleOption(&opt);
             d->control->setPasswordCharacter(style()->styleHint(QStyle::SH_LineEdit_PasswordCharacter, &opt, this));
+            d->control->setPasswordMaskDelay(style()->styleHint(QStyle::SH_LineEdit_PasswordMaskDelay, &opt, this));
         }
         d->m_iconSize = QSize();
         update();

@@ -11,5 +11,6 @@ blackberry:SUBDIRS += blackberry
 win32:!wince*:SUBDIRS += nativewifi
 mac:contains(QT_CONFIG, corewlan):SUBDIRS += corewlan
 mac:SUBDIRS += generic
+android:!android-no-sdk:SUBDIRS += android
 
 isEmpty(SUBDIRS):SUBDIRS = generic

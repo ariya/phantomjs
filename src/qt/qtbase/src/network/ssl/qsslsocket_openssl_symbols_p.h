@@ -1,40 +1,32 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Copyright (C) 2014 BlackBerry Limited. All rights reserved.
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -233,6 +225,7 @@ int q_CRYPTO_num_locks();
 void q_CRYPTO_set_locking_callback(void (*a)(int, int, const char *, int));
 void q_CRYPTO_set_id_callback(unsigned long (*a)());
 void q_CRYPTO_free(void *a);
+DSA *q_DSA_new();
 void q_DSA_free(DSA *a);
 #if OPENSSL_VERSION_NUMBER >= 0x00908000L
 // 0.9.8 broke SC and BC by changing this function's signature.
@@ -277,6 +270,7 @@ int q_PEM_write_bio_DSA_PUBKEY(BIO *a, DSA *b);
 int q_PEM_write_bio_RSA_PUBKEY(BIO *a, RSA *b);
 void q_RAND_seed(const void *a, int b);
 int q_RAND_status();
+RSA *q_RSA_new();
 void q_RSA_free(RSA *a);
 int q_sk_num(STACK *a);
 void q_sk_pop_free(STACK *a, void (*b)(void *));
@@ -294,6 +288,7 @@ char * q_sk_value(STACK *a, int b);
 int q_SSL_accept(SSL *a);
 int q_SSL_clear(SSL *a);
 char *q_SSL_CIPHER_description(SSL_CIPHER *a, char *b, int c);
+int q_SSL_CIPHER_get_bits(SSL_CIPHER *a, int *b);
 int q_SSL_connect(SSL *a);
 #if OPENSSL_VERSION_NUMBER >= 0x00908000L
 // 0.9.8 broke SC and BC by changing this function's signature.
@@ -329,6 +324,7 @@ const SSL_CIPHER *q_SSL_get_current_cipher(SSL *a);
 #else
 SSL_CIPHER *q_SSL_get_current_cipher(SSL *a);
 #endif
+int q_SSL_version(const SSL *a);
 int q_SSL_get_error(SSL *a, int b);
 STACK_OF(X509) *q_SSL_get_peer_cert_chain(SSL *a);
 X509 *q_SSL_get_peer_certificate(SSL *a);
@@ -406,6 +402,7 @@ int q_ASN1_STRING_print(BIO *a, const ASN1_STRING *b);
 #else
 int q_ASN1_STRING_print(BIO *a, ASN1_STRING *b);
 #endif
+int q_X509_check_issued(X509 *a, X509 *b);
 X509_NAME *q_X509_get_issuer_name(X509 *a);
 X509_NAME *q_X509_get_subject_name(X509 *a);
 int q_X509_verify_cert(X509_STORE_CTX *ctx);
@@ -433,10 +430,18 @@ void q_DH_free(DH *dh);
 BIGNUM *q_BN_bin2bn(const unsigned char *s, int len, BIGNUM *ret);
 #define q_SSL_CTX_set_tmp_dh(ctx, dh) q_SSL_CTX_ctrl((ctx), SSL_CTRL_SET_TMP_DH, 0, (char *)dh)
 
+#ifndef OPENSSL_NO_EC
 // EC Diffie-Hellman support
 EC_KEY *q_EC_KEY_new_by_curve_name(int nid);
 void q_EC_KEY_free(EC_KEY *ecdh);
 #define q_SSL_CTX_set_tmp_ecdh(ctx, ecdh) q_SSL_CTX_ctrl((ctx), SSL_CTRL_SET_TMP_ECDH, 0, (char *)ecdh)
+#endif // OPENSSL_NO_EC
+
+// PKCS#12 support
+int q_PKCS12_parse(PKCS12 *p12, const char *pass, EVP_PKEY **pkey, X509 **cert, STACK_OF(X509) **ca);
+PKCS12 *q_d2i_PKCS12_bio(BIO *bio, PKCS12 **pkcs12);
+void q_PKCS12_free(PKCS12 *pkcs12);
+
 
 #define q_BIO_get_mem_data(b, pp) (int)q_BIO_ctrl(b,BIO_CTRL_INFO,0,(char *)pp)
 #define q_BIO_pending(b) (int)q_BIO_ctrl(b,BIO_CTRL_PENDING,0,NULL)

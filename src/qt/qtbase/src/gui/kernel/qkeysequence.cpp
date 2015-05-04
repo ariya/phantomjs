@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -490,7 +482,7 @@ static const struct {
     { Qt::Key_BrightnessAdjust,           QT_TRANSLATE_NOOP("QShortcut", "Adjust Brightness") },
     { Qt::Key_Finance,                    QT_TRANSLATE_NOOP("QShortcut", "Finance") },
     { Qt::Key_Community,                  QT_TRANSLATE_NOOP("QShortcut", "Community") },
-    { Qt::Key_AudioRewind,                QT_TRANSLATE_NOOP("QShortcut", "Audio Rewind") },
+    { Qt::Key_AudioRewind,                QT_TRANSLATE_NOOP("QShortcut", "Media Rewind") },
     { Qt::Key_BackForward,                QT_TRANSLATE_NOOP("QShortcut", "Back Forward") },
     { Qt::Key_ApplicationLeft,            QT_TRANSLATE_NOOP("QShortcut", "Application Left") },
     { Qt::Key_ApplicationRight,           QT_TRANSLATE_NOOP("QShortcut", "Application Right") },
@@ -550,17 +542,40 @@ static const struct {
     { Qt::Key_Bluetooth,                  QT_TRANSLATE_NOOP("QShortcut", "Bluetooth") },
     { Qt::Key_WLAN,                       QT_TRANSLATE_NOOP("QShortcut", "Wireless") },
     { Qt::Key_UWB,                        QT_TRANSLATE_NOOP("QShortcut", "Ultra Wide Band") },
-    { Qt::Key_AudioForward,               QT_TRANSLATE_NOOP("QShortcut", "Audio Forward") },
+    { Qt::Key_AudioForward,               QT_TRANSLATE_NOOP("QShortcut", "Media Fast Forward") },
     { Qt::Key_AudioRepeat,                QT_TRANSLATE_NOOP("QShortcut", "Audio Repeat") },
     { Qt::Key_AudioRandomPlay,            QT_TRANSLATE_NOOP("QShortcut", "Audio Random Play") },
     { Qt::Key_Subtitle,                   QT_TRANSLATE_NOOP("QShortcut", "Subtitle") },
     { Qt::Key_AudioCycleTrack,            QT_TRANSLATE_NOOP("QShortcut", "Audio Cycle Track") },
     { Qt::Key_Time,                       QT_TRANSLATE_NOOP("QShortcut", "Time") },
-    { Qt::Key_Select,                     QT_TRANSLATE_NOOP("QShortcut", "Select") },
+    { Qt::Key_Hibernate,                  QT_TRANSLATE_NOOP("QShortcut", "Hibernate") },
     { Qt::Key_View,                       QT_TRANSLATE_NOOP("QShortcut", "View") },
     { Qt::Key_TopMenu,                    QT_TRANSLATE_NOOP("QShortcut", "Top Menu") },
+    { Qt::Key_PowerDown,                  QT_TRANSLATE_NOOP("QShortcut", "Power Down") },
     { Qt::Key_Suspend,                    QT_TRANSLATE_NOOP("QShortcut", "Suspend") },
-    { Qt::Key_Hibernate,                  QT_TRANSLATE_NOOP("QShortcut", "Hibernate") },
+
+    { Qt::Key_MicMute,                    QT_TRANSLATE_NOOP("QShortcut", "Microphone Mute") },
+
+    { Qt::Key_Red,                        QT_TRANSLATE_NOOP("QShortcut", "Red") },
+    { Qt::Key_Green,                      QT_TRANSLATE_NOOP("QShortcut", "Green") },
+    { Qt::Key_Yellow,                     QT_TRANSLATE_NOOP("QShortcut", "Yellow") },
+    { Qt::Key_Blue,                       QT_TRANSLATE_NOOP("QShortcut", "Blue") },
+
+    { Qt::Key_ChannelUp,                  QT_TRANSLATE_NOOP("QShortcut", "Channel Up") },
+    { Qt::Key_ChannelDown,                QT_TRANSLATE_NOOP("QShortcut", "Channel Down") },
+
+    { Qt::Key_Guide,                      QT_TRANSLATE_NOOP("QShortcut", "Guide") },
+    { Qt::Key_Info,                       QT_TRANSLATE_NOOP("QShortcut", "Info") },
+    { Qt::Key_Settings,                   QT_TRANSLATE_NOOP("QShortcut", "Settings") },
+
+    { Qt::Key_MicVolumeUp,                QT_TRANSLATE_NOOP("QShortcut", "Microphone Volume Up") },
+    { Qt::Key_MicVolumeDown,              QT_TRANSLATE_NOOP("QShortcut", "Microphone Volume Down") },
+
+    { Qt::Key_New,                        QT_TRANSLATE_NOOP("QShortcut", "New") },
+    { Qt::Key_Open,                       QT_TRANSLATE_NOOP("QShortcut", "Open") },
+    { Qt::Key_Find,                       QT_TRANSLATE_NOOP("QShortcut", "Find") },
+    { Qt::Key_Undo,                       QT_TRANSLATE_NOOP("QShortcut", "Undo") },
+    { Qt::Key_Redo,                       QT_TRANSLATE_NOOP("QShortcut", "Redo") },
 
     // --------------------------------------------------------------
     // More consistent namings
@@ -647,6 +662,7 @@ static const struct {
     { Qt::Key_Execute,  QT_TRANSLATE_NOOP("QShortcut", "Execute") },
     { Qt::Key_Play,  QT_TRANSLATE_NOOP("QShortcut", "Play") },
     { Qt::Key_Zoom,  QT_TRANSLATE_NOOP("QShortcut", "Zoom") },
+    { Qt::Key_Exit,  QT_TRANSLATE_NOOP("QShortcut", "Exit") },
 
     { 0, 0 }
 };

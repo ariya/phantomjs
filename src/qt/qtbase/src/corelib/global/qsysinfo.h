@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -136,6 +128,7 @@ public:
         MV_10_7 = 0x0009,
         MV_10_8 = 0x000A,
         MV_10_9 = 0x000B,
+        MV_10_10 = 0x000C,
 
         /* codenames */
         MV_CHEETAH = MV_10_0,
@@ -148,6 +141,7 @@ public:
         MV_LION = MV_10_7,
         MV_MOUNTAINLION = MV_10_8,
         MV_MAVERICKS = MV_10_9,
+        MV_YOSEMITE = MV_10_10,
 
         /* iOS */
         MV_IOS     = 1 << 8,
@@ -157,11 +151,22 @@ public:
         MV_IOS_6_0 = Q_MV_IOS(6, 0),
         MV_IOS_6_1 = Q_MV_IOS(6, 1),
         MV_IOS_7_0 = Q_MV_IOS(7, 0),
-        MV_IOS_7_1 = Q_MV_IOS(7, 1)
+        MV_IOS_7_1 = Q_MV_IOS(7, 1),
+        MV_IOS_8_0 = Q_MV_IOS(8, 0)
     };
     static const MacVersion MacintoshVersion;
     static MacVersion macVersion();
 #endif
+
+    static QString buildCpuArchitecture();
+    static QString currentCpuArchitecture();
+    static QString buildAbi();
+
+    static QString kernelType();
+    static QString kernelVersion();
+    static QString productType();
+    static QString productVersion();
+    static QString prettyProductName();
 };
 
 QT_END_NAMESPACE

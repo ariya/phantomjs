@@ -39,7 +39,7 @@
 ****************************************************************************/
 
 //! [using a custom style]
-#include <QtGui>
+#include <QtWidgets>
 
 #include "customstyle.h"
 

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -65,9 +57,9 @@ class QMessageLogContext
 {
     Q_DISABLE_COPY(QMessageLogContext)
 public:
-    Q_DECL_CONSTEXPR QMessageLogContext() : version(1), line(0), file(0), function(0), category(0) {}
+    Q_DECL_CONSTEXPR QMessageLogContext() : version(2), line(0), file(0), function(0), category(0) {}
     Q_DECL_CONSTEXPR QMessageLogContext(const char *fileName, int lineNumber, const char *functionName, const char *categoryName)
-        : version(1), line(lineNumber), file(fileName), function(functionName), category(categoryName) {}
+        : version(2), line(lineNumber), file(fileName), function(functionName), category(categoryName) {}
 
     void copy(const QMessageLogContext &logContext);
 
@@ -132,13 +124,28 @@ private:
     QMessageLogContext context;
 };
 
-/*
-  qDebug, qWarning, qCritical, qFatal are redefined to automatically include context information
- */
-#define qDebug QMessageLogger(__FILE__, __LINE__, Q_FUNC_INFO).debug
-#define qWarning QMessageLogger(__FILE__, __LINE__, Q_FUNC_INFO).warning
-#define qCritical QMessageLogger(__FILE__, __LINE__, Q_FUNC_INFO).critical
-#define qFatal QMessageLogger(__FILE__, __LINE__, Q_FUNC_INFO).fatal
+#if !defined(QT_MESSAGELOGCONTEXT) && !defined(QT_NO_MESSAGELOGCONTEXT)
+#  if defined(QT_NO_DEBUG)
+#    define QT_NO_MESSAGELOGCONTEXT
+#  else
+#    define QT_MESSAGELOGCONTEXT
+#  endif
+#endif
+
+#ifdef QT_MESSAGELOGCONTEXT
+  #define QT_MESSAGELOG_FILE __FILE__
+  #define QT_MESSAGELOG_LINE __LINE__
+  #define QT_MESSAGELOG_FUNC Q_FUNC_INFO
+#else
+  #define QT_MESSAGELOG_FILE 0
+  #define QT_MESSAGELOG_LINE 0
+  #define QT_MESSAGELOG_FUNC 0
+#endif
+
+#define qDebug QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).debug
+#define qWarning QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).warning
+#define qCritical QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).critical
+#define qFatal QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).fatal
 
 #define QT_NO_QDEBUG_MACRO while (false) QMessageLogger().noDebug
 #define QT_NO_QWARNING_MACRO while (false) QMessageLogger().noDebug
@@ -167,6 +174,8 @@ typedef void (*QtMessageHandler)(QtMsgType, const QMessageLogContext &, const QS
 Q_CORE_EXPORT QtMessageHandler qInstallMessageHandler(QtMessageHandler);
 
 Q_CORE_EXPORT void qSetMessagePattern(const QString &messagePattern);
+Q_CORE_EXPORT QString qFormatLogMessage(QtMsgType type, const QMessageLogContext &context,
+                                        const QString &buf);
 
 QT_END_NAMESPACE
 #endif // QLOGGING_H

@@ -15,10 +15,28 @@ CONFIG -= debug_and_release_target
 contains(QT_CONFIG, c++11): CONFIG += c++11
 contains(TEMPLATE, .*lib) {
     # module and plugins
-    contains(QT_CONFIG, reduce_exports): CONFIG += hide_symbols
+    !host_build:contains(QT_CONFIG, reduce_exports): CONFIG += hide_symbols
     unix:contains(QT_CONFIG, reduce_relocations): CONFIG += bsymbolic_functions
     contains(QT_CONFIG, largefile): CONFIG += largefile
     contains(QT_CONFIG, separate_debug_info): CONFIG += separate_debug_info
+
+    !isEmpty(_QMAKE_SUPER_CACHE_): \
+        rplbase = $$dirname(_QMAKE_SUPER_CACHE_)/[^/][^/]*
+    else: \
+        rplbase = $$MODULE_BASE_OUTDIR
+    host_build: \
+        qt_libdir = $$[QT_HOST_LIBS]
+    else: \
+        qt_libdir = $$[QT_INSTALL_LIBS/raw]
+    contains(QMAKE_DEFAULT_LIBDIRS, $$qt_libdir) {
+        lib_replace.match = "[^ ']*$$rplbase/lib"
+        lib_replace.replace =
+    } else {
+        lib_replace.match = $$rplbase/lib
+        lib_replace.replace = $$qt_libdir
+    }
+    lib_replace.CONFIG = path
+    QMAKE_PRL_INSTALL_REPLACE += lib_replace
 }
 
 warnings_are_errors:warning_clean {
@@ -26,20 +44,17 @@ warnings_are_errors:warning_clean {
     # This setting is compiler-dependent anyway because it depends on the version of the
     # compiler.
     clang {
-        # Apple clang 4.0-4.2,5.0
+        # Apple clang 4.0-4.2,5.0-5.1
         # Regular clang 3.3 & 3.4
         apple_ver = $${QT_APPLE_CLANG_MAJOR_VERSION}.$${QT_APPLE_CLANG_MINOR_VERSION}
         reg_ver = $${QT_CLANG_MAJOR_VERSION}.$${QT_CLANG_MINOR_VERSION}
-        contains(apple_ver, "4\\.[012]|5\\.0")|contains(reg_ver, "3\\.[34]") {
+        contains(apple_ver, "4\\.[012]|5\\.[01]")|contains(reg_ver, "3\\.[34]") {
             QMAKE_CXXFLAGS_WARN_ON += -Werror -Wno-error=\\$${LITERAL_HASH}warnings -Wno-error=deprecated-declarations $$WERROR
-
-            # glibc's bswap_XX macros use the "register" keyword
-            linux:equals(reg_ver, "3.4"): QMAKE_CXXFLAGS_WARN_ON += -Wno-error=deprecated-register
         }
     } else:intel_icc:linux {
-        # Intel CC 13.0 - 14.0, on Linux only
+        # Intel CC 13.0 - 15.0, on Linux only
         ver = $${QT_ICC_MAJOR_VERSION}.$${QT_ICC_MINOR_VERSION}
-        linux:contains(ver, "(13\\.|14\\.0)") {
+        linux:contains(ver, "(1[34]\\.|15\\.0)") {
             # 177: function "entity" was declared but never referenced
             #      (too aggressive; ICC reports even for functions created due to template instantiation)
             # 1224: #warning directive
@@ -49,9 +64,9 @@ warnings_are_errors:warning_clean {
             QMAKE_CXXFLAGS_WARN_ON += -Werror -ww177,1224,1478,1881 $$WERROR
         }
     } else:gcc:!clang:!intel_icc {
-        # GCC 4.6-4.8
+        # GCC 4.6-4.9
         ver = $${QT_GCC_MAJOR_VERSION}.$${QT_GCC_MINOR_VERSION}
-        contains(ver, "4\\.[678]") {
+        contains(ver, "4\\.[6789]") {
             QMAKE_CXXFLAGS_WARN_ON += -Werror -Wno-error=cpp -Wno-error=deprecated-declarations $$WERROR
 
             # GCC prints this bogus warning, after it has inlined a lot of code

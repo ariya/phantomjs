@@ -1,0 +1,131 @@
+/****************************************************************************
+**
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+  \class QWGLNativeContext
+  \inmodule QtPlatformHeaders
+  \since 5.4
+
+  \brief A class encapsulating a WGL context on Windows with desktop OpenGL (opengl32.dll)
+
+  \note There is no binary compatibility guarantee for this class,
+  meaning that an application using it is only guaranteed to work with the Qt
+  version it was developed against.
+
+  QWGLNativeContext is a value class that can be passed to
+  QOpenGLContext::setNativeHandle(). When creating a QOpenGLContext with the
+  native handle set, no new context will get created. Instead, the provided
+  handles are used, without taking ownership. This allows wrapping a context
+  created by an external framework or rendering engine. The typical usage will
+  be similar to the following snippet:
+
+  \code
+      #include <QtPlatformSupport/QWGLNativeContext>
+      ...create and retrieve the WGL context and the corresponding window...
+      QOpenGLContext *context = new QOpenGLContext;
+      QWGLNativeContext nativeContext(hglrc, hwnd);
+      context->setNativeHandle(QVariant::fromValue(nativeContext));
+      context->create();
+      ...
+  \endcode
+
+  The window is needed because the its pixel format will be queried. When the
+  adoption is successful, QOpenGLContext::format() will return a QSurfaceFormat
+  describing this pixel format.
+
+  It is recommended to restrict the usage of QOpenGLContexts created this way.
+  Various platform-specific behavior and issues may prevent such contexts to be
+  made current with windows (surfaces) created by Qt due to non-matching pixel
+  formats for example. A potentially safer solution is to use the wrapped
+  context only to set up sharing and perform Qt-based rendering offscreen,
+  using a separate, dedicated QOpenGLContext. The resulting textures are then
+  accessible in the foreign context too.
+
+  \code
+      ...like above...
+      QOpenGLContext *qtcontext = new QOpenGLContext;
+      qtcontext->setShareContext(context);
+      qtcontext->setFormat(context->format());
+      qtcontext->create();
+      ...use qtcontext for rendering with Qt...
+  \endcode
+
+  In addition to being used with QOpenGLContext::setNativeHandle(), this class
+  is used also to retrieve the native context handle, that is, a HGLRC value,
+  from a QOpenGLContext. Calling QOpenGLContext::nativeHandle() returns a
+  QVariant which, on Windows with opengl32.dll at least, will contain a
+  QWGLNativeContext:
+
+  \code
+      QVariant nativeHandle = context->nativeHandle();
+      if (!nativeHandle.isNull() && nativeHandle.canConvert<QWGLNativeContext>()) {
+          QWGLNativeContext nativeContext = nativeHandle.value<QWGLNativeContext>();
+          HGLRC hglrc = nativeContext.context();
+          ...
+      }
+  \endcode
+
+  \sa QOpenGLContext::setNativeHandle(), QOpenGLContext::nativeHandle()
+ */
+
+/*!
+  \fn HGLRC QWGLNativeContext::context() const
+
+  \return the WGL context.
+ */
+
+/*!
+  \fn HWND QWGLNativeContext::window() const
+
+  \note The window handle is not available when the QWGLNativeContext is
+  queried from a regular, non-adopted QOpenGLContext using
+  QOpenGLContext::nativeHandle(). This is because the \e windows platform
+  plugin creates WGL contexts using a dummy window that is not available
+  afterwards. Instead, the native window handle (HWND) is queriable from a
+  QWindow via QPlatformNativeInterface::nativeResourceForWindow() using the \e
+  "handle" resource key. Note however that the window will not have its pixel
+  format set until it is first associated with a context via
+  QOpenGLContext::makeCurrent().
+
+  \return handle for the window for which the context was created.
+ */
+
+/*!
+  \fn QWGLNativeContext::QWGLNativeContext()
+
+  Construct a new instance with no handles.
+ */
+
+/*!
+  \fn QWGLNativeContext::QWGLNativeContext(HGLRC ctx, HWND wnd)
+
+  Constructs a new instance with the provided \a ctx context handle and \a wnd window handle.
+
+  \note The window specified by \a wnd must have its pixel format set to a
+  format compatible with the context's. If no SetPixelFormat() call was made on
+  any device context belonging to the window, adopting the context will fail.
+ */

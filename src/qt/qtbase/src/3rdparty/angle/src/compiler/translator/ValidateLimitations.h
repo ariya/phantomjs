@@ -4,55 +4,51 @@
 // found in the LICENSE file.
 //
 
-#include "GLSLANG/ShaderLang.h"
-#include "compiler/translator/intermediate.h"
+#include "compiler/translator/IntermNode.h"
+#include "compiler/translator/LoopInfo.h"
 
 class TInfoSinkBase;
 
-struct TLoopInfo {
-    struct TIndex {
-        int id;  // symbol id.
-    } index;
-    TIntermLoop* loop;
-};
-typedef TVector<TLoopInfo> TLoopStack;
-
 // Traverses intermediate tree to ensure that the shader does not exceed the
 // minimum functionality mandated in GLSL 1.0 spec, Appendix A.
-class ValidateLimitations : public TIntermTraverser {
-public:
-    ValidateLimitations(ShShaderType shaderType, TInfoSinkBase& sink);
+class ValidateLimitations : public TIntermTraverser
+{
+  public:
+    ValidateLimitations(sh::GLenum shaderType, TInfoSinkBase &sink);
 
     int numErrors() const { return mNumErrors; }
 
-    virtual bool visitBinary(Visit, TIntermBinary*);
-    virtual bool visitUnary(Visit, TIntermUnary*);
-    virtual bool visitAggregate(Visit, TIntermAggregate*);
-    virtual bool visitLoop(Visit, TIntermLoop*);
+    virtual bool visitBinary(Visit, TIntermBinary *);
+    virtual bool visitUnary(Visit, TIntermUnary *);
+    virtual bool visitAggregate(Visit, TIntermAggregate *);
+    virtual bool visitLoop(Visit, TIntermLoop *);
 
-private:
-    void error(TSourceLoc loc, const char *reason, const char* token);
+  private:
+    void error(TSourceLoc loc, const char *reason, const char *token);
 
     bool withinLoopBody() const;
-    bool isLoopIndex(const TIntermSymbol* symbol) const;
-    bool validateLoopType(TIntermLoop* node);
-    bool validateForLoopHeader(TIntermLoop* node, TLoopInfo* info);
-    bool validateForLoopInit(TIntermLoop* node, TLoopInfo* info);
-    bool validateForLoopCond(TIntermLoop* node, TLoopInfo* info);
-    bool validateForLoopExpr(TIntermLoop* node, TLoopInfo* info);
+    bool isLoopIndex(TIntermSymbol *symbol);
+    bool validateLoopType(TIntermLoop *node);
+
+    bool validateForLoopHeader(TIntermLoop *node);
+    // If valid, return the index symbol id; Otherwise, return -1.
+    int validateForLoopInit(TIntermLoop *node);
+    bool validateForLoopCond(TIntermLoop *node, int indexSymbolId);
+    bool validateForLoopExpr(TIntermLoop *node, int indexSymbolId);
+
     // Returns true if none of the loop indices is used as the argument to
     // the given function out or inout parameter.
-    bool validateFunctionCall(TIntermAggregate* node);
-    bool validateOperation(TIntermOperator* node, TIntermNode* operand);
+    bool validateFunctionCall(TIntermAggregate *node);
+    bool validateOperation(TIntermOperator *node, TIntermNode *operand);
 
     // Returns true if indexing does not exceed the minimum functionality
     // mandated in GLSL 1.0 spec, Appendix A, Section 5.
-    bool isConstExpr(TIntermNode* node);
-    bool isConstIndexExpr(TIntermNode* node);
-    bool validateIndexing(TIntermBinary* node);
+    bool isConstExpr(TIntermNode *node);
+    bool isConstIndexExpr(TIntermNode *node);
+    bool validateIndexing(TIntermBinary *node);
 
-    ShShaderType mShaderType;
-    TInfoSinkBase& mSink;
+    sh::GLenum mShaderType;
+    TInfoSinkBase &mSink;
     int mNumErrors;
     TLoopStack mLoopStack;
 };

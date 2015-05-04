@@ -1,0 +1,17 @@
+intel_icc {
+    # ICC does not support C++14 yet
+} else: clang {
+    # Clang has supported -std=c++1y since version 3.2
+    greaterThan(QT_CLANG_MAJOR_VERSION, 3)|greaterThan(QT_CLANG_MINOR_VERSION, 1): \
+        QMAKE_CXXFLAGS_CXX11 = -std=c++1y
+    # Unknown how long Apple Clang has supported -std=c++1y, but at least since XCode 5.0
+    greaterThan(QT_APPLE_CLANG_MAJOR_VERSION, 4): \
+        QMAKE_CXXFLAGS_CXX11 = -std=c++1y
+} else: gcc {
+    # GCC has supported -std=c++1y since 4.8
+    greaterThan(QT_GCC_MAJOR_VERSION, 4)|greaterThan(QT_GCC_MINOR_VERSION, 7): \
+        QMAKE_CXXFLAGS_CXX11 = -std=c++1y
+}
+
+# Delegate to c++11.prf
+include(c++11.prf)

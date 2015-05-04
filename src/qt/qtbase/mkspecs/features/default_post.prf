@@ -35,6 +35,7 @@ force_debug_info|debug: \
 force_debug_info {
     QMAKE_CFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
     QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CXXFLAGS_RELEASE_WITH_DEBUGINFO
+    QMAKE_OBJECTIVE_CFLAGS_RELEASE = $$QMAKE_OBJECTIVE_CFLAGS_RELEASE_WITH_DEBUGINFO
     QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
 }
 
@@ -61,6 +62,8 @@ debug {
     QMAKE_LIBFLAGS += $$QMAKE_LIBFLAGS_RELEASE
 }
 
+use_gold_linker: QMAKE_LFLAGS += $$QMAKE_LFLAGS_USE_GOLD
+
 dll:win32: QMAKE_LFLAGS += $$QMAKE_LFLAGS_DLL
 static:mac: QMAKE_LFLAGS += $$QMAKE_LFLAGS_STATIC_LIB
 staticlib:unix {
@@ -83,8 +86,8 @@ silent {
 
 breakpad {
     load(resolve_target)
-    DEBUGFILENAME = $$shell_quote($$shell_path($$QMAKE_RESOLVED_TARGET))
-    PROJECTPATH = $$shell_quote($$shell_path($$OUT_PWD))
+    DEBUGFILENAME = $$shell_quote($$system_path($$QMAKE_RESOLVED_TARGET))
+    PROJECTPATH = $$shell_quote($$system_path($$OUT_PWD))
 
     !isEmpty(QMAKE_POST_LINK):QMAKE_POST_LINK = $$QMAKE_POST_LINK$$escape_expand(\\n\\t)
     QMAKE_POST_LINK = $$QMAKE_POST_LINK$$quote($${QT_BREAKPAD_ROOT_PATH}$${QMAKE_DIR_SEP}qtbreakpadsymbols $$DEBUGFILENAME $$PROJECTPATH)

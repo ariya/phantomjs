@@ -7,10 +7,8 @@
 #ifndef COMPILER_DETECT_RECURSION_H_
 #define COMPILER_DETECT_RECURSION_H_
 
-#include "GLSLANG/ShaderLang.h"
-
 #include <limits.h>
-#include "compiler/translator/intermediate.h"
+#include "compiler/translator/IntermNode.h"
 #include "compiler/translator/VariableInfo.h"
 
 class TInfoSink;

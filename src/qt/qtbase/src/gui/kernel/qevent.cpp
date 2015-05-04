@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -46,6 +38,7 @@
 #include "qpa/qplatformdrag.h"
 #include "private/qevent_p.h"
 #include "qdebug.h"
+#include "qmetaobject.h"
 #include "qmimedata.h"
 #include "private/qdnd_p.h"
 #include "qevent_p.h"
@@ -214,7 +207,9 @@ QMouseEvent::QMouseEvent(Type type, const QPointF &localPos, Qt::MouseButton but
                          Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers)
     : QInputEvent(type, modifiers), l(localPos), w(localPos), b(button), mouseState(buttons), caps(0)
 {
+#ifndef QT_NO_CURSOR
     s = QCursor::pos();
+#endif
 }
 
 
@@ -287,6 +282,7 @@ QMouseEvent::~QMouseEvent()
   \l Qt::MouseEventNotSynthesized is returned always.
 
   \sa Qt::MouseEventSource
+  \sa QGraphicsSceneMouseEvent::source()
  */
 Qt::MouseEventSource QMouseEvent::source() const
 {
@@ -301,6 +297,7 @@ Qt::MouseEventSource QMouseEvent::source() const
      The mouse event flags provide additional information about a mouse event.
 
      \sa Qt::MouseEventFlag
+     \sa QGraphicsSceneMouseEvent::flags()
  */
 Qt::MouseEventFlags QMouseEvent::flags() const
 {
@@ -637,6 +634,10 @@ QWheelEvent::QWheelEvent(const QPointF &pos, int delta,
     : QInputEvent(Wheel, modifiers), p(pos), qt4D(delta), qt4O(orient), mouseState(buttons)
 {
     g = QCursor::pos();
+    if (orient == Qt::Vertical)
+        angleD = QPoint(0, delta);
+    else
+        angleD = QPoint(delta, 0);
 }
 
 /*!
@@ -665,7 +666,12 @@ QWheelEvent::QWheelEvent(const QPointF &pos, const QPointF& globalPos, int delta
                          Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers,
                          Qt::Orientation orient)
     : QInputEvent(Wheel, modifiers), p(pos), g(globalPos), qt4D(delta), qt4O(orient), mouseState(buttons)
-{}
+{
+    if (orient == Qt::Vertical)
+        angleD = QPoint(0, delta);
+    else
+        angleD = QPoint(delta, 0);
+}
 
 /*!
     Constructs a wheel event object.
@@ -891,12 +897,11 @@ QWheelEvent::QWheelEvent(const QPointF &pos, const QPointF& globalPos,
     when keys are pressed or released.
 
     A key event contains a special accept flag that indicates whether
-    the receiver will handle the key event. You should call ignore()
-    if the key press or release event is not handled by your widget.
-    A key event is propagated up the parent widget chain until a
-    widget accepts it with accept() or an event filter consumes it.
-    Key events for multimedia keys are ignored by default. You should
-    call accept() if your widget handles those events.
+    the receiver will handle the key event. This flag is set by default,
+    so there is no need to call accept() when acting on a key event.
+    Calling ignore() on a key event will propagate it to the parent widget.
+    The event is propagated up the parent widget chain until a widget
+    accepts it or an event filter consumes it.
 
     The QWidget::setEnable() function can be used to enable or disable
     mouse and keyboard events for a widget.
@@ -1185,7 +1190,7 @@ Qt::FocusReason QFocusEvent::reason() const
 
     The event contains a region() that needs to be updated, and a
     rect() that is the bounding rectangle of that region. Both are
-    provided because many widgets can't make much use of region(),
+    provided because many widgets cannot make much use of region(),
     and rect() can be much faster than region().boundingRect().
 
     \section1 Automatic Clipping
@@ -1302,7 +1307,8 @@ QMoveEvent::~QMoveEvent()
 */
 
 /*!
-    Constructs an expose event for the given \a exposeRegion.
+    Constructs an expose event for the given \a exposeRegion which must be
+    in local coordinates.
 */
 QExposeEvent::QExposeEvent(const QRegion &exposeRegion)
     : QEvent(Expose)
@@ -1320,7 +1326,7 @@ QExposeEvent::~QExposeEvent()
 /*!
     \fn const QRegion &QExposeEvent::region() const
 
-    Returns the window area that has been exposed.
+    Returns the window area that has been exposed. The region is given in local coordinates.
 */
 
 /*!
@@ -1539,7 +1545,9 @@ QContextMenuEvent::~QContextMenuEvent()
 QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos)
     : QInputEvent(ContextMenu), p(pos), reas(reason)
 {
+#ifndef QT_NO_CURSOR
     gp = QCursor::pos();
+#endif
 }
 
 /*!
@@ -1977,40 +1985,63 @@ QVariant QInputMethodQueryEvent::value(Qt::InputMethodQuery query) const
 
     \ingroup events
 
-    Tablet Events are generated from a Wacom tablet. Most of the time you will
-    want to deal with events from the tablet as if they were events from a
-    mouse; for example, you would retrieve the cursor position with x(), y(),
-    pos(), globalX(), globalY(), and globalPos(). In some situations you may
-    wish to retrieve the extra information provided by the tablet device
-    driver; for example, you might want to do subpixeling with higher
-    resolution coordinates or you may want to adjust color brightness based on
-    pressure.  QTabletEvent allows you to read the pressure(), the xTilt(), and
-    yTilt(), as well as the type of device being used with device() (see
-    \l{TabletDevice}). It can also give you the minimum and maximum values for
-    each device's pressure and high resolution coordinates.
+    \e{Tablet events} are generated from tablet peripherals such as Wacom
+    tablets and various other brands, and electromagnetic stylus devices
+    included with some types of tablet computers. (It is not the same as
+    \l QTouchEvent which a touchscreen generates, even when a passive stylus is
+    used on a touchscreen.)
 
-    A tablet event contains a special accept flag that indicates whether the
-    receiver wants the event. You should call QTabletEvent::accept() if you
-    handle the tablet event; otherwise it will be sent to the parent widget.
-    The exception are TabletEnterProximity and TabletLeaveProximity events,
-    these are only sent to QApplication and don't check whether or not they are
-    accepted.
+    Tablet events are similar to mouse events; for example, the \l x(), \l y(),
+    \l pos(), \l globalX(), \l globalY(), and \l globalPos() accessors provide
+    the cursor position, and you can see which \l buttons() are pressed
+    (pressing the stylus tip against the tablet surface is equivalent to a left
+    mouse button). But tablet events also pass through some extra information
+    that the tablet device driver provides; for example, you might want to do
+    subpixel rendering with higher resolution coordinates (\l hiResGlobalX()
+    and \l hiResGlobalY()), adjust color brightness based on the \l pressure()
+    of the tool against the tablet surface, use different brushes depending on
+    the type of tool in use (\l device()), modulate the brush shape in some way
+    according to the X-axis and Y-axis tilt of the tool with respect to the
+    tablet surface (\l xTilt() and \l yTilt()), and use a virtual eraser
+    instead of a brush if the user switches to the other end of a double-ended
+    stylus (\l pointerType()).
 
-    The QWidget::setEnabled() function can be used to enable or
-    disable mouse and keyboard events for a widget.
+    Every event contains an accept flag that indicates whether the receiver
+    wants the event. You should call QTabletEvent::accept() if you handle the
+    tablet event; otherwise it will be sent to the parent widget. The exception
+    are TabletEnterProximity and TabletLeaveProximity events: these are only
+    sent to QApplication and do not check whether or not they are accepted.
 
-    The event handler QWidget::tabletEvent() receives all three types of
-    tablet events. Qt will first send a tabletEvent then, if it is not
-    accepted, it will send a mouse event. This allows applications that
-    don't utilize tablets to use a tablet like a mouse, while also
-    enabling those who want to use both tablets and mouses differently.
+    The QWidget::setEnabled() function can be used to enable or disable
+    mouse, tablet and keyboard events for a widget.
+
+    The event handler QWidget::tabletEvent() receives TabletPress,
+    TabletRelease and TabletMove events. Qt will first send a
+    tablet event, then if it is not accepted by any widget, it will send a
+    mouse event. This allows users of applications that are not designed for
+    tablets to use a tablet like a mouse. However high-resolution drawing
+    applications should handle the tablet events, because they can occur at a
+    higher frequency, which is a benefit for smooth and accurate drawing.
+    If the tablet events are rejected, the synthetic mouse events may be
+    compressed for efficiency.
+
+    New in Qt 5.4: QTabletEvent includes all information available from the
+    device, including \l QTabletEvent::buttons(). Previously it was not
+    possible to accept all tablet events and also know which stylus buttons
+    were pressed.
+
+    Note that pressing the stylus button while the stylus hovers over the
+    tablet will generate a button press on some types of tablets, while on
+    other types it will be necessary to press the stylus against the tablet
+    surface in order to register the simultaneous stylus button press.
 
     \section1 Notes for X11 Users
 
-    Qt uses the following hard-coded names to identify tablet
-    devices from the xorg.conf file on X11 (apart from IRIX):
-    'stylus', 'pen', and 'eraser'. If the devices have other names,
-    they will not be picked up Qt.
+    If the tablet is configured in xorg.conf to use the Wacom driver, there
+    will be separate XInput "devices" for the stylus, eraser, and (optionally)
+    cursor and touchpad. Qt recognizes these by their names. Otherwise, if the
+    tablet is configured to use the evdev driver, there will be only one device
+    and applications may not be able to distinguish the stylus from the eraser.
 */
 
 /*!
@@ -2068,11 +2099,73 @@ QVariant QInputMethodQueryEvent::value(Qt::InputMethodQuery query) const
   The \a tangentialPressure parameter contins the tangential pressure of an air
   brush. If the device does not support tangential pressure, pass 0 here.
 
+  \a rotation contains the device's rotation in degrees. 4D mice and the Wacom
+  Art Pen support rotation. If the device does not support rotation, pass 0 here.
+
+  The \a button that caused the event is given as a value from the
+  \l Qt::MouseButton enum. If the event \a type is not \l TabletPress or
+  \l TabletRelease, the appropriate button for this event is \l Qt::NoButton.
+
+  \a buttons is the state of all buttons at the time of the event.
+
+  \sa pos(), globalPos(), device(), pressure(), xTilt(), yTilt(), uniqueId(), rotation(),
+      tangentialPressure(), z()
+*/
+
+QTabletEvent::QTabletEvent(Type type, const QPointF &pos, const QPointF &globalPos,
+                           int device, int pointerType,
+                           qreal pressure, int xTilt, int yTilt, qreal tangentialPressure,
+                           qreal rotation, int z, Qt::KeyboardModifiers keyState, qint64 uniqueID,
+                           Qt::MouseButton button, Qt::MouseButtons buttons)
+    : QInputEvent(type, keyState),
+      mPos(pos),
+      mGPos(globalPos),
+      mDev(device),
+      mPointerType(pointerType),
+      mXT(xTilt),
+      mYT(yTilt),
+      mZ(z),
+      mPress(pressure),
+      mTangential(tangentialPressure),
+      mRot(rotation),
+      mUnique(uniqueID),
+      mExtra(new QTabletEventPrivate(button, buttons))
+{
+}
+
+/*!
+  Construct a tablet event of the given \a type.
+
+  The \a pos parameter indicates where the event occurred in the
+  widget; \a globalPos is the corresponding position in absolute
+  coordinates.
+
+  \a pressure contains the pressure exerted on the \a device.
+
+  \a pointerType describes the type of pen that is being used.
+
+  \a xTilt and \a yTilt contain the device's degree of tilt from the
+  x and y axes respectively.
+
+  \a keyState specifies which keyboard modifiers are pressed (e.g.,
+  \uicontrol{Ctrl}).
+
+  The \a uniqueID parameter contains the unique ID for the current device.
+
+  The \a z parameter contains the coordinate of the device on the tablet, this
+  is usually given by a wheel on 4D mouse. If the device does not support a
+  Z-axis, pass zero here.
+
+  The \a tangentialPressure parameter contins the tangential pressure of an air
+  brush. If the device does not support tangential pressure, pass 0 here.
+
   \a rotation contains the device's rotation in degrees. 4D mice support
   rotation. If the device does not support rotation, pass 0 here.
 
   \sa pos(), globalPos(), device(), pressure(), xTilt(), yTilt(), uniqueId(), rotation(),
       tangentialPressure(), z()
+
+  \deprecated in 5.4: use the constructor with MouseButton status
 */
 
 QTabletEvent::QTabletEvent(Type type, const QPointF &pos, const QPointF &globalPos,
@@ -2091,7 +2184,7 @@ QTabletEvent::QTabletEvent(Type type, const QPointF &pos, const QPointF &globalP
       mTangential(tangentialPressure),
       mRot(rotation),
       mUnique(uniqueID),
-      mExtra(0)
+      mExtra(new QTabletEventPrivate(Qt::NoButton, Qt::NoButton))
 {
 }
 
@@ -2100,6 +2193,34 @@ QTabletEvent::QTabletEvent(Type type, const QPointF &pos, const QPointF &globalP
 */
 QTabletEvent::~QTabletEvent()
 {
+}
+
+/*!
+    Returns the button that caused the event.
+
+    Note that the returned value is always Qt::NoButton for \l TabletMove,
+    \l TabletEnterProximity and \l TabletLeaveProximity events.
+
+    \sa buttons(), Qt::MouseButton
+*/
+Qt::MouseButton QTabletEvent::button() const
+{
+    return static_cast<QTabletEventPrivate *>(mExtra)->b;
+}
+
+/*!
+    Returns the button state when the event was generated. The button state is
+    a combination of buttons from the \l Qt::MouseButton enum using the OR
+    operator. For \l TabletMove events, this is all buttons that are pressed
+    down. For \l TabletPress events this includes the button that caused the
+    event. For \l TabletRelease events this excludes the button that caused the
+    event.
+
+    \sa button(), Qt::MouseButton
+*/
+Qt::MouseButtons QTabletEvent::buttons() const
+{
+    return static_cast<QTabletEventPrivate *>(mExtra)->buttonState;
 }
 
 /*!
@@ -2132,7 +2253,7 @@ QTabletEvent::~QTabletEvent()
     \fn qreal QTabletEvent::rotation() const
 
     Returns the rotation of the current device in degress. This is usually
-    given by a 4D Mouse. If the device doesn't support rotation this value is
+    given by a 4D Mouse. If the device does not support rotation this value is
     always 0.0.
 
 */
@@ -3036,7 +3157,7 @@ QActionEvent::~QActionEvent()
     If spontaneous() is true, the event originated outside the
     application. In this case, the user hid the window using the
     window manager controls, either by iconifying the window or by
-    switching to another virtual desktop where the window isn't
+    switching to another virtual desktop where the window is not
     visible. The window will become hidden but not withdrawn. If the
     window was iconified, QWidget::isMinimized() returns \c true.
 
@@ -3237,330 +3358,470 @@ QShortcutEvent::~QShortcutEvent()
 
 #ifndef QT_NO_DEBUG_STREAM
 
-static inline void formatTouchEvent(QDebug d, const char *name, const QTouchEvent &t)
+static inline void formatTouchPoint(QDebug d, const QTouchEvent::TouchPoint &tp)
 {
-    d << "QTouchEvent(" << name << " states: " <<  t.touchPointStates();
-    const QList<QTouchEvent::TouchPoint> points = t.touchPoints();
-    const int size = points.size();
-    d << ", " << size << " points: ";
-    for (int i = 0; i < size; ++i) {
-        if (i)
-            d << ", ";
-        d << points.at(i).pos() << ' ' << points.at(i).rect();
-        switch (points.at(i).state()) {
-        case Qt::TouchPointPressed:
-            d << " pressed";
-            break;
-        case Qt::TouchPointReleased:
-            d << " released";
-            break;
-        case Qt::TouchPointMoved:
-            d << " moved";
-            break;
-        case Qt::TouchPointStationary:
-            d << " stationary";
-            break;
-        }
+    d << "TouchPoint(" << tp.id() << ' ' << tp.rect();
+    switch (tp.state()) {
+    case Qt::TouchPointPressed:
+        d << " pressed";
+        break;
+    case Qt::TouchPointReleased:
+        d << " released";
+        break;
+    case Qt::TouchPointMoved:
+        d << " moved";
+        break;
+    case Qt::TouchPointStationary:
+        d << " stationary";
+        break;
     }
     d << ')';
 }
 
-QDebug operator<<(QDebug dbg, const QEvent *e) {
-    // More useful event output could be added here
-    if (!e)
-        return dbg << "QEvent(this = 0x0)";
-    const char *n = 0;
-    switch (e->type()) {
+static inline void formatTouchEvent(QDebug d, const char *name, const QTouchEvent &t)
+{
+    d << "QTouchEvent(" << name << " states: " <<  t.touchPointStates();
+    d << ", " << t.touchPoints().size() << " points: " << t.touchPoints() << ')';
+}
+
+static void formatUnicodeString(QDebug d, const QString &s)
+{
+    d << '"' << hex;
+    for (int i = 0; i < s.size(); ++i) {
+        if (i)
+            d << ',';
+        d << "U+" << s.at(i).unicode();
+    }
+    d << dec << '"';
+}
+
+static inline void formatInputMethodEvent(QDebug d, const QInputMethodEvent *e)
+{
+    d << "QInputMethodEvent(";
+    if (!e->preeditString().isEmpty()) {
+        d << "preedit=";
+        formatUnicodeString(d, e->preeditString());
+    }
+    if (!e->commitString().isEmpty()) {
+        d << ", commit=";
+        formatUnicodeString(d, e->commitString());
+    }
+    if (e->replacementLength()) {
+        d << ", replacementStart=" << e->replacementStart() << ", replacementLength="
+          << e->replacementLength();
+    }
+    if (const int attributeCount = e->attributes().size()) {
+        d << ", attributes= {";
+        for (int a = 0; a < attributeCount; ++a) {
+            const QInputMethodEvent::Attribute &at = e->attributes().at(a);
+            if (a)
+                d << ',';
+            d << "[type= " << at.type << ", start=" << at.start << ", length=" << at.length
+              << ", value=" << at.value << ']';
+        }
+        d << '}';
+    }
+    d << ')';
+}
+
+static inline void formatInputMethodQueryEvent(QDebug d, const QInputMethodQueryEvent *e)
+{
+    const Qt::InputMethodQueries queries = e->queries();
+    d << "QInputMethodQueryEvent(queries=" << showbase << hex << int(queries)
+      << noshowbase << dec << ", {";
+    for (unsigned mask = 1; mask <= Qt::ImTextAfterCursor; mask<<=1) {
+        if (queries & mask) {
+            const QVariant value = e->value(static_cast<Qt::InputMethodQuery>(mask));
+            if (value.isValid())
+                d << '[' << showbase << hex << mask <<  noshowbase << dec << '=' << value << "],";
+        }
+    }
+    d << "})";
+}
+
+static const char *eventTypeName(QEvent::Type t)
+{
+    static const int enumIdx = QEvent::staticMetaObject.indexOfEnumerator("Type");
+    return t <= QEvent::User
+        ? QEvent::staticMetaObject.enumerator(enumIdx).valueToKey(t)
+        : "User";
+}
+
+static const char *eventClassName(QEvent::Type t)
+{
+    switch (t) {
+    case QEvent::ActionAdded:
+    case QEvent::ActionRemoved:
+    case QEvent::ActionChanged:
+        return "QActionEvent";
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonRelease:
+    case QEvent::MouseButtonDblClick:
+    case QEvent::MouseMove:
+    case QEvent::NonClientAreaMouseMove:
+    case QEvent::NonClientAreaMouseButtonPress:
+    case QEvent::NonClientAreaMouseButtonRelease:
+    case QEvent::NonClientAreaMouseButtonDblClick:
+        return "QMouseEvent";
+    case QEvent::DragEnter:
+        return "QDragEnterEvent";
+    case QEvent::DragMove:
+        return "QDragMoveEvent";
+    case QEvent::Drop:
+        return "QDropEvent";
+    case QEvent::KeyPress:
+    case QEvent::KeyRelease:
+    case QEvent::ShortcutOverride:
+        return "QKeyEvent";
+    case QEvent::FocusIn:
+    case QEvent::FocusOut:
+    case QEvent::FocusAboutToChange:
+        return "QFocusEvent";
+    case QEvent::ChildAdded:
+    case QEvent::ChildPolished:
+    case QEvent::ChildRemoved:
+        return "QChildEvent";
+    case QEvent::Paint:
+        return "QPaintEvent";
+    case QEvent::Move:
+        return "QMoveEvent";
+    case QEvent::Resize:
+        return "QResizeEvent";
+    case QEvent::Show:
+        return "QShowEvent";
+    case QEvent::Hide:
+        return "QHideEvent";
+    case QEvent::Enter:
+        return "QEnterEvent";
+    case QEvent::Close:
+        return "QCloseEvent";
+    case QEvent::FileOpen:
+        return "QFileOpenEvent";
+#ifndef QT_NO_GESTURES
+    case QEvent::NativeGesture:
+        return "QNativeGestureEvent";
+    case QEvent::Gesture:
+    case QEvent::GestureOverride:
+        return "QGestureEvent";
+#endif
+    case QEvent::HoverEnter:
+    case QEvent::HoverLeave:
+    case QEvent::HoverMove:
+        return "QHoverEvent";
+    case QEvent::TabletEnterProximity:
+    case QEvent::TabletLeaveProximity:
+    case QEvent::TabletPress:
+    case QEvent::TabletMove:
+    case QEvent::TabletRelease:
+        return "QTabletEvent";
+    case QEvent::StatusTip:
+        return "QStatusTipEvent";
+    case QEvent::ToolTip:
+        return "QHelpEvent";
+    case QEvent::WindowStateChange:
+        return "QWindowStateChangeEvent";
+    case QEvent::Wheel:
+        return "QWheelEvent";
+    case QEvent::TouchBegin:
+    case QEvent::TouchUpdate:
+    case QEvent::TouchEnd:
+        return "QTouchEvent";
+    case QEvent::Shortcut:
+        return "QShortcutEvent";
+    case QEvent::InputMethod:
+        return "QInputMethodEvent";
+    case QEvent::InputMethodQuery:
+        return "QInputMethodQueryEvent";
+    case QEvent::OrientationChange:
+        return "QScreenOrientationChangeEvent";
+    case QEvent::ScrollPrepare:
+        return "QScrollPrepareEvent";
+    case QEvent::Scroll:
+        return "QScrollEvent";
+    case QEvent::GraphicsSceneMouseMove:
+    case QEvent::GraphicsSceneMousePress:
+    case QEvent::GraphicsSceneMouseRelease:
+    case QEvent::GraphicsSceneMouseDoubleClick:
+        return "QGraphicsSceneMouseEvent";
+    case QEvent::GraphicsSceneContextMenu:
+    case QEvent::GraphicsSceneHoverEnter:
+    case QEvent::GraphicsSceneHoverMove:
+    case QEvent::GraphicsSceneHoverLeave:
+    case QEvent::GraphicsSceneHelp:
+    case QEvent::GraphicsSceneDragEnter:
+    case QEvent::GraphicsSceneDragMove:
+    case QEvent::GraphicsSceneDragLeave:
+    case QEvent::GraphicsSceneDrop:
+    case QEvent::GraphicsSceneWheel:
+        return "QGraphicsSceneEvent";
     case QEvent::Timer:
-        n = "Timer";
+        return "QTimerEvent";
+    default:
+        break;
+    }
+    return "QEvent";
+}
+
+namespace {
+// Make protected QObject::staticQtMetaObject accessible for formatting enums.
+class DebugHelper : public QObject {
+public:
+    static const char *mouseButtonToString(Qt::MouseButton button)
+    {
+        static const int enumIdx = QObject::staticQtMetaObject.indexOfEnumerator("MouseButtons");
+        return QObject::staticQtMetaObject.enumerator(enumIdx).valueToKey(button);
+    }
+
+    static QByteArray mouseButtonsToString(Qt::MouseButtons buttons)
+    {
+        QByteArray result;
+        for (int i = 0; (uint)(1 << i) <= Qt::MaxMouseButton; ++i) {
+            const Qt::MouseButton button = static_cast<Qt::MouseButton>(1 << i);
+            if (buttons.testFlag(button)) {
+                if (!result.isEmpty())
+                    result.append('|');
+                result.append(mouseButtonToString(button));
+            }
+        }
+        if (result.isEmpty())
+            result.append("NoButton");
+        return result;
+    }
+
+    static const char *mouseEventSourceToString(Qt::MouseEventSource source)
+    {
+        static const int enumIdx = QObject::staticQtMetaObject.indexOfEnumerator("MouseEventSource");
+        return QObject::staticQtMetaObject.enumerator(enumIdx).valueToKey(source);
+    }
+
+    static const char *focusReasonToString(Qt::FocusReason reason)
+    {
+        static const int enumIdx = QObject::staticQtMetaObject.indexOfEnumerator("FocusReason");
+        return QObject::staticQtMetaObject.enumerator(enumIdx).valueToKey(reason);
+    }
+
+#  ifndef QT_NO_GESTURES
+    static const char *nativeGestureTypeToString(Qt::NativeGestureType type)
+    {
+        static const int enumIdx = QObject::staticQtMetaObject.indexOfEnumerator("NativeGestureType");
+        return QObject::staticQtMetaObject.enumerator(enumIdx).valueToKey(type);
+    }
+#  endif // !QT_NO_GESTURES
+};
+} // namespace
+
+#  ifndef QT_NO_DRAGANDDROP
+
+static void formatDropEvent(QDebug d, const QDropEvent *e)
+{
+    const QEvent::Type type = e->type();
+    d << eventClassName(type) << "(dropAction=" << e->dropAction() << ", proposedAction="
+        << e->proposedAction() << ", possibleActions=" << e->possibleActions()
+        << ", posF=" << e->posF();
+    if (type == QEvent::DragMove || type == QEvent::DragEnter)
+        d << ", answerRect=" << static_cast<const QDragMoveEvent *>(e)->answerRect();
+    d << ", formats=" << e->mimeData()->formats();
+    if (const Qt::KeyboardModifiers mods = e->keyboardModifiers())
+        d << ", keyboardModifiers=" << mods;
+    d << ", " << DebugHelper::mouseButtonsToString(e->mouseButtons()).constData();
+}
+
+#  endif // !QT_NO_DRAGANDDROP
+
+#  ifndef QT_NO_TABLETEVENT
+
+static void formatTabletEvent(QDebug d, const QTabletEvent *e)
+{
+    const QEvent::Type type = e->type();
+
+    static const int deviceEnumIdx = QTabletEvent::staticMetaObject.indexOfEnumerator("TabletDevice");
+    static const int pointerTypeEnumIdx = QTabletEvent::staticMetaObject.indexOfEnumerator("PointerType");
+    const char* device = QTabletEvent::staticMetaObject.enumerator(deviceEnumIdx).valueToKey(e->device());
+    const char* pointerType = QTabletEvent::staticMetaObject.enumerator(pointerTypeEnumIdx).valueToKey(e->pointerType());
+
+    d << eventClassName(type)  << '(' << eventTypeName(type)
+      << ", device=" << device
+      << ", pointerType=" << pointerType
+      << ", uniqueId=" << e->uniqueId()
+      << ", pos=" << e->posF()
+      << ", z=" << e->z()
+      << ", xTilt=" << e->xTilt()
+      << ", yTilt=" << e->yTilt()
+      << ", " << DebugHelper::mouseButtonsToString(e->buttons()).constData();
+    if (type == QEvent::TabletPress || type == QEvent::TabletMove)
+        d << ", pressure=" << e->pressure();
+    if (e->device() == QTabletEvent::RotationStylus || e->device() == QTabletEvent::FourDMouse)
+        d << ", rotation=" << e->rotation();
+    if (e->device() == QTabletEvent::Airbrush)
+        d << ", tangentialPressure=" << e->tangentialPressure();
+}
+
+#  endif // !QT_NO_TABLETEVENT
+
+QDebug operator<<(QDebug dbg, const QTouchEvent::TouchPoint &tp)
+{
+    QDebugStateSaver saver(dbg);
+    dbg.nospace();
+    formatTouchPoint(dbg, tp);
+    return dbg;
+}
+
+QDebug operator<<(QDebug dbg, const QEvent *e)
+{
+    QDebugStateSaver saver(dbg);
+    dbg.nospace();
+    if (!e) {
+        dbg << "QEvent(this = 0x0)";
+        return dbg;
+    }
+    // More useful event output could be added here
+    const QEvent::Type type = e->type();
+    switch (type) {
+    case QEvent::Expose:
+        dbg << "QExposeEvent(" << static_cast<const QExposeEvent *>(e)->region() << ')';
         break;
     case QEvent::MouseButtonPress:
     case QEvent::MouseMove:
     case QEvent::MouseButtonRelease:
     case QEvent::MouseButtonDblClick:
+    case QEvent::NonClientAreaMouseButtonPress:
+    case QEvent::NonClientAreaMouseMove:
+    case QEvent::NonClientAreaMouseButtonRelease:
+    case QEvent::NonClientAreaMouseButtonDblClick:
     {
         const QMouseEvent *me = static_cast<const QMouseEvent*>(e);
-        switch(me->type()) {
-        case QEvent::MouseButtonPress:
-            n = "MouseButtonPress";
-            break;
-        case QEvent::MouseMove:
-            n = "MouseMove";
-            break;
-        case QEvent::MouseButtonRelease:
-            n = "MouseButtonRelease";
-            break;
-        case QEvent::MouseButtonDblClick:
-        default:
-            n = "MouseButtonDblClick";
-            break;
-        }
-        QDebug nsp = dbg.nospace();
-        nsp << "QMouseEvent("  << n
-                      << ", " << me->button()
-                      << ", " << hex << (int)me->buttons()
-                      << ", " << hex << (int)me->modifiers() << dec;
-        if (const Qt::MouseEventSource source = me->source())
-            nsp << ", source = " << source;
-        nsp << ')';
+        const Qt::MouseButton button = me->button();
+        const Qt::MouseButtons buttons = me->buttons();
+        dbg << "QMouseEvent(" << eventTypeName(type);
+        if (type != QEvent::MouseMove && type != QEvent::NonClientAreaMouseMove)
+            dbg << ", " << DebugHelper::mouseButtonToString(button);
+        if (buttons && button != buttons)
+            dbg << ", buttons=" << DebugHelper::mouseButtonsToString(buttons).constData();
+        if (const int mods = int(me->modifiers()))
+            dbg << ", modifiers=0x" << hex << mods << dec;
+        dbg << ", localPos=" << me->localPos() << ", screenPos=" << me->screenPos();
+        if (me->source())
+            dbg << ", " << DebugHelper::mouseEventSourceToString(me->source());
+        if (const Qt::MouseEventFlags flags = me->flags())
+            dbg << ", flags = " << hex << int(flags) << dec;
+        dbg << ')';
     }
-    return dbg.space();
-
-#ifndef QT_NO_TOOLTIP
-    case QEvent::ToolTip:
-        n = "ToolTip";
         break;
-#endif
-    case QEvent::WindowActivate:
-        n = "WindowActivate";
+#  ifndef QT_NO_WHEELEVENT
+    case QEvent::Wheel: {
+        const QWheelEvent *we = static_cast<const QWheelEvent *>(e);
+        dbg << "QWheelEvent(" << "pixelDelta=" << we->pixelDelta() << ", angleDelta=" << we->angleDelta() << ')';
+    }
         break;
-    case QEvent::WindowDeactivate:
-        n = "WindowDeactivate";
-        break;
-    case QEvent::ActivationChange:
-        n = "ActivationChange";
-        break;
-#ifndef QT_NO_WHEELEVENT
-    case QEvent::Wheel:
-        dbg.nospace() << "QWheelEvent("
-                      << static_cast<const QWheelEvent *>(e)->pixelDelta()
-                      << static_cast<const QWheelEvent *>(e)->angleDelta()
-                      << ')';
-        return dbg.space();
-#endif
+#  endif // !QT_NO_WHEELEVENT
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
     case QEvent::ShortcutOverride:
-        {
-            const QKeyEvent *ke = static_cast<const QKeyEvent*>(e);
-            switch(ke->type()) {
-            case QEvent::ShortcutOverride:
-                n = "ShortcutOverride";
-                break;
-            case QEvent::KeyRelease:
-                n = "KeyRelease";
-                break;
-            case QEvent::KeyPress:
-            default:
-                n = "KeyPress";
-                break;
-            }
-            dbg.nospace() << "QKeyEvent("  << n
-                          << ", " << hex << ke->key()
-                          << ", " << hex << (int)ke->modifiers()
-                          << ", \"" << ke->text()
-                          << "\", " << ke->isAutoRepeat()
-                          << ", " << ke->count()
-                          << ')';
-        }
-        return dbg.space();
+    {
+        const QKeyEvent *ke = static_cast<const QKeyEvent *>(e);
+        dbg << "QKeyEvent("  << eventTypeName(type)
+            << ", key=0x" << hex << ke->key() << dec;
+        if (const int mods = ke->modifiers())
+            dbg << ", modifiers=0x" << hex << mods << dec;
+        if (!ke->text().isEmpty())
+            dbg << ", text=" << ke->text();
+        if (ke->isAutoRepeat())
+            dbg << ", autorepeat, count=" << ke->count();
+        dbg << ')';
+    }
+        break;
+    case QEvent::Shortcut: {
+        const QShortcutEvent *se = static_cast<const QShortcutEvent *>(e);
+        dbg << "QShortcutEvent(" << se->key().toString() << ", id=" << se->shortcutId();
+        if (se->isAmbiguous())
+            dbg << ", ambiguous";
+        dbg << ')';
+    }
+        break;
+    case QEvent::FocusAboutToChange:
     case QEvent::FocusIn:
-        n = "FocusIn";
-        break;
     case QEvent::FocusOut:
-        n = "FocusOut";
+        dbg << "QFocusEvent(" << eventTypeName(type) << ", "
+            << DebugHelper::focusReasonToString(static_cast<const QFocusEvent *>(e)->reason())
+            << ')';
         break;
-    case QEvent::Enter:
-        n = "Enter";
+    case QEvent::Move: {
+        const QMoveEvent *me = static_cast<const QMoveEvent *>(e);
+        dbg << "QMoveEvent(" << me->pos();
+        if (!me->spontaneous())
+            dbg << ", non-spontaneous";
+        dbg << ')';
+    }
+         break;
+    case QEvent::Resize: {
+        const QResizeEvent *re = static_cast<const QResizeEvent *>(e);
+        dbg << "QResizeEvent(" << re->size();
+        if (!re->spontaneous())
+            dbg << ", non-spontaneous";
+        dbg << ')';
+    }
         break;
-    case QEvent::Leave:
-        n = "Leave";
-        break;
-    case QEvent::PaletteChange:
-        n = "PaletteChange";
-        break;
-    case QEvent::PolishRequest:
-        n = "PolishRequest";
-        break;
-    case QEvent::Polish:
-        n = "Polish";
-        break;
-    case QEvent::UpdateRequest:
-        n = "UpdateRequest";
-        break;
-    case QEvent::Paint:
-        n = "Paint";
-        break;
-    case QEvent::Move:
-        n = "Move";
-        break;
-    case QEvent::Resize:
-        n = "Resize";
-        break;
-    case QEvent::Create:
-        n = "Create";
-        break;
-    case QEvent::Destroy:
-        n = "Destroy";
-        break;
-    case QEvent::Close:
-        n = "Close";
-        break;
-    case QEvent::Quit:
-        n = "Quit";
-        break;
-    case QEvent::FileOpen:
-        n = "FileOpen";
-        break;
-    case QEvent::Show:
-        n = "Show";
-        break;
-    case QEvent::ShowToParent:
-        n = "ShowToParent";
-        break;
-    case QEvent::Hide:
-        n = "Hide";
-        break;
-    case QEvent::HideToParent:
-        n = "HideToParent";
-        break;
-    case QEvent::None:
-        n = "None";
-        break;
-    case QEvent::ParentChange:
-        n = "ParentChange";
-        break;
-    case QEvent::ParentAboutToChange:
-        n = "ParentAboutToChange";
-        break;
-    case QEvent::HoverEnter:
-        n = "HoverEnter";
-        break;
-    case QEvent::HoverMove:
-        n = "HoverMove";
-        break;
-    case QEvent::HoverLeave:
-        n = "HoverLeave";
-        break;
-    case QEvent::ZOrderChange:
-        n = "ZOrderChange";
-        break;
-    case QEvent::StyleChange:
-        n = "StyleChange";
-        break;
+#  ifndef QT_NO_DRAGANDDROP
     case QEvent::DragEnter:
-        n = "DragEnter";
-        break;
     case QEvent::DragMove:
-        n = "DragMove";
-        break;
-    case QEvent::DragLeave:
-        n = "DragLeave";
-        break;
     case QEvent::Drop:
-        n = "Drop";
+        formatDropEvent(dbg, static_cast<const QDropEvent *>(e));
         break;
-    case QEvent::GraphicsSceneMouseMove:
-        n = "GraphicsSceneMouseMove";
+#  endif // !QT_NO_DRAGANDDROP
+    case QEvent::InputMethod:
+        formatInputMethodEvent(dbg, static_cast<const QInputMethodEvent *>(e));
         break;
-    case QEvent::GraphicsSceneMousePress:
-        n = "GraphicsSceneMousePress";
-        break;
-    case QEvent::GraphicsSceneMouseRelease:
-        n = "GraphicsSceneMouseRelease";
-        break;
-    case QEvent::GraphicsSceneMouseDoubleClick:
-        n = "GraphicsSceneMouseDoubleClick";
-        break;
-    case QEvent::GraphicsSceneContextMenu:
-        n = "GraphicsSceneContextMenu";
-        break;
-    case QEvent::GraphicsSceneHoverEnter:
-        n = "GraphicsSceneHoverEnter";
-        break;
-    case QEvent::GraphicsSceneHoverMove:
-        n = "GraphicsSceneHoverMove";
-        break;
-    case QEvent::GraphicsSceneHoverLeave:
-        n = "GraphicsSceneHoverLeave";
-        break;
-    case QEvent::GraphicsSceneHelp:
-        n = "GraphicsSceneHelp";
-        break;
-    case QEvent::GraphicsSceneDragEnter:
-        n = "GraphicsSceneDragEnter";
-        break;
-    case QEvent::GraphicsSceneDragMove:
-        n = "GraphicsSceneDragMove";
-        break;
-    case QEvent::GraphicsSceneDragLeave:
-        n = "GraphicsSceneDragLeave";
-        break;
-    case QEvent::GraphicsSceneDrop:
-        n = "GraphicsSceneDrop";
-        break;
-    case QEvent::GraphicsSceneWheel:
-        n = "GraphicsSceneWheel";
-        break;
-    case QEvent::GraphicsSceneResize:
-        n = "GraphicsSceneResize";
-        break;
-    case QEvent::GraphicsSceneMove:
-        n = "GraphicsSceneMove";
-        break;
-    case QEvent::CursorChange:
-        n = "CursorChange";
-        break;
-    case QEvent::ToolTipChange:
-        n = "ToolTipChange";
-        break;
-    case QEvent::StatusTip:
-        n = "StatusTip";
-        break;
-    case QEvent::WhatsThis:
-        n = "WhatsThis";
-        break;
-    case QEvent::FontChange:
-        n = "FontChange";
-        break;
-    case QEvent::Style:
-        n = "Style";
-        break;
-    case QEvent::KeyboardLayoutChange:
-        n = "KeyboardLayoutChange";
-        break;
-    case QEvent::DynamicPropertyChange:
-        n = "DynamicPropertyChange";
-        break;
-    case QEvent::GrabMouse:
-        n = "GrabMouse";
-        break;
-    case QEvent::UngrabMouse:
-        n = "UngrabMouse";
-        break;
-    case QEvent::GrabKeyboard:
-        n = "GrabKeyboard";
-        break;
-    case QEvent::UngrabKeyboard:
-        n = "UngrabKeyboard";
+    case QEvent::InputMethodQuery:
+        formatInputMethodQueryEvent(dbg, static_cast<const QInputMethodQueryEvent *>(e));
         break;
     case QEvent::TouchBegin:
-        n = "TouchBegin";
     case QEvent::TouchUpdate:
-        n = n ? n : "TouchUpdate";
     case QEvent::TouchEnd:
-        n = n ? n : "TouchEnd";
-        formatTouchEvent(dbg.nospace(), n, *static_cast<const QTouchEvent*>(e));
-        return dbg.nospace();
-    case QEvent::ChildAdded: n = n ? n : "ChildAdded";
-    case QEvent::ChildPolished: n = n ? n : "ChildPolished";
-    case QEvent::ChildRemoved: n = n ? n : "ChildRemoved";
-        dbg.nospace() << "QChildEvent(" << n << ", " << (static_cast<const QChildEvent*>(e))->child();
-        return dbg.space();
-#ifndef QT_NO_GESTURES
-    case QEvent::Gesture:
-        n = "Gesture";
+        formatTouchEvent(dbg, eventTypeName(type), *static_cast<const QTouchEvent*>(e));
         break;
-#endif
-    default:
-        dbg.nospace() << "QEvent(" << (const void *)e << ", type = " << e->type() << ')';
-        return dbg.space();
+    case QEvent::ChildAdded:
+    case QEvent::ChildPolished:
+    case QEvent::ChildRemoved:
+        dbg << "QChildEvent(" << eventTypeName(type) << ", " << (static_cast<const QChildEvent*>(e))->child() << ')';
+        break;
+#  ifndef QT_NO_GESTURES
+    case QEvent::NativeGesture: {
+        const QNativeGestureEvent *ne = static_cast<const QNativeGestureEvent *>(e);
+        dbg << "QNativeGestureEvent(" << DebugHelper::nativeGestureTypeToString(ne->gestureType())
+            << "localPos=" << ne->localPos() << ", value=" << ne->value() << ')';
     }
-
-    dbg.nospace() << 'Q' << n << "Event(" << (const void *)e << ')';
-    return dbg.space();
+         break;
+#  endif // !QT_NO_GESTURES
+    case QEvent::ApplicationStateChange:
+        dbg << "QApplicationStateChangeEvent("
+            << static_cast<const QApplicationStateChangeEvent *>(e)->applicationState() << ')';
+        break;
+    case QEvent::ContextMenu:
+        dbg << "QContextMenuEvent(" << static_cast<const QContextMenuEvent *>(e)->pos() << ')';
+        break;
+#  ifndef QT_NO_TABLETEVENT
+    case QEvent::TabletEnterProximity:
+    case QEvent::TabletLeaveProximity:
+    case QEvent::TabletPress:
+    case QEvent::TabletMove:
+    case QEvent::TabletRelease:
+        formatTabletEvent(dbg, static_cast<const QTabletEvent *>(e));
+        break;
+#  endif // !QT_NO_TABLETEVENT
+    case QEvent::Enter:
+        dbg << "QEnterEvent(" << static_cast<const QEnterEvent *>(e)->pos() << ')';
+        break;
+    case QEvent::Timer:
+        dbg << "QTimerEvent(id=" << static_cast<const QTimerEvent *>(e)->timerId() << ')';
+        break;
+    default:
+        dbg << eventClassName(type) << '(' << eventTypeName(type) << ", "
+            << (const void *)e << ", type = " << e->type() << ')';
+        break;
+    }
+    return dbg;
 }
-#endif
+#endif // !QT_NO_DEBUG_STREAM
 
 /*!
     \class QShortcutEvent
@@ -3570,7 +3831,7 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
     \ingroup events
     \inmodule QtGui
 
-    Normally you don't need to use this class directly; QShortcut
+    Normally you do not need to use this class directly; QShortcut
     provides a higher-level interface to handle shortcut keys.
 
     \sa QShortcut
@@ -3729,7 +3990,7 @@ QWindowStateChangeEvent::~QWindowStateChangeEvent()
     This makes it possible for sibling widgets to handle touch events independently while making
     sure that the sequence of QTouchEvents is always correct.
 
-    \section1 Mouse Events and Touch Event synthesizing
+    \section1 Mouse Events and Touch Event Synthesizing
 
     QTouchEvent delivery is independent from that of QMouseEvent. The application flags
     Qt::AA_SynthesizeTouchForUnhandledMouseEvents and Qt::AA_SynthesizeMouseForUnhandledTouchEvents

@@ -50,9 +50,11 @@ typedef enum
   /* The following are used internally; not derived from GDEF. */
   HB_OT_LAYOUT_GLYPH_PROPS_SUBSTITUTED	= 0x10u,
   HB_OT_LAYOUT_GLYPH_PROPS_LIGATED	= 0x20u,
+  HB_OT_LAYOUT_GLYPH_PROPS_MULTIPLIED	= 0x40u,
 
   HB_OT_LAYOUT_GLYPH_PROPS_PRESERVE     = HB_OT_LAYOUT_GLYPH_PROPS_SUBSTITUTED |
-					  HB_OT_LAYOUT_GLYPH_PROPS_LIGATED
+					  HB_OT_LAYOUT_GLYPH_PROPS_LIGATED |
+					  HB_OT_LAYOUT_GLYPH_PROPS_MULTIPLIED
 } hb_ot_layout_glyph_class_mask_t;
 
 
@@ -182,62 +184,62 @@ enum {
   MASK0_GEN_CAT   = 0x1Fu
 };
 
-inline void
+static inline void
 _hb_glyph_info_set_unicode_props (hb_glyph_info_t *info, hb_unicode_funcs_t *unicode)
 {
   /* XXX This shouldn't be inlined, or at least not while is_default_ignorable() is inline. */
   info->unicode_props0() = ((unsigned int) unicode->general_category (info->codepoint)) |
 			   (unicode->is_default_ignorable (info->codepoint) ? MASK0_IGNORABLE : 0) |
-			   (info->codepoint == 0x200C ? MASK0_ZWNJ : 0) |
-			   (info->codepoint == 0x200D ? MASK0_ZWJ : 0);
+			   (info->codepoint == 0x200Cu ? MASK0_ZWNJ : 0) |
+			   (info->codepoint == 0x200Du ? MASK0_ZWJ : 0);
   info->unicode_props1() = unicode->modified_combining_class (info->codepoint);
 }
 
-inline void
+static inline void
 _hb_glyph_info_set_general_category (hb_glyph_info_t *info,
 				     hb_unicode_general_category_t gen_cat)
 {
   info->unicode_props0() = (unsigned int) gen_cat | ((info->unicode_props0()) & ~MASK0_GEN_CAT);
 }
 
-inline hb_unicode_general_category_t
+static inline hb_unicode_general_category_t
 _hb_glyph_info_get_general_category (const hb_glyph_info_t *info)
 {
   return (hb_unicode_general_category_t) (info->unicode_props0() & MASK0_GEN_CAT);
 }
 
-inline void
+static inline void
 _hb_glyph_info_set_modified_combining_class (hb_glyph_info_t *info,
 					     unsigned int modified_class)
 {
   info->unicode_props1() = modified_class;
 }
 
-inline unsigned int
+static inline unsigned int
 _hb_glyph_info_get_modified_combining_class (const hb_glyph_info_t *info)
 {
   return info->unicode_props1();
 }
 
-inline hb_bool_t
+static inline hb_bool_t
 _hb_glyph_info_is_default_ignorable (const hb_glyph_info_t *info)
 {
   return !!(info->unicode_props0() & MASK0_IGNORABLE);
 }
 
-inline hb_bool_t
+static inline hb_bool_t
 _hb_glyph_info_is_zwnj (const hb_glyph_info_t *info)
 {
   return !!(info->unicode_props0() & MASK0_ZWNJ);
 }
 
-inline hb_bool_t
+static inline hb_bool_t
 _hb_glyph_info_is_zwj (const hb_glyph_info_t *info)
 {
   return !!(info->unicode_props0() & MASK0_ZWJ);
 }
 
-inline void
+static inline void
 _hb_glyph_info_flip_joiners (hb_glyph_info_t *info)
 {
   info->unicode_props0() ^= MASK0_ZWNJ | MASK0_ZWJ;
@@ -339,31 +341,31 @@ _hb_allocate_lig_id (hb_buffer_t *buffer) {
 
 /* glyph_props: */
 
-inline void
+static inline void
 _hb_glyph_info_set_glyph_props (hb_glyph_info_t *info, unsigned int props)
 {
   info->glyph_props() = props;
 }
 
-inline unsigned int
+static inline unsigned int
 _hb_glyph_info_get_glyph_props (const hb_glyph_info_t *info)
 {
   return info->glyph_props();
 }
 
-inline bool
+static inline bool
 _hb_glyph_info_is_base_glyph (const hb_glyph_info_t *info)
 {
   return !!(info->glyph_props() & HB_OT_LAYOUT_GLYPH_PROPS_BASE_GLYPH);
 }
 
-inline bool
+static inline bool
 _hb_glyph_info_is_ligature (const hb_glyph_info_t *info)
 {
   return !!(info->glyph_props() & HB_OT_LAYOUT_GLYPH_PROPS_LIGATURE);
 }
 
-inline bool
+static inline bool
 _hb_glyph_info_is_mark (const hb_glyph_info_t *info)
 {
   return !!(info->glyph_props() & HB_OT_LAYOUT_GLYPH_PROPS_MARK);
@@ -381,23 +383,43 @@ _hb_glyph_info_ligated (const hb_glyph_info_t *info)
   return !!(info->glyph_props() & HB_OT_LAYOUT_GLYPH_PROPS_LIGATED);
 }
 
+static inline bool
+_hb_glyph_info_multiplied (const hb_glyph_info_t *info)
+{
+  return !!(info->glyph_props() & HB_OT_LAYOUT_GLYPH_PROPS_MULTIPLIED);
+}
+
+static inline bool
+_hb_glyph_info_ligated_and_didnt_multiply (const hb_glyph_info_t *info)
+{
+  return _hb_glyph_info_ligated (info) && !_hb_glyph_info_multiplied (info);
+}
+
+static inline void
+_hb_glyph_info_clear_ligated_and_multiplied (hb_glyph_info_t *info)
+{
+  info->glyph_props() &= ~(HB_OT_LAYOUT_GLYPH_PROPS_LIGATED |
+			   HB_OT_LAYOUT_GLYPH_PROPS_MULTIPLIED);
+}
+
+
 /* Allocation / deallocation. */
 
-inline void
+static inline void
 _hb_buffer_allocate_unicode_vars (hb_buffer_t *buffer)
 {
   HB_BUFFER_ALLOCATE_VAR (buffer, unicode_props0);
   HB_BUFFER_ALLOCATE_VAR (buffer, unicode_props1);
 }
 
-inline void
+static inline void
 _hb_buffer_deallocate_unicode_vars (hb_buffer_t *buffer)
 {
   HB_BUFFER_DEALLOCATE_VAR (buffer, unicode_props0);
   HB_BUFFER_DEALLOCATE_VAR (buffer, unicode_props1);
 }
 
-inline void
+static inline void
 _hb_buffer_allocate_gsubgpos_vars (hb_buffer_t *buffer)
 {
   HB_BUFFER_ALLOCATE_VAR (buffer, glyph_props);
@@ -405,7 +427,7 @@ _hb_buffer_allocate_gsubgpos_vars (hb_buffer_t *buffer)
   HB_BUFFER_ALLOCATE_VAR (buffer, syllable);
 }
 
-inline void
+static inline void
 _hb_buffer_deallocate_gsubgpos_vars (hb_buffer_t *buffer)
 {
   HB_BUFFER_DEALLOCATE_VAR (buffer, syllable);

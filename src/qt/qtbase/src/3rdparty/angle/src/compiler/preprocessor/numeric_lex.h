@@ -13,7 +13,7 @@
 
 namespace pp {
 
-inline std::ios::fmtflags numeric_base_int(const std::string& str)
+inline std::ios::fmtflags numeric_base_int(const std::string &str)
 {
     if ((str.size() >= 2) &&
         (str[0] == '0') &&
@@ -21,7 +21,7 @@ inline std::ios::fmtflags numeric_base_int(const std::string& str)
     {
         return std::ios::hex;
     }
-    else if ((str.size() >= 1) && (str[0] == '0'))
+    if ((str.size() >= 1) && (str[0] == '0'))
     {
         return std::ios::oct;
     }
@@ -34,7 +34,7 @@ inline std::ios::fmtflags numeric_base_int(const std::string& str)
 // in which case false is returned.
 
 template<typename IntType>
-bool numeric_lex_int(const std::string& str, IntType* value)
+bool numeric_lex_int(const std::string &str, IntType *value)
 {
     std::istringstream stream(str);
     // This should not be necessary, but MSVS has a buggy implementation.
@@ -46,7 +46,7 @@ bool numeric_lex_int(const std::string& str, IntType* value)
 }
 
 template<typename FloatType>
-bool numeric_lex_float(const std::string& str, FloatType* value)
+bool numeric_lex_float(const std::string &str, FloatType *value)
 {
     std::istringstream stream(str);
     // Force "C" locale so that decimal character is always '.', and

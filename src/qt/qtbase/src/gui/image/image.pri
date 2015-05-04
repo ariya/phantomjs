@@ -78,12 +78,8 @@ contains(QT_CONFIG, jpeg):include($$PWD/qjpeghandler.pri)
 contains(QT_CONFIG, gif):include($$PWD/qgifhandler.pri)
 
 # SIMD
-contains(QT_CPU_FEATURES.$$QT_ARCH, neon) {
-    SOURCES += image/qimage_neon.cpp
-}
-contains(QT_CPU_FEATURES.$$QT_ARCH, sse2) {
-    SOURCES += image/qimage_sse2.cpp
-    SSSE3_SOURCES += image/qimage_ssse3.cpp
-}
+SSE2_SOURCES += image/qimage_sse2.cpp
+SSSE3_SOURCES += image/qimage_ssse3.cpp
+NEON_SOURCES += image/qimage_neon.cpp
 MIPS_DSPR2_SOURCES += image/qimage_mips_dspr2.cpp
 MIPS_DSPR2_ASM += image/qimage_mips_dspr2_asm.S

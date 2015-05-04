@@ -30,6 +30,7 @@
 
 /*!
     \group shared
+    \brief How to maximize resource usage by implicit data sharing.
     \title Implicitly Shared Classes
 
     These \l{Qt Core} classes provides a safe and efficient way of sharing and

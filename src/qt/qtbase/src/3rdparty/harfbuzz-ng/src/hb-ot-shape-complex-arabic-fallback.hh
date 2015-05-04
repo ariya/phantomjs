@@ -71,7 +71,7 @@ arabic_fallback_synthesize_lookup_single (const hb_ot_shape_plan_t *plan HB_UNUS
 	!hb_font_get_glyph (font, u, 0, &u_glyph) ||
 	!hb_font_get_glyph (font, s, 0, &s_glyph) ||
 	u_glyph == s_glyph ||
-	u_glyph > 0xFFFF || s_glyph > 0xFFFF)
+	u_glyph > 0xFFFFu || s_glyph > 0xFFFFu)
       continue;
 
     glyphs[num_glyphs].set (u_glyph);

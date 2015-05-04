@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -72,7 +64,14 @@ public:
 
     void updateGeometry() {
         Q_Q(QWindowContainer);
-        if (usesNativeWidgets)
+        if (q->geometry().bottom() <= 0 || q->geometry().right() <= 0)
+            /* Qt (e.g. QSplitter) sometimes prefer to hide a widget by *not* calling
+               setVisible(false). This is often done by setting its coordinates to a sufficiently
+               negative value so that its clipped outside the parent. Since a QWindow is not clipped
+               to widgets in general, it needs to be dealt with as a special case.
+            */
+            window->setGeometry(q->geometry());
+        else if (usesNativeWidgets)
             window->setGeometry(q->rect());
         else
             window->setGeometry(QRect(q->mapTo(q->window(), QPoint()), q->size()));
@@ -85,8 +84,11 @@ public:
         Q_Q(QWindowContainer);
         QWidget *p = q->parentWidget();
         while (p) {
-            if (qobject_cast<QMdiSubWindow *>(p) != 0
-                    || qobject_cast<QAbstractScrollArea *>(p) != 0) {
+            if (
+#ifndef QT_NO_MDIAREA
+                qobject_cast<QMdiSubWindow *>(p) != 0 ||
+#endif
+                qobject_cast<QAbstractScrollArea *>(p) != 0) {
                 q->winId();
                 usesNativeWidgets = true;
                 break;
@@ -196,6 +198,7 @@ QWindowContainer::QWindowContainer(QWindow *embeddedWindow, QWidget *parent, Qt:
 
     d->window = embeddedWindow;
     d->window->setParent(&d->fakeParent);
+    setAcceptDrops(true);
 
     connect(QGuiApplication::instance(), SIGNAL(focusWindowChanged(QWindow*)), this, SLOT(focusWindowChanged(QWindow*)));
 }
@@ -288,6 +291,19 @@ bool QWindowContainer::event(QEvent *e)
             }
         }
         break;
+#ifndef QT_NO_DRAGANDDROP
+    case QEvent::Drop:
+    case QEvent::DragMove:
+    case QEvent::DragLeave:
+        QCoreApplication::sendEvent(d->window, e);
+        return e->isAccepted();
+    case QEvent::DragEnter:
+        // Don't reject drag events for the entire widget when one
+        // item rejects the drag enter
+        QCoreApplication::sendEvent(d->window, e);
+        e->accept();
+        return true;
+#endif
     default:
         break;
     }

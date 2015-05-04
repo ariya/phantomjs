@@ -59,7 +59,8 @@ int main(int argc, char *argv[])
     parser.addOption(showProgressOption);
 
     // A boolean option with multiple names (-f, --force)
-    QCommandLineOption forceOption(QStringList() << "f" << "force", "Overwrite existing files.");
+    QCommandLineOption forceOption(QStringList() << "f" << "force",
+            QCoreApplication::translate("main", "Overwrite existing files."));
     parser.addOption(forceOption);
 
     // An option with a value
@@ -81,3 +82,20 @@ int main(int argc, char *argv[])
 }
 
 //! [0]
+
+void f() {
+//! [cxx11]
+    parser.addOptions({
+        // A boolean option with a single name (-p)
+        {"p",
+            QCoreApplication::translate("main", "Show progress during copy")},
+        // A boolean option with multiple names (-f, --force)
+        {{"f", "force"},
+            QCoreApplication::translate("main", "Overwrite existing files.")},
+        // An option with a value
+        {{"t", "target-directory"},
+            QCoreApplication::translate("main", "Copy all source files into <directory>."),
+            QCoreApplication::translate("main", "directory")},
+    });
+//! [cxx11]
+}

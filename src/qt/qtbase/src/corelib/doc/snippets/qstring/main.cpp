@@ -760,14 +760,6 @@ void Widget::splitCaseSensitiveFunction()
 
 void Widget::sprintfFunction()
 {
-    //! [63]
-    size_t BufSize;
-    char buf[BufSize];
-
-    ::snprintf(buf, BufSize, "%lld", 123456789LL);
-    QString str = QString::fromUtf8(buf);
-    //! [63]
-
     //! [64]
     QString result;
     QTextStream(&result) << "pi = " << 3.14;

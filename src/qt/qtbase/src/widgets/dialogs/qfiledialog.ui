@@ -179,6 +179,9 @@
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
+     <property name="childrenCollapsible">
+      <bool>false</bool>
+     </property>
      <widget class="QSidebar" name="sidebar">
       <property name="accessibleName">
        <string>Sidebar</string>

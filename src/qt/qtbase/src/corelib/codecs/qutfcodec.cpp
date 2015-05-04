@@ -1,40 +1,32 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Copyright (C) 2013 Intel Corporation
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -74,25 +66,22 @@ static inline bool simdEncodeAscii(uchar *&dst, const ushort *&nextAscii, const 
         __m128i packed = _mm_packus_epi16(data1, data2);
         __m128i nonAscii = _mm_cmpgt_epi8(packed, _mm_setzero_si128());
 
+        // store, even if there are non-ASCII characters here
+        _mm_storeu_si128((__m128i*)dst, packed);
+
         // n will contain 1 bit set per character in [data1, data2] that is non-ASCII (or NUL)
         ushort n = ~_mm_movemask_epi8(nonAscii);
         if (n) {
-            // copy the front part that is still ASCII
-            while (!(n & 1)) {
-                *dst++ = *src++;
-                n >>= 1;
-            }
-
             // find the next probable ASCII character
             // we don't want to load 32 bytes again in this loop if we know there are non-ASCII
             // characters still coming
-            n = _bit_scan_reverse(n);
-            nextAscii = src + n + 1;
+            nextAscii = src + _bit_scan_reverse(n) + 1;
+
+            n = _bit_scan_forward(n);
+            dst += n;
+            src += n;
             return false;
         }
-
-        // pack
-        _mm_storeu_si128((__m128i*)dst, packed);
     }
     return src == end;
 }
@@ -103,27 +92,44 @@ static inline bool simdDecodeAscii(ushort *&dst, const uchar *&nextAscii, const 
     for ( ; end - src >= 16; src += 16, dst += 16) {
         __m128i data = _mm_loadu_si128((__m128i*)src);
 
+#ifdef __AVX2__
+        const int BitSpacing = 2;
+        // load and zero extend to an YMM register
+        const __m256i extended = _mm256_cvtepu8_epi16(data);
+
+        uint n = _mm256_movemask_epi8(extended);
+        if (!n) {
+            // store
+            _mm256_storeu_si256((__m256i*)dst, extended);
+            continue;
+        }
+#else
+        const int BitSpacing = 1;
+
         // check if everything is ASCII
         // movemask extracts the high bit of every byte, so n is non-zero if something isn't ASCII
         uint n = _mm_movemask_epi8(data);
-        if (n) {
-            // copy the front part that is still ASCII
-            while (!(n & 1)) {
-                *dst++ = *src++;
-                n >>= 1;
-            }
+        if (!n) {
+            // unpack
+            _mm_storeu_si128((__m128i*)dst, _mm_unpacklo_epi8(data, _mm_setzero_si128()));
+            _mm_storeu_si128(1+(__m128i*)dst, _mm_unpackhi_epi8(data, _mm_setzero_si128()));
+            continue;
+        }
+#endif
 
-            // find the next probable ASCII character
-            // we don't want to load 16 bytes again in this loop if we know there are non-ASCII
-            // characters still coming
-            n = _bit_scan_reverse(n);
-            nextAscii = src + n + 1;
-            return false;
+        // copy the front part that is still ASCII
+        while (!(n & 1)) {
+            *dst++ = *src++;
+            n >>= BitSpacing;
         }
 
-        // unpack
-        _mm_storeu_si128((__m128i*)dst, _mm_unpacklo_epi8(data, _mm_setzero_si128()));
-        _mm_storeu_si128(1+(__m128i*)dst, _mm_unpackhi_epi8(data, _mm_setzero_si128()));
+        // find the next probable ASCII character
+        // we don't want to load 16 bytes again in this loop if we know there are non-ASCII
+        // characters still coming
+        n = _bit_scan_reverse(n);
+        nextAscii = src + (n / BitSpacing) + 1;
+        return false;
+
     }
     return src == end;
 }

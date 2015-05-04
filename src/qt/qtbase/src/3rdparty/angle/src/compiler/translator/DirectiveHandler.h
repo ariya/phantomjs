@@ -17,7 +17,8 @@ class TDirectiveHandler : public pp::DirectiveHandler
 {
   public:
     TDirectiveHandler(TExtensionBehavior& extBehavior,
-                      TDiagnostics& diagnostics);
+                      TDiagnostics& diagnostics,
+                      int& shaderVersion);
     virtual ~TDirectiveHandler();
 
     const TPragma& pragma() const { return mPragma; }
@@ -28,7 +29,8 @@ class TDirectiveHandler : public pp::DirectiveHandler
 
     virtual void handlePragma(const pp::SourceLocation& loc,
                               const std::string& name,
-                              const std::string& value);
+                              const std::string& value,
+                              bool stdgl);
 
     virtual void handleExtension(const pp::SourceLocation& loc,
                                  const std::string& name,
@@ -41,6 +43,7 @@ class TDirectiveHandler : public pp::DirectiveHandler
     TPragma mPragma;
     TExtensionBehavior& mExtensionBehavior;
     TDiagnostics& mDiagnostics;
+    int& mShaderVersion;
 };
 
 #endif  // COMPILER_DIRECTIVE_HANDLER_H_

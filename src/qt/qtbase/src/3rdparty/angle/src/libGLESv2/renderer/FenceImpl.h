@@ -4,40 +4,47 @@
 // found in the LICENSE file.
 //
 
-// FenceImpl.h: Defines the rx::FenceImpl class.
+// FenceImpl.h: Defines the rx::FenceNVImpl and rx::FenceSyncImpl classes.
 
 #ifndef LIBGLESV2_RENDERER_FENCEIMPL_H_
 #define LIBGLESV2_RENDERER_FENCEIMPL_H_
 
+#include "libGLESv2/Error.h"
+
 #include "common/angleutils.h"
+
+#include "angle_gl.h"
 
 namespace rx
 {
 
-class FenceImpl
+class FenceNVImpl
 {
   public:
-    FenceImpl() : mStatus(GL_FALSE), mCondition(GL_NONE) { };
-    virtual ~FenceImpl() { };
+    FenceNVImpl() { };
+    virtual ~FenceNVImpl() { };
 
-    virtual GLboolean isFence() = 0;
-    virtual void setFence(GLenum condition) = 0;
-    virtual GLboolean testFence() = 0;
-    virtual void finishFence() = 0;
-    virtual void getFenceiv(GLenum pname, GLint *params) = 0;
-
-  protected:
-    void setStatus(GLboolean status) { mStatus = status; }
-    GLboolean getStatus() const { return mStatus; }
-
-    void setCondition(GLuint condition) { mCondition = condition; }
-    GLuint getCondition() const { return mCondition; }
+    virtual gl::Error set() = 0;
+    virtual gl::Error test(bool flushCommandBuffer, GLboolean *outFinished) = 0;
+    virtual gl::Error finishFence(GLboolean *outFinished) = 0;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(FenceImpl);
+    DISALLOW_COPY_AND_ASSIGN(FenceNVImpl);
+};
 
-    GLboolean mStatus;
-    GLenum mCondition;
+class FenceSyncImpl
+{
+  public:
+    FenceSyncImpl() { };
+    virtual ~FenceSyncImpl() { };
+
+    virtual gl::Error set() = 0;
+    virtual gl::Error clientWait(GLbitfield flags, GLuint64 timeout, GLenum *outResult) = 0;
+    virtual gl::Error serverWait(GLbitfield flags, GLuint64 timeout) = 0;
+    virtual gl::Error getStatus(GLint *outResult) = 0;
+
+  private:
+    DISALLOW_COPY_AND_ASSIGN(FenceSyncImpl);
 };
 
 }

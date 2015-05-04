@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -43,9 +35,11 @@
 #include "qwindowscontext.h"
 #include "qwindowswindow.h"
 #include "qwindowsguieventdispatcher.h"
+#include "qwindowsscaling.h"
 
 #include <QtGui/QWindow>
 #include <qpa/qwindowsysteminterface.h>
+#include <private/qguiapplication_p.h>
 #include <QtGui/QKeyEvent>
 
 QT_BEGIN_NAMESPACE
@@ -428,6 +422,63 @@ static const uint KeyTbl[] = { // Keyboard mapping table
     0
 };
 
+static const uint CmdTbl[] = { // Multimedia keys mapping table
+                            // Dec |  Hex | AppCommand
+    Qt::Key_unknown,        //   0   0x00
+    Qt::Key_Back,           //   1   0x01   APPCOMMAND_BROWSER_BACKWARD
+    Qt::Key_Forward,        //   2   0x02   APPCOMMAND_BROWSER_FORWARD
+    Qt::Key_Refresh,        //   3   0x03   APPCOMMAND_BROWSER_REFRESH
+    Qt::Key_Stop,           //   4   0x04   APPCOMMAND_BROWSER_STOP
+    Qt::Key_Search,         //   5   0x05   APPCOMMAND_BROWSER_SEARCH
+    Qt::Key_Favorites,      //   6   0x06   APPCOMMAND_BROWSER_FAVORITES
+    Qt::Key_Home,           //   7   0x07   APPCOMMAND_BROWSER_HOME
+    Qt::Key_VolumeMute,     //   8   0x08   APPCOMMAND_VOLUME_MUTE
+    Qt::Key_VolumeDown,     //   9   0x09   APPCOMMAND_VOLUME_DOWN
+    Qt::Key_VolumeUp,       //  10   0x0a   APPCOMMAND_VOLUME_UP
+    Qt::Key_MediaNext,      //  11   0x0b   APPCOMMAND_MEDIA_NEXTTRACK
+    Qt::Key_MediaPrevious,  //  12   0x0c   APPCOMMAND_MEDIA_PREVIOUSTRACK
+    Qt::Key_MediaStop,      //  13   0x0d   APPCOMMAND_MEDIA_STOP
+    Qt::Key_MediaTogglePlayPause,   //  14   0x0e   APPCOMMAND_MEDIA_PLAYPAUSE
+    Qt::Key_LaunchMail,     //  15   0x0f   APPCOMMAND_LAUNCH_MAIL
+    Qt::Key_LaunchMedia,    //  16   0x10   APPCOMMAND_LAUNCH_MEDIA_SELECT
+    Qt::Key_Launch0,        //  17   0x11   APPCOMMAND_LAUNCH_APP1
+    Qt::Key_Launch1,        //  18   0x12   APPCOMMAND_LAUNCH_APP2
+    Qt::Key_BassDown,       //  19   0x13   APPCOMMAND_BASS_DOWN
+    Qt::Key_BassBoost,      //  20   0x14   APPCOMMAND_BASS_BOOST
+    Qt::Key_BassUp,         //  21   0x15   APPCOMMAND_BASS_UP
+    Qt::Key_TrebleDown,     //  22   0x16   APPCOMMAND_TREBLE_DOWN
+    Qt::Key_TrebleUp,       //  23   0x17   APPCOMMAND_TREBLE_UP
+    Qt::Key_MicMute,        //  24   0x18   APPCOMMAND_MICROPHONE_VOLUME_MUTE
+    Qt::Key_MicVolumeDown,  //  25   0x19   APPCOMMAND_MICROPHONE_VOLUME_DOWN
+    Qt::Key_MicVolumeUp,    //  26   0x1a   APPCOMMAND_MICROPHONE_VOLUME_UP
+    Qt::Key_Help,           //  27   0x1b   APPCOMMAND_HELP
+    Qt::Key_Find,           //  28   0x1c   APPCOMMAND_FIND
+    Qt::Key_New,            //  29   0x1d   APPCOMMAND_NEW
+    Qt::Key_Open,           //  30   0x1e   APPCOMMAND_OPEN
+    Qt::Key_Close,          //  31   0x1f   APPCOMMAND_CLOSE
+    Qt::Key_Save,           //  32   0x20   APPCOMMAND_SAVE
+    Qt::Key_Print,          //  33   0x21   APPCOMMAND_PRINT
+    Qt::Key_Undo,           //  34   0x22   APPCOMMAND_UNDO
+    Qt::Key_Redo,           //  35   0x23   APPCOMMAND_REDO
+    Qt::Key_Copy,           //  36   0x24   APPCOMMAND_COPY
+    Qt::Key_Cut,            //  37   0x25   APPCOMMAND_CUT
+    Qt::Key_Paste,          //  38   0x26   APPCOMMAND_PASTE
+    Qt::Key_Reply,          //  39   0x27   APPCOMMAND_REPLY_TO_MAIL
+    Qt::Key_MailForward,    //  40   0x28   APPCOMMAND_FORWARD_MAIL
+    Qt::Key_Send,           //  41   0x29   APPCOMMAND_SEND_MAIL
+    Qt::Key_Spell,          //  42   0x2a   APPCOMMAND_SPELL_CHECK
+    Qt::Key_unknown,        //  43   0x2b   APPCOMMAND_DICTATE_OR_COMMAND_CONTROL_TOGGLE
+    Qt::Key_unknown,        //  44   0x2c   APPCOMMAND_MIC_ON_OFF_TOGGLE
+    Qt::Key_unknown,        //  45   0x2d   APPCOMMAND_CORRECTION_LIST
+    Qt::Key_MediaPlay,      //  46   0x2e   APPCOMMAND_MEDIA_PLAY
+    Qt::Key_MediaPause,     //  47   0x2f   APPCOMMAND_MEDIA_PAUSE
+    Qt::Key_MediaRecord,    //  48   0x30   APPCOMMAND_MEDIA_RECORD
+    Qt::Key_AudioForward,   //  49   0x31   APPCOMMAND_MEDIA_FAST_FORWARD
+    Qt::Key_AudioRewind,    //  50   0x32   APPCOMMAND_MEDIA_REWIND
+    Qt::Key_ChannelDown,    //  51   0x33   APPCOMMAND_MEDIA_CHANNEL_DOWN
+    Qt::Key_ChannelUp       //  52   0x34   APPCOMMAND_MEDIA_CHANNEL_UP
+};
+
 // Possible modifier states.
 // NOTE: The order of these states match the order in QWindowsKeyMapper::updatePossibleKeyCodes()!
 static const Qt::KeyboardModifiers ModsTbl[] = {
@@ -710,11 +761,10 @@ static void showSystemMenu(QWindow* w)
 #undef enabled
 #undef disabled
 #endif // !Q_OS_WINCE
+    const QPoint topLeft = topLevel->geometry().topLeft() * QWindowsScaling::factor();
     const int ret = TrackPopupMenuEx(menu,
                                TPM_LEFTALIGN  | TPM_TOPALIGN | TPM_NONOTIFY | TPM_RETURNCMD,
-                               topLevel->geometry().x(), topLevel->geometry().y(),
-                               topLevelHwnd,
-                               0);
+                               topLeft.x(), topLeft.y(), topLevelHwnd, 0);
     if (ret)
         qWindowsWndProc(topLevelHwnd, WM_SYSCOMMAND, ret, 0);
 }
@@ -747,6 +797,11 @@ bool QWindowsKeyMapper::translateKeyEvent(QWindow *widget, HWND hwnd,
         return true;
     }
 
+#if defined(WM_APPCOMMAND)
+    if (msg.message == WM_APPCOMMAND)
+        return translateMultimediaKeyEventInternal(widget, msg);
+#endif
+
     // WM_(IME_)CHAR messages already contain the character in question so there is
     // no need to fiddle with our key map. In any other case add this key to the
     // keymap if it is not present yet.
@@ -759,6 +814,32 @@ bool QWindowsKeyMapper::translateKeyEvent(QWindow *widget, HWND hwnd,
         return true;
 
     return translateKeyEventInternal(widget, msg, false);
+}
+
+bool QWindowsKeyMapper::translateMultimediaKeyEventInternal(QWindow *window, const MSG &msg)
+{
+#if defined(WM_APPCOMMAND)
+    const int cmd = GET_APPCOMMAND_LPARAM(msg.lParam);
+    const int dwKeys = GET_KEYSTATE_LPARAM(msg.lParam);
+    int state = 0;
+    state |= (dwKeys & MK_SHIFT ? int(Qt::ShiftModifier) : 0);
+    state |= (dwKeys & MK_CONTROL ? int(Qt::ControlModifier) : 0);
+
+    QWindow *receiver = m_keyGrabber ? m_keyGrabber : window;
+
+    if (cmd < 0 || cmd > 52)
+        return false;
+
+    const int qtKey = CmdTbl[cmd];
+    sendExtendedPressRelease(receiver, qtKey, Qt::KeyboardModifier(state), 0, 0, 0);
+    // QTBUG-43343: Make sure to return false if Qt does not handle the key, otherwise,
+    // the keys are not passed to the active media player.
+    const QKeySequence sequence(Qt::Modifier(state) + qtKey);
+    return QGuiApplicationPrivate::instance()->shortcutMap.hasShortcutForKeySequence(sequence);
+#else
+    Q_UNREACHABLE();
+    return false;
+#endif
 }
 
 bool QWindowsKeyMapper::translateKeyEventInternal(QWindow *window, const MSG &msg, bool /* grab */)
@@ -893,6 +974,7 @@ bool QWindowsKeyMapper::translateKeyEventInternal(QWindow *window, const MSG &ms
         case Qt::Key_Plus:
         case Qt::Key_Minus:
         case Qt::Key_Period:
+        case Qt::Key_Comma:
         case Qt::Key_0:
         case Qt::Key_1:
         case Qt::Key_2:
@@ -1025,9 +1107,17 @@ bool QWindowsKeyMapper::translateKeyEventInternal(QWindow *window, const MSG &ms
         else {
             const QString text = uch.isNull() ? QString() : QString(uch);
             const char a = uch.row() ? 0 : uch.cell();
+            const Qt::KeyboardModifiers modifiers(state);
+#ifndef QT_NO_SHORTCUT
+            // Is Qt interested in the context menu key?
+            if (modifiers == Qt::SHIFT && code == Qt::Key_F10
+                && !QGuiApplicationPrivate::instance()->shortcutMap.hasShortcutForKeySequence(QKeySequence(Qt::SHIFT + Qt::Key_F10))) {
+                return false;
+            }
+#endif // !QT_NO_SHORTCUT
             key_recorder.storeKey(msg.wParam, a, state, text);
             QWindowSystemInterface::handleExtendedKeyEvent(receiver, QEvent::KeyPress, code,
-                                                           Qt::KeyboardModifier(state), scancode, msg.wParam, nModifiers, text, false);
+                                                           modifiers, scancode, msg.wParam, nModifiers, text, false);
             result =true;
             bool store = true;
 #ifndef Q_OS_WINCE

@@ -5,35 +5,27 @@
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -67,8 +59,10 @@ static const char fragment_shader150[] =
     "out vec4 fragcolor;"
     "uniform sampler2D textureSampler;"
     "uniform bool swizzle;"
+    "uniform float opacity;"
     "void main() {"
     "   vec4 tmpFragColor = texture(textureSampler, uv);"
+    "   tmpFragColor.a *= opacity;"
     "   fragcolor = swizzle ? tmpFragColor.bgra : tmpFragColor;"
     "}";
 
@@ -87,8 +81,10 @@ static const char fragment_shader[] =
     "varying highp vec2 uv;"
     "uniform sampler2D textureSampler;"
     "uniform bool swizzle;"
+    "uniform highp float opacity;"
     "void main() {"
     "   highp vec4 tmpFragColor = texture2D(textureSampler,uv);"
+    "   tmpFragColor.a *= opacity;"
     "   gl_FragColor = swizzle ? tmpFragColor.bgra : tmpFragColor;"
     "}";
 
@@ -140,6 +136,8 @@ public:
         , textureTransformUniformPos(0)
         , swizzle(false)
         , swizzleOld(false)
+        , opacity(1.0f)
+        , opacityOld(0.0f)
         , textureMatrixUniformState(User)
         , vao(new QOpenGLVertexArrayObject())
     { }
@@ -165,6 +163,11 @@ public:
             program->setUniformValue(swizzleUniformPos, swizzle);
             swizzleOld = swizzle;
         }
+
+        if (opacity != opacityOld) {
+            program->setUniformValue(opacityUniformPos, opacity);
+            opacityOld = opacity;
+        }
     }
 
     QOpenGLBuffer vertexBuffer;
@@ -175,8 +178,11 @@ public:
     GLuint textureCoordAttribPos;
     GLuint textureTransformUniformPos;
     GLuint swizzleUniformPos;
+    GLuint opacityUniformPos;
     bool swizzle;
     bool swizzleOld;
+    float opacity;
+    float opacityOld;
     TextureMatrixUniform textureMatrixUniformState;
     QScopedPointer<QOpenGLVertexArrayObject> vao;
 };
@@ -224,6 +230,7 @@ QOpenGLTextureBlitter::QOpenGLTextureBlitter()
 
 QOpenGLTextureBlitter::~QOpenGLTextureBlitter()
 {
+    destroy();
 }
 
 bool QOpenGLTextureBlitter::create()
@@ -233,9 +240,6 @@ bool QOpenGLTextureBlitter::create()
         return false;
 
     Q_D(QOpenGLTextureBlitter);
-
-    d->vao->create();
-    d->vao->bind();
 
     if (d->program)
         return true;
@@ -259,14 +263,17 @@ bool QOpenGLTextureBlitter::create()
 
     d->program->bind();
 
+    // Create and bind the VAO, if supported.
+    QOpenGLVertexArrayObject::Binder vaoBinder(d->vao.data());
+
     d->vertexBuffer.create();
     d->vertexBuffer.bind();
-    d->vertexBuffer.allocate(vertex_buffer_data, sizeof(vertex_buffer_data) * sizeof(vertex_buffer_data[0]));
+    d->vertexBuffer.allocate(vertex_buffer_data, sizeof(vertex_buffer_data));
     d->vertexBuffer.release();
 
     d->textureBuffer.create();
     d->textureBuffer.bind();
-    d->textureBuffer.allocate(texture_buffer_data, sizeof(texture_buffer_data) * sizeof(texture_buffer_data[0]));
+    d->textureBuffer.allocate(texture_buffer_data, sizeof(texture_buffer_data));
     d->textureBuffer.release();
 
     d->vertexCoordAttribPos = d->program->attributeLocation("vertexCoord");
@@ -274,10 +281,9 @@ bool QOpenGLTextureBlitter::create()
     d->textureCoordAttribPos = d->program->attributeLocation("textureCoord");
     d->textureTransformUniformPos = d->program->uniformLocation("textureTransform");
     d->swizzleUniformPos = d->program->uniformLocation("swizzle");
+    d->opacityUniformPos = d->program->uniformLocation("opacity");
 
     d->program->setUniformValue(d->swizzleUniformPos,false);
-
-    d->vao->release();
 
     return true;
 }
@@ -290,6 +296,8 @@ bool QOpenGLTextureBlitter::isCreated() const
 
 void QOpenGLTextureBlitter::destroy()
 {
+    if (!isCreated())
+        return;
     Q_D(QOpenGLTextureBlitter);
     d->program.reset();
     d->vertexBuffer.destroy();
@@ -301,7 +309,8 @@ void QOpenGLTextureBlitter::bind()
 {
     Q_D(QOpenGLTextureBlitter);
 
-    d->vao->bind();
+    if (d->vao->isCreated())
+        d->vao->bind();
 
     d->program->bind();
 
@@ -320,13 +329,20 @@ void QOpenGLTextureBlitter::release()
 {
     Q_D(QOpenGLTextureBlitter);
     d->program->release();
-    d->vao->release();
+    if (d->vao->isCreated())
+        d->vao->release();
 }
 
 void QOpenGLTextureBlitter::setSwizzleRB(bool swizzle)
 {
     Q_D(QOpenGLTextureBlitter);
     d->swizzle = swizzle;
+}
+
+void QOpenGLTextureBlitter::setOpacity(float opacity)
+{
+    Q_D(QOpenGLTextureBlitter);
+    d->opacity = opacity;
 }
 
 void QOpenGLTextureBlitter::blit(GLuint texture,

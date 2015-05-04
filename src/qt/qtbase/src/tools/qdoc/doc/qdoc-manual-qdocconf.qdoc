@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the documentation of the Qt Toolkit.
@@ -1072,7 +1072,7 @@
 
     \code
     qhp.Qt.file                = qt.qhp
-    qhp.Qt.namespace           = com.trolltech.qt.440
+    qhp.Qt.namespace           = org.qt-project.qtcore.$QT_VERSION_TAG
     qhp.Qt.virtualFolder       = qdoc
     qhp.Qt.indexTitle          = Qt Reference Documentation
     qhp.Qt.indexRoot           =
@@ -1126,7 +1126,7 @@
     erroneous documentation due to non-standard C++ constructs.
 
     \target Cpp.ignoredirectives-variable
-    \section1  Cpp.ignoredirectives
+    \section1 Cpp.ignoredirectives
     The \c Cpp.ignoredirectives variable makes QDoc ignore the
     specified non-standard constructs, within C++ source code.
 
@@ -1177,7 +1177,7 @@
     See also \l Cpp.ignoretokens.
 
     \target Cpp.ignoretokens-variable
-    \section1  Cpp.ignoretokens
+    \section1 Cpp.ignoretokens
 
     The \c Cpp.ignoretokens variable makes QDoc ignore the specified
     non-standard constructs, within C++ source code.
@@ -1330,6 +1330,13 @@
     QDoc expects to find stylesheets in the directory containing the
     \l qtgui.qdocconf file, and it will copy those specified to the output
     directory alongside the HTML pages.
+
+    \target HTML.tocdepth
+    \section1 HTML.tocdepth
+
+    The HTML.tocdepth variable defines how many document sections are printed in
+    the table of contents. Setting tocdepth to \c 0 disables the table of
+    contents while not setting the variable prints all document sections.
 
 */
 
@@ -1569,7 +1576,7 @@
     dita.metadata.default.author      = Qt Development Frameworks
     dita.metadata.default.permissions = all
     dita.metadata.default.publisher   = Qt Project
-    dita.metadata.default.copyryear = 2014
+    dita.metadata.default.copyryear = 2015
     dita.metadata.default.copyrholder = Qt Project
     dita.metadata.default.audience = programmer
     \endcode

@@ -187,6 +187,14 @@ void QCocoaSystemTrayIcon::cleanup()
     m_sys = 0;
 }
 
+static bool heightCompareFunction (QSize a, QSize b) { return (a.height() < b.height()); }
+static QList<QSize> sortByHeight(const QList<QSize> sizes)
+{
+    QList<QSize> sorted = sizes;
+    std::sort(sorted.begin(), sorted.end(), heightCompareFunction);
+    return sorted;
+}
+
 void QCocoaSystemTrayIcon::updateIcon(const QIcon &icon)
 {
     if (!m_sys)
@@ -196,16 +204,62 @@ void QCocoaSystemTrayIcon::updateIcon(const QIcon &icon)
 
     const bool menuVisible = m_sys->item->menu && m_sys->item->menuVisible;
 
-    CGFloat hgt = [[[NSApplication sharedApplication] mainMenu] menuBarHeight];
-    const short scale = hgt - 4;
+    // The reccomended maximum title bar icon height is 18 points
+    // (device independent pixels). The menu height on past and
+    // current OS X versions is 22 points. Provide some future-proofing
+    // by deriving the icon height from the menu height.
+    const int padding = 4;
+    const int menuHeight = [[[NSApplication sharedApplication] mainMenu] menuBarHeight];
+    const int maxImageHeight = menuHeight - padding;
 
-    QPixmap pm = m_sys->item->icon.pixmap(QSize(scale, scale),
-                                          menuVisible ? QIcon::Selected : QIcon::Normal);
-    if (pm.isNull()) {
-        pm = QPixmap(scale, scale);
-        pm.fill(Qt::transparent);
+    // Select pixmap based on the device pixel height. Ideally we would use
+    // the devicePixelRatio of the target screen, but that value is not
+    // known until draw time. Use qApp->devicePixelRatio, which returns the
+    // devicePixelRatio for the "best" screen on the system.
+    qreal devicePixelRatio = qApp->devicePixelRatio();
+    const int maxPixmapHeight = maxImageHeight * devicePixelRatio;
+    const QIcon::Mode mode = menuVisible ? QIcon::Selected : QIcon::Normal;
+    QSize selectedSize;
+    Q_FOREACH (const QSize& size, sortByHeight(icon.availableSizes(mode))) {
+        // Select a pixmap based on the height. We want the largest pixmap
+        // with a height smaller or equal to maxPixmapHeight. The pixmap
+        // may rectangular; assume it has a reasonable size. If there is
+        // not suitable pixmap use the smallest one the icon can provide.
+        if (size.height() <= maxPixmapHeight) {
+            selectedSize = size;
+        } else {
+            if (!selectedSize.isValid())
+                selectedSize = size;
+            break;
+        }
     }
-    NSImage *nsimage = static_cast<NSImage *>(qt_mac_create_nsimage(pm));
+
+    QPixmap pixmap = icon.pixmap(selectedSize, mode);
+
+    // Draw a low-resolution icon if there is not enough pixels for a retina
+    // icon. This prevents showing a small icon on retina displays.
+    if (devicePixelRatio > 1.0 && selectedSize.height() < maxPixmapHeight / 2)
+        devicePixelRatio = 1.0;
+
+    // Scale large pixmaps to fit the available menu bar area.
+    if (pixmap.height() > maxPixmapHeight)
+        pixmap = pixmap.scaledToHeight(maxPixmapHeight, Qt::SmoothTransformation);
+
+    // The icon will be stretched over the full height of the menu bar
+    // therefore we create a second pixmap which has the full height
+    QSize fullHeightSize(!pixmap.isNull() ? pixmap.width():
+                                            menuHeight * devicePixelRatio,
+                         menuHeight * devicePixelRatio);
+    QPixmap fullHeightPixmap(fullHeightSize);
+    fullHeightPixmap.fill(Qt::transparent);
+    if (!pixmap.isNull()) {
+        QPainter p(&fullHeightPixmap);
+        QRect r = pixmap.rect();
+        r.moveCenter(fullHeightPixmap.rect().center());
+        p.drawPixmap(r, pixmap);
+    }
+
+    NSImage *nsimage = static_cast<NSImage *>(qt_mac_create_nsimage(fullHeightPixmap));
     [(NSImageView*)[[m_sys->item item] view] setImage: nsimage];
     [nsimage release];
 }
@@ -327,18 +381,7 @@ QT_END_NAMESPACE
     Q_UNUSED(notification);
     down = NO;
 
-    CGFloat hgt = [[[NSApplication sharedApplication] mainMenu] menuBarHeight];
-    const short scale = hgt - 4;
-
-    QPixmap pm = parent->icon.pixmap(QSize(scale, scale), QIcon::Normal);
-    if (pm.isNull()) {
-        pm = QPixmap(scale, scale);
-        pm.fill(Qt::transparent);
-    }
-    NSImage *nsaltimage = static_cast<NSImage *>(qt_mac_create_nsimage(pm));
-    [self setImage: nsaltimage];
-    [nsaltimage release];
-
+    parent->systray->updateIcon(parent->icon);
     parent->menuVisible = false;
 
     [self setNeedsDisplay:YES];
@@ -350,18 +393,7 @@ QT_END_NAMESPACE
     int clickCount = [mouseEvent clickCount];
     [self setNeedsDisplay:YES];
 
-    CGFloat hgt = [[[NSApplication sharedApplication] mainMenu] menuBarHeight];
-    const short scale = hgt - 4;
-
-    QPixmap pm = parent->icon.pixmap(QSize(scale, scale),
-                                     parent->menuVisible ? QIcon::Selected : QIcon::Normal);
-    if (pm.isNull()) {
-        pm = QPixmap(scale, scale);
-        pm.fill(Qt::transparent);
-    }
-    NSImage *nsaltimage = static_cast<NSImage *>(qt_mac_create_nsimage(pm));
-    [self setImage: nsaltimage];
-    [nsaltimage release];
+    parent->systray->updateIcon(parent->icon);
 
     if (clickCount == 2) {
         [self menuTrackingDone:nil];

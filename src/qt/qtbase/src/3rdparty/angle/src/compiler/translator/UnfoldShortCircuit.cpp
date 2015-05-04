@@ -12,6 +12,7 @@
 
 #include "compiler/translator/InfoSink.h"
 #include "compiler/translator/OutputHLSL.h"
+#include "compiler/translator/UtilsHLSL.h"
 
 namespace sh
 {
@@ -117,7 +118,7 @@ bool UnfoldShortCircuit::visitSelection(Visit visit, TIntermSelection *node)
     {
         int i = mTemporaryIndex;
 
-        out << mOutputHLSL->typeString(node->getType()) << " s" << i << ";\n";
+        out << TypeString(node->getType()) << " s" << i << ";\n";
 
         out << "{\n";
 

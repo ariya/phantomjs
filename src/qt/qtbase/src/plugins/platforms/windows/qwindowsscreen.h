@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -43,11 +35,13 @@
 #define QWINDOWSSCREEN_H
 
 #include "qwindowscursor.h"
+#include "qwindowsscaling.h"
 #ifdef Q_OS_WINCE
 #  include "qplatformfunctions_wince.h"
 #endif
 
 #include <QtCore/QList>
+#include <QtCore/QVector>
 #include <QtCore/QPair>
 #include <QtCore/QSharedPointer>
 #include <qpa/qplatformscreen.h>
@@ -88,24 +82,24 @@ public:
 
     static QWindowsScreen *screenOf(const QWindow *w = 0);
 
-    virtual QRect geometry() const { return m_data.geometry; }
-    virtual QRect availableGeometry() const { return m_data.availableGeometry; }
-    virtual int depth() const { return m_data.depth; }
-    virtual QImage::Format format() const { return m_data.format; }
-    virtual QSizeF physicalSize() const { return m_data.physicalSizeMM; }
-    virtual QDpi logicalDpi() const { return m_data.dpi; }
-    virtual qreal refreshRate() const { return m_data.refreshRateHz; }
-    virtual QString name() const { return m_data.name; }
-    virtual Qt::ScreenOrientation primaryOrientation() { return m_data.orientation; }
-    virtual QList<QPlatformScreen *> virtualSiblings() const;
-    virtual QWindow *topLevelAt(const QPoint &point) const
-        {  return QWindowsScreen::findTopLevelAt(point, CWP_SKIPINVISIBLE);  }
+    QRect geometryDp() const { return m_data.geometry; }
+    QRect geometry() const Q_DECL_OVERRIDE { return QWindowsScaling::mapFromNative(geometryDp()); }
+    QRect availableGeometryDp() const { return m_data.availableGeometry; }
+    QRect availableGeometry() const Q_DECL_OVERRIDE { return QWindowsScaling::mapFromNative(availableGeometryDp()); }
+    int depth() const Q_DECL_OVERRIDE { return m_data.depth; }
+    QImage::Format format() const Q_DECL_OVERRIDE { return m_data.format; }
+    QSizeF physicalSize() const Q_DECL_OVERRIDE { return m_data.physicalSizeMM; }
+    QDpi logicalDpi() const Q_DECL_OVERRIDE
+        { return QDpi(m_data.dpi.first / QWindowsScaling::factor(), m_data.dpi.second / QWindowsScaling::factor()); }
+    qreal devicePixelRatio() const Q_DECL_OVERRIDE { return QWindowsScaling::factor(); }
+    qreal refreshRate() const Q_DECL_OVERRIDE { return m_data.refreshRateHz; }
+    QString name() const Q_DECL_OVERRIDE { return m_data.name; }
+    Qt::ScreenOrientation orientation() const Q_DECL_OVERRIDE { return m_data.orientation; }
+    QList<QPlatformScreen *> virtualSiblings() const Q_DECL_OVERRIDE;
+    QWindow *topLevelAt(const QPoint &point) const Q_DECL_OVERRIDE;
+    static QWindow *windowAt(const QPoint &point, unsigned flags);
 
-    static QWindow *findTopLevelAt(const QPoint &point, unsigned flags);
-    static QWindow *windowAt(const QPoint &point, unsigned flags = CWP_SKIPINVISIBLE);
-    static QWindow *windowUnderMouse(unsigned flags = CWP_SKIPINVISIBLE);
-
-    virtual QPixmap grabWindow(WId window, int x, int y, int width, int height) const;
+    QPixmap grabWindow(WId window, int qX, int qY, int qWidth, int qHeight) const Q_DECL_OVERRIDE;
 
     inline void handleChanges(const QWindowsScreenData &newData);
 
@@ -117,6 +111,7 @@ public:
 #endif // !QT_NO_CURSOR
 
     const QWindowsScreenData &data() const  { return m_data; }
+    static int maxMonitorHorizResolution();
 
 private:
     QWindowsScreenData m_data;
@@ -143,6 +138,8 @@ public:
     const WindowsScreenList &screens() const { return m_screens; }
 
 private:
+    void removeScreen(int index);
+
     WindowsScreenList m_screens;
     int m_lastDepth;
     WORD m_lastHorizontalResolution;

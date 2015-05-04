@@ -16,8 +16,8 @@ Diagnostics::~Diagnostics()
 }
 
 void Diagnostics::report(ID id,
-                         const SourceLocation& loc,
-                         const std::string& text)
+                         const SourceLocation &loc,
+                         const std::string &text)
 {
     // TODO(alokp): Keep a count of errors and warnings.
     print(id, loc, text);
@@ -41,86 +41,86 @@ std::string Diagnostics::message(ID id)
     {
       // Errors begin.
       case PP_INTERNAL_ERROR:
-          return "internal error";
+        return "internal error";
       case PP_OUT_OF_MEMORY:
-          return "out of memory";
+        return "out of memory";
       case PP_INVALID_CHARACTER:
-          return "invalid character";
+        return "invalid character";
       case PP_INVALID_NUMBER:
-          return "invalid number";
+        return "invalid number";
       case PP_INTEGER_OVERFLOW:
-          return "integer overflow";
+        return "integer overflow";
       case PP_FLOAT_OVERFLOW:
-          return "float overflow";
+        return "float overflow";
       case PP_TOKEN_TOO_LONG:
-          return "token too long";
+        return "token too long";
       case PP_INVALID_EXPRESSION:
-          return "invalid expression";
+        return "invalid expression";
       case PP_DIVISION_BY_ZERO:
-          return "division by zero";
+        return "division by zero";
       case PP_EOF_IN_COMMENT:
-          return "unexpected end of file found in comment";
+        return "unexpected end of file found in comment";
       case PP_UNEXPECTED_TOKEN:
-          return "unexpected token";
+        return "unexpected token";
       case PP_DIRECTIVE_INVALID_NAME:
-          return "invalid directive name";
+        return "invalid directive name";
       case PP_MACRO_NAME_RESERVED:
-          return "macro name is reserved";
+        return "macro name is reserved";
       case PP_MACRO_REDEFINED:
-          return "macro redefined";
+        return "macro redefined";
       case PP_MACRO_PREDEFINED_REDEFINED:
-          return "predefined macro redefined";
+        return "predefined macro redefined";
       case PP_MACRO_PREDEFINED_UNDEFINED:
-          return "predefined macro undefined";
+        return "predefined macro undefined";
       case PP_MACRO_UNTERMINATED_INVOCATION:
-          return "unterminated macro invocation";
+        return "unterminated macro invocation";
       case PP_MACRO_TOO_FEW_ARGS:
-          return "Not enough arguments for macro";
+        return "Not enough arguments for macro";
       case PP_MACRO_TOO_MANY_ARGS:
-          return "Too many arguments for macro";
+        return "Too many arguments for macro";
       case PP_CONDITIONAL_ENDIF_WITHOUT_IF:
-          return "unexpected #endif found without a matching #if";
+        return "unexpected #endif found without a matching #if";
       case PP_CONDITIONAL_ELSE_WITHOUT_IF:
-          return "unexpected #else found without a matching #if";
+        return "unexpected #else found without a matching #if";
       case PP_CONDITIONAL_ELSE_AFTER_ELSE:
-          return "unexpected #else found after another #else";
+        return "unexpected #else found after another #else";
       case PP_CONDITIONAL_ELIF_WITHOUT_IF:
-          return "unexpected #elif found without a matching #if";
+        return "unexpected #elif found without a matching #if";
       case PP_CONDITIONAL_ELIF_AFTER_ELSE:
-          return "unexpected #elif found after #else";
+        return "unexpected #elif found after #else";
       case PP_CONDITIONAL_UNTERMINATED:
-          return "unexpected end of file found in conditional block";
+        return "unexpected end of file found in conditional block";
       case PP_INVALID_EXTENSION_NAME:
-          return "invalid extension name";
+        return "invalid extension name";
       case PP_INVALID_EXTENSION_BEHAVIOR:
-          return "invalid extension behavior";
+        return "invalid extension behavior";
       case PP_INVALID_EXTENSION_DIRECTIVE:
-          return "invalid extension directive";
+        return "invalid extension directive";
       case PP_INVALID_VERSION_NUMBER:
-          return "invalid version number";
+        return "invalid version number";
       case PP_INVALID_VERSION_DIRECTIVE:
-          return "invalid version directive";
+        return "invalid version directive";
       case PP_VERSION_NOT_FIRST_STATEMENT:
         return "#version directive must occur before anything else, "
                "except for comments and white space";
       case PP_INVALID_LINE_NUMBER:
-          return "invalid line number";
+        return "invalid line number";
       case PP_INVALID_FILE_NUMBER:
-          return "invalid file number";
+        return "invalid file number";
       case PP_INVALID_LINE_DIRECTIVE:
-          return "invalid line directive";
+        return "invalid line directive";
       // Errors end.
       // Warnings begin.
       case PP_EOF_IN_DIRECTIVE:
-          return "unexpected end of file found in directive";
+        return "unexpected end of file found in directive";
       case PP_CONDITIONAL_UNEXPECTED_TOKEN:
-          return "unexpected token after conditional expression";
+        return "unexpected token after conditional expression";
       case PP_UNRECOGNIZED_PRAGMA:
-          return "unrecognized pragma";
+        return "unrecognized pragma";
       // Warnings end.
       default:
-          assert(false);
-          return "";
+        assert(false);
+        return "";
     }
 }
 

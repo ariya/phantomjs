@@ -136,9 +136,9 @@ int roundedValueB = qRound(valueB);
 qreal valueA = 42949672960.3;
 qreal valueB = 42949672960.7;
 
-int roundedValueA = qRound(valueA);
+qint64 roundedValueA = qRound64(valueA);
 // roundedValueA = 42949672960
-int roundedValueB = qRound(valueB);
+qint64 roundedValueB = qRound64(valueB);
 // roundedValueB = 42949672961
 //! [12]
 
@@ -305,7 +305,7 @@ void load(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.exists())
-        qCritical("File '%s' does not exist!", qPrintable(fileName));
+        qCritical("File '%s' does not exist!", qUtf8Printable(fileName));
 }
 //! [28]
 
@@ -424,7 +424,7 @@ void TheClass::addLabels()
 
 
 //! [37]
-qWarning("%s: %s", qPrintable(key), qPrintable(value));
+qWarning("%s: %s", qUtf8Printable(key), qUtf8Printable(value));
 //! [37]
 
 

@@ -32,6 +32,7 @@ qt_install_headers {
     !isEmpty(header_files_client) {
         wayland_generated_client_headers.files = $$header_files_client
         wayland_generated_client_headers.path = $$private_headers.path
+        wayland_generated_client_headers.CONFIG = no_check_exist
         INSTALLS += wayland_generated_client_headers
         WAYLAND_CLIENT_HEADER_DEST = $$header_dest/
         WAYLAND_CLIENT_INCLUDE_DIR = $$MODULE_INCNAME/private
@@ -41,6 +42,7 @@ qt_install_headers {
     !isEmpty(header_files_server) {
         wayland_generated_server_headers.files = $$header_files_server
         wayland_generated_server_headers.path = $$private_headers.path
+        wayland_generated_server_headers.CONFIG = no_check_exist
         INSTALLS += wayland_generated_server_headers
         WAYLAND_SERVER_HEADER_DEST = $$header_dest/
         WAYLAND_SERVER_INCLUDE_DIR = $$MODULE_INCNAME/private

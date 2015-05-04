@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -61,6 +53,7 @@
 #include "QtGui/qregion.h"
 #include "QtGui/qinputmethod.h"
 #include "QtGui/qopengl.h"
+#include "QtGui/qsurfaceformat.h"
 #include "QtWidgets/qsizepolicy.h"
 #include "QtWidgets/qstyle.h"
 #include "QtWidgets/qapplication.h"
@@ -392,6 +385,7 @@ public:
                 QWidget::RenderFlags renderFlags);
     void drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QPoint &offset, int flags,
                     QPainter *sharedPainter = 0, QWidgetBackingStore *backingStore = 0);
+    void sendPaintEvent(const QRegion &toBePainted);
 
 
     void paintSiblingsRecursive(QPaintDevice *pdev, const QObjectList& children, int index,
@@ -609,7 +603,7 @@ public:
         }
     }
 
-    void setWSGeometry(bool dontShow=false, const QRect &oldRect = QRect());
+    void setWSGeometry();
 
     inline QPoint mapToWS(const QPoint &p) const
     { return p - data.wrect.topLeft(); }
@@ -625,9 +619,15 @@ public:
 
     QOpenGLContext *shareContext() const;
 
+    virtual QObject *focusObject() { return 0; }
+
 #ifndef QT_NO_OPENGL
     virtual GLuint textureId() const { return 0; }
-
+    virtual QImage grabFramebuffer() { return QImage(); }
+    virtual void beginBackingStorePainting() { }
+    virtual void endBackingStorePainting() { }
+    virtual void beginCompose() { }
+    virtual void endCompose() { }
     void setRenderToTexture() { renderToTexture = true; setTextureChildSeen(); }
     void setTextureChildSeen()
     {
@@ -642,6 +642,15 @@ public:
                 get(parent)->setTextureChildSeen();
         }
     }
+    static void sendComposeStatus(QWidget *w, bool end);
+    // Called on setViewport().
+    virtual void initializeViewportFramebuffer() { }
+    // When using a QOpenGLWidget as viewport with QAbstractScrollArea, resize events are
+    // filtered away from the widget. This is fine for QGLWidget but bad for QOpenGLWidget
+    // since the fbo must be resized. We need an alternative way to notify.
+    virtual void resizeViewportFramebuffer() { }
+    // Called after each paint event.
+    virtual void resolveSamples() { }
 #endif
 
     // Variables.
@@ -732,7 +741,7 @@ public:
 
     // *************************** Platform specific ************************************
 #if defined(Q_OS_WIN)
-    uint noPaintOnScreen : 1; // see qwidget_qpa.cpp ::paintEngine()
+    uint noPaintOnScreen : 1; // see qwidget.cpp ::paintEngine()
 #endif
 #if defined(Q_WS_X11) // <----------------------------------------------------------- X11
     Qt::HANDLE picture;

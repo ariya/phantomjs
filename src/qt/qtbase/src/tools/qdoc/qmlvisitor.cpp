@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -97,7 +89,7 @@ QmlDocVisitor::QmlDocVisitor(const QString &filePath,
     this->engine = engine;
     this->commands_ = commands;
     this->topics_ = topics;
-    current = QDocDatabase::qdocDB()->treeRoot();
+    current = QDocDatabase::qdocDB()->primaryTreeRoot();
 }
 
 /*!
@@ -249,7 +241,7 @@ bool QmlDocVisitor::applyDocumentation(QQmlJS::AST::SourceLocation location, Nod
         nodes.append(node);
         if (topicsUsed.size() > 0) {
             for (int i=0; i<topicsUsed.size(); ++i) {
-                if (topicsUsed.at(i).topic == QString("qmlpropertygroup")) {
+                if (topicsUsed.at(i).topic == COMMAND_QMLPROPERTYGROUP) {
                     qDebug() << "PROPERTY GROUP COMMAND SEEN:" <<  topicsUsed.at(i).args << filePath_;
                     break;
                 }
@@ -266,7 +258,7 @@ bool QmlDocVisitor::applyDocumentation(QQmlJS::AST::SourceLocation location, Nod
                         }
                         else {
                             bool isAttached = (topic == COMMAND_QMLATTACHEDPROPERTY);
-                            QmlPropertyNode* n = parent->hasQmlProperty(qpa.name_);
+                            QmlPropertyNode* n = parent->hasQmlProperty(qpa.name_, isAttached);
                             if (n == 0)
                                 n = new QmlPropertyNode(parent, qpa.name_, qpa.type_, isAttached);
                             n->setLocation(doc.location());
@@ -365,7 +357,7 @@ void QmlDocVisitor::applyMetacommands(QQmlJS::AST::SourceLocation,
             QString command = *i;
             ArgList args = doc.metaCommandArgs(command);
             if (command == COMMAND_QMLABSTRACT) {
-                if ((node->type() == Node::Document) && (node->subType() == Node::QmlClass)) {
+                if (node->isQmlType()) {
                     node->setAbstract(true);
                 }
             }
@@ -378,7 +370,7 @@ void QmlDocVisitor::applyMetacommands(QQmlJS::AST::SourceLocation,
             else if (command == COMMAND_QMLINHERITS) {
                 if (node->name() == args[0].first)
                     doc.location().warning(tr("%1 tries to inherit itself").arg(args[0].first));
-                else if (node->subType() == Node::QmlClass) {
+                else if (node->isQmlType()) {
                     QmlClassNode *qmlClass = static_cast<QmlClassNode*>(node);
                     qmlClass->setQmlBaseName(args[0].first);
                     QmlClassNode::addInheritedBy(args[0].first,node);
@@ -407,8 +399,7 @@ void QmlDocVisitor::applyMetacommands(QQmlJS::AST::SourceLocation,
                 node->setStatus(Node::Internal);
             }
             else if (command == COMMAND_OBSOLETE) {
-                if (node->status() != Node::Compat)
-                    node->setStatus(Node::Obsolete);
+                node->setStatus(Node::Obsolete);
             }
             else if (command == COMMAND_PAGEKEYWORDS) {
                 // Not done yet. Do we need this?
@@ -541,7 +532,7 @@ bool QmlDocVisitor::visit(QQmlJS::AST::UiPublicMember *member)
     switch (member->type) {
     case QQmlJS::AST::UiPublicMember::Signal:
     {
-        if (current->type() == Node::Document) {
+        if (current->isQmlType()) {
             QmlClassNode *qmlClass = static_cast<QmlClassNode *>(current);
             if (qmlClass) {
 
@@ -564,7 +555,7 @@ bool QmlDocVisitor::visit(QQmlJS::AST::UiPublicMember *member)
     {
         QString type = member->memberType.toString();
         QString name = member->name.toString();
-        if (current->type() == Node::Document) {
+        if (current->isQmlType()) {
             QmlClassNode *qmlClass = static_cast<QmlClassNode *>(current);
             if (qmlClass) {
                 QString name = member->name.toString();
@@ -608,7 +599,7 @@ bool QmlDocVisitor::visit(QQmlJS::AST::FunctionDeclaration* fd)
     if (nestingLevel > 1) {
         return true;
     }
-    if (current->type() == Node::Document) {
+    if (current->isQmlType()) {
         QmlClassNode* qmlClass = static_cast<QmlClassNode*>(current);
         if (qmlClass) {
             QString name = fd->name.toString();
@@ -661,7 +652,7 @@ bool QmlDocVisitor::visit(QQmlJS::AST::UiScriptBinding* )
     if (nestingLevel > 1) {
         return true;
     }
-    if (current->type() == Node::Document) {
+    if (current->isQmlType()) {
         QString handler = sb->qualifiedId->name.toString();
         if (handler.length() > 2 && handler.startsWith("on") && handler.at(2).isUpper()) {
             QmlClassNode* qmlClass = static_cast<QmlClassNode*>(current);

@@ -104,8 +104,6 @@ hb_shape_plan_create (hb_face_t                     *face,
 		      unsigned int                   num_user_features,
 		      const char * const            *shaper_list)
 {
-  assert (props->direction != HB_DIRECTION_INVALID);
-
   hb_shape_plan_t *shape_plan;
   hb_feature_t *features = NULL;
 
@@ -119,6 +117,8 @@ hb_shape_plan_create (hb_face_t                     *face,
     free (features);
     return hb_shape_plan_get_empty ();
   }
+
+  assert (props->direction != HB_DIRECTION_INVALID);
 
   hb_face_make_immutable (face);
   shape_plan->default_shaper_list = shaper_list == NULL;

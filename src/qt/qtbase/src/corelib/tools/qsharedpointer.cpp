@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -111,7 +103,7 @@
     does so weakly. QWeakPointer has the same functionality, but its use for
     that function is deprecated.
 
-    \section1 Optional pointer tracking
+    \section1 Optional Pointer Tracking
 
     A feature of QSharedPointer that can be enabled at compile-time for
     debugging purposes is a pointer tracking mechanism. When enabled,
@@ -372,6 +364,64 @@
 */
 
 /*!
+    \class QEnableSharedFromThis
+    \inmodule QtCore
+    \brief A base class that allows obtaining a QSharedPointer for an object already managed by a shared pointer
+    \since 5.4
+
+    You can inherit this class when you need to create a QSharedPointer
+    from any instance of a class; for instance, from within the
+    object itself. The key point is that the technique of
+    just returning QSharedPointer<T>(this) can not be used, because
+    this winds up creating multiple distinct QSharedPointer objects
+    with separate reference counts. For this reason you must never
+    create more than one QSharedPointer from the same raw pointer.
+
+    QEnableSharedFromThis defines two member functions called
+    sharedFromThis() that return a QSharedPointer<T> and
+    QSharedPointer<const T>, depending on constness, to \c this:
+
+    \code
+    class Y: public QEnableSharedFromThis<Y>
+    {
+    public:
+        QSharedPointer<Y> f()
+        {
+            return sharedFromThis();
+        }
+    };
+
+    int main()
+    {
+        QSharedPointer<Y> p(new Y());
+        QSharedPointer<Y> y = p->f();
+        Q_ASSERT(p == y); // p and q must share ownership
+    }
+    \endcode
+
+    It is also possible to get a shared pointer from an object outside of
+    the class itself. This is especially useful in code that provides an
+    interface to scripts, where it is currently not possible to use shared
+    pointers. For example:
+
+    \code
+    class ScriptInterface : public QObject
+    {
+        Q_OBJECT
+
+        // ...
+
+    public slots:
+        void slotCalledByScript(Y *managedBySharedPointer)
+        {
+            QSharedPointer<Y> yPtr = managedBySharedPointer->sharedFromThis();
+            // Some other code unrelated to scripts that expects a QSharedPointer<Y> ...
+        }
+    };
+    \endcode
+*/
+
+/*!
     \fn QSharedPointer::QSharedPointer()
 
     Creates a QSharedPointer that points to null (0).
@@ -402,7 +452,7 @@
     The \a deleter parameter specifies the custom deleter for this
     object. The custom deleter is called, instead of the operator delete(),
     when the strong reference count drops to 0. This is useful,
-    for instance, for calling deleteLater() on a QObject instead:
+    for instance, for calling \l {QObject::}{deleteLater()} on a QObject instead:
 
     \code
     static void doDeleteLater(MyObject *obj)
@@ -630,9 +680,15 @@
     This function will attempt to call a constructor for type \tt T that can
     accept all the arguments passed. Arguments will be perfectly-forwarded.
 
-    \note This function is only available with a C++11 compiler that supports
-    perfect forwarding of an arbitrary number of arguments. If the compiler
-    does not support the necessary C++11 features, you must use the overload
+    \note This function is only fully available with a C++11 compiler that
+    supports perfect forwarding of an arbitrary number of arguments.
+
+    If the compiler does not support the necessary C++11 features,
+    then a restricted version is available since Qt 5.4: you may pass
+    one (but just one) argument, and it will always be passed by const
+    reference.
+
+    If you target Qt before version 5.4, you must use the overload
     that calls the default constructor.
 */
 
@@ -771,6 +827,14 @@
 */
 
 /*!
+    \fn void QWeakPointer::swap(QWeakPointer<T> &other)
+    \since 5.4
+
+    Swaps this weak pointer instance with \a other. This function is
+    very fast and never fails.
+*/
+
+/*!
     \fn bool QWeakPointer::isNull() const
 
     Returns \c true if this object is holding a reference to a null
@@ -894,10 +958,36 @@
 */
 
 /*!
+    \fn QSharedPointer<T> QWeakPointer::lock() const
+    \since 5.4
+
+    Same as toStrongRef().
+
+    This function is provided for API compatibility with std::weak_ptr.
+*/
+
+/*!
     \fn void QWeakPointer::clear()
 
     Clears this QWeakPointer object, dropping the reference that it
     may have had to the pointer.
+*/
+
+/*!
+    \fn QSharedPointer<T> QEnableSharedFromThis::sharedFromThis()
+    \since 5.4
+
+    If \c this (that is, the subclass instance invoking this method) is being
+    managed by a QSharedPointer, returns a shared pointer instance pointing to
+    \c this; otherwise returns a QSharedPointer holding a null pointer.
+*/
+
+/*!
+    \fn QSharedPointer<const T> QEnableSharedFromThis::sharedFromThis() const
+    \overload
+    \since 5.4
+
+    Const overload of sharedFromThis().
 */
 
 /*!

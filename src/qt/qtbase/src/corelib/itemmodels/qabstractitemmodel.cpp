@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -990,9 +982,9 @@ void QAbstractItemModel::resetInternalData()
 */
 
 /*!
-    \fn void *QModelIndex::internalId() const
+    \fn quintptr QModelIndex::internalId() const
 
-    Returns a \c{qint64} used by the model to associate
+    Returns a \c{quintptr} used by the model to associate
     the index with the internal data structure.
 
     \sa QAbstractItemModel::createIndex()
@@ -1504,10 +1496,10 @@ QAbstractItemModel::~QAbstractItemModel()
 */
 
 /*!
-    \fn void QAbstractItemModel::rowsInserted(const QModelIndex &parent, int start, int end)
+    \fn void QAbstractItemModel::rowsInserted(const QModelIndex &parent, int first, int last)
 
     This signal is emitted after rows have been inserted into the
-    model. The new items are those between \a start and \a end
+    model. The new items are those between \a first and \a last
     inclusive, under the given \a parent item.
 
     \note Components connected to this signal use it to adapt to changes in the
@@ -1532,10 +1524,10 @@ QAbstractItemModel::~QAbstractItemModel()
 */
 
 /*!
-    \fn void QAbstractItemModel::rowsRemoved(const QModelIndex &parent, int start, int end)
+    \fn void QAbstractItemModel::rowsRemoved(const QModelIndex &parent, int first, int last)
 
     This signal is emitted after rows have been removed from the model. The
-    removed items are those between \a start and \a end inclusive, under the
+    removed items are those between \a first and \a last inclusive, under the
     given \a parent item.
 
     \note Components connected to this signal use it to adapt to changes
@@ -1546,10 +1538,10 @@ QAbstractItemModel::~QAbstractItemModel()
 */
 
 /*!
-    \fn void QAbstractItemModel::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
+    \fn void QAbstractItemModel::rowsAboutToBeRemoved(const QModelIndex &parent, int first, int last)
 
     This signal is emitted just before rows are removed from the model. The
-    items that will be removed are those between \a start and \a end inclusive,
+    items that will be removed are those between \a first and \a last inclusive,
     under the given \a parent item.
 
     \note Components connected to this signal use it to adapt to changes
@@ -1560,13 +1552,13 @@ QAbstractItemModel::~QAbstractItemModel()
 */
 
 /*!
-    \fn void QAbstractItemModel::rowsMoved(const QModelIndex &sourceParent, int sourceStart, int sourceEnd, const QModelIndex &destinationParent, int destinationRow)
+    \fn void QAbstractItemModel::rowsMoved(const QModelIndex &parent, int start, int end, const QModelIndex &destination, int row)
     \since 4.6
 
     This signal is emitted after rows have been moved within the
-    model. The items between \a sourceStart and \a sourceEnd
-    inclusive, under the given \a sourceParent item have been moved to \a destinationParent
-    starting at the row \a destinationRow.
+    model. The items between \a start and \a end
+    inclusive, under the given \a parent item have been moved to \a destination
+    starting at the row \a row.
 
     \b{Note:} Components connected to this signal use it to adapt to changes
     in the model's dimensions. It can only be emitted by the QAbstractItemModel
@@ -1592,13 +1584,13 @@ QAbstractItemModel::~QAbstractItemModel()
 */
 
 /*!
-    \fn void QAbstractItemModel::columnsMoved(const QModelIndex &sourceParent, int sourceStart, int sourceEnd, const QModelIndex &destinationParent, int destinationColumn)
+    \fn void QAbstractItemModel::columnsMoved(const QModelIndex &parent, int start, int end, const QModelIndex &destination, int column)
     \since 4.6
 
     This signal is emitted after columns have been moved within the
-    model. The items between \a sourceStart and \a sourceEnd
-    inclusive, under the given \a sourceParent item have been moved to \a destinationParent
-    starting at the column \a destinationColumn.
+    model. The items between \a start and \a end
+    inclusive, under the given \a parent item have been moved to \a destination
+    starting at the column \a column.
 
     \b{Note:} Components connected to this signal use it to adapt to changes
     in the model's dimensions. It can only be emitted by the QAbstractItemModel
@@ -1624,10 +1616,10 @@ QAbstractItemModel::~QAbstractItemModel()
 */
 
 /*!
-    \fn void QAbstractItemModel::columnsInserted(const QModelIndex &parent, int start, int end)
+    \fn void QAbstractItemModel::columnsInserted(const QModelIndex &parent, int first, int last)
 
     This signal is emitted after columns have been inserted into the model. The
-    new items are those between \a start and \a end inclusive, under the given
+    new items are those between \a first and \a last inclusive, under the given
     \a parent item.
 
     \note Components connected to this signal use it to adapt to changes in the
@@ -1638,10 +1630,10 @@ QAbstractItemModel::~QAbstractItemModel()
 */
 
 /*!
-    \fn void QAbstractItemModel::columnsAboutToBeInserted(const QModelIndex &parent, int start, int end)
+    \fn void QAbstractItemModel::columnsAboutToBeInserted(const QModelIndex &parent, int first, int last)
 
     This signal is emitted just before columns are inserted into the model. The
-    new items will be positioned between \a start and \a end inclusive, under
+    new items will be positioned between \a first and \a last inclusive, under
     the given \a parent item.
 
     \note Components connected to this signal use it to adapt to changes in the
@@ -1652,10 +1644,10 @@ QAbstractItemModel::~QAbstractItemModel()
 */
 
 /*!
-    \fn void QAbstractItemModel::columnsRemoved(const QModelIndex &parent, int start, int end)
+    \fn void QAbstractItemModel::columnsRemoved(const QModelIndex &parent, int first, int last)
 
     This signal is emitted after columns have been removed from the model.
-    The removed items are those between \a start and \a end inclusive,
+    The removed items are those between \a first and \a last inclusive,
     under the given \a parent item.
 
     \note Components connected to this signal use it to adapt to changes in
@@ -1666,10 +1658,10 @@ QAbstractItemModel::~QAbstractItemModel()
 */
 
 /*!
-    \fn void QAbstractItemModel::columnsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
+    \fn void QAbstractItemModel::columnsAboutToBeRemoved(const QModelIndex &parent, int first, int last)
 
     This signal is emitted just before columns are removed from the model. The
-    items to be removed are those between \a start and \a end inclusive, under
+    items to be removed are those between \a first and \a last inclusive, under
     the given \a parent item.
 
     \note Components connected to this signal use it to adapt to changes in the
@@ -1850,7 +1842,9 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
 
 /*!
     Returns \c{true} if a model can accept a drop of the \a data. This
-    default implementation always returns \c{true}.
+    default implementation only checks if \a data has at least one format
+    in the list of mimeTypes() and if \a action is among the
+    model's supportedDropActions().
 
     Reimplement this function in your custom model, if you want to
     test whether the \a data can be dropped at \a row, \a column,
@@ -1863,12 +1857,19 @@ bool QAbstractItemModel::canDropMimeData(const QMimeData *data, Qt::DropAction a
                                          int row, int column,
                                          const QModelIndex &parent) const
 {
-    Q_UNUSED(data)
-    Q_UNUSED(action)
     Q_UNUSED(row)
     Q_UNUSED(column)
     Q_UNUSED(parent)
-    return true;
+
+    if (!(action & supportedDropActions()))
+        return false;
+
+    const QStringList modelTypes = mimeTypes();
+    for (int i = 0; i < modelTypes.count(); ++i) {
+        if (data->hasFormat(modelTypes.at(i)))
+            return true;
+    }
+    return false;
 }
 
 /*!
@@ -2719,7 +2720,7 @@ bool QAbstractItemModelPrivate::allowMove(const QModelIndex &srcParent, int star
     persistent indexes in the model, which you would otherwise be
     required to do yourself. Using beginMoveRows and endMoveRows
     is an alternative to emitting layoutAboutToBeChanged and
-    layoutChanged directly along with changePersistentIndexes.
+    layoutChanged directly along with changePersistentIndex.
 
     The \a sourceParent index corresponds to the parent from which the
     rows are moved; \a sourceFirst and \a sourceLast are the first and last
@@ -2986,7 +2987,7 @@ void QAbstractItemModel::endRemoveColumns()
     persistent indexes in the model, which you would otherwise be
     required to do yourself. Using beginMoveRows and endMoveRows
     is an alternative to emitting layoutAboutToBeChanged and
-    layoutChanged directly along with changePersistentIndexes.
+    layoutChanged directly along with changePersistentIndex.
 
     The \a sourceParent index corresponds to the parent from which the
     columns are moved; \a sourceFirst and \a sourceLast are the first and last
@@ -3173,11 +3174,11 @@ void QAbstractItemModel::changePersistentIndex(const QModelIndex &from, const QM
 /*!
     \since 4.1
 
-    Changes the QPersistentModelIndexes that is equal to the indexes in the
+    Changes the {QPersistentModelIndex}es that are equal to the indexes in the
     given \a from model index list to the given \a to model index list.
 
     If no persistent model indexes equal to the indexes in the given \a from
-    model index list was found, nothing is changed.
+    model index list are found, nothing is changed.
 
     \sa persistentIndexList(), changePersistentIndex()
 */
@@ -3383,7 +3384,7 @@ Qt::ItemFlags QAbstractTableModel::flags(const QModelIndex &index) const
     QAbstractItemModel, it is not suitable for use with tree views; you will
     need to subclass QAbstractItemModel if you want to provide a model for
     that purpose. If you need to use a number of list models to manage data,
-    it may be more appropriate to subclass QAbstractTableModel class instead.
+    it may be more appropriate to subclass QAbstractTableModel instead.
 
     Simple models can be created by subclassing this class and implementing
     the minimum number of required functions. For example, we could implement
@@ -3407,7 +3408,7 @@ Qt::ItemFlags QAbstractTableModel::flags(const QModelIndex &index) const
     default ones provided by the roleNames() function, you must override it.
 
     For editable list models, you must also provide an implementation of
-    setData(), implement the flags() function so that it returns a value
+    setData(), and implement the flags() function so that it returns a value
     containing \l{Qt::ItemFlags}{Qt::ItemIsEditable}.
 
     Note that QAbstractListModel provides a default implementation of

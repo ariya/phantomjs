@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -49,6 +41,8 @@
 #include "qwidget.h"
 #include "private/qobject_p.h"
 #include "private/qabstractitemmodel_p.h"
+
+#include <iterator>
 
 QT_BEGIN_NAMESPACE
 
@@ -92,8 +86,8 @@ public:
     inline void flipEventFilters(QAbstractItemDelegate *oldDelegate,
                                  QAbstractItemDelegate *newDelegate)
     {
-        for (int i = 0; i < widgetMap.count(); ++i) {
-            QWidget *w = widgetMap.at(i).widget;
+        for (QList<WidgetMapper>::const_iterator it = widgetMap.cbegin(), end = widgetMap.cend(); it != end; ++it) {
+            QWidget *w = it->widget;
             if (!w)
                 continue;
             w->removeEventFilter(oldDelegate);
@@ -132,9 +126,9 @@ public:
 
 int QDataWidgetMapperPrivate::findWidget(QWidget *w) const
 {
-    for (int i = 0; i < widgetMap.count(); ++i) {
-        if (widgetMap.at(i).widget == w)
-            return i;
+    for (QList<WidgetMapper>::const_iterator it = widgetMap.cbegin(), end = widgetMap.cend(); it != end; ++it) {
+        if (it->widget == w)
+            return int(std::distance(widgetMap.cbegin(), it));
     }
     return -1;
 }
@@ -171,8 +165,8 @@ void QDataWidgetMapperPrivate::populate(WidgetMapper &m)
 
 void QDataWidgetMapperPrivate::populate()
 {
-    for (int i = 0; i < widgetMap.count(); ++i)
-        populate(widgetMap[i]);
+    for (QList<WidgetMapper>::iterator it = widgetMap.begin(), end = widgetMap.end(); it != end; ++it)
+        populate(*it);
 }
 
 static bool qContainsIndex(const QModelIndex &idx, const QModelIndex &topLeft,
@@ -187,10 +181,9 @@ void QDataWidgetMapperPrivate::_q_dataChanged(const QModelIndex &topLeft, const 
     if (topLeft.parent() != rootIndex)
         return; // not in our hierarchy
 
-    for (int i = 0; i < widgetMap.count(); ++i) {
-        WidgetMapper &m = widgetMap[i];
-        if (qContainsIndex(m.currentIndex, topLeft, bottomRight))
-            populate(m);
+    for (QList<WidgetMapper>::iterator it = widgetMap.begin(), end = widgetMap.end(); it != end; ++it) {
+        if (qContainsIndex(it->currentIndex, topLeft, bottomRight))
+            populate(*it);
     }
 }
 
@@ -582,9 +575,9 @@ QWidget *QDataWidgetMapper::mappedWidgetAt(int section) const
 {
     Q_D(const QDataWidgetMapper);
 
-    for (int i = 0; i < d->widgetMap.count(); ++i) {
-        if (d->widgetMap.at(i).section == section)
-            return d->widgetMap.at(i).widget;
+    for (QList<QDataWidgetMapperPrivate::WidgetMapper>::const_iterator it = d->widgetMap.cbegin(), end = d->widgetMap.cend(); it != end; ++it) {
+        if (it->section == section)
+            return it->widget;
     }
 
     return 0;
@@ -621,9 +614,8 @@ bool QDataWidgetMapper::submit()
 {
     Q_D(QDataWidgetMapper);
 
-    for (int i = 0; i < d->widgetMap.count(); ++i) {
-        const QDataWidgetMapperPrivate::WidgetMapper &m = d->widgetMap.at(i);
-        if (!d->commit(m))
+    for (QList<QDataWidgetMapperPrivate::WidgetMapper>::const_iterator it = d->widgetMap.cbegin(), end = d->widgetMap.cend(); it != end; ++it) {
+        if (!d->commit(*it))
             return false;
     }
 
@@ -762,10 +754,11 @@ void QDataWidgetMapper::clearMapping()
 {
     Q_D(QDataWidgetMapper);
 
-    while (!d->widgetMap.isEmpty()) {
-        QWidget *w = d->widgetMap.takeLast().widget;
-        if (w)
-            w->removeEventFilter(d->delegate);
+    QList<QDataWidgetMapperPrivate::WidgetMapper> copy;
+    d->widgetMap.swap(copy); // a C++98 move
+    for (std::reverse_iterator<QList<QDataWidgetMapperPrivate::WidgetMapper>::const_iterator> it(copy.cend()), end(copy.cbegin()); it != end; ++it) {
+        if (it->widget)
+            it->widget->removeEventFilter(d->delegate);
     }
 }
 

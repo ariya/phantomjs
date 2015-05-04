@@ -4,8 +4,8 @@
 // found in the LICENSE file.
 //
 
+#include "angle_gl.h"
 #include "compiler/translator/BuiltInFunctionEmulator.h"
-
 #include "compiler/translator/SymbolTable.h"
 
 namespace {
@@ -243,7 +243,7 @@ public:
                 default:
                     return true;
             };
-            const TIntermSequence& sequence = node->getSequence();
+            const TIntermSequence& sequence = *(node->getSequence());
             // Right now we only handle built-in functions with two parameters.
             if (sequence.size() != 2)
                 return true;
@@ -265,9 +265,9 @@ private:
 
 }  // anonymous namepsace
 
-BuiltInFunctionEmulator::BuiltInFunctionEmulator(ShShaderType shaderType)
+BuiltInFunctionEmulator::BuiltInFunctionEmulator(sh::GLenum shaderType)
 {
-    if (shaderType == SH_FRAGMENT_SHADER) {
+    if (shaderType == GL_FRAGMENT_SHADER) {
         mFunctionMask = kFunctionEmulationFragmentMask;
         mFunctionSource = kFunctionEmulationFragmentSource;
     } else {
@@ -327,7 +327,7 @@ BuiltInFunctionEmulator::TBuiltInFunction
 BuiltInFunctionEmulator::IdentifyFunction(
     TOperator op, const TType& param)
 {
-    if (param.getNominalSize() > 4)
+    if (param.getNominalSize() > 4 || param.getSecondarySize() > 4)
         return TFunctionUnknown;
     unsigned int function = TFunctionUnknown;
     switch (op) {
@@ -356,9 +356,9 @@ BuiltInFunctionEmulator::IdentifyFunction(
 {
     // Right now for all the emulated functions with two parameters, the two
     // parameters have the same type.
-    if (param1.isVector() != param2.isVector() ||
-        param1.getNominalSize() != param2.getNominalSize() ||
-        param1.getNominalSize() > 4)
+    if (param1.getNominalSize()     != param2.getNominalSize()   ||
+        param1.getSecondarySize()   != param2.getSecondarySize() ||
+        param1.getNominalSize() > 4 || param1.getSecondarySize() > 4)
         return TFunctionUnknown;
 
     unsigned int function = TFunctionUnknown;

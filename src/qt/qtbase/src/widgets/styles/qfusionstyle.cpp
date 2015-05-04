@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -561,7 +553,9 @@ void QFusionStyle::drawPrimitive(PrimitiveElement elem,
                 arrow = colorizedImage(QLatin1String(":/qt-project.org/styles/commonstyle/images/fusion_arrow.png"), arrowColor);
             } else if (header->sortIndicator & QStyleOptionHeader::SortDown) {
                 arrow = colorizedImage(QLatin1String(":/qt-project.org/styles/commonstyle/images/fusion_arrow.png"), arrowColor, 180);
-            } if (!arrow.isNull()) {
+            }
+
+            if (!arrow.isNull()) {
                 r.setSize(QSize(arrow.width()/2, arrow.height()/2));
                 r.moveCenter(header->rect.center());
                 painter->drawPixmap(r.translated(offset), arrow);
@@ -749,6 +743,7 @@ void QFusionStyle::drawPrimitive(PrimitiveElement elem,
             painter->drawRect(rect);
 
             QColor checkMarkColor = option->palette.text().color().darker(120);
+            const int checkMarkPadding = QStyleHelper::dpiScaled(3);
 
             if (checkbox->state & State_NoChange) {
                 gradient = QLinearGradient(rect.topLeft(), rect.bottomLeft());
@@ -759,10 +754,10 @@ void QFusionStyle::drawPrimitive(PrimitiveElement elem,
                 checkMarkColor.setAlpha(180);
                 painter->setPen(QPen(checkMarkColor, 1));
                 painter->setBrush(gradient);
-                painter->drawRect(rect.adjusted(3, 3, -3, -3));
+                painter->drawRect(rect.adjusted(checkMarkPadding, checkMarkPadding, -checkMarkPadding, -checkMarkPadding));
 
             } else if (checkbox->state & (State_On)) {
-                QPen checkPen = QPen(checkMarkColor, 1.8);
+                QPen checkPen = QPen(checkMarkColor, QStyleHelper::dpiScaled(1.8));
                 checkMarkColor.setAlpha(210);
                 painter->translate(-1, 0.5);
                 painter->setPen(checkPen);
@@ -771,9 +766,9 @@ void QFusionStyle::drawPrimitive(PrimitiveElement elem,
 
                 // Draw checkmark
                 QPainterPath path;
-                path.moveTo(5, rect.height() / 2.0);
-                path.lineTo(rect.width() / 2.0 - 0, rect.height() - 3);
-                path.lineTo(rect.width() - 2.5, 3);
+                path.moveTo(2 + checkMarkPadding, rect.height() / 2.0);
+                path.lineTo(rect.width() / 2.0, rect.height() - checkMarkPadding);
+                path.lineTo(rect.width() - checkMarkPadding - 0.5, checkMarkPadding);
                 painter->drawPath(path.translated(rect.topLeft()));
             }
         }
@@ -786,7 +781,9 @@ void QFusionStyle::drawPrimitive(PrimitiveElement elem,
         painter->setBrush((state & State_Sunken) ? pressedColor : option->palette.base().color());
         painter->setRenderHint(QPainter::Antialiasing, true);
         QPainterPath circle;
-        circle.addEllipse(rect.center() + QPoint(1.0, 1.0), 6.5, 6.5);
+        const QPointF circleCenter = rect.center() + QPoint(1, 1);
+        const qreal outlineRadius = (rect.width() + (rect.width() + 1) % 2) / 2.0 - 1;
+        circle.addEllipse(circleCenter, outlineRadius, outlineRadius);
         painter->setPen(QPen(option->palette.background().color().darker(150)));
         if (option->state & State_HasFocus && option->state & State_KeyboardFocusChange)
             painter->setPen(QPen(highlightedOutline));
@@ -794,7 +791,8 @@ void QFusionStyle::drawPrimitive(PrimitiveElement elem,
 
         if (state & (State_On )) {
             circle = QPainterPath();
-            circle.addEllipse(rect.center() + QPoint(1, 1), 2.8, 2.8);
+            const qreal checkmarkRadius = outlineRadius / 2.32;
+            circle.addEllipse(circleCenter, checkmarkRadius, checkmarkRadius);
             QColor checkMarkColor = option->palette.text().color().darker(120);
             checkMarkColor.setAlpha(200);
             painter->setPen(checkMarkColor);
@@ -955,7 +953,7 @@ void QFusionStyle::drawPrimitive(PrimitiveElement elem,
     {
         Q_D(const QFusionStyle);
         if (d->tabBarcloseButtonIcon.isNull())
-            d->tabBarcloseButtonIcon = standardIcon(SP_DialogCloseButton, option, widget);
+            d->tabBarcloseButtonIcon = proxy()->standardIcon(SP_DialogCloseButton, option, widget);
         if ((option->state & State_Enabled) && (option->state & State_MouseOver))
             proxy()->drawPrimitive(PE_PanelButtonCommand, option, painter, widget);
         QPixmap pixmap = d->tabBarcloseButtonIcon.pixmap(QSize(16, 16), QIcon::Normal, QIcon::On);
@@ -1405,7 +1403,9 @@ void QFusionStyle::drawControl(ControlElement element, const QStyleOption *optio
                 painter->drawRoundedRect(progressBar.adjusted(1, 1, -1, -1), 1, 1);
 
                 if (!indeterminate) {
+#ifndef QT_NO_ANIMATION
                     (const_cast<QFusionStylePrivate*>(d))->stopAnimation(option->styleObject);
+#endif
                 } else {
                     highlightedGradientStartColor.setAlpha(120);
                     painter->setPen(QPen(highlightedGradientStartColor, 9.0));
@@ -1604,8 +1604,8 @@ void QFusionStyle::drawControl(ControlElement element, const QStyleOption *optio
                 else
                     pixmap = menuItem->icon.pixmap(iconSize, mode);
 
-                int pixw = pixmap.width();
-                int pixh = pixmap.height();
+                const int pixw = pixmap.width() / pixmap.devicePixelRatio();
+                const int pixh = pixmap.height() / pixmap.devicePixelRatio();
 
                 QRect pmr(0, 0, pixw, pixh);
                 pmr.moveCenter(vCheckRect.center());
@@ -2379,7 +2379,7 @@ void QFusionStyle::drawComplexControl(ComplexControl control, const QStyleOption
                     } else {
                         QStyleOption tool(0);
                         tool.palette = titleBar->palette;
-                        QPixmap pm = standardIcon(SP_TitleBarMenuButton, &tool, widget).pixmap(16, 16);
+                        QPixmap pm = proxy()->standardIcon(SP_TitleBarMenuButton, &tool, widget).pixmap(16, 16);
                         tool.rect = iconRect;
                         painter->save();
                         proxy()->drawItemPixmap(painter, iconRect, Qt::AlignCenter, pm);
@@ -2432,6 +2432,7 @@ void QFusionStyle::drawComplexControl(ComplexControl control, const QStyleOption
                     styleObject->setProperty("_q_stylestate", static_cast<int>(scrollBar->state));
                     styleObject->setProperty("_q_stylecontrols", static_cast<uint>(scrollBar->activeSubControls));
 
+#ifndef QT_NO_ANIMATION
                     QScrollbarStyleAnimation *anim  = qobject_cast<QScrollbarStyleAnimation *>(d->animation(styleObject));
                     if (transient) {
                         if (!anim) {
@@ -2445,8 +2446,10 @@ void QFusionStyle::drawComplexControl(ComplexControl control, const QStyleOption
                     } else if (anim && anim->mode() == QScrollbarStyleAnimation::Deactivating) {
                         d->stopAnimation(styleObject);
                     }
+#endif // !QT_NO_ANIMATION
                 }
 
+#ifndef QT_NO_ANIMATION
                 QScrollbarStyleAnimation *anim = qobject_cast<QScrollbarStyleAnimation *>(d->animation(styleObject));
                 if (anim && anim->mode() == QScrollbarStyleAnimation::Deactivating) {
                     // once a scrollbar was active (hovered/pressed), it retains
@@ -2475,6 +2478,7 @@ void QFusionStyle::drawComplexControl(ComplexControl control, const QStyleOption
                     }
                 }
                 painter->setOpacity(opacity);
+#endif // !QT_NO_ANIMATION
             }
 
             bool transient = proxy()->styleHint(SH_ScrollBar_Transient, option, widget);
@@ -2493,7 +2497,7 @@ void QFusionStyle::drawComplexControl(ComplexControl control, const QStyleOption
             QColor arrowColor = option->palette.foreground().color();
             arrowColor.setAlpha(220);
 
-            const QColor bgColor = option->palette.color(QPalette::Base);
+            const QColor bgColor = QStyleHelper::backgroundColor(option->palette, widget);
             const bool isDarkBg = bgColor.red() < 128 && bgColor.green() < 128 && bgColor.blue() < 128;
 
             if (transient) {
@@ -2890,7 +2894,7 @@ void QFusionStyle::drawComplexControl(ComplexControl control, const QStyleOption
                         clipRect = QRect(groove.left(), groove.top(), groove.width(), handle.top() - groove.top());
                 }
                 painter->save();
-                painter->setClipRect(clipRect.adjusted(0, 0, 1, 1));
+                painter->setClipRect(clipRect.adjusted(0, 0, 1, 1), Qt::IntersectClip);
                 painter->drawPixmap(groove.topLeft(), cache);
                 painter->restore();
             }
@@ -3016,97 +3020,118 @@ void QFusionStyle::drawComplexControl(ComplexControl control, const QStyleOption
 */
 int QFusionStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const
 {
+    int val = -1;
     switch (metric) {
     case PM_SliderTickmarkOffset:
-        return 4;
+        val = 4;
+        break;
     case PM_HeaderMargin:
-        return 2;
     case PM_ToolTipLabelFrameWidth:
-        return 2;
+        val = 2;
+        break;
     case PM_ButtonDefaultIndicator:
-        return 0;
     case PM_ButtonShiftHorizontal:
     case PM_ButtonShiftVertical:
-        return 0;
+        val = 0;
+        break;
     case PM_MessageBoxIconSize:
-        return 48;
+        val = 48;
+        break;
     case PM_ListViewIconSize:
-        return 24;
+        val = 24;
+        break;
     case PM_DialogButtonsSeparator:
     case PM_ScrollBarSliderMin:
-        return 26;
+        val = 26;
+        break;
     case PM_TitleBarHeight:
-        return 24;
+        val = 24;
+        break;
     case PM_ScrollBarExtent:
-        return 14;
+        val = 14;
+        break;
     case PM_SliderThickness:
-        return 15;
     case PM_SliderLength:
-        return 15;
+        val = 15;
+        break;
     case PM_DockWidgetTitleMargin:
-        return 1;
-    case PM_DefaultFrameWidth:
-        return 1;
+        val = 1;
+        break;
     case PM_SpinBoxFrameWidth:
-        return 3;
+        val = 3;
+        break;
     case PM_MenuVMargin:
     case PM_MenuHMargin:
-        return 0;
     case PM_MenuPanelWidth:
-        return 0;
+        val = 0;
+        break;
     case PM_MenuBarItemSpacing:
-        return 6;
+        val = 6;
+        break;
     case PM_MenuBarVMargin:
-        return 0;
     case PM_MenuBarHMargin:
-        return 0;
     case PM_MenuBarPanelWidth:
-        return 0;
+        val = 0;
+        break;
     case PM_ToolBarHandleExtent:
-        return 9;
+        val = 9;
+        break;
     case PM_ToolBarItemSpacing:
-        return 1;
+        val = 1;
+        break;
     case PM_ToolBarFrameWidth:
-        return 2;
     case PM_ToolBarItemMargin:
-        return 2;
+        val = 2;
+        break;
     case PM_SmallIconSize:
-        return 16;
     case PM_ButtonIconSize:
-        return 16;
+        val = 16;
+        break;
     case PM_DockWidgetTitleBarButtonMargin:
-        return 2;
+        val = 2;
+        break;
     case PM_MaximumDragDistance:
-        return -1;
+        return -1; // Do not dpi-scale because the value is magic
     case PM_TabCloseIndicatorWidth:
     case PM_TabCloseIndicatorHeight:
-        return 20;
+        val = 20;
+        break;
     case PM_TabBarTabVSpace:
-        return 12;
+        val = 12;
+        break;
     case PM_TabBarTabOverlap:
-        return 1;
+        val = 1;
+        break;
     case PM_TabBarBaseOverlap:
-        return 2;
+        val = 2;
+        break;
     case PM_SubMenuOverlap:
-        return -1;
+        val = -1;
+        break;
     case PM_DockWidgetHandleExtent:
     case PM_SplitterWidth:
-        return 4;
+        val = 4;
+        break;
     case PM_IndicatorHeight:
     case PM_IndicatorWidth:
     case PM_ExclusiveIndicatorHeight:
     case PM_ExclusiveIndicatorWidth:
-        return 14;
+        val = 14;
+        break;
     case PM_ScrollView_ScrollBarSpacing:
-        return 0;
+        val = 0;
+        break;
     case PM_ScrollView_ScrollBarOverlap:
         if (proxy()->styleHint(SH_ScrollBar_Transient, option, widget))
             return proxy()->pixelMetric(PM_ScrollBarExtent, option, widget);
-        return 0;
-    default:
+        val = 0;
         break;
+    case PM_DefaultFrameWidth:
+        return 1; // Do not dpi-scale because the drawn frame is always exactly 1 pixel thick
+    default:
+        return QCommonStyle::pixelMetric(metric, option, widget);
     }
-    return QCommonStyle::pixelMetric(metric, option, widget);
+    return QStyleHelper::dpiScaled(val);
 }
 
 /*!
@@ -3309,14 +3334,15 @@ QRect QFusionStyle::subControlRect(ComplexControl control, const QStyleOptionCom
                 break;
             case SC_SliderGroove: {
                 QPoint grooveCenter = slider->rect.center();
+                const int grooveThickness = QStyleHelper::dpiScaled(7);
                 if (slider->orientation == Qt::Horizontal) {
-                    rect.setHeight(7);
+                    rect.setHeight(grooveThickness);
                     if (slider->tickPosition & QSlider::TicksAbove)
                         grooveCenter.ry() += tickSize;
                     if (slider->tickPosition & QSlider::TicksBelow)
                         grooveCenter.ry() -= tickSize;
                 } else {
-                    rect.setWidth(7);
+                    rect.setWidth(grooveThickness);
                     if (slider->tickPosition & QSlider::TicksAbove)
                         grooveCenter.rx() += tickSize;
                     if (slider->tickPosition & QSlider::TicksBelow)
@@ -3332,27 +3358,25 @@ QRect QFusionStyle::subControlRect(ComplexControl control, const QStyleOptionCom
         break;
     case CC_SpinBox:
         if (const QStyleOptionSpinBox *spinbox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
-            QSize bs;
             int center = spinbox->rect.height() / 2;
-            int fw = spinbox->frame ? proxy()->pixelMetric(PM_SpinBoxFrameWidth, spinbox, widget) : 0;
+            int fw = spinbox->frame ? 3 : 0; // Is drawn with 3 pixels width in drawComplexControl, independently from PM_SpinBoxFrameWidth
             int y = fw;
-            bs.setHeight(qMax(8, spinbox->rect.height()/2 - y));
-            bs.setWidth(14);
+            const int buttonWidth = QStyleHelper::dpiScaled(14);
             int x, lx, rx;
-            x = spinbox->rect.width() - y - bs.width() + 2;
+            x = spinbox->rect.width() - y - buttonWidth + 2;
             lx = fw;
             rx = x - fw;
             switch (subControl) {
             case SC_SpinBoxUp:
                 if (spinbox->buttonSymbols == QAbstractSpinBox::NoButtons)
                     return QRect();
-                rect = QRect(x, fw, bs.width(), center - fw);
+                rect = QRect(x, fw, buttonWidth, center - fw);
                 break;
             case SC_SpinBoxDown:
                 if (spinbox->buttonSymbols == QAbstractSpinBox::NoButtons)
                     return QRect();
 
-                rect = QRect(x, center, bs.width(), spinbox->rect.bottom() - center - fw + 1);
+                rect = QRect(x, center, buttonWidth, spinbox->rect.bottom() - center - fw + 1);
                 break;
             case SC_SpinBoxEditField:
                 if (spinbox->buttonSymbols == QAbstractSpinBox::NoButtons) {

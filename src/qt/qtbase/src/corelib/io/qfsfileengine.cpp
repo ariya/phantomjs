@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -79,6 +71,17 @@ QT_BEGIN_NAMESPACE
 #  ifndef INVALID_FILE_ATTRIBUTES
 #    define INVALID_FILE_ATTRIBUTES (DWORD (-1))
 #  endif
+#endif
+
+#ifdef Q_OS_WIN
+// on Windows, read() and write() use int and unsigned int
+typedef int SignedIOType;
+typedef unsigned int UnsignedIOType;
+#else
+typedef ssize_t SignedIOType;
+typedef size_t UnsignedIOType;
+Q_STATIC_ASSERT_X(sizeof(SignedIOType) == sizeof(UnsignedIOType),
+                  "Unsupported: read/write return a type with different size as the len parameter");
 #endif
 
 /*! \class QFSFileEngine
@@ -168,20 +171,12 @@ QFSFileEngine::~QFSFileEngine()
     Q_D(QFSFileEngine);
     if (d->closeFileHandle) {
         if (d->fh) {
-            int ret;
-            do {
-                ret = fclose(d->fh);
-            } while (ret == EOF && errno == EINTR);
+            fclose(d->fh);
         } else if (d->fd != -1) {
-            int ret;
-            do {
-                ret = QT_CLOSE(d->fd);
-            } while (ret == -1 && errno == EINTR);
+            QT_CLOSE(d->fd);
         }
     }
-    QList<uchar*> keys = d->maps.keys();
-    for (int i = 0; i < keys.count(); ++i)
-        unmap(keys.at(i));
+    d->unmapAll();
 }
 
 /*!
@@ -375,15 +370,14 @@ bool QFSFileEnginePrivate::closeFdFh()
     // Close the file if we created the handle.
     if (closeFileHandle) {
         int ret;
-        do {
-            if (fh) {
-                // Close buffered file.
-                ret = fclose(fh) != 0 ? -1 : 0;
-            } else {
-                // Close unbuffered file.
-                ret = QT_CLOSE(fd);
-            }
-        } while (ret == -1 && errno == EINTR);
+
+        if (fh) {
+            // Close buffered file.
+            ret = fclose(fh);
+        } else {
+            // Close unbuffered file.
+            ret = QT_CLOSE(fd);
+        }
 
         // We must reset these guys regardless; calling close again after a
         // failed close causes crashes on some systems.
@@ -461,6 +455,18 @@ qint64 QFSFileEngine::size() const
 {
     Q_D(const QFSFileEngine);
     return d->nativeSize();
+}
+
+/*!
+    \internal
+*/
+void QFSFileEnginePrivate::unmapAll()
+{
+    if (!maps.isEmpty()) {
+        const QList<uchar*> keys = maps.keys(); // Make a copy since unmap() modifies the map.
+        for (int i = 0; i < keys.count(); ++i)
+            unmap(keys.at(i));
+    }
 }
 
 #ifndef Q_OS_WIN
@@ -610,15 +616,17 @@ qint64 QFSFileEnginePrivate::readFdFh(char *data, qint64 len)
     } else if (fd != -1) {
         // Unbuffered stdio mode.
 
-#ifdef Q_OS_WIN
-        int result;
-#else
-        ssize_t result;
-#endif
+        SignedIOType result;
         do {
-            result = QT_READ(fd, data + readBytes, size_t(len - readBytes));
-        } while ((result == -1 && errno == EINTR)
-                || (result > 0 && (readBytes += result) < len));
+            // calculate the chunk size
+            // on Windows or 32-bit no-largefile Unix, we'll need to read in chunks
+            // we limit to the size of the signed type, otherwise we could get a negative number as a result
+            quint64 wantedBytes = quint64(len) - quint64(readBytes);
+            UnsignedIOType chunkSize = std::numeric_limits<SignedIOType>::max();
+            if (chunkSize > wantedBytes)
+                chunkSize = wantedBytes;
+            result = QT_READ(fd, data + readBytes, chunkSize);
+        } while (result > 0 && (readBytes += result) < len);
 
         eof = !(result == -1);
     }
@@ -728,20 +736,25 @@ qint64 QFSFileEnginePrivate::writeFdFh(const char *data, qint64 len)
     } else if (fd != -1) {
         // Unbuffered stdio mode.
 
-#ifdef Q_OS_WIN
-        int result;
-#else
-        ssize_t result;
-#endif
+        SignedIOType result;
         do {
-            result = QT_WRITE(fd, data + writtenBytes, size_t(len - writtenBytes));
-        } while ((result == -1 && errno == EINTR)
-                || (result > 0 && (writtenBytes += result) < len));
+            // calculate the chunk size
+            // on Windows or 32-bit no-largefile Unix, we'll need to read in chunks
+            // we limit to the size of the signed type, otherwise we could get a negative number as a result
+            quint64 wantedBytes = quint64(len) - quint64(writtenBytes);
+            UnsignedIOType chunkSize = std::numeric_limits<SignedIOType>::max();
+            if (chunkSize > wantedBytes)
+                chunkSize = wantedBytes;
+            result = QT_WRITE(fd, data + writtenBytes, chunkSize);
+        } while (result > 0 && (writtenBytes += result) < len);
     }
 
     if (len &&  writtenBytes == 0) {
         writtenBytes = -1;
         q->setError(errno == ENOSPC ? QFile::ResourceError : QFile::WriteError, qt_error_string(errno));
+    } else {
+        // reset the cached size, if any
+        metaData.clearFlags(QFileSystemMetaData::SizeAttribute);
     }
 
     return writtenBytes;

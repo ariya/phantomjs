@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtSql module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -104,6 +96,11 @@
 #define QXIDOID 28
 #define QCIDOID 29
 
+#define QBITOID 1560
+#define QVARBITOID 1562
+
+#define VARHDRSZ 4
+
 /* This is a compile time switch - if PQfreemem is declared, the compiler will use that one,
    otherwise it'll run in this template */
 template <typename T>
@@ -133,7 +130,7 @@ public:
         sn(0),
         pendingNotifyCheck(false),
         hasBackslashEscape(false)
-    { dbmsType = PostgreSQL; }
+    { dbmsType = QSqlDriver::PostgreSQL; }
 
     PGconn *connection;
     bool isUtf8;
@@ -429,11 +426,8 @@ QVariant QPSQLResult::data(int i)
 #ifndef QT_NO_DATESTRING
         if (str.isEmpty())
             return QVariant(QTime());
-        if (str.at(str.length() - 3) == QLatin1Char('+') || str.at(str.length() - 3) == QLatin1Char('-'))
-            // strip the timezone
-            // TODO: fix this when timestamp support comes into QDateTime
-            return QVariant(QTime::fromString(str.left(str.length() - 3), Qt::ISODate));
-        return QVariant(QTime::fromString(str, Qt::ISODate));
+        else
+            return QVariant(QTime::fromString(str, Qt::ISODate));
 #else
         return QVariant(str);
 #endif
@@ -441,19 +435,13 @@ QVariant QPSQLResult::data(int i)
     case QVariant::DateTime: {
         QString dtval = QString::fromLatin1(val);
 #ifndef QT_NO_DATESTRING
-        if (dtval.length() < 10)
+        if (dtval.length() < 10) {
             return QVariant(QDateTime());
-        // remove the timezone
-        // TODO: fix this when timestamp support comes into QDateTime
-        if (dtval.at(dtval.length() - 3) == QLatin1Char('+') || dtval.at(dtval.length() - 3) == QLatin1Char('-'))
-            dtval.chop(3);
-        // milliseconds are sometimes returned with 2 digits only
-        if (dtval.at(dtval.length() - 3).isPunct())
-            dtval += QLatin1Char('0');
-        if (dtval.isEmpty())
-            return QVariant(QDateTime());
-        else
-            return QVariant(QDateTime::fromString(dtval, Qt::ISODate));
+       } else {
+            QChar sign = dtval[dtval.size() - 3];
+            if (sign == QLatin1Char('-') || sign == QLatin1Char('+')) dtval += QLatin1String(":00");
+            return QVariant(QDateTime::fromString(dtval, Qt::ISODate).toLocalTime());
+        }
 #else
         return QVariant(dtval);
 #endif
@@ -533,17 +521,38 @@ QSqlRecord QPSQLResult::record() const
             f.setName(QString::fromUtf8(PQfname(d->result, i)));
         else
             f.setName(QString::fromLocal8Bit(PQfname(d->result, i)));
-        f.setType(qDecodePSQLType(PQftype(d->result, i)));
+        int ptype = PQftype(d->result, i);
+        f.setType(qDecodePSQLType(ptype));
         int len = PQfsize(d->result, i);
         int precision = PQfmod(d->result, i);
-        // swap length and precision if length == -1
-        if (len == -1 && precision > -1) {
-            len = precision - 4;
+
+        switch (ptype) {
+        case QTIMESTAMPOID:
+        case QTIMESTAMPTZOID:
+            precision = 3;
+            break;
+
+        case QNUMERICOID:
+            if (precision != -1) {
+                len = (precision >> 16);
+                precision = ((precision - VARHDRSZ) & 0xffff);
+            }
+            break;
+        case QBITOID:
+        case QVARBITOID:
+            len = precision;
             precision = -1;
+            break;
+        default:
+            if (len == -1 && precision >= VARHDRSZ) {
+                len = precision - VARHDRSZ;
+                precision = -1;
+            }
         }
+
         f.setLength(len);
         f.setPrecision(precision);
-        f.setSqlType(PQftype(d->result, i));
+        f.setSqlType(ptype);
         info.append(f);
     }
     return info;
@@ -1250,15 +1259,10 @@ QString QPSQLDriver::formatValue(const QSqlField &field, bool trimStrings) const
         case QVariant::DateTime:
 #ifndef QT_NO_DATESTRING
             if (field.value().toDateTime().isValid()) {
-                QDate dt = field.value().toDateTime().date();
-                QTime tm = field.value().toDateTime().time();
-                // msecs need to be right aligned otherwise psql interprets them wrong
-                r = QLatin1Char('\'') + QString::number(dt.year()) + QLatin1Char('-')
-                          + QString::number(dt.month()).rightJustified(2, QLatin1Char('0')) + QLatin1Char('-')
-                          + QString::number(dt.day()).rightJustified(2, QLatin1Char('0')) + QLatin1Char(' ')
-                          + tm.toString() + QLatin1Char('.')
-                          + QString::number(tm.msec()).rightJustified(3, QLatin1Char('0'))
-                          + QLatin1Char('\'');
+                // we force the value to be considered with a timezone information, and we force it to be UTC
+                // this is safe since postgresql stores only the UTC value and not the timezone offset (only used
+                // while parsing), so we have correct behavior in both case of with timezone and without tz
+                r = QLatin1String("TIMESTAMP WITH TIME ZONE ") + QLatin1Char('\'') + field.value().toDateTime().toUTC().toString(QLatin1String("yyyy-MM-ddThh:mm:ss.zzz")) + QLatin1Char('Z') + QLatin1Char('\'');
             } else {
                 r = QLatin1String("NULL");
             }

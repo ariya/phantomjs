@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -41,6 +33,7 @@
 
 #include <QtGui/QOpenGLShaderProgram>
 #include <QtGui/QOpenGLContext>
+#include <QtGui/QPainter>
 
 #include "qeglplatformbackingstore_p.h"
 #include "qeglcompositor_p.h"
@@ -159,18 +152,20 @@ void QEGLPlatformBackingStore::flush(QWindow *window, const QRegion &region, con
     screen->compositingContext()->makeCurrent(dstWin->window());
     updateTexture();
     m_textures->clear();
-    m_textures->appendTexture(m_bsTexture, window->geometry());
+    m_textures->appendTexture(Q_NULLPTR, m_bsTexture, window->geometry());
     composite(screen->compositingContext(), dstWin);
 }
 
 void QEGLPlatformBackingStore::composeAndFlush(QWindow *window, const QRegion &region, const QPoint &offset,
-                                               QPlatformTextureList *textures, QOpenGLContext *context)
+                                               QPlatformTextureList *textures, QOpenGLContext *context,
+                                               bool translucentBackground)
 {
     // QOpenGLWidget content provided as textures. The raster content should go on top.
 
     Q_UNUSED(region);
     Q_UNUSED(offset);
     Q_UNUSED(context);
+    Q_UNUSED(translucentBackground);
 
     QEGLPlatformScreen *screen = static_cast<QEGLPlatformScreen *>(m_window->screen());
     QEGLPlatformWindow *dstWin = screen->compositingWindow();
@@ -180,14 +175,11 @@ void QEGLPlatformBackingStore::composeAndFlush(QWindow *window, const QRegion &r
     screen->compositingContext()->makeCurrent(dstWin->window());
 
     m_textures->clear();
-    for (int i = 0; i < textures->count(); ++i) {
-        uint textureId = textures->textureId(i);
-        QRect geom = textures->geometry(i);
-        m_textures->appendTexture(textureId, geom);
-    }
+    for (int i = 0; i < textures->count(); ++i)
+        m_textures->appendTexture(textures->widget(i), textures->textureId(i), textures->geometry(i), textures->flags(i));
 
     updateTexture();
-    m_textures->appendTexture(m_bsTexture, window->geometry());
+    m_textures->appendTexture(Q_NULLPTR, m_bsTexture, window->geometry());
 
     textures->lock(true);
     m_lockedWidgetTextures = textures;
@@ -209,9 +201,16 @@ void QEGLPlatformBackingStore::composited()
     }
 }
 
-void QEGLPlatformBackingStore::beginPaint(const QRegion &rgn)
+void QEGLPlatformBackingStore::beginPaint(const QRegion &region)
 {
-    m_dirty |= rgn;
+    m_dirty |= region;
+
+    if (m_image.hasAlphaChannel()) {
+        QPainter p(&m_image);
+        p.setCompositionMode(QPainter::CompositionMode_Source);
+        foreach (const QRect &r, region.rects())
+            p.fillRect(r, Qt::transparent);
+    }
 }
 
 void QEGLPlatformBackingStore::resize(const QSize &size, const QRegion &staticContents)
@@ -223,7 +222,8 @@ void QEGLPlatformBackingStore::resize(const QSize &size, const QRegion &staticCo
     if (!dstWin || (!dstWin->isRaster() && dstWin->window()->surfaceType() != QSurface::RasterGLSurface))
         return;
 
-    m_image = QImage(size, QImage::Format_RGB32);
+    m_image = QImage(size, QImage::Format_RGBA8888);
+
     m_window->create();
 
     screen->compositingContext()->makeCurrent(dstWin->window());

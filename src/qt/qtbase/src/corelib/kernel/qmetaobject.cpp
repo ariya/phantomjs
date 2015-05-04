@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -161,11 +153,6 @@ static inline const QByteArray stringData(const QMetaObject *mo, int index)
 static inline const char *rawStringData(const QMetaObject *mo, int index)
 {
     return stringData(mo, index).data();
-}
-
-static inline int stringSize(const QMetaObject *mo, int index)
-{
-    return stringData(mo, index).size();
 }
 
 static inline QByteArray typeNameFromTypeInfo(const QMetaObject *mo, uint typeInfo)
@@ -308,6 +295,11 @@ int QMetaObject::metacall(QObject *object, Call cl, int idx, void **argv)
         return object->qt_metacall(cl, idx, argv);
 }
 
+static inline const char *objectClassName(const QMetaObject *m)
+{
+    return rawStringData(m, priv(m->d.data)->className);
+}
+
 /*!
     Returns the class name.
 
@@ -315,7 +307,7 @@ int QMetaObject::metacall(QObject *object, Call cl, int idx, void **argv)
 */
 const char *QMetaObject::className() const
 {
-    return rawStringData(this, 0);
+    return objectClassName(this);
 }
 
 /*!
@@ -369,7 +361,7 @@ const QObject *QMetaObject::cast(const QObject *obj) const
 */
 QString QMetaObject::tr(const char *s, const char *c, int n) const
 {
-    return QCoreApplication::translate(rawStringData(this, 0), s, c, n);
+    return QCoreApplication::translate(objectClassName(this), s, c, n);
 }
 #endif // QT_NO_TRANSLATION
 
@@ -728,7 +720,7 @@ int QMetaObjectPrivate::indexOfSignalRelative(const QMetaObject **baseObject,
             QMetaMethod conflictMethod = m->d.superdata->method(conflict);
             qWarning("QMetaObject::indexOfSignal: signal %s from %s redefined in %s",
                      conflictMethod.methodSignature().constData(),
-                     rawStringData(m->d.superdata, 0), rawStringData(m, 0));
+                     objectClassName(m->d.superdata), objectClassName(m));
         }
      }
  #endif
@@ -938,7 +930,7 @@ bool QMetaObjectPrivate::checkConnectArgs(const QMetaMethodPrivate *signal,
 static const QMetaObject *QMetaObject_findMetaObject(const QMetaObject *self, const char *name)
 {
     while (self) {
-        if (strcmp(rawStringData(self, 0), name) == 0)
+        if (strcmp(objectClassName(self), name) == 0)
             return self;
         if (self->d.relatedMetaObjects) {
             Q_ASSERT(priv(self->d.data)->revision >= 2);
@@ -1117,7 +1109,7 @@ QMetaProperty QMetaObject::property(int index) const
             result.menum = enumerator(indexOfEnumerator(type));
             if (!result.menum.isValid()) {
                 const char *enum_name = type;
-                const char *scope_name = rawStringData(this, 0);
+                const char *scope_name = objectClassName(this);
                 char *scope_buffer = 0;
 
                 const char *colon = strrchr(enum_name, ':');
@@ -1339,6 +1331,27 @@ QByteArray QMetaObject::normalizedSignature(const char *method)
 enum { MaximumParamCount = 11 }; // up to 10 arguments + 1 return value
 
 /*!
+    Returns the signatures of all methods whose name matches \a nonExistentMember,
+    or an empty QByteArray if there are no matches.
+*/
+static inline QByteArray findMethodCandidates(const QMetaObject *metaObject, const char *nonExistentMember)
+{
+    QByteArray candidateMessage;
+    // Prevent full string comparison in every iteration.
+    const QByteArray memberByteArray = nonExistentMember;
+    for (int i = 0; i < metaObject->methodCount(); ++i) {
+        const QMetaMethod method = metaObject->method(i);
+        if (method.name() == memberByteArray)
+            candidateMessage.append("    " + method.methodSignature() + '\n');
+    }
+    if (!candidateMessage.isEmpty()) {
+        candidateMessage.prepend("\nCandidates are:\n");
+        candidateMessage.chop(1);
+    }
+    return candidateMessage;
+}
+
+/*!
     Invokes the \a member (a signal or a slot name) on the object \a
     obj. Returns \c true if the member could be invoked. Returns \c false
     if there is no such member or the parameters did not match.
@@ -1455,8 +1468,9 @@ bool QMetaObject::invokeMethod(QObject *obj,
     }
 
     if (idx < 0 || idx >= meta->methodCount()) {
-        qWarning("QMetaObject::invokeMethod: No such method %s::%s",
-                 meta->className(), sig.constData());
+        // This method doesn't belong to us; print out a nice warning with candidates.
+        qWarning("QMetaObject::invokeMethod: No such method %s::%s%s",
+                 meta->className(), sig.constData(), findMethodCandidates(meta, member).constData());
         return false;
     }
     QMetaMethod method = meta->method(idx);
@@ -2412,7 +2426,7 @@ bool QMetaEnum::isFlag() const
 */
 const char *QMetaEnum::scope() const
 {
-    return mobj?rawStringData(mobj, 0) : 0;
+    return mobj ? objectClassName(mobj) : 0;
 }
 
 /*!
@@ -2444,7 +2458,8 @@ int QMetaEnum::keyToValue(const char *key, bool *ok) const
     int count = mobj->d.data[handle + 2];
     int data = mobj->d.data[handle + 3];
     for (int i = 0; i < count; ++i) {
-        if ((!scope || (stringSize(mobj, 0) == int(scope) && strncmp(qualified_key, rawStringData(mobj, 0), scope) == 0))
+        const QByteArray className = stringData(mobj, priv(mobj->d.data)->className);
+        if ((!scope || (className.size() == int(scope) && strncmp(qualified_key, className.constData(), scope) == 0))
              && strcmp(key, rawStringData(mobj, mobj->d.data[data + 2*i])) == 0) {
             if (ok != 0)
                 *ok = true;
@@ -2512,12 +2527,14 @@ int QMetaEnum::keysToValue(const char *keys, bool *ok) const
             key += scope + 2;
         }
         int i;
-        for (i = count-1; i >= 0; --i)
-            if ((!scope || (stringSize(mobj, 0) == int(scope) && strncmp(qualified_key.constData(), rawStringData(mobj, 0), scope) == 0))
+        for (i = count-1; i >= 0; --i) {
+            const QByteArray className = stringData(mobj, priv(mobj->d.data)->className);
+            if ((!scope || (className.size() == int(scope) && strncmp(qualified_key.constData(), className.constData(), scope) == 0))
                  && strcmp(key, rawStringData(mobj, mobj->d.data[data + 2*i])) == 0) {
                 value |= mobj->d.data[data + 2*i + 1];
                 break;
             }
+        }
         if (i < 0) {
             if (ok != 0)
                 *ok = false;
@@ -2895,15 +2912,7 @@ bool QMetaProperty::write(QObject *object, const QVariant &value) const
             typeName = rawStringData(mobj, typeInfo & TypeNameIndexMask);
             t = QMetaType::type(typeName);
         }
-        if (t == QMetaType::UnknownType) {
-            Q_ASSERT(typeName != 0);
-            const char *vtypeName = value.typeName();
-            if (vtypeName && strcmp(typeName, vtypeName) == 0)
-                t = value.userType();
-            else
-                t = QVariant::nameToType(typeName);
-        }
-        if (t == QVariant::Invalid)
+        if (t == QMetaType::UnknownType)
             return false;
         if (t != QMetaType::QVariant && t != (uint)value.userType() && (t < QMetaType::User && !v.convert((QVariant::Type)t)))
             return false;

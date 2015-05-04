@@ -16,4 +16,6 @@ iphonesimulator_and_iphoneos:iphonesimulator {
     QT_ARCH = i386
     QT_CPU_FEATURES.i386 = sse sse2
     DEFINES += QT_COMPILER_SUPPORTS_SSE2
+    CONFIG -= neon
+    CONFIG += sse sse2
 }

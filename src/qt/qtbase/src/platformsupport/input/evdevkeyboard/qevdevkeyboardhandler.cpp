@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -93,13 +85,15 @@ QEvdevKeyboardHandler::~QEvdevKeyboardHandler()
         qt_safe_close(m_fd);
 }
 
-QEvdevKeyboardHandler *QEvdevKeyboardHandler::create(const QString &device, const QString &specification)
+QEvdevKeyboardHandler *QEvdevKeyboardHandler::create(const QString &device,
+                                                     const QString &specification,
+                                                     const QString &defaultKeymapFile)
 {
 #ifdef QT_QPA_KEYMAP_DEBUG
     qWarning() << "Try to create keyboard handler for" << device << specification;
 #endif
 
-    QString keymapFile;
+    QString keymapFile = defaultKeymapFile;
     int repeatDelay = 400;
     int repeatRate = 80;
     bool disableZap = false;
@@ -406,6 +400,53 @@ QEvdevKeyboardHandler::KeycodeAction QEvdevKeyboardHandler::processKeycode(quint
 #ifdef QT_QPA_KEYMAP_DEBUG
             qWarning("Processing: uni=%04x, qt=%08x, qtmod=%08x", unicode, qtcode & ~modmask, (qtcode & modmask));
 #endif
+            //If NumLockOff and keypad key pressed remap event sent
+            if (!m_locks[1] &&
+                 (qtcode & Qt::KeypadModifier) &&
+                 keycode >= 71 &&
+                 keycode <= 83 &&
+                 keycode != 74 &&
+                 keycode != 78) {
+
+                unicode = 0xffff;
+                int oldMask = (qtcode & modmask);
+                switch (keycode) {
+                case 71: //7 --> Home
+                    qtcode = Qt::Key_Home;
+                    break;
+                case 72: //8 --> Up
+                    qtcode = Qt::Key_Up;
+                    break;
+                case 73: //9 --> PgUp
+                    qtcode = Qt::Key_PageUp;
+                    break;
+                case 75: //4 --> Left
+                    qtcode = Qt::Key_Left;
+                    break;
+                case 76: //5 --> Clear
+                    qtcode = Qt::Key_Clear;
+                    break;
+                case 77: //6 --> right
+                    qtcode = Qt::Key_Right;
+                    break;
+                case 79: //1 --> End
+                    qtcode = Qt::Key_End;
+                    break;
+                case 80: //2 --> Down
+                    qtcode = Qt::Key_Down;
+                    break;
+                case 81: //3 --> PgDn
+                    qtcode = Qt::Key_PageDown;
+                    break;
+                case 82: //0 --> Ins
+                    qtcode = Qt::Key_Insert;
+                    break;
+                case 83: //, --> Del
+                    qtcode = Qt::Key_Delete;
+                    break;
+                }
+                qtcode ^= oldMask;
+            }
 
             // send the result to the server
             processKeyEvent(keycode, unicode, qtcode & ~modmask, Qt::KeyboardModifiers(qtcode & modmask), pressed, autorepeat);
@@ -435,6 +476,29 @@ void QEvdevKeyboardHandler::unloadKeymap()
     memset(m_locks, 0, sizeof(m_locks));
     m_composing = 0;
     m_dead_unicode = 0xffff;
+
+    //Set locks according to keyboard leds
+    quint16 ledbits[1];
+    memset(ledbits, 0, sizeof(ledbits));
+    if (::ioctl(m_fd, EVIOCGLED(sizeof(ledbits)), ledbits) < 0) {
+        qWarning("Failed to query led states. Settings numlock & capslock off");
+        switchLed(LED_NUML,false);
+        switchLed(LED_CAPSL, false);
+        switchLed(LED_SCROLLL,false);
+    } else {
+        //Capslock
+        if ((ledbits[0]&0x02) > 0)
+            m_locks[0] = 1;
+        //Numlock
+        if ((ledbits[0]&0x01) > 0)
+            m_locks[1] = 1;
+        //Scrollock
+        if ((ledbits[0]&0x04) > 0)
+            m_locks[2] = 1;
+#ifdef QT_QPA_KEYMAP_DEBUG
+        qWarning("numlock=%d , capslock=%d, scrolllock=%d",m_locks[1],m_locks[0],m_locks[2]);
+#endif
+    }
 }
 
 bool QEvdevKeyboardHandler::loadKeymap(const QString &file)
