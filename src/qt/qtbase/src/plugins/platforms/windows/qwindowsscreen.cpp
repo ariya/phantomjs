@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -68,6 +60,21 @@ static inline QDpi deviceDPI(HDC hdc)
     return QDpi(GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY));
 }
 
+#ifndef Q_OS_WINCE
+
+static inline QDpi monitorDPI(HMONITOR hMonitor)
+{
+    if (QWindowsContext::shcoredll.isValid()) {
+        UINT dpiX;
+        UINT dpiY;
+        if (SUCCEEDED(QWindowsContext::shcoredll.getDpiForMonitor(hMonitor, 0, &dpiX, &dpiY)))
+            return QDpi(dpiX, dpiY);
+    }
+    return QDpi(0, 0);
+}
+
+#endif // !Q_OS_WINCE
+
 static inline QSizeF deviceSizeMM(const QSize &pixels, const QDpi &dpi)
 {
     const qreal inchToMM = 25.4;
@@ -86,21 +93,19 @@ static inline QDpi deviceDPI(const QSize &pixels, const QSizeF &physicalSizeMM)
 
 typedef QList<QWindowsScreenData> WindowsScreenDataList;
 
-// from QDesktopWidget, taking WindowsScreenDataList as LPARAM
-BOOL QT_WIN_CALLBACK monitorEnumCallback(HMONITOR hMonitor, HDC, LPRECT, LPARAM p)
+static bool monitorData(HMONITOR hMonitor, QWindowsScreenData *data)
 {
     MONITORINFOEX info;
     memset(&info, 0, sizeof(MONITORINFOEX));
     info.cbSize = sizeof(MONITORINFOEX);
     if (GetMonitorInfo(hMonitor, &info) == FALSE)
-        return TRUE;
+        return false;
 
-    WindowsScreenDataList *result = reinterpret_cast<WindowsScreenDataList *>(p);
-    QWindowsScreenData data;
-    data.geometry = QRect(QPoint(info.rcMonitor.left, info.rcMonitor.top), QPoint(info.rcMonitor.right - 1, info.rcMonitor.bottom - 1));
-    data.name = QString::fromWCharArray(info.szDevice);
-    if (data.name == QLatin1String("WinDisc")) {
-        data.flags |= QWindowsScreenData::LockScreen;
+    data->geometry = QRect(QPoint(info.rcMonitor.left, info.rcMonitor.top), QPoint(info.rcMonitor.right - 1, info.rcMonitor.bottom - 1));
+    data->availableGeometry = QRect(QPoint(info.rcWork.left, info.rcWork.top), QPoint(info.rcWork.right - 1, info.rcWork.bottom - 1));
+    data->name = QString::fromWCharArray(info.szDevice);
+    if (data->name == QLatin1String("WinDisc")) {
+        data->flags |= QWindowsScreenData::LockScreen;
     } else {
 #ifdef Q_OS_WINCE
         //Windows CE, just supports one Display and expects to get only DISPLAY,
@@ -110,37 +115,50 @@ BOOL QT_WIN_CALLBACK monitorEnumCallback(HMONITOR hMonitor, HDC, LPRECT, LPARAM 
         HDC hdc = CreateDC(info.szDevice, NULL, NULL, NULL);
 #endif
         if (hdc) {
-            data.dpi = deviceDPI(hdc);
-            data.depth = GetDeviceCaps(hdc, BITSPIXEL);
-            data.format = data.depth == 16 ? QImage::Format_RGB16 : QImage::Format_RGB32;
-            data.physicalSizeMM = QSizeF(GetDeviceCaps(hdc, HORZSIZE), GetDeviceCaps(hdc, VERTSIZE));
+#ifndef Q_OS_WINCE
+            const QDpi dpi = monitorDPI(hMonitor);
+            data->dpi = dpi.first ? dpi : deviceDPI(hdc);
+#else
+            data->dpi = deviceDPI(hdc);
+#endif
+            data->depth = GetDeviceCaps(hdc, BITSPIXEL);
+            data->format = data->depth == 16 ? QImage::Format_RGB16 : QImage::Format_RGB32;
+            data->physicalSizeMM = QSizeF(GetDeviceCaps(hdc, HORZSIZE), GetDeviceCaps(hdc, VERTSIZE));
             const int refreshRate = GetDeviceCaps(hdc, VREFRESH);
             if (refreshRate > 1) // 0,1 means hardware default.
-                data.refreshRateHz = refreshRate;
+                data->refreshRateHz = refreshRate;
             DeleteDC(hdc);
         } else {
             qWarning("%s: Unable to obtain handle for monitor '%s', defaulting to %g DPI.",
                      __FUNCTION__, qPrintable(QString::fromWCharArray(info.szDevice)),
-                     data.dpi.first);
+                     data->dpi.first);
         } // CreateDC() failed
     } // not lock screen
-    data.geometry = QRect(QPoint(info.rcMonitor.left, info.rcMonitor.top), QPoint(info.rcMonitor.right - 1, info.rcMonitor.bottom - 1));
-    data.availableGeometry = QRect(QPoint(info.rcWork.left, info.rcWork.top), QPoint(info.rcWork.right - 1, info.rcWork.bottom - 1));
-    data.orientation = data.geometry.height() > data.geometry.width() ?
+    data->orientation = data->geometry.height() > data->geometry.width() ?
                        Qt::PortraitOrientation : Qt::LandscapeOrientation;
     // EnumDisplayMonitors (as opposed to EnumDisplayDevices) enumerates only
     // virtual desktop screens.
-    data.flags |= QWindowsScreenData::VirtualDesktop;
-    if (info.dwFlags & MONITORINFOF_PRIMARY) {
-        data.flags |= QWindowsScreenData::PrimaryScreen;
+    data->flags |= QWindowsScreenData::VirtualDesktop;
+    if (info.dwFlags & MONITORINFOF_PRIMARY)
+        data->flags |= QWindowsScreenData::PrimaryScreen;
+    return true;
+}
+
+// from QDesktopWidget, taking WindowsScreenDataList as LPARAM
+BOOL QT_WIN_CALLBACK monitorEnumCallback(HMONITOR hMonitor, HDC, LPRECT, LPARAM p)
+{
+    QWindowsScreenData data;
+    if (monitorData(hMonitor, &data)) {
+        WindowsScreenDataList *result = reinterpret_cast<WindowsScreenDataList *>(p);
         // QPlatformIntegration::screenAdded() documentation specifies that first
         // added screen will be the primary screen, so order accordingly.
         // Note that the side effect of this policy is that there is no way to change primary
         // screen reported by Qt, unless we want to delete all existing screens and add them
         // again whenever primary screen changes.
-        result->prepend(data);
-    } else {
-        result->append(data);
+        if (data.flags & QWindowsScreenData::PrimaryScreen)
+            result->prepend(data);
+        else
+            result->append(data);
     }
     return TRUE;
 }
@@ -197,14 +215,36 @@ QWindowsScreen::QWindowsScreen(const QWindowsScreenData &data) :
 {
 }
 
+BOOL QT_WIN_CALLBACK monitorResolutionEnumCallback(HMONITOR hMonitor, HDC, LPRECT, LPARAM p)
+{
+    QWindowsScreenData data;
+    if (monitorData(hMonitor, &data)) {
+        int *maxHorizResolution = reinterpret_cast<int *>(p);
+        const int horizResolution = qRound(data.dpi.first);
+        if (horizResolution > *maxHorizResolution)
+            *maxHorizResolution = horizResolution;
+    }
+    return TRUE;
+}
+
+int QWindowsScreen::maxMonitorHorizResolution()
+{
+    int result = 0;
+    EnumDisplayMonitors(0, 0, monitorResolutionEnumCallback, (LPARAM)&result);
+    return result;
+}
+
 Q_GUI_EXPORT QPixmap qt_pixmapFromWinHBITMAP(HBITMAP bitmap, int hbitmapFormat = 0);
 
-QPixmap QWindowsScreen::grabWindow(WId window, int x, int y, int width, int height) const
+QPixmap QWindowsScreen::grabWindow(WId window, int qX, int qY, int qWidth, int qHeight) const
 {
     RECT r;
     HWND hwnd = window ? (HWND)window : GetDesktopWindow();
     GetClientRect(hwnd, &r);
-
+    const int x = qX * QWindowsScaling::factor();
+    const int y = qY * QWindowsScaling::factor();
+    int width = qWidth * QWindowsScaling::factor();
+    int height = qHeight * QWindowsScaling::factor();
     if (width < 0) width = r.right - r.left;
     if (height < 0) height = r.bottom - r.top;
 
@@ -228,6 +268,10 @@ QPixmap QWindowsScreen::grabWindow(WId window, int x, int y, int width, int heig
     DeleteObject(bitmap);
     ReleaseDC(0, display_dc);
 
+    if (QWindowsScaling::isActive()) {
+        const qreal factor = 1.0 / qreal(QWindowsScaling::factor());
+        return pixmap.transformed(QTransform::fromScale(factor, factor));
+    }
     return pixmap;
 }
 
@@ -235,13 +279,12 @@ QPixmap QWindowsScreen::grabWindow(WId window, int x, int y, int width, int heig
     \brief Find a top level window taking the flags of ChildWindowFromPointEx.
 */
 
-QWindow *QWindowsScreen::findTopLevelAt(const QPoint &point, unsigned flags)
+QWindow *QWindowsScreen::topLevelAt(const QPoint &point) const
 {
-    QWindow* result = 0;
-    if (QPlatformWindow *bw = QWindowsContext::instance()->
-            findPlatformWindowAt(GetDesktopWindow(), point, flags))
-        result = QWindowsWindow::topLevelOf(bw->window());
-    qCDebug(lcQpaWindows) <<__FUNCTION__ << point << flags << result;
+    QWindow *result = 0;
+    if (QWindow *child = QWindowsScreen::windowAt(point * QWindowsScaling::factor(), CWP_SKIPINVISIBLE))
+        result = QWindowsWindow::topLevelOf(child);
+    qCDebug(lcQpaWindows) <<__FUNCTION__ << point << result;
     return result;
 }
 
@@ -253,15 +296,6 @@ QWindow *QWindowsScreen::windowAt(const QPoint &screenPoint, unsigned flags)
         result = bw->window();
     qCDebug(lcQpaWindows) <<__FUNCTION__ << screenPoint << " returns " << result;
     return result;
-}
-
-QWindow *QWindowsScreen::windowUnderMouse(unsigned flags)
-{
-#ifndef QT_NO_CURSOR
-    return QWindowsScreen::windowAt(QWindowsCursor::mousePosition(), flags);
-#else
-    return 0;
-#endif
 }
 
 QWindowsScreen *QWindowsScreen::screenOf(const QWindow *w)
@@ -304,15 +338,11 @@ void QWindowsScreen::handleChanges(const QWindowsScreenData &newData)
 {
     m_data.physicalSizeMM = newData.physicalSizeMM;
 
-    if (m_data.geometry != newData.geometry) {
+    if (m_data.geometry != newData.geometry || m_data.availableGeometry != newData.availableGeometry) {
         m_data.geometry = newData.geometry;
-        QWindowSystemInterface::handleScreenGeometryChange(screen(),
-                                                           newData.geometry);
-    }
-    if (m_data.availableGeometry != newData.availableGeometry) {
         m_data.availableGeometry = newData.availableGeometry;
-        QWindowSystemInterface::handleScreenAvailableGeometryChange(screen(),
-                                                                    newData.availableGeometry);
+        QWindowSystemInterface::handleScreenGeometryChange(screen(),
+                                                           newData.geometry, newData.availableGeometry);
     }
     if (!qFuzzyCompare(m_data.dpi.first, newData.dpi.first)
         || !qFuzzyCompare(m_data.dpi.second, newData.dpi.second)) {
@@ -387,6 +417,54 @@ static inline int indexOfMonitor(const QList<QWindowsScreenData> &screenData,
     return -1;
 }
 
+// Move a window to a new virtual screen, accounting for varying sizes.
+static void moveToVirtualScreen(QWindow *w, const QScreen *newScreen)
+{
+    QRect geometry = w->geometry();
+    const QRect oldScreenGeometry = w->screen()->geometry();
+    const QRect newScreenGeometry = newScreen->geometry();
+    QPoint relativePosition = geometry.topLeft() - oldScreenGeometry.topLeft();
+    if (oldScreenGeometry.size() != newScreenGeometry.size()) {
+        const qreal factor =
+            qreal(QPoint(newScreenGeometry.width(), newScreenGeometry.height()).manhattanLength()) /
+            qreal(QPoint(oldScreenGeometry.width(), oldScreenGeometry.height()).manhattanLength());
+        relativePosition = (QPointF(relativePosition) * factor).toPoint();
+    }
+    geometry.moveTopLeft(relativePosition);
+    w->setGeometry(geometry);
+}
+
+void QWindowsScreenManager::removeScreen(int index)
+{
+    qCDebug(lcQpaWindows) << "Removing Monitor:" << m_screens.at(index)->data();
+    QScreen *screen = m_screens.at(index)->screen();
+    QScreen *primaryScreen = QGuiApplication::primaryScreen();
+    // QTBUG-38650: When a screen is disconnected, Windows will automatically
+    // move the Window to another screen. This will trigger a geometry change
+    // event, but unfortunately after the screen destruction signal. To prevent
+    // QtGui from automatically hiding the QWindow, pretend all Windows move to
+    // the primary screen first (which is likely the correct, final screen).
+    // QTBUG-39320: Windows does not automatically move WS_EX_TOOLWINDOW (dock) windows;
+    // move those manually.
+    if (screen != primaryScreen) {
+        unsigned movedWindowCount = 0;
+        foreach (QWindow *w, QGuiApplication::topLevelWindows()) {
+            if (w->screen() == screen && w->handle() && w->type() != Qt::Desktop) {
+                if (w->isVisible() && w->windowState() != Qt::WindowMinimized
+                    && (QWindowsWindow::baseWindowOf(w)->exStyle() & WS_EX_TOOLWINDOW)) {
+                    moveToVirtualScreen(w, primaryScreen);
+                } else {
+                    QWindowSystemInterface::handleWindowScreenChanged(w, primaryScreen);
+                }
+                ++movedWindowCount;
+            }
+        }
+        if (movedWindowCount)
+            QWindowSystemInterface::flushWindowSystemEvents();
+    }
+    delete m_screens.takeAt(index);
+}
+
 /*!
     \brief Synchronizes the screen list, adds new screens, removes deleted
     ones and propagates resolution changes to QWindowSystemInterface.
@@ -412,10 +490,8 @@ bool QWindowsScreenManager::handleScreenChanges()
     // temporary lock screen to avoid window recreation (QTBUG-33062).
     if (!lockScreen) {
         for (int i = m_screens.size() - 1; i >= 0; --i) {
-            if (indexOfMonitor(newDataList, m_screens.at(i)->data().name) == -1) {
-                qCDebug(lcQpaWindows) << "Removing Monitor: " << m_screens.at(i) ->data();
-                delete m_screens.takeAt(i);
-            } // not found
+            if (indexOfMonitor(newDataList, m_screens.at(i)->data().name) == -1)
+                removeScreen(i);
         }     // for existing screens
     }     // not lock screen
     return true;

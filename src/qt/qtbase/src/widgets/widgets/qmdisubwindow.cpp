@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -1043,6 +1035,7 @@ void QMdiSubWindowPrivate::createSystemMenu()
     Q_ASSERT_X(q, "QMdiSubWindowPrivate::createSystemMenu",
                "You can NOT call this function before QMdiSubWindow's ctor");
     systemMenu = new QMenu(q);
+    systemMenu->installEventFilter(q);
     const QStyle *style = q->style();
     addToSystemMenu(RestoreAction, QMdiSubWindow::tr("&Restore"), SLOT(showNormal()));
     actions[RestoreAction]->setIcon(style->standardIcon(QStyle::SP_TitleBarNormalButton, 0, q));
@@ -1321,6 +1314,14 @@ void QMdiSubWindowPrivate::setNormalMode()
     updateMask();
 }
 
+inline void QMdiSubWindowPrivate::storeFocusWidget()
+{
+    if (QWidget *focus = QApplication::focusWidget()) {
+        if (!restoreFocusWidget && q_func()->isAncestorOf(focus))
+            restoreFocusWidget = focus;
+    }
+}
+
 /*!
     \internal
 */
@@ -1333,8 +1334,7 @@ void QMdiSubWindowPrivate::setMaximizeMode()
     isShadeMode = false;
     isMaximizeMode = true;
 
-    if (!restoreFocusWidget && q->isAncestorOf(QApplication::focusWidget()))
-        restoreFocusWidget = QApplication::focusWidget();
+    storeFocusWidget();
 
 #ifndef QT_NO_SIZEGRIP
     setSizeGripVisible(false);
@@ -1436,6 +1436,7 @@ void QMdiSubWindowPrivate::setActive(bool activate, bool changeFocus)
         Qt::WindowStates oldWindowState = q->windowState();
         q->overrideWindowState(q->windowState() & ~Qt::WindowActive);
         if (changeFocus) {
+            storeFocusWidget();
             QWidget *focusWidget = QApplication::focusWidget();
             if (focusWidget && (focusWidget == q || q->isAncestorOf(focusWidget)))
                 focusWidget->clearFocus();
@@ -1676,15 +1677,18 @@ void QMdiSubWindowPrivate::ensureWindowState(Qt::WindowState state)
     switch (state) {
     case Qt::WindowMinimized:
         windowStates &= ~Qt::WindowMaximized;
+        windowStates &= ~Qt::WindowFullScreen;
         windowStates &= ~Qt::WindowNoState;
         break;
     case Qt::WindowMaximized:
         windowStates &= ~Qt::WindowMinimized;
+        windowStates &= ~Qt::WindowFullScreen;
         windowStates &= ~Qt::WindowNoState;
         break;
     case Qt::WindowNoState:
         windowStates &= ~Qt::WindowMinimized;
         windowStates &= ~Qt::WindowMaximized;
+        windowStates &= ~Qt::WindowFullScreen;
         break;
     default:
         break;
@@ -2023,6 +2027,9 @@ void QMdiSubWindowPrivate::setFocusWidget()
         return;
     }
 
+    if (!(q->windowState() & Qt::WindowMinimized) && restoreFocus())
+        return;
+
     if (QWidget *focusWidget = baseWidget->focusWidget()) {
         if (!focusWidget->hasFocus() && q->isAncestorOf(focusWidget)
                 && focusWidget->isVisible() && !q->isMinimized()
@@ -2045,16 +2052,19 @@ void QMdiSubWindowPrivate::setFocusWidget()
         q->setFocus();
 }
 
-void QMdiSubWindowPrivate::restoreFocus()
+bool QMdiSubWindowPrivate::restoreFocus()
 {
-    if (!restoreFocusWidget)
-        return;
-    if (!restoreFocusWidget->hasFocus() && q_func()->isAncestorOf(restoreFocusWidget)
-            && restoreFocusWidget->isVisible()
-            && restoreFocusWidget->focusPolicy() != Qt::NoFocus) {
-        restoreFocusWidget->setFocus();
+    if (restoreFocusWidget.isNull())
+        return false;
+    QWidget *candidate = restoreFocusWidget;
+    restoreFocusWidget.clear();
+    if (!candidate->hasFocus() && q_func()->isAncestorOf(candidate)
+        && candidate->isVisible()
+        && candidate->focusPolicy() != Qt::NoFocus) {
+        candidate->setFocus();
+        return true;
     }
-    restoreFocusWidget = 0;
+    return candidate->hasFocus();
 }
 
 /*!
@@ -2552,7 +2562,6 @@ void QMdiSubWindow::showSystemMenu()
     // Adjust x() with -menuwidth in reverse mode.
     if (isRightToLeft())
         globalPopupPos -= QPoint(d->systemMenu->sizeHint().width(), 0);
-    d->systemMenu->installEventFilter(this);
     d->systemMenu->popup(globalPopupPos);
 }
 #endif // QT_NO_MENU
@@ -2602,9 +2611,7 @@ void QMdiSubWindow::showShaded()
 
     d->isMaximizeMode = false;
 
-    QWidget *currentFocusWidget = QApplication::focusWidget();
-    if (!d->restoreFocusWidget && isAncestorOf(currentFocusWidget))
-        d->restoreFocusWidget = currentFocusWidget;
+    d->storeFocusWidget();
 
     if (!d->isShadeRequestFromMinimizeMode) {
         d->isShadeMode = true;
@@ -2618,7 +2625,7 @@ void QMdiSubWindow::showShaded()
     // showMinimized() will reset Qt::WindowActive, which makes sense
     // for top level widgets, but in MDI it makes sense to have an
     // active window which is minimized.
-    if (hasFocus() || isAncestorOf(currentFocusWidget))
+    if (hasFocus() || isAncestorOf(QApplication::focusWidget()))
         d->ensureWindowState(Qt::WindowActive);
 
 #ifndef QT_NO_SIZEGRIP
@@ -2687,7 +2694,6 @@ bool QMdiSubWindow::eventFilter(QObject *object, QEvent *event)
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
             d->hoveredSubControl = d->getSubControl(mapFromGlobal(mouseEvent->globalPos()));
         } else if (event->type() == QEvent::Hide) {
-            d->systemMenu->removeEventFilter(this);
             d->activeSubControl = QStyle::SC_None;
             update(QRegion(0, 0, width(), d->titleBarHeight()));
         }
@@ -2732,7 +2738,7 @@ bool QMdiSubWindow::eventFilter(QObject *object, QEvent *event)
             showMinimized();
         else if (!(oldState & Qt::WindowMaximized) && (newState & Qt::WindowMaximized))
             showMaximized();
-        else if (!(newState & (Qt::WindowMaximized | Qt::WindowMinimized)))
+        else if (!(newState & (Qt::WindowMaximized | Qt::WindowMinimized | Qt::WindowFullScreen)))
             showNormal();
         break;
     }
@@ -3005,7 +3011,7 @@ void QMdiSubWindow::changeEvent(QEvent *changeEvent)
         d->setMinimizeMode();
     else if (!(oldState & Qt::WindowMaximized) && (newState & Qt::WindowMaximized))
         d->setMaximizeMode();
-    else if (!(newState & (Qt::WindowMaximized | Qt::WindowMinimized)))
+    else if (!(newState & (Qt::WindowMaximized | Qt::WindowMinimized | Qt::WindowFullScreen)))
         d->setNormalMode();
 
     if (d->isActive)

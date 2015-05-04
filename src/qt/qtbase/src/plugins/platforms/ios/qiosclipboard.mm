@@ -194,10 +194,17 @@ QIOSClipboard::QIOSClipboard()
 {
 }
 
+QIOSClipboard::~QIOSClipboard()
+{
+    qDeleteAll(m_mimeData);
+}
+
 QMimeData *QIOSClipboard::mimeData(QClipboard::Mode mode)
 {
     Q_ASSERT(supportsMode(mode));
-    return new QIOSMimeData(mode);
+    if (!m_mimeData.contains(mode))
+        return *m_mimeData.insert(mode, new QIOSMimeData(mode));
+    return m_mimeData[mode];
 }
 
 void QIOSClipboard::setMimeData(QMimeData *mimeData, QClipboard::Mode mode)
@@ -205,6 +212,12 @@ void QIOSClipboard::setMimeData(QMimeData *mimeData, QClipboard::Mode mode)
     Q_ASSERT(supportsMode(mode));
 
     UIPasteboard *pb = [UIPasteboard pasteboardWithQClipboardMode:mode];
+    if (!mimeData) {
+        pb.items = [NSArray array];
+        return;
+    }
+
+    mimeData->deleteLater();
     NSMutableDictionary *pbItem = [NSMutableDictionary dictionaryWithCapacity:mimeData->formats().size()];
 
     foreach (const QString &mimeType, mimeData->formats()) {

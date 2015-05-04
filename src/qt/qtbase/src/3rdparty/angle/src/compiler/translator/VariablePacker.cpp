@@ -3,122 +3,81 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
-#include "compiler/translator/VariablePacker.h"
 
 #include <algorithm>
-#include "compiler/translator/ShHandle.h"
 
-namespace {
-int GetSortOrder(ShDataType type)
+#include "angle_gl.h"
+
+#include "compiler/translator/VariablePacker.h"
+#include "common/utilities.h"
+
+int VariablePacker::GetNumComponentsPerRow(sh::GLenum type)
 {
-    switch (type) {
-        case SH_FLOAT_MAT4:
-            return 0;
-        case SH_FLOAT_MAT2:
-            return 1;
-        case SH_FLOAT_VEC4:
-        case SH_INT_VEC4:
-        case SH_BOOL_VEC4:
-            return 2;
-        case SH_FLOAT_MAT3:
-            return 3;
-        case SH_FLOAT_VEC3:
-        case SH_INT_VEC3:
-        case SH_BOOL_VEC3:
-            return 4;
-        case SH_FLOAT_VEC2:
-        case SH_INT_VEC2:
-        case SH_BOOL_VEC2:
-            return 5;
-        case SH_FLOAT:
-        case SH_INT:
-        case SH_BOOL:
-        case SH_SAMPLER_2D:
-        case SH_SAMPLER_CUBE:
-        case SH_SAMPLER_EXTERNAL_OES:
-        case SH_SAMPLER_2D_RECT_ARB:
-            return 6;
-        default:
-            ASSERT(false);
-            return 7;
-    }
-}
-}    // namespace
-
-int VariablePacker::GetNumComponentsPerRow(ShDataType type)
-{
-    switch (type) {
-        case SH_FLOAT_MAT4:
-        case SH_FLOAT_MAT2:
-        case SH_FLOAT_VEC4:
-        case SH_INT_VEC4:
-        case SH_BOOL_VEC4:
-            return 4;
-        case SH_FLOAT_MAT3:
-        case SH_FLOAT_VEC3:
-        case SH_INT_VEC3:
-        case SH_BOOL_VEC3:
-            return 3;
-        case SH_FLOAT_VEC2:
-        case SH_INT_VEC2:
-        case SH_BOOL_VEC2:
-            return 2;
-        case SH_FLOAT:
-        case SH_INT:
-        case SH_BOOL:
-        case SH_SAMPLER_2D:
-        case SH_SAMPLER_CUBE:
-        case SH_SAMPLER_EXTERNAL_OES:
-        case SH_SAMPLER_2D_RECT_ARB:
-            return 1;
-        default:
-            ASSERT(false);
-            return 5;
-    }
-}
-
-int VariablePacker::GetNumRows(ShDataType type)
-{
-    switch (type) {
-        case SH_FLOAT_MAT4:
-            return 4;
-        case SH_FLOAT_MAT3:
-            return 3;
-        case SH_FLOAT_MAT2:
-            return 2;
-        case SH_FLOAT_VEC4:
-        case SH_INT_VEC4:
-        case SH_BOOL_VEC4:
-        case SH_FLOAT_VEC3:
-        case SH_INT_VEC3:
-        case SH_BOOL_VEC3:
-        case SH_FLOAT_VEC2:
-        case SH_INT_VEC2:
-        case SH_BOOL_VEC2:
-        case SH_FLOAT:
-        case SH_INT:
-        case SH_BOOL:
-        case SH_SAMPLER_2D:
-        case SH_SAMPLER_CUBE:
-        case SH_SAMPLER_EXTERNAL_OES:
-        case SH_SAMPLER_2D_RECT_ARB:
-            return 1;
-        default:
-            ASSERT(false);
-            return 100000;
-    }
-}
-
-struct TVariableInfoComparer {
-    bool operator()(const TVariableInfo& lhs, const TVariableInfo& rhs) const
+    switch (type)
     {
-        int lhsSortOrder = GetSortOrder(lhs.type);
-        int rhsSortOrder = GetSortOrder(rhs.type);
+      case GL_FLOAT_MAT4:
+      case GL_FLOAT_MAT2:
+      case GL_FLOAT_MAT2x4:
+      case GL_FLOAT_MAT3x4:
+      case GL_FLOAT_MAT4x2:
+      case GL_FLOAT_MAT4x3:
+      case GL_FLOAT_VEC4:
+      case GL_INT_VEC4:
+      case GL_BOOL_VEC4:
+      case GL_UNSIGNED_INT_VEC4:
+        return 4;
+      case GL_FLOAT_MAT3:
+      case GL_FLOAT_MAT2x3:
+      case GL_FLOAT_MAT3x2:
+      case GL_FLOAT_VEC3:
+      case GL_INT_VEC3:
+      case GL_BOOL_VEC3:
+      case GL_UNSIGNED_INT_VEC3:
+        return 3;
+      case GL_FLOAT_VEC2:
+      case GL_INT_VEC2:
+      case GL_BOOL_VEC2:
+      case GL_UNSIGNED_INT_VEC2:
+        return 2;
+      default:
+        ASSERT(gl::VariableComponentCount(type) == 1);
+        return 1;
+    }
+}
+
+int VariablePacker::GetNumRows(sh::GLenum type)
+{
+    switch (type)
+    {
+      case GL_FLOAT_MAT4:
+      case GL_FLOAT_MAT2x4:
+      case GL_FLOAT_MAT3x4:
+      case GL_FLOAT_MAT4x3:
+      case GL_FLOAT_MAT4x2:
+        return 4;
+      case GL_FLOAT_MAT3:
+      case GL_FLOAT_MAT2x3:
+      case GL_FLOAT_MAT3x2:
+        return 3;
+      case GL_FLOAT_MAT2:
+        return 2;
+      default:
+        ASSERT(gl::VariableRowCount(type) == 1);
+        return 1;
+    }
+}
+
+struct TVariableInfoComparer
+{
+    bool operator()(const sh::ShaderVariable &lhs, const sh::ShaderVariable &rhs) const
+    {
+        int lhsSortOrder = gl::VariableSortOrder(lhs.type);
+        int rhsSortOrder = gl::VariableSortOrder(rhs.type);
         if (lhsSortOrder != rhsSortOrder) {
             return lhsSortOrder < rhsSortOrder;
         }
         // Sort by largest first.
-        return lhs.size > rhs.size;
+        return lhs.arraySize > rhs.arraySize;
     }
 };
 
@@ -189,13 +148,23 @@ bool VariablePacker::searchColumn(int column, int numRows, int* destRow, int* de
     return true;
 }
 
-bool VariablePacker::CheckVariablesWithinPackingLimits(int maxVectors, const TVariableInfoList& in_variables)
+template <typename VarT>
+bool VariablePacker::CheckVariablesWithinPackingLimits(unsigned int maxVectors,
+                                                       const std::vector<VarT> &in_variables)
 {
     ASSERT(maxVectors > 0);
     maxRows_ = maxVectors;
     topNonFullRow_ = 0;
     bottomNonFullRow_ = maxRows_ - 1;
-    TVariableInfoList variables(in_variables);
+    std::vector<VarT> variables(in_variables);
+
+    // Check whether each variable fits in the available vectors.
+    for (size_t i = 0; i < variables.size(); i++) {
+        const sh::ShaderVariable &variable = variables[i];
+        if (variable.elementCount() > maxVectors / GetNumRows(variable.type)) {
+            return false;
+        }
+    }
 
     // As per GLSL 1.017 Appendix A, Section 7 variables are packed in specific
     // order by type, then by size of array, largest first.
@@ -206,11 +175,11 @@ bool VariablePacker::CheckVariablesWithinPackingLimits(int maxVectors, const TVa
     // Packs the 4 column variables.
     size_t ii = 0;
     for (; ii < variables.size(); ++ii) {
-        const TVariableInfo& variable = variables[ii];
+        const sh::ShaderVariable &variable = variables[ii];
         if (GetNumComponentsPerRow(variable.type) != 4) {
             break;
         }
-        topNonFullRow_ += GetNumRows(variable.type) * variable.size;
+        topNonFullRow_ += GetNumRows(variable.type) * variable.elementCount();
     }
 
     if (topNonFullRow_ > maxRows_) {
@@ -220,11 +189,11 @@ bool VariablePacker::CheckVariablesWithinPackingLimits(int maxVectors, const TVa
     // Packs the 3 column variables.
     int num3ColumnRows = 0;
     for (; ii < variables.size(); ++ii) {
-        const TVariableInfo& variable = variables[ii];
+        const sh::ShaderVariable &variable = variables[ii];
         if (GetNumComponentsPerRow(variable.type) != 3) {
             break;
         }
-        num3ColumnRows += GetNumRows(variable.type) * variable.size;
+        num3ColumnRows += GetNumRows(variable.type) * variable.elementCount();
     }
 
     if (topNonFullRow_ + num3ColumnRows > maxRows_) {
@@ -239,11 +208,11 @@ bool VariablePacker::CheckVariablesWithinPackingLimits(int maxVectors, const TVa
     int rowsAvailableInColumns01 = twoColumnRowsAvailable;
     int rowsAvailableInColumns23 = twoColumnRowsAvailable;
     for (; ii < variables.size(); ++ii) {
-        const TVariableInfo& variable = variables[ii];
+        const sh::ShaderVariable &variable = variables[ii];
         if (GetNumComponentsPerRow(variable.type) != 2) {
             break;
         }
-        int numRows = GetNumRows(variable.type) * variable.size;
+        int numRows = GetNumRows(variable.type) * variable.elementCount();
         if (numRows <= rowsAvailableInColumns01) {
             rowsAvailableInColumns01 -= numRows;
         } else if (numRows <= rowsAvailableInColumns23) {
@@ -263,9 +232,9 @@ bool VariablePacker::CheckVariablesWithinPackingLimits(int maxVectors, const TVa
 
     // Packs the 1 column variables.
     for (; ii < variables.size(); ++ii) {
-        const TVariableInfo& variable = variables[ii];
+        const sh::ShaderVariable &variable = variables[ii];
         ASSERT(1 == GetNumComponentsPerRow(variable.type));
-        int numRows = GetNumRows(variable.type) * variable.size;
+        int numRows = GetNumRows(variable.type) * variable.elementCount();
         int smallestColumn = -1;
         int smallestSize = maxRows_ + 1;
         int topRow = -1;
@@ -293,5 +262,8 @@ bool VariablePacker::CheckVariablesWithinPackingLimits(int maxVectors, const TVa
     return true;
 }
 
-
-
+// Instantiate all possible variable packings
+template bool VariablePacker::CheckVariablesWithinPackingLimits(unsigned int, const std::vector<sh::ShaderVariable> &);
+template bool VariablePacker::CheckVariablesWithinPackingLimits(unsigned int, const std::vector<sh::Attribute> &);
+template bool VariablePacker::CheckVariablesWithinPackingLimits(unsigned int, const std::vector<sh::Uniform> &);
+template bool VariablePacker::CheckVariablesWithinPackingLimits(unsigned int, const std::vector<sh::Varying> &);

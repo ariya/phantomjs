@@ -9,7 +9,7 @@ QT *= core-private
 QT *= gui-private
 QT *= platformsupport-private
 
-LIBS *= -ld2d1 -ld3d11 -ldwrite
+LIBS *= -ld2d1 -ld3d11 -ldwrite -lVersion -lgdi32
 
 include(../windows/windows.pri)
 

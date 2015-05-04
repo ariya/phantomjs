@@ -67,6 +67,7 @@ extern "C" {
 #include <qvector.h>
 #include <qdir.h>
 #include <qstandardpaths.h>
+#include <qthread.h>
 
 #include <wrl.h>
 #include <Windows.ApplicationModel.core.h>
@@ -74,6 +75,7 @@ extern "C" {
 using namespace ABI::Windows::ApplicationModel;
 using namespace ABI::Windows::Foundation;
 using namespace Microsoft::WRL;
+using namespace Microsoft::WRL::Wrappers;
 
 #define qHString(x) Wrappers::HString::MakeReference(x).Get()
 #define CoreApplicationClass RuntimeClass_Windows_ApplicationModel_Core_CoreApplication
@@ -186,11 +188,11 @@ private:
             for (int i = m_argc; i < m_argv.size(); ++i)
                 delete[] m_argv[i];
             m_argv.resize(m_argc);
-            HSTRING arguments;
-            launchArgs->get_Arguments(&arguments);
-            if (arguments) {
+            HString arguments;
+            launchArgs->get_Arguments(arguments.GetAddressOf());
+            if (arguments.IsValid()) {
                 foreach (const QByteArray &arg, QString::fromWCharArray(
-                             WindowsGetStringRawBuffer(arguments, nullptr)).toLocal8Bit().split(' ')) {
+                             arguments.GetRawBuffer(nullptr)).toLocal8Bit().split(' ')) {
                     m_argv.append(qstrdup(arg.constData()));
                 }
             }
@@ -235,6 +237,9 @@ int __stdcall WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
     if (FAILED(RoInitialize(RO_INIT_MULTITHREADED)))
         return 1;
+
+    // Mark the main thread
+    QThread::currentThread();
 
     Core::ICoreApplication *appFactory;
     if (FAILED(RoGetActivationFactory(qHString(CoreApplicationClass), IID_PPV_ARGS(&appFactory))))

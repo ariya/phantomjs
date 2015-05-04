@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -166,11 +158,14 @@ void QAlphaPaintEngine::drawPath(const QPainterPath &path)
 
     if (d->m_pass == 0) {
         d->m_continueCall = false;
-        if (d->m_hasalpha || d->m_advancedPen || d->m_advancedBrush
+        if (d->canSeeTroughBackground(d->m_hasalpha, tr) || d->m_advancedPen || d->m_advancedBrush
             || d->m_emulateProjectiveTransforms)
         {
             d->addAlphaRect(tr);
         }
+
+        d->addDirtyRect(tr);
+
         if (d->m_picengine)
             d->m_picengine->drawPath(path);
     } else {
@@ -192,11 +187,13 @@ void QAlphaPaintEngine::drawPolygon(const QPointF *points, int pointCount, Polyg
 
     if (d->m_pass == 0) {
         d->m_continueCall = false;
-        if (d->m_hasalpha || d->m_advancedPen || d->m_advancedBrush
+        if (d->canSeeTroughBackground(d->m_hasalpha, tr) || d->m_advancedPen || d->m_advancedBrush
             || d->m_emulateProjectiveTransforms)
         {
             d->addAlphaRect(tr);
         }
+
+        d->addDirtyRect(tr);
 
         if (d->m_picengine)
             d->m_picengine->drawPolygon(points, pointCount, mode);
@@ -212,9 +209,11 @@ void QAlphaPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRe
     QRectF tr = d->m_transform.mapRect(r);
     if (d->m_pass == 0) {
         d->m_continueCall = false;
-        if (pm.hasAlpha() || d->m_alphaOpacity || d->m_complexTransform || pm.isQBitmap()) {
+        if (d->canSeeTroughBackground(pm.hasAlpha() || d->m_alphaOpacity, tr) || d->m_complexTransform || pm.isQBitmap()) {
             d->addAlphaRect(tr);
         }
+
+        d->addDirtyRect(tr);
 
         if (d->m_picengine)
             d->m_picengine->drawPixmap(r, pm, sr);
@@ -233,9 +232,12 @@ void QAlphaPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem
 
     if (d->m_pass == 0) {
         d->m_continueCall = false;
-        if (d->m_alphaPen || d->m_alphaOpacity || d->m_advancedPen) {
+        if (d->canSeeTroughBackground(d->m_alphaPen || d->m_alphaOpacity, tr) || d->m_advancedPen) {
             d->addAlphaRect(tr);
         }
+
+        d->addDirtyRect(tr);
+
         if (d->m_picengine) {
             d->m_picengine->drawTextItem(p, textItem);
         }
@@ -252,9 +254,12 @@ void QAlphaPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, 
 
     if (d->m_pass == 0) {
         d->m_continueCall = false;
-        if (pixmap.hasAlpha() || d->m_alphaOpacity || d->m_complexTransform || pixmap.isQBitmap()) {
+        if (d->canSeeTroughBackground(pixmap.hasAlpha() || d->m_alphaOpacity, brect) || d->m_complexTransform || pixmap.isQBitmap()) {
             d->addAlphaRect(brect);
         }
+
+        d->addDirtyRect(brect);
+
         if (d->m_picengine)
             d->m_picengine->drawTiledPixmap(r, pixmap, s);
     } else {
@@ -346,7 +351,10 @@ void QAlphaPaintEngine::flushAndInit(bool init)
         d->m_picpainter->setOpacity(painter()->opacity());
         d->m_picpainter->setTransform(painter()->combinedTransform());
         d->m_picengine->syncState();
-        *d->m_picpainter->d_func()->state = *painter()->d_func()->state;
+        QPainterState &state = *d->m_picpainter->d_func()->state;
+        QPainter *oldPainter = state.painter;
+        state = *painter()->d_func()->state;
+        state.painter = oldPainter;
     }
 }
 
@@ -410,19 +418,14 @@ QRectF QAlphaPaintEnginePrivate::addPenWidth(const QPainterPath &path)
     return (tmp.controlPointRect() * m_transform).boundingRect();
 }
 
-QRect QAlphaPaintEnginePrivate::toRect(const QRectF &rect) const
-{
-    QRect r;
-    r.setLeft(int(rect.left()));
-    r.setTop(int(rect.top()));
-    r.setRight(int(rect.right() + 1));
-    r.setBottom(int(rect.bottom() + 1));
-    return r;
-}
-
 void QAlphaPaintEnginePrivate::addAlphaRect(const QRectF &rect)
 {
-    m_alphargn |= toRect(rect);
+    m_alphargn |= rect.toAlignedRect();
+}
+
+bool QAlphaPaintEnginePrivate::canSeeTroughBackground(bool somethingInRectHasAlpha, const QRectF &rect) const
+{
+    return somethingInRectHasAlpha && m_dirtyrgn.intersects(rect.toAlignedRect());
 }
 
 void QAlphaPaintEnginePrivate::drawAlphaImage(const QRectF &rect)
@@ -474,7 +477,7 @@ void QAlphaPaintEnginePrivate::drawAlphaImage(const QRectF &rect)
 
 bool QAlphaPaintEnginePrivate::fullyContained(const QRectF &rect) const
 {
-    QRegion r(toRect(rect));
+    QRegion r(rect.toAlignedRect());
     return (m_cliprgn.intersected(r) == r);
 }
 

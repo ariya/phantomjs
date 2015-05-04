@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the qmake application of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -208,17 +200,17 @@ QMakeEvaluator::~QMakeEvaluator()
 {
 }
 
-void QMakeEvaluator::initFrom(const QMakeEvaluator &other)
+void QMakeEvaluator::initFrom(const QMakeEvaluator *other)
 {
-    Q_ASSERT_X(&other, "QMakeEvaluator::visitProFile", "Project not prepared");
-    m_functionDefs = other.m_functionDefs;
-    m_valuemapStack = other.m_valuemapStack;
+    Q_ASSERT_X(other, "QMakeEvaluator::visitProFile", "Project not prepared");
+    m_functionDefs = other->m_functionDefs;
+    m_valuemapStack = other->m_valuemapStack;
     m_valuemapInited = true;
-    m_qmakespec = other.m_qmakespec;
-    m_qmakespecName = other.m_qmakespecName;
-    m_mkspecPaths = other.m_mkspecPaths;
-    m_featureRoots = other.m_featureRoots;
-    m_dirSep = other.m_dirSep;
+    m_qmakespec = other->m_qmakespec;
+    m_qmakespecName = other->m_qmakespecName;
+    m_mkspecPaths = other->m_mkspecPaths;
+    m_featureRoots = other->m_featureRoots;
+    m_dirSep = other->m_dirSep;
 }
 
 //////// Evaluator tools /////////
@@ -952,6 +944,49 @@ void QMakeEvaluator::setTemplate()
     }
 }
 
+#if defined(Q_CC_MSVC)
+static ProString msvcBinDirToQMakeArch(QString subdir)
+{
+    int idx = subdir.indexOf(QLatin1Char('\\'));
+    if (idx == -1)
+        return ProString("x86");
+    subdir.remove(0, idx + 1);
+    idx = subdir.indexOf(QLatin1Char('_'));
+    if (idx >= 0)
+        subdir.remove(0, idx + 1);
+    subdir = subdir.toLower();
+    if (subdir == QStringLiteral("amd64"))
+        return ProString("x86_64");
+    return ProString(subdir);
+}
+
+static ProString defaultMsvcArchitecture()
+{
+#if defined(Q_OS_WIN64)
+    return ProString("x86_64");
+#else
+    return ProString("x86");
+#endif
+}
+
+static ProString msvcArchitecture(const QString &vcInstallDir, const QString &pathVar)
+{
+    if (vcInstallDir.isEmpty())
+        return defaultMsvcArchitecture();
+    QString vcBinDir = vcInstallDir;
+    if (vcBinDir.endsWith(QLatin1Char('\\')))
+        vcBinDir.chop(1);
+    foreach (const QString &dir, pathVar.split(QLatin1Char(';'))) {
+        if (!dir.startsWith(vcBinDir, Qt::CaseInsensitive))
+            continue;
+        const ProString arch = msvcBinDirToQMakeArch(dir.mid(vcBinDir.length() + 1));
+        if (!arch.isEmpty())
+            return arch;
+    }
+    return defaultMsvcArchitecture();
+}
+#endif // defined(Q_CC_MSVC)
+
 void QMakeEvaluator::loadDefaults()
 {
     ProValueMap &vars = m_valuemapStack.top();
@@ -1012,21 +1047,9 @@ void QMakeEvaluator::loadDefaults()
     vars[ProKey("QMAKE_HOST.arch")] << archStr;
 
 # if defined(Q_CC_MSVC) // ### bogus condition, but nobody x-builds for msvc with a different qmake
-    QLatin1Char backslash('\\');
-    QString paths = m_option->getEnv(QLatin1String("PATH"));
-    QString vcBin64 = m_option->getEnv(QLatin1String("VCINSTALLDIR"));
-    if (!vcBin64.endsWith(backslash))
-        vcBin64.append(backslash);
-    vcBin64.append(QLatin1String("bin\\amd64"));
-    QString vcBinX86_64 = m_option->getEnv(QLatin1String("VCINSTALLDIR"));
-    if (!vcBinX86_64.endsWith(backslash))
-        vcBinX86_64.append(backslash);
-    vcBinX86_64.append(QLatin1String("bin\\x86_amd64"));
-    if (paths.contains(vcBin64, Qt::CaseInsensitive)
-            || paths.contains(vcBinX86_64, Qt::CaseInsensitive))
-        vars[ProKey("QMAKE_TARGET.arch")] << ProString("x86_64");
-    else
-        vars[ProKey("QMAKE_TARGET.arch")] << ProString("x86");
+    vars[ProKey("QMAKE_TARGET.arch")] = msvcArchitecture(
+                m_option->getEnv(QLatin1String("VCINSTALLDIR")),
+                m_option->getEnv(QLatin1String("PATH")));
 # endif
 #elif defined(Q_OS_UNIX)
     struct utsname name;
@@ -1355,7 +1378,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
             return ReturnFalse;
 #endif
 
-        initFrom(*baseEnv->evaluator);
+        initFrom(baseEnv->evaluator);
     } else {
         if (!m_valuemapInited)
             loadDefaults();

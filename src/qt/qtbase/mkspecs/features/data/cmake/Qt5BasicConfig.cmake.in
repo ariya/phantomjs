@@ -283,7 +283,7 @@ if (NOT TARGET Qt5::$${CMAKE_MODULE_NAME})
 
 !!ENDIF // CMAKE_DEBUG_TYPE
 
-!!IF !isEmpty(CMAKE_LOAD_PLUGINS)
+    file(GLOB pluginTargets \"${CMAKE_CURRENT_LIST_DIR}/Qt5$${CMAKE_MODULE_NAME}_*Plugin.cmake\")
 
     macro(_populate_$${CMAKE_MODULE_NAME}_plugin_properties Plugin Configuration PLUGIN_LOCATION)
         set_property(TARGET Qt5::${Plugin} APPEND PROPERTY IMPORTED_CONFIGURATIONS ${Configuration})
@@ -299,11 +299,12 @@ if (NOT TARGET Qt5::$${CMAKE_MODULE_NAME})
         )
     endmacro()
 
-    file(GLOB pluginTargets \"${CMAKE_CURRENT_LIST_DIR}/Qt5$${CMAKE_MODULE_NAME}_*Plugin.cmake\")
-    foreach(pluginTarget ${pluginTargets})
-        include(${pluginTarget})
-    endforeach()
-!!ENDIF
+    if (pluginTargets)
+        foreach(pluginTarget ${pluginTargets})
+            include(${pluginTarget})
+        endforeach()
+    endif()
+
 
 !!IF !isEmpty(CMAKE_MODULE_EXTRAS)
     include(\"${CMAKE_CURRENT_LIST_DIR}/Qt5$${CMAKE_MODULE_NAME}ConfigExtras.cmake\")

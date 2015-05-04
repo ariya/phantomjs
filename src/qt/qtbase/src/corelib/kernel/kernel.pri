@@ -164,11 +164,17 @@ vxworks {
 
 blackberry {
         SOURCES += \
-                kernel/qeventdispatcher_blackberry.cpp \
+                kernel/qeventdispatcher_blackberry.cpp
+        HEADERS += \
+                kernel/qeventdispatcher_blackberry_p.h
+}
+
+qqnx_pps:!blackberry-playbook {
+        LIBS_PRIVATE += -lpps
+        SOURCES += \
                 kernel/qppsattribute.cpp \
                 kernel/qppsobject.cpp
         HEADERS += \
-                kernel/qeventdispatcher_blackberry_p.h \
                 kernel/qppsattribute_p.h \
                 kernel/qppsattributeprivate_p.h \
                 kernel/qppsobject_p.h \

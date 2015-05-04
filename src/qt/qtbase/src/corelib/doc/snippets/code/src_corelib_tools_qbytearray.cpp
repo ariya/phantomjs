@@ -354,10 +354,10 @@ text.toBase64();        // returns "UXQgaXMgZ3JlYXQh"
 
 //! [39bis]
 QByteArray text("<p>Hello?</p>");
-text.toBase64(QByteArray::Base64 | QByteArray::OmitTrailingEquals);      // returns "PHA+SGVsbG8/PC9wPg"
-text.toBase64(QByteArray::Base64);                                       // returns "PHA+SGVsbG8/PC9wPg=="
-text.toBase64(QByteArray::Base64Url);                                    // returns "PHA-SGVsbG8_PC9wPg=="
-text.toBase64(QByteArray::Base64Url | QByteArray::OmitTrailingEquals);   // returns "PHA-SGVsbG8_PC9wPg"
+text.toBase64(QByteArray::Base64Encoding | QByteArray::OmitTrailingEquals);      // returns "PHA+SGVsbG8/PC9wPg"
+text.toBase64(QByteArray::Base64Encoding);                                       // returns "PHA+SGVsbG8/PC9wPg=="
+text.toBase64(QByteArray::Base64UrlEncoding);                                    // returns "PHA-SGVsbG8_PC9wPg=="
+text.toBase64(QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);   // returns "PHA-SGVsbG8_PC9wPg"
 //! [39bis]
 
 

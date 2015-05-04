@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -87,7 +79,7 @@ QT_BEGIN_NAMESPACE
     There are two ways to affect how QVariantAnimation interpolates
     the values. You can set an easing curve by calling
     setEasingCurve(), and configure the duration by calling
-    setDuration(). You can change how the QVariants are interpolated
+    setDuration(). You can change how the \l{QVariant}s are interpolated
     by creating a subclass of QVariantAnimation, and reimplementing
     the virtual interpolated() function.
 
@@ -118,7 +110,7 @@ QT_BEGIN_NAMESPACE
     If you need to interpolate other variant types, including custom
     types, you have to implement interpolation for these yourself.
     To do this, you can register an interpolator function for a given
-    type. This function takes 3 parameters: the start value, the end value
+    type. This function takes 3 parameters: the start value, the end value,
     and the current progress.
 
     Example:
@@ -206,11 +198,11 @@ void QVariantAnimationPrivate::convertValues(int t)
     //this ensures that all the keyValues are of type t
     for (int i = 0; i < keyValues.count(); ++i) {
         QVariantAnimation::KeyValue &pair = keyValues[i];
-        pair.second.convert(static_cast<QVariant::Type>(t));
+        pair.second.convert(t);
     }
     //we also need update to the current interval if needed
-    currentInterval.start.second.convert(static_cast<QVariant::Type>(t));
-    currentInterval.end.second.convert(static_cast<QVariant::Type>(t));
+    currentInterval.start.second.convert(t);
+    currentInterval.end.second.convert(t);
 
     //... and the interpolator
     updateInterpolator();
@@ -386,8 +378,8 @@ QVariantAnimation::~QVariantAnimation()
     keyValues are referring to this effective progress.
 
     The easing curve is used with the interpolator, the interpolated()
-    virtual function, the animation's duration, and iterationCount, to
-    control how the current value changes as the animation progresses.
+    virtual function, and the animation's duration to control how the
+    current value changes as the animation progresses.
 */
 QEasingCurve QVariantAnimation::easingCurve() const
 {

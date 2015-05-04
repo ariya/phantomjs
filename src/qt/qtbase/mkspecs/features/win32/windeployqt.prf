@@ -3,9 +3,9 @@ qtPrepareTool(QMAKE_WINDEPLOYQT, windeployqt)
 build_pass {
     load(resolve_target)
 
-    isEmpty(WINDEPLOYQT_OPTIONS): WINDEPLOYQT_OPTIONS = -qmldir $$shell_quote($$shell_path($$_PRO_FILE_PWD_))
-    WINDEPLOYQT_TARGET = $$shell_quote($$shell_path($$QMAKE_RESOLVED_TARGET))
-    WINDEPLOYQT_OUTPUT = $$shell_quote($$shell_path($$dirname(QMAKE_RESOLVED_TARGET)/$$basename(TARGET).windeployqt))
+    isEmpty(WINDEPLOYQT_OPTIONS): WINDEPLOYQT_OPTIONS = -qmldir $$shell_quote($$system_path($$_PRO_FILE_PWD_))
+    WINDEPLOYQT_TARGET = $$shell_quote($$system_path($$QMAKE_RESOLVED_TARGET))
+    WINDEPLOYQT_OUTPUT = $$shell_quote($$system_path($$dirname(QMAKE_RESOLVED_TARGET)/$$basename(TARGET).windeployqt))
     windeployqt.target = windeployqt
     windeployqt.commands = $$QMAKE_WINDEPLOYQT $$WINDEPLOYQT_OPTIONS -list target $$WINDEPLOYQT_TARGET > $$WINDEPLOYQT_OUTPUT
 
@@ -15,5 +15,6 @@ build_pass {
     QMAKE_DISTCLEAN += $$WINDEPLOYQT_OUTPUT
 } else {
     windeployqt.CONFIG += recursive
+    windeployqt_clean.CONFIG += recursive
 }
-QMAKE_EXTRA_TARGETS += windeployqt
+QMAKE_EXTRA_TARGETS += windeployqt windeployqt_clean

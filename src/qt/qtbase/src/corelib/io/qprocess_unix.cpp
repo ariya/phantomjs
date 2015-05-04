@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -377,7 +369,7 @@ void QProcessPrivate::destroyPipe(int *pipe)
     }
 }
 
-void QProcessPrivate::destroyChannel(Channel *channel)
+void QProcessPrivate::closeChannel(Channel *channel)
 {
     destroyPipe(channel->pipe);
 }
@@ -387,7 +379,7 @@ void QProcessPrivate::destroyChannel(Channel *channel)
 
     This function must be called in order: stdin, stdout, stderr
 */
-bool QProcessPrivate::createChannel(Channel &channel)
+bool QProcessPrivate::openChannel(Channel &channel)
 {
     Q_Q(QProcess);
 
@@ -573,9 +565,9 @@ void QProcessPrivate::startProcess()
     processManager()->start();
 
     // Initialize pipes
-    if (!createChannel(stdinChannel) ||
-        !createChannel(stdoutChannel) ||
-        !createChannel(stderrChannel) ||
+    if (!openChannel(stdinChannel) ||
+        !openChannel(stdoutChannel) ||
+        !openChannel(stderrChannel) ||
         qt_create_pipe(childStartedPipe) != 0 ||
         qt_create_pipe(deathPipe) != 0) {
         processError = QProcess::FailedToStart;
@@ -963,47 +955,32 @@ bool QProcessPrivate::processStarted()
     return i <= 0;
 }
 
-qint64 QProcessPrivate::bytesAvailableFromStdout() const
+qint64 QProcessPrivate::bytesAvailableInChannel(const Channel *channel) const
 {
+    Q_ASSERT(channel->pipe[0] != INVALID_Q_PIPE);
     int nbytes = 0;
     qint64 available = 0;
-    if (::ioctl(stdoutChannel.pipe[0], FIONREAD, (char *) &nbytes) >= 0)
+    if (::ioctl(channel->pipe[0], FIONREAD, (char *) &nbytes) >= 0)
         available = (qint64) nbytes;
 #if defined (QPROCESS_DEBUG)
-    qDebug("QProcessPrivate::bytesAvailableFromStdout() == %lld", available);
+    qDebug("QProcessPrivate::bytesAvailableInChannel(%d) == %lld", channel - &stdinChannel, available);
 #endif
     return available;
 }
 
-qint64 QProcessPrivate::bytesAvailableFromStderr() const
+qint64 QProcessPrivate::readFromChannel(const Channel *channel, char *data, qint64 maxlen)
 {
-    int nbytes = 0;
-    qint64 available = 0;
-    if (::ioctl(stderrChannel.pipe[0], FIONREAD, (char *) &nbytes) >= 0)
-        available = (qint64) nbytes;
-#if defined (QPROCESS_DEBUG)
-    qDebug("QProcessPrivate::bytesAvailableFromStderr() == %lld", available);
-#endif
-    return available;
-}
-
-qint64 QProcessPrivate::readFromStdout(char *data, qint64 maxlen)
-{
-    qint64 bytesRead = qt_safe_read(stdoutChannel.pipe[0], data, maxlen);
+    Q_ASSERT(channel->pipe[0] != INVALID_Q_PIPE);
+    qint64 bytesRead = qt_safe_read(channel->pipe[0], data, maxlen);
 #if defined QPROCESS_DEBUG
-    qDebug("QProcessPrivate::readFromStdout(%p \"%s\", %lld) == %lld",
+    int save_errno = errno;
+    qDebug("QProcessPrivate::readFromChannel(%d, %p \"%s\", %lld) == %lld",
+           channel - &stdinChannel,
            data, qt_prettyDebug(data, bytesRead, 16).constData(), maxlen, bytesRead);
+    errno = save_errno;
 #endif
-    return bytesRead;
-}
-
-qint64 QProcessPrivate::readFromStderr(char *data, qint64 maxlen)
-{
-    qint64 bytesRead = qt_safe_read(stderrChannel.pipe[0], data, maxlen);
-#if defined QPROCESS_DEBUG
-    qDebug("QProcessPrivate::readFromStderr(%p \"%s\", %lld) == %lld",
-           data, qt_prettyDebug(data, bytesRead, 16).constData(), maxlen, bytesRead);
-#endif
+    if (bytesRead == -1 && errno == EWOULDBLOCK)
+        return -2;
     return bytesRead;
 }
 
@@ -1126,7 +1103,7 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
         if (stderrChannel.pipe[0] != -1)
             add_fd(nfds, stderrChannel.pipe[0], &fdread);
 
-        if (!writeBuffer.isEmpty() && stdinChannel.pipe[1] != -1)
+        if (!stdinChannel.buffer.isEmpty() && stdinChannel.pipe[1] != -1)
             add_fd(nfds, stdinChannel.pipe[1], &fdwrite);
 
         int timeout = qt_timeout_value(msecs, stopWatch.elapsed());
@@ -1188,7 +1165,7 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
     QList<QSocketNotifier *> notifiers = defaultNotifiers();
 #endif
 
-    while (!writeBuffer.isEmpty()) {
+    while (!stdinChannel.buffer.isEmpty()) {
         fd_set fdread;
         fd_set fdwrite;
 
@@ -1207,7 +1184,7 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
             add_fd(nfds, stderrChannel.pipe[0], &fdread);
 
 
-        if (!writeBuffer.isEmpty() && stdinChannel.pipe[1] != -1)
+        if (!stdinChannel.buffer.isEmpty() && stdinChannel.pipe[1] != -1)
             add_fd(nfds, stdinChannel.pipe[1], &fdwrite);
 
         int timeout = qt_timeout_value(msecs, stopWatch.elapsed());
@@ -1282,7 +1259,7 @@ bool QProcessPrivate::waitForFinished(int msecs)
         if (processState == QProcess::Running)
             add_fd(nfds, deathPipe[0], &fdread);
 
-        if (!writeBuffer.isEmpty() && stdinChannel.pipe[1] != -1)
+        if (!stdinChannel.buffer.isEmpty() && stdinChannel.pipe[1] != -1)
             add_fd(nfds, stdinChannel.pipe[1], &fdwrite);
 
         int timeout = qt_timeout_value(msecs, stopWatch.elapsed());

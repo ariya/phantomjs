@@ -19,15 +19,15 @@ struct Token;
 class ExpressionParser
 {
   public:
-    ExpressionParser(Lexer* lexer, Diagnostics* diagnostics);
+    ExpressionParser(Lexer *lexer, Diagnostics *diagnostics);
 
-    bool parse(Token* token, int* result);
+    bool parse(Token *token, int *result);
 
   private:
     PP_DISALLOW_COPY_AND_ASSIGN(ExpressionParser);
 
-    Lexer* mLexer;
-    Diagnostics* mDiagnostics;
+    Lexer *mLexer;
+    Diagnostics *mDiagnostics;
 };
 
 }  // namespace pp

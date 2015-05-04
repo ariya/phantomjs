@@ -1,4 +1,3 @@
-#include "precompiled.h"
 //
 // Copyright (c) 2002-2012 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -8,82 +7,90 @@
 // main.cpp: DLL entry point and management of thread-local data.
 
 #include "libGLESv2/main.h"
-
 #include "libGLESv2/Context.h"
 
-#if !defined(ANGLE_OS_WINRT)
-static DWORD currentTLS = TLS_OUT_OF_INDEXES;
-#else
-static __declspec(thread) void *currentTLS = 0;
-#endif
+#include "common/tls.h"
+
+static TLSIndex currentTLS = TLS_INVALID_INDEX;
 
 namespace gl
 {
 
+// TODO(kbr): figure out how these are going to be managed on
+// non-Windows platforms. These routines would need to be exported
+// from ANGLE and called cooperatively when users create and destroy
+// threads -- or the initialization of the TLS index, and allocation
+// of thread-local data, will have to be done lazily. Will have to use
+// destructor function with pthread_create_key on POSIX platforms to
+// clean up thread-local data.
+
+// Call this exactly once at process startup.
+bool CreateThreadLocalIndex()
+{
+    currentTLS = CreateTLSIndex();
+    if (currentTLS == TLS_INVALID_INDEX)
+    {
+        return false;
+    }
+    return true;
+}
+
+// Call this exactly once at process shutdown.
+void DestroyThreadLocalIndex()
+{
+    DestroyTLSIndex(currentTLS);
+    currentTLS = TLS_INVALID_INDEX;
+}
+
+// Call this upon thread startup.
 Current *AllocateCurrent()
 {
-#if !defined(ANGLE_OS_WINRT)
-    Current *current = (Current*)LocalAlloc(LPTR, sizeof(Current));
-#else
-    currentTLS = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(Current));
-    Current *current = (Current*)currentTLS;
-#endif
-
-    if (!current)
+    ASSERT(currentTLS != TLS_INVALID_INDEX);
+    if (currentTLS == TLS_INVALID_INDEX)
     {
-        ERR("Could not allocate thread local storage.");
         return NULL;
     }
 
-#if !defined(ANGLE_OS_WINRT)
-    ASSERT(currentTLS != TLS_OUT_OF_INDEXES);
-    TlsSetValue(currentTLS, current);
-#endif
-
+    Current *current = new Current();
     current->context = NULL;
     current->display = NULL;
+
+    if (!SetTLSValue(currentTLS, current))
+    {
+        ERR("Could not set thread local storage.");
+        return NULL;
+    }
 
     return current;
 }
 
+// Call this upon thread shutdown.
 void DeallocateCurrent()
 {
-#if !defined(ANGLE_OS_WINRT)
-    void *current = TlsGetValue(currentTLS);
-
-    if (current)
-    {
-        LocalFree((HLOCAL)current);
-    }
-#else
-    if (currentTLS)
-    {
-        HeapFree(GetProcessHeap(), 0, currentTLS);
-        currentTLS = 0;
-    }
-#endif
+    Current *current = reinterpret_cast<Current*>(GetTLSValue(currentTLS));
+    SafeDelete(current);
+    SetTLSValue(currentTLS, NULL);
 }
 
 }
 
-#ifndef QT_OPENGL_ES_2_ANGLE_STATIC
-
+#if defined(ANGLE_PLATFORM_WINDOWS) && !defined(QT_OPENGL_ES_2_ANGLE_STATIC)
 extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 {
     switch (reason)
     {
       case DLL_PROCESS_ATTACH:
         {
-#if !defined(ANGLE_OS_WINRT)
-            currentTLS = TlsAlloc();
-
-            if (currentTLS == TLS_OUT_OF_INDEXES)
+            if (!gl::CreateThreadLocalIndex())
             {
                 return FALSE;
             }
+
+#ifdef ANGLE_ENABLE_DEBUG_ANNOTATIONS
+            gl::InitializeDebugAnnotations();
 #endif
         }
-        // Fall throught to initialize index
+        // Fall through to initialize index
       case DLL_THREAD_ATTACH:
         {
             gl::AllocateCurrent();
@@ -97,8 +104,10 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved
       case DLL_PROCESS_DETACH:
         {
             gl::DeallocateCurrent();
-#if !defined(ANGLE_OS_WINRT)
-            TlsFree(currentTLS);
+            gl::DestroyThreadLocalIndex();
+
+#ifdef ANGLE_ENABLE_DEBUG_ANNOTATIONS
+            gl::UninitializeDebugAnnotations();
 #endif
         }
         break;
@@ -108,8 +117,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved
 
     return TRUE;
 }
-
-#endif // !QT_OPENGL_ES_2_ANGLE_STATIC
+#endif // ANGLE_PLATFORM_WINDOWS && !QT_OPENGL_ES_2_ANGLE_STATIC
 
 namespace gl
 {
@@ -117,20 +125,16 @@ namespace gl
 Current *GetCurrentData()
 {
 #ifndef QT_OPENGL_ES_2_ANGLE_STATIC
-#if !defined(ANGLE_OS_WINRT)
-    Current *current = (Current*)TlsGetValue(currentTLS);
-#else
-    Current *current = (Current*)currentTLS;
-#endif
-#else
-    // No precautions for thread safety taken as ANGLE is used single-threaded in Qt.
-    static Current s_current = { 0, 0 };
-    Current *current = &s_current;
-#endif
+    Current *current = reinterpret_cast<Current*>(GetTLSValue(currentTLS));
 
     // ANGLE issue 488: when the dll is loaded after thread initialization,
     // thread local storage (current) might not exist yet.
     return (current ? current : AllocateCurrent());
+#else
+    // No precautions for thread safety taken as ANGLE is used single-threaded in Qt.
+    static Current current = { 0, 0 };
+    return &current;
+#endif
 }
 
 void makeCurrent(Context *context, egl::Display *display, egl::Surface *surface)
@@ -156,12 +160,12 @@ Context *getContext()
 Context *getNonLostContext()
 {
     Context *context = getContext();
-    
+
     if (context)
     {
         if (context->isContextLost())
         {
-            gl::error(GL_OUT_OF_MEMORY);
+            context->recordError(Error(GL_OUT_OF_MEMORY, "Context has been lost."));
             return NULL;
         }
         else
@@ -179,39 +183,4 @@ egl::Display *getDisplay()
     return current->display;
 }
 
-// Records an error code
-void error(GLenum errorCode)
-{
-    gl::Context *context = glGetCurrentContext();
-
-    if (context)
-    {
-        switch (errorCode)
-        {
-          case GL_INVALID_ENUM:
-            context->recordInvalidEnum();
-            TRACE("\t! Error generated: invalid enum\n");
-            break;
-          case GL_INVALID_VALUE:
-            context->recordInvalidValue();
-            TRACE("\t! Error generated: invalid value\n");
-            break;
-          case GL_INVALID_OPERATION:
-            context->recordInvalidOperation();
-            TRACE("\t! Error generated: invalid operation\n");
-            break;
-          case GL_OUT_OF_MEMORY:
-            context->recordOutOfMemory();
-            TRACE("\t! Error generated: out of memory\n");
-            break;
-          case GL_INVALID_FRAMEBUFFER_OPERATION:
-            context->recordInvalidFramebufferOperation();
-            TRACE("\t! Error generated: invalid framebuffer operation\n");
-            break;
-          default: UNREACHABLE();
-        }
-    }
 }
-
-}
-

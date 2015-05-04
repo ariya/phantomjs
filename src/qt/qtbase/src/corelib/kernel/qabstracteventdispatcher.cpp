@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -183,8 +175,8 @@ QAbstractEventDispatcher *QAbstractEventDispatcher::instance(QThread *thread)
     otherwise returns \c false.
 
     This function is especially useful if you have a long running
-    operation and want to show its progress without allowing user
-    input; i.e. by using the QEventLoop::ExcludeUserInputEvents flag.
+    operation, and want to show its progress without allowing user
+    input by using the QEventLoop::ExcludeUserInputEvents flag.
 
     If the QEventLoop::WaitForMoreEvents flag is set in \a flags, the
     behavior of this function is as follows:
@@ -317,7 +309,7 @@ int QAbstractEventDispatcher::registerTimer(int interval, Qt::TimerType timerTyp
 /*!
     \fn void QAbstractEventDispatcher::interrupt()
 
-    Interrupts event dispatching; i.e. the event dispatcher will
+    Interrupts event dispatching.  The event dispatcher will
     return from processEvents() as soon as possible.
 */
 
@@ -379,11 +371,11 @@ void QAbstractEventDispatcher::closingDown()
     Installs an event filter \a filterObj for all native event filters
     received by the application.
 
-    The event filter \a filterObj receives events via its nativeEventFilter()
+    The event filter \a filterObj receives events via its \l {QAbstractNativeEventFilter::}{nativeEventFilter()}
     function, which is called for all events received by all threads.
 
-    The nativeEventFilter() function should return true if the event should
-    be filtered, (i.e. stopped). It should return false to allow
+    The  \l {QAbstractNativeEventFilter::}{nativeEventFilter()} function should return true
+    if the event should be filtered, (in this case, stopped). It should return false to allow
     normal Qt processing to continue: the native event can then be translated
     into a QEvent and handled by the standard Qt \l{QEvent} {event} filtering,
     e.g. QObject::installEventFilter().
@@ -392,7 +384,7 @@ void QAbstractEventDispatcher::closingDown()
     is activated first.
 
     \note The filter function set here receives native messages,
-    i.e. MSG or XEvent structs.
+    that is, MSG or XEvent structs.
 
     For maximum portability, you should always try to use QEvents
     and QObject::installEventFilter() whenever possible.
@@ -418,8 +410,8 @@ void QAbstractEventDispatcher::installNativeEventFilter(QAbstractNativeEventFilt
     All event filters for this object are automatically removed when
     this object is destroyed.
 
-    It is always safe to remove an event filter, even during event
-    filter activation (i.e. from the nativeEventFilter() function).
+    It is always safe to remove an event filter, even during event filter
+    filter activation (that is, even from within the \l {QAbstractNativeEventFilter::}{nativeEventFilter()} function).
 
     \sa installNativeEventFilter(), QAbstractNativeEventFilter
     \since 5.0

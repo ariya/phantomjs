@@ -63,6 +63,8 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
+    bool canDropMimeData(const QMimeData *data, Qt::DropAction action,
+                         int row, int column, const QModelIndex &parent);
     bool dropMimeData(const QMimeData *data, Qt::DropAction action,
                       int row, int column, const QModelIndex &parent);
     QMimeData *mimeData(const QModelIndexList &indexes) const;

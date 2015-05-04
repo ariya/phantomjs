@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -118,13 +110,19 @@ QT_BEGIN_NAMESPACE
 void QBasicTimer::start(int msec, QObject *obj)
 {
     QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance();
-    if (!eventDispatcher) {
+    if (Q_UNLIKELY(!eventDispatcher)) {
         qWarning("QBasicTimer::start: QBasicTimer can only be used with threads started with QThread");
         return;
     }
+    if (Q_UNLIKELY(obj && obj->thread() != eventDispatcher->thread())) {
+        qWarning("QBasicTimer::start: Timers cannot be started from another thread");
+        return;
+    }
     if (id) {
-        eventDispatcher->unregisterTimer(id);
-        QAbstractEventDispatcherPrivate::releaseTimerId(id);
+        if (Q_LIKELY(eventDispatcher->unregisterTimer(id)))
+            QAbstractEventDispatcherPrivate::releaseTimerId(id);
+        else
+            qWarning("QBasicTimer::start: Stopping previous timer failed. Possibly trying to stop from a different thread");
     }
     id = 0;
     if (obj)
@@ -145,13 +143,23 @@ void QBasicTimer::start(int msec, QObject *obj)
 void QBasicTimer::start(int msec, Qt::TimerType timerType, QObject *obj)
 {
     QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance();
-    if (!eventDispatcher) {
+    if (Q_UNLIKELY(msec < 0)) {
+        qWarning("QBasicTimer::start: Timers cannot have negative timeouts");
+        return;
+    }
+    if (Q_UNLIKELY(!eventDispatcher)) {
         qWarning("QBasicTimer::start: QBasicTimer can only be used with threads started with QThread");
         return;
     }
+    if (Q_UNLIKELY(obj && obj->thread() != eventDispatcher->thread())) {
+        qWarning("QBasicTimer::start: Timers cannot be started from another thread");
+        return;
+    }
     if (id) {
-        eventDispatcher->unregisterTimer(id);
-        QAbstractEventDispatcherPrivate::releaseTimerId(id);
+        if (Q_LIKELY(eventDispatcher->unregisterTimer(id)))
+            QAbstractEventDispatcherPrivate::releaseTimerId(id);
+        else
+            qWarning("QBasicTimer::start: Stopping previous timer failed. Possibly trying to stop from a different thread");
     }
     id = 0;
     if (obj)
@@ -167,9 +175,13 @@ void QBasicTimer::stop()
 {
     if (id) {
         QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance();
-        if (eventDispatcher)
-            eventDispatcher->unregisterTimer(id);
-        QAbstractEventDispatcherPrivate::releaseTimerId(id);
+        if (eventDispatcher) {
+            if (Q_UNLIKELY(!eventDispatcher->unregisterTimer(id))) {
+                qWarning("QBasicTimer::stop: Failed. Possibly trying to stop from a different thread");
+                return;
+            }
+            QAbstractEventDispatcherPrivate::releaseTimerId(id);
+        }
     }
     id = 0;
 }

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -61,6 +53,7 @@
 #include <qstyleditemdelegate.h>
 #include <private/qabstractitemview_p.h>
 #include <private/qabstractitemmodel_p.h>
+#include <private/qguiapplication_p.h>
 #ifndef QT_NO_ACCESSIBILITY
 #include <qaccessible.h>
 #endif
@@ -845,6 +838,7 @@ void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
     }
     d->itemDelegate = delegate;
     viewport()->update();
+    d->doDelayedItemsLayout();
 }
 
 /*!
@@ -898,6 +892,7 @@ void QAbstractItemView::setItemDelegateForRow(int row, QAbstractItemDelegate *de
             disconnect(rowDelegate, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)),
                        this, SLOT(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)));
             disconnect(rowDelegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
+            disconnect(rowDelegate, SIGNAL(sizeHintChanged(QModelIndex)), this, SLOT(doItemsLayout()));
         }
         d->rowDelegates.remove(row);
     }
@@ -906,10 +901,12 @@ void QAbstractItemView::setItemDelegateForRow(int row, QAbstractItemDelegate *de
             connect(delegate, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)),
                     this, SLOT(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)));
             connect(delegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
+            connect(delegate, SIGNAL(sizeHintChanged(QModelIndex)), this, SLOT(doItemsLayout()), Qt::QueuedConnection);
         }
         d->rowDelegates.insert(row, delegate);
     }
     viewport()->update();
+    d->doDelayedItemsLayout();
 }
 
 /*!
@@ -955,6 +952,7 @@ void QAbstractItemView::setItemDelegateForColumn(int column, QAbstractItemDelega
             disconnect(columnDelegate, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)),
                        this, SLOT(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)));
             disconnect(columnDelegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
+            disconnect(columnDelegate, SIGNAL(sizeHintChanged(QModelIndex)), this, SLOT(doItemsLayout()));
         }
         d->columnDelegates.remove(column);
     }
@@ -963,10 +961,12 @@ void QAbstractItemView::setItemDelegateForColumn(int column, QAbstractItemDelega
             connect(delegate, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)),
                     this, SLOT(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)));
             connect(delegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
+            connect(delegate, SIGNAL(sizeHintChanged(QModelIndex)), this, SLOT(doItemsLayout()), Qt::QueuedConnection);
         }
         d->columnDelegates.insert(column, delegate);
     }
     viewport()->update();
+    d->doDelayedItemsLayout();
 }
 
 /*!
@@ -1370,6 +1370,15 @@ bool QAbstractItemView::tabKeyNavigation() const
     return d->tabKeyNavigation;
 }
 
+/*!
+    \since 5.2
+    \reimp
+*/
+QSize QAbstractItemView::viewportSizeHint() const
+{
+    return QAbstractScrollArea::viewportSizeHint();
+}
+
 #ifndef QT_NO_DRAGANDDROP
 /*!
     \property QAbstractItemView::showDropIndicator
@@ -1388,15 +1397,6 @@ bool QAbstractItemView::showDropIndicator() const
 {
     Q_D(const QAbstractItemView);
     return d->showDropIndicator;
-}
-
-/*!
-    \since 5.2
-    \reimp
-*/
-QSize QAbstractItemView::viewportSizeHint() const
-{
-    return QAbstractScrollArea::viewportSizeHint();
 }
 
 /*!
@@ -1885,6 +1885,7 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *event)
         QMouseEvent me(QEvent::MouseButtonPress,
                        event->localPos(), event->windowPos(), event->screenPos(),
                        event->button(), event->buttons(), event->modifiers());
+        QGuiApplicationPrivate::setMouseEventSource(&me, event->source());
         mousePressEvent(&me);
         return;
     }
@@ -1911,7 +1912,7 @@ void QAbstractItemView::dragEnterEvent(QDragEnterEvent *event)
         && (event->source() != this|| !(event->possibleActions() & Qt::MoveAction)))
         return;
 
-    if (d_func()->canDecode(event)) {
+    if (d_func()->canDrop(event)) {
         event->accept();
         setState(DraggingState);
     } else {
@@ -1940,7 +1941,7 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
     QModelIndex index = indexAt(event->pos());
     d->hover = index;
     if (!d->droppingOnItself(event, index)
-        && d->canDecode(event)) {
+        && d->canDrop(event)) {
 
         if (index.isValid() && d->showDropIndicator) {
             QRect rect = visualRect(index);
@@ -1949,7 +1950,7 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
             case AboveItem:
                 if (d->isIndexDropEnabled(index.parent())) {
                     d->dropIndicatorRect = QRect(rect.left(), rect.top(), rect.width(), 0);
-                    event->accept();
+                    event->acceptProposedAction();
                 } else {
                     d->dropIndicatorRect = QRect();
                 }
@@ -1957,7 +1958,7 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
             case BelowItem:
                 if (d->isIndexDropEnabled(index.parent())) {
                     d->dropIndicatorRect = QRect(rect.left(), rect.bottom(), rect.width(), 0);
-                    event->accept();
+                    event->acceptProposedAction();
                 } else {
                     d->dropIndicatorRect = QRect();
                 }
@@ -1965,7 +1966,7 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
             case OnItem:
                 if (d->isIndexDropEnabled(index)) {
                     d->dropIndicatorRect = rect;
-                    event->accept();
+                    event->acceptProposedAction();
                 } else {
                     d->dropIndicatorRect = QRect();
                 }
@@ -1973,7 +1974,7 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
             case OnViewport:
                 d->dropIndicatorRect = QRect();
                 if (d->isIndexDropEnabled(rootIndex())) {
-                    event->accept(); // allow dropping in empty areas
+                    event->acceptProposedAction(); // allow dropping in empty areas
                 }
                 break;
             }
@@ -1981,11 +1982,11 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
             d->dropIndicatorRect = QRect();
             d->dropIndicatorPosition = OnViewport;
             if (d->isIndexDropEnabled(rootIndex())) {
-                event->accept(); // allow dropping in empty areas
+                event->acceptProposedAction(); // allow dropping in empty areas
             }
         }
         d->viewport->update();
-    } // can decode
+    } // can drop
 
     if (d->shouldAutoScroll(event->pos()))
         startAutoScroll();
@@ -2050,11 +2051,14 @@ void QAbstractItemView::dropEvent(QDropEvent *event)
     int col = -1;
     int row = -1;
     if (d->dropOn(event, &row, &col, &index)) {
-        if (d->model->dropMimeData(event->mimeData(),
-            dragDropMode() == InternalMove ? Qt::MoveAction : event->dropAction(), row, col, index)) {
-                if (dragDropMode() == InternalMove)
-                    event->setDropAction(Qt::MoveAction);
+        const Qt::DropAction action = dragDropMode() == InternalMove ? Qt::MoveAction : event->dropAction();
+        if (d->model->dropMimeData(event->mimeData(), action, row, col, index)) {
+            if (action != event->dropAction()) {
+                event->setDropAction(action);
                 event->accept();
+            } else {
+                event->acceptProposedAction();
+            }
         }
     }
     stopAutoScroll();
@@ -2409,12 +2413,11 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
         }
         break;
 #endif
-    case Qt::Key_A:
-        if (event->modifiers() & Qt::ControlModifier) {
+    default: {
+       if (event == QKeySequence::SelectAll && selectionMode() != NoSelection) {
             selectAll();
             break;
         }
-    default: {
 #ifdef Q_WS_MAC
         if (event->key() == Qt::Key_O && event->modifiers() & Qt::ControlModifier && currentIndex().isValid()) {
             emit activated(currentIndex());
@@ -3125,6 +3128,8 @@ void QAbstractItemView::setIndexWidget(const QModelIndex &index, QWidget *widget
 {
     Q_D(QAbstractItemView);
     if (!d->isIndexValid(index))
+        return;
+    if (indexWidget(index) == widget)
         return;
     if (QWidget *oldWidget = indexWidget(index)) {
         d->persistent.remove(oldWidget);

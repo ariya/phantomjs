@@ -16,10 +16,11 @@
 
 /*
     man 3 pcrejit for a list of supported platforms;
-    as PCRE 8.30, stable JIT support is available for:
+    as PCRE 8.35, stable JIT support is available for:
     - ARM v5, v7, and Thumb2 (__GNUC__ compilers only)
     - x86/x86-64
     - MIPS 32bit (__GNUC__ compilers only)
+    - Power PC 32-bit and 64-bit (__GNUC__ compilers only)
 */
 #if !defined(PCRE_DISABLE_JIT) && (\
     /* ARM */ \
@@ -30,6 +31,11 @@
     /* MIPS32 */ \
     || (defined(__GNUC__) \
        && (defined(__mips) || defined(__mips__)) \
-       && !(defined(_MIPS_ARCH_MIPS64) || defined(__mips64))))
+       && !(defined(_MIPS_ARCH_MIPS64) || defined(__mips64))) \
+    || (defined(__GNUC__) \
+       && (defined(__ppc__) || defined(__ppc) || defined(__powerpc__) \
+          || defined(_ARCH_COM) || defined(_ARCH_PWR) || defined(_ARCH_PPC)  \
+          || defined(_M_MPPC) || defined(_M_PPC))) \
+    )
 #  define SUPPORT_JIT
 #endif

@@ -58,12 +58,12 @@ struct head
 
   protected:
   FixedVersion	version;		/* Version of the head table--currently
-					 * 0x00010000 for version 1.0. */
+					 * 0x00010000u for version 1.0. */
   FixedVersion	fontRevision;		/* Set by font manufacturer. */
   ULONG		checkSumAdjustment;	/* To compute: set it to 0, sum the
 					 * entire font as ULONG, then store
-					 * 0xB1B0AFBA - sum. */
-  ULONG		magicNumber;		/* Set to 0x5F0F3CF5. */
+					 * 0xB1B0AFBAu - sum. */
+  ULONG		magicNumber;		/* Set to 0x5F0F3CF5u. */
   USHORT	flags;			/* Bit 0: Baseline for font at y=0;
 					 * Bit 1: Left sidebearing point at x=0;
 					 * Bit 2: Instructions may depend on point size;

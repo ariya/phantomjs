@@ -2,7 +2,7 @@
 #define __eglplatform_h_
 
 /*
-** Copyright (c) 2007-2009 The Khronos Group Inc.
+** Copyright (c) 2007-2013 The Khronos Group Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and/or associated documentation files (the
@@ -25,7 +25,7 @@
 */
 
 /* Platform-specific types and definitions for egl.h
- * $Revision: 12306 $ on $Date: 2010-08-25 09:51:28 -0700 (Wed, 25 Aug 2010) $
+ * $Revision: 23432 $ on $Date: 2013-10-09 00:57:24 -0700 (Wed, 09 Oct 2013) $
  *
  * Adopters may modify khrplatform.h and this file to suit their platform.
  * You are encouraged to submit all modifications to the Khronos group so that
@@ -67,23 +67,22 @@
  * implementations.
  */
 
-#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY==WINAPI_FAMILY_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP) /* Windows Runtime */
-
-struct IUnknown;
-
-typedef int       EGLNativeDisplayType;
-typedef void     *EGLNativePixmapType;
-typedef IUnknown *EGLNativeWindowType;
-
-#elif defined(_WIN32) || defined(__VC32__) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__) /* Win32 and WinCE */
+#if defined(_WIN32) || defined(__VC32__) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__) /* Win32 and WinCE */
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN 1
 #endif
 #include <windows.h>
 
-typedef HDC     EGLNativeDisplayType;
 typedef HBITMAP EGLNativePixmapType;
+
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP) /* Windows Store */
+#include <inspectable.h>
+typedef IInspectable* EGLNativeDisplayType;
+typedef IInspectable* EGLNativeWindowType;
+#else
+typedef HDC     EGLNativeDisplayType;
 typedef HWND    EGLNativeWindowType;
+#endif
 
 #elif defined(__WINSCW__) || defined(__SYMBIAN32__)  /* Symbian */
 
@@ -91,13 +90,17 @@ typedef int   EGLNativeDisplayType;
 typedef void *EGLNativeWindowType;
 typedef void *EGLNativePixmapType;
 
-#elif defined(WL_EGL_PLATFORM)
+#elif defined(__ANDROID__) || defined(ANDROID)
 
-typedef struct wl_display     *EGLNativeDisplayType;
-typedef struct wl_egl_pixmap  *EGLNativePixmapType;
-typedef struct wl_egl_window  *EGLNativeWindowType;
+#include <android/native_window.h>
 
-#elif defined(__unix__) && !defined(ANDROID)
+struct egl_native_pixmap_t;
+
+typedef struct ANativeWindow*           EGLNativeWindowType;
+typedef struct egl_native_pixmap_t*     EGLNativePixmapType;
+typedef void*                           EGLNativeDisplayType;
+
+#elif defined(__unix__)
 
 /* X11 (tentative)  */
 #include <X11/Xlib.h>
@@ -106,14 +109,6 @@ typedef struct wl_egl_window  *EGLNativeWindowType;
 typedef Display *EGLNativeDisplayType;
 typedef Pixmap   EGLNativePixmapType;
 typedef Window   EGLNativeWindowType;
-
-#elif defined(ANDROID)
-
-struct egl_native_pixmap_t;
-
-typedef struct ANativeWindow*           EGLNativeWindowType;
-typedef struct egl_native_pixmap_t*     EGLNativePixmapType;
-typedef void*                           EGLNativeDisplayType;
 
 #else
 #error "Platform not recognized"

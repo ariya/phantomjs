@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -151,8 +143,8 @@ unsigned int** QImageScale::qimageCalcYPoints(unsigned int *src,
                                               int sw, int sh, int dh)
 {
     unsigned int **p;
-    int i, j = 0;
-    int val, inc, rv = 0;
+    int i, j = 0, rv = 0;
+    qint64 val, inc;
 
     if(dh < 0){
         dh = -dh;
@@ -162,9 +154,9 @@ unsigned int** QImageScale::qimageCalcYPoints(unsigned int *src,
 
     int up = qAbs(dh) >= sh;
     val = up ? 0x8000 * sh / dh - 0x8000 : 0;
-    inc = (sh << 16) / dh;
+    inc = (((qint64)sh) << 16) / dh;
     for(i = 0; i < dh; i++){
-        p[j++] = src + qMax(0, val >> 16) * sw;
+        p[j++] = src + qMax(0LL, val >> 16) * sw;
         val += inc;
     }
     if(rv){
@@ -179,8 +171,8 @@ unsigned int** QImageScale::qimageCalcYPoints(unsigned int *src,
 
 int* QImageScale::qimageCalcXPoints(int sw, int dw)
 {
-    int *p, i, j = 0;
-    int val, inc, rv = 0;
+    int *p, i, j = 0, rv = 0;
+    qint64 val, inc;
 
     if(dw < 0){
         dw = -dw;
@@ -190,9 +182,9 @@ int* QImageScale::qimageCalcXPoints(int sw, int dw)
 
     int up = qAbs(dw) >= sw;
     val = up ? 0x8000 * sw / dw - 0x8000 : 0;
-    inc = (sw << 16) / dw;
+    inc = (((qint64)sw) << 16) / dw;
     for(i = 0; i < dw; i++){
-        p[j++] = qMax(0, val >> 16);
+        p[j++] = qMax(0LL, val >> 16);
         val += inc;
     }
 
@@ -218,10 +210,10 @@ int* QImageScale::qimageCalcApoints(int s, int d, int up)
 
     /* scaling up */
     if(up){
-        int val, inc;
+        qint64 val, inc;
 
         val = 0x8000 * s / d - 0x8000;
-        inc = (s << 16) / d;
+        inc = (((qint64)s) << 16) / d;
         for(i = 0; i < d; i++){
             int pos = val >> 16;
             if (pos < 0)
@@ -235,9 +227,10 @@ int* QImageScale::qimageCalcApoints(int s, int d, int up)
     }
     /* scaling down */
     else{
-        int val, inc, ap, Cp;
+        qint64 val, inc;
+        int ap, Cp;
         val = 0;
-        inc = (s << 16) / d;
+        inc = (((qint64)s) << 16) / d;
         Cp = ((d << 14) / s) + 1;
         for(i = 0; i < d; i++){
             ap = ((0x100 - ((val >> 8) & 0xff)) * Cp) >> 8;

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -76,7 +68,6 @@ QT_BEGIN_NAMESPACE
 QString CodeParser::currentSubDir_;
 QList<CodeParser *> CodeParser::parsers;
 bool CodeParser::showInternal = false;
-QMap<QString,QString> CodeParser::nameToTitle;
 
 /*!
   The constructor adds this code parser to the static
@@ -262,8 +253,7 @@ void CodeParser::processCommonMetaCommand(const Location& location,
         node->setStatus(Node::Main);
     }
     else if (command == COMMAND_OBSOLETE) {
-        if (node->status() != Node::Compat)
-            node->setStatus(Node::Obsolete);
+        node->setStatus(Node::Obsolete);
     }
     else if (command == COMMAND_NONREENTRANT) {
         node->setThreadSafeness(Node::NonReentrant);
@@ -300,47 +290,27 @@ void CodeParser::processCommonMetaCommand(const Location& location,
     else if (command == COMMAND_PAGEKEYWORDS) {
         node->addPageKeywords(arg.first);
     }
-    else if (command == COMMAND_SUBTITLE) {
-        if (node->type() == Node::Document) {
-            DocNode *dn = static_cast<DocNode *>(node);
-            dn->setSubTitle(arg.first);
-        }
-        else
-            location.warning(tr("Ignored '\\%1'").arg(COMMAND_SUBTITLE));
-    }
     else if (command == COMMAND_THREADSAFE) {
         node->setThreadSafeness(Node::ThreadSafe);
     }
     else if (command == COMMAND_TITLE) {
-        if (node->type() == Node::Document) {
-            DocNode *dn = static_cast<DocNode *>(node);
-            dn->setTitle(arg.first);
-            if (dn->subType() == Node::Example) {
-                ExampleNode::exampleNodeMap.insert(dn->title(),static_cast<ExampleNode*>(dn));
-            }
-            nameToTitle.insert(dn->name(),arg.first);
-        }
-        else
-            location.warning(tr("Ignored '\\%1'").arg(COMMAND_TITLE));
+        node->setTitle(arg.first);
+        if (!node->isDocNode() && !node->isCollectionNode())
+            location.warning(tr("Ignored '\\%1'").arg(COMMAND_SUBTITLE));
+        else if (node->isExample())
+            qdb_->addExampleNode(static_cast<ExampleNode*>(node));
+    }
+    else if (command == COMMAND_SUBTITLE) {
+        node->setSubTitle(arg.first);
+        if (!node->isDocNode() && !node->isCollectionNode())
+            location.warning(tr("Ignored '\\%1'").arg(COMMAND_SUBTITLE));
     }
     else if (command == COMMAND_QTVARIABLE) {
-        if (node->subType() == Node::Module) {
-            DocNode *dn = static_cast<DocNode *>(node);
-            dn->setQtVariable(arg.first);
-        }
-        else
-            location.warning(tr("Command '\\%1' found outside of '\\module'. It can only be used within a module page.")
+        node->setQtVariable(arg.first);
+        if (!node->isModule() && !node->isQmlModule())
+            location.warning(tr("Command '\\%1' is only meanigfule in '\\module' and '\\qmlmodule'.")
                              .arg(COMMAND_QTVARIABLE));
     }
-}
-
-/*!
-  Find the page title given the page \a name and return it.
- */
-const QString CodeParser::titleFromName(const QString& name)
-{
-    const QString t = nameToTitle.value(name);
-    return t;
 }
 
 /*!
@@ -361,8 +331,8 @@ void CodeParser::extractPageLinkAndDesc(const QString& arg,
     else {
         int spaceAt = arg.indexOf(QLatin1Char(' '));
         if (arg.contains(QLatin1String(".html")) && spaceAt != -1) {
-            *link = arg.left(spaceAt).trimmed();
-            *desc = arg.mid(spaceAt).trimmed();
+            *link = arg.leftRef(spaceAt).trimmed().toString();
+            *desc = arg.midRef(spaceAt).trimmed().toString();
         }
         else {
             *link = arg;
@@ -412,9 +382,9 @@ bool CodeParser::isParsingQdoc() const
   for an entity that will produce a documentation page will contain an
   \inmodule command to tell qdoc which module the entity belongs to.
 
-  But now that we normally run qdoc on each module in two passes. The
-  first produces an index file; the second pass generates the docs
-  after reading all the index files it needs.
+  But now we normally run qdoc on each module in two passes. The first
+  produces an index file; the second pass generates the docs after
+  reading all the index files it needs.
 
   This means that all the pages generated during each pass 2 run of
   qdoc almost certainly belong to a single module, and the name of
@@ -431,10 +401,10 @@ bool CodeParser::isParsingQdoc() const
 void CodeParser::checkModuleInclusion(Node* n)
 {
     if (n->moduleName().isEmpty()) {
+        n->setModuleName(Generator::defaultModuleName());
         switch (n->type()) {
         case Node::Class:
             if (n->access() != Node::Private && !n->doc().isEmpty()) {
-                n->setModuleName(Generator::defaultModuleName());
                 n->doc().location().warning(tr("Class %1 has no \\inmodule command; "
                                                "using project name by default: %2")
                                             .arg(n->name()).arg(Generator::defaultModuleName()));
@@ -442,16 +412,15 @@ void CodeParser::checkModuleInclusion(Node* n)
             break;
         case Node::Namespace:
             if (n->access() != Node::Private && !n->name().isEmpty() && !n->doc().isEmpty()) {
-                n->setModuleName(Generator::defaultModuleName());
                 n->doc().location().warning(tr("Namespace %1 has no \\inmodule command; "
                                                "using project name by default: %2")
                                             .arg(n->name()).arg(Generator::defaultModuleName()));
             }
             break;
+#if 0
         case Node::Document:
             if (n->access() != Node::Private && !n->doc().isEmpty()) {
                 if (n->subType() == Node::HeaderFile) {
-                    n->setModuleName(Generator::defaultModuleName());
 #if 0
                     n->doc().location().warning(tr("Header file with title \"%1\" has no \\inmodule command; "
                                                    "using project name by default: %2")
@@ -459,7 +428,6 @@ void CodeParser::checkModuleInclusion(Node* n)
 #endif
                 }
                 else if (n->subType() == Node::Page) {
-                    n->setModuleName(Generator::defaultModuleName());
 #if 0
                     n->doc().location().warning(tr("Page with title \"%1\" has no \\inmodule command; "
                                                    "using project name by default: %2")
@@ -467,7 +435,6 @@ void CodeParser::checkModuleInclusion(Node* n)
 #endif
                 }
                 else if (n->subType() == Node::Example) {
-                    n->setModuleName(Generator::defaultModuleName());
 #if 0
                     n->doc().location().warning(tr("Example with title \"%1\" has no \\inmodule command; "
                                                    "using project name by default: %2")
@@ -476,6 +443,7 @@ void CodeParser::checkModuleInclusion(Node* n)
                 }
             }
             break;
+#endif
         default:
             break;
         }

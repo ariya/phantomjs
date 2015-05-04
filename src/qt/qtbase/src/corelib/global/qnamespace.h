@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -88,6 +80,7 @@ Qt {
     Q_FLAGS(KeyboardModifiers MouseButtons)
     Q_ENUMS(WindowType WindowState WindowModality WidgetAttribute ApplicationAttribute)
     Q_FLAGS(WindowFlags WindowStates)
+    Q_ENUMS(FocusReason)
     Q_ENUMS(InputMethodHint InputMethodQuery)
     Q_FLAGS(InputMethodHints InputMethodQueries)
     Q_ENUMS(ScreenOrientation)
@@ -97,10 +90,12 @@ Qt {
 #ifndef QT_NO_GESTURES
     Q_ENUMS(GestureState)
     Q_ENUMS(GestureType)
+    Q_ENUMS(NativeGestureType)
 #endif
     Q_ENUMS(CursorMoveStyle)
     Q_ENUMS(TimerType)
     Q_ENUMS(ScrollPhase)
+    Q_ENUMS(MouseEventSource)
 #endif // defined(Q_MOC_RUN)
 
 #if defined(Q_MOC_RUN)
@@ -499,6 +494,8 @@ public:
         WA_X11DoNotAcceptFocus = 126,
         WA_MacNoShadow = 127,
 
+        WA_AlwaysStackOnTop = 128,
+
         // Add new attributes before this line
         WA_AttributeCount
     };
@@ -521,6 +518,8 @@ public:
         AA_ForceRasterWidgets = 14,
         AA_UseDesktopOpenGL = 15,
         AA_UseOpenGLES = 16,
+        AA_UseSoftwareOpenGL = 17,
+        AA_ShareOpenGLContexts = 18,
 
         // Add new attributes before this line
         AA_AttributeCount
@@ -1010,6 +1009,15 @@ public:
         Key_Guide    = 0x0100011a,
         Key_Info     = 0x0100011b,
         Key_Settings = 0x0100011c,
+
+        Key_MicVolumeUp   = 0x0100011d,
+        Key_MicVolumeDown = 0x0100011e,
+
+        Key_New      = 0x01000120,
+        Key_Open     = 0x01000121,
+        Key_Find     = 0x01000122,
+        Key_Undo     = 0x01000123,
+        Key_Redo     = 0x01000124,
 
         Key_MediaLast = 0x0100ffff,
 

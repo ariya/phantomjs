@@ -77,7 +77,7 @@ QRegExp mark("\\b"      // word boundary
 QRegExp rx("^\\d\\d?$");    // match integers 0 to 99
 rx.indexIn("123");          // returns -1 (no match)
 rx.indexIn("-6");           // returns -1 (no match)
-rx.indexIn("6");            // returns 0 (matched as position 0)
+rx.indexIn("6");            // returns 0 (matched at position 0)
 //! [4]
 
 

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -75,7 +67,7 @@ typedef struct
 typedef struct
 {
     quint16 idReserved;   // Reserved
-    quint16 idType;       // resource type (1 for icons)
+    quint16 idType;       // resource type (1 for icons, 2 for cursors)
     quint16 idCount;      // how many images?
     ICONDIRENTRY    idEntries[1]; // the entries for each image
 } ICONDIR, *LPICONDIR;
@@ -171,7 +163,7 @@ static bool writeIconDirEntry(QIODevice *iodev, const ICONDIRENTRY &iconEntry)
         qToLittleEndian<quint16>(iconEntry.wBitCount, &tmp[6]);
         qToLittleEndian<quint32>(iconEntry.dwBytesInRes, &tmp[8]);
         qToLittleEndian<quint32>(iconEntry.dwImageOffset, &tmp[12]);
-        return (iodev->write((char*)tmp,  ICONDIRENTRY_SIZE) == ICONDIRENTRY_SIZE) ? true : false;
+        return iodev->write((char*)tmp, ICONDIRENTRY_SIZE) == ICONDIRENTRY_SIZE;
     }
 
     return false;
@@ -198,7 +190,7 @@ static bool writeIconDir(QIODevice *iodev, const ICONDIR &iconDir)
         qToLittleEndian(iconDir.idReserved, tmp);
         qToLittleEndian(iconDir.idType, &tmp[2]);
         qToLittleEndian(iconDir.idCount, &tmp[4]);
-        return (iodev->write((char*)tmp,  6) == 6) ? true : false;
+        return iodev->write((char*)tmp, 6) == 6;
     }
     return false;
 }
@@ -241,7 +233,7 @@ static bool writeBMPInfoHeader(QIODevice *iodev, const BMP_INFOHDR &header)
         qToLittleEndian<quint32>(header.biClrUsed, &tmp[32]);
         qToLittleEndian<quint32>(header.biClrImportant, &tmp[36]);
 
-        return (iodev->write((char*)tmp, BMP_INFOHDR_SIZE) == BMP_INFOHDR_SIZE) ? true : false;
+        return iodev->write((char*)tmp, BMP_INFOHDR_SIZE) == BMP_INFOHDR_SIZE;
     }
     return false;
 }
@@ -275,10 +267,10 @@ bool ICOReader::canRead(QIODevice *iodev)
                 readBytes += ICONDIRENTRY_SIZE;
                 // ICO format does not have a magic identifier, so we read 6 different values, which will hopefully be enough to identify the file.
                 if (   ikonDir.idReserved == 0
-                    && ikonDir.idType == 1
+                    && (ikonDir.idType == 1 || ikonDir.idType == 2)
                     && ikonDir.idEntries[0].bReserved == 0
-                    && ikonDir.idEntries[0].wPlanes <= 1
-                    && ikonDir.idEntries[0].wBitCount <= 32     // Bits per pixel
+                    && (ikonDir.idEntries[0].wPlanes <= 1 || ikonDir.idType == 2)
+                    && (ikonDir.idEntries[0].wBitCount <= 32 || ikonDir.idType == 2)     // Bits per pixel
                     && ikonDir.idEntries[0].dwBytesInRes >= 40  // Must be over 40, since sizeof (infoheader) == 40
                     ) {
                     isProbablyICO = true;
@@ -339,7 +331,7 @@ bool ICOReader::readHeader()
     if (iod && !headerRead) {
         startpos = iod->pos();
         if (readIconDir(iod, &iconDir)) {
-            if (iconDir.idReserved == 0 || iconDir.idType == 1)
+            if (iconDir.idReserved == 0 && (iconDir.idType == 1 || iconDir.idType == 2))
             headerRead = true;
         }
     }
@@ -517,6 +509,8 @@ void ICOReader::read16_24_32BMP(QImage & image)
     }
 }
 
+static const char icoOrigDepthKey[] = "_q_icoOrigDepth";
+
 QImage ICOReader::iconAt(int index)
 {
     QImage img;
@@ -535,7 +529,9 @@ QImage ICOReader::iconAt(int index)
 
             if (isPngImage) {
                 iod->seek(iconEntry.dwImageOffset);
-                return QImage::fromData(iod->read(iconEntry.dwBytesInRes), "png");
+                QImage image = QImage::fromData(iod->read(iconEntry.dwBytesInRes), "png");
+                image.setText(QLatin1String(icoOrigDepthKey), QString::number(iconEntry.wBitCount));
+                return image;
             }
 
             BMP_INFOHDR header;
@@ -598,6 +594,7 @@ QImage ICOReader::iconAt(int index)
                         }
                     }
                 }
+                img.setText(QLatin1String(icoOrigDepthKey), QString::number(iconEntry.wBitCount));
             }
         }
     }
@@ -884,7 +881,7 @@ bool QtIcoHandler::jumpToImage(int imageNumber)
         m_currentIconIndex = imageNumber;
     }
 
-    return (imageNumber < imageCount()) ? true : false;
+    return imageNumber < imageCount();
 }
 
 /*! \reimp

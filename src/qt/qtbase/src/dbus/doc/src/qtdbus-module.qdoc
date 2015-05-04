@@ -29,7 +29,7 @@
     \module QtDBus
     \title Qt D-Bus C++ Classes
     \brief The Qt D-Bus module is a Unix-only library that you can use
-    to perform Inter-Process Communication using the \l{D-Bus} protocol.
+    to perform Inter-Process Communication using the \l{Qt D-Bus}{D-Bus} protocol.
 
     \ingroup modules
     \qtvariable dbus
@@ -61,6 +61,6 @@
     directory. When installing Qt from source, this module is built when Qt's
     tools are built.
 
-    See the \l {D-Bus} page for detailed information on
+    See the \l {Qt D-Bus}{D-Bus} page for detailed information on
     how to use this module.
 */

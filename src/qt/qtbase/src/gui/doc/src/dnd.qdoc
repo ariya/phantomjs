@@ -399,13 +399,15 @@
 
     On X11, the public \l{http://www.newplanetsoftware.com/xdnd/}{XDND
     protocol} is used, while on Windows Qt uses the OLE standard, and
-    Qt for Mac OS X uses the Cocoa Drag Manager. On X11, XDND uses MIME,
+    Qt for OS X uses the Cocoa Drag Manager. On X11, XDND uses MIME,
     so no translation is necessary. The Qt API is the same regardless of
     the platform. On Windows, MIME-aware applications can communicate by
     using clipboard format names that are MIME types. Already some
     Windows applications use MIME naming conventions for their
-    clipboard formats. Internally, Qt uses QWindowsMime and
-    QMacPasteboardMime for translating proprietary clipboard formats
-    to and from MIME types.
+    clipboard formats.
+
+    Custom classes for translating proprietary clipboard formats can be
+    registered by reimplementing QWinMime on Windows or
+    QMacPasteboardMime on OS X.
 
 */

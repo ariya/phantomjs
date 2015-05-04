@@ -25,10 +25,13 @@ CONFIG(static, static|shared) {
 !macx-xcode: \
     addExclusiveBuilds(shared, static)
 
-CONFIG(debug, debug|release): \
+CONFIG(debug, debug|release) {
     CONFIG -= release
-else: \
+    !force_debug_plist:debug_and_release: \
+        CONFIG += no_plist
+} else {
     CONFIG -= debug
+}
 
 !macx-xcode {
     addExclusiveBuilds(debug, release)

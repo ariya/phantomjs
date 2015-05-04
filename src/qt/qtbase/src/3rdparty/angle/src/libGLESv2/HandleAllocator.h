@@ -10,12 +10,11 @@
 #ifndef LIBGLESV2_HANDLEALLOCATOR_H_
 #define LIBGLESV2_HANDLEALLOCATOR_H_
 
-#define GL_APICALL
-#include <GLES2/gl2.h>
+#include "common/angleutils.h"
+
+#include "angle_gl.h"
 
 #include <vector>
-
-#include "common/angleutils.h"
 
 namespace gl
 {

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -88,8 +80,7 @@ public:
     virtual void initializeGenerator(const Config& config);
     virtual void terminateGenerator();
     virtual QString format();
-    virtual void generateTree();
-    void generateCollisionPages();
+    virtual void generateDocs();
     void generateManifestFiles();
 
     QString protectEnc(const QString &string);
@@ -102,7 +93,10 @@ protected:
                              const Node *relative,
                              CodeMarker *marker);
     virtual void generateClassLikeNode(InnerNode* inner, CodeMarker* marker);
+    virtual void generateQmlTypePage(QmlClassNode* qcn, CodeMarker* marker);
+    virtual void generateQmlBasicTypePage(QmlBasicTypeNode* qbtn, CodeMarker* marker);
     virtual void generateDocNode(DocNode* dn, CodeMarker* marker);
+    virtual void generateCollectionNode(CollectionNode* cn, CodeMarker* marker);
     virtual QString fileExtension() const;
     virtual QString refForNode(const Node *node);
     virtual QString linkForNode(const Node *node, const Node *relative);
@@ -150,13 +144,16 @@ private:
     void generateTableOfContents(const Node *node,
                                  CodeMarker *marker,
                                  QList<Section>* sections = 0);
+    void generateSidebar();
     QString generateListOfAllMemberFile(const InnerNode *inner,
                                         CodeMarker *marker);
-    QString generateAllQmlMembersFile(const QmlClassNode* qml_cn,
-                                      CodeMarker* marker);
+    QString generateAllQmlMembersFile(QmlClassNode* qml_cn, CodeMarker* marker);
     QString generateLowStatusMemberFile(InnerNode *inner,
                                         CodeMarker *marker,
                                         CodeMarker::Status status);
+    QString generateQmlMemberFile(QmlClassNode* qcn,
+                                  CodeMarker *marker,
+                                  CodeMarker::Status status);
     void generateClassHierarchy(const Node *relative, NodeMap &classMap);
     void generateAnnotatedList(const Node* relative, CodeMarker* marker, const NodeMap& nodeMap);
     void generateAnnotatedList(const Node* relative, CodeMarker* marker, const NodeList& nodes);
@@ -167,7 +164,7 @@ private:
                              QString commonPrefix);
     void generateFunctionIndex(const Node *relative);
     void generateLegaleseList(const Node *relative, CodeMarker *marker);
-    void generateOverviewList(const Node *relative);
+    void generateList(const Node* relative, CodeMarker* marker, const QString& selector);
     void generateSectionList(const Section& section,
                              const Node *relative,
                              CodeMarker *marker,
@@ -182,7 +179,7 @@ private:
     void generateDetailedQmlMember(Node *node,
                                    const InnerNode *relative,
                                    CodeMarker *marker);
-    void generateQmlInherits(const QmlClassNode* qcn, CodeMarker* marker);
+    void generateQmlInherits(QmlClassNode* qcn, CodeMarker* marker);
     void generateQmlInstantiates(QmlClassNode* qcn, CodeMarker* marker);
     void generateInstantiatedBy(ClassNode* cn, CodeMarker* marker);
 
@@ -200,8 +197,7 @@ private:
     void generateSectionInheritedList(const Section& section, const Node *relative);
     QString highlightedCode(const QString& markedCode,
                             const Node* relative,
-                            bool alignNames = false,
-                            const Node* self = 0);
+                            bool alignNames = false);
 
     void generateFullName(const Node *apparentNode, const Node *relative, const Node *actualNode = 0);
     void generateDetailedMember(const Node *node,
@@ -210,12 +206,14 @@ private:
     void generateLink(const Atom *atom, CodeMarker *marker);
     void generateStatus(const Node *node, CodeMarker *marker);
 
+    QString getLink(const Atom *atom, const Node *relative, const Node** node);
+    QString getAutoLink(const Atom *atom, const Node *relative, const Node** node);
+
     QString registerRef(const QString& ref);
     virtual QString fileBase(const Node *node) const;
     QString fileName(const Node *node);
     static int hOffset(const Node *node);
     static bool isThreeColumnEnumValueTable(const Atom *atom);
-    QString getLink(const Atom *atom, const Node *relative, const Node** node);
 #ifdef GENERATE_MAC_REFS
     void generateMacRef(const Node *node, CodeMarker *marker);
 #endif
@@ -241,6 +239,7 @@ private:
     QString endHeader;
     QString postHeader;
     QString postPostHeader;
+    QString prologue;
     QString footer;
     QString address;
     bool pleaseGenerateMacRef;
@@ -263,6 +262,7 @@ private:
     QString qmltypespage;
     QString buildversion;
     QString qflagsHref_;
+    int tocDepth;
 
 public:
     static bool debugging_on;
@@ -274,8 +274,10 @@ public:
 #define HTMLGENERATOR_GENERATEMACREFS   "generatemacrefs" // ### document me
 #define HTMLGENERATOR_POSTHEADER        "postheader"
 #define HTMLGENERATOR_POSTPOSTHEADER    "postpostheader"
+#define HTMLGENERATOR_PROLOGUE          "prologue"
 #define HTMLGENERATOR_NONAVIGATIONBAR   "nonavigationbar"
 #define HTMLGENERATOR_NOSUBDIRS         "nosubdirs"
+#define HTMLGENERATOR_TOCDEPTH          "tocdepth"
 
 
 QT_END_NAMESPACE

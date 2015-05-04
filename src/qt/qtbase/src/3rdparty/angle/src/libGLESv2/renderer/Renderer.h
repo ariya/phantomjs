@@ -1,6 +1,5 @@
-#include "../precompiled.h"
 //
-// Copyright (c) 2012-2013 The ANGLE Project Authors. All rights reserved.
+// Copyright (c) 2012-2014 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -11,25 +10,23 @@
 #ifndef LIBGLESV2_RENDERER_RENDERER_H_
 #define LIBGLESV2_RENDERER_RENDERER_H_
 
+#include "libGLESv2/Caps.h"
+#include "libGLESv2/Error.h"
 #include "libGLESv2/Uniform.h"
 #include "libGLESv2/angletypes.h"
+#include "libGLESv2/renderer/Workarounds.h"
+#include "common/NativeWindow.h"
+#include "common/mathutil.h"
+
+#include <cstdint>
+
+#include <EGL/egl.h>
 
 #if !defined(ANGLE_COMPILE_OPTIMIZATION_LEVEL)
-#define ANGLE_COMPILE_OPTIMIZATION_LEVEL D3DCOMPILE_OPTIMIZATION_LEVEL3
+// WARNING: D3DCOMPILE_OPTIMIZATION_LEVEL3 may lead to a DX9 shader compiler hang.
+// It should only be used selectively to work around specific bugs.
+#define ANGLE_COMPILE_OPTIMIZATION_LEVEL D3DCOMPILE_OPTIMIZATION_LEVEL1
 #endif
-
-const int versionWindowsVista = MAKEWORD(0x00, 0x06);
-const int versionWindows7 = MAKEWORD(0x01, 0x06);
-
-// Return the version of the operating system in a format suitable for ordering
-// comparison.
-inline int getComparableOSVersion()
-{
-    DWORD version = GetVersion();
-    int majorVersion = LOBYTE(LOWORD(version));
-    int minorVersion = HIBYTE(LOWORD(version));
-    return MAKEWORD(minorVersion, majorVersion);
-}
 
 namespace egl
 {
@@ -38,33 +35,26 @@ class Display;
 
 namespace gl
 {
-class InfoLog;
-class ProgramBinary;
-class VertexAttribute;
 class Buffer;
-class Texture;
 class Framebuffer;
+struct Data;
 }
 
 namespace rx
 {
-class TextureStorageInterface2D;
-class TextureStorageInterfaceCube;
-class VertexBuffer;
-class IndexBuffer;
 class QueryImpl;
-class FenceImpl;
-class BufferStorage;
-class Blit;
+class FenceNVImpl;
+class FenceSyncImpl;
+class BufferImpl;
+class VertexArrayImpl;
+class ShaderImpl;
+class ProgramImpl;
+class TextureImpl;
+class TransformFeedbackImpl;
+class RenderbufferImpl;
 struct TranslatedIndexData;
-class ShaderExecutable;
+struct Workarounds;
 class SwapChain;
-class RenderTarget;
-class Image;
-class TextureStorage;
-
-typedef void * ShaderBlob;
-typedef void (*pCompileFunc)();
 
 struct ConfigDesc
 {
@@ -72,6 +62,111 @@ struct ConfigDesc
     GLenum  depthStencilFormat;
     GLint   multiSample;
     bool    fastConfig;
+    bool    es3Capable;
+};
+
+class Renderer
+{
+  public:
+    Renderer();
+    virtual ~Renderer();
+
+    virtual EGLint initialize() = 0;
+    virtual bool resetDevice() = 0;
+
+    virtual int generateConfigs(ConfigDesc **configDescList) = 0;
+    virtual void deleteConfigs(ConfigDesc *configDescList) = 0;
+
+    virtual gl::Error sync(bool block) = 0;
+
+    virtual gl::Error drawArrays(const gl::Data &data, GLenum mode,
+                                 GLint first, GLsizei count, GLsizei instances) = 0;
+    virtual gl::Error drawElements(const gl::Data &data, GLenum mode, GLsizei count, GLenum type,
+                                   const GLvoid *indices, GLsizei instances,
+                                   const RangeUI &indexRange) = 0;
+
+    virtual gl::Error clear(const gl::Data &data, GLbitfield mask) = 0;
+    virtual gl::Error clearBufferfv(const gl::Data &data, GLenum buffer, GLint drawbuffer, const GLfloat *values) = 0;
+    virtual gl::Error clearBufferuiv(const gl::Data &data, GLenum buffer, GLint drawbuffer, const GLuint *values) = 0;
+    virtual gl::Error clearBufferiv(const gl::Data &data, GLenum buffer, GLint drawbuffer, const GLint *values) = 0;
+    virtual gl::Error clearBufferfi(const gl::Data &data, GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil) = 0;
+
+    virtual gl::Error readPixels(const gl::Data &data, GLint x, GLint y, GLsizei width, GLsizei height,
+                                 GLenum format, GLenum type, GLsizei *bufSize, void* pixels) = 0;
+
+    virtual gl::Error blitFramebuffer(const gl::Data &data,
+                                      GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1,
+                                      GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1,
+                                      GLbitfield mask, GLenum filter) = 0;
+
+    // TODO(jmadill): caps? and virtual for egl::Display
+    virtual bool getShareHandleSupport() const = 0;
+    virtual bool getPostSubBufferSupport() const = 0;
+
+    // Shader creation
+    virtual ShaderImpl *createShader(const gl::Data &data, GLenum type) = 0;
+    virtual ProgramImpl *createProgram() = 0;
+
+    // Shader operations
+    virtual void releaseShaderCompiler() = 0;
+
+    // Texture creation
+    virtual TextureImpl *createTexture(GLenum target) = 0;
+
+    // Renderbuffer creation
+    virtual RenderbufferImpl *createRenderbuffer() = 0;
+    virtual RenderbufferImpl *createRenderbuffer(SwapChain *swapChain, bool depth) = 0;
+
+    // Buffer creation
+    virtual BufferImpl *createBuffer() = 0;
+
+    // Vertex Array creation
+    virtual VertexArrayImpl *createVertexArray() = 0;
+
+    // Query and Fence creation
+    virtual QueryImpl *createQuery(GLenum type) = 0;
+    virtual FenceNVImpl *createFenceNV() = 0;
+    virtual FenceSyncImpl *createFenceSync() = 0;
+
+    // Transform Feedback creation
+    virtual TransformFeedbackImpl *createTransformFeedback() = 0;
+
+    // lost device
+    //TODO(jmadill): investigate if this stuff is necessary in GL
+    virtual void notifyDeviceLost() = 0;
+    virtual bool isDeviceLost() = 0;
+    virtual bool testDeviceLost(bool notify) = 0;
+    virtual bool testDeviceResettable() = 0;
+
+    virtual DWORD getAdapterVendor() const = 0;
+    virtual std::string getRendererDescription() const = 0;
+    virtual GUID getAdapterIdentifier() const = 0;
+
+    // Renderer capabilities (virtual because of egl::Display)
+    virtual const gl::Caps &getRendererCaps() const;
+    const gl::TextureCapsMap &getRendererTextureCaps() const;
+    virtual const gl::Extensions &getRendererExtensions() const;
+    const Workarounds &getWorkarounds() const;
+
+    // TODO(jmadill): needed by egl::Display, probably should be removed
+    virtual int getMajorShaderModel() const = 0;
+    virtual int getMinSwapInterval() const = 0;
+    virtual int getMaxSwapInterval() const = 0;
+    virtual bool getLUID(LUID *adapterLuid) const = 0;
+
+  private:
+    DISALLOW_COPY_AND_ASSIGN(Renderer);
+
+    virtual void generateCaps(gl::Caps *outCaps, gl::TextureCapsMap* outTextureCaps, gl::Extensions *outExtensions) const = 0;
+    virtual Workarounds generateWorkarounds() const = 0;
+
+    mutable bool mCapsInitialized;
+    mutable gl::Caps mCaps;
+    mutable gl::TextureCapsMap mTextureCaps;
+    mutable gl::Extensions mExtensions;
+
+    mutable bool mWorkaroundsInitialized;
+    mutable Workarounds mWorkarounds;
 };
 
 struct dx_VertexConstants
@@ -92,159 +187,6 @@ enum ShaderType
     SHADER_VERTEX,
     SHADER_PIXEL,
     SHADER_GEOMETRY
-};
-
-enum D3DWorkaroundType
-{
-    ANGLE_D3D_WORKAROUND_NONE,
-    ANGLE_D3D_WORKAROUND_SM3_OPTIMIZER
-};
-
-class Renderer
-{
-  public:
-    explicit Renderer(egl::Display *display);
-    virtual ~Renderer();
-
-    virtual EGLint initialize() = 0;
-    virtual bool resetDevice() = 0;
-
-    virtual int generateConfigs(ConfigDesc **configDescList) = 0;
-    virtual void deleteConfigs(ConfigDesc *configDescList) = 0;
-
-    virtual void sync(bool block) = 0;
-
-    virtual SwapChain *createSwapChain(EGLNativeWindowType window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat) = 0;
-
-    virtual void setSamplerState(gl::SamplerType type, int index, const gl::SamplerState &sampler) = 0;
-    virtual void setTexture(gl::SamplerType type, int index, gl::Texture *texture) = 0;
-
-    virtual void setRasterizerState(const gl::RasterizerState &rasterState) = 0;
-    virtual void setBlendState(gl::Framebuffer *framebuffer, const gl::BlendState &blendState, const gl::Color &blendColor,
-                               unsigned int sampleMask) = 0;
-    virtual void setDepthStencilState(const gl::DepthStencilState &depthStencilState, int stencilRef,
-                                      int stencilBackRef, bool frontFaceCCW) = 0;
-
-    virtual void setScissorRectangle(const gl::Rectangle &scissor, bool enabled) = 0;
-    virtual bool setViewport(const gl::Rectangle &viewport, float zNear, float zFar, GLenum drawMode, GLenum frontFace,
-                             bool ignoreViewport) = 0;
-
-    virtual bool applyRenderTarget(gl::Framebuffer *frameBuffer) = 0;
-    virtual void applyShaders(gl::ProgramBinary *programBinary) = 0;
-    virtual void applyUniforms(gl::ProgramBinary *programBinary, gl::UniformArray *uniformArray) = 0;
-    virtual bool applyPrimitiveType(GLenum primitiveType, GLsizei elementCount) = 0;
-    virtual GLenum applyVertexBuffer(gl::ProgramBinary *programBinary, gl::VertexAttribute vertexAttributes[], GLint first, GLsizei count, GLsizei instances) = 0;
-    virtual GLenum applyIndexBuffer(const GLvoid *indices, gl::Buffer *elementArrayBuffer, GLsizei count, GLenum mode, GLenum type, TranslatedIndexData *indexInfo) = 0;
-
-    virtual void drawArrays(GLenum mode, GLsizei count, GLsizei instances) = 0;
-    virtual void drawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices, gl::Buffer *elementArrayBuffer, const TranslatedIndexData &indexInfo, GLsizei instances) = 0;
-
-    virtual void clear(const gl::ClearParameters &clearParams, gl::Framebuffer *frameBuffer) = 0;
-
-    virtual void markAllStateDirty() = 0;
-
-    // lost device
-    virtual void notifyDeviceLost() = 0;
-    virtual bool isDeviceLost() = 0;
-    virtual bool testDeviceLost(bool notify) = 0;
-    virtual bool testDeviceResettable() = 0;
-
-    // Renderer capabilities
-    virtual DWORD getAdapterVendor() const = 0;
-    virtual std::string getRendererDescription() const = 0;
-    virtual GUID getAdapterIdentifier() const = 0;
-
-    virtual bool getBGRATextureSupport() const = 0;
-    virtual bool getDXT1TextureSupport() = 0;
-    virtual bool getDXT3TextureSupport() = 0;
-    virtual bool getDXT5TextureSupport() = 0;
-    virtual bool getEventQuerySupport() = 0;
-    virtual bool getFloat32TextureSupport(bool *filtering, bool *renderable) = 0;
-    virtual bool getFloat16TextureSupport(bool *filtering, bool *renderable) = 0;
-    virtual bool getLuminanceTextureSupport() = 0;
-    virtual bool getLuminanceAlphaTextureSupport() = 0;
-    bool getVertexTextureSupport() const { return getMaxVertexTextureImageUnits() > 0; }
-    virtual unsigned int getMaxVertexTextureImageUnits() const = 0;
-    virtual unsigned int getMaxCombinedTextureImageUnits() const = 0;
-    virtual unsigned int getReservedVertexUniformVectors() const = 0;
-    virtual unsigned int getReservedFragmentUniformVectors() const = 0;
-    virtual unsigned int getMaxVertexUniformVectors() const = 0;
-    virtual unsigned int getMaxFragmentUniformVectors() const = 0;
-    virtual unsigned int getMaxVaryingVectors() const = 0;
-    virtual bool getNonPower2TextureSupport() const = 0;
-    virtual bool getDepthTextureSupport() const = 0;
-    virtual bool getOcclusionQuerySupport() const = 0;
-    virtual bool getInstancingSupport() const = 0;
-    virtual bool getTextureFilterAnisotropySupport() const = 0;
-    virtual float getTextureMaxAnisotropy() const = 0;
-    virtual bool getShareHandleSupport() const = 0;
-    virtual bool getDerivativeInstructionSupport() const = 0;
-    virtual bool getPostSubBufferSupport() const = 0;
-
-    virtual int getMajorShaderModel() const = 0;
-    virtual float getMaxPointSize() const = 0;
-    virtual int getMaxViewportDimension() const = 0;
-    virtual int getMaxTextureWidth() const = 0;
-    virtual int getMaxTextureHeight() const = 0;
-    virtual bool get32BitIndexSupport() const = 0;
-    virtual int getMinSwapInterval() const = 0;
-    virtual int getMaxSwapInterval() const = 0;
-
-    virtual GLsizei getMaxSupportedSamples() const = 0;
-
-    virtual unsigned int getMaxRenderTargets() const = 0;
-
-    // Pixel operations
-    virtual bool copyToRenderTarget(TextureStorageInterface2D *dest, TextureStorageInterface2D *source) = 0;
-    virtual bool copyToRenderTarget(TextureStorageInterfaceCube *dest, TextureStorageInterfaceCube *source) = 0;
-
-    virtual bool copyImage(gl::Framebuffer *framebuffer, const gl::Rectangle &sourceRect, GLenum destFormat,
-                           GLint xoffset, GLint yoffset, TextureStorageInterface2D *storage, GLint level) = 0;
-    virtual bool copyImage(gl::Framebuffer *framebuffer, const gl::Rectangle &sourceRect, GLenum destFormat,
-                           GLint xoffset, GLint yoffset, TextureStorageInterfaceCube *storage, GLenum target, GLint level) = 0;
-
-    virtual bool blitRect(gl::Framebuffer *readTarget, const gl::Rectangle &readRect, gl::Framebuffer *drawTarget, const gl::Rectangle &drawRect,
-                          bool blitRenderTarget, bool blitDepthStencil) = 0;
-    virtual void readPixels(gl::Framebuffer *framebuffer, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type,
-                            GLsizei outputPitch, bool packReverseRowOrder, GLint packAlignment, void* pixels) = 0;
-
-    // RenderTarget creation
-    virtual RenderTarget *createRenderTarget(SwapChain *swapChain, bool depth) = 0;
-    virtual RenderTarget *createRenderTarget(int width, int height, GLenum format, GLsizei samples, bool depth) = 0;
-
-    // Shader operations
-    virtual ShaderExecutable *loadExecutable(const void *function, size_t length, rx::ShaderType type) = 0;
-    virtual ShaderExecutable *compileToExecutable(gl::InfoLog &infoLog, const char *shaderHLSL, rx::ShaderType type, D3DWorkaroundType workaround) = 0;
-
-    // Image operations
-    virtual Image *createImage() = 0;
-    virtual void generateMipmap(Image *dest, Image *source) = 0;
-    virtual TextureStorage *createTextureStorage2D(SwapChain *swapChain) = 0;
-    virtual TextureStorage *createTextureStorage2D(int levels, GLenum internalformat, GLenum usage, bool forceRenderable, GLsizei width, GLsizei height) = 0;
-    virtual TextureStorage *createTextureStorageCube(int levels, GLenum internalformat, GLenum usage, bool forceRenderable, int size) = 0;
-
-    // Buffer creation
-    virtual VertexBuffer *createVertexBuffer() = 0;
-    virtual IndexBuffer *createIndexBuffer() = 0;
-    virtual BufferStorage *createBufferStorage() = 0;
-
-    // Query and Fence creation
-    virtual QueryImpl *createQuery(GLenum type) = 0;
-    virtual FenceImpl *createFence() = 0;
-
-    virtual bool getLUID(LUID *adapterLuid) const = 0;
-
-  protected:
-    bool initializeCompiler();
-    ShaderBlob *compileToBinary(gl::InfoLog &infoLog, const char *hlsl, const char *profile, UINT optimizationFlags, bool alternateFlags);
-
-    egl::Display *mDisplay;
-
-  private:
-    DISALLOW_COPY_AND_ASSIGN(Renderer);
-
-    HMODULE mD3dCompilerModule;
-    pCompileFunc mD3DCompileFunc;
 };
 
 }

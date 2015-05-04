@@ -5,10 +5,12 @@
 //
 
 #include "compiler/translator/InitializeDll.h"
-
 #include "compiler/translator/InitializeGlobals.h"
 #include "compiler/translator/InitializeParseContext.h"
-#include "compiler/translator/osinclude.h"
+
+#include "common/platform.h"
+
+#include <assert.h>
 
 bool InitProcess()
 {

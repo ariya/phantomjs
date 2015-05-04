@@ -1,46 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
 
-#ifndef QWidgetLineControl_P_H
-#define QWidgetLineControl_P_H
+#ifndef QWIDGETLINECONTROL_P_H
+#define QWIDGETLINECONTROL_P_H
 
 //
 //  W A R N I N G
@@ -90,6 +82,7 @@ public:
         m_tripleClickTimer(0), m_maskData(0), m_modifiedState(0), m_undoState(0),
         m_selstart(0), m_selend(0), m_passwordEchoEditing(false)
         , m_passwordEchoTimer(0)
+        , m_passwordMaskDelay(-1)
 #if defined(Q_WS_MAC)
         , m_threadChecks(false)
         , m_textLayoutThread(0)
@@ -98,6 +91,7 @@ public:
         , m_passwordMaskDelayOverride(-1)
 #endif
         , m_keyboardScheme(0)
+        , m_accessibleObject(0)
     {
         init(txt);
     }
@@ -105,6 +99,19 @@ public:
     ~QWidgetLineControl()
     {
         delete [] m_maskData;
+    }
+
+    void setAccessibleObject(QObject *object)
+    {
+        Q_ASSERT(object);
+        m_accessibleObject = object;
+    }
+
+    QObject *accessibleObject()
+    {
+        if (m_accessibleObject)
+            return m_accessibleObject;
+        return parent();
     }
 
     int nextMaskBlank(int pos)
@@ -221,8 +228,10 @@ public:
     }
     void setText(const QString &txt)
     {
+#ifndef QT_NO_IM
         if (composeMode())
             qApp->inputMethod()->reset();
+#endif
         internalSetText(txt, -1, false);
     }
     void commitPreedit();
@@ -236,7 +245,7 @@ public:
 
     void insert(const QString &);
     void clear();
-    void undo() { internalUndo(); finishChange(-1, true); }
+    void undo();
     void redo() { internalRedo(); finishChange(); }
     void selectWordAtPos(int);
 
@@ -312,6 +321,9 @@ public:
 
     QChar passwordCharacter() const { return m_passwordCharacter; }
     void setPasswordCharacter(QChar character) { m_passwordCharacter = character; updateDisplayText(); }
+
+    int passwordMaskDelay() const { return m_passwordMaskDelay; }
+    void setPasswordMaskDelay(int delay) { m_passwordMaskDelay = delay; }
 
     Qt::LayoutDirection layoutDirection() const {
         if (m_layoutDirection == Qt::LayoutDirectionAuto) {
@@ -481,6 +493,7 @@ private:
     bool m_passwordEchoEditing;
     QChar m_passwordCharacter;
     int m_passwordEchoTimer;
+    int m_passwordMaskDelay;
     void cancelPasswordEchoTimer()
     {
         if (m_passwordEchoTimer != 0) {
@@ -527,10 +540,13 @@ private Q_SLOTS:
 
 private:
     int m_keyboardScheme;
+
+    // accessibility events are sent for this object
+    QObject *m_accessibleObject;
 };
 
 QT_END_NAMESPACE
 
 #endif // QT_NO_LINEEDIT
 
-#endif // QWidgetLineControl_P_H
+#endif // QWIDGETLINECONTROL_P_H

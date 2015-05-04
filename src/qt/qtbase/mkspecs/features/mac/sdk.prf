@@ -13,6 +13,14 @@ isEmpty(QMAKE_MAC_SDK.$${QMAKE_MAC_SDK}.path) {
     QMAKE_MAC_SDK_PATH = $$eval(QMAKE_MAC_SDK.$${QMAKE_MAC_SDK}.path)
 }
 
+isEmpty(QMAKE_MAC_SDK.$${QMAKE_MAC_SDK}.version) {
+    QMAKE_MAC_SDK_VERSION = $$system("/usr/bin/xcodebuild -sdk $$QMAKE_MAC_SDK -version SDKVersion 2>/dev/null")
+    isEmpty(QMAKE_MAC_SDK_VERSION): error("Could not resolve SDK version for \'$$QMAKE_MAC_SDK\'")
+    cache(QMAKE_MAC_SDK.$${QMAKE_MAC_SDK}.version, set stash, QMAKE_MAC_SDK_VERSION)
+} else {
+    QMAKE_MAC_SDK_VERSION = $$eval(QMAKE_MAC_SDK.$${QMAKE_MAC_SDK}.version)
+}
+
 !equals(MAKEFILE_GENERATOR, XCODE) {
     QMAKE_CFLAGS += -isysroot $$QMAKE_MAC_SDK_PATH
     QMAKE_CXXFLAGS += -isysroot $$QMAKE_MAC_SDK_PATH

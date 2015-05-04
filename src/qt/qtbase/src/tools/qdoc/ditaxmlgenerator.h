@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -302,8 +294,7 @@ public:
     virtual void terminateGenerator();
     virtual QString format();
     virtual bool canHandleFormat(const QString& format);
-    virtual void generateTree();
-    void generateCollisionPages();
+    virtual void generateDocs();
 
     QString protectEnc(const QString& string);
     static QString protect(const QString& string, const QString& encoding = "ISO-8859-1");
@@ -315,7 +306,9 @@ protected:
                              const Node* relative,
                              CodeMarker* marker);
     virtual void generateClassLikeNode(InnerNode* inner, CodeMarker* marker);
+    virtual void generateQmlBasicTypePage(QmlBasicTypeNode* qbtn, CodeMarker* marker);
     virtual void generateDocNode(DocNode* dn, CodeMarker* marker);
+    virtual void generateCollectionNode(CollectionNode* cn, CodeMarker* marker);
     virtual QString fileExtension() const;
     virtual QString guidForNode(const Node* node);
     virtual QString linkForNode(const Node* node, const Node* relative);
@@ -349,7 +342,7 @@ protected:
                      CodeMarker* marker,
                      const QString& attribute = QString());
     void writePropertyParameter(const QString& tag, const NodeList& nlist);
-    void writeRelatedLinks(const DocNode* dn);
+    void writeRelatedLinks(const Node* dn);
     void writeLink(const Node* node, const QString& tex, const QString& role);
     void writeProlog(const InnerNode* inner);
     bool writeMetadataElement(const InnerNode* inner,
@@ -364,9 +357,7 @@ private:
     enum SubTitleSize { SmallSubTitle, LargeSubTitle };
 
     const QPair<QString,QString> anchorForNode(const Node* node);
-    void generateHeader(const Node* node,
-                        const QString& name,
-                        bool subpage = false);
+    void generateHeader(const Node* node, const QString& name);
     void generateBrief(const Node* node, CodeMarker* marker);
     void generateTableOfContents(const Node* node,
                                  CodeMarker* marker,
@@ -403,7 +394,7 @@ private:
     void generateDetailedQmlMember(Node* node,
                                    const InnerNode* relative,
                                    CodeMarker* marker);
-    void generateQmlInherits(const QmlClassNode* qcn, CodeMarker* marker);
+    void generateQmlInherits(QmlClassNode* qcn, CodeMarker* marker);
     void generateQmlInheritedBy(const QmlClassNode* qcn, CodeMarker* marker);
     void generateQmlInstantiates(QmlClassNode* qcn, CodeMarker* marker);
     void generateInstantiatedBy(ClassNode* cn, CodeMarker* marker);
@@ -425,12 +416,14 @@ private:
     void generateLink(const Atom* atom, CodeMarker* marker);
     void generateStatus(const Node* node, CodeMarker* marker);
 
+    QString getLink(const Atom *atom, const Node *relative, const Node** node);
+    QString getAutoLink(const Atom *atom, const Node *relative, const Node** node);
+
     QString registerRef(const QString& ref);
     virtual QString fileBase(const Node *node) const;
     QString fileName(const Node *node);
     static int hOffset(const Node *node);
     static bool isThreeColumnEnumValueTable(const Atom *atom);
-    QString getLink(const Atom *atom, const Node *relative, const Node **node);
 #ifdef GENERATE_MAC_REFS
     void generateMacRef(const Node* node, CodeMarker* marker);
 #endif

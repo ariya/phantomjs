@@ -5,35 +5,27 @@
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -55,85 +47,53 @@ void QCollatorPrivate::init()
 {
     cleanup();
     LocaleRef localeRef;
-    int rc = LocaleRefFromLocaleString(locale.name().toLocal8Bit(), &localeRef);
+    int rc = LocaleRefFromLocaleString(locale.bcp47Name().toLocal8Bit(), &localeRef);
     if (rc != 0)
         qWarning() << "couldn't initialize the locale";
+
+    UInt32 options = 0;
+
+    if (caseSensitivity == Qt::CaseInsensitive)
+        options |= kUCCollateCaseInsensitiveMask;
+    if (numericMode)
+        options |= kUCCollateDigitsAsNumberMask | kUCCollateDigitsOverrideMask;
+    if (ignorePunctuation)
+        options |= kUCCollatePunctuationSignificantMask;
 
     OSStatus status = UCCreateCollator(
         localeRef,
         0,
-        collator.options,
-        &collator.collator
+        options,
+        &collator
     );
     if (status != 0)
         qWarning() << "Couldn't initialize the collator";
+
+    dirty = false;
 }
 
 void QCollatorPrivate::cleanup()
 {
-    UCDisposeCollator(&collator.collator);
-    collator.collator = 0;
-}
-
-void QCollator::setCaseSensitivity(Qt::CaseSensitivity cs)
-{
-    detach();
-
-    if (cs == Qt::CaseSensitive)
-        d->collator.options &= ~kUCCollateCaseInsensitiveMask;
-    else
-        d->collator.options |= kUCCollateCaseInsensitiveMask;
-    d->init();
-}
-
-Qt::CaseSensitivity QCollator::caseSensitivity() const
-{
-    return !(d->collator.options & kUCCollateCaseInsensitiveMask) ? Qt::CaseInsensitive : Qt::CaseSensitive;
-}
-
-void QCollator::setNumericMode(bool on)
-{
-    detach();
-
-    if (on)
-        d->collator.options |= kUCCollateDigitsAsNumberMask;
-    else
-        d->collator.options &= ~kUCCollateDigitsAsNumberMask;
-
-    d->init();
-}
-
-bool QCollator::numericMode() const
-{
-    return bool(d->collator.options & kUCCollateDigitsAsNumberMask);
-}
-
-void QCollator::setIgnorePunctuation(bool on)
-{
-    detach();
-
-    if (on)
-        d->collator.options |= kUCCollatePunctuationSignificantMask;
-    else
-        d->collator.options &= ~kUCCollatePunctuationSignificantMask;
-
-    d->init();
-}
-
-bool QCollator::ignorePunctuation() const
-{
-    return bool(d->collator.options & kUCCollatePunctuationSignificantMask);
+    if (collator)
+        UCDisposeCollator(&collator);
+    collator = 0;
 }
 
 int QCollator::compare(const QChar *s1, int len1, const QChar *s2, int len2) const
 {
+    if (d->dirty)
+        d->init();
+
     SInt32 result;
-    return UCCompareText(d->collator.collator,
-                         reinterpret_cast<const UniChar *>(s1), len1,
-                         reinterpret_cast<const UniChar *>(s2), len2,
-                         NULL,
-                         &result);
-    return result;
+    Boolean equivalent;
+    UCCompareText(d->collator,
+                  reinterpret_cast<const UniChar *>(s1), len1,
+                  reinterpret_cast<const UniChar *>(s2), len2,
+                  &equivalent,
+                  &result);
+    if (equivalent)
+        return 0;
+    return result < 0 ? -1 : 1;
 }
 int QCollator::compare(const QString &str1, const QString &str2) const
 {
@@ -147,15 +107,18 @@ int QCollator::compare(const QStringRef &s1, const QStringRef &s2) const
 
 QCollatorSortKey QCollator::sortKey(const QString &string) const
 {
+    if (d->dirty)
+        d->init();
+
     //Documentation recommends having it 5 times as big as the input
     QVector<UCCollationValue> ret(string.size() * 5);
     ItemCount actualSize;
-    int status = UCGetCollationKey(d->collator.collator, reinterpret_cast<const UniChar *>(string.constData()), string.count(),
+    int status = UCGetCollationKey(d->collator, reinterpret_cast<const UniChar *>(string.constData()), string.count(),
                                    ret.size(), &actualSize, ret.data());
 
     ret.resize(actualSize+1);
     if (status == kUCOutputBufferTooSmall) {
-        UCGetCollationKey(d->collator.collator, reinterpret_cast<const UniChar *>(string.constData()), string.count(),
+        UCGetCollationKey(d->collator, reinterpret_cast<const UniChar *>(string.constData()), string.count(),
                           ret.size(), &actualSize, ret.data());
     }
     ret[actualSize] = 0;

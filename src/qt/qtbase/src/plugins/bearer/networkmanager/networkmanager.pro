@@ -6,16 +6,16 @@ load(qt_plugin)
 
 QT = core network-private dbus
 
-HEADERS += qnmdbushelper.h \
-           qnetworkmanagerservice.h \
+HEADERS += qnetworkmanagerservice.h \
            qnetworkmanagerengine.h \
+           ../linux_common/qofonoservice_linux_p.h \
            ../qnetworksession_impl.h \
            ../qbearerengine_impl.h
 
 SOURCES += main.cpp \
-           qnmdbushelper.cpp \
            qnetworkmanagerservice.cpp \
            qnetworkmanagerengine.cpp \
+           ../linux_common/qofonoservice_linux.cpp \
            ../qnetworksession_impl.cpp
 
 OTHER_FILES += networkmanager.json

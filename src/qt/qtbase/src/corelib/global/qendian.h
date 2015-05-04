@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -47,10 +39,6 @@
 // include stdlib.h and hope that it defines __GLIBC__ for glibc-based systems
 #include <stdlib.h>
 #include <string.h>
-
-#ifdef __GLIBC__
-#include <byteswap.h>
-#endif
 
 QT_BEGIN_NAMESPACE
 
@@ -284,18 +272,22 @@ template <> inline qint8 qFromBigEndian<qint8>(const uchar *src)
 */
 template <typename T> T qbswap(T source);
 
-#ifdef __GLIBC__
+#ifdef __has_builtin
+#  define QT_HAS_BUILTIN(x)     __has_builtin(x)
+#else
+#  define QT_HAS_BUILTIN(x)     0
+#endif
+
+// GCC 4.3 implemented all the intrinsics, but the 16-bit one only got implemented in 4.8;
+// Clang 2.6 implemented the 32- and 64-bit but waited until 3.2 to implement the 16-bit one
+#if (defined(Q_CC_GNU) && Q_CC_GNU >= 403) || QT_HAS_BUILTIN(__builtin_bswap32)
 template <> inline quint64 qbswap<quint64>(quint64 source)
 {
-    return bswap_64(source);
+    return __builtin_bswap64(source);
 }
 template <> inline quint32 qbswap<quint32>(quint32 source)
 {
-    return bswap_32(source);
-}
-template <> inline quint16 qbswap<quint16>(quint16 source)
-{
-    return bswap_16(source);
+    return __builtin_bswap32(source);
 }
 #else
 template <> inline quint64 qbswap<quint64>(quint64 source)
@@ -319,14 +311,22 @@ template <> inline quint32 qbswap<quint32>(quint32 source)
         | ((source & 0x00ff0000) >> 8)
         | ((source & 0xff000000) >> 24);
 }
-
+#endif // GCC & Clang intrinsics
+#if (defined(Q_CC_GNU) && Q_CC_GNU >= 408) || QT_HAS_BUILTIN(__builtin_bswap16)
+template <> inline quint16 qbswap<quint16>(quint16 source)
+{
+    return __builtin_bswap16(source);
+}
+#else
 template <> inline quint16 qbswap<quint16>(quint16 source)
 {
     return quint16( 0
                     | ((source & 0x00ff) << 8)
                     | ((source & 0xff00) >> 8) );
 }
-#endif // __GLIBC__
+#endif // GCC & Clang intrinsics
+
+#undef QT_HAS_BUILTIN
 
 // signed specializations
 template <> inline qint64 qbswap<qint64>(qint64 source)

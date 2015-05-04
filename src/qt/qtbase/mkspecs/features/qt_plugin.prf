@@ -17,6 +17,12 @@ TEMPLATE = lib
 CONFIG += plugin
 DESTDIR = $$MODULE_BASE_OUTDIR/plugins/$$PLUGIN_TYPE
 
+win32:CONFIG(shared, static|shared) {
+    # Embed a VERSIONINFO resource into the plugin's DLL.
+    isEmpty(VERSION): VERSION = $$QT_VERSION
+    CONFIG += skip_target_version_ext
+}
+
 tool_plugin {
     !build_pass:contains(QT_CONFIG, build_all): CONFIG += release
 } else:if(win32|mac):!macx-xcode {
@@ -24,7 +30,7 @@ tool_plugin {
     contains(QT_CONFIG, build_all):CONFIG += build_all
 }
 
-CONFIG(static, static|shared) {
+CONFIG(static, static|shared)|prefix_build {
     isEmpty(MODULE): MODULE = $$basename(TARGET)
 
     mod_work_pfx = $$MODULE_QMAKE_OUTDIR/mkspecs/modules
@@ -38,7 +44,7 @@ CONFIG(static, static|shared) {
     !build_pass {
         MODULE_PRI_CONT = \
             "QT_PLUGIN.$${MODULE}.TYPE = $$PLUGIN_TYPE" \
-            "QT_PLUGIN.$${MODULE}.EXTENDS = $$PLUGIN_EXTENDS" \
+            "QT_PLUGIN.$${MODULE}.EXTENDS =$$join(PLUGIN_EXTENDS, " ", " ")" \
             "QT_PLUGIN.$${MODULE}.CLASS_NAME = $$PLUGIN_CLASS_NAME" \
             "QT_PLUGINS += $$MODULE"
         write_file($$MODULE_PRI, MODULE_PRI_CONT)|error("Aborting.")
@@ -66,9 +72,11 @@ CONFIG(static, static|shared) {
         cache(QT_PLUGINS, transient)
     }
 
-    pritarget.path = $$[QT_HOST_DATA]/mkspecs/modules
-    pritarget.files = $$MODULE_PRI
-    INSTALLS += pritarget
+    CONFIG(static, static|shared) {
+        pritarget.path = $$[QT_HOST_DATA]/mkspecs/modules
+        pritarget.files = $$MODULE_PRI
+        INSTALLS += pritarget
+    }
 }
 
 target.path = $$[QT_INSTALL_PLUGINS]/$$PLUGIN_TYPE
@@ -83,12 +91,3 @@ load(qt_common)
 
 wince*:LIBS += $$QMAKE_LIBS_GUI
 QMAKE_LFLAGS += $$QMAKE_LFLAGS_NOUNDEF
-
-!isEmpty(_QMAKE_SUPER_CACHE_): \
-    rplbase = $$dirname(_QMAKE_SUPER_CACHE_)/[^/][^/]*
-else: \
-    rplbase = $$MODULE_BASE_OUTDIR
-lib_replace.match = $$rplbase/lib
-lib_replace.replace = $$[QT_INSTALL_LIBS/raw]
-lib_replace.CONFIG = path
-QMAKE_PRL_INSTALL_REPLACE += lib_replace

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -118,6 +110,9 @@ enum QSliderDirection { SlUp, SlDown, SlLeft, SlRight };
 /*
     \internal
 */
+
+int QWindowsStylePrivate::m_appDevicePixelRatio = 0;
+
 QWindowsStylePrivate::QWindowsStylePrivate()
     : alt_down(false), menuBarTimer(0)
 {
@@ -128,6 +123,13 @@ QWindowsStylePrivate::QWindowsStylePrivate()
         pSHGetStockIconInfo = (PtrSHGetStockIconInfo)shellLib.resolve("SHGetStockIconInfo");
     }
 #endif
+}
+
+int QWindowsStylePrivate::appDevicePixelRatio()
+{
+    if (!QWindowsStylePrivate::m_appDevicePixelRatio)
+        QWindowsStylePrivate::m_appDevicePixelRatio = qRound(qApp->devicePixelRatio());
+    return QWindowsStylePrivate::m_appDevicePixelRatio;
 }
 
 // Returns \c true if the toplevel parent of \a widget has seen the Alt-key
@@ -295,32 +297,123 @@ void QWindowsStyle::polish(QPalette &pal)
     QCommonStyle::polish(pal);
 }
 
+int QWindowsStylePrivate::pixelMetricFromSystemDp(QStyle::PixelMetric pm, const QStyleOption *, const QWidget *widget)
+{
+    switch (pm) {
+#if defined(Q_OS_WIN) && !defined(Q_OS_WINRT)
+    case QStyle::PM_DockWidgetFrameWidth:
+#  ifndef Q_OS_WINCE
+        return GetSystemMetrics(SM_CXFRAME);
+#  else
+        return GetSystemMetrics(SM_CXDLGFRAME);
+#  endif
+        break;
+
+    case QStyle::PM_TitleBarHeight:
+        if (widget && (widget->windowType() == Qt::Tool)) {
+            // MS always use one less than they say
+#  ifndef Q_OS_WINCE
+            return GetSystemMetrics(SM_CYSMCAPTION) - 1;
+#  else
+            return GetSystemMetrics(SM_CYCAPTION) - 1;
+#  endif
+        }
+        return GetSystemMetrics(SM_CYCAPTION) - 1;
+
+#  ifndef Q_OS_WINCE
+    case QStyle::PM_ScrollBarExtent:
+        {
+            NONCLIENTMETRICS ncm;
+            ncm.cbSize = FIELD_OFFSET(NONCLIENTMETRICS, lfMessageFont) + sizeof(LOGFONT);
+            if (SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0))
+                return qMax(ncm.iScrollHeight, ncm.iScrollWidth);
+        }
+        break;
+#  endif // !Q_OS_WINCE
+
+    case  QStyle::PM_MdiSubWindowFrameWidth:
+#  ifndef Q_OS_WINCE
+        return GetSystemMetrics(SM_CYFRAME);
+#  else
+        return GetSystemMetrics(SM_CYDLGFRAME);
+#  endif
+#else
+    Q_UNUSED(widget)
+#endif // Q_OS_WIN
+
+    default:
+        break;
+    }
+    return QWindowsStylePrivate::InvalidMetric;
+}
+
+int QWindowsStylePrivate::fixedPixelMetric(QStyle::PixelMetric pm)
+{
+    switch (pm) {
+    case QStyle::PM_ToolBarItemSpacing:
+        return 0;
+    case QStyle::PM_ButtonDefaultIndicator:
+    case QStyle::PM_ButtonShiftHorizontal:
+    case QStyle::PM_ButtonShiftVertical:
+    case QStyle::PM_MenuHMargin:
+    case QStyle::PM_MenuVMargin:
+    case QStyle::PM_ToolBarItemMargin:
+        return 1;
+        break;
+    case QStyle::PM_DockWidgetSeparatorExtent:
+        return 4;
+#ifndef QT_NO_TABBAR
+    case QStyle::PM_TabBarTabShiftHorizontal:
+        return 0;
+    case QStyle::PM_TabBarTabShiftVertical:
+        return 2;
+#endif
+
+#ifndef QT_NO_SLIDER
+    case QStyle::PM_SliderLength:
+        return 11;
+#endif // QT_NO_SLIDER
+
+#ifndef QT_NO_MENU
+    case QStyle::PM_MenuBarHMargin:
+    case QStyle::PM_MenuBarVMargin:
+    case QStyle::PM_MenuBarPanelWidth:
+        return 0;
+    case QStyle::PM_SmallIconSize:
+        return 16;
+    case QStyle::PM_LargeIconSize:
+        return 32;
+    case QStyle::PM_DockWidgetTitleMargin:
+        return 2;
+    case QStyle::PM_DockWidgetTitleBarButtonMargin:
+    case QStyle::PM_DockWidgetFrameWidth:
+        return 4;
+
+#endif // QT_NO_MENU
+    case QStyle::PM_ToolBarHandleExtent:
+        return 10;
+    default:
+        break;
+    }
+    return QWindowsStylePrivate::InvalidMetric;
+}
+
 /*!
   \reimp
 */
 int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QWidget *widget) const
 {
-    int ret;
+    int ret = QWindowsStylePrivate::pixelMetricFromSystemDp(pm, opt, widget);
+    if (ret != QWindowsStylePrivate::InvalidMetric)
+        return ret / QWindowsStylePrivate::devicePixelRatio(widget);
+
+    ret = QWindowsStylePrivate::fixedPixelMetric(pm);
+    if (ret != QWindowsStylePrivate::InvalidMetric)
+        return int(QStyleHelper::dpiScaled(ret));
+
+    ret = 0;
 
     switch (pm) {
-    case PM_ButtonDefaultIndicator:
-    case PM_ButtonShiftHorizontal:
-    case PM_ButtonShiftVertical:
-    case PM_MenuHMargin:
-    case PM_MenuVMargin:
-        ret = 1;
-        break;
-    case PM_DockWidgetSeparatorExtent:
-        ret = int(QStyleHelper::dpiScaled(4.));
-        break;
-#ifndef QT_NO_TABBAR
-    case PM_TabBarTabShiftHorizontal:
-        ret = 0;
-        break;
-    case PM_TabBarTabShiftVertical:
-        ret = 2;
-        break;
-#endif
     case PM_MaximumDragDistance:
         ret = QCommonStyle::pixelMetric(PM_MaximumDragDistance);
         if (ret == -1)
@@ -328,10 +421,6 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
         break;
 
 #ifndef QT_NO_SLIDER
-    case PM_SliderLength:
-        ret = int(QStyleHelper::dpiScaled(11.));
-        break;
-
         // Returns the number of pixels to use for the business part of the
         // slider (i.e., the non-tickmark portion). The remaining space is shared
         // equally between the tickmark regions.
@@ -357,116 +446,18 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
             if (space > 0)
                 thick += (space * 2) / (n + 2);
             ret = thick;
-        } else {
-            ret = 0;
         }
         break;
 #endif // QT_NO_SLIDER
-
-#ifndef QT_NO_MENU
-    case PM_MenuBarHMargin:
-        ret = 0;
-        break;
-
-    case PM_MenuBarVMargin:
-        ret = 0;
-        break;
-
-    case PM_MenuBarPanelWidth:
-        ret = 0;
-        break;
-
-    case PM_SmallIconSize:
-        ret = int(QStyleHelper::dpiScaled(16.));
-        break;
-
-    case PM_LargeIconSize:
-        ret = int(QStyleHelper::dpiScaled(32.));
-        break;
 
     case PM_IconViewIconSize:
         ret = proxy()->pixelMetric(PM_LargeIconSize, opt, widget);
         break;
 
-    case PM_DockWidgetTitleMargin:
-        ret = int(QStyleHelper::dpiScaled(2.));
-        break;
-    case PM_DockWidgetTitleBarButtonMargin:
-        ret = int(QStyleHelper::dpiScaled(4.));
-        break;
-#if defined(Q_WS_WIN)
-    case PM_DockWidgetFrameWidth:
-#if defined(Q_OS_WINCE)
-        ret = GetSystemMetrics(SM_CXDLGFRAME);
-#else
-        ret = GetSystemMetrics(SM_CXFRAME);
-#endif
-        break;
-#else
-    case PM_DockWidgetFrameWidth:
-        ret = 4;
-        break;
-#endif // Q_WS_WIN
-    break;
-
-#endif // QT_NO_MENU
-
-
-#if defined(Q_OS_WIN)
-#ifndef Q_OS_WINRT // There is no title bar in Windows Runtime applications
-    case PM_TitleBarHeight:
-        if (widget && (widget->windowType() == Qt::Tool)) {
-            // MS always use one less than they say
-#if defined(Q_OS_WINCE)
-            ret = GetSystemMetrics(SM_CYCAPTION) - 1;
-#else
-            ret = GetSystemMetrics(SM_CYSMCAPTION) - 1;
-#endif
-        } else {
-            ret = GetSystemMetrics(SM_CYCAPTION) - 1;
-        }
-
-        break;
-#endif // !Q_OS_WINRT
-
-    case PM_ScrollBarExtent:
-        {
-#if !defined(Q_OS_WINCE) && !defined(Q_OS_WINRT)
-            NONCLIENTMETRICS ncm;
-            ncm.cbSize = FIELD_OFFSET(NONCLIENTMETRICS, lfMessageFont) + sizeof(LOGFONT);
-            if (SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0))
-                ret = qMax(ncm.iScrollHeight, ncm.iScrollWidth);
-            else
-#endif // !Q_OS_WINCE && !Q_OS_WINRT
-                ret = QCommonStyle::pixelMetric(pm, opt, widget);
-        }
-        break;
-#endif // Q_OS_WIN
-
     case PM_SplitterWidth:
-        ret = qMax(4, QApplication::globalStrut().width());
+        ret = qMax(int(QStyleHelper::dpiScaled(4)), QApplication::globalStrut().width());
         break;
 
-#if defined(Q_OS_WIN)
-#ifndef Q_OS_WINRT // Mdi concept not available for WinRT applications
-    case PM_MdiSubWindowFrameWidth:
-#if defined(Q_OS_WINCE)
-        ret = GetSystemMetrics(SM_CYDLGFRAME);
-#else
-        ret = GetSystemMetrics(SM_CYFRAME);
-#endif
-        break;
-#endif // !Q_OS_WINRT
-#endif // Q_OS_WIN
-    case PM_ToolBarItemMargin:
-        ret = 1;
-        break;
-    case PM_ToolBarItemSpacing:
-        ret = 0;
-        break;
-    case PM_ToolBarHandleExtent:
-        ret = int(QStyleHelper::dpiScaled(10.));
-        break;
     default:
         ret = QCommonStyle::pixelMetric(pm, opt, widget);
         break;
@@ -909,7 +900,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             int xOffset = 0;
             int yOffset = 0;
             int indicatorWidth = proxy()->pixelMetric(PM_ExclusiveIndicatorWidth);
-            int indicatorHeight = proxy()->pixelMetric(PM_ExclusiveIndicatorWidth);
+            int indicatorHeight = proxy()->pixelMetric(PM_ExclusiveIndicatorHeight);
             if (ir.width() > indicatorWidth)
                 xOffset += (ir.width() - indicatorWidth)/2;
             if (ir.height() > indicatorHeight)
@@ -1154,8 +1145,8 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     pixmap = menuitem->icon.pixmap(proxy()->pixelMetric(PM_SmallIconSize, opt, widget), mode, QIcon::On);
                 else
                     pixmap = menuitem->icon.pixmap(proxy()->pixelMetric(PM_SmallIconSize, opt, widget), mode);
-                int pixw = pixmap.width();
-                int pixh = pixmap.height();
+                const int pixw = pixmap.width() / pixmap.devicePixelRatio();
+                const int pixh = pixmap.height() / pixmap.devicePixelRatio();
                 if (act && !dis && !checked)
                     qDrawShadePanel(p, vCheckRect,  menuitem->palette, false, 1,
                                     &menuitem->palette.brush(QPalette::Button));
@@ -1830,6 +1821,20 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
         }
         return;
 #endif // QT_NO_DOCKWIDGET
+#ifndef QT_NO_COMBOBOX
+    case CE_ComboBoxLabel:
+        if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
+            if (cb->state & State_HasFocus) {
+                p->setPen(cb->palette.highlightedText().color());
+                p->setBackground(cb->palette.highlight());
+            } else {
+                p->setPen(cb->palette.text().color());
+                p->setBackground(cb->palette.background());
+            }
+        }
+        QCommonStyle::drawControl(ce, opt, p, widget);
+        break;
+#endif // QT_NO_COMBOBOX
     default:
         QCommonStyle::drawControl(ce, opt, p, widget);
     }

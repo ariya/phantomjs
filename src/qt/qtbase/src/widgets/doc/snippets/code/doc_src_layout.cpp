@@ -42,7 +42,7 @@
 #ifndef CARD_H
 #define CARD_H
 
-#include <QtGui>
+#include <QtWidgets>
 #include <QList>
 
 class CardLayout : public QLayout

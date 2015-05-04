@@ -1,39 +1,32 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Intel Corporation
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -67,6 +60,7 @@ QString qt_libraryInfoFile()
 #endif
 
 #include "qconfig.cpp"
+#include "archdetect.cpp"
 
 QT_BEGIN_NAMESPACE
 
@@ -90,14 +84,7 @@ class QLibraryInfoPrivate
 {
 public:
     static QSettings *findConfiguration();
-#ifndef QT_BOOTSTRAPPED
-    static void cleanup()
-    {
-        QLibrarySettings *ls = qt_library_settings();
-        if (ls)
-            ls->settings.reset(0);
-    }
-#else
+#ifdef QT_BOOTSTRAPPED
     static bool haveGroup(QLibraryInfo::PathGroup group)
     {
         QLibrarySettings *ls = qt_library_settings();
@@ -120,7 +107,6 @@ QLibrarySettings::QLibrarySettings()
     : settings(QLibraryInfoPrivate::findConfiguration())
 {
 #ifndef QT_BOOTSTRAPPED
-    qAddPostRoutine(QLibraryInfoPrivate::cleanup);
     bool haveEffectivePaths;
     bool havePaths;
 #endif
@@ -130,10 +116,11 @@ QLibrarySettings::QLibrarySettings()
         QStringList children = settings->childGroups();
 #ifdef QT_BOOTSTRAPPED
         haveEffectiveSourcePaths = children.contains(QLatin1String("EffectiveSourcePaths"));
-        haveEffectivePaths = haveEffectiveSourcePaths || children.contains(QLatin1String("EffectivePaths"));
 #else
-        haveEffectivePaths = children.contains(QLatin1String("EffectivePaths"));
+        // EffectiveSourcePaths is for the Qt build only, so needs no backwards compat trickery.
+        bool haveEffectiveSourcePaths = false;
 #endif
+        haveEffectivePaths = haveEffectiveSourcePaths || children.contains(QLatin1String("EffectivePaths"));
         // Backwards compat: an existing but empty file is claimed to contain the Paths section.
         havePaths = (!haveEffectivePaths && !children.contains(QLatin1String(platformsSection)))
                     || children.contains(QLatin1String("Paths"));
@@ -142,9 +129,7 @@ QLibrarySettings::QLibrarySettings()
             settings.reset(0);
 #else
     } else {
-#ifdef QT_BOOTSTRAPPED
         haveEffectiveSourcePaths = false;
-#endif
         haveEffectivePaths = false;
         havePaths = false;
 #endif
@@ -255,7 +240,37 @@ QLibraryInfo::buildDate()
 }
 #endif //QT_NO_DATESTRING
 
-#if defined(Q_CC_CLANG) // must be before GNU, because clang claims to be GNU too
+#if defined(Q_CC_INTEL) // must be before GNU, Clang and MSVC because ICC/ICL claim to be them
+#  ifdef __INTEL_CLANG_COMPILER
+#    define ICC_COMPAT "Clang"
+#  elif defined(__INTEL_MS_COMPAT_LEVEL)
+#    define ICC_COMPAT "Microsoft"
+#  elif defined(__GNUC__)
+#    define ICC_COMPAT "GCC"
+#  else
+#    define ICC_COMPAT "no"
+#  endif
+#  if __INTEL_COMPILER == 1300
+#    define ICC_VERSION "13.0"
+#  elif __INTEL_COMPILER == 1310
+#    define ICC_VERSION "13.1"
+#  elif __INTEL_COMPILER == 1400
+#    define ICC_VERSION "14.0"
+#  elif __INTEL_COMPILER == 1500
+#    define ICC_VERSION "15.0"
+#  else
+#    define ICC_VERSION QT_STRINGIFY(__INTEL_COMPILER)
+#  endif
+#  ifdef __INTEL_COMPILER_UPDATE
+#    define COMPILER_STRING "Intel(R) C++ " ICC_VERSION "." QT_STRINGIFY(__INTEL_COMPILER_UPDATE) \
+                            " build " QT_STRINGIFY(__INTEL_COMPILER_BUILD_DATE) " [" \
+                            ICC_COMPAT " compatibility]"
+#  else
+#    define COMPILER_STRING "Intel(R) C++ " ICC_VERSION \
+                            " build " QT_STRINGIFY(__INTEL_COMPILER_BUILD_DATE) " [" \
+                            ICC_COMPAT " compatibility]"
+#  endif
+#elif defined(Q_CC_CLANG) // must be before GNU, because clang claims to be GNU too
 #  ifdef __apple_build_version__ // Apple clang has other version numbers
 #    define COMPILER_STRING "Clang " __clang_version__ " (Apple)"
 #  else
@@ -273,11 +288,22 @@ QLibraryInfo::buildDate()
 #  elif _MSC_VER < 1900
 #    define COMPILER_STRING "MSVC 2013"
 #  else
-#    define COMPILER_STRING "MSVC <unknown version>"
+#    define COMPILER_STRING "MSVC _MSC_VER " QT_STRINGIFY(_MSC_VER)
 #  endif
 #else
 #  define COMPILER_STRING "<unknown compiler>"
 #endif
+#ifdef QT_NO_DEBUG
+#  define DEBUG_STRING " release"
+#else
+#  define DEBUG_STRING " debug"
+#endif
+#ifdef QT_SHARED
+#  define SHARED_STRING " shared (dynamic)"
+#else
+#  define SHARED_STRING " static"
+#endif
+#define QT_BUILD_STR "Qt " QT_VERSION_STR " (" ARCH_FULL SHARED_STRING DEBUG_STRING " build; by " COMPILER_STRING ")"
 
 /*!
   Returns a string describing how this version of Qt was built.
@@ -289,21 +315,7 @@ QLibraryInfo::buildDate()
 
 const char *QLibraryInfo::build() Q_DECL_NOTHROW
 {
-   static const char data[] = "Qt " QT_VERSION_STR " (" __DATE__ ", "
-        COMPILER_STRING ", "
-#if QT_POINTER_SIZE == 4
-        "32"
-#else
-        "64"
-#endif
-        " bit, "
-#ifdef QT_NO_DEBUG
-        "release"
-#else
-        "debug"
-#endif
-        " build)";
-    return data;
+    return QT_BUILD_STR;
 }
 
 /*!
@@ -537,15 +549,16 @@ QLibraryInfo::rawLocation(LibraryLocation loc, PathGroup group)
 
 QStringList QLibraryInfo::platformPluginArguments(const QString &platformName)
 {
-#ifndef QT_BOOTSTRAPPED
-    if (const QSettings *settings = QLibraryInfoPrivate::findConfiguration()) {
+#if !defined(QT_BOOTSTRAPPED) && !defined(QT_NO_SETTINGS)
+    QScopedPointer<const QSettings> settings(QLibraryInfoPrivate::findConfiguration());
+    if (!settings.isNull()) {
         QString key = QLatin1String(platformsSection);
         key += QLatin1Char('/');
         key += platformName;
         key += QLatin1String("Arguments");
         return settings->value(key).toStringList();
     }
-#endif // !QT_BOOTSTRAPPED
+#endif // !QT_BOOTSTRAPPED && !QT_NO_SETTINGS
     return QStringList();
 }
 
@@ -590,8 +603,8 @@ extern const char qt_core_interpreter[] __attribute__((section(".interp")))
 extern "C" void qt_core_boilerplate();
 void qt_core_boilerplate()
 {
-    printf("This is the QtCore library version " QT_VERSION_STR "\n"
-           "Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).\n"
+    printf("This is the QtCore library version " QT_BUILD_STR "\n"
+           "Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).\n"
            "Contact: http://www.qt-project.org/legal\n"
            "\n"
            "Build date:          %s\n"

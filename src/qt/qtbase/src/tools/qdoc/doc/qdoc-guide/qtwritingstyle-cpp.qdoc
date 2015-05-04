@@ -166,7 +166,7 @@ the notifier.
 
 \snippet examples/cpp.qdoc.sample overloaded notifier
 
-\section1 Enums, Namespaces, and other Types
+\section1 Enums, Namespaces, and Other Types
 
 Enums, namespaces, and macros have a \l{writing-topic-commands}{topic command} for their documentation:
 \list

@@ -7,7 +7,7 @@
 #ifndef COMPILER_RENAME_FUNCTION
 #define COMPILER_RENAME_FUNCTION
 
-#include "compiler/translator/intermediate.h"
+#include "compiler/translator/IntermNode.h"
 
 //
 // Renames a function, including its declaration and any calls to it.

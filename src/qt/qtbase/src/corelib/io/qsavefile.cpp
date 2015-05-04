@@ -5,35 +5,27 @@
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -205,14 +197,32 @@ bool QSaveFile::open(OpenMode mode)
         d->writeError = QFileDevice::WriteError;
         return false;
     }
-    d->fileEngine = new QTemporaryFileEngine(d->fileName);
+
+    if (existingFile.isDir()) {
+        d->setError(QFileDevice::WriteError, QSaveFile::tr("Filename refers to a directory"));
+        d->writeError = QFileDevice::WriteError;
+        return false;
+    }
+
+    // Resolve symlinks. Don't use QFileInfo::canonicalFilePath so it still give the expected
+    // target even if the file does not exist
+    d->finalFileName = d->fileName;
+    if (existingFile.isSymLink()) {
+        int maxDepth = 128;
+        while (--maxDepth && existingFile.isSymLink())
+            existingFile.setFile(existingFile.symLinkTarget());
+        if (maxDepth > 0)
+            d->finalFileName = existingFile.filePath();
+    }
+
+    d->fileEngine = new QTemporaryFileEngine(d->finalFileName);
     // Same as in QFile: QIODevice provides the buffering, so there's no need to request it from the file engine.
     if (!d->fileEngine->open(mode | QIODevice::Unbuffered)) {
         QFileDevice::FileError err = d->fileEngine->error();
 #ifdef Q_OS_UNIX
         if (d->directWriteFallback && err == QFileDevice::OpenError && errno == EACCES) {
             delete d->fileEngine;
-            d->fileEngine = QAbstractFileEngine::create(d->fileName);
+            d->fileEngine = QAbstractFileEngine::create(d->finalFileName);
             if (d->fileEngine->open(mode | QIODevice::Unbuffered)) {
                 d->useTemporaryFile = false;
                 QFileDevice::open(mode);
@@ -285,7 +295,7 @@ bool QSaveFile::commit()
         // atomically replace old file with new file
         // Can't use QFile::rename for that, must use the file engine directly
         Q_ASSERT(d->fileEngine);
-        if (!d->fileEngine->renameOverwrite(d->fileName)) {
+        if (!d->fileEngine->renameOverwrite(d->finalFileName)) {
             d->setError(d->fileEngine->error(), d->fileEngine->errorString());
             d->fileEngine->remove();
             delete d->fileEngine;

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -310,8 +302,9 @@ static int unpackControlTypes(QSizePolicy::ControlTypes controls, QSizePolicy::C
     applications, which may not be yours and hence not available for
     you to recompile. The Qt Plugin system makes it possible to create
     styles as plugins. Styles created as plugins are loaded as shared
-    objects at runtime by Qt itself. Please refer to the \l{plugins-howto.html}{Qt Plugin} documentation for more
-    information on how to go about creating a style plugin.
+    objects at runtime by Qt itself. Please refer to the \l{How to Create Qt Plugins}{Qt Plugin}
+    documentation for more information on how to go about creating a style
+    plugin.
 
     Compile your plugin and put it into Qt's \c plugins/styles
     directory. We now have a pluggable style that Qt can load
@@ -634,7 +627,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     indicator or button bevel.
 
     \omitvalue PE_IndicatorViewItemCheck
-    \value PE_FrameStatusBar Frame
+    \value PE_FrameStatusBar  Obsolete. Use PE_FrameStatusBarItem instead.
 
     \value PE_PanelButtonCommand  Button used to initiate an action, for
         example, a QPushButton.
@@ -1470,6 +1463,15 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_TabCloseIndicatorWidth The default width of a close button on a tab in a tab bar.
     \value PM_TabCloseIndicatorHeight The default height of a close button on a tab in a tab bar.
 
+    \value PM_ScrollView_ScrollBarSpacing  Distance between frame and scrollbar
+                                                with SH_ScrollView_FrameOnlyAroundContents set.
+    \value PM_ScrollView_ScrollBarOverlap  Overlap between scroll bars and scroll content
+
+    \value PM_SubMenuOverlap The horizontal overlap between a submenu and its parent.
+
+    \value PM_TreeViewIndentation The indentation of items in a tree view.
+           This enum value has been introduced in Qt 5.4.
+
     \value PM_CustomBase Base value for custom pixel metrics.  Custom
     values must be greater than this value.
 
@@ -1486,12 +1488,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_DefaultLayoutSpacing  Use PM_LayoutHorizontalSpacing
                                     and PM_LayoutVerticalSpacing
                                     instead.
-
-    \value PM_ScrollView_ScrollBarSpacing  Distance between frame and scrollbar
-                                                with SH_ScrollView_FrameOnlyAroundContents set.
-    \value PM_ScrollView_ScrollBarOverlap  Overlap between scroll bars and scroll content
-
-    \value PM_SubMenuOverlap The horizontal overlap between a submenu and its parent.
 
 
     \sa pixelMetric()
@@ -1667,7 +1663,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_Header_ArrowAlignment The placement of the sorting
         indicator may appear in list or table headers. Possible values
-        are Qt::Left or Qt::Right.
+        are Qt::Alignment values (that is, an OR combination of
+        Qt::AlignmentFlag flags).
 
     \value SH_Slider_SnapToValue  Sliders snap to values while moving,
         as they do on Windows.
@@ -1750,8 +1747,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SH_ComboBox_Popup  Allows popups as a combobox drop-down
         menu.
 
-    \omitvalue SH_ComboBox_UseNativePopup  Whether we should use a native popup.
-        Only supported for non-editable combo boxes on Mac OS X so far.
+    \omitvalue SH_ComboBox_UseNativePopup
 
     \value SH_Workspace_FillSpaceOnMaximize  The workspace should
         maximize the client area.
@@ -1783,6 +1779,9 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_LineEdit_PasswordCharacter  The Unicode character to be
     used for passwords.
+
+    \value SH_LineEdit_PasswordMaskDelay  Determines the delay before visible character is masked
+    with password character, in milliseconds. This enum value was added in Qt 5.4.
 
     \value SH_Table_GridLineColor The RGB value of the grid for a table.
 
@@ -1926,6 +1925,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_Splitter_OpaqueResize Determines if resizing is opaque
            This enum value has been introduced in Qt 5.2
+
+    \value SH_TabBar_ChangeCurrentDelay Determines the delay before the current
+           tab is changed while dragging over the tabbar, in milliseconds. This
+           enum value has been introduced in Qt 5.4
 
     \sa styleHint()
 */

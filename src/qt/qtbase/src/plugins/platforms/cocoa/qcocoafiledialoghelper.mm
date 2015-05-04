@@ -77,8 +77,6 @@ QT_USE_NAMESPACE
 
 typedef QSharedPointer<QFileDialogOptions> SharedPointerFileDialogOptions;
 
-@class QT_MANGLE_NAMESPACE(QNSOpenSavePanelDelegate);
-
 @interface QT_MANGLE_NAMESPACE(QNSOpenSavePanelDelegate)
     : NSObject<NSOpenSavePanelDelegate>
 {
@@ -191,16 +189,7 @@ QT_NAMESPACE_ALIAS_OBJC_CLASS(QNSOpenSavePanelDelegate);
 static QString strippedText(QString s)
 {
     s.remove( QString::fromLatin1("...") );
-    int i = 0;
-    while (i < s.size()) {
-        ++i;
-        if (s.at(i-1) != QLatin1Char('&'))
-            continue;
-        if (i < s.size() && s.at(i) == QLatin1Char('&'))
-            ++i;
-        s.remove(i-1,1);
-    }
-    return s.trimmed();
+    return qt_mac_removeMnemonics(s).trimmed();
 }
 
 - (NSString *)strip:(const QString &)label
@@ -577,7 +566,7 @@ QCocoaFileDialogHelper::~QCocoaFileDialogHelper()
     if (!mDelegate)
         return;
     QCocoaAutoReleasePool pool;
-    [reinterpret_cast<QNSOpenSavePanelDelegate *>(mDelegate) release];
+    [mDelegate release];
     mDelegate = 0;
 }
 
@@ -613,18 +602,16 @@ extern void qt_mac_to_pascal_string(QString s, Str255 str, TextEncoding encoding
 
 void QCocoaFileDialogHelper::setDirectory(const QUrl &directory)
 {
-    QNSOpenSavePanelDelegate *delegate = static_cast<QNSOpenSavePanelDelegate *>(mDelegate);
-    if (delegate)
-        [delegate->mSavePanel setDirectoryURL:[NSURL fileURLWithPath:QCFString::toNSString(directory.toLocalFile())]];
+    if (mDelegate)
+        [mDelegate->mSavePanel setDirectoryURL:[NSURL fileURLWithPath:QCFString::toNSString(directory.toLocalFile())]];
     else
         mDir = directory;
 }
 
 QUrl QCocoaFileDialogHelper::directory() const
 {
-    QNSOpenSavePanelDelegate *delegate = static_cast<QNSOpenSavePanelDelegate *>(mDelegate);
-    if (delegate) {
-        QString path = QCFString::toQString([[delegate->mSavePanel directoryURL] path]).normalized(QString::NormalizationForm_C);
+    if (mDelegate) {
+        QString path = QCFString::toQString([[mDelegate->mSavePanel directoryURL] path]).normalized(QString::NormalizationForm_C);
         return QUrl::fromLocalFile(path);
     }
     return mDir;
@@ -643,25 +630,23 @@ void QCocoaFileDialogHelper::selectFile(const QUrl &filename)
 
 QList<QUrl> QCocoaFileDialogHelper::selectedFiles() const
 {
-    QNSOpenSavePanelDelegate *delegate = static_cast<QNSOpenSavePanelDelegate *>(mDelegate);
-    if (delegate)
-        return [delegate selectedFiles];
+    if (mDelegate)
+        return [mDelegate selectedFiles];
     return QList<QUrl>();
 }
 
 void QCocoaFileDialogHelper::setFilter()
 {
-    QNSOpenSavePanelDelegate *delegate = static_cast<QNSOpenSavePanelDelegate *>(mDelegate);
-    if (!delegate)
+    if (!mDelegate)
         return;
     const SharedPointerFileDialogOptions &opts = options();
-    [delegate->mSavePanel setTitle:QCFString::toNSString(opts->windowTitle())];
+    [mDelegate->mSavePanel setTitle:QCFString::toNSString(opts->windowTitle())];
     if (opts->isLabelExplicitlySet(QFileDialogOptions::Accept))
-        [delegate->mSavePanel setPrompt:[delegate strip:opts->labelText(QFileDialogOptions::Accept)]];
+        [mDelegate->mSavePanel setPrompt:[mDelegate strip:opts->labelText(QFileDialogOptions::Accept)]];
     if (opts->isLabelExplicitlySet(QFileDialogOptions::FileName))
-        [delegate->mSavePanel setNameFieldLabel:[delegate strip:opts->labelText(QFileDialogOptions::FileName)]];
+        [mDelegate->mSavePanel setNameFieldLabel:[mDelegate strip:opts->labelText(QFileDialogOptions::FileName)]];
 
-    [delegate updateProperties];
+    [mDelegate updateProperties];
 }
 
 void QCocoaFileDialogHelper::selectNameFilter(const QString &filter)
@@ -670,22 +655,20 @@ void QCocoaFileDialogHelper::selectNameFilter(const QString &filter)
         return;
     const int index = options()->nameFilters().indexOf(filter);
     if (index != -1) {
-        QNSOpenSavePanelDelegate *delegate = static_cast<QNSOpenSavePanelDelegate *>(mDelegate);
-        if (!delegate) {
+        if (!mDelegate) {
             options()->setInitiallySelectedNameFilter(filter);
             return;
         }
-        [delegate->mPopUpButton selectItemAtIndex:index];
-        [delegate filterChanged:nil];
+        [mDelegate->mPopUpButton selectItemAtIndex:index];
+        [mDelegate filterChanged:nil];
     }
 }
 
 QString QCocoaFileDialogHelper::selectedNameFilter() const
 {
-    QNSOpenSavePanelDelegate *delegate = static_cast<QNSOpenSavePanelDelegate *>(mDelegate);
-    if (!delegate)
+    if (!mDelegate)
         return options()->initiallySelectedNameFilter();
-    int index = [delegate->mPopUpButton indexOfSelectedItem];
+    int index = [mDelegate->mPopUpButton indexOfSelectedItem];
     if (index >= options()->nameFilters().count())
         return QString();
     return index != -1 ? options()->nameFilters().at(index) : QString();
@@ -712,9 +695,8 @@ bool QCocoaFileDialogHelper::show(Qt::WindowFlags windowFlags, Qt::WindowModalit
 
 void QCocoaFileDialogHelper::createNSOpenSavePanelDelegate()
 {
-    if (mDelegate)
-        return;
     QCocoaAutoReleasePool pool;
+
     const SharedPointerFileDialogOptions &opts = options();
     const QList<QUrl> selectedFiles = opts->initiallySelectedFiles();
     const QUrl directory = mDir.isEmpty() ? opts->initialDirectory() : mDir;
@@ -726,19 +708,19 @@ void QCocoaFileDialogHelper::createNSOpenSavePanelDelegate()
             options:opts
             helper:this];
 
+    [static_cast<QNSOpenSavePanelDelegate *>(mDelegate) release];
     mDelegate = delegate;
 }
 
 bool QCocoaFileDialogHelper::showCocoaFilePanel(Qt::WindowModality windowModality, QWindow *parent)
 {
     createNSOpenSavePanelDelegate();
-    QNSOpenSavePanelDelegate *delegate = static_cast<QNSOpenSavePanelDelegate *>(mDelegate);
-    if (!delegate)
+    if (!mDelegate)
         return false;
     if (windowModality == Qt::NonModal)
-        [delegate showModelessPanel];
+        [mDelegate showModelessPanel];
     else if (windowModality == Qt::WindowModal && parent)
-        [delegate showWindowModalSheet:parent];
+        [mDelegate showWindowModalSheet:parent];
     // no need to show a Qt::ApplicationModal dialog here, since it will be done in _q_platformRunNativeAppModalPanel()
     return true;
 }
@@ -750,8 +732,7 @@ bool QCocoaFileDialogHelper::hideCocoaFilePanel()
         // open regarding whether or not to go native:
         return false;
     } else {
-        QNSOpenSavePanelDelegate *delegate = static_cast<QNSOpenSavePanelDelegate *>(mDelegate);
-        [delegate closePanel];
+        [mDelegate closePanel];
         // Even when we hide it, we are still using a
         // native dialog, so return true:
         return true;
@@ -765,8 +746,7 @@ void QCocoaFileDialogHelper::exec()
     // yet been reactivated (regardless if [NSApp run] is still on the stack)),
     // showing a native modal dialog will fail.
     QCocoaAutoReleasePool pool;
-    QNSOpenSavePanelDelegate *delegate = static_cast<QNSOpenSavePanelDelegate *>(mDelegate);
-    if ([delegate runApplicationModalPanel])
+    if ([mDelegate runApplicationModalPanel])
         emit accept();
     else
         emit reject();

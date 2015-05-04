@@ -45,8 +45,9 @@ CONFIG += console
     } else {
         module_envvars =
     }
+    bin = $$system_path($$QMAKE_RESOLVED_TARGET)
     TOOL_PRI_CONT = \
-        "QT_TOOL.$${MODULE}.binary = $$QMAKE_RESOLVED_TARGET" \
+        "QT_TOOL.$${MODULE}.binary = $$val_escape(bin)" \
         "QT_TOOL.$${MODULE}.depends =$$join(MODULE_DEPENDS, " ", " ")" \
         $$module_envvars
     write_file($$TOOL_PRI, TOOL_PRI_CONT)|error("Aborting.")

@@ -12,12 +12,11 @@
 #ifndef COMMON_REFCOUNTOBJECT_H_
 #define COMMON_REFCOUNTOBJECT_H_
 
-#include <cstddef>
-
-#define GL_APICALL
-#include <GLES2/gl2.h>
-
 #include "common/debug.h"
+
+#include "angle_gl.h"
+
+#include <cstddef>
 
 class RefCountObject
 {
@@ -47,7 +46,7 @@ class RefCountObjectBindingPointer
 
   public:
     GLuint id() const { return (mObject != NULL) ? mObject->id() : 0; }
-    bool operator ! () const { return (get() == NULL); }
+    bool operator!() const { return (get() == NULL); }
 
   private:
     RefCountObject *mObject;
@@ -59,7 +58,38 @@ class BindingPointer : public RefCountObjectBindingPointer
   public:
     void set(ObjectType *newObject) { RefCountObjectBindingPointer::set(newObject); }
     ObjectType *get() const { return static_cast<ObjectType*>(RefCountObjectBindingPointer::get()); }
-    ObjectType *operator -> () const { return get(); }
+    ObjectType *operator->() const { return get(); }
+};
+
+template <class ObjectType>
+class OffsetBindingPointer : public RefCountObjectBindingPointer
+{
+  public:
+    OffsetBindingPointer() : mOffset(0), mSize(0) { }
+
+    void set(ObjectType *newObject)
+    {
+        RefCountObjectBindingPointer::set(newObject);
+        mOffset = 0;
+        mSize = 0;
+    }
+
+    void set(ObjectType *newObject, GLintptr offset, GLsizeiptr size)
+    {
+        RefCountObjectBindingPointer::set(newObject);
+        mOffset = offset;
+        mSize = size;
+    }
+
+    GLintptr getOffset() const { return mOffset; }
+    GLsizeiptr getSize() const { return mSize; }
+
+    ObjectType *get() const { return static_cast<ObjectType*>(RefCountObjectBindingPointer::get()); }
+    ObjectType *operator->() const { return get(); }
+
+  private:
+    GLintptr mOffset;
+    GLsizeiptr mSize;
 };
 
 #endif   // COMMON_REFCOUNTOBJECT_H_

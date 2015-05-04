@@ -107,7 +107,7 @@
     See \l{The QDoc Configuration File} for instructions on how to
     set up a QDoc configuration file.
 
-    \section1 How QDoc works
+    \section1 How QDoc Works
 
     QDoc begins by reading the configuration file you specified on the
     command line. It stores all the variables from the configuration

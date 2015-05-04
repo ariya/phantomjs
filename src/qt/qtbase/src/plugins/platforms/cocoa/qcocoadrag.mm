@@ -132,7 +132,7 @@ Qt::DropAction QCocoaDrag::drag(QDrag *o)
 
     QMacPasteboard dragBoard((CFStringRef) NSDragPboard, QMacInternalPasteboardMime::MIME_DND);
     m_drag->mimeData()->setData(QLatin1String("application/x-qt-mime-type-name"), QByteArray("dummy"));
-    dragBoard.setMimeData(m_drag->mimeData());
+    dragBoard.setMimeData(m_drag->mimeData(), QMacPasteboard::LazyRequest);
 
     NSPoint event_location = [m_lastEvent locationInWindow];
     NSPoint local_point = [m_lastView convertPoint:event_location fromView:nil];

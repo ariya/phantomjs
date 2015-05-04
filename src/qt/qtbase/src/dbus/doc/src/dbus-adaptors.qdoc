@@ -97,7 +97,7 @@
     Break-down analysis:
     \tableofcontents
 
-    \section1 The header
+    \section1 The Header
 
     The header of the example is:
     \snippet code/doc_src_qdbusadaptors.cpp 3
@@ -109,7 +109,7 @@
       \li it declares the name of the D-Bus interface it implements.
     \endlist
 
-    \section1 The properties
+    \section1 The Properties
 
     The properties are declared as follows:
     \snippet code/doc_src_qdbusadaptors.cpp 4
@@ -126,7 +126,7 @@
     caption property is empty. Note how it is possible to access data defined in other objects
     through the getter/setter functions.
 
-    \section1 The constructor
+    \section1 The Constructor
 
     The constructor:
     \snippet code/doc_src_qdbusadaptors.cpp 6

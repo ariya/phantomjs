@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -135,9 +127,10 @@ protected:
 
         (void)formats(); // trigger update of format list
 
-        QList<xcb_atom_t> atoms;
+        QVector<xcb_atom_t> atoms;
         xcb_atom_t *targets = (xcb_atom_t *) format_atoms.data();
         int size = format_atoms.size() / sizeof(xcb_atom_t);
+        atoms.reserve(size);
         for (int i = 0; i < size; ++i)
             atoms.append(targets[i]);
 
@@ -283,7 +276,7 @@ QXcbClipboard::QXcbClipboard(QXcbConnection *c)
     m_timestamp[QClipboard::Clipboard] = XCB_CURRENT_TIME;
     m_timestamp[QClipboard::Selection] = XCB_CURRENT_TIME;
 
-    m_screen = connection()->screens().at(connection()->primaryScreen());
+    m_screen = connection()->primaryScreen();
 
     int x = 0, y = 0, w = 3, h = 3;
 
@@ -524,7 +517,7 @@ xcb_atom_t QXcbClipboard::sendTargetsSelection(QMimeData *d, xcb_window_t window
     QVector<xcb_atom_t> types;
     QStringList formats = QInternalMimeData::formatsHelper(d);
     for (int i = 0; i < formats.size(); ++i) {
-        QList<xcb_atom_t> atoms = QXcbMime::mimeAtomsForFormat(connection(), formats.at(i));
+        QVector<xcb_atom_t> atoms = QXcbMime::mimeAtomsForFormat(connection(), formats.at(i));
         for (int j = 0; j < atoms.size(); ++j) {
             if (!types.contains(atoms.at(j)))
                 types.append(atoms.at(j));
@@ -738,6 +731,9 @@ void QXcbClipboard::handleSelectionRequest(xcb_selection_request_event_t *req)
 void QXcbClipboard::handleXFixesSelectionRequest(xcb_xfixes_selection_notify_event_t *event)
 {
     QClipboard::Mode mode = modeForAtom(event->selection);
+    if (mode > QClipboard::Selection)
+        return;
+
     // here we care only about the xfixes events that come from non Qt processes
     if (event->owner != XCB_NONE && event->owner != owner()) {
         if (!m_xClipboard[mode]) {
@@ -746,7 +742,8 @@ void QXcbClipboard::handleXFixesSelectionRequest(xcb_xfixes_selection_notify_eve
             m_xClipboard[mode]->reset();
         }
         emitChanged(mode);
-    }
+    } else if (event->subtype == XCB_XFIXES_SELECTION_EVENT_SELECTION_CLIENT_CLOSE)
+        emitChanged(mode);
 }
 
 

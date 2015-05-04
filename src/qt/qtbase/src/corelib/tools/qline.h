@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -75,8 +67,8 @@ public:
     inline void translate(const QPoint &p);
     inline void translate(int dx, int dy);
 
-    Q_DECL_CONSTEXPR inline QLine translated(const QPoint &p) const;
-    Q_DECL_CONSTEXPR inline QLine translated(int dx, int dy) const;
+    Q_DECL_CONSTEXPR inline QLine translated(const QPoint &p) const Q_REQUIRED_RESULT;
+    Q_DECL_CONSTEXPR inline QLine translated(int dx, int dy) const Q_REQUIRED_RESULT;
 
     inline void setP1(const QPoint &p1);
     inline void setP2(const QPoint &p2);
@@ -216,7 +208,7 @@ public:
     Q_DECL_CONSTEXPR inline QLineF(qreal x1, qreal y1, qreal x2, qreal y2);
     Q_DECL_CONSTEXPR inline QLineF(const QLine &line) : pt1(line.p1()), pt2(line.p2()) { }
 
-    static QLineF fromPolar(qreal length, qreal angle);
+    static QLineF fromPolar(qreal length, qreal angle) Q_REQUIRED_RESULT;
 
     Q_DECL_CONSTEXPR bool isNull() const;
 
@@ -240,8 +232,8 @@ public:
 
     qreal angleTo(const QLineF &l) const;
 
-    QLineF unitVector() const;
-    Q_DECL_CONSTEXPR inline QLineF normalVector() const;
+    QLineF unitVector() const Q_REQUIRED_RESULT;
+    Q_DECL_CONSTEXPR inline QLineF normalVector() const Q_REQUIRED_RESULT;
 
     // ### Qt 6: rename intersects() or intersection() and rename IntersectType IntersectionType
     IntersectType intersect(const QLineF &l, QPointF *intersectionPoint) const;
@@ -252,8 +244,8 @@ public:
     inline void translate(const QPointF &p);
     inline void translate(qreal dx, qreal dy);
 
-    Q_DECL_CONSTEXPR inline QLineF translated(const QPointF &p) const;
-    Q_DECL_CONSTEXPR inline QLineF translated(qreal dx, qreal dy) const;
+    Q_DECL_CONSTEXPR inline QLineF translated(const QPointF &p) const Q_REQUIRED_RESULT;
+    Q_DECL_CONSTEXPR inline QLineF translated(qreal dx, qreal dy) const Q_REQUIRED_RESULT;
 
     inline void setP1(const QPointF &p1);
     inline void setP2(const QPointF &p2);

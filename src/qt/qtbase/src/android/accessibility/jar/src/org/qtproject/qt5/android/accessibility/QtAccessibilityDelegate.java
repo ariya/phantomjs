@@ -43,6 +43,7 @@
 package org.qtproject.qt5.android.accessibility;
 
 import android.accessibilityservice.AccessibilityService;
+import android.app.Activity;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
@@ -53,11 +54,14 @@ import android.text.TextUtils;
 
 import android.view.accessibility.*;
 import android.view.MotionEvent;
+import android.view.View.OnHoverListener;
 
 import android.content.Context;
 
 import java.util.LinkedList;
 import java.util.List;
+
+import org.qtproject.qt5.android.QtActivityDelegate;
 
 public class QtAccessibilityDelegate extends View.AccessibilityDelegate
 {
@@ -71,8 +75,11 @@ public class QtAccessibilityDelegate extends View.AccessibilityDelegate
     // Pretend to be an inner class of the QtSurface.
     private static final String DEFAULT_CLASS_NAME = "$VirtualChild";
 
-    private final View m_view;
-    private final AccessibilityManager m_manager;
+    private View m_view = null;
+    private AccessibilityManager m_manager;
+    private QtActivityDelegate m_activityDelegate;
+    private Activity m_activity;
+    private ViewGroup m_layout;
 
     // The accessible object that currently has the "accessibility focus"
     // usually indicated by a yellow rectangle on screen.
@@ -85,15 +92,79 @@ public class QtAccessibilityDelegate extends View.AccessibilityDelegate
     // the offset of the view on screen into account (eg status bar on top)
     private final int[] m_globalOffset = new int[2];
 
-    public QtAccessibilityDelegate(View host)
+    private class HoverEventListener implements View.OnHoverListener
     {
-        m_view = host;
-        m_manager = (AccessibilityManager) host.getContext()
-                .getSystemService(Context.ACCESSIBILITY_SERVICE);
+        @Override
+        public boolean onHover(View v, MotionEvent event)
+        {
+            return dispatchHoverEvent(event);
+        }
+    }
+
+    public QtAccessibilityDelegate(Activity activity, ViewGroup layout, QtActivityDelegate activityDelegate)
+    {
+        m_activity = activity;
+        m_layout = layout;
+        m_activityDelegate = activityDelegate;
+
+        m_manager = (AccessibilityManager) m_activity.getSystemService(Context.ACCESSIBILITY_SERVICE);
+        if (m_manager != null) {
+            AccessibilityManagerListener accServiceListener = new AccessibilityManagerListener();
+            if (!m_manager.addAccessibilityStateChangeListener(accServiceListener))
+                Log.w("Qt A11y", "Could not register a11y state change listener");
+            if (m_manager.isEnabled())
+                accServiceListener.onAccessibilityStateChanged(true);
+        }
+
 
         // Enable Qt Accessibility so that notifications are enabled
         QtNativeAccessibility.setActive(true);
     }
+
+    private class AccessibilityManagerListener implements AccessibilityManager.AccessibilityStateChangeListener
+    {
+        @Override
+        public void onAccessibilityStateChanged(boolean enabled)
+        {
+            if (enabled) {
+                // The accessibility code depends on android API level 16, so dynamically resolve it
+                if (android.os.Build.VERSION.SDK_INT >= 16) {
+                    try {
+                        View view = m_view;
+                        if (view == null) {
+                            view = new View(m_activity);
+                            view.setId(View.NO_ID);
+                        }
+
+                        // ### Keep this for debugging for a while. It allows us to visually see that our View
+                        // ### is on top of the surface(s)
+                        // ColorDrawable color = new ColorDrawable(0x80ff8080);    //0xAARRGGBB
+                        // view.setBackground(color);
+                        view.setAccessibilityDelegate(QtAccessibilityDelegate.this);
+
+                        // if all is fine, add it to the layout
+                        if (m_view == null) {
+                            //m_layout.addAccessibilityView(view);
+                            m_layout.addView(view, m_activityDelegate.getSurfaceCount(),
+                                             new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                        }
+                        m_view = view;
+
+                        m_view.setOnHoverListener(new HoverEventListener());
+                    } catch (Exception e) {
+                        // Unknown exception means something went wrong.
+                        Log.w("Qt A11y", "Unknown exception: " + e.toString());
+                    }
+                }
+            } else {
+                if (m_view != null) {
+                    m_layout.removeView(m_view);
+                    m_view = null;
+                }
+            }
+        }
+    }
+
 
     @Override
     public AccessibilityNodeProvider getAccessibilityNodeProvider(View host)
@@ -103,7 +174,7 @@ public class QtAccessibilityDelegate extends View.AccessibilityDelegate
 
     // For "explore by touch" we need all movement events here first
     // (user moves finger over screen to discover items on screen).
-    public boolean dispatchHoverEvent(MotionEvent event)
+    private boolean dispatchHoverEvent(MotionEvent event)
     {
         if (!m_manager.isTouchExplorationEnabled()) {
             return false;
@@ -240,8 +311,12 @@ public class QtAccessibilityDelegate extends View.AccessibilityDelegate
         node.setClassName(m_view.getClass().getName() + DEFAULT_CLASS_NAME);
         node.setPackageName(m_view.getContext().getPackageName());
 
+        if (!QtNativeAccessibility.populateNode(virtualViewId, node))
+            return node;
+
+        // set only if valid, otherwise we return a node that is invalid and will crash when accessed
         node.setSource(m_view, virtualViewId);
-        QtNativeAccessibility.populateNode(virtualViewId, node);
+
         if (TextUtils.isEmpty(node.getText()) && TextUtils.isEmpty(node.getContentDescription()))
             Log.w(TAG, "AccessibilityNodeInfo with empty contentDescription: " + virtualViewId);
 
@@ -331,13 +406,24 @@ public class QtAccessibilityDelegate extends View.AccessibilityDelegate
     {
 //        Log.i(TAG, "ACTION " + action + " on " + virtualViewId);
 //        dumpNodes(virtualViewId);
+        boolean success = false;
         switch (action) {
         case AccessibilityNodeInfo.ACTION_CLICK:
-            boolean success = QtNativeAccessibility.clickAction(virtualViewId);
+            success = QtNativeAccessibility.clickAction(virtualViewId);
             if (success)
                 sendEventForVirtualViewId(virtualViewId, AccessibilityEvent.TYPE_VIEW_CLICKED);
-            return success;
+            break;
+        case AccessibilityNodeInfo.ACTION_SCROLL_FORWARD:
+            success = QtNativeAccessibility.scrollForward(virtualViewId);
+            if (success)
+                sendEventForVirtualViewId(virtualViewId, AccessibilityEvent.TYPE_VIEW_SCROLLED);
+            break;
+        case AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD:
+            success = QtNativeAccessibility.scrollBackward(virtualViewId);
+            if (success)
+                sendEventForVirtualViewId(virtualViewId, AccessibilityEvent.TYPE_VIEW_SCROLLED);
+            break;
         }
-        return false;
+        return success;
     }
 }

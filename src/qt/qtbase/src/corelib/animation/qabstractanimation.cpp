@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -222,7 +214,8 @@ QUnifiedTimer::QUnifiedTimer() :
     QObject(), defaultDriver(this), lastTick(0), timingInterval(DEFAULT_TIMER_INTERVAL),
     currentAnimationIdx(0), insideTick(false), insideRestart(false), consistentTiming(false), slowMode(false),
     startTimersPending(false), stopTimerPending(false),
-    slowdownFactor(5.0f), profilerCallback(0)
+    slowdownFactor(5.0f), profilerCallback(0),
+    driverStartTime(0), temporalDrift(0)
 {
     time.invalidate();
     driver = &defaultDriver;
@@ -253,17 +246,56 @@ QUnifiedTimer *QUnifiedTimer::instance()
 
 void QUnifiedTimer::maybeUpdateAnimationsToCurrentTime()
 {
-    if (time.elapsed() - lastTick > 50)
-        updateAnimationTimers(driver->elapsed());
+    if (elapsed() - lastTick > 50)
+        updateAnimationTimers(-1);
 }
 
-void QUnifiedTimer::updateAnimationTimers(qint64 currentTick)
+qint64 QUnifiedTimer::elapsed() const
+{
+    if (driver->isRunning())
+        return driverStartTime + driver->elapsed();
+    else if (time.isValid())
+        return time.elapsed() + temporalDrift;
+
+    // Reaching here would normally indicate that the function is called
+    // under the wrong circumstances as neither pauses nor actual animations
+    // are running and there should be no need to query for elapsed().
+    return 0;
+}
+
+void QUnifiedTimer::startAnimationDriver()
+{
+    if (driver->isRunning()) {
+        qWarning("QUnifiedTimer::startAnimationDriver: driver is already running...");
+        return;
+    }
+    // Set the start time to the currently elapsed() value before starting.
+    // This means we get the animation system time including the temporal drift
+    // which is what we want.
+    driverStartTime = elapsed();
+    driver->start();
+}
+
+void QUnifiedTimer::stopAnimationDriver()
+{
+    if (!driver->isRunning()) {
+        qWarning("QUnifiedTimer::stopAnimationDriver: driver is not running");
+        return;
+    }
+    // Update temporal drift. Since the driver is running, elapsed() will
+    // return the total animation time in driver-time. Subtract the current
+    // wall time to get the delta.
+    temporalDrift = elapsed() - time.elapsed();
+    driver->stop();
+}
+
+void QUnifiedTimer::updateAnimationTimers(qint64)
 {
     //setCurrentTime can get this called again while we're the for loop. At least with pauseAnimations
     if(insideTick)
         return;
 
-    qint64 totalElapsed = currentTick >= 0 ? currentTick : time.elapsed();
+    qint64 totalElapsed = elapsed();
 
     // ignore consistentTiming in case the pause timer is active
     qint64 delta = (consistentTiming && !pauseTimer.isActive()) ?
@@ -322,8 +354,7 @@ void QUnifiedTimer::localRestart()
     } else if (!driver->isRunning()) {
         if (pauseTimer.isActive())
             pauseTimer.stop();
-        driver->setStartTime(time.isValid() ? time.elapsed() : 0);
-        driver->start();
+        startAnimationDriver();
     }
 
 }
@@ -344,27 +375,26 @@ void QUnifiedTimer::setTimingInterval(int interval)
 
     if (driver->isRunning() && !pauseTimer.isActive()) {
         //we changed the timing interval
-        driver->stop();
-        driver->setStartTime(time.isValid() ? time.elapsed() : 0);
-        driver->start();
+        stopAnimationDriver();
+        startAnimationDriver();
     }
 }
 
 void QUnifiedTimer::startTimers()
 {
     startTimersPending = false;
-    if (!animationTimers.isEmpty())
-        updateAnimationTimers(-1);
 
     //we transfer the waiting animations into the "really running" state
     animationTimers += animationTimersToStart;
     animationTimersToStart.clear();
     if (!animationTimers.isEmpty()) {
-        localRestart();
         if (!time.isValid()) {
             lastTick = 0;
             time.start();
+            temporalDrift = 0;
+            driverStartTime = 0;
         }
+        localRestart();
     }
 }
 
@@ -372,7 +402,7 @@ void QUnifiedTimer::stopTimer()
 {
     stopTimerPending = false;
     if (animationTimers.isEmpty()) {
-        driver->stop();
+        stopAnimationDriver();
         pauseTimer.stop();
         // invalidate the start reference time
         time.invalidate();
@@ -482,14 +512,12 @@ void QUnifiedTimer::installAnimationDriver(QAnimationDriver *d)
         return;
     }
 
-    if (driver->isRunning()) {
-        driver->stop();
-        d->setStartTime(time.isValid() ? time.elapsed() : 0);
-        d->start();
-    }
-
+    bool running = driver->isRunning();
+    if (running)
+        stopAnimationDriver();
     driver = d;
-
+    if (running)
+        startAnimationDriver();
 }
 
 void QUnifiedTimer::uninstallAnimationDriver(QAnimationDriver *d)
@@ -499,13 +527,12 @@ void QUnifiedTimer::uninstallAnimationDriver(QAnimationDriver *d)
         return;
     }
 
+    bool running = driver->isRunning();
+    if (running)
+        stopAnimationDriver();
     driver = &defaultDriver;
-
-    if (d->isRunning()) {
-        d->stop();
-        driver->setStartTime(time.isValid() ? time.elapsed() : 0);
-        driver->start();
-    }
+    if (running)
+        startAnimationDriver();
 }
 
 /*!
@@ -602,10 +629,12 @@ void QAnimationTimer::restartAnimationTimer()
 
 void QAnimationTimer::startAnimations()
 {
+    if (!startAnimationPending)
+        return;
     startAnimationPending = false;
+
     //force timer to update, which prevents large deltas for our newly added animations
-    if (!animations.isEmpty())
-        QUnifiedTimer::instance()->maybeUpdateAnimationsToCurrentTime();
+    QUnifiedTimer::instance()->maybeUpdateAnimationsToCurrentTime();
 
     //we transfer the waiting animations into the "really running" state
     animations += animationsToStart;
@@ -617,7 +646,8 @@ void QAnimationTimer::startAnimations()
 void QAnimationTimer::stopTimer()
 {
     stopTimerPending = false;
-    if (animations.isEmpty()) {
+    bool pendingStart = startAnimationPending && animationsToStart.size() > 0;
+    if (animations.isEmpty() && !pendingStart) {
         QUnifiedTimer::resumeAnimationTimer(this);
         QUnifiedTimer::stopAnimationTimer(this);
         // invalidate the start reference time
@@ -748,20 +778,25 @@ QAnimationDriver::~QAnimationDriver()
     This is to take into account that pauses can occur in running
     animations which will stop the driver, but the time still
     increases.
+
+    \obsolete
+
+    This logic is now handled internally in the animation system.
  */
-void QAnimationDriver::setStartTime(qint64 startTime)
+void QAnimationDriver::setStartTime(qint64)
 {
-    Q_D(QAnimationDriver);
-    d->startTime = startTime;
 }
 
 /*!
     Returns the start time of the animation.
+
+    \obsolete
+
+    This logic is now handled internally in the animation system.
  */
 qint64 QAnimationDriver::startTime() const
 {
-    Q_D(const QAnimationDriver);
-    return d->startTime;
+    return 0;
 }
 
 
@@ -771,6 +806,10 @@ qint64 QAnimationDriver::startTime() const
 
     If \a timeStep is positive, it will be used as the current time in the
     calculations; otherwise, the current clock time will be used.
+
+    Since 5.4, the timeStep argument is ignored and elapsed() will be
+    used instead in combination with the internal time offsets of the
+    animation system.
  */
 
 void QAnimationDriver::advanceAnimation(qint64 timeStep)
@@ -830,6 +869,7 @@ void QAnimationDriver::start()
     Q_D(QAnimationDriver);
     if (!d->running) {
         d->running = true;
+        d->timer.start();
         emit started();
     }
 }
@@ -853,9 +893,8 @@ void QAnimationDriver::stop()
 
 qint64 QAnimationDriver::elapsed() const
 {
-    // The default implementation picks up the elapsed time from the
-    // unified timer and can ignore the time offset.
-    return QUnifiedTimer::instance()->time.elapsed();
+    Q_D(const QAnimationDriver);
+    return d->running ? d->timer.elapsed() : 0;
 }
 
 /*!

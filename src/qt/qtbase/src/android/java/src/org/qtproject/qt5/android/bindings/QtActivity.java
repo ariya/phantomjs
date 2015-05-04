@@ -69,6 +69,7 @@ import android.content.res.Resources.Theme;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -98,7 +99,7 @@ import android.view.ActionMode.Callback;
 public class QtActivity extends Activity
 {
     private final static int MINISTRO_INSTALL_REQUEST_CODE = 0xf3ee; // request code used to know when Ministro instalation is finished
-    private static final int MINISTRO_API_LEVEL = 4; // Ministro api level (check IMinistro.aidl file)
+    private static final int MINISTRO_API_LEVEL = 5; // Ministro api level (check IMinistro.aidl file)
     private static final int NECESSITAS_API_LEVEL = 2; // Necessitas api level used by platform plugin
     private static final int QT_VERSION = 0x050100; // This app requires at least Qt version 5.1.0
 
@@ -116,6 +117,7 @@ public class QtActivity extends Activity
     private static final String MAIN_LIBRARY_KEY = "main.library";
     private static final String STATIC_INIT_CLASSES_KEY = "static.init.classes";
     private static final String NECESSITAS_API_LEVEL_KEY = "necessitas.api.level";
+    private static final String EXTRACT_STYLE_KEY = "extract.android.style";
 
     /// Ministro server parameter keys
     private static final String REQUIRED_MODULES_KEY = "required.modules";
@@ -177,6 +179,7 @@ public class QtActivity extends Activity
                                                         // * unstable - unstable repository, DO NOT use this repository in production,
                                                         // this repository is used to push Qt snapshots.
     private String[] m_qtLibs = null; // required qt libs
+    private int m_displayDensity = -1;
 
     public QtActivity()
     {
@@ -184,7 +187,7 @@ public class QtActivity extends Activity
             QT_ANDROID_THEMES = new String[] {"Theme_Light"};
             QT_ANDROID_DEFAULT_THEME = "Theme_Light";
         }
-        else if (Build.VERSION.SDK_INT >= 11 && Build.VERSION.SDK_INT <= 13) {
+        else if ((Build.VERSION.SDK_INT >= 11 && Build.VERSION.SDK_INT <= 13) || Build.VERSION.SDK_INT == 21){
             QT_ANDROID_THEMES = new String[] {"Theme_Holo_Light"};
             QT_ANDROID_DEFAULT_THEME = "Theme_Holo_Light";
         } else {
@@ -629,6 +632,15 @@ public class QtActivity extends Activity
                                                 m_activityInfo.metaData.getString("android.app.static_init_classes").split(":"));
                 }
                 loaderParams.putStringArrayList(NATIVE_LIBRARIES_KEY, libraryList);
+
+
+                String themePath = getApplicationInfo().dataDir + "/qt-reserved-files/android-style/";
+                String stylePath = themePath + m_displayDensity + "/";
+                if (!(new File(stylePath)).exists())
+                    loaderParams.putString(EXTRACT_STYLE_KEY, stylePath);
+                ENVIRONMENT_VARIABLES += "\tMINISTRO_ANDROID_STYLE_PATH=" + stylePath
+                                       + "\tQT_ANDROID_THEMES_ROOT_PATH=" + themePath;
+
                 loaderParams.putString(ENVIRONMENT_VARIABLES_KEY, ENVIRONMENT_VARIABLES
                                                                   + "\tQML2_IMPORT_PATH=" + pluginsPrefix + "/qml"
                                                                   + "\tQML_IMPORT_PATH=" + pluginsPrefix + "/imports"
@@ -867,13 +879,24 @@ public class QtActivity extends Activity
             return;
         }
 
+        m_displayDensity = getResources().getDisplayMetrics().densityDpi;
+
         ENVIRONMENT_VARIABLES += "\tQT_ANDROID_THEME=" + QT_ANDROID_DEFAULT_THEME
-                              + "/\tQT_ANDROID_THEME_DISPLAY_DPI=" + getResources().getDisplayMetrics().densityDpi + "\t";
+                              + "/\tQT_ANDROID_THEME_DISPLAY_DPI=" + m_displayDensity + "\t";
 
         if (null == getLastNonConfigurationInstance()) {
             // if splash screen is defined, then show it
             if (m_activityInfo.metaData.containsKey("android.app.splash_screen_drawable"))
                 getWindow().setBackgroundDrawableResource(m_activityInfo.metaData.getInt("android.app.splash_screen_drawable"));
+            else
+                getWindow().setBackgroundDrawable(new ColorDrawable(0xff000000));
+
+            if (m_activityInfo.metaData.containsKey("android.app.background_running")
+                && m_activityInfo.metaData.getBoolean("android.app.background_running")) {
+                ENVIRONMENT_VARIABLES += "QT_BLOCK_EVENT_LOOPS_WHEN_SUSPENDED=0\t";
+            } else {
+                ENVIRONMENT_VARIABLES += "QT_BLOCK_EVENT_LOOPS_WHEN_SUSPENDED=1\t";
+            }
             startApp(true);
         }
     }

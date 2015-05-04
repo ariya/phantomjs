@@ -9,7 +9,8 @@
 #ifndef LIBEGL_MAIN_H_
 #define LIBEGL_MAIN_H_
 
-#define EGLAPI
+#include "libEGL/Error.h"
+
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
@@ -24,7 +25,7 @@ struct Current
     EGLSurface readSurface;
 };
 
-void setCurrentError(EGLint error);
+void recordError(const Error &error);
 EGLint getCurrentError();
 
 void setCurrentAPI(EGLenum API);
@@ -38,24 +39,6 @@ EGLSurface getCurrentDrawSurface();
 
 void setCurrentReadSurface(EGLSurface surface);
 EGLSurface getCurrentReadSurface();
-
-void error(EGLint errorCode);
-
-template<class T>
-const T &error(EGLint errorCode, const T &returnValue)
-{
-    error(errorCode);
-
-    return returnValue;
-}
-
-template<class T>
-const T &success(const T &returnValue)
-{
-    egl::setCurrentError(EGL_SUCCESS);
-
-    return returnValue;
-}
 
 }
 

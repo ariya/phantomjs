@@ -1,0 +1,45 @@
+Index: pcre_compile.c
+===================================================================
+--- pcre_compile.c	(revision 1497)
++++ pcre_compile.c	(revision 1498)
+@@ -2374,6 +2374,7 @@
+   if (c == OP_RECURSE)
+     {
+     const pcre_uchar *scode = cd->start_code + GET(code, 1);
++    const pcre_uchar *endgroup = scode;
+     BOOL empty_branch;
+ 
+     /* Test for forward reference or uncompleted reference. This is disabled
+@@ -2388,24 +2389,20 @@
+       if (GET(scode, 1) == 0) return TRUE;    /* Unclosed */
+       }
+ 
+-    /* If we are scanning a completed pattern, there are no forward references
+-    and all groups are complete. We need to detect whether this is a recursive
+-    call, as otherwise there will be an infinite loop. If it is a recursion,
+-    just skip over it. Simple recursions are easily detected. For mutual
+-    recursions we keep a chain on the stack. */
++    /* If the reference is to a completed group, we need to detect whether this
++    is a recursive call, as otherwise there will be an infinite loop. If it is
++    a recursion, just skip over it. Simple recursions are easily detected. For
++    mutual recursions we keep a chain on the stack. */
+ 
++    do endgroup += GET(endgroup, 1); while (*endgroup == OP_ALT);
++    if (code >= scode && code <= endgroup) continue;  /* Simple recursion */
+     else
+-      {
++      {  
+       recurse_check *r = recurses;
+-      const pcre_uchar *endgroup = scode;
+-
+-      do endgroup += GET(endgroup, 1); while (*endgroup == OP_ALT);
+-      if (code >= scode && code <= endgroup) continue;  /* Simple recursion */
+-
+       for (r = recurses; r != NULL; r = r->prev)
+         if (r->group == scode) break;
+       if (r != NULL) continue;   /* Mutual recursion */
+-      }
++      } 
+ 
+     /* Completed reference; scan the referenced group, remembering it on the
+     stack chain to detect mutual recursions. */

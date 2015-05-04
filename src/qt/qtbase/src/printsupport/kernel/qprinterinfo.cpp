@@ -353,6 +353,33 @@ QList<int> QPrinterInfo::supportedResolutions() const
 }
 
 /*!
+    Returns the default duplex mode of this printer.
+
+    \since 5.4
+*/
+
+QPrinter::DuplexMode QPrinterInfo::defaultDuplexMode() const
+{
+    Q_D(const QPrinterInfo);
+    return QPrinter::DuplexMode(d->m_printDevice.defaultDuplexMode());
+}
+
+/*!
+    Returns a list of duplex modes supported by this printer.
+
+    \since 5.4
+*/
+
+QList<QPrinter::DuplexMode> QPrinterInfo::supportedDuplexModes() const
+{
+    Q_D(const QPrinterInfo);
+    QList<QPrinter::DuplexMode> list;
+    foreach (QPrint::DuplexMode mode, d->m_printDevice.supportedDuplexModes())
+        list << QPrinter::DuplexMode(mode);
+    return list;
+}
+
+/*!
     Returns a list of all the available Printer Names on this system.
 
     It is recommended to use this instead of availablePrinters() as

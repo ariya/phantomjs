@@ -61,6 +61,7 @@ SOURCES += \
            ../../corelib/io/qabstractfileengine.cpp \
            ../../corelib/io/qbuffer.cpp \
            ../../corelib/io/qdatastream.cpp \
+           ../../corelib/io/qdebug.cpp \
            ../../corelib/io/qdir.cpp \
            ../../corelib/io/qdiriterator.cpp \
            ../../corelib/io/qfile.cpp \
@@ -131,12 +132,13 @@ win32:SOURCES += ../../corelib/io/qfilesystemengine_win.cpp \
 mac {
    SOURCES += ../../corelib/kernel/qcoreapplication_mac.cpp \
               ../../corelib/kernel/qcore_mac.cpp
-   LIBS += -framework CoreServices
+   LIBS += -framework CoreServices -framework Foundation
 }
 
 macx {
-    SOURCES += \
-        ../../corelib/io/qstandardpaths_mac.cpp
+    OBJECTIVE_SOURCES += \
+        ../../corelib/tools/qstring_mac.mm \
+        ../../corelib/io/qstandardpaths_mac.mm
 } else:unix {
     SOURCES += \
         ../../corelib/io/qstandardpaths_unix.cpp
@@ -144,8 +146,6 @@ macx {
     SOURCES += \
         ../../corelib/io/qstandardpaths_win.cpp
 }
-
-*-g++*: QMAKE_CXXFLAGS += -ffunction-sections
 
 if(contains(QT_CONFIG, zlib)|cross_compile):include(../../3rdparty/zlib.pri)
 else:include(../../3rdparty/zlib_dependency.pri)

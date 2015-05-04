@@ -301,7 +301,7 @@
           pass a QPainterPath to mapToScene(), and then pass the mapped path
           to QGraphicsScene::items().
 
-          You can map coordinates and shapes to and from and item's scene by
+          You can map coordinates and shapes to and from an item's scene by
           calling QGraphicsItem::mapToScene() and
           QGraphicsItem::mapFromScene(). You can also map to an item's parent
           item by calling QGraphicsItem::mapToParent() and

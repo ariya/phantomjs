@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -73,7 +65,7 @@
 #include <X11/Xlibint.h>
 #endif
 
-#if defined(XCB_USE_XINPUT2) || defined(XCB_USE_XINPUT2_MAEMO)
+#if defined(XCB_USE_XINPUT2)
 #include <X11/extensions/XInput2.h>
 #include <X11/extensions/XI2proto.h>
 #endif
@@ -91,6 +83,9 @@
 #endif
 
 QT_BEGIN_NAMESPACE
+
+Q_LOGGING_CATEGORY(lcQpaXInput, "qt.qpa.input")
+Q_LOGGING_CATEGORY(lcQpaXInputDevices, "qt.qpa.input.devices")
 
 #ifdef XCB_USE_XLIB
 static const char * const xcbConnectionErrors[] = {
@@ -124,6 +119,39 @@ static int ioErrorHandler(Display *dpy)
     }
     return _XDefaultIOError(dpy);
 }
+#endif
+
+#if defined(XCB_HAS_XCB_GLX) && XCB_GLX_MAJOR_VERSION == 1 && XCB_GLX_MINOR_VERSION < 4
+
+#define XCB_GLX_BUFFER_SWAP_COMPLETE 1
+
+typedef struct xcb_glx_buffer_swap_complete_event_t {
+    uint8_t            response_type;
+    uint8_t            pad0;
+    uint16_t           sequence;
+    uint16_t           event_type;
+    uint8_t            pad1[2];
+    xcb_glx_drawable_t drawable;
+    uint32_t           ust_hi;
+    uint32_t           ust_lo;
+    uint32_t           msc_hi;
+    uint32_t           msc_lo;
+    uint32_t           sbc;
+} xcb_glx_buffer_swap_complete_event_t;
+#endif
+
+#if defined(XCB_USE_XLIB) && defined(XCB_USE_GLX)
+typedef struct {
+    int type;
+    unsigned long serial;       /* # of last request processed by server */
+    Bool send_event;            /* true if this came from a SendEvent request */
+    Display *display;           /* Display the event was read from */
+    Drawable drawable;  /* drawable on which event was requested in event mask */
+    int event_type;
+    int64_t ust;
+    int64_t msc;
+    int64_t sbc;
+} QGLXBufferSwapComplete;
 #endif
 
 QXcbScreen* QXcbConnection::findOrCreateScreen(QList<QXcbScreen *>& newScreens,
@@ -216,7 +244,7 @@ void QXcbConnection::updateScreens()
                         // the first or an exact match.  An exact match isn't
                         // always available if primary->output is XCB_NONE
                         // or currently disconnected output.
-                        if (m_primaryScreen == xcbScreenNumber) {
+                        if (m_primaryScreenNumber == xcbScreenNumber) {
                             if (!primaryScreen || (primary && outputs[i] == primary->output)) {
                                 primaryScreen = screen;
                                 siblings.prepend(siblings.takeLast());
@@ -278,23 +306,19 @@ void QXcbConnection::updateScreens()
 QXcbConnection::QXcbConnection(QXcbNativeInterface *nativeInterface, bool canGrabServer, const char *displayName)
     : m_connection(0)
     , m_canGrabServer(canGrabServer)
-    , m_primaryScreen(0)
+    , m_primaryScreenNumber(0)
     , m_displayName(displayName ? QByteArray(displayName) : qgetenv("DISPLAY"))
     , m_nativeInterface(nativeInterface)
-#ifdef XCB_USE_XINPUT2_MAEMO
-    , m_xinputData(0)
-#endif
     , xfixes_first_event(0)
     , xrandr_first_event(0)
     , xkb_first_event(0)
+    , glx_first_event(0)
     , has_glx_extension(false)
     , has_shape_extension(false)
     , has_randr_extension(false)
     , has_input_shape(false)
     , has_touch_without_mouse_emulation(false)
     , has_xkb(false)
-    , debug_xinput_devices(false)
-    , debug_xinput(false)
     , m_buttons(0)
     , m_focusWindow(0)
     , m_systemTrayTracker(0)
@@ -307,7 +331,7 @@ QXcbConnection::QXcbConnection(QXcbNativeInterface *nativeInterface, bool canGra
 #ifdef XCB_USE_XLIB
     dpy = XOpenDisplay(m_displayName.constData());
     if (dpy) {
-        m_primaryScreen = DefaultScreen(dpy);
+        m_primaryScreenNumber = DefaultScreen(dpy);
         m_connection = XGetXCBConnection(dpy);
         XSetEventQueueOwner(dpy, XCBOwnsEventQueue);
         XSetErrorHandler(nullErrorHandler);
@@ -315,7 +339,7 @@ QXcbConnection::QXcbConnection(QXcbNativeInterface *nativeInterface, bool canGra
         m_xlib_display = dpy;
     }
 #else
-    m_connection = xcb_connect(m_displayName.constData(), &m_primaryScreen);
+    m_connection = xcb_connect(m_displayName.constData(), &m_primaryScreenNumber);
 #endif //XCB_USE_XLIB
 
     if (!m_connection || xcb_connection_has_error(m_connection))
@@ -362,9 +386,7 @@ QXcbConnection::QXcbConnection(QXcbNativeInterface *nativeInterface, bool canGra
     initializeXFixes();
     initializeXRender();
     m_xi2Enabled = false;
-#ifdef XCB_USE_XINPUT2_MAEMO
-    initializeXInput2Maemo();
-#elif defined(XCB_USE_XINPUT2)
+#if defined(XCB_USE_XINPUT2)
     initializeXInput2();
 #endif
     initializeXShape();
@@ -384,6 +406,9 @@ QXcbConnection::QXcbConnection(QXcbNativeInterface *nativeInterface, bool canGra
         qunsetenv("DESKTOP_STARTUP_ID");
 
     sync();
+
+    if (qEnvironmentVariableIsEmpty("QT_IM_MODULE"))
+        qputenv("QT_IM_MODULE", QByteArray("compose"));
 }
 
 QXcbConnection::~QXcbConnection()
@@ -395,9 +420,7 @@ QXcbConnection::~QXcbConnection()
     delete m_drag;
 #endif
 
-#ifdef XCB_USE_XINPUT2_MAEMO
-    finalizeXInput2Maemo();
-#elif defined(XCB_USE_XINPUT2)
+#if defined(XCB_USE_XINPUT2)
     finalizeXInput2();
 #endif
 
@@ -424,6 +447,16 @@ QXcbConnection::~QXcbConnection()
 #endif
 
     delete m_keyboard;
+}
+
+QXcbScreen *QXcbConnection::primaryScreen() const
+{
+    if (!m_screens.isEmpty()) {
+        Q_ASSERT(m_screens.first()->screenNumber() == primaryScreenNumber());
+        return m_screens.first();
+    }
+
+    return Q_NULLPTR;
 }
 
 void QXcbConnection::addWindowEventListener(xcb_window_t id, QXcbWindowEventListener *eventListener)
@@ -466,7 +499,7 @@ break;
     if (QXcbWindowEventListener *eventListener = windowEventListenerFromId(e->event)) { \
         handled = eventListener->handleGenericEvent(event, &result); \
         if (!handled) \
-            m_keyboard->handler(m_focusWindow ? m_focusWindow : eventListener, e); \
+            m_keyboard->handler(e); \
     } \
 } \
 break;
@@ -771,8 +804,7 @@ void QXcbConnection::handleButtonPress(xcb_generic_event_t *ev)
     // the rest we need to manage ourselves
     m_buttons = (m_buttons & ~0x7) | translateMouseButtons(event->state);
     m_buttons |= translateMouseButton(event->detail);
-    if (Q_UNLIKELY(debug_xinput))
-        qDebug("xcb: pressed mouse button %d, button state %X", event->detail, static_cast<unsigned int>(m_buttons));
+    qCDebug(lcQpaXInput, "xcb: pressed mouse button %d, button state %X", event->detail, static_cast<unsigned int>(m_buttons));
 }
 
 void QXcbConnection::handleButtonRelease(xcb_generic_event_t *ev)
@@ -783,8 +815,7 @@ void QXcbConnection::handleButtonRelease(xcb_generic_event_t *ev)
     // the rest we need to manage ourselves
     m_buttons = (m_buttons & ~0x7) | translateMouseButtons(event->state);
     m_buttons &= ~translateMouseButton(event->detail);
-    if (Q_UNLIKELY(debug_xinput))
-        qDebug("xcb: released mouse button %d, button state %X", event->detail, static_cast<unsigned int>(m_buttons));
+    qCDebug(lcQpaXInput, "xcb: released mouse button %d, button state %X", event->detail, static_cast<unsigned int>(m_buttons));
 }
 
 #ifndef QT_NO_XKB
@@ -837,7 +868,7 @@ void QXcbConnection::handleXcbEvent(xcb_generic_event_t *event)
             handleButtonRelease(event);
             HANDLE_PLATFORM_WINDOW_EVENT(xcb_button_release_event_t, event, handleButtonReleaseEvent);
         case XCB_MOTION_NOTIFY:
-            if (Q_UNLIKELY(debug_xinput)) {
+            if (Q_UNLIKELY(lcQpaXInput().isDebugEnabled())) {
                 xcb_motion_notify_event_t *mev = (xcb_motion_notify_event_t *)event;
                 qDebug("xcb: moved mouse to %4d, %4d; button state %X", mev->event_x, mev->event_y, static_cast<unsigned int>(m_buttons));
             }
@@ -901,11 +932,7 @@ void QXcbConnection::handleXcbEvent(xcb_generic_event_t *event)
         case XCB_PROPERTY_NOTIFY:
             HANDLE_PLATFORM_WINDOW_EVENT(xcb_property_notify_event_t, window, handlePropertyNotifyEvent);
             break;
-#ifdef XCB_USE_XINPUT2_MAEMO
-        case GenericEvent:
-            handleGenericEventMaemo((xcb_ge_event_t*)event);
-            break;
-#elif defined(XCB_USE_XINPUT2)
+#if defined(XCB_USE_XINPUT2)
         case GenericEvent:
             if (m_xi2Enabled)
                 xi2HandleEvent(reinterpret_cast<xcb_ge_event_t *>(event));
@@ -969,14 +996,43 @@ void QXcbConnection::handleXcbEvent(xcb_generic_event_t *event)
         // XESetWireToEvent might be used by libraries to intercept messages from the X server e.g. the OpenGL lib waiting for DRI2 events.
         Display *xdisplay = (Display *)m_xlib_display;
         XLockDisplay(xdisplay);
+        bool locked = true;
         Bool (*proc)(Display*, XEvent*, xEvent*) = XESetWireToEvent(xdisplay, response_type, 0);
         if (proc) {
             XESetWireToEvent(xdisplay, response_type, proc);
             XEvent dummy;
             event->sequence = LastKnownRequestProcessed(m_xlib_display);
-            proc(xdisplay, &dummy, (xEvent*)event);
+            if (proc(xdisplay, &dummy, (xEvent*)event)) {
+#if defined(XCB_USE_GLX) && defined(XCB_HAS_XCB_GLX)
+                // DRI2 clients don't receive GLXBufferSwapComplete events on the wire.
+                // Instead the GLX event is synthesized from the DRI2BufferSwapComplete event
+                // by DRI2WireToEvent(). For an application to be able to see the event
+                // we have to convert it to an xcb_glx_buffer_swap_complete_event_t and
+                // pass it to the native event filter.
+                const uint swap_complete = glx_first_event + XCB_GLX_BUFFER_SWAP_COMPLETE;
+                if (dispatcher && has_glx_extension && uint(dummy.type) == swap_complete && response_type != swap_complete) {
+                    QGLXBufferSwapComplete *xev = reinterpret_cast<QGLXBufferSwapComplete *>(&dummy);
+                    xcb_glx_buffer_swap_complete_event_t ev;
+                    memset(&ev, 0, sizeof(xcb_glx_buffer_swap_complete_event_t));
+                    ev.response_type = xev->type;
+                    ev.sequence = xev->serial;
+                    ev.event_type = xev->event_type;
+                    ev.drawable = xev->drawable;
+                    ev.ust_hi = xev->ust >> 32;
+                    ev.ust_lo = xev->ust & 0xffffffff;
+                    ev.msc_hi = xev->msc >> 32;
+                    ev.msc_lo = xev->msc & 0xffffffff;
+                    ev.sbc = xev->sbc & 0xffffffff;
+                    // Unlock the display before calling the native event filter
+                    XUnlockDisplay(xdisplay);
+                    locked = false;
+                    handled = dispatcher->filterNativeEvent(m_nativeInterface->genericEventFilterType(), &ev, &result);
+                }
+#endif
+            }
         }
-        XUnlockDisplay(xdisplay);
+        if (locked)
+            XUnlockDisplay(xdisplay);
     }
 #endif
 
@@ -1026,6 +1082,15 @@ void QXcbEventReader::registerForEvents()
     QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
     connect(dispatcher, SIGNAL(aboutToBlock()), m_connection, SLOT(processXcbEvents()));
     connect(dispatcher, SIGNAL(awake()), m_connection, SLOT(processXcbEvents()));
+}
+
+void QXcbEventReader::registerEventDispatcher(QAbstractEventDispatcher *dispatcher)
+{
+    // flush the xcb connection before the EventDispatcher is going to block
+    // In the non-threaded case processXcbEvents is called before going to block,
+    // which flushes the connection.
+    if (m_xcb_poll_for_queued_event)
+        connect(dispatcher, SIGNAL(aboutToBlock()), m_connection, SLOT(flush()));
 }
 
 void QXcbEventReader::run()
@@ -1164,7 +1229,7 @@ xcb_timestamp_t QXcbConnection::getTimestamp()
 
 xcb_window_t QXcbConnection::rootWindow()
 {
-    return screens().at(primaryScreen())->root();
+    return primaryScreen()->root();
 }
 
 void QXcbConnection::processXcbEvents()
@@ -1471,9 +1536,6 @@ static const char * xcb_atomnames = {
     "Rel Vert Wheel\0"
     "Rel Horiz Scroll\0"
     "Rel Vert Scroll\0"
-#if XCB_USE_MAEMO_WINDOW_PROPERTIES
-    "_MEEGOTOUCH_ORIENTATION_ANGLE\0"
-#endif
     "_XSETTINGS_SETTINGS\0"
     "_COMPIZ_DECOR_PENDING\0"
     "_COMPIZ_DECOR_REQUEST\0"
@@ -1620,6 +1682,7 @@ void QXcbConnection::initializeGLX()
         return;
 
     has_glx_extension = true;
+    glx_first_event = reply->first_event;
 
     xcb_generic_error_t *error = 0;
     xcb_glx_query_version_cookie_t xglx_query_cookie = xcb_glx_query_version(m_connection,
@@ -1755,7 +1818,7 @@ bool QXcbConnection::hasEgl() const
 }
 #endif // defined(XCB_USE_EGL)
 
-#if defined(XCB_USE_XINPUT2) || defined(XCB_USE_XINPUT2_MAEMO)
+#if defined(XCB_USE_XINPUT2)
 static int xi2ValuatorOffset(unsigned char *maskPtr, int maskLen, int number)
 {
     int offset = 0;
@@ -1820,7 +1883,7 @@ bool QXcbConnection::xi2PrepareXIGenericDeviceEvent(xcb_ge_event_t *ev, int opCo
     }
     return false;
 }
-#endif // defined(XCB_USE_XINPUT2) || defined(XCB_USE_XINPUT2_MAEMO)
+#endif // defined(XCB_USE_XINPUT2)
 
 QXcbSystemTrayTracker *QXcbConnection::systemTrayTracker()
 {
@@ -1831,6 +1894,28 @@ QXcbSystemTrayTracker *QXcbConnection::systemTrayTracker()
         }
     }
     return m_systemTrayTracker;
+}
+
+bool QXcbConnection::event(QEvent *e)
+{
+    if (e->type() == QEvent::User + 1) {
+        QXcbSyncWindowRequest *ev = static_cast<QXcbSyncWindowRequest *>(e);
+        QXcbWindow *w = ev->window();
+        if (w) {
+            w->updateSyncRequestCounter();
+            ev->invalidate();
+        }
+        return true;
+    }
+    return QObject::event(e);
+}
+
+void QXcbSyncWindowRequest::invalidate()
+{
+    if (m_window) {
+        m_window->clearSyncWindowRequest();
+        m_window = 0;
+    }
 }
 
 QXcbConnectionGrabber::QXcbConnectionGrabber(QXcbConnection *connection)

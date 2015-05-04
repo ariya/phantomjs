@@ -1864,3 +1864,8 @@ QTabBar::close-button:hover {
 }
 
 //! [159]
+
+//! [160]
+* { lineedit-password-mask-delay: 1000 }
+//! [160]
+

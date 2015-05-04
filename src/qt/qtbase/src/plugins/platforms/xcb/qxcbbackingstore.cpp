@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -153,8 +145,6 @@ void QXcbShmImage::destroy()
     if (segmentSize && m_shm_info.shmaddr)
         Q_XCB_CALL(xcb_shm_detach(xcb_connection(), m_shm_info.shmseg));
 
-    xcb_image_destroy(m_xcb_image);
-
     if (segmentSize) {
         if (m_shm_info.shmaddr) {
             shmdt(m_shm_info.shmaddr);
@@ -163,6 +153,8 @@ void QXcbShmImage::destroy()
             free(m_xcb_image->data);
         }
     }
+
+    xcb_image_destroy(m_xcb_image);
 
     if (m_gc)
         Q_XCB_CALL(xcb_free_gc(xcb_connection(), m_gc));
@@ -261,7 +253,6 @@ void QXcbShmImage::preparePaint(const QRegion &region)
 QXcbBackingStore::QXcbBackingStore(QWindow *window)
     : QPlatformBackingStore(window)
     , m_image(0)
-    , m_syncingResize(false)
 {
     QXcbScreen *screen = static_cast<QXcbScreen *>(window->screen()->handle());
     setConnection(screen->connection());
@@ -281,13 +272,14 @@ void QXcbBackingStore::beginPaint(const QRegion &region)
 {
     if (!m_image)
         return;
-
-    m_image->preparePaint(region);
+    const int dpr = int(m_image->image()->devicePixelRatio());
+    QRegion xRegion =  dpr == 1 ? region : QTransform::fromScale(dpr,dpr).map(region);
+    m_image->preparePaint(xRegion);
 
     if (m_image->image()->hasAlphaChannel()) {
         QPainter p(m_image->image());
         p.setCompositionMode(QPainter::CompositionMode_Source);
-        const QVector<QRect> rects = region.rects();
+        const QVector<QRect> rects = xRegion.rects();
         const QColor blank = Qt::transparent;
         for (QVector<QRect>::const_iterator it = rects.begin(); it != rects.end(); ++it) {
             p.fillRect(*it, blank);
@@ -324,33 +316,33 @@ void QXcbBackingStore::flush(QWindow *window, const QRegion &region, const QPoin
         return;
     }
 
+    const int dpr = int(window->devicePixelRatio());
+
     QVector<QRect> rects = clipped.rects();
-    for (int i = 0; i < rects.size(); ++i)
-        m_image->put(platformWindow->xcb_window(), rects.at(i).topLeft(), rects.at(i).translated(offset));
+    for (int i = 0; i < rects.size(); ++i) {
+        QRect rect = QRect(rects.at(i).topLeft() * dpr, rects.at(i).size() * dpr);
+        m_image->put(platformWindow->xcb_window(), rect.topLeft(), rect.translated(offset * dpr));
+    }
 
     Q_XCB_NOOP(connection());
 
-    if (m_syncingResize) {
-        connection()->sync();
-        m_syncingResize = false;
+    if (platformWindow->needsSync())
         platformWindow->updateSyncRequestCounter();
-    } else {
+    else
         xcb_flush(xcb_connection());
-    }
 }
 
 #ifndef QT_NO_OPENGL
 void QXcbBackingStore::composeAndFlush(QWindow *window, const QRegion &region, const QPoint &offset,
-                                       QPlatformTextureList *textures, QOpenGLContext *context)
+                                       QPlatformTextureList *textures, QOpenGLContext *context,
+                                       bool translucentBackground)
 {
-    QPlatformBackingStore::composeAndFlush(window, region, offset, textures, context);
+    QPlatformBackingStore::composeAndFlush(window, region, offset, textures, context, translucentBackground);
 
     Q_XCB_NOOP(connection());
 
-    if (m_syncingResize) {
-        QXcbWindow *platformWindow = static_cast<QXcbWindow *>(window->handle());
-        connection()->sync();
-        m_syncingResize = false;
+    QXcbWindow *platformWindow = static_cast<QXcbWindow *>(window->handle());
+    if (platformWindow->needsSync()) {
         platformWindow->updateSyncRequestCounter();
     } else {
         xcb_flush(xcb_connection());
@@ -360,9 +352,11 @@ void QXcbBackingStore::composeAndFlush(QWindow *window, const QRegion &region, c
 
 void QXcbBackingStore::resize(const QSize &size, const QRegion &)
 {
-    if (m_image && size == m_image->size())
-        return;
+    const int dpr = int(window()->devicePixelRatio());
+    const QSize xSize = size * dpr;
 
+    if (m_image && xSize == m_image->size())
+        return;
     Q_XCB_NOOP(connection());
 
     QXcbScreen *screen = static_cast<QXcbScreen *>(window()->screen()->handle());
@@ -374,10 +368,9 @@ void QXcbBackingStore::resize(const QSize &size, const QRegion &)
     QXcbWindow* win = static_cast<QXcbWindow *>(pw);
 
     delete m_image;
-    m_image = new QXcbShmImage(screen, size, win->depth(), win->imageFormat());
+    m_image = new QXcbShmImage(screen, xSize, win->depth(), win->imageFormat());
+    m_image->image()->setDevicePixelRatio(dpr);
     Q_XCB_NOOP(connection());
-
-    m_syncingResize = true;
 }
 
 extern void qt_scrollRectInImage(QImage &img, const QRect &rect, const QPoint &offset);
@@ -387,12 +380,14 @@ bool QXcbBackingStore::scroll(const QRegion &area, int dx, int dy)
     if (!m_image || m_image->image()->isNull())
         return false;
 
+    const int dpr = int(m_image->image()->devicePixelRatio());
+    QRegion xArea = dpr == 1 ? area : QTransform::fromScale(dpr,dpr).map(area);
     m_image->preparePaint(area);
 
-    const QVector<QRect> rects = area.rects();
-    for (int i = 0; i < rects.size(); ++i)
-        qt_scrollRectInImage(*m_image->image(), rects.at(i), QPoint(dx, dy));
-
+    QPoint delta(dx * dpr, dy * dpr);
+    const QVector<QRect> xRects = xArea.rects();
+    for (int i = 0; i < xRects.size(); ++i)
+        qt_scrollRectInImage(*m_image->image(), xRects.at(i), delta);
     return true;
 }
 

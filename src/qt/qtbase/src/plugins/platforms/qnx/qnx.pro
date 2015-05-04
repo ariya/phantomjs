@@ -121,17 +121,21 @@ CONFIG(blackberry-playbook) {
 CONFIG(qqnx_pps) {
     DEFINES += QQNX_PPS
 
-    SOURCES += qqnxnavigatorpps.cpp \
-               qqnxnavigatoreventnotifier.cpp \
-               qqnxvirtualkeyboardpps.cpp \
-               qqnxclipboard.cpp \
+    SOURCES += qqnxclipboard.cpp \
                qqnxbuttoneventnotifier.cpp
 
-    HEADERS += qqnxnavigatorpps.h \
-               qqnxnavigatoreventnotifier.h \
-               qqnxvirtualkeyboardpps.h \
-               qqnxclipboard.h \
+    HEADERS += qqnxclipboard.h \
                qqnxbuttoneventnotifier.h
+
+    !blackberry {
+        SOURCES += qqnxnavigatorpps.cpp \
+                   qqnxnavigatoreventnotifier.cpp \
+                   qqnxvirtualkeyboardpps.cpp
+
+        HEADERS += qqnxnavigatorpps.h \
+                   qqnxnavigatoreventnotifier.h \
+                   qqnxvirtualkeyboardpps.h
+    }
 
     LIBS += -lpps
     !contains(DEFINES, QT_NO_CLIPBOARD): LIBS += -lclipboard

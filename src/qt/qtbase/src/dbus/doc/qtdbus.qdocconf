@@ -13,7 +13,8 @@ exampledirs += ../../../examples/dbus \
                snippets
 
 headerdirs += ..
-imagedirs += images
+imagedirs += images \
+             ../../../examples/dbus/doc/images
 sourcedirs += .. \
               ../../../examples/dbus/doc/src
 excludedirs += ../../../examples/widgets/doc
@@ -44,11 +45,18 @@ qhp.QtDBus.indexTitle = Qt D-Bus
 
 # Only update the name of the project for the next variables.
 qhp.QtDBus.virtualFolder  = qtdbus
-qhp.QtDBus.subprojects = classes
+qhp.QtDBus.subprojects = classes examples
 qhp.QtDBus.subprojects.classes.title = C++ Classes
 qhp.QtDBus.subprojects.classes.indexTitle = Qt D-Bus C++ Classes
 qhp.QtDBus.subprojects.classes.selectors = class fake:headerfile
 qhp.QtDBus.subprojects.classes.sortPages = true
+qhp.QtDBus.subprojects.examples.title = Examples
+qhp.QtDBus.subprojects.examples.indexTitle = Qt D-Bus Examples
+qhp.QtDBus.subprojects.examples.selectors = fake:example
 
 navigation.landingpage = "Qt D-Bus"
 navigation.cppclassespage = "Qt D-Bus C++ Classes"
+
+manifestmeta.thumbnail.names    =   "QtDBus/D-Bus List Names Example" \
+                                    "QtDBus/D-Bus Ping Pong Example" \
+                                    "QtDBus/D-Bus Complex Ping Pong Example" \

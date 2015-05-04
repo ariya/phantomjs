@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -51,11 +43,15 @@
 
 #include "qxcbobject.h"
 
+#include <QtPlatformHeaders/qxcbwindowfunctions.h>
+
 QT_BEGIN_NAMESPACE
 
 class QXcbScreen;
 class QXcbEGLSurface;
+class QXcbSyncWindowRequest;
 class QIcon;
+
 class QXcbWindow : public QXcbObject, public QXcbWindowEventListener, public QPlatformWindow
 {
 public:
@@ -97,10 +93,6 @@ public:
     void propagateSizeHints();
 
     void requestActivateWindow();
-
-#if XCB_USE_MAEMO_WINDOW_PROPERTIES
-    void handleContentOrientationChange(Qt::ScreenOrientation orientation);
-#endif
 
     bool setKeyboardGrabEnabled(bool grab);
     bool setMouseGrabEnabled(bool grab);
@@ -144,12 +136,28 @@ public:
 
     void handleMouseEvent(xcb_timestamp_t time, const QPoint &local, const QPoint &global, Qt::KeyboardModifiers modifiers);
 
-    void updateSyncRequestCounter();
     void updateNetWmUserTime(xcb_timestamp_t timestamp);
 
 #if defined(XCB_USE_EGL)
     QXcbEGLSurface *eglSurface() const;
 #endif
+
+    static void setWmWindowTypeStatic(QWindow *window, QXcbWindowFunctions::WmWindowTypes windowTypes);
+
+    QXcbWindowFunctions::WmWindowTypes wmWindowTypes() const;
+    void setWmWindowType(QXcbWindowFunctions::WmWindowTypes types);
+
+    bool needsSync() const;
+
+    void postSyncWindowRequest();
+    void clearSyncWindowRequest() { m_pendingSyncRequest = 0; }
+
+    qreal devicePixelRatio() const;
+
+    QPlatformScreen *screenForNativeGeometry(const QRect &newGeometry) const;
+
+public Q_SLOTS:
+    void updateSyncRequestCounter();
 
 private:
     void changeNetWmState(bool set, xcb_atom_t one, xcb_atom_t two = 0);
@@ -175,6 +183,10 @@ private:
 
     void show();
     void hide();
+
+    bool relayFocusToModalWindow() const;
+    void doFocusIn();
+    void doFocusOut();
 
     QXcbScreen *m_screen;
 
@@ -213,8 +225,19 @@ private:
 
     xcb_visualid_t m_visualId;
     int m_lastWindowStateEvent;
+
+    enum SyncState {
+        NoSyncNeeded,
+        SyncReceived,
+        SyncAndConfigureReceived
+    };
+    SyncState m_syncState;
+
+    QXcbSyncWindowRequest *m_pendingSyncRequest;
 };
 
 QT_END_NAMESPACE
+
+Q_DECLARE_METATYPE(QXcbWindow*)
 
 #endif

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -156,6 +148,24 @@ public:
 
     // QList compatibility
     void removeAt(int i) { remove(i); }
+    int removeAll(const T &t)
+    {
+        const const_iterator ce = this->cend(), cit = std::find(this->cbegin(), ce, t);
+        if (cit == ce)
+            return 0;
+        const iterator e = end(), it = std::remove(c2m(cit), e, t);
+        const int result = std::distance(it, e);
+        erase(it, e);
+        return result;
+    }
+    bool removeOne(const T &t)
+    {
+        const int i = indexOf(t);
+        if (i < 0)
+            return false;
+        remove(i);
+        return true;
+    }
     int length() const { return size(); }
     T takeAt(int i) { T t = at(i); remove(i); return t; }
 
@@ -238,7 +248,7 @@ public:
     static inline QVector<T> fromStdVector(const std::vector<T> &vector)
     { QVector<T> tmp; tmp.reserve(int(vector.size())); std::copy(vector.begin(), vector.end(), std::back_inserter(tmp)); return tmp; }
     inline std::vector<T> toStdVector() const
-    { std::vector<T> tmp; tmp.reserve(size()); std::copy(constBegin(), constEnd(), std::back_inserter(tmp)); return tmp; }
+    { return std::vector<T>(d->begin(), d->end()); }
 private:
     friend class QRegion; // Optimization for QRegion::rects()
 
@@ -252,6 +262,7 @@ private:
     {
         return (i <= d->end()) && (d->begin() <= i);
     }
+    iterator c2m(const_iterator it) { return begin() + (it - cbegin()); }
     class AlignmentDummy { Data header; T array[1]; };
 };
 
@@ -692,10 +703,10 @@ typename QVector<T>::iterator QVector<T>::erase(iterator abegin, iterator aend)
 template <typename T>
 bool QVector<T>::operator==(const QVector<T> &v) const
 {
-    if (d->size != v.d->size)
-        return false;
     if (d == v.d)
         return true;
+    if (d->size != v.d->size)
+        return false;
     T* b = d->begin();
     T* i = b + d->size;
     T* j = v.d->end();
@@ -791,29 +802,32 @@ bool QVector<T>::contains(const T &t) const
 template <typename T>
 int QVector<T>::count(const T &t) const
 {
-    int c = 0;
-    T* b = d->begin();
-    T* i = d->end();
-    while (i != b)
-        if (*--i == t)
-            ++c;
-    return c;
+    const T *b = d->begin();
+    const T *e = d->end();
+    return int(std::count(b, e, t));
 }
 
 template <typename T>
 Q_OUTOFLINE_TEMPLATE QVector<T> QVector<T>::mid(int pos, int len) const
 {
-    if (len < 0)
-        len = size() - pos;
-    if (pos == 0 && len == size())
+    using namespace QtPrivate;
+    switch (QContainerImplHelper::mid(d->size, &pos, &len)) {
+    case QContainerImplHelper::Null:
+    case QContainerImplHelper::Empty:
+        return QVector<T>();
+    case QContainerImplHelper::Full:
         return *this;
-    if (pos + len > size())
-        len = size() - pos;
-    QVector<T> copy;
-    copy.reserve(len);
-    for (int i = pos; i < pos + len; ++i)
-        copy += at(i);
-    return copy;
+    case QContainerImplHelper::Subset:
+        break;
+    }
+
+    QVector<T> midResult;
+    midResult.reallocData(0, len);
+    T *srcFrom = d->begin() + pos;
+    T *srcTo = d->begin() + pos + len;
+    midResult.copyConstruct(srcFrom, srcTo, midResult.data());
+    midResult.d->size = len;
+    return midResult;
 }
 
 template <typename T>

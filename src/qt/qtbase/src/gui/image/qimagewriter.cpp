@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -259,6 +251,7 @@ public:
     float gamma;
     QString description;
     QString text;
+    QByteArray subType;
 
     // error
     QImageWriter::ImageWriterError imageWriterError;
@@ -279,7 +272,7 @@ QImageWriterPrivate::QImageWriterPrivate(QImageWriter *qq)
     compression = 0;
     gamma = 0.0;
     imageWriterError = QImageWriter::UnknownError;
-    errorString = QLatin1String(QT_TRANSLATE_NOOP(QImageWriter, "Unknown error"));
+    errorString = QImageWriter::tr("Unknown error");
 
     q = qq;
 }
@@ -288,19 +281,19 @@ bool QImageWriterPrivate::canWriteHelper()
 {
     if (!device) {
         imageWriterError = QImageWriter::DeviceError;
-        errorString = QLatin1String(QT_TRANSLATE_NOOP(QImageWriter, "Device is not set"));
+        errorString = QImageWriter::tr("Device is not set");
         return false;
     }
     if (!device->isOpen())
         device->open(QIODevice::WriteOnly);
     if (!device->isWritable()) {
         imageWriterError = QImageWriter::DeviceError;
-        errorString = QLatin1String(QT_TRANSLATE_NOOP(QImageWriter, "Device not writable"));
+        errorString = QImageWriter::tr("Device not writable");
         return false;
     }
     if (!handler && (handler = createWriteHandlerHelper(device, format)) == 0) {
         imageWriterError = QImageWriter::UnsupportedFormatError;
-        errorString = QLatin1String(QT_TRANSLATE_NOOP(QImageWriter, "Unsupported image format"));
+        errorString = QImageWriter::tr("Unsupported image format");
         return false;
     }
     return true;
@@ -441,13 +434,16 @@ QString QImageWriter::fileName() const
 }
 
 /*!
-    This is an image format specific function that sets the quality
-    level of the image to \a quality. For image formats that do not
-    support setting the quality, this value is ignored.
+    Sets the quality setting of the image format to \a quality.
 
-    The value range of \a quality depends on the image format. For
-    example, the "jpeg" format supports a quality range from 0 (low
-    quality, high compression) to 100 (high quality, low compression).
+    Some image formats, in particular lossy ones, entail a tradeoff between a)
+    visual quality of the resulting image, and b) encoding execution time and
+    compression level. This function sets the level of that tradeoff for image
+    formats that support it. For other formats, this value is ignored.
+
+    The value range of \a quality depends on the image format. For example,
+    the "jpeg" format supports a quality range from 0 (low visual quality, high
+    compression) to 100 (high visual quality, low compression).
 
     \sa quality()
 */
@@ -457,7 +453,7 @@ void QImageWriter::setQuality(int quality)
 }
 
 /*!
-    Returns the quality level of the image.
+    Returns the quality setting of the image format.
 
     \sa setQuality()
 */
@@ -515,6 +511,47 @@ void QImageWriter::setGamma(float gamma)
 float QImageWriter::gamma() const
 {
     return d->gamma;
+}
+
+/*!
+    \since 5.4
+
+    This is an image format specific function that sets the
+    subtype of the image to \a type. Subtype can be used by
+    a handler to determine which format it should use while
+    saving the image.
+
+    For example, saving an image in DDS format with A8R8G8R8 subtype:
+
+    \snippet code/src_gui_image_qimagewriter.cpp 3
+*/
+void QImageWriter::setSubType(const QByteArray &type)
+{
+    d->subType = type;
+}
+
+/*!
+    \since 5.4
+
+    Returns the subtype of the image.
+
+    \sa setSubType()
+*/
+QByteArray QImageWriter::subType() const
+{
+    return d->subType;
+}
+
+/*!
+    \since 5.4
+
+    Returns the list of subtypes supported by an image.
+*/
+QList<QByteArray> QImageWriter::supportedSubTypes() const
+{
+    if (!supportsOption(QImageIOHandler::SupportedSubTypes))
+        return QList<QByteArray>();
+    return d->handler->option(QImageIOHandler::SupportedSubTypes).value< QList<QByteArray> >();
 }
 
 /*!
@@ -618,6 +655,8 @@ bool QImageWriter::write(const QImage &image)
         d->handler->setOption(QImageIOHandler::Gamma, d->gamma);
     if (!d->description.isEmpty() && d->handler->supportsOption(QImageIOHandler::Description))
         d->handler->setOption(QImageIOHandler::Description, d->description);
+    if (!d->subType.isEmpty() && d->handler->supportsOption(QImageIOHandler::SubType))
+        d->handler->setOption(QImageIOHandler::SubType, d->subType);
 
     if (!d->handler->write(image))
         return false;
@@ -667,7 +706,7 @@ bool QImageWriter::supportsOption(QImageIOHandler::ImageOption option) const
 {
     if (!d->handler && (d->handler = createWriteHandlerHelper(d->device, d->format)) == 0) {
         d->imageWriterError = QImageWriter::UnsupportedFormatError;
-        d->errorString = QLatin1String(QT_TRANSLATE_NOOP(QImageWriter, "Unsupported image format"));
+        d->errorString = QImageWriter::tr("Unsupported image format");
         return false;
     }
 
@@ -678,7 +717,7 @@ bool QImageWriter::supportsOption(QImageIOHandler::ImageOption option) const
 #ifndef QT_NO_IMAGEFORMATPLUGIN
 void supportedImageHandlerFormats(QFactoryLoader *loader,
                                   QImageIOPlugin::Capability cap,
-                                  QSet<QByteArray> *result)
+                                  QList<QByteArray> *result)
 {
     typedef QMultiMap<int, QString> PluginKeyMap;
     typedef PluginKeyMap::const_iterator PluginKeyMapConstIterator;
@@ -687,6 +726,7 @@ void supportedImageHandlerFormats(QFactoryLoader *loader,
     const PluginKeyMapConstIterator cend = keyMap.constEnd();
     int i = -1;
     QImageIOPlugin *plugin = 0;
+    result->reserve(result->size() + keyMap.size());
     for (PluginKeyMapConstIterator it = keyMap.constBegin(); it != cend; ++it) {
         if (it.key() != i) {
             i = it.key();
@@ -694,13 +734,13 @@ void supportedImageHandlerFormats(QFactoryLoader *loader,
         }
         const QByteArray key = it.value().toLatin1();
         if (plugin && (plugin->capabilities(0, key) & cap) != 0)
-            result->insert(key);
+            result->append(key);
     }
 }
 
 void supportedImageHandlerMimeTypes(QFactoryLoader *loader,
                                     QImageIOPlugin::Capability cap,
-                                    QSet<QByteArray> *result)
+                                    QList<QByteArray> *result)
 {
     QList<QJsonObject> metaDataList = loader->metaData();
 
@@ -713,7 +753,7 @@ void supportedImageHandlerMimeTypes(QFactoryLoader *loader,
         const int keyCount = keys.size();
         for (int k = 0; k < keyCount; ++k) {
             if (plugin && (plugin->capabilities(0, keys.at(k).toString().toLatin1()) & cap) != 0)
-                result->insert(mimeTypes.at(k).toString().toLatin1());
+                result->append(mimeTypes.at(k).toString().toLatin1());
         }
     }
 }
@@ -746,7 +786,7 @@ void supportedImageHandlerMimeTypes(QFactoryLoader *loader,
 */
 QList<QByteArray> QImageWriter::supportedImageFormats()
 {
-    QSet<QByteArray> formats;
+    QList<QByteArray> formats;
 #ifndef QT_NO_IMAGEFORMAT_BMP
     formats << "bmp";
 #endif
@@ -770,12 +810,9 @@ QList<QByteArray> QImageWriter::supportedImageFormats()
     supportedImageHandlerFormats(loader(), QImageIOPlugin::CanWrite, &formats);
 #endif // QT_NO_IMAGEFORMATPLUGIN
 
-    QList<QByteArray> sortedFormats;
-    for (QSet<QByteArray>::ConstIterator it = formats.constBegin(); it != formats.constEnd(); ++it)
-        sortedFormats << *it;
-
-    std::sort(sortedFormats.begin(), sortedFormats.end());
-    return sortedFormats;
+    std::sort(formats.begin(), formats.end());
+    formats.erase(std::unique(formats.begin(), formats.end()), formats.end());
+    return formats;
 }
 
 /*!
@@ -788,7 +825,7 @@ QList<QByteArray> QImageWriter::supportedImageFormats()
 */
 QList<QByteArray> QImageWriter::supportedMimeTypes()
 {
-    QSet<QByteArray> mimeTypes;
+    QList<QByteArray> mimeTypes;
 #ifndef QT_NO_IMAGEFORMAT_BMP
     mimeTypes << "image/bmp";
 #endif
@@ -814,12 +851,9 @@ QList<QByteArray> QImageWriter::supportedMimeTypes()
     supportedImageHandlerMimeTypes(loader(), QImageIOPlugin::CanWrite, &mimeTypes);
 #endif // QT_NO_IMAGEFORMATPLUGIN
 
-    QList<QByteArray> sortedMimeTypes;
-    for (QSet<QByteArray>::ConstIterator it = mimeTypes.constBegin(); it != mimeTypes.constEnd(); ++it)
-        sortedMimeTypes << *it;
-
-    std::sort(sortedMimeTypes.begin(), sortedMimeTypes.end());
-    return sortedMimeTypes;
+    std::sort(mimeTypes.begin(), mimeTypes.end());
+    mimeTypes.erase(std::unique(mimeTypes.begin(), mimeTypes.end()), mimeTypes.end());
+    return mimeTypes;
 }
 
 QT_END_NAMESPACE

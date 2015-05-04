@@ -7,41 +7,72 @@
 #ifndef LIBGLESV2_UNIFORM_H_
 #define LIBGLESV2_UNIFORM_H_
 
+#include "common/debug.h"
+#include "common/blocklayout.h"
+
+#include "libGLESv2/angletypes.h"
+
+#include "angle_gl.h"
+
 #include <string>
 #include <vector>
-
-#define GL_APICALL
-#include <GLES2/gl2.h>
-
-#include "common/debug.h"
 
 namespace gl
 {
 
 // Helper struct representing a single shader uniform
-struct Uniform
+struct LinkedUniform
 {
-    Uniform(GLenum type, GLenum precision, const std::string &name, unsigned int arraySize);
+    LinkedUniform(GLenum type, GLenum precision, const std::string &name, unsigned int arraySize, const int blockIndex, const sh::BlockMemberInfo &blockInfo);
 
-    ~Uniform();
+    ~LinkedUniform();
 
     bool isArray() const;
     unsigned int elementCount() const;
+    bool isReferencedByVertexShader() const;
+    bool isReferencedByFragmentShader() const;
+    bool isInDefaultBlock() const;
+    size_t dataSize() const;
+    bool isSampler() const;
 
     const GLenum type;
     const GLenum precision;
     const std::string name;
     const unsigned int arraySize;
+    const int blockIndex;
+    const sh::BlockMemberInfo blockInfo;
 
     unsigned char *data;
     bool dirty;
 
-    int psRegisterIndex;
-    int vsRegisterIndex;
+    unsigned int psRegisterIndex;
+    unsigned int vsRegisterIndex;
     unsigned int registerCount;
+
+    // Register "elements" are used for uniform structs in ES3, to appropriately identify single uniforms
+    // inside aggregate types, which are packed according C-like structure rules.
+    unsigned int registerElement;
 };
 
-typedef std::vector<Uniform*> UniformArray;
+// Helper struct representing a single shader uniform block
+struct UniformBlock
+{
+    // use GL_INVALID_INDEX for non-array elements
+    UniformBlock(const std::string &name, unsigned int elementIndex, unsigned int dataSize);
+
+    bool isArrayElement() const;
+    bool isReferencedByVertexShader() const;
+    bool isReferencedByFragmentShader() const;
+
+    const std::string name;
+    const unsigned int elementIndex;
+    const unsigned int dataSize;
+
+    std::vector<unsigned int> memberUniformIndexes;
+
+    unsigned int psRegisterIndex;
+    unsigned int vsRegisterIndex;
+};
 
 }
 

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -61,9 +53,9 @@ QT_BEGIN_NAMESPACE
 class QRingBuffer
 {
 public:
-    explicit inline QRingBuffer(int growth = 4096) : basicBlockSize(growth) {
-        buffers << QByteArray();
-        clear();
+    explicit inline QRingBuffer(int growth = 4096) :
+        head(0), tail(0), tailBuffer(0), basicBlockSize(growth), bufferSize(0) {
+        buffers.append(QByteArray());
     }
 
     inline int nextDataBlockSize() const {
@@ -78,115 +70,65 @@ public:
     // the out-variable length will contain the amount of bytes readable
     // from there, e.g. the amount still the same QByteArray
     inline const char *readPointerAtPosition(qint64 pos, qint64 &length) const {
-        if (buffers.isEmpty()) {
-            length = 0;
-            return 0;
-        }
-
-        if (pos >= bufferSize) {
-            length = 0;
-            return 0;
-        }
-
-        // special case: it is in the first buffer
-        int nextDataBlockSizeValue = nextDataBlockSize();
-        if (pos - head < nextDataBlockSizeValue) {
-            length = nextDataBlockSizeValue - pos;
-            return buffers.at(0).constData() + head + pos;
-        }
-
-        // special case: we only had one buffer and tried to read over it
-        if (buffers.length() == 1) {
-            length = 0;
-            return 0;
-        }
-
-        // skip the first
-        pos -= nextDataBlockSizeValue;
-
-        // normal case: it is somewhere in the second to the-one-before-the-tailBuffer
-        for (int i = 1; i < tailBuffer; i++) {
-            if (pos >= buffers[i].size()) {
-                pos -= buffers[i].size();
-                continue;
+        if (pos >= 0) {
+            pos += head;
+            for (int i = 0; i < buffers.size(); ++i) {
+                length = (i == tailBuffer ? tail : buffers[i].size());
+                if (length > pos) {
+                    length -= pos;
+                    return buffers[i].constData() + pos;
+                }
+                pos -= length;
             }
-
-            length = buffers[i].length() - pos;
-            return buffers[i].constData() + pos;
         }
 
-        // it is in the tail buffer
-        length = tail - pos;
-        return buffers[tailBuffer].constData() + pos;
+        length = 0;
+        return 0;
     }
 
     inline void free(int bytes) {
-        bufferSize -= bytes;
-        if (bufferSize < 0)
-            bufferSize = 0;
+        while (bytes > 0) {
+            int blockSize = buffers.first().size() - head;
 
-        for (;;) {
-            int nextBlockSize = nextDataBlockSize();
-            if (bytes < nextBlockSize) {
-                head += bytes;
-                if (head == tail && tailBuffer == 0)
-                    head = tail = 0;
-                break;
+            if (tailBuffer == 0 || blockSize > bytes) {
+                bufferSize -= bytes;
+                if (bufferSize <= 0)
+                    clear(); // try to minify/squeeze us
+                else
+                    head += bytes;
+                return;
             }
 
-            bytes -= nextBlockSize;
-            if (buffers.count() == 1) {
-                if (buffers.at(0).size() != basicBlockSize)
-                    buffers[0].resize(basicBlockSize);
-                head = tail = 0;
-                tailBuffer = 0;
-                break;
-            }
-
-            buffers.removeAt(0);
+            bufferSize -= blockSize;
+            bytes -= blockSize;
+            buffers.removeFirst();
             --tailBuffer;
             head = 0;
         }
-
-        if (isEmpty())
-            clear(); // try to minify/squeeze us
     }
 
     inline char *reserve(int bytes) {
-        // if this is a fresh empty QRingBuffer
-        if (bufferSize == 0) {
-            buffers[0].resize(qMax(basicBlockSize, bytes));
-            bufferSize += bytes;
-            tail = bytes;
-            return buffers[tailBuffer].data();
+        if (bytes <= 0)
+            return 0;
+
+        // if need buffer reallocation
+        if (tail + bytes > buffers.last().size()) {
+            if (tail >= basicBlockSize) {
+                // shrink this buffer to its current size
+                buffers.last().resize(tail);
+
+                // create a new QByteArray
+                buffers.append(QByteArray());
+                ++tailBuffer;
+                tail = 0;
+            }
+            buffers.last().resize(qMax(basicBlockSize, tail + bytes));
         }
 
+        char *writePtr = buffers.last().data() + tail;
         bufferSize += bytes;
-
-        // if there is already enough space, simply return.
-        if (tail + bytes <= buffers.at(tailBuffer).size()) {
-            char *writePtr = buffers[tailBuffer].data() + tail;
-            tail += bytes;
-            return writePtr;
-        }
-
-        // if our buffer isn't half full yet, simply resize it.
-        if (tail < buffers.at(tailBuffer).size() / 2) {
-            buffers[tailBuffer].resize(tail + bytes);
-            char *writePtr = buffers[tailBuffer].data() + tail;
-            tail += bytes;
-            return writePtr;
-        }
-
-        // shrink this buffer to its current size
-        buffers[tailBuffer].resize(tail);
-
-        // create a new QByteArray with the right size
-        buffers << QByteArray();
-        ++tailBuffer;
-        buffers[tailBuffer].resize(qMax(basicBlockSize, bytes));
-        tail = bytes;
-        return buffers[tailBuffer].data();
+        tail += bytes;
+        return writePtr;
     }
 
     inline void truncate(int pos) {
@@ -195,33 +137,22 @@ public:
     }
 
     inline void chop(int bytes) {
-        bufferSize -= bytes;
-        if (bufferSize < 0)
-            bufferSize = 0;
-
-        for (;;) {
-            // special case: head and tail are in the same buffer
-            if (tailBuffer == 0) {
-                tail -= bytes;
-                if (tail <= head)
-                    tail = head = 0;
+        while (bytes > 0) {
+            if (tailBuffer == 0 || tail > bytes) {
+                bufferSize -= bytes;
+                if (bufferSize <= 0)
+                    clear(); // try to minify/squeeze us
+                else
+                    tail -= bytes;
                 return;
             }
 
-            if (bytes <= tail) {
-                tail -= bytes;
-                return;
-            }
-
+            bufferSize -= tail;
             bytes -= tail;
-            buffers.removeAt(tailBuffer);
-
+            buffers.removeLast();
             --tailBuffer;
-            tail = buffers.at(tailBuffer).size();
+            tail = buffers.last().size();
         }
-
-        if (isEmpty())
-            clear(); // try to minify/squeeze us
     }
 
     inline bool isEmpty() const {
@@ -245,11 +176,11 @@ public:
         --head;
         if (head < 0) {
             buffers.prepend(QByteArray());
-            buffers[0].resize(basicBlockSize);
+            buffers.first().resize(basicBlockSize);
             head = basicBlockSize - 1;
             ++tailBuffer;
         }
-        buffers[0][head] = c;
+        buffers.first()[head] = c;
         ++bufferSize;
     }
 
@@ -259,8 +190,7 @@ public:
 
     inline void clear() {
         buffers.erase(buffers.begin() + 1, buffers.end());
-        buffers[0].resize(0);
-        buffers[0].squeeze();
+        buffers.first().clear();
 
         head = tail = 0;
         tailBuffer = 0;
@@ -269,47 +199,34 @@ public:
 
     inline int indexOf(char c) const {
         int index = 0;
+        int j = head;
         for (int i = 0; i < buffers.size(); ++i) {
-            int start = 0;
-            int end = buffers.at(i).size();
+            const char *ptr = buffers[i].constData() + j;
+            j = index + (i == tailBuffer ? tail : buffers[i].size()) - j;
 
-            if (i == 0)
-                start = head;
-            if (i == tailBuffer)
-                end = tail;
-            const char *ptr = buffers.at(i).data() + start;
-            for (int j = start; j < end; ++j) {
+            while (index < j) {
                 if (*ptr++ == c)
                     return index;
                 ++index;
             }
+            j = 0;
         }
         return -1;
     }
 
     inline int indexOf(char c, int maxLength) const {
         int index = 0;
-        int remain = qMin(size(), maxLength);
-        for (int i = 0; remain && i < buffers.size(); ++i) {
-            int start = 0;
-            int end = buffers.at(i).size();
+        int j = head;
+        for (int i = 0; index < maxLength && i < buffers.size(); ++i) {
+            const char *ptr = buffers[i].constData() + j;
+            j = qMin(index + (i == tailBuffer ? tail : buffers[i].size()) - j, maxLength);
 
-            if (i == 0)
-                start = head;
-            if (i == tailBuffer)
-                end = tail;
-            if (remain < end - start) {
-                end = start + remain;
-                remain = 0;
-            } else {
-                remain -= end - start;
-            }
-            const char *ptr = buffers.at(i).data() + start;
-            for (int j = start; j < end; ++j) {
+            while (index < j) {
                 if (*ptr++ == c)
                     return index;
                 ++index;
             }
+            j = 0;
         }
         return -1;
     }
@@ -318,25 +235,13 @@ public:
         int bytesToRead = qMin(size(), maxLength);
         int readSoFar = 0;
         while (readSoFar < bytesToRead) {
-            const char *ptr = readPointer();
             int bytesToReadFromThisBlock = qMin(bytesToRead - readSoFar, nextDataBlockSize());
             if (data)
-                memcpy(data + readSoFar, ptr, bytesToReadFromThisBlock);
+                memcpy(data + readSoFar, readPointer(), bytesToReadFromThisBlock);
             readSoFar += bytesToReadFromThisBlock;
             free(bytesToReadFromThisBlock);
         }
         return readSoFar;
-    }
-
-    inline QByteArray read(int maxLength) {
-        QByteArray tmp;
-        tmp.resize(qMin(maxLength, size()));
-        read(tmp.data(), tmp.size());
-        return tmp;
-    }
-
-    inline QByteArray readAll() {
-        return read(size());
     }
 
     // read an unspecified amount (will read the first buffer)
@@ -344,69 +249,33 @@ public:
         if (bufferSize == 0)
             return QByteArray();
 
-        // multiple buffers, just take the first one
-        if (head == 0 && tailBuffer != 0) {
-            QByteArray qba = buffers.takeFirst();
-            --tailBuffer;
-            bufferSize -= qba.length();
-            return qba;
-        }
+        QByteArray qba(buffers.takeFirst());
 
-        // one buffer with good value for head. Just take it.
-        if (head == 0 && tailBuffer == 0) {
-            QByteArray qba = buffers.takeFirst();
-            qba.resize(tail);
-            buffers << QByteArray();
-            bufferSize = 0;
-            tail = 0;
-            return qba;
-        }
-
-        // Bad case: We have to memcpy.
-        // We can avoid by initializing the QRingBuffer with basicBlockSize of 0
-        // and only using this read() function.
-        QByteArray qba(readPointer(), nextDataBlockSize());
-        buffers.removeFirst();
-        head = 0;
+        qba.reserve(0); // avoid that resizing needlessly reallocates
         if (tailBuffer == 0) {
-            buffers << QByteArray();
+            qba.resize(tail);
             tail = 0;
+            buffers.append(QByteArray());
         } else {
             --tailBuffer;
         }
-        bufferSize -= qba.length();
+        qba.remove(0, head); // does nothing if head is 0
+        head = 0;
+        bufferSize -= qba.size();
         return qba;
     }
 
     // append a new buffer to the end
     inline void append(const QByteArray &qba) {
-        buffers[tailBuffer].resize(tail);
-        buffers << qba;
-        ++tailBuffer;
-        tail = qba.length();
-        bufferSize += qba.length();
-    }
-
-    inline QByteArray peek(int maxLength) const {
-        int bytesToRead = qMin(size(), maxLength);
-        if(maxLength <= 0)
-            return QByteArray();
-        QByteArray ret;
-        ret.resize(bytesToRead);
-        int readSoFar = 0;
-        for (int i = 0; readSoFar < bytesToRead && i < buffers.size(); ++i) {
-            int start = 0;
-            int end = buffers.at(i).size();
-            if (i == 0)
-                start = head;
-            if (i == tailBuffer)
-                end = tail;
-            const int len = qMin(ret.size()-readSoFar, end-start);
-            memcpy(ret.data()+readSoFar, buffers.at(i).constData()+start, len);
-            readSoFar += len;
+        if (tail == 0) {
+            buffers.last() = qba;
+        } else {
+            buffers.last().resize(tail);
+            buffers.append(qba);
+            ++tailBuffer;
         }
-        Q_ASSERT(readSoFar == ret.size());
-        return ret;
+        tail = qba.size();
+        bufferSize += tail;
     }
 
     inline int skip(int length) {
@@ -414,35 +283,26 @@ public:
     }
 
     inline int readLine(char *data, int maxLength) {
-        int index = indexOf('\n');
-        if (index == -1)
-            return read(data, maxLength);
-        if (maxLength <= 0)
+        if (!data || --maxLength <= 0)
             return -1;
 
-        int readSoFar = 0;
-        while (readSoFar < index + 1 && readSoFar < maxLength - 1) {
-            int bytesToRead = qMin((index + 1) - readSoFar, nextDataBlockSize());
-            bytesToRead = qMin(bytesToRead, (maxLength - 1) - readSoFar);
-            memcpy(data + readSoFar, readPointer(), bytesToRead);
-            readSoFar += bytesToRead;
-            free(bytesToRead);
-        }
+        int i = indexOf('\n', maxLength);
+        i = read(data, i >= 0 ? (i + 1) : maxLength);
 
         // Terminate it.
-        data[readSoFar] = '\0';
-        return readSoFar;
+        data[i] = '\0';
+        return i;
     }
 
     inline bool canReadLine() const {
-        return indexOf('\n') != -1;
+        return indexOf('\n') >= 0;
     }
 
 private:
     QList<QByteArray> buffers;
     int head, tail;
     int tailBuffer; // always buffers.size() - 1
-    int basicBlockSize;
+    const int basicBlockSize;
     int bufferSize;
 };
 

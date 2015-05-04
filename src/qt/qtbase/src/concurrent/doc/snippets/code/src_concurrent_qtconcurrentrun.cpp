@@ -44,6 +44,13 @@ QFuture<void> future = QtConcurrent::run(aFunction);
 //! [0]
 
 
+//! [explicit-pool-0]
+extern void aFunction();
+QThreadPool pool;
+QFuture<void> future = QtConcurrent::run(&pool, aFunction);
+//! [explicit-pool-0]
+
+
 //! [1]
 extern void aFunctionWithArguments(int arg1, double arg2, const QString &string);
 

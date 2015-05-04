@@ -1,40 +1,32 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Copyright (C) 2013 Olivier Goffart <ogoffart@woboq.com>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -266,10 +258,12 @@ void Generator::generateCode()
     {
         int idx = 0;
         for (int i = 0; i < strings.size(); ++i) {
-            if (i)
-                fprintf(out, ",\n");
             const QByteArray &str = strings.at(i);
             fprintf(out, "QT_MOC_LITERAL(%d, %d, %d)", i, idx, str.length());
+            if (i != strings.size() - 1)
+                fputc(',', out);
+            const QByteArray comment = str.length() > 32 ? str.left(29) + "..." : str;
+            fprintf(out, " // \"%s\"\n", comment.constData());
             idx += str.length() + 1;
             for (int j = 0; j < str.length(); ++j) {
                 if (str.at(j) == '\\') {
@@ -499,7 +493,7 @@ void Generator::generateCode()
         for (int i = 0; i < extraList.count(); ++i) {
             fprintf(out, "    &%s::staticMetaObject,\n", extraList.at(i).constData());
         }
-        fprintf(out, "    0\n};\n\n");
+        fprintf(out, "    Q_NULLPTR\n};\n\n");
     }
 
 //
@@ -511,24 +505,24 @@ void Generator::generateCode()
         fprintf(out, "const QMetaObject %s::staticMetaObject = {\n", cdef->qualified.constData());
 
     if (isQObject)
-        fprintf(out, "    { 0, ");
+        fprintf(out, "    { Q_NULLPTR, ");
     else if (cdef->superclassList.size())
         fprintf(out, "    { &%s::staticMetaObject, ", purestSuperClass.constData());
     else
-        fprintf(out, "    { 0, ");
+        fprintf(out, "    { Q_NULLPTR, ");
     fprintf(out, "qt_meta_stringdata_%s.data,\n"
             "      qt_meta_data_%s, ", qualifiedClassNameIdentifier.constData(),
             qualifiedClassNameIdentifier.constData());
     if (cdef->hasQObject && !isQt)
         fprintf(out, " qt_static_metacall, ");
     else
-        fprintf(out, " 0, ");
+        fprintf(out, " Q_NULLPTR, ");
 
     if (extraList.isEmpty())
-        fprintf(out, "0, ");
+        fprintf(out, "Q_NULLPTR, ");
     else
         fprintf(out, "qt_meta_extradata_%s, ", qualifiedClassNameIdentifier.constData());
-    fprintf(out, "0}\n};\n\n");
+    fprintf(out, "Q_NULLPTR}\n};\n\n");
 
     if(isQt)
         return;
@@ -543,7 +537,7 @@ void Generator::generateCode()
 // Generate smart cast function
 //
     fprintf(out, "\nvoid *%s::qt_metacast(const char *_clname)\n{\n", cdef->qualified.constData());
-    fprintf(out, "    if (!_clname) return 0;\n");
+    fprintf(out, "    if (!_clname) return Q_NULLPTR;\n");
     fprintf(out, "    if (!strcmp(_clname, qt_meta_stringdata_%s.stringdata))\n"
                   "        return static_cast<void*>(const_cast< %s*>(this));\n",
             qualifiedClassNameIdentifier.constData(), cdef->classname.constData());
@@ -568,7 +562,7 @@ void Generator::generateCode()
         QByteArray superClass = purestSuperClass;
         fprintf(out, "    return %s::qt_metacast(_clname);\n", superClass.constData());
     } else {
-        fprintf(out, "    return 0;\n");
+        fprintf(out, "    return Q_NULLPTR;\n");
     }
     fprintf(out, "}\n");
 
@@ -645,29 +639,29 @@ void Generator::generateFunctions(const QList<FunctionDef>& list, const char *fu
         unsigned char flags = type;
         if (f.access == FunctionDef::Private) {
             flags |= AccessPrivate;
-            comment.append(QByteArrayLiteral("Private"));
+            comment.append("Private");
         } else if (f.access == FunctionDef::Public) {
             flags |= AccessPublic;
-            comment.append(QByteArrayLiteral("Public"));
+            comment.append("Public");
         } else if (f.access == FunctionDef::Protected) {
             flags |= AccessProtected;
-            comment.append(QByteArrayLiteral("Protected"));
+            comment.append("Protected");
         }
         if (f.isCompat) {
             flags |= MethodCompatibility;
-            comment.append(QByteArrayLiteral(" | MethodCompatibility"));
+            comment.append(" | MethodCompatibility");
         }
         if (f.wasCloned) {
             flags |= MethodCloned;
-            comment.append(QByteArrayLiteral(" | MethodCloned"));
+            comment.append(" | MethodCloned");
         }
         if (f.isScriptable) {
             flags |= MethodScriptable;
-            comment.append(QByteArrayLiteral(" | isScriptable"));
+            comment.append(" | isScriptable");
         }
         if (f.revision > 0) {
             flags |= MethodRevisioned;
-            comment.append(QByteArrayLiteral(" | MethodRevisioned"));
+            comment.append(" | MethodRevisioned");
         }
 
         int argc = f.arguments.count();
@@ -983,6 +977,7 @@ void Generator::generateMetacall()
                     fprintf(out, "        case %d: *reinterpret_cast< %s*>(_v) = %s%s; break;\n",
                             propindex, p.type.constData(), prefix.constData(), p.member.constData());
             }
+            fprintf(out, "        default: break;\n");
             fprintf(out, "        }\n");
         }
 
@@ -1031,6 +1026,7 @@ void Generator::generateMetacall()
                     fprintf(out, "            break;\n");
                 }
             }
+            fprintf(out, "        default: break;\n");
             fprintf(out, "        }\n");
         }
 
@@ -1054,6 +1050,7 @@ void Generator::generateMetacall()
                 fprintf(out, "        case %d: %s%s; break;\n",
                         propindex, prefix.constData(), p.reset.constData());
             }
+            fprintf(out, "        default: break;\n");
             fprintf(out, "        }\n");
         }
         fprintf(out,
@@ -1072,6 +1069,7 @@ void Generator::generateMetacall()
                 fprintf(out, "        case %d: *_b = %s; break;\n",
                          propindex, p.designable.constData());
             }
+            fprintf(out, "        default: break;\n");
             fprintf(out, "        }\n");
         }
         fprintf(out,
@@ -1090,6 +1088,7 @@ void Generator::generateMetacall()
                 fprintf(out, "        case %d: *_b = %s; break;\n",
                          propindex, p.scriptable.constData());
             }
+            fprintf(out, "        default: break;\n");
             fprintf(out, "        }\n");
         }
         fprintf(out,
@@ -1108,6 +1107,7 @@ void Generator::generateMetacall()
                 fprintf(out, "        case %d: *_b = %s; break;\n",
                          propindex, p.stored.constData());
             }
+            fprintf(out, "        default: break;\n");
             fprintf(out, "        }\n");
         }
         fprintf(out,
@@ -1126,6 +1126,7 @@ void Generator::generateMetacall()
                 fprintf(out, "        case %d: *_b = %s; break;\n",
                          propindex, p.editable.constData());
             }
+            fprintf(out, "        default: break;\n");
             fprintf(out, "        }\n");
         }
         fprintf(out,
@@ -1145,6 +1146,7 @@ void Generator::generateMetacall()
                 fprintf(out, "        case %d: *_b = %s; break;\n",
                          propindex, p.user.constData());
             }
+            fprintf(out, "        default: break;\n");
             fprintf(out, "        }\n");
         }
         fprintf(out,
@@ -1226,6 +1228,7 @@ void Generator::generateStaticMetacall()
             fprintf(out, ");\n");
             fprintf(out, "            if (_a[0]) *reinterpret_cast<QObject**>(_a[0]) = _r; } break;\n");
         }
+        fprintf(out, "        default: break;\n");
         fprintf(out, "        }\n");
         fprintf(out, "    }");
         needElse = true;
@@ -1413,7 +1416,7 @@ void Generator::generateSignal(FunctionDef *def,int index)
             fprintf(out, "QPrivateSignal");
 
         fprintf(out, ")%s\n{\n"
-                "    QMetaObject::activate(%s, &staticMetaObject, %d, 0);\n"
+                "    QMetaObject::activate(%s, &staticMetaObject, %d, Q_NULLPTR);\n"
                 "}\n", constQualifier, thisPtr.constData(), index);
         return;
     }
@@ -1443,7 +1446,7 @@ void Generator::generateSignal(FunctionDef *def,int index)
 
     fprintf(out, "    void *_a[] = { ");
     if (def->normalizedType == "void") {
-        fprintf(out, "0");
+        fprintf(out, "Q_NULLPTR");
     } else {
         if (def->returnTypeIsVolatile)
              fprintf(out, "const_cast<void*>(reinterpret_cast<const volatile void*>(&_t0))");

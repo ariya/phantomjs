@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -43,6 +35,7 @@
 #include "qwindowswindow.h"
 #include "qwindowsnativeimage.h"
 #include "qwindowscontext.h"
+#include "qwindowsscaling.h"
 
 #include <QtGui/QWindow>
 #include <QtGui/QPainter>
@@ -75,12 +68,10 @@ QPaintDevice *QWindowsBackingStore::paintDevice()
     return &m_image->image();
 }
 
-void QWindowsBackingStore::flush(QWindow *window, const QRegion &region,
-                                        const QPoint &offset)
+void QWindowsBackingStore::flushDp(QWindow *window, const QRect &br, const QPoint &offset)
 {
     Q_ASSERT(window);
 
-    const QRect br = region.boundingRect();
     if (QWindowsContext::verbose > 1)
         qCDebug(lcQpaBackingStore) << __FUNCTION__ << this << window << offset << br;
     QWindowsWindow *rw = QWindowsWindow::baseWindowOf(window);
@@ -90,8 +81,9 @@ void QWindowsBackingStore::flush(QWindow *window, const QRegion &region,
     const Qt::WindowFlags flags = window->flags();
     if ((flags & Qt::FramelessWindowHint) && QWindowsWindow::setWindowLayered(rw->handle(), flags, hasAlpha, rw->opacity()) && hasAlpha) {
         // Windows with alpha: Use blend function to update.
-        QRect r = window->frameGeometry();
-        QPoint frameOffset(window->frameMargins().left(), window->frameMargins().top());
+        const QMargins marginsDP = rw->frameMarginsDp();
+        const QRect r = rw->geometryDp() + marginsDP;
+        const QPoint frameOffset(marginsDP.left(), marginsDP.top());
         QRect dirtyRect = br.translated(offset + frameOffset);
 
         SIZE size = {r.width(), r.height()};
@@ -135,27 +127,27 @@ void QWindowsBackingStore::flush(QWindow *window, const QRegion &region,
     }
 }
 
-void QWindowsBackingStore::resize(const QSize &size, const QRegion &region)
+void QWindowsBackingStore::resize(const QSize &sizeDip, const QRegion &regionDip)
 {
+    const QSize size = sizeDip * QWindowsScaling::factor();
     if (m_image.isNull() || m_image->image().size() != size) {
 #ifndef QT_NO_DEBUG_OUTPUT
         if (QWindowsContext::verbose && lcQpaBackingStore().isDebugEnabled()) {
             qCDebug(lcQpaBackingStore)
-                << __FUNCTION__ << ' ' << window() << ' ' << size << ' ' << region
-                << " from: " << (m_image.isNull() ? QSize() : m_image->image().size());
+                << __FUNCTION__ << ' ' << window() << ' ' << size << ' ' << sizeDip << ' '
+                << regionDip << " from: " << (m_image.isNull() ? QSize() : m_image->image().size());
         }
 #endif
-        QImage::Format format = QWindowsNativeImage::systemFormat();
-        if (format == QImage::Format_RGB32 && window()->format().hasAlpha())
-            format = QImage::Format_ARGB32_Premultiplied;
+        const QImage::Format format = window()->format().hasAlpha() ?
+            QImage::Format_ARGB32_Premultiplied : QWindowsNativeImage::systemFormat();
 
         QWindowsNativeImage *oldwni = m_image.data();
         QWindowsNativeImage *newwni = new QWindowsNativeImage(size.width(), size.height(), format);
 
-        if (oldwni && !region.isEmpty()) {
+        if (oldwni && !regionDip.isEmpty()) {
             const QImage &oldimg(oldwni->image());
             QImage &newimg(newwni->image());
-            QRegion staticRegion(region);
+            QRegion staticRegion = QWindowsScaling::mapToNative(regionDip);
             staticRegion &= QRect(0, 0, oldimg.width(), oldimg.height());
             staticRegion &= QRect(0, 0, newimg.width(), newimg.height());
             QPainter painter(&newimg);
@@ -164,35 +156,38 @@ void QWindowsBackingStore::resize(const QSize &size, const QRegion &region)
                 painter.drawImage(rect, oldimg, rect);
         }
 
+        if (QWindowsScaling::isActive())
+            newwni->setDevicePixelRatio(QWindowsScaling::factor());
         m_image.reset(newwni);
     }
 }
 
 Q_GUI_EXPORT void qt_scrollRectInImage(QImage &img, const QRect &rect, const QPoint &offset);
 
-bool QWindowsBackingStore::scroll(const QRegion &area, int dx, int dy)
+bool QWindowsBackingStore::scroll(const QRegion &areaDip, int dxDip, int dyDip)
 {
     if (m_image.isNull() || m_image->image().isNull())
         return false;
 
-    const QVector<QRect> rects = area.rects();
+    const QPoint dp = QPoint(dxDip, dyDip) * QWindowsScaling::factor();
+    const QVector<QRect> rects = areaDip.rects();
     for (int i = 0; i < rects.size(); ++i)
-        qt_scrollRectInImage(m_image->image(), rects.at(i), QPoint(dx, dy));
+        qt_scrollRectInImage(m_image->image(), QWindowsScaling::mapToNative(rects.at(i)), dp);
 
     return true;
 }
 
-void QWindowsBackingStore::beginPaint(const QRegion &region)
+void QWindowsBackingStore::beginPaint(const QRegion &regionDip)
 {
     if (QWindowsContext::verbose > 1)
-        qCDebug(lcQpaBackingStore) <<__FUNCTION__ << region;
+        qCDebug(lcQpaBackingStore) <<__FUNCTION__ << regionDip;
 
     if (m_image->image().hasAlphaChannel()) {
         QPainter p(&m_image->image());
         p.setCompositionMode(QPainter::CompositionMode_Source);
         const QColor blank = Qt::transparent;
-        foreach (const QRect &r, region.rects())
-            p.fillRect(r, blank);
+        foreach (const QRect &r, regionDip.rects())
+            p.fillRect(QWindowsScaling::mapToNative(r), blank);
     }
 }
 

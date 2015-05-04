@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -584,11 +576,12 @@ void QLayoutPrivate::doResize(const QSize &r)
     int mbh = menuBarHeightForWidth(menubar, r.width());
     QWidget *mw = q->parentWidget();
     QRect rect = mw->testAttribute(Qt::WA_LayoutOnEntireRect) ? mw->rect() : mw->contentsRect();
+    const int mbTop = rect.top();
     rect.setTop(rect.top() + mbh);
     q->setGeometry(rect);
 #ifndef QT_NO_MENUBAR
     if (menubar)
-        menubar->setGeometry(0,0,r.width(), mbh);
+        menubar->setGeometry(rect.left(), mbTop, r.width(), mbh);
 #endif
 }
 
@@ -858,6 +851,47 @@ void QLayoutPrivate::reparentChildWidgets(QWidget *mw)
 }
 
 /*!
+    Returns \c true if the \a widget can be added to the \a layout;
+    otherwise returns \c false.
+*/
+bool QLayoutPrivate::checkWidget(QWidget *widget) const
+{
+    Q_Q(const QLayout);
+    if (!widget) {
+        qWarning("QLayout: Cannot add a null widget to %s/%s", q->metaObject()->className(),
+                  qPrintable(q->objectName()));
+        return false;
+    }
+    if (widget == q->parentWidget()) {
+        qWarning("QLayout: Cannot add parent widget %s/%s to its child layout %s/%s",
+                  widget->metaObject()->className(), qPrintable(widget->objectName()),
+                  q->metaObject()->className(), qPrintable(q->objectName()));
+        return false;
+    }
+    return true;
+}
+
+/*!
+    Returns \c true if the \a otherLayout can be added to the \a layout;
+    otherwise returns \c false.
+*/
+bool QLayoutPrivate::checkLayout(QLayout *otherLayout) const
+{
+    Q_Q(const QLayout);
+    if (!otherLayout) {
+        qWarning("QLayout: Cannot add a null layout to %s/%s", q->metaObject()->className(),
+                  qPrintable(q->objectName()));
+        return false;
+    }
+    if (otherLayout == q) {
+        qWarning("QLayout: Cannot add layout %s/%s to itself", q->metaObject()->className(),
+                  qPrintable(q->objectName()));
+        return false;
+    }
+    return true;
+}
+
+/*!
     This function is called from \c addWidget() functions in
     subclasses to add \a w as a managed widget of a layout.
 
@@ -1073,15 +1107,6 @@ bool QLayout::activate()
                 ms.setWidth(mw->minimumSize().width());
             if (heightSet)
                 ms.setHeight(mw->minimumSize().height());
-            if ((!heightSet || !widthSet) && hasHeightForWidth()) {
-                int h = minimumHeightForWidth(ms.width());
-                if (h > ms.height()) {
-                    if (!heightSet)
-                        ms.setHeight(0);
-                    if (!widthSet)
-                        ms.setWidth(0);
-                }
-            }
             mw->setMinimumSize(ms);
         } else if (!widthSet || !heightSet) {
             QSize ms = mw->minimumSize();

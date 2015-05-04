@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -41,6 +33,7 @@
 
 #include "qwindowsdrag.h"
 #include "qwindowscontext.h"
+#include "qwindowsscaling.h"
 #ifndef QT_NO_CLIPBOARD
 #  include "qwindowsclipboard.h"
 #endif
@@ -50,13 +43,12 @@
 #include "qwindowswindow.h"
 #include "qwindowsmousehandler.h"
 #include "qwindowscursor.h"
+#include "qwindowsscaling.h"
 
 #include <QtGui/QMouseEvent>
 #include <QtGui/QPixmap>
 #include <QtGui/QPainter>
-#include <QtGui/QPaintDevice>
-#include <QtGui/QBackingStore>
-#include <QtGui/QWindow>
+#include <QtGui/QRasterWindow>
 #include <QtGui/QGuiApplication>
 #include <qpa/qwindowsysteminterface_p.h>
 #include <QtGui/private/qguiapplication_p.h>
@@ -69,146 +61,6 @@
 
 QT_BEGIN_NAMESPACE
 
-// These pixmaps approximate the images in the Windows User Interface Guidelines.
-// XPM
-
-static const char * const moveDragCursorXpmC[] = {
-"11 20 3 1",
-".        c None",
-"a        c #FFFFFF",
-"X        c #000000", // X11 cursor is traditionally black
-"aa.........",
-"aXa........",
-"aXXa.......",
-"aXXXa......",
-"aXXXXa.....",
-"aXXXXXa....",
-"aXXXXXXa...",
-"aXXXXXXXa..",
-"aXXXXXXXXa.",
-"aXXXXXXXXXa",
-"aXXXXXXaaaa",
-"aXXXaXXa...",
-"aXXaaXXa...",
-"aXa..aXXa..",
-"aa...aXXa..",
-"a.....aXXa.",
-"......aXXa.",
-".......aXXa",
-".......aXXa",
-"........aa."};
-
-
-/* XPM */
-static const char * const copyDragCursorXpmC[] = {
-"24 30 3 1",
-".        c None",
-"a        c #000000",
-"X        c #FFFFFF",
-"XX......................",
-"XaX.....................",
-"XaaX....................",
-"XaaaX...................",
-"XaaaaX..................",
-"XaaaaaX.................",
-"XaaaaaaX................",
-"XaaaaaaaX...............",
-"XaaaaaaaaX..............",
-"XaaaaaaaaaX.............",
-"XaaaaaaXXXX.............",
-"XaaaXaaX................",
-"XaaXXaaX................",
-"XaX..XaaX...............",
-"XX...XaaX...............",
-"X.....XaaX..............",
-"......XaaX..............",
-".......XaaX.............",
-".......XaaX.............",
-"........XX...aaaaaaaaaaa",
-".............aXXXXXXXXXa",
-".............aXXXXXXXXXa",
-".............aXXXXaXXXXa",
-".............aXXXXaXXXXa",
-".............aXXaaaaaXXa",
-".............aXXXXaXXXXa",
-".............aXXXXaXXXXa",
-".............aXXXXXXXXXa",
-".............aXXXXXXXXXa",
-".............aaaaaaaaaaa"};
-
-/* XPM */
-static const char * const linkDragCursorXpmC[] = {
-"24 30 3 1",
-".        c None",
-"a        c #000000",
-"X        c #FFFFFF",
-"XX......................",
-"XaX.....................",
-"XaaX....................",
-"XaaaX...................",
-"XaaaaX..................",
-"XaaaaaX.................",
-"XaaaaaaX................",
-"XaaaaaaaX...............",
-"XaaaaaaaaX..............",
-"XaaaaaaaaaX.............",
-"XaaaaaaXXXX.............",
-"XaaaXaaX................",
-"XaaXXaaX................",
-"XaX..XaaX...............",
-"XX...XaaX...............",
-"X.....XaaX..............",
-"......XaaX..............",
-".......XaaX.............",
-".......XaaX.............",
-"........XX...aaaaaaaaaaa",
-".............aXXXXXXXXXa",
-".............aXXXaaaaXXa",
-".............aXXXXaaaXXa",
-".............aXXXaaaaXXa",
-".............aXXaaaXaXXa",
-".............aXXaaXXXXXa",
-".............aXXaXXXXXXa",
-".............aXXXaXXXXXa",
-".............aXXXXXXXXXa",
-".............aaaaaaaaaaa"};
-
-static const char * const ignoreDragCursorXpmC[] = {
-"24 30 3 1",
-".        c None",
-"a        c #000000",
-"X        c #FFFFFF",
-"aa......................",
-"aXa.....................",
-"aXXa....................",
-"aXXXa...................",
-"aXXXXa..................",
-"aXXXXXa.................",
-"aXXXXXXa................",
-"aXXXXXXXa...............",
-"aXXXXXXXXa..............",
-"aXXXXXXXXXa.............",
-"aXXXXXXaaaa.............",
-"aXXXaXXa................",
-"aXXaaXXa................",
-"aXa..aXXa...............",
-"aa...aXXa...............",
-"a.....aXXa..............",
-"......aXXa.....XXXX.....",
-".......aXXa..XXaaaaXX...",
-".......aXXa.XaaaaaaaaX..",
-"........aa.XaaaXXXXaaaX.",
-"...........XaaaaX..XaaX.",
-"..........XaaXaaaX..XaaX",
-"..........XaaXXaaaX.XaaX",
-"..........XaaX.XaaaXXaaX",
-"..........XaaX..XaaaXaaX",
-"...........XaaX..XaaaaX.",
-"...........XaaaXXXXaaaX.",
-"............XaaaaaaaaX..",
-".............XXaaaaXX...",
-"...............XXXX....."};
-
 /*!
     \class QWindowsDragCursorWindow
     \brief A toplevel window showing the drag icon in case of touch drag.
@@ -218,7 +70,7 @@ static const char * const ignoreDragCursorXpmC[] = {
     \ingroup qt-lighthouse-win
 */
 
-class QWindowsDragCursorWindow : public QWindow
+class QWindowsDragCursorWindow : public QRasterWindow
 {
 public:
     explicit QWindowsDragCursorWindow(QWindow *parent = 0);
@@ -226,18 +78,18 @@ public:
     void setPixmap(const QPixmap &p);
 
 protected:
-    void exposeEvent(QExposeEvent *);
+    void paintEvent(QPaintEvent *)
+    {
+        QPainter painter(this);
+        painter.drawPixmap(0, 0, m_pixmap);
+    }
 
 private:
-    void render();
-
-    QBackingStore m_backingStore;
     QPixmap m_pixmap;
 };
 
 QWindowsDragCursorWindow::QWindowsDragCursorWindow(QWindow *parent)
-    : QWindow(parent)
-    , m_backingStore(this)
+    : QRasterWindow(parent)
 {
     QSurfaceFormat windowFormat = format();
     windowFormat.setAlphaBufferSize(8);
@@ -253,31 +105,17 @@ void QWindowsDragCursorWindow::setPixmap(const QPixmap &p)
     if (p.cacheKey() == m_pixmap.cacheKey())
         return;
     const QSize oldSize = m_pixmap.size();
-    const QSize newSize = p.size();
+    QSize newSize = p.size();
     qCDebug(lcQpaMime) << __FUNCTION__ << p.cacheKey() << newSize;
     m_pixmap = p;
     if (oldSize != newSize) {
+        const qreal pixDevicePixelRatio = p.devicePixelRatio();
+        if (pixDevicePixelRatio > 1.0 && qFuzzyCompare(pixDevicePixelRatio, devicePixelRatio()))
+            newSize /= qRound(pixDevicePixelRatio);
         resize(newSize);
-        m_backingStore.resize(newSize);
     }
     if (isVisible())
-        render();
-}
-
-void QWindowsDragCursorWindow::exposeEvent(QExposeEvent *)
-{
-    Q_ASSERT(!m_pixmap.isNull());
-    render();
-}
-
-void QWindowsDragCursorWindow::render()
-{
-    const QRect rect(QPoint(0, 0), m_pixmap.size());
-    m_backingStore.beginPaint(rect);
-    QPainter painter(m_backingStore.paintDevice());
-    painter.drawPixmap(0, 0, m_pixmap);
-    m_backingStore.endPaint();
-    m_backingStore.flush(rect);
+        update();
 }
 
 /*!
@@ -451,12 +289,19 @@ void QWindowsOleDropSource::createCursors()
     const QDrag *drag = m_drag->currentDrag();
     const QPixmap pixmap = drag->pixmap();
     const bool hasPixmap = !pixmap.isNull();
+    const int scaleFactor = QWindowsScaling::factor();
+    const QSize pixmapSizeDp = pixmap.size() * scaleFactor;
+    const bool scalePixmap = hasPixmap
+        && m_mode != TouchDrag // Touch drag: pixmap is shown in a separate QWindow, which will be scaled.
+        && (scaleFactor != 1 && scaleFactor != qRound(pixmap.devicePixelRatio()));
+    const QPixmap drawPixmap = scalePixmap
+        ? pixmap.scaled(pixmapSizeDp, Qt::KeepAspectRatio, Qt::SmoothTransformation) : pixmap;
 
     Qt::DropAction actions[] = { Qt::MoveAction, Qt::CopyAction, Qt::LinkAction, Qt::IgnoreAction };
     int actionCount = int(sizeof(actions) / sizeof(actions[0]));
     if (!hasPixmap)
         --actionCount; // No Qt::IgnoreAction unless pixmap
-    const QPoint hotSpot = drag->hotSpot();
+    const QPoint hotSpot = drag->hotSpot() * scaleFactor;
     for (int cnum = 0; cnum < actionCount; ++cnum) {
         const Qt::DropAction action = actions[cnum];
         QPixmap cursorPixmap = drag->dragCursor(action);
@@ -476,21 +321,20 @@ void QWindowsOleDropSource::createCursors()
 
         if (hasPixmap) {
             const int x1 = qMin(-hotSpot.x(), 0);
-            const int x2 = qMax(pixmap.width() - hotSpot.x(), cursorPixmap.width());
+            const int x2 = qMax(pixmapSizeDp.width() - hotSpot.x(), cursorPixmap.width());
             const int y1 = qMin(-hotSpot.y(), 0);
-            const int y2 = qMax(pixmap.height() - hotSpot.y(), cursorPixmap.height());
+            const int y2 = qMax(pixmapSizeDp.height() - hotSpot.y(), cursorPixmap.height());
             QPixmap newCursor(x2 - x1 + 1, y2 - y1 + 1);
             newCursor.fill(Qt::transparent);
             QPainter p(&newCursor);
-            const QRect srcRect = pixmap.rect();
             const QPoint pmDest = QPoint(qMax(0, -hotSpot.x()), qMax(0, -hotSpot.y()));
-            p.drawPixmap(pmDest, pixmap, srcRect);
+            p.drawPixmap(pmDest, drawPixmap);
             p.drawPixmap(qMax(0, hotSpot.x()),qMax(0, hotSpot.y()), cursorPixmap);
             newPixmap = newCursor;
             newHotSpot = QPoint(qMax(0, hotSpot.x()), qMax(0, hotSpot.y()));
         }
 
-        if (const HCURSOR sysCursor = QWindowsCursor::createPixmapCursor(newPixmap, newHotSpot.x(), newHotSpot.y())) {
+        if (const HCURSOR sysCursor = QWindowsCursor::createPixmapCursor(newPixmap, newHotSpot)) {
             const CursorEntry entry(newPixmap, cacheKey, DragCursorHandlePtr(new DragCursorHandle(sysCursor)), newHotSpot);
             if (it == m_cursors.end())
                 m_cursors.insert(action, entry);
@@ -610,7 +454,7 @@ QWindowsOleDropSource::GiveFeedback(DWORD dwEffect)
             if (!m_touchDragWindow)
                 m_touchDragWindow = new QWindowsDragCursorWindow;
             m_touchDragWindow->setPixmap(e.pixmap);
-            m_touchDragWindow->setFramePosition(QWindowsCursor::mousePosition() - e.hotSpot);
+            m_touchDragWindow->setFramePosition((QWindowsCursor::mousePosition() - e.hotSpot) / QWindowsScaling::factor());
             if (!m_touchDragWindow->isVisible())
                 m_touchDragWindow->show();
             break;
@@ -686,7 +530,9 @@ void QWindowsOleDropTarget::handleDrag(QWindow *window, DWORD grfKeyState,
     QGuiApplicationPrivate::mouse_buttons = QWindowsMouseHandler::keyStateToMouseButtons(grfKeyState);
 
     const QPlatformDragQtResponse response =
-          QWindowSystemInterface::handleDrag(window, windowsDrag->dropData(), m_lastPoint, actions);
+          QWindowSystemInterface::handleDrag(window, windowsDrag->dropData(),
+                                             m_lastPoint / QWindowsScaling::factor(),
+                                             actions);
 
     m_answerRect = response.answerRect();
     const Qt::DropAction action = response.acceptedAction();
@@ -778,8 +624,9 @@ QWindowsOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState,
     QWindowsDrag *windowsDrag = QWindowsDrag::instance();
 
     const QPlatformDropQtResponse response =
-        QWindowSystemInterface::handleDrop(m_window, windowsDrag->dropData(), m_lastPoint,
-                                           translateToQDragDropActions(*pdwEffect));
+        QWindowSystemInterface::handleDrop(m_window, windowsDrag->dropData(),
+                                           m_lastPoint / QWindowsScaling::factor(),
+                                           translateToQDragDropActions(m_chosenEffect));
 
     if (response.isAccepted()) {
         const Qt::DropAction action = response.acceptedAction();
@@ -864,22 +711,86 @@ QPixmap QWindowsDrag::defaultCursor(Qt::DropAction action) const
     switch (action) {
     case Qt::CopyAction:
         if (m_copyDragCursor.isNull())
-            m_copyDragCursor = QPixmap(copyDragCursorXpmC);
+            m_copyDragCursor = QWindowsCursor::customCursor(Qt::DragCopyCursor).pixmap();
         return m_copyDragCursor;
     case Qt::TargetMoveAction:
     case Qt::MoveAction:
         if (m_moveDragCursor.isNull())
-            m_moveDragCursor = QPixmap(moveDragCursorXpmC);
+            m_moveDragCursor = QWindowsCursor::customCursor(Qt::DragMoveCursor).pixmap();
         return m_moveDragCursor;
     case Qt::LinkAction:
         if (m_linkDragCursor.isNull())
-            m_linkDragCursor = QPixmap(linkDragCursorXpmC);
+            m_linkDragCursor = QWindowsCursor::customCursor(Qt::DragLinkCursor).pixmap();
         return m_linkDragCursor;
     default:
         break;
     }
-    if (m_ignoreDragCursor.isNull())
+
+    static const char * const ignoreDragCursorXpmC[] = {
+    "24 30 3 1",
+    ".        c None",
+    "a        c #000000",
+    "X        c #FFFFFF",
+    "aa......................",
+    "aXa.....................",
+    "aXXa....................",
+    "aXXXa...................",
+    "aXXXXa..................",
+    "aXXXXXa.................",
+    "aXXXXXXa................",
+    "aXXXXXXXa...............",
+    "aXXXXXXXXa..............",
+    "aXXXXXXXXXa.............",
+    "aXXXXXXaaaa.............",
+    "aXXXaXXa................",
+    "aXXaaXXa................",
+    "aXa..aXXa...............",
+    "aa...aXXa...............",
+    "a.....aXXa..............",
+    "......aXXa.....XXXX.....",
+    ".......aXXa..XXaaaaXX...",
+    ".......aXXa.XaaaaaaaaX..",
+    "........aa.XaaaXXXXaaaX.",
+    "...........XaaaaX..XaaX.",
+    "..........XaaXaaaX..XaaX",
+    "..........XaaXXaaaX.XaaX",
+    "..........XaaX.XaaaXXaaX",
+    "..........XaaX..XaaaXaaX",
+    "...........XaaX..XaaaaX.",
+    "...........XaaaXXXXaaaX.",
+    "............XaaaaaaaaX..",
+    ".............XXaaaaXX...",
+    "...............XXXX....."};
+
+    if (m_ignoreDragCursor.isNull()) {
+#if !defined (Q_OS_WINCE)
+        HCURSOR cursor = LoadCursor(NULL, IDC_NO);
+        ICONINFO iconInfo = {0, 0, 0, 0, 0};
+        GetIconInfo(cursor, &iconInfo);
+        BITMAP bmColor = {0, 0, 0, 0, 0, 0, 0};
+
+        if (iconInfo.hbmColor
+            && GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmColor)
+            && bmColor.bmWidth == bmColor.bmWidthBytes / 4) {
+            const int colorBitsLength = bmColor.bmHeight * bmColor.bmWidthBytes;
+            uchar *colorBits = new uchar[colorBitsLength];
+            GetBitmapBits(iconInfo.hbmColor, colorBitsLength, colorBits);
+            const QImage colorImage(colorBits, bmColor.bmWidth, bmColor.bmHeight,
+                                    bmColor.bmWidthBytes, QImage::Format_ARGB32);
+
+            m_ignoreDragCursor = QPixmap::fromImage(colorImage);
+            delete [] colorBits;
+        } else {
+            m_ignoreDragCursor = QPixmap(ignoreDragCursorXpmC);
+        }
+
+        DeleteObject(iconInfo.hbmMask);
+        DeleteObject(iconInfo.hbmColor);
+        DestroyCursor(cursor);
+#else // !Q_OS_WINCE
         m_ignoreDragCursor = QPixmap(ignoreDragCursorXpmC);
+#endif // !Q_OS_WINCE
+    }
     return m_ignoreDragCursor;
 }
 

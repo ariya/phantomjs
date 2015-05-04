@@ -63,7 +63,7 @@ hb_buffer_serialize_format_t
 hb_buffer_serialize_format_from_string (const char *str, int len)
 {
   /* Upper-case it. */
-  return (hb_buffer_serialize_format_t) (hb_tag_from_string (str, len) & ~0x20202020);
+  return (hb_buffer_serialize_format_t) (hb_tag_from_string (str, len) & ~0x20202020u);
 }
 
 /**

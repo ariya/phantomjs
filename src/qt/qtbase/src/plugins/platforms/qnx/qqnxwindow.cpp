@@ -5,35 +5,27 @@
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -83,7 +75,7 @@ QT_BEGIN_NAMESPACE
     the default behavior suffices, some circumstances require greater control over the
     interaction with screen.
 
-    \section1 Window types
+    \section1 Window Types
 
     The QNX QPA plugin can operate in two modes, with or without a root window. The
     selection of mode is made via the \e rootwindow and \e no-rootwindow options to the
@@ -174,7 +166,7 @@ QQnxWindow::QQnxWindow(QWindow *window, screen_context_t context, bool needRootW
     // indication that we want to create a child window and join that window group.
     const QVariant windowGroup = window->property("qnxInitialWindowGroup");
 
-    if (window->type() == Qt::CoverWindow || window->type() == Qt::Desktop) {
+    if (window->type() == Qt::CoverWindow) {
         // Cover windows have to be top level to be accessible to window delegate (i.e. navigator)
         // Desktop windows also need to be toplevel because they are not
         // supposed to be part of the window hierarchy tree
@@ -189,10 +181,13 @@ QQnxWindow::QQnxWindow(QWindow *window, screen_context_t context, bool needRootW
         m_isTopLevel = !needRootWindow || !platformScreen->rootWindow();
     }
 
+    if (window->type() == Qt::Desktop)  // A desktop widget does not need a libscreen window
+        return;
+
     if (m_isTopLevel) {
         Q_SCREEN_CRITICALERROR(screen_create_window(&m_window, m_screenContext),
                             "Could not create top level window"); // Creates an application window
-        if (window->type() != Qt::CoverWindow && window->type() != Qt::Desktop) {
+        if (window->type() != Qt::CoverWindow) {
             if (needRootWindow)
                 platformScreen->setRootWindow(this);
         }
@@ -245,11 +240,11 @@ void QQnxWindow::setGeometry(const QRect &rect)
     if (shouldMakeFullScreen())
         newGeometry = screen()->geometry();
 
-    setGeometryHelper(newGeometry);
+    if (window()->type() != Qt::Desktop)
+        setGeometryHelper(newGeometry);
 
-    QWindowSystemInterface::handleGeometryChange(window(), newGeometry);
     if (isExposed())
-        QWindowSystemInterface::handleExposeEvent(window(), newGeometry);
+        QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(0, 0), newGeometry.size()));
 }
 
 void QQnxWindow::setGeometryHelper(const QRect &rect)
@@ -278,13 +273,15 @@ void QQnxWindow::setGeometryHelper(const QRect &rect)
                         "Failed to set window source size");
 
     screen_flush_context(m_screenContext, 0);
+
+    QWindowSystemInterface::handleGeometryChange(window(), rect);
 }
 
 void QQnxWindow::setVisible(bool visible)
 {
     qWindowDebug() << Q_FUNC_INFO << "window =" << window() << "visible =" << visible;
 
-    if (m_visible == visible)
+    if (m_visible == visible || window()->type() == Qt::Desktop)
         return;
 
     // The first time through we join a window group if appropriate.
@@ -301,7 +298,7 @@ void QQnxWindow::setVisible(bool visible)
 
     root->updateVisibility(root->m_visible);
 
-    QWindowSystemInterface::handleExposeEvent(window(), window()->geometry());
+    QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(0, 0), window()->geometry().size()));
 
     if (visible) {
         applyWindowState();
@@ -340,7 +337,7 @@ void QQnxWindow::setExposed(bool exposed)
 
     if (m_exposed != exposed) {
         m_exposed = exposed;
-        QWindowSystemInterface::handleExposeEvent(window(), window()->geometry());
+        QWindowSystemInterface::handleExposeEvent(window(), QRect(QPoint(0, 0), window()->geometry().size()));
     }
 }
 
@@ -667,6 +664,9 @@ void QQnxWindow::setRotation(int rotation)
 
 void QQnxWindow::initWindow()
 {
+    if (window()->type() == Qt::Desktop)
+        return;
+
     // Alpha channel is always pre-multiplied if present
     int val = SCREEN_PRE_MULTIPLIED_ALPHA;
     Q_SCREEN_CHECKERROR(screen_set_window_property_iv(m_window, SCREEN_PROPERTY_ALPHA_MODE, &val),
@@ -711,12 +711,7 @@ void QQnxWindow::initWindow()
     if (window()->parent() && window()->parent()->handle())
         setParent(window()->parent()->handle());
 
-    if (shouldMakeFullScreen())
-        setGeometryHelper(screen()->geometry());
-    else
-        setGeometryHelper(window()->geometry());
-
-    QWindowSystemInterface::handleGeometryChange(window(), screen()->geometry());
+    setGeometryHelper(shouldMakeFullScreen() ? screen()->geometry() : window()->geometry());
 }
 
 void QQnxWindow::createWindowGroup()

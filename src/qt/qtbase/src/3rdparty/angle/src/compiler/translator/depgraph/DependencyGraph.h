@@ -7,7 +7,7 @@
 #ifndef COMPILER_DEPGRAPH_DEPENDENCY_GRAPH_H
 #define COMPILER_DEPGRAPH_DEPENDENCY_GRAPH_H
 
-#include "compiler/translator/intermediate.h"
+#include "compiler/translator/IntermNode.h"
 
 #include <set>
 #include <stack>

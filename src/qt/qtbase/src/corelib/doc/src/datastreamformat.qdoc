@@ -173,7 +173,7 @@
             \li If the image is null a "null image" marker is saved;
             otherwise the image is saved in PNG or BMP format (depending
             on the stream version). If you want control of the format,
-            stream the image into a QBuffer (using QImageIO) and stream
+            stream the image into a QBuffer (using QImageIOHandler/QImageIOPlugin) and stream
             that.
             \endlist
     \row \li QKeySequence

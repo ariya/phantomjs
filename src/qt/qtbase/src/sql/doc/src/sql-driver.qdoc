@@ -700,7 +700,10 @@
         system. On Unix, run the command \c{ldd} and pass the name of the
         plugin as parameter, for example \c{ldd libqsqlmysql.so}. You will
         get a warning if any of the client libraries couldn't be found.
-        On Windows, you can use Visual Studio's dependency walker.
+        On Windows, you can use Visual Studio's dependency walker. With
+        Qt Creator, you can update the \c PATH environment variable in the
+        \gui Run section of the \gui Project panel to include the path to
+        the folder containing the client libraries.
     \li Compile Qt with \c{QT_DEBUG_COMPONENT} defined to get very verbose
         debug output when loading plugins.
     \endlist
@@ -710,9 +713,8 @@
 
     \snippet code/doc_src_sql-driver.cpp 31
 
-    the problem is usually that the plugin had the wrong \l{Deploying
-    Plugins#The Build Key}{build key}. This might require removing an
-    entry from the \l{Deploying Plugins#The Plugin Cache} {plugin cache}.
+    the problem is usually that the plugin had the wrong build key.
+    This might require removing an entry from the plugin cache.
 
     \target development
     \section1 How to Write Your Own Database Driver

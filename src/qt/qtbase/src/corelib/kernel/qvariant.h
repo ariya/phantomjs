@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -51,6 +43,9 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qobject.h>
+#ifndef QT_BOOTSTRAPPED
+#include <QtCore/qbytearraylist.h>
+#endif
 
 QT_BEGIN_NAMESPACE
 
@@ -447,7 +442,8 @@ protected:
 #ifndef QT_NO_DEBUG_STREAM
     friend Q_CORE_EXPORT QDebug operator<<(QDebug, const QVariant &);
 #endif
-#ifndef Q_NO_TEMPLATE_FRIENDS
+// ### Qt6: FIXME: Remove the special Q_CC_MSVC handling, it was introduced to maintain BC for QTBUG-41810 .
+#if !defined(Q_NO_TEMPLATE_FRIENDS) && !defined(Q_CC_MSVC)
     template<typename T>
     friend inline T qvariant_cast(const QVariant &);
     template<typename T> friend struct QtPrivate::QVariantValueHelper;
@@ -637,6 +633,9 @@ public:
 
         void begin();
         void end();
+        // ### Qt 5.5: make find() (1st one) a member function
+        friend void find(const_iterator &it, const QVariant &key);
+        friend const_iterator find(const QAssociativeIterable &iterable, const QVariant &key);
     public:
         ~const_iterator();
         const_iterator(const const_iterator &other);
@@ -666,6 +665,9 @@ public:
 
     const_iterator begin() const;
     const_iterator end() const;
+private: // ### Qt 5.5: make it a public find() member function:
+    friend const_iterator find(const QAssociativeIterable &iterable, const QVariant &key);
+public:
 
     QVariant value(const QVariant &key) const;
 
@@ -707,12 +709,18 @@ namespace QtPrivate {
     {
         static QSequentialIterable invoke(const QVariant &v)
         {
-            if (v.userType() == qMetaTypeId<QVariantList>()) {
+            const int typeId = v.userType();
+            if (typeId == qMetaTypeId<QVariantList>()) {
                 return QSequentialIterable(QtMetaTypePrivate::QSequentialIterableImpl(reinterpret_cast<const QVariantList*>(v.constData())));
             }
-            if (v.userType() == qMetaTypeId<QStringList>()) {
+            if (typeId == qMetaTypeId<QStringList>()) {
                 return QSequentialIterable(QtMetaTypePrivate::QSequentialIterableImpl(reinterpret_cast<const QStringList*>(v.constData())));
             }
+#ifndef QT_BOOTSTRAPPED
+            if (typeId == qMetaTypeId<QByteArrayList>()) {
+                return QSequentialIterable(QtMetaTypePrivate::QSequentialIterableImpl(reinterpret_cast<const QByteArrayList*>(v.constData())));
+            }
+#endif
             return QSequentialIterable(v.value<QtMetaTypePrivate::QSequentialIterableImpl>());
         }
     };
@@ -721,10 +729,11 @@ namespace QtPrivate {
     {
         static QAssociativeIterable invoke(const QVariant &v)
         {
-            if (v.userType() == qMetaTypeId<QVariantMap>()) {
+            const int typeId = v.userType();
+            if (typeId == qMetaTypeId<QVariantMap>()) {
                 return QAssociativeIterable(QtMetaTypePrivate::QAssociativeIterableImpl(reinterpret_cast<const QVariantMap*>(v.constData())));
             }
-            if (v.userType() == qMetaTypeId<QVariantHash>()) {
+            if (typeId == qMetaTypeId<QVariantHash>()) {
                 return QAssociativeIterable(QtMetaTypePrivate::QAssociativeIterableImpl(reinterpret_cast<const QVariantHash*>(v.constData())));
             }
             return QAssociativeIterable(v.value<QtMetaTypePrivate::QAssociativeIterableImpl>());
@@ -735,7 +744,8 @@ namespace QtPrivate {
     {
         static QVariantList invoke(const QVariant &v)
         {
-            if (v.userType() == qMetaTypeId<QStringList>() || QMetaType::hasRegisteredConverterFunction(v.userType(), qMetaTypeId<QtMetaTypePrivate::QSequentialIterableImpl>())) {
+            const int typeId = v.userType();
+            if (QtMetaTypePrivate::isBuiltinSequentialType(typeId) || QMetaType::hasRegisteredConverterFunction(typeId, qMetaTypeId<QtMetaTypePrivate::QSequentialIterableImpl>())) {
                 QSequentialIterable iter = QVariantValueHelperInterface<QSequentialIterable>::invoke(v);
                 QVariantList l;
                 l.reserve(iter.size());
@@ -751,7 +761,8 @@ namespace QtPrivate {
     {
         static QVariantHash invoke(const QVariant &v)
         {
-            if (QMetaType::hasRegisteredConverterFunction(v.userType(), qMetaTypeId<QtMetaTypePrivate::QAssociativeIterableImpl>())) {
+            const int typeId = v.userType();
+            if (QtMetaTypePrivate::isBuiltinAssociativeType(typeId) || QMetaType::hasRegisteredConverterFunction(typeId, qMetaTypeId<QtMetaTypePrivate::QAssociativeIterableImpl>())) {
                 QAssociativeIterable iter = QVariantValueHelperInterface<QAssociativeIterable>::invoke(v);
                 QVariantHash l;
                 l.reserve(iter.size());
@@ -767,7 +778,8 @@ namespace QtPrivate {
     {
         static QVariantMap invoke(const QVariant &v)
         {
-            if (QMetaType::hasRegisteredConverterFunction(v.userType(), qMetaTypeId<QtMetaTypePrivate::QAssociativeIterableImpl>())) {
+            const int typeId = v.userType();
+            if (QtMetaTypePrivate::isBuiltinAssociativeType(typeId) || QMetaType::hasRegisteredConverterFunction(typeId, qMetaTypeId<QtMetaTypePrivate::QAssociativeIterableImpl>())) {
                 QAssociativeIterable iter = QVariantValueHelperInterface<QAssociativeIterable>::invoke(v);
                 QVariantMap l;
                 for (QAssociativeIterable::const_iterator it = iter.begin(), end = iter.end(); it != end; ++it)
@@ -782,10 +794,11 @@ namespace QtPrivate {
     {
         static QPair<QVariant, QVariant> invoke(const QVariant &v)
         {
-            if (v.userType() == qMetaTypeId<QPair<QVariant, QVariant> >())
+            const int typeId = v.userType();
+            if (typeId == qMetaTypeId<QPair<QVariant, QVariant> >())
                 return QVariantValueHelper<QPair<QVariant, QVariant> >::invoke(v);
 
-            if (QMetaType::hasRegisteredConverterFunction(v.userType(), qMetaTypeId<QtMetaTypePrivate::QPairVariantInterfaceImpl>())) {
+            if (QMetaType::hasRegisteredConverterFunction(typeId, qMetaTypeId<QtMetaTypePrivate::QPairVariantInterfaceImpl>())) {
                 QtMetaTypePrivate::QPairVariantInterfaceImpl pi = v.value<QtMetaTypePrivate::QPairVariantInterfaceImpl>();
 
                 const QtMetaTypePrivate::VariantData d1 = pi.first();

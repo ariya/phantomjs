@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -619,7 +611,7 @@ bool QWindowsMimeText::convertFromMime(const FORMATETC &formatetc, const QMimeDa
 
 bool QWindowsMimeText::canConvertToMime(const QString &mimeType, IDataObject *pDataObj) const
 {
-    return mimeType.startsWith(QStringLiteral("text/plain"))
+    return mimeType.startsWith(QLatin1String("text/plain"))
            && (canGetData(CF_UNICODETEXT, pDataObj)
            || canGetData(CF_TEXT, pDataObj));
 }
@@ -636,7 +628,7 @@ QString QWindowsMimeText::mimeForFormat(const FORMATETC &formatetc) const
 QVector<FORMATETC> QWindowsMimeText::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
 {
     QVector<FORMATETC> formatics;
-    if (mimeType.startsWith(QStringLiteral("text/plain")) && mimeData->hasText()) {
+    if (mimeType.startsWith(QLatin1String("text/plain")) && mimeData->hasText()) {
         formatics += setCf(CF_UNICODETEXT);
         formatics += setCf(CF_TEXT);
     }
@@ -769,7 +761,7 @@ bool QWindowsMimeURI::convertFromMime(const FORMATETC &formatetc, const QMimeDat
 
 bool QWindowsMimeURI::canConvertToMime(const QString &mimeType, IDataObject *pDataObj) const
 {
-    return mimeType == QStringLiteral("text/uri-list")
+    return mimeType == QLatin1String("text/uri-list")
            && (canGetData(CF_HDROP, pDataObj) || canGetData(CF_INETURL_W, pDataObj) || canGetData(CF_INETURL, pDataObj));
 }
 
@@ -784,7 +776,7 @@ QString QWindowsMimeURI::mimeForFormat(const FORMATETC &formatetc) const
 QVector<FORMATETC> QWindowsMimeURI::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
 {
     QVector<FORMATETC> formatics;
-    if (mimeType == QStringLiteral("text/uri-list")) {
+    if (mimeType == QLatin1String("text/uri-list")) {
         if (canConvertFromMime(setCf(CF_HDROP), mimeData))
             formatics += setCf(CF_HDROP);
         if (canConvertFromMime(setCf(CF_INETURL_W), mimeData))
@@ -797,7 +789,7 @@ QVector<FORMATETC> QWindowsMimeURI::formatsForMime(const QString &mimeType, cons
 
 QVariant QWindowsMimeURI::convertToMime(const QString &mimeType, LPDATAOBJECT pDataObj, QVariant::Type preferredType) const
 {
-    if (mimeType == QStringLiteral("text/uri-list")) {
+    if (mimeType == QLatin1String("text/uri-list")) {
         if (canGetData(CF_HDROP, pDataObj)) {
             QByteArray texturi;
             QList<QVariant> urls;
@@ -870,7 +862,7 @@ QWindowsMimeHtml::QWindowsMimeHtml()
 QVector<FORMATETC> QWindowsMimeHtml::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
 {
     QVector<FORMATETC> formatetcs;
-    if (mimeType == QStringLiteral("text/html") && (!mimeData->html().isEmpty()))
+    if (mimeType == QLatin1String("text/html") && (!mimeData->html().isEmpty()))
         formatetcs += setCf(CF_HTML);
     return formatetcs;
 }
@@ -884,7 +876,7 @@ QString QWindowsMimeHtml::mimeForFormat(const FORMATETC &formatetc) const
 
 bool QWindowsMimeHtml::canConvertToMime(const QString &mimeType, IDataObject *pDataObj) const
 {
-    return mimeType == QStringLiteral("text/html") && canGetData(CF_HTML, pDataObj);
+    return mimeType == QLatin1String("text/html") && canGetData(CF_HTML, pDataObj);
 }
 
 
@@ -1006,7 +998,7 @@ QWindowsMimeImage::QWindowsMimeImage()
 QVector<FORMATETC> QWindowsMimeImage::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
 {
     QVector<FORMATETC> formatetcs;
-    if (mimeData->hasImage() && mimeType == QStringLiteral("application/x-qt-image")) {
+    if (mimeData->hasImage() && mimeType == QLatin1String("application/x-qt-image")) {
         //add DIBV5 if image has alpha channel
         QImage image = qvariant_cast<QImage>(mimeData->imageData());
         if (!image.isNull() && image.hasAlphaChannel())
@@ -1026,7 +1018,7 @@ QString QWindowsMimeImage::mimeForFormat(const FORMATETC &formatetc) const
 
 bool QWindowsMimeImage::canConvertToMime(const QString &mimeType, IDataObject *pDataObj) const
 {
-    if ((mimeType == QStringLiteral("application/x-qt-image")) &&
+    if (mimeType == QLatin1String("application/x-qt-image") &&
         (canGetData(CF_DIB, pDataObj) || canGetData(CF_PNG, pDataObj)))
         return true;
     return false;
@@ -1035,17 +1027,14 @@ bool QWindowsMimeImage::canConvertToMime(const QString &mimeType, IDataObject *p
 bool QWindowsMimeImage::canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const
 {
     int cf = getCf(formatetc);
-    if (mimeData->hasImage()) {
-        if (cf == CF_DIB)
-            return true;
-        else if (cf == CF_DIBV5) {
-            //support DIBV5 conversion only if the image has alpha channel
-            QImage image = qvariant_cast<QImage>(mimeData->imageData());
-            if (!image.isNull() && image.hasAlphaChannel())
-                return true;
-        }
-    }
-    return false;
+    if (!mimeData->hasImage())
+        return false;
+    const QImage image = qvariant_cast<QImage>(mimeData->imageData());
+    if (image.isNull())
+        return false;
+    // QTBUG-11463, deny CF_DIB support for images with alpha to prevent loss of
+    // transparency in conversion.
+    return cf == CF_DIBV5 || (cf == CF_DIB && !image.hasAlphaChannel());
 }
 
 bool QWindowsMimeImage::convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const
@@ -1169,7 +1158,7 @@ bool QBuiltInMimes::convertFromMime(const FORMATETC &formatetc, const QMimeData 
 {
     if (canConvertFromMime(formatetc, mimeData)) {
         QByteArray data;
-        if (outFormats.value(getCf(formatetc)) == QStringLiteral("text/html")) {
+        if (outFormats.value(getCf(formatetc)) == QLatin1String("text/html")) {
             // text/html is in wide chars on windows (compatible with mozillia)
             QString html = mimeData->html();
             // same code as in the text converter up above
@@ -1235,7 +1224,7 @@ QVariant QBuiltInMimes::convertToMime(const QString &mimeType, IDataObject *pDat
 #ifdef QMIME_DEBUG
             qDebug("QBuiltInMimes::convertToMime()");
 #endif
-            if (mimeType == QStringLiteral("text/html") && preferredType == QVariant::String) {
+            if (mimeType == QLatin1String("text/html") && preferredType == QVariant::String) {
                 // text/html is in wide chars on windows (compatible with Mozilla)
                 val = QString::fromWCharArray((const wchar_t *)data.data());
             } else {
@@ -1442,13 +1431,13 @@ QString QLastResortMimes::mimeForFormat(const FORMATETC &formatetc) const
     \sa QWindowsMime
 */
 
-QWindowsMimeConverter::QWindowsMimeConverter()
+QWindowsMimeConverter::QWindowsMimeConverter() : m_internalMimeCount(0)
 {
 }
 
 QWindowsMimeConverter::~QWindowsMimeConverter()
 {
-    qDeleteAll(m_mimes);
+    qDeleteAll(m_mimes.begin(), m_mimes.begin() + m_internalMimeCount);
 }
 
 QWindowsMime * QWindowsMimeConverter::converterToMime(const QString &mimeType, IDataObject *pDataObj) const
@@ -1526,6 +1515,7 @@ void QWindowsMimeConverter::ensureInitialized() const
         m_mimes << new QWindowsMimeImage << new QLastResortMimes
                 << new QWindowsMimeText << new QWindowsMimeURI
                 << new QWindowsMimeHtml << new QBuiltInMimes;
+        m_internalMimeCount = m_mimes.size();
     }
 }
 
@@ -1550,6 +1540,12 @@ QVariant QWindowsMimeConverter::convertToMime(const QStringList &mimeTypes,
     }
     qCDebug(lcQpaMime) << __FUNCTION__ << "fails" << mimeTypes << pDataObj << preferredType;
     return QVariant();
+}
+
+void QWindowsMimeConverter::registerMime(QWindowsMime *mime)
+{
+    ensureInitialized();
+    m_mimes.append(mime);
 }
 
 QT_END_NAMESPACE

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtDBus module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -42,6 +34,7 @@
 #include "qdbusintegrator_p.h"
 
 #include <qcoreapplication.h>
+#include <qelapsedtimer.h>
 #include <qdebug.h>
 #include <qmetaobject.h>
 #include <qobject.h>
@@ -73,18 +66,27 @@
 
 QT_BEGIN_NAMESPACE
 
-static bool isDebugging;
-#define qDBusDebug              if (!::isDebugging); else qDebug
+// used with dbus_server_allocate_data_slot
+static dbus_int32_t server_slot = -1;
 
-Q_GLOBAL_STATIC_WITH_ARGS(const QString, orgFreedesktopDBusString, (QLatin1String(DBUS_SERVICE_DBUS)))
+static QBasicAtomicInt isDebugging = Q_BASIC_ATOMIC_INITIALIZER(-1);
+#define qDBusDebug              if (::isDebugging == 0); else qDebug
+
+static inline QString orgFreedesktopDBusString()
+{
+    return QStringLiteral(DBUS_SERVICE_DBUS);
+}
 
 static inline QString dbusServiceString()
-{ return *orgFreedesktopDBusString(); }
+{
+    return orgFreedesktopDBusString();
+}
+
 static inline QString dbusInterfaceString()
 {
     // it's the same string, but just be sure
-    Q_ASSERT(*orgFreedesktopDBusString() == QLatin1String(DBUS_INTERFACE_DBUS));
-    return *orgFreedesktopDBusString();
+    Q_ASSERT(orgFreedesktopDBusString() == QLatin1String(DBUS_INTERFACE_DBUS));
+    return orgFreedesktopDBusString();
 }
 
 static inline QDebug operator<<(QDebug dbg, const QThread *th)
@@ -155,7 +157,7 @@ static dbus_bool_t qDBusAddTimeout(DBusTimeout *timeout, void *data)
     if (!q_dbus_timeout_get_enabled(timeout))
         return true;
 
-    QDBusWatchAndTimeoutLocker locker(AddTimeoutAction, d);
+    QDBusDispatchLocker locker(AddTimeoutAction, d);
     if (QCoreApplication::instance() && QThread::currentThread() == d->thread()) {
         // correct thread
         return qDBusRealAddTimeout(d, timeout, q_dbus_timeout_get_interval(timeout));
@@ -190,7 +192,7 @@ static void qDBusRemoveTimeout(DBusTimeout *timeout, void *data)
 
     QDBusConnectionPrivate *d = static_cast<QDBusConnectionPrivate *>(data);
 
-    QDBusWatchAndTimeoutLocker locker(RemoveTimeoutAction, d);
+    QDBusDispatchLocker locker(RemoveTimeoutAction, d);
 
     // is it pending addition?
     QDBusConnectionPrivate::PendingTimeoutList::iterator pit = d->timeoutsPendingAdd.begin();
@@ -263,7 +265,7 @@ static bool qDBusRealAddWatch(QDBusConnectionPrivate *d, DBusWatch *watch, int f
 {
     QDBusConnectionPrivate::Watcher watcher;
 
-    QDBusWatchAndTimeoutLocker locker(AddWatchAction, d);
+    QDBusDispatchLocker locker(AddWatchAction, d);
     if (flags & DBUS_WATCH_READABLE) {
         //qDebug("addReadWatch %d", fd);
         watcher.watch = watch;
@@ -297,7 +299,7 @@ static void qDBusRemoveWatch(DBusWatch *watch, void *data)
     QDBusConnectionPrivate *d = static_cast<QDBusConnectionPrivate *>(data);
     int fd = q_dbus_watch_get_unix_fd(watch);
 
-    QDBusWatchAndTimeoutLocker locker(RemoveWatchAction, d);
+    QDBusDispatchLocker locker(RemoveWatchAction, d);
     QDBusConnectionPrivate::WatcherHash::iterator i = d->watchers.find(fd);
     while (i != d->watchers.end() && i.key() == fd) {
         if (i.value().watch == watch) {
@@ -341,7 +343,7 @@ static void qDBusToggleWatch(DBusWatch *watch, void *data)
 
 static void qDBusRealToggleWatch(QDBusConnectionPrivate *d, DBusWatch *watch, int fd)
 {
-    QDBusWatchAndTimeoutLocker locker(ToggleWatchAction, d);
+    QDBusDispatchLocker locker(ToggleWatchAction, d);
 
     QDBusConnectionPrivate::WatcherHash::iterator i = d->watchers.find(fd);
     while (i != d->watchers.end() && i.key() == fd) {
@@ -1016,19 +1018,18 @@ void QDBusConnectionPrivate::deliverCall(QObject *object, int /*flags*/, const Q
 extern bool qDBusInitThreads();
 
 QDBusConnectionPrivate::QDBusConnectionPrivate(QObject *p)
-    : QObject(p), ref(1), capabilities(0), mode(InvalidMode), connection(0), server(0), busService(0),
-      watchAndTimeoutLock(QMutex::Recursive),
+    : QObject(p), ref(1), capabilities(0), mode(InvalidMode), busService(0),
+      dispatchLock(QMutex::Recursive), connection(0), server(0),
       rootNode(QString(QLatin1Char('/'))),
       anonymousAuthenticationAllowed(false)
 {
     static const bool threads = q_dbus_threads_init_default();
-    static const int debugging = qgetenv("QDBUS_DEBUG").toInt();
-    ::isDebugging = debugging;
+    if (::isDebugging == -1)
+       ::isDebugging = qgetenv("QDBUS_DEBUG").toInt();
     Q_UNUSED(threads)
-    Q_UNUSED(debugging)
 
 #ifdef QDBUS_THREAD_DEBUG
-    if (debugging > 1)
+    if (::isDebugging > 1)
         qdbusThreadDebug = qdbusDefaultThreadDebug;
 #endif
 
@@ -1086,8 +1087,10 @@ void QDBusConnectionPrivate::closeConnection()
     mode = InvalidMode; // prevent reentrancy
     baseService.clear();
 
-    if (server)
+    if (server) {
         q_dbus_server_disconnect(server);
+        q_dbus_server_free_data_slot(&server_slot);
+    }
 
     if (oldMode == ClientMode || oldMode == PeerMode) {
         if (connection) {
@@ -1128,7 +1131,7 @@ bool QDBusConnectionPrivate::handleError(const QDBusErrorInternal &error)
 void QDBusConnectionPrivate::timerEvent(QTimerEvent *e)
 {
     {
-        QDBusWatchAndTimeoutLocker locker(TimerEventAction, this);
+        QDBusDispatchLocker locker(TimerEventAction, this);
         DBusTimeout *timeout = timeouts.value(e->timerId(), 0);
         if (timeout)
             q_dbus_timeout_handle(timeout);
@@ -1147,7 +1150,7 @@ void QDBusConnectionPrivate::customEvent(QEvent *e)
     switch (ev->subtype)
     {
     case QDBusConnectionCallbackEvent::AddTimeout: {
-        QDBusWatchAndTimeoutLocker locker(RealAddTimeoutAction, this);
+        QDBusDispatchLocker locker(RealAddTimeoutAction, this);
         while (!timeoutsPendingAdd.isEmpty()) {
             QPair<DBusTimeout *, int> entry = timeoutsPendingAdd.takeFirst();
             qDBusRealAddTimeout(this, entry.first, entry.second);
@@ -1180,41 +1183,31 @@ void QDBusConnectionPrivate::doDispatch()
 
 void QDBusConnectionPrivate::socketRead(int fd)
 {
-    QVarLengthArray<DBusWatch *, 2> pendingWatches;
-
-    {
-        QDBusWatchAndTimeoutLocker locker(SocketReadAction, this);
-        WatcherHash::ConstIterator it = watchers.constFind(fd);
-        while (it != watchers.constEnd() && it.key() == fd) {
-            if (it->watch && it->read && it->read->isEnabled())
-                pendingWatches.append(it.value().watch);
-            ++it;
+    QDBusDispatchLocker locker(SocketReadAction, this);
+    WatcherHash::ConstIterator it = watchers.constFind(fd);
+    while (it != watchers.constEnd() && it.key() == fd) {
+        if (it->watch && it->read && it->read->isEnabled()) {
+            if (!q_dbus_watch_handle(it.value().watch, DBUS_WATCH_READABLE))
+                qDebug("OUT OF MEM");
+            break;
         }
+        ++it;
     }
-
-    for (int i = 0; i < pendingWatches.size(); ++i)
-        if (!q_dbus_watch_handle(pendingWatches[i], DBUS_WATCH_READABLE))
-            qDebug("OUT OF MEM");
     doDispatch();
 }
 
 void QDBusConnectionPrivate::socketWrite(int fd)
 {
-    QVarLengthArray<DBusWatch *, 2> pendingWatches;
-
-    {
-        QDBusWatchAndTimeoutLocker locker(SocketWriteAction, this);
-        WatcherHash::ConstIterator it = watchers.constFind(fd);
-        while (it != watchers.constEnd() && it.key() == fd) {
-            if (it->watch && it->write && it->write->isEnabled())
-                pendingWatches.append(it.value().watch);
-            ++it;
+    QDBusDispatchLocker locker(SocketWriteAction, this);
+    WatcherHash::ConstIterator it = watchers.constFind(fd);
+    while (it != watchers.constEnd() && it.key() == fd) {
+        if (it->watch && it->write && it->write->isEnabled()) {
+            if (!q_dbus_watch_handle(it.value().watch, DBUS_WATCH_WRITABLE))
+                qDebug("OUT OF MEM");
+            break;
         }
+        ++it;
     }
-
-    for (int i = 0; i < pendingWatches.size(); ++i)
-        if (!q_dbus_watch_handle(pendingWatches[i], DBUS_WATCH_WRITABLE))
-            qDebug("OUT OF MEM");
 }
 
 void QDBusConnectionPrivate::objectDestroyed(QObject *obj)
@@ -1267,7 +1260,10 @@ void QDBusConnectionPrivate::relaySignal(QObject *obj, const QMetaObject *mo, in
     //qDBusDebug() << "Emitting signal" << message;
     //qDBusDebug() << "for paths:";
     q_dbus_message_set_no_reply(msg, true); // the reply would not be delivered to anything
-    huntAndEmit(connection, msg, obj, rootNode, isScriptable, isAdaptor);
+    {
+        QDBusDispatchLocker locker(HuntAndEmitAction, this);
+        huntAndEmit(connection, msg, obj, rootNode, isScriptable, isAdaptor);
+    }
     q_dbus_message_unref(msg);
 }
 
@@ -1660,8 +1656,6 @@ void QDBusConnectionPrivate::handleSignal(const QDBusMessage& msg)
     handleSignal(key, msg);                  // third try
 }
 
-static dbus_int32_t server_slot = -1;
-
 void QDBusConnectionPrivate::setServer(DBusServer *s, const QDBusErrorInternal &error)
 {
     mode = ServerMode;
@@ -1924,7 +1918,11 @@ int QDBusConnectionPrivate::send(const QDBusMessage& message)
 
     qDBusDebug() << this << "sending message (no reply):" << message;
     checkThread();
-    bool isOk = q_dbus_connection_send(connection, msg, 0);
+    bool isOk;
+    {
+        QDBusDispatchLocker locker(SendMessageAction, this);
+        isOk = q_dbus_connection_send(connection, msg, 0);
+    }
     int serial = 0;
     if (isOk)
         serial = q_dbus_message_get_serial(msg);
@@ -1933,9 +1931,95 @@ int QDBusConnectionPrivate::send(const QDBusMessage& message)
     return serial;
 }
 
+// small helper to note long running blocking dbus calls.
+// these are generally a sign of fragile software (too long a call can either
+// lead to bad user experience, if it's running on the GUI thread for instance)
+// or break completely under load (hitting the call timeout).
+//
+// as a result, this is something we want to watch for.
+class QDBusBlockingCallWatcher
+{
+public:
+    QDBusBlockingCallWatcher(const QDBusMessage &message)
+        : m_message(message), m_maxCallTimeoutMs(0)
+    {
+#if defined(QT_NO_DEBUG)
+        // when in a release build, we default these to off.
+        // this means that we only affect code that explicitly enables the warning.
+        static int mainThreadWarningAmount = -1;
+        static int otherThreadWarningAmount = -1;
+#else
+        static int mainThreadWarningAmount = 200;
+        static int otherThreadWarningAmount = 500;
+#endif
+        static bool initializedAmounts = false;
+        static QBasicMutex initializeMutex;
+        QMutexLocker locker(&initializeMutex);
+
+        if (!initializedAmounts) {
+            int tmp = 0;
+            QByteArray env;
+            bool ok = true;
+
+            env = qgetenv("Q_DBUS_BLOCKING_CALL_MAIN_THREAD_WARNING_MS");
+            if (!env.isEmpty()) {
+                tmp = env.toInt(&ok);
+                if (ok)
+                    mainThreadWarningAmount = tmp;
+                else
+                    qWarning("QDBusBlockingCallWatcher: Q_DBUS_BLOCKING_CALL_MAIN_THREAD_WARNING_MS must be an integer; value ignored");
+            }
+
+            env = qgetenv("Q_DBUS_BLOCKING_CALL_OTHER_THREAD_WARNING_MS");
+            if (!env.isEmpty()) {
+                tmp = env.toInt(&ok);
+                if (ok)
+                    otherThreadWarningAmount = tmp;
+                else
+                    qWarning("QDBusBlockingCallWatcher: Q_DBUS_BLOCKING_CALL_OTHER_THREAD_WARNING_MS must be an integer; value ignored");
+            }
+
+            initializedAmounts = true;
+        }
+
+        locker.unlock();
+
+        // if this call is running on the main thread, we have a much lower
+        // tolerance for delay because any long-term delay will wreck user
+        // interactivity.
+        if (qApp && qApp->thread() == QThread::currentThread())
+            m_maxCallTimeoutMs = mainThreadWarningAmount;
+        else
+            m_maxCallTimeoutMs = otherThreadWarningAmount;
+
+        m_callTimer.start();
+    }
+
+    ~QDBusBlockingCallWatcher()
+    {
+        if (m_maxCallTimeoutMs < 0)
+            return; // disabled
+
+        if (m_callTimer.elapsed() >= m_maxCallTimeoutMs) {
+            qWarning("QDBusConnection: warning: blocking call took a long time (%d ms, max for this thread is %d ms) to service \"%s\" path \"%s\" interface \"%s\" member \"%s\"",
+                     int(m_callTimer.elapsed()), m_maxCallTimeoutMs,
+                     qPrintable(m_message.service()), qPrintable(m_message.path()),
+                     qPrintable(m_message.interface()), qPrintable(m_message.member()));
+        }
+    }
+
+private:
+    QDBusMessage m_message;
+    int m_maxCallTimeoutMs;
+    QElapsedTimer m_callTimer;
+};
+
+
 QDBusMessage QDBusConnectionPrivate::sendWithReply(const QDBusMessage &message,
                                                    int sendMode, int timeout)
 {
+    QDBusBlockingCallWatcher watcher(message);
+
     checkThread();
     if ((sendMode == QDBus::BlockWithGui || sendMode == QDBus::Block)
          && isServiceRegisteredByThread(message.service()))
@@ -1956,7 +2040,11 @@ QDBusMessage QDBusConnectionPrivate::sendWithReply(const QDBusMessage &message,
 
         qDBusDebug() << this << "sending message (blocking):" << message;
         QDBusErrorInternal error;
-        DBusMessage *reply = q_dbus_connection_send_with_reply_and_block(connection, msg, timeout, error);
+        DBusMessage *reply;
+        {
+            QDBusDispatchLocker locker(SendWithReplyAndBlockAction, this);
+            reply = q_dbus_connection_send_with_reply_and_block(connection, msg, timeout, error);
+        }
 
         q_dbus_message_unref(msg);
 
@@ -2267,7 +2355,7 @@ QDBusConnectionPrivate::disconnectSignal(SignalHookHash::Iterator &it)
                     watchedServices.erase(sit);
                     disconnectSignal(dbusServiceString(), QString(), dbusInterfaceString(),
                                   QLatin1String("NameOwnerChanged"), QStringList() << hook.service, QString(),
-                                  this, SLOT(_q_serviceOwnerChanged(QString,QString,QString)));
+                                  this, SLOT(serviceOwnerChangedNoLock(QString,QString,QString)));
                 }
             }
         }
@@ -2488,12 +2576,15 @@ void QDBusConnectionPrivate::unregisterServiceNoLock(const QString &serviceName)
     serviceNames.removeAll(serviceName);
 }
 
-bool QDBusConnectionPrivate::isServiceRegisteredByThread(const QString &serviceName) const
+bool QDBusConnectionPrivate::isServiceRegisteredByThread(const QString &serviceName)
 {
     if (!serviceName.isEmpty() && serviceName == baseService)
         return true;
-    QStringList copy = serviceNames;
-    return copy.contains(serviceName);
+    if (serviceName == dbusServiceString())
+        return false;
+
+    QDBusReadLocker locker(UnregisterServiceAction, this);
+    return serviceNames.contains(serviceName);
 }
 
 void QDBusConnectionPrivate::postEventToThread(int action, QObject *object, QEvent *ev)

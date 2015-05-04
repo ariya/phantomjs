@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -47,22 +39,32 @@
 #include <QtCore/qtypeinfo.h>
 #include <QtCore/qtypetraits.h>
 
+#ifdef Q_COMPILER_INITIALIZER_LISTS
+#include <initializer_list>
+#endif
+
 QT_BEGIN_NAMESPACE
 
 class QFlag
 {
     int i;
 public:
-#if !defined(__LP64__) && !defined(Q_QDOC)
+    Q_DECL_CONSTEXPR inline QFlag(int ai) : i(ai) {}
+    Q_DECL_CONSTEXPR inline operator int() const { return i; }
+
+#if !defined(Q_CC_MSVC)
+    // Microsoft Visual Studio has buggy behavior when it comes to
+    // unsigned enums: even if the enum is unsigned, the enum tags are
+    // always signed
+#  if !defined(__LP64__) && !defined(Q_QDOC)
     Q_DECL_CONSTEXPR inline QFlag(long ai) : i(int(ai)) {}
     Q_DECL_CONSTEXPR inline QFlag(ulong ai) : i(int(long(ai))) {}
-#endif
-    Q_DECL_CONSTEXPR inline QFlag(int ai) : i(ai) {}
+#  endif
     Q_DECL_CONSTEXPR inline QFlag(uint ai) : i(int(ai)) {}
     Q_DECL_CONSTEXPR inline QFlag(short ai) : i(int(ai)) {}
     Q_DECL_CONSTEXPR inline QFlag(ushort ai) : i(int(uint(ai))) {}
-    Q_DECL_CONSTEXPR inline operator int() const { return i; }
     Q_DECL_CONSTEXPR inline operator uint() const { return uint(i); }
+#endif
 };
 Q_DECLARE_TYPEINFO(QFlag, Q_PRIMITIVE_TYPE);
 
@@ -89,7 +91,11 @@ class QFlags
     struct Private;
     typedef int (Private::*Zero);
 public:
-#ifndef Q_QDOC
+#if defined(Q_CC_MSVC) || defined(Q_QDOC)
+    // see above for MSVC
+    // the definition below is too complex for qdoc
+    typedef int Int;
+#else
     typedef typename QtPrivate::if_<
             QtPrivate::is_unsigned<Enum>::value,
             unsigned int,
@@ -99,13 +105,17 @@ public:
     typedef Enum enum_type;
     // compiler-generated copy/move ctor/assignment operators are fine!
 #ifdef Q_QDOC
-    typedef int Int; // the real typedef above is too complex for qdoc
     inline QFlags(const QFlags &other);
     inline QFlags &operator=(const QFlags &other);
 #endif
     Q_DECL_CONSTEXPR inline QFlags(Enum f) : i(Int(f)) {}
     Q_DECL_CONSTEXPR inline QFlags(Zero = 0) : i(0) {}
     Q_DECL_CONSTEXPR inline QFlags(QFlag f) : i(f) {}
+
+#ifdef Q_COMPILER_INITIALIZER_LISTS
+    Q_DECL_CONSTEXPR inline QFlags(std::initializer_list<Enum> flags)
+        : i(initializer_list_helper(flags.begin(), flags.end())) {}
+#endif
 
     inline QFlags &operator&=(int mask) { i &= mask; return *this; }
     inline QFlags &operator&=(uint mask) { i &= mask; return *this; }
@@ -130,6 +140,14 @@ public:
 
     Q_DECL_CONSTEXPR inline bool testFlag(Enum f) const { return (i & Int(f)) == Int(f) && (Int(f) != 0 || i == Int(f) ); }
 private:
+#ifdef Q_COMPILER_INITIALIZER_LISTS
+    Q_DECL_CONSTEXPR static inline Int initializer_list_helper(typename std::initializer_list<Enum>::const_iterator it,
+                                                               typename std::initializer_list<Enum>::const_iterator end)
+    {
+        return (it == end ? Int(0) : (Int(*it) | initializer_list_helper(it + 1, end)));
+    }
+#endif
+
     Int i;
 };
 

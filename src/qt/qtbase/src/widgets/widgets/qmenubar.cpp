@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -384,7 +376,7 @@ void QMenuBarPrivate::setCurrentAction(QAction *action, bool popup, bool activat
     QAction *previousAction = currentAction;
 #endif
     currentAction = action;
-    if (action) {
+    if (action && action->isEnabled()) {
         activateAction(action, QAction::Hover);
         if(popup)
             popupAction(action, activateFirst);
@@ -531,9 +523,6 @@ void QMenuBarPrivate::_q_actionHovered()
             QAccessibleEvent focusEvent(q, QAccessible::Focus);
             focusEvent.setChild(actionIndex);
             QAccessible::updateAccessibility(&focusEvent);
-            QAccessibleEvent selectionEvent(q, QAccessible::Selection);
-            selectionEvent.setChild(actionIndex);
-            QAccessible::updateAccessibility(&selectionEvent);
         }
 #endif //QT_NO_ACCESSIBILITY
     }
@@ -619,15 +608,15 @@ void QMenuBar::initStyleOption(QStyleOptionMenuItem *option, const QAction *acti
     for items in the menu bar are only shown when the \uicontrol{Alt} key is
     pressed.
 
-    \section1 QMenuBar on Mac OS X
+    \section1 QMenuBar on OS X
 
-    QMenuBar on Mac OS X is a wrapper for using the system-wide menu bar.
+    QMenuBar on OS X is a wrapper for using the system-wide menu bar.
     If you have multiple menu bars in one dialog the outermost menu bar
     (normally inside a widget with widget flag Qt::Window) will
     be used for the system-wide menu bar.
 
-    Qt for Mac OS X also provides a menu bar merging feature to make
-    QMenuBar conform more closely to accepted Mac OS X menu bar layout.
+    Qt for OS X also provides a menu bar merging feature to make
+    QMenuBar conform more closely to accepted OS X menu bar layout.
     The merging functionality is based on string matching the title of
     a QMenu entry. These strings are translated (using QObject::tr())
     in the "QMenuBar" context. If an entry is moved its slots will still
@@ -666,7 +655,7 @@ void QMenuBar::initStyleOption(QStyleOptionMenuItem *option, const QAction *acti
 
     \b{Note:} The text used for the application name in the menu
     bar is obtained from the value set in the \c{Info.plist} file in
-    the application's bundle. See \l{Qt for Mac OS X - Deployment}
+    the application's bundle. See \l{Qt for OS X - Deployment}
     for more information.
 
     \section1 QMenuBar on Windows CE
@@ -911,7 +900,7 @@ void QMenuBar::setActiveAction(QAction *act)
 /*!
     Removes all the actions from the menu bar.
 
-    \note On Mac OS X, menu items that have been merged to the system
+    \note On OS X, menu items that have been merged to the system
     menu bar are not removed by this function. One way to handle this
     would be to remove the extra actions yourself. You can set the
     \l{QAction::MenuRole}{menu role} on the different menus, so that
@@ -1041,7 +1030,7 @@ void QMenuBar::mousePressEvent(QMouseEvent *e)
     d->mouseDown = true;
 
     QAction *action = d->actionAt(e->pos());
-    if (!action || !d->isVisible(action)) {
+    if (!action || !d->isVisible(action) || !action->isEnabled()) {
         d->setCurrentAction(0);
 #ifndef QT_NO_WHATSTHIS
         if (QWhatsThis::inWhatsThisMode())
@@ -1642,9 +1631,8 @@ QSize QMenuBar::sizeHint() const
     int margin = 2*vmargin + 2*fw + spaceBelowMenuBar;
     if(d->leftWidget) {
         QSize sz = d->leftWidget->sizeHint();
-        ret.setWidth(ret.width() + sz.width());
-        if(sz.height() + margin > ret.height())
-            ret.setHeight(sz.height() + margin);
+        sz.rheight() += margin;
+        ret.expandedTo(sz);
     }
     if(d->rightWidget) {
         QSize sz = d->rightWidget->sizeHint();
@@ -1809,7 +1797,7 @@ QWidget *QMenuBar::cornerWidget(Qt::Corner corner) const
     \since 4.6
 
     This property specifies whether or not the menubar should be used as a native menubar on platforms
-    that support it. The currently supported platforms are Mac OS X and Windows CE. On these platforms
+    that support it. The currently supported platforms are OS X and Windows CE. On these platforms
     if this property is \c true, the menubar is used in the native menubar and is not in the window of
     its parent, if false the menubar remains in the window. On other platforms the value of this
     attribute has no effect.

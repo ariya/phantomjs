@@ -1,46 +1,37 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
 
 #include "qloggingregistry_p.h"
-#include "qloggingcategory_p.h"
 
 #include <QtCore/qfile.h>
 #include <QtCore/qstandardpaths.h>
@@ -131,15 +122,15 @@ void QLoggingRule::parse(const QStringRef &pattern)
     // strip trailing ".messagetype"
     if (pattern.endsWith(QLatin1String(".debug"))) {
         p = QStringRef(pattern.string(), pattern.position(),
-                       pattern.length() - strlen(".debug"));
+                       pattern.length() - 6); // strlen(".debug")
         messageType = QtDebugMsg;
     } else if (pattern.endsWith(QLatin1String(".warning"))) {
         p = QStringRef(pattern.string(), pattern.position(),
-                       pattern.length() - strlen(".warning"));
+                       pattern.length() - 8); // strlen(".warning")
         messageType = QtWarningMsg;
     } else if (pattern.endsWith(QLatin1String(".critical"))) {
         p = QStringRef(pattern.string(), pattern.position(),
-                       pattern.length() - strlen(".critical"));
+                       pattern.length() - 9); // strlen(".critical")
         messageType = QtCriticalMsg;
     } else {
         p = pattern;
@@ -261,12 +252,12 @@ void QLoggingRegistry::init()
     if (!rulesFilePath.isEmpty()) {
         QFile file(QFile::decodeName(rulesFilePath));
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QTextStream stream(&file);
-            QLoggingSettingsParser parser;
-            parser.setContent(stream);
             if (qtLoggingDebug())
                 debugMsg("Loading \"%s\" ...",
                          QDir::toNativeSeparators(file.fileName()).toUtf8().constData());
+            QTextStream stream(&file);
+            QLoggingSettingsParser parser;
+            parser.setContent(stream);
             envRules = parser.rules();
         }
     }
@@ -285,12 +276,12 @@ void QLoggingRegistry::init()
     if (!envPath.isEmpty()) {
         QFile file(envPath);
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QTextStream stream(&file);
-            QLoggingSettingsParser parser;
-            parser.setContent(stream);
             if (qtLoggingDebug())
                 debugMsg("Loading \"%s\" ...",
                          QDir::toNativeSeparators(envPath).toUtf8().constData());
+            QTextStream stream(&file);
+            QLoggingSettingsParser parser;
+            parser.setContent(stream);
             configRules = parser.rules();
         }
     }
@@ -307,12 +298,12 @@ void QLoggingRegistry::init()
 
     This method might be called concurrently for the same category object.
 */
-void QLoggingRegistry::registerCategory(QLoggingCategory *cat)
+void QLoggingRegistry::registerCategory(QLoggingCategory *cat, QtMsgType enableForLevel)
 {
     QMutexLocker locker(&registryMutex);
 
     if (!categories.contains(cat)) {
-        categories.append(cat);
+        categories.insert(cat, enableForLevel);
         (*categoryFilter)(cat);
     }
 }
@@ -324,8 +315,7 @@ void QLoggingRegistry::registerCategory(QLoggingCategory *cat)
 void QLoggingRegistry::unregisterCategory(QLoggingCategory *cat)
 {
     QMutexLocker locker(&registryMutex);
-
-    categories.removeOne(cat);
+    categories.remove(cat);
 }
 
 /*!
@@ -341,7 +331,7 @@ void QLoggingRegistry::setApiRules(const QString &content)
     QMutexLocker locker(&registryMutex);
 
     if (qtLoggingDebug())
-        debugMsg("Loading logging rules set by Qt API ...");
+        debugMsg("Loading logging rules set by QLoggingCategory::setFilterRules ...");
 
     apiRules = parser.rules();
 
@@ -361,7 +351,7 @@ void QLoggingRegistry::updateRules()
 
     rules = configRules + apiRules + envRules;
 
-    foreach (QLoggingCategory *cat, categories)
+    foreach (QLoggingCategory *cat, categories.keys())
         (*categoryFilter)(cat);
 }
 
@@ -380,7 +370,7 @@ QLoggingRegistry::installFilter(QLoggingCategory::CategoryFilter filter)
     QLoggingCategory::CategoryFilter old = categoryFilter;
     categoryFilter = filter;
 
-    foreach (QLoggingCategory *cat, categories)
+    foreach (QLoggingCategory *cat, categories.keys())
         (*categoryFilter)(cat);
 
     return old;
@@ -397,18 +387,24 @@ QLoggingRegistry *QLoggingRegistry::instance()
 */
 void QLoggingRegistry::defaultCategoryFilter(QLoggingCategory *cat)
 {
-    // QLoggingCategory() normalizes "default" strings
-    // to qtDefaultCategoryName
-    bool debug = true;
-    char c;
-    if (!memcmp(cat->categoryName(), "qt", 2) && (!(c = cat->categoryName()[2]) || c == '.'))
-        debug = false;
+    QLoggingRegistry *reg = QLoggingRegistry::instance();
+    Q_ASSERT(reg->categories.contains(cat));
+    QtMsgType enableForLevel = reg->categories.value(cat);
 
-    bool warning = true;
-    bool critical = true;
+    bool debug = (enableForLevel == QtDebugMsg);
+    bool warning = (enableForLevel <= QtWarningMsg);
+    bool critical = (enableForLevel <= QtCriticalMsg);
+
+    // hard-wired implementation of
+    //   qt.*.debug=false
+    //   qt.debug=false
+    if (const char *categoryName = cat->categoryName()) {
+        // == "qt" or startsWith("qt.")
+        if (strcmp(categoryName, "qt") == 0 || strncmp(categoryName, "qt.", 3) == 0)
+            debug = false;
+    }
 
     QString categoryName = QLatin1String(cat->categoryName());
-    QLoggingRegistry *reg = QLoggingRegistry::instance();
     foreach (const QLoggingRule &item, reg->rules) {
         int filterpass = item.pass(categoryName, QtDebugMsg);
         if (filterpass != 0)

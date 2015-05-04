@@ -512,7 +512,7 @@
     In contrast, setting a font and propagate using QWidget::setFont() and
     QWidget::setPalette() propagates to child widgets.
 
-    \section1 Widgets inside C++ namespaces
+    \section1 Widgets Inside C++ Namespaces
 
     The Type Selector can be used to style widgets of a particular type. For
     example,
@@ -528,7 +528,7 @@
 
     \snippet code/doc_src_stylesheet.cpp 27
 
-    \section1 Setting QObject properties
+    \section1 Setting QObject Properties
 
     From 4.3 and above, any designable Q_PROPERTY
     can be set using the qproperty-<property name> syntax.
@@ -861,6 +861,9 @@
            The password character can be styled using the
            \l{#lineedit-password-character-prop}{lineedit-password-character}
            property.
+
+           The password mask delay can be changed using the
+           \l{#lineedit-password-mask-delay-prop}{lineedit-password-mask-delay}
 
            See \l{Qt Style Sheets Examples#Customizing QLineEdit}{Customizing QLineEdit}
            for an example.
@@ -2009,6 +2012,23 @@
            \snippet code/doc_src_stylesheet.qdoc 61
 
     \row
+        \li \b{\c lineedit-password-mask-delay*} \target lineedit-password-mask-delay-prop
+        \li \l{#Number}{Number}
+        \li The QLineEdit password mask delay in milliseconds before
+           \l{#lineedit-password-character-prop}{lineedit-password-character} is applied to visible character.
+
+           If this property is not specified, it defaults to the
+           value specified by the current style for the
+           \l{QStyle::}{SH_LineEdit_PasswordMaskDelay} style hint.
+
+           \b{This property was added in Qt 5.4.}
+
+           Example:
+
+           \snippet code/doc_src_stylesheet.qdoc 160
+
+
+    \row
         \li \b{\c margin} \target margin-prop
         \li \l {Box Lengths}
         \li The widget's margins. Equivalent to specifying \c
@@ -2881,6 +2901,9 @@
            \li \c ex: the ex width of the font (i.e., the height of 'x')
            \endlist
 
+           However, Qt is limited to font sizes in \c pt and \c px and any other
+           size must be in \c px, \c em or \c ex.
+
     \row
         \li \b{Number} \target Number
         \li A decimal integer or a real number
@@ -3526,7 +3549,7 @@
     [Hint: The \l{The Style Sheet Syntax#Conflict Resolution}{Conflict Resolution} section above explains
     what happens in cases like this.]
 
-    \section1 Customizing specific widgets
+    \section1 Customizing Specific Widgets
 
     This section provides examples to customize specific widgets using Style Sheets.
 
@@ -3907,7 +3930,7 @@
     \sa {Style Sheet Example}, {Supported HTML Subset}, QStyle
 
 
-    \section1 Common mistakes
+    \section1 Common Mistakes
 
     This section lists some common mistakes when using stylesheets.
 

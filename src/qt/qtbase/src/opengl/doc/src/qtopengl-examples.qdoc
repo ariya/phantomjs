@@ -1,0 +1,45 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \ingroup all-examples
+    \title OpenGL Examples from the Qt OpenGL module
+    \brief Accessing OpenGL from Qt.
+    \group examples-widgets-opengl
+
+    \image opengl-examples.png
+
+    These examples describe how to use the \l {Qt OpenGL} module. For new code,
+    please use the OpenGL classes in the \l {Qt GUI} module.
+
+    Qt provides support for integration with OpenGL implementations on all
+    platforms, giving developers the opportunity to display hardware accelerated
+    3D graphics alongside a more conventional user interface.
+
+    These examples demonstrate the basic techniques used to take advantage of
+    OpenGL in Qt applications.
+*/

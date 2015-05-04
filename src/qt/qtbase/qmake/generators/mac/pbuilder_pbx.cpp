@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the qmake application of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -418,7 +410,7 @@ class ProjectBuilderSources
     bool buildable, object_output;
     QString key, group, compiler;
 public:
-    ProjectBuilderSources(const QString &key, bool buildable=false, const QString &group=QString(), const QString &compiler=QString(), bool producesObject=false);
+    ProjectBuilderSources(const QString &key, bool buildable = false, const QString &compiler = QString(), bool producesObject = false);
     QStringList files(QMakeProject *project) const;
     inline bool isBuildable() const { return buildable; }
     inline QString keyName() const { return key; }
@@ -442,8 +434,8 @@ public:
     }
 };
 
-ProjectBuilderSources::ProjectBuilderSources(const QString &k, bool b,
-                                             const QString &g, const QString &c, bool o) : buildable(b), object_output(o), key(k), group(g), compiler(c)
+ProjectBuilderSources::ProjectBuilderSources(const QString &k, bool b, const QString &c, bool o) :
+    buildable(b), object_output(o), key(k), compiler(c)
 {
     // Override group name for a few common keys
     if (k == "SOURCES" || k == "OBJECTIVE_SOURCES" || k == "HEADERS")
@@ -463,10 +455,16 @@ ProjectBuilderSources::files(QMakeProject *project) const
 {
     QStringList ret = project->values(ProKey(key)).toQStringList();
     if(key == "QMAKE_INTERNAL_INCLUDED_FILES") {
+        QString qtPrefix(QLibraryInfo::rawLocation(QLibraryInfo::PrefixPath, QLibraryInfo::EffectivePaths) + '/');
+        QString qtSrcPrefix(QLibraryInfo::rawLocation(QLibraryInfo::PrefixPath, QLibraryInfo::EffectiveSourcePaths) + '/');
+
         QStringList newret;
         for(int i = 0; i < ret.size(); ++i) {
-            if(!ret.at(i).endsWith(Option::prf_ext))
-                newret.append(ret.at(i));
+            // Don't show files "internal" to Qt in Xcode
+            if (ret.at(i).startsWith(qtPrefix) || ret.at(i).startsWith(qtSrcPrefix))
+                continue;
+
+            newret.append(ret.at(i));
         }
         ret = newret;
     }
@@ -567,6 +565,9 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     // doesn't have access to any of the information it needs to resolve relative paths.
     project->values("QMAKE_INTERNAL_INCLUDED_FILES").prepend(fileFixify(project->projectFile(), qmake_getpwd(), input_dir));
 
+    // Since we can't fileFixify inside ProjectBuilderSources::files(), we resolve the absolute paths here
+    project->values("QMAKE_INTERNAL_INCLUDED_FILES") = ProStringList(fileFixify(project->values("QMAKE_INTERNAL_INCLUDED_FILES").toQStringList(), FileFixifyAbsolute));
+
     //DUMP SOURCES
     QMap<QString, ProStringList> groups;
     QList<ProjectBuilderSources> sources;
@@ -606,7 +607,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                         }
                     }
                     sources.append(ProjectBuilderSources(inputs.at(input).toQString(), true,
-                            QString(), (*it).toQString(), isObj));
+                                                         (*it).toQString(), isObj));
 
                     if (isObj) {
                         inputs.removeAt(input);
@@ -634,18 +635,22 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                 continue;
 
             bool in_root = true;
-            QString src_key = keyFor(file), name = file;
-            if(project->isActiveConfig("flat")) {
-                QString flat_file = fileFixify(file, qmake_getpwd(), Option::output_dir, FileFixifyRelative);
-                if(flat_file.indexOf(Option::dir_sep) != -1) {
-                    QStringList dirs = flat_file.split(Option::dir_sep);
-                    name = dirs.back();
-                }
-            } else {
-                QString flat_file = fileFixify(file, qmake_getpwd(), Option::output_dir, FileFixifyRelative);
-                if(QDir::isRelativePath(flat_file) && flat_file.indexOf(Option::dir_sep) != -1) {
+            QString src_key = keyFor(file);
+
+            file = fileFixify(file, qmake_getpwd(), Option::output_dir, FileFixifyAbsolute);
+            QString name = file.split(Option::dir_sep).back();
+
+            if (!project->isActiveConfig("flat")) {
+                // Build group hierarchy for file references that match the source our build dir
+                QString relativePath = fileFixify(file, input_dir, qmake_getpwd(), FileFixifyRelative);
+                if (QDir::isRelativePath(relativePath) && relativePath.startsWith(QLatin1String("../")))
+                    relativePath = fileFixify(file, FileFixifyRelative); // Try build dir
+
+                if (QDir::isRelativePath(relativePath)
+                        && !relativePath.startsWith(QLatin1String("../"))
+                        && relativePath.indexOf(Option::dir_sep) != -1) {
                     QString last_grp("QMAKE_PBX_" + sources.at(source).groupName() + "_HEIR_GROUP");
-                    QStringList dirs = flat_file.split(Option::dir_sep);
+                    QStringList dirs = relativePath.split(Option::dir_sep);
                     name = dirs.back();
                     dirs.pop_back(); //remove the file portion as it will be added via src_key
                     for(QStringList::Iterator dir_it = dirs.begin(); dir_it != dirs.end(); ++dir_it) {
@@ -676,12 +681,12 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
               << "\t\t\t" << writeSettings("path", escapeFilePath(file)) << ";\n";
             if (name != file)
                 t << "\t\t\t" << writeSettings("name", escapeFilePath(name)) << ";\n";
-            t << "\t\t\t" << writeSettings("sourceTree", sourceTreeForFile(file)) << ";\n";
+            t << "\t\t\t" << writeSettings("sourceTree", "<absolute>") << ";\n";
             QString filetype = xcodeFiletypeForFilename(file);
             if (!filetype.isNull())
                 t << "\t\t\t" << writeSettings("lastKnownFileType", filetype) << ";\n";
             t << "\t\t};\n";
-            if (sources.at(source).isBuildable() && sources.at(source).isObjectOutput(file)) { //build reference
+            if (sources.at(source).isBuildable()) { //build reference
                 QString build_key = keyFor(file + ".BUILDABLE");
                 t << "\t\t" << build_key << " = {\n"
                   << "\t\t\t" << writeSettings("fileRef", src_key) << ";\n"
@@ -690,7 +695,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                   << "\t\t\t\t" << writeSettings("ATTRIBUTES", ProStringList(), SettingsAsList, 5) << ";\n"
                   << "\t\t\t};\n"
                   << "\t\t};\n";
-                project->values("QMAKE_PBX_OBJ").append(build_key);
+                if (sources.at(source).isObjectOutput(file))
+                    project->values("QMAKE_PBX_OBJ").append(build_key);
             }
         }
         if(!src_list.isEmpty()) {
@@ -733,13 +739,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             mkt << "DEFINES       = "
                 << varGlue("PRL_EXPORT_DEFINES","-D"," -D"," ")
                 << varGlue("DEFINES","-D"," -D","") << endl;
-            mkt << "INCPATH       = -I" << specdir();
-            if(!project->isActiveConfig("no_include_pwd")) {
-                QString pwd = escapeFilePath(fileFixify(qmake_getpwd()));
-                if(pwd.isEmpty())
-                    pwd = ".";
-                mkt << " -I" << pwd;
-            }
+            mkt << "INCPATH       =";
             {
                 const ProStringList &incs = project->values("INCLUDEPATH");
                 for (ProStringList::ConstIterator incit = incs.begin(); incit != incs.end(); ++incit)
@@ -960,7 +960,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                           << "\t\t\t" << writeSettings("name", escapeFilePath(name)) << ";\n"
                           << "\t\t\t" << writeSettings("path", escapeFilePath(library)) << ";\n"
                           << "\t\t\t" << writeSettings("refType", QString::number(reftypeForFile(library)), SettingsNoQuote) << ";\n"
-                          << "\t\t\t" << writeSettings("sourceTree", sourceTreeForFile(library)) << ";\n";
+                          << "\t\t\t" << writeSettings("sourceTree", "<absolute>") << ";\n";
                         if (is_frmwrk)
                             t << "\t\t\t" << writeSettings("lastKnownFileType", "wrapper.framework") << ";\n";
                         t << "\t\t};\n";
@@ -1023,15 +1023,30 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     if (!project->isEmpty("QMAKE_PRE_LINK")) {
         QString phase_key = keyFor("QMAKE_PBX_PRELINK_BUILDPHASE");
         project->values("QMAKE_PBX_BUILDPHASES").append(phase_key);
+
+        ProStringList inputPaths;
+        ProStringList outputPaths;
+        const ProStringList &archs = project->values("QMAKE_XCODE_ARCHS");
+        if (!archs.isEmpty()) {
+            for (int i = 0; i < archs.size(); ++i) {
+                const ProString &arch = archs.at(i);
+                inputPaths << "$(OBJECT_FILE_DIR_$(CURRENT_VARIANT))/" + arch + "/";
+                outputPaths << "$(LINK_FILE_LIST_$(CURRENT_VARIANT)_" + arch + ")";
+            }
+        } else {
+            inputPaths << "$(OBJECT_FILE_DIR_$(CURRENT_VARIANT))/$(CURRENT_ARCH)/";
+            outputPaths << "$(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(CURRENT_ARCH))";
+        }
+
         t << "\t\t" << phase_key << " = {\n"
           << "\t\t\t" << writeSettings("buildActionMask", "2147483647", SettingsNoQuote) << ";\n"
           << "\t\t\t" << writeSettings("files", ProStringList(), SettingsAsList, 4) << ";\n"
           // The build phases are not executed in the order they are defined, but by their
           // resolved dependenices, so we have to ensure that this phase is run after the
-          // compilation phase, and before the link phase. Making the phase depend on all the
-          // object files, and "write" to the list of files to link achieves that.
-          << "\t\t\t" << writeSettings("inputPaths", ProStringList("$(OBJECT_FILE_DIR_$(CURRENT_VARIANT))/$(CURRENT_ARCH)/*" + Option::obj_ext), SettingsAsList, 4) << ";\n"
-          << "\t\t\t" << writeSettings("outputPaths", ProStringList("$(LINK_FILE_LIST_$(CURRENT_VARIANT)_$(CURRENT_ARCH))"), SettingsAsList, 4) << ";\n"
+          // compilation phase, and before the link phase. Making the phase depend on the
+          // object file directory, and "write" to the list of files to link achieves that.
+          << "\t\t\t" << writeSettings("inputPaths", inputPaths, SettingsAsList, 4) << ";\n"
+          << "\t\t\t" << writeSettings("outputPaths", outputPaths, SettingsAsList, 4) << ";\n"
           << "\t\t\t" << writeSettings("isa", "PBXShellScriptBuildPhase", SettingsNoQuote) << ";\n"
           << "\t\t\t" << writeSettings("runOnlyForDeploymentPostprocessing", "0", SettingsNoQuote) << ";\n"
           << "\t\t\t" << writeSettings("name", "Qt Prelink") << ";\n"
@@ -1101,12 +1116,12 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
           << "\t\t\t" << writeSettings("shellScript", fixForOutput("cp -r $BUILT_PRODUCTS_DIR/$FULL_PRODUCT_NAME " + escapeFilePath(destDir))) << ";\n"
           << "\t\t};\n";
     }
-    // Copy Bundle Resources
+    bool copyBundleResources = project->isActiveConfig("app_bundle") && project->first("TEMPLATE") == "app";
+    ProStringList bundle_resources_files;
+    // Copy Bundle Data
     if (!project->isEmpty("QMAKE_BUNDLE_DATA")) {
         ProStringList bundle_file_refs;
-        ProStringList bundle_resources_files;
-
-        bool useCopyResourcesPhase = project->isActiveConfig("app_bundle") && project->first("TEMPLATE") == "app";
+        bool ios = project->isActiveConfig("ios");
 
         //all bundle data
         const ProStringList &bundle_data = project->values("QMAKE_BUNDLE_DATA");
@@ -1116,13 +1131,15 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             //all files
             const ProStringList &files = project->values(ProKey(bundle_data[i] + ".files"));
             for(int file = 0; file < files.count(); file++) {
-                QString fn = files[file].toQString();
+                QString fn = fileFixify(files[file].toQString(), Option::output_dir, input_dir, FileFixifyAbsolute);
+                QString name = fn.split(Option::dir_sep).back();
                 QString file_ref_key = keyFor("QMAKE_PBX_BUNDLE_DATA_FILE_REF." + bundle_data[i] + "-" + fn);
                 bundle_file_refs += file_ref_key;
                 t << "\t\t" << file_ref_key << " = {\n"
                   << "\t\t\t" << writeSettings("isa", "PBXFileReference", SettingsNoQuote) << ";\n"
                   << "\t\t\t" << writeSettings("path", escapeFilePath(fn)) << ";\n"
-                  << "\t\t\t" << writeSettings("sourceTree", sourceTreeForFile(fn)) << ";\n"
+                  << "\t\t\t" << writeSettings("name", name) << ";\n"
+                  << "\t\t\t" << writeSettings("sourceTree", "<absolute>") << ";\n"
                   << "\t\t};\n";
                 QString file_key = keyFor("QMAKE_PBX_BUNDLE_DATA_FILE." + bundle_data[i] + "-" + fn);
                 bundle_files += file_key;
@@ -1132,9 +1149,11 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                   << "\t\t};\n";
             }
 
-            if (!useCopyResourcesPhase || !path.isEmpty()) {
-                // The resource copy phase doesn't support paths, so we have to use
-                // a regular file copy phase (which doesn't optimize the resources).
+            if (copyBundleResources && ((ios && path.isEmpty())
+                                        || (!ios && path == QLatin1String("Contents/Resources")))) {
+                foreach (const ProString &s, bundle_files)
+                    bundle_resources_files << s;
+            } else {
                 QString phase_key = keyFor("QMAKE_PBX_BUNDLE_COPY." + bundle_data[i]);
                 if (!project->isEmpty(ProKey(bundle_data[i] + ".version"))) {
                     //###
@@ -1146,33 +1165,11 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                   << "\t\t\t" << writeSettings("buildActionMask", "2147483647", SettingsNoQuote) << ";\n"
                   << "\t\t\t" << writeSettings("dstPath", escapeFilePath(path)) << ";\n"
                   << "\t\t\t" << writeSettings("dstSubfolderSpec", "1", SettingsNoQuote) << ";\n"
-                  << "\t\t\t" << writeSettings("files", bundle_files, SettingsAsList, 4) << ";\n"
                   << "\t\t\t" << writeSettings("isa", "PBXCopyFilesBuildPhase", SettingsNoQuote) << ";\n"
+                  << "\t\t\t" << writeSettings("files", bundle_files, SettingsAsList, 4) << ";\n"
                   << "\t\t\t" << writeSettings("runOnlyForDeploymentPostprocessing", "0", SettingsNoQuote) << ";\n"
                   << "\t\t};\n";
-            } else {
-                // Otherwise we leave it to the resource copy phase below
-                bundle_resources_files += bundle_files;
             }
-        }
-
-        if (useCopyResourcesPhase) {
-            if (!project->isEmpty("ICON")) {
-                ProString icon = project->first("ICON");
-                if (icon.length() >= 2 && (icon.at(0) == '"' || icon.at(0) == '\'') && icon.endsWith(icon.at(0)))
-                    icon = icon.mid(1, icon.length() - 2);
-                bundle_resources_files += keyFor(icon + ".BUILDABLE");
-            }
-
-            QString grp("Copy Bundle Resources"), key = keyFor(grp);
-            project->values("QMAKE_PBX_BUILDPHASES").append(key);
-            t << "\t\t" << key << " = {\n"
-              << "\t\t\t" << writeSettings("buildActionMask", "2147483647", SettingsNoQuote) << ";\n"
-              << "\t\t\t" << writeSettings("files", bundle_resources_files, SettingsAsList, 4) << ";\n"
-              << "\t\t\t" << writeSettings("isa", "PBXResourcesBuildPhase", SettingsNoQuote) << ";\n"
-              << "\t\t\t" << writeSettings("runOnlyForDeploymentPostprocessing", "0", SettingsNoQuote) << ";\n"
-              << "\t\t\t" << writeSettings("name", escapeFilePath(grp)) << ";\n"
-              << "\t\t};\n";
         }
 
         QString bundle_data_key = keyFor("QMAKE_PBX_BUNDLE_DATA");
@@ -1180,8 +1177,31 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         t << "\t\t" << bundle_data_key << " = {\n"
           << "\t\t\t" << writeSettings("children", bundle_file_refs, SettingsAsList, 4) << ";\n"
           << "\t\t\t" << writeSettings("isa", "PBXGroup", SettingsNoQuote) << ";\n"
-          << "\t\t\t" << writeSettings("name", "Bundle Resources") << ";\n"
+          << "\t\t\t" << writeSettings("name", "Bundle Data") << ";\n"
           << "\t\t\t" << writeSettings("sourceTree", "<Group>") << ";\n"
+          << "\t\t};\n";
+    }
+
+    // Copy bundle resources. Optimizes resources, and puts them into the Resources
+    // subdirectory on OSX, but doesn't support paths.
+    if (copyBundleResources) {
+        if (!project->isEmpty("ICON")) {
+            ProString icon = project->first("ICON");
+            if (icon.length() >= 2 && (icon.at(0) == '"' || icon.at(0) == '\'') && icon.endsWith(icon.at(0)))
+                icon = icon.mid(1, icon.length() - 2);
+            bundle_resources_files += keyFor(icon + ".BUILDABLE");
+        }
+
+        // Always add "Copy Bundle Resources" phase, even when we have no bundle
+        // resources, since Xcode depends on it being there for e.g asset catalogs.
+        QString grp("Copy Bundle Resources"), key = keyFor(grp);
+        project->values("QMAKE_PBX_BUILDPHASES").append(key);
+        t << "\t\t" << key << " = {\n"
+          << "\t\t\t" << writeSettings("buildActionMask", "2147483647", SettingsNoQuote) << ";\n"
+          << "\t\t\t" << writeSettings("files", bundle_resources_files, SettingsAsList, 4) << ";\n"
+          << "\t\t\t" << writeSettings("isa", "PBXResourcesBuildPhase", SettingsNoQuote) << ";\n"
+          << "\t\t\t" << writeSettings("runOnlyForDeploymentPostprocessing", "0", SettingsNoQuote) << ";\n"
+          << "\t\t\t" << writeSettings("name", escapeFilePath(grp)) << ";\n"
           << "\t\t};\n";
     }
 
@@ -1390,9 +1410,13 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                    (project->first("TEMPLATE") == "lib" && !project->isActiveConfig("staticlib") &&
                     project->isActiveConfig("lib_bundle"))) {
                     QString plist = fileFixify(project->first("QMAKE_INFO_PLIST").toQString(), Option::output_dir, input_dir);
-                    if (plist.isEmpty())
+                    if (!plist.isEmpty()) {
+                        if (exists(plist))
+                            t << "\t\t\t\t" << writeSettings("INFOPLIST_FILE", plist) << ";\n";
+                        else
+                            warn_msg(WarnLogic, "Could not resolve Info.plist: '%s'. Check if QMAKE_INFO_PLIST points to a valid file.", plist.toLatin1().constData());
+                    } else {
                         plist = specdir() + QDir::separator() + "Info.plist." + project->first("TEMPLATE");
-                    if (exists(plist)) {
                         QFile plist_in_file(plist);
                         if (plist_in_file.open(QIODevice::ReadOnly)) {
                             QTextStream plist_in(&plist_in_file);
@@ -1422,8 +1446,6 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                                 t << "\t\t\t\t" << writeSettings("INFOPLIST_FILE", "Info.plist") << ";\n";
                             }
                         }
-                    } else {
-                        warn_msg(WarnLogic, "Could not resolve Info.plist: '%s'. Check if QMAKE_INFO_PLIST points to a valid file.", plist.toLatin1().constData());
                     }
                 }
 
@@ -1469,7 +1491,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                     t << "\t\t\t\t" << writeSettings("GCC_PRECOMPILE_PREFIX_HEADER", "YES") << ";\n"
                     << "\t\t\t\t" << writeSettings("GCC_PREFIX_HEADER", escapeFilePath(project->first("PRECOMPILED_HEADER"))) << ";\n";
                 }
-                t << "\t\t\t\t" << writeSettings("HEADER_SEARCH_PATHS", fixListForOutput("INCLUDEPATH") + ProStringList(fixForOutput(specdir())), SettingsAsList, 5) << ";\n"
+                t << "\t\t\t\t" << writeSettings("HEADER_SEARCH_PATHS", fixListForOutput("INCLUDEPATH"), SettingsAsList, 5) << ";\n"
                   << "\t\t\t\t" << writeSettings("LIBRARY_SEARCH_PATHS", fixListForOutput("QMAKE_PBX_LIBPATHS"), SettingsAsList, 5) << ";\n"
                   << "\t\t\t\t" << writeSettings("FRAMEWORK_SEARCH_PATHS", fixListForOutput("QMAKE_FRAMEWORKPATH"),
                         !project->values("QMAKE_FRAMEWORKPATH").isEmpty() ? SettingsAsList : 0, 5) << ";\n";
@@ -1793,14 +1815,6 @@ ProjectBuilderMakefileGenerator::reftypeForFile(const QString &where)
     if(QDir::isRelativePath(unescapeFilePath(where)))
         ret = 4; //relative
     return ret;
-}
-
-QString ProjectBuilderMakefileGenerator::sourceTreeForFile(const QString &where)
-{
-    Q_UNUSED(where)
-    // We always use absolute paths, instead of maintaining the SRCROOT
-    // build variable and making files relative to that.
-    return QLatin1String("<absolute>");
 }
 
 QString

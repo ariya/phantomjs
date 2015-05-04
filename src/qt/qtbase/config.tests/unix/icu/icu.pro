@@ -1,6 +1,7 @@
 SOURCES = icu.cpp
 CONFIG += console
 CONFIG -= qt dylib
+
 win32 {
     CONFIG(static, static|shared) {
         CONFIG(debug, debug|release) {
@@ -9,8 +10,8 @@ win32 {
             LIBS += -lsicuin -lsicuuc -lsicudt
         }
     } else {
-        LIBS += -licuin -licuuc
+        LIBS += -licuin -licuuc -licudt
     }
 } else {
-    LIBS += -licui18n -licuuc
+    LIBS += -licui18n -licuuc -licudata
 }

@@ -1,46 +1,39 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
 
 #include "private/qwindow_p.h"
-#include "qwidgetwindow_qpa_p.h"
+#include "qwidgetwindow_p.h"
+#include "qlayout.h"
 
 #include "private/qwidget_p.h"
 #include "private/qapplication_p.h"
@@ -81,11 +74,43 @@ public:
 
     void clearFocusObject()
     {
-        if (QApplicationPrivate::focus_widget)
-            QApplicationPrivate::focus_widget->clearFocus();
+        Q_Q(QWidgetWindow);
+        QWidget *widget = q->widget();
+        if (widget && widget->focusWidget())
+            widget->focusWidget()->clearFocus();
     }
 
+    QRectF closestAcceptableGeometry(const QRectF &rect) const Q_DECL_OVERRIDE;
 };
+
+QRectF QWidgetWindowPrivate::closestAcceptableGeometry(const QRectF &rect) const
+{
+    Q_Q(const QWidgetWindow);
+    const QWidget *widget = q->widget();
+    if (!widget->isWindow() || !widget->hasHeightForWidth())
+        return QRect();
+    const QSize oldSize = rect.size().toSize();
+    const QSize newSize = QLayout::closestAcceptableSize(widget, oldSize);
+    if (newSize == oldSize)
+        return QRectF();
+    const int dw = newSize.width() - oldSize.width();
+    const int dh = newSize.height() - oldSize.height();
+    QRectF result = rect;
+    const QRectF currentGeometry(widget->geometry());
+    const qreal topOffset = result.top() - currentGeometry.top();
+    const qreal bottomOffset = result.bottom() - currentGeometry.bottom();
+    if (qAbs(topOffset) > qAbs(bottomOffset))
+        result.setTop(result.top() - dh); // top edge drag
+    else
+        result.setBottom(result.bottom() + dh); // bottom edge drag
+    const qreal leftOffset = result.left() - currentGeometry.left();
+    const qreal rightOffset = result.right() - currentGeometry.right();
+    if (qAbs(leftOffset) > qAbs(rightOffset))
+        result.setLeft(result.left() - dw); // left edge drag
+    else
+        result.setRight(result.right() + dw); // right edge drag
+    return result;
+}
 
 QWidgetWindow::QWidgetWindow(QWidget *widget)
     : QWindow(*new QWidgetWindowPrivate(), 0)
@@ -99,7 +124,7 @@ QWidgetWindow::QWidgetWindow(QWidget *widget)
         setSurfaceType(QSurface::RasterGLSurface);
     }
     connect(m_widget, &QObject::objectNameChanged, this, &QWidgetWindow::updateObjectName);
-    connect(this, SIGNAL(screenChanged(QScreen*)), this, SLOT(repaintWindow()));
+    connect(this, SIGNAL(screenChanged(QScreen*)), this, SLOT(handleScreenChange()));
 }
 
 QWidgetWindow::~QWidgetWindow()
@@ -121,6 +146,12 @@ QObject *QWidgetWindow::focusObject() const
 
     if (!widget)
         widget = m_widget;
+
+    if (widget) {
+        QObject *focusObj = QWidgetPrivate::get(widget)->focusObject();
+        if (focusObj)
+            return focusObj;
+    }
 
     return widget;
 }
@@ -439,12 +470,19 @@ void QWidgetWindow::handleMouseEvent(QMouseEvent *event)
                     QWindow *win = w->windowHandle();
                     if (!win)
                         win = w->nativeParentWidget()->windowHandle();
-                    if (win && win->geometry().contains(event->globalPos())) {
-                        const QPoint localPos = win->mapFromGlobal(event->globalPos());
-                        QMouseEvent e(QEvent::MouseButtonPress, localPos, localPos, event->globalPos(), event->button(), event->buttons(), event->modifiers());
-                        QGuiApplicationPrivate::setMouseEventSource(&e, QGuiApplicationPrivate::mouseEventSource(event));
-                        e.setTimestamp(event->timestamp());
-                        QApplication::sendSpontaneousEvent(win, &e);
+                    if (win) {
+                        const QRect globalGeometry = win->isTopLevel()
+                            ? win->geometry()
+                            : QRect(win->mapToGlobal(QPoint(0, 0)), win->size());
+                        if (globalGeometry.contains(event->globalPos())) {
+                            // Use postEvent() to ensure the local QEventLoop terminates when called from QMenu::exec()
+                            const QPoint localPos = win->mapFromGlobal(event->globalPos());
+                            QMouseEvent *e = new QMouseEvent(QEvent::MouseButtonPress, localPos, localPos, event->globalPos(), event->button(), event->buttons(), event->modifiers());
+                            QCoreApplicationPrivate::setEventSpontaneous(e, true);
+                            QGuiApplicationPrivate::setMouseEventSource(e, QGuiApplicationPrivate::mouseEventSource(event));
+                            e->setTimestamp(event->timestamp());
+                            QCoreApplication::postEvent(win, e);
+                        }
                     }
                 }
             }
@@ -542,22 +580,63 @@ void QWidgetWindow::handleKeyEvent(QKeyEvent *event)
     QGuiApplication::sendSpontaneousEvent(receiver, event);
 }
 
-void QWidgetWindow::updateGeometry()
+bool QWidgetWindow::updateSize()
 {
+    bool changed = false;
     if (m_widget->testAttribute(Qt::WA_OutsideWSRange))
-        return;
+        return changed;
+    if (m_widget->data->crect.size() != geometry().size()) {
+        changed = true;
+        m_widget->data->crect.setSize(geometry().size());
+    }
 
+    updateMargins();
+    return changed;
+}
+
+bool QWidgetWindow::updatePos()
+{
+    bool changed = false;
+    if (m_widget->testAttribute(Qt::WA_OutsideWSRange))
+        return changed;
+    if (m_widget->data->crect.topLeft() != geometry().topLeft()) {
+        changed = true;
+        m_widget->data->crect.moveTopLeft(geometry().topLeft());
+    }
+    updateMargins();
+    return changed;
+}
+
+void QWidgetWindow::updateMargins()
+{
     const QMargins margins = frameMargins();
-
-    m_widget->data->crect = geometry();
     QTLWExtra *te = m_widget->d_func()->topData();
     te->posIncludesFrame= false;
     te->frameStrut.setCoords(margins.left(), margins.top(), margins.right(), margins.bottom());
     m_widget->data->fstrut_dirty = false;
 }
 
-// Invalidates the backing store buffer and repaints immediately.
-// ### Qt 5.4: replace with QUpdateWindowRequestEvent.
+static void sendScreenChangeRecursively(QWidget *widget)
+{
+    QEvent e(QEvent::ScreenChangeInternal);
+    QApplication::sendEvent(widget, &e);
+    QWidgetPrivate *d = QWidgetPrivate::get(widget);
+    for (int i = 0; i < d->children.size(); ++i) {
+        QWidget *w = qobject_cast<QWidget *>(d->children.at(i));
+        if (w)
+            sendScreenChangeRecursively(w);
+    }
+}
+
+void QWidgetWindow::handleScreenChange()
+{
+    // Send an event recursively to the widget and its children.
+    sendScreenChangeRecursively(m_widget);
+
+    // Invalidate the backing store buffer and repaint immediately.
+    repaintWindow();
+}
+
 void QWidgetWindow::repaintWindow()
 {
     if (!m_widget->isVisible() || !m_widget->updatesEnabled())
@@ -589,24 +668,25 @@ void QWidgetWindow::updateNormalGeometry()
 
 void QWidgetWindow::handleMoveEvent(QMoveEvent *event)
 {
-    updateGeometry();
-    QGuiApplication::sendSpontaneousEvent(m_widget, event);
+    if (updatePos())
+        QGuiApplication::sendSpontaneousEvent(m_widget, event);
 }
 
 void QWidgetWindow::handleResizeEvent(QResizeEvent *event)
 {
     QSize oldSize = m_widget->data->crect.size();
 
-    updateGeometry();
-    QGuiApplication::sendSpontaneousEvent(m_widget, event);
+    if (updateSize()) {
+        QGuiApplication::sendSpontaneousEvent(m_widget, event);
 
-    if (m_widget->d_func()->paintOnScreen()) {
-        QRegion updateRegion(geometry());
-        if (m_widget->testAttribute(Qt::WA_StaticContents))
-            updateRegion -= QRect(0, 0, oldSize.width(), oldSize.height());
-        m_widget->d_func()->syncBackingStore(updateRegion);
-    } else {
-        m_widget->d_func()->syncBackingStore();
+        if (m_widget->d_func()->paintOnScreen()) {
+            QRegion updateRegion(geometry());
+            if (m_widget->testAttribute(Qt::WA_StaticContents))
+                updateRegion -= QRect(0, 0, oldSize.width(), oldSize.height());
+            m_widget->d_func()->syncBackingStore(updateRegion);
+        } else {
+            m_widget->d_func()->syncBackingStore();
+        }
     }
 }
 
@@ -793,7 +873,7 @@ void QWidgetWindow::handleTabletEvent(QTabletEvent *event)
         QPointF mapped = qt_tablet_target->mapFromGlobal(event->globalPos()) + delta;
         QTabletEvent ev(event->type(), mapped, event->globalPosF(), event->device(), event->pointerType(),
                         event->pressure(), event->xTilt(), event->yTilt(), event->tangentialPressure(),
-                        event->rotation(), event->z(), event->modifiers(), event->uniqueId());
+                        event->rotation(), event->z(), event->modifiers(), event->uniqueId(), event->button(), event->buttons());
         ev.setTimestamp(event->timestamp());
         QGuiApplication::sendSpontaneousEvent(qt_tablet_target, &ev);
     }

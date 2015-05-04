@@ -391,6 +391,9 @@ void QCocoaPrintDevice::loadDuplexModes() const
     // If still no result, or not added in PPD, then add None
     if (m_duplexModes.size() == 0 || !m_duplexModes.contains(QPrint::DuplexNone))
         m_duplexModes.append(QPrint::DuplexNone);
+    // If have both modes, then can support DuplexAuto
+    if (m_duplexModes.contains(QPrint::DuplexLongSide) && m_duplexModes.contains(QPrint::DuplexShortSide))
+        m_duplexModes.append(QPrint::DuplexAuto);
     m_haveDuplexModes = true;
 }
 
@@ -463,17 +466,13 @@ bool QCocoaPrintDevice::openPpdFile()
         ppdClose(m_ppd);
     m_ppd = 0;
     CFURLRef ppdURL = NULL;
-#if MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_7
-    char ppdPath[PATH_MAX];
-#else
     char ppdPath[MAXPATHLEN];
-#endif
     if (PMPrinterCopyDescriptionURL(m_printer, kPMPPDDescriptionType, &ppdURL) == noErr
-        && ppdURL != NULL
-        && CFURLGetFileSystemRepresentation(ppdURL, true, (UInt8*)ppdPath, sizeof(ppdPath))) {
-        m_ppd = ppdOpenFile(ppdPath);
+        && ppdURL != NULL) {
+        if (CFURLGetFileSystemRepresentation(ppdURL, true, (UInt8*)ppdPath, sizeof(ppdPath)))
+            m_ppd = ppdOpenFile(ppdPath);
+        CFRelease(ppdURL);
     }
-    CFRelease(ppdURL);
     return m_ppd ? true : false;
 }
 

@@ -1,0 +1,98 @@
+Qt 5.3.2 is a bug-fix release. It maintains both forward and backward
+compatibility (source and binary) with Qt 5.3.0 and Qt 5.3.1.
+
+For more details, refer to the online documentation included in this
+distribution. The documentation is also available online:
+
+  http://qt-project.org/doc/qt-5.3
+
+The Qt version 5.3 series is binary compatible with the 5.2.x series.
+Applications compiled for 5.2 will continue to run with 5.3.
+
+Some of the changes listed in this file include issue tracking numbers
+corresponding to tasks in the Qt Bug Tracker:
+
+  http://bugreports.qt-project.org/
+
+Each of these identifiers can be entered in the bug tracker to obtain more
+information about a particular change.
+
+****************************************************************************
+*                          Library                                         *
+****************************************************************************
+
+QtCore
+------
+
+ - QObject:
+   * [QTBUG-40638] Fixed disconnecting from pointer to member signal that
+     belongs in the base class but whose type is explicitly given as a
+     pointer to a member in the derived class
+
+QtGui
+-----
+
+ - Fonts:
+   * [QTBUG-39846] Fixed regression in font families returned by
+     QFontDatabase::families() for certain writing systems.
+
+ - QImage:
+   * QImage::fill(uint) now fills the given pixel value unconverted when
+     used on RGBA8888 image, making it consistent with the documentation
+     and treatment of all other image formats.
+
+ - Text:
+   * [QTBUG-39832] Fixed lines breaking on non-breaking spaces.
+   * [QTBUG-39930][QTBUG-39860] Fixed several regressions in font selection
+      when combining different writing systems in the same text.
+
+QtNetwork
+---------
+
+ - [QTBUG-30829][QTBUG-35101] Fixed NTLM (SSPI) Proxy Authentication
+   (HTTP/HTTPS)
+
+ - QNetworkAccessManager:
+   * Fixed high CPU load when handling POST/upload QIODevice that generates
+     data on readyRead().
+   * [QTBUG-40797] QNetworkAccessManager now properly handles FTP transfer
+     failures by removing failed cached ftp connections.
+
+
+****************************************************************************
+*                      Platform Specific Changes                           *
+****************************************************************************
+
+Android
+-------
+
+ - [QTBUG-39978] Fixed regression where QScreen::physicalSize() would
+   return 0x0.
+ - Added support for building libraries with spaces in name.
+ - [QTBUG-39377] Fixed common characters like digits and punctuation
+   showing as boxes when positioned next to non-latin scripts.
+ - [QTBUG-39377] Fixed common characters like digits and punctuation
+   showing as boxes when positioned next to non-latin scripts.
+ - Fixed font selection to prefer "Droid Serif" when Serif style hint is
+   set on QFont.
+ - [QTBUG-40957] Fixed bug on some devices where the application would
+   crash at shutdown if the virtual keyboard was open.
+
+EGLFS
+-----
+
+ - Double click events are now sent correctly on eglfs.
+
+Windows
+-------
+
+ - [QTBUG-39172] Fixed using QRawFont with fallback fonts, e.g. in the case
+   of text rendering in Qt Quick.
+
+X11 / XCB
+---------
+
+ - [QTBUG-39666][QTBUG-39573][QTBUG-39570] QTabletEvents and proximity
+   events correctly identify the tool in use; the meaning of certain
+   valuators depends on the tool; and the valuators' current values are
+   not lost between events

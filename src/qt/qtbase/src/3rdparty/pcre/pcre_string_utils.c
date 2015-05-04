@@ -6,7 +6,7 @@
 and semantics are as close as possible to those of the Perl 5 language.
 
                        Written by Philip Hazel
-           Copyright (c) 1997-2013 University of Cambridge
+           Copyright (c) 1997-2014 University of Cambridge
 
 -----------------------------------------------------------------------------
 Redistribution and use in source and binary forms, with or without
@@ -91,8 +91,8 @@ pcre_uchar c2;
 
 while (*str1 != '\0' || *str2 != '\0')
   {
-  c1 = RAWUCHARINC(str1);
-  c2 = RAWUCHARINC(str2);
+  c1 = UCHAR21INC(str1);
+  c2 = UCHAR21INC(str2);
   if (c1 != c2)
     return ((c1 > c2) << 1) - 1;
   }
@@ -131,7 +131,7 @@ pcre_uchar c2;
 
 while (*str1 != '\0' || *ustr2 != '\0')
   {
-  c1 = RAWUCHARINC(str1);
+  c1 = UCHAR21INC(str1);
   c2 = (pcre_uchar)*ustr2++;
   if (c1 != c2)
     return ((c1 > c2) << 1) - 1;

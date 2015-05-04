@@ -1,7 +1,7 @@
-#include "commit.h"
+#include "../commit.h"
 
-#define ANGLE_MAJOR_VERSION 1
-#define ANGLE_MINOR_VERSION 3
+#define ANGLE_MAJOR_VERSION 2
+#define ANGLE_MINOR_VERSION 1
 
 #define ANGLE_STRINGIFY(x)       #x
 #define ANGLE_MACRO_STRINGIFY(x) ANGLE_STRINGIFY(x)

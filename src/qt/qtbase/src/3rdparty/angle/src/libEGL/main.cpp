@@ -1,4 +1,3 @@
-#include "../libGLESv2/precompiled.h"
 //
 // Copyright (c) 2002-2012 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -10,61 +9,42 @@
 #include "libEGL/main.h"
 
 #include "common/debug.h"
+#include "common/tls.h"
 
-#if !defined(ANGLE_OS_WINRT)
-static DWORD currentTLS = TLS_OUT_OF_INDEXES;
-#else
-static __declspec(thread) void *currentTLS = 0;
-#endif
+static TLSIndex currentTLS = TLS_OUT_OF_INDEXES;
 
 namespace egl
 {
 
 Current *AllocateCurrent()
 {
-#if !defined(ANGLE_OS_WINRT)
-    Current *current = (egl::Current*)LocalAlloc(LPTR, sizeof(egl::Current));
-#else
-    currentTLS = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(Current));
-    Current *current = (egl::Current*)currentTLS;
-#endif
-
-    if (!current)
+    ASSERT(currentTLS != TLS_OUT_OF_INDEXES);
+    if (currentTLS == TLS_OUT_OF_INDEXES)
     {
-        ERR("Could not allocate thread local storage.");
         return NULL;
     }
 
-#if !defined(ANGLE_OS_WINRT)
-    ASSERT(currentTLS != TLS_OUT_OF_INDEXES);
-    TlsSetValue(currentTLS, current);
-#endif
-
+    Current *current = new Current();
     current->error = EGL_SUCCESS;
     current->API = EGL_OPENGL_ES_API;
     current->display = EGL_NO_DISPLAY;
     current->drawSurface = EGL_NO_SURFACE;
     current->readSurface = EGL_NO_SURFACE;
 
+    if (!SetTLSValue(currentTLS, current))
+    {
+        ERR("Could not set thread local storage.");
+        return NULL;
+    }
+
     return current;
 }
 
 void DeallocateCurrent()
 {
-#if !defined(ANGLE_OS_WINRT)
-    void *current = TlsGetValue(currentTLS);
-
-    if (current)
-    {
-        LocalFree((HLOCAL)current);
-    }
-#else
-    if (currentTLS)
-    {
-        HeapFree(GetProcessHeap(), 0, currentTLS);
-        currentTLS = 0;
-    }
-#endif
+    Current *current = reinterpret_cast<Current*>(GetTLSValue(currentTLS));
+    SafeDelete(current);
+    SetTLSValue(currentTLS, NULL);
 }
 
 }
@@ -77,7 +57,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved
     {
       case DLL_PROCESS_ATTACH:
         {
-#if defined(ANGLE_ENABLE_TRACE)
+#if defined(ANGLE_ENABLE_DEBUG_TRACE)
             FILE *debug = fopen(TRACE_OUTPUT_FILE, "rt");
 
             if (debug)
@@ -91,16 +71,18 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved
                 }
             }
 #endif
-#if !defined(ANGLE_OS_WINRT)
-            currentTLS = TlsAlloc();
 
+            currentTLS = CreateTLSIndex();
             if (currentTLS == TLS_OUT_OF_INDEXES)
             {
                 return FALSE;
             }
+
+#ifdef ANGLE_ENABLE_DEBUG_ANNOTATIONS
+            gl::InitializeDebugAnnotations();
 #endif
         }
-        // Fall throught to initialize index
+        // Fall through to initialize index
       case DLL_THREAD_ATTACH:
         {
             egl::AllocateCurrent();
@@ -114,8 +96,10 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved
       case DLL_PROCESS_DETACH:
         {
             egl::DeallocateCurrent();
-#if !defined(ANGLE_OS_WINRT)
-            TlsFree(currentTLS);
+            DestroyTLSIndex(currentTLS);
+
+#ifdef ANGLE_ENABLE_DEBUG_ANNOTATIONS
+            gl::UninitializeDebugAnnotations();
 #endif
         }
         break;
@@ -134,27 +118,23 @@ namespace egl
 Current *GetCurrentData()
 {
 #ifndef QT_OPENGL_ES_2_ANGLE_STATIC
-#if !defined(ANGLE_OS_WINRT)
-    Current *current = (Current*)TlsGetValue(currentTLS);
-#else
-    Current *current = (Current*)currentTLS;
-#endif
-#else
-    // No precautions for thread safety taken as ANGLE is used single-threaded in Qt.
-    static Current s_current = { EGL_SUCCESS, EGL_OPENGL_ES_API, EGL_NO_DISPLAY, EGL_NO_SURFACE, EGL_NO_SURFACE };
-    Current *current = &s_current;
-#endif
+    Current *current = reinterpret_cast<Current*>(GetTLSValue(currentTLS));
 
     // ANGLE issue 488: when the dll is loaded after thread initialization,
     // thread local storage (current) might not exist yet.
     return (current ? current : AllocateCurrent());
+#else
+    // No precautions for thread safety taken as ANGLE is used single-threaded in Qt.
+    static Current current = { EGL_SUCCESS, EGL_OPENGL_ES_API, EGL_NO_DISPLAY, EGL_NO_SURFACE, EGL_NO_SURFACE };
+    return &current;
+#endif
 }
 
-void setCurrentError(EGLint error)
+void recordError(const Error &error)
 {
     Current *current = GetCurrentData();
 
-    current->error = error;
+    current->error = error.getCode();
 }
 
 EGLint getCurrentError()
@@ -218,11 +198,6 @@ EGLSurface getCurrentReadSurface()
     Current *current = GetCurrentData();
 
     return current->readSurface;
-}
-
-void error(EGLint errorCode)
-{
-    egl::setCurrentError(errorCode);
 }
 
 }

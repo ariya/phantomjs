@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -62,7 +54,10 @@
 #include <qmap.h>
 #include <qtimer.h>
 
-#include <qdebug.h>
+#ifndef QT_NO_DEBUG_STREAM
+#  include <qdebug.h>
+#  include <qtextstream.h>
+#endif
 
 #include <private/qapplication_p.h>
 #include <private/qlayoutengine_p.h>
@@ -71,23 +66,17 @@
 #   include <private/qt_cocoa_helpers_mac_p.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 #ifdef QT_NO_DOCKWIDGET
 extern QMainWindowLayout *qt_mainwindow_layout(const QMainWindow *window);
 #endif
-
-#ifdef Q_DEBUG_MAINWINDOW_LAYOUT
-#   include <QTextStream>
-#endif
-
-QT_BEGIN_NAMESPACE
 
 /******************************************************************************
 ** debug
 */
 
-#if defined(Q_DEBUG_MAINWINDOW_LAYOUT) && !defined(QT_NO_DOCKWIDGET)
-
-static QTextStream qout(stderr, QIODevice::WriteOnly);
+#if !defined(QT_NO_DOCKWIDGET) && !defined(QT_NO_DEBUG_STREAM)
 
 static void dumpLayout(QTextStream &qout, const QDockAreaLayoutInfo &layout, QString indent);
 
@@ -101,7 +90,7 @@ static void dumpLayout(QTextStream &qout, const QDockAreaLayoutItem &item, QStri
     if (item.widgetItem != 0) {
         qout << indent << "widget: "
             << item.widgetItem->widget()->metaObject()->className()
-            << ' ' << item.widgetItem->widget()->windowTitle() << '\n';
+            << " \"" << item.widgetItem->widget()->windowTitle() << "\"\n";
     } else if (item.subinfo != 0) {
         qout << indent << "subinfo:\n";
         dumpLayout(qout, *item.subinfo, indent + QLatin1String("  "));
@@ -117,16 +106,17 @@ static void dumpLayout(QTextStream &qout, const QDockAreaLayoutItem &item, QStri
             << " rect:" << r.x() << ',' << r.y() << ' '
             << r.width() << 'x' << r.height() << '\n';
     }
-    qout.flush();
 }
 
 static void dumpLayout(QTextStream &qout, const QDockAreaLayoutInfo &layout, QString indent)
 {
+    const QSize minSize = layout.minimumSize();
     qout << indent << "QDockAreaLayoutInfo: "
             << layout.rect.left() << ','
             << layout.rect.top() << ' '
             << layout.rect.width() << 'x'
             << layout.rect.height()
+            << " min size: " << minSize.width() << ',' << minSize.height()
             << " orient:" << layout.o
             << " tabbed:" << layout.tabbed
             << " tbshape:" << layout.tabBarShape << '\n';
@@ -137,36 +127,42 @@ static void dumpLayout(QTextStream &qout, const QDockAreaLayoutInfo &layout, QSt
         qout << indent << "Item: " << i << '\n';
         dumpLayout(qout, layout.item_list.at(i), indent + QLatin1String("  "));
     }
-    qout.flush();
-};
+}
 
-static void dumpLayout(QTextStream &qout, const QDockAreaLayout &layout, QString indent)
+static void dumpLayout(QTextStream &qout, const QDockAreaLayout &layout)
 {
-    qout << indent << "QDockAreaLayout: "
+    qout << "QDockAreaLayout: "
             << layout.rect.left() << ','
             << layout.rect.top() << ' '
             << layout.rect.width() << 'x'
             << layout.rect.height() << '\n';
 
-    qout << indent << "TopDockArea:\n";
-    dumpLayout(qout, layout.docks[QInternal::TopDock], indent + QLatin1String("  "));
-    qout << indent << "LeftDockArea:\n";
-    dumpLayout(qout, layout.docks[QInternal::LeftDock], indent + QLatin1String("  "));
-    qout << indent << "RightDockArea:\n";
-    dumpLayout(qout, layout.docks[QInternal::RightDock], indent + QLatin1String("  "));
-    qout << indent << "BottomDockArea:\n";
-    dumpLayout(qout, layout.docks[QInternal::BottomDock], indent + QLatin1String("  "));
-
-    qout.flush();
-};
-
-void qt_dumpLayout(QTextStream &qout, QMainWindow *window)
-{
-    QMainWindowLayout *layout = qt_mainwindow_layout(window);
-    dumpLayout(qout, layout->layoutState.dockAreaLayout, QString());
+    qout << "TopDockArea:\n";
+    dumpLayout(qout, layout.docks[QInternal::TopDock], QLatin1String("  "));
+    qout << "LeftDockArea:\n";
+    dumpLayout(qout, layout.docks[QInternal::LeftDock], QLatin1String("  "));
+    qout << "RightDockArea:\n";
+    dumpLayout(qout, layout.docks[QInternal::RightDock], QLatin1String("  "));
+    qout << "BottomDockArea:\n";
+    dumpLayout(qout, layout.docks[QInternal::BottomDock], QLatin1String("  "));
 }
 
-#endif // Q_DEBUG_MAINWINDOW_LAYOUT && !QT_NO_DOCKWIDGET
+QDebug operator<<(QDebug debug, const QDockAreaLayout &layout)
+{
+    QString s;
+    QTextStream str(&s);
+    dumpLayout(str, layout);
+    debug << s;
+    return debug;
+}
+
+QDebug operator<<(QDebug debug, const QMainWindowLayout *layout)
+{
+    debug << layout->layoutState.dockAreaLayout;
+    return debug;
+}
+
+#endif // !defined(QT_NO_DOCKWIDGET) && !defined(QT_NO_DEBUG)
 
 /******************************************************************************
 ** QMainWindowLayoutState
@@ -619,11 +615,8 @@ static QList<T> findChildrenHelper(const QObject *o)
 }
 
 //pre4.3 tests the format that was used before 4.3
-bool QMainWindowLayoutState::checkFormat(QDataStream &stream, bool pre43)
+bool QMainWindowLayoutState::checkFormat(QDataStream &stream)
 {
-#ifdef QT_NO_TOOLBAR
-    Q_UNUSED(pre43);
-#endif
     while (!stream.atEnd()) {
         uchar marker;
         stream >> marker;
@@ -634,8 +627,7 @@ bool QMainWindowLayoutState::checkFormat(QDataStream &stream, bool pre43)
             case QToolBarAreaLayout::ToolBarStateMarkerEx:
                 {
                     QList<QToolBar *> toolBars = findChildrenHelper<QToolBar*>(mainWindow);
-                    if (!toolBarAreaLayout.restoreState(stream, toolBars, marker,
-                        pre43 /*testing 4.3 format*/, true /*testing*/)) {
+                    if (!toolBarAreaLayout.restoreState(stream, toolBars, marker, true /*testing*/)) {
                             return false;
                     }
                 }
@@ -676,14 +668,8 @@ bool QMainWindowLayoutState::restoreState(QDataStream &_stream,
     }
 
     QDataStream ds(copy);
-    const bool oldFormat = !checkFormat(ds, false);
-    if (oldFormat) {
-        //we should try with the old format
-        QDataStream ds2(copy);
-        if (!checkFormat(ds2, true)) {
-            return false; //format unknown
-        }
-    }
+    if (!checkFormat(ds))
+        return false;
 
     QDataStream stream(copy);
 
@@ -723,7 +709,7 @@ bool QMainWindowLayoutState::restoreState(QDataStream &_stream,
             case QToolBarAreaLayout::ToolBarStateMarkerEx:
                 {
                     QList<QToolBar *> toolBars = findChildrenHelper<QToolBar*>(mainWindow);
-                    if (!toolBarAreaLayout.restoreState(stream, toolBars, marker, oldFormat))
+                    if (!toolBarAreaLayout.restoreState(stream, toolBars, marker))
                         return false;
 
                     for (int i = 0; i < toolBars.size(); ++i) {
@@ -1454,7 +1440,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     QLayout::setGeometry(r);
 
     if (statusbar) {
-        QRect sbr(QPoint(0, 0),
+        QRect sbr(QPoint(r.left(), 0),
                   QSize(r.width(), statusbar->heightForWidth(r.width()))
                   .expandedTo(statusbar->minimumSize()));
         sbr.moveBottom(r.bottom());

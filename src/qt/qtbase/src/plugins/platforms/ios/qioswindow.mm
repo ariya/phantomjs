@@ -39,308 +39,22 @@
 **
 ****************************************************************************/
 
-#include "qiosglobal.h"
 #include "qioswindow.h"
-#include "quiview.h"
-#include "qioscontext.h"
-#include "qiosinputcontext.h"
-#include "qiosscreen.h"
+
 #include "qiosapplicationdelegate.h"
-#include "qiosviewcontroller.h"
+#include "qioscontext.h"
+#include "qiosglobal.h"
 #include "qiosintegration.h"
-#include <QtGui/private/qguiapplication_p.h>
+#include "qiosscreen.h"
+#include "qiosviewcontroller.h"
+#include "quiview.h"
+
 #include <QtGui/private/qwindow_p.h>
 #include <qpa/qplatformintegration.h>
 
 #import <QuartzCore/CAEAGLLayer.h>
 
-#include <QtGui/QKeyEvent>
-#include <qpa/qwindowsysteminterface.h>
-
 #include <QtDebug>
-
-// Include category as an alternative to using -ObjC (Apple QA1490)
-#include "quiview_textinput.mm"
-
-@implementation QUIView
-
-@synthesize autocapitalizationType;
-@synthesize autocorrectionType;
-@synthesize enablesReturnKeyAutomatically;
-@synthesize keyboardAppearance;
-@synthesize keyboardType;
-@synthesize returnKeyType;
-@synthesize secureTextEntry;
-
-+ (Class)layerClass
-{
-    return [CAEAGLLayer class];
-}
-
--(id)initWithQIOSWindow:(QIOSWindow *)window
-{
-    if (self = [self initWithFrame:toCGRect(window->geometry())])
-        m_qioswindow = window;
-
-    return self;
-}
-
-- (id)initWithFrame:(CGRect)frame
-{
-    if ((self = [super initWithFrame:frame])) {
-        // Set up EAGL layer
-        CAEAGLLayer *eaglLayer = static_cast<CAEAGLLayer *>(self.layer);
-        eaglLayer.opaque = TRUE;
-        eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
-            [NSNumber numberWithBool:YES], kEAGLDrawablePropertyRetainedBacking,
-            kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
-
-        if (isQtApplication())
-            self.hidden = YES;
-
-        self.multipleTouchEnabled = YES;
-        m_inSendEventToFocusObject = NO;
-    }
-
-    return self;
-}
-
-- (void)willMoveToWindow:(UIWindow *)newWindow
-{
-    // UIKIt will normally set the scale factor of a view to match the corresponding
-    // screen scale factor, but views backed by CAEAGLLayers need to do this manually.
-    self.contentScaleFactor = newWindow && newWindow.screen ?
-        newWindow.screen.scale : [[UIScreen mainScreen] scale];
-
-    // FIXME: Allow the scale factor to be customized through QSurfaceFormat.
-}
-
-- (void)didAddSubview:(UIView *)subview
-{
-    if ([subview isKindOfClass:[QUIView class]])
-        self.clipsToBounds = YES;
-}
-
-- (void)willRemoveSubview:(UIView *)subview
-{
-    for (UIView *view in self.subviews) {
-        if (view != subview && [view isKindOfClass:[QUIView class]])
-            return;
-    }
-
-    self.clipsToBounds = NO;
-}
-
-- (void)setNeedsDisplay
-{
-    [super setNeedsDisplay];
-
-    // We didn't implement drawRect: so we have to manually
-    // mark the layer as needing display.
-    [self.layer setNeedsDisplay];
-}
-
-- (void)layoutSubviews
-{
-    // This method is the de facto way to know that view has been resized,
-    // or otherwise needs invalidation of its buffers. Note though that we
-    // do not get this callback when the view just changes its position, so
-    // the position of our QWindow (and platform window) will only get updated
-    // when the size is also changed.
-
-    if (!CGAffineTransformIsIdentity(self.transform))
-        qWarning() << m_qioswindow->window()
-            << "is backed by a UIView that has a transform set. This is not supported.";
-
-    // The original geometry requested by setGeometry() might be different
-    // from what we end up with after applying window constraints.
-    QRect requestedGeometry = m_qioswindow->geometry();
-
-    QRect actualGeometry;
-    if (m_qioswindow->window()->isTopLevel()) {
-        UIWindow *uiWindow = self.window;
-        UIView *rootView = uiWindow.rootViewController.view;
-        CGRect rootViewPositionInRelationToRootViewController =
-            [rootView convertRect:uiWindow.bounds fromView:uiWindow];
-
-        actualGeometry = fromCGRect(CGRectOffset([self.superview convertRect:self.frame toView:rootView],
-                                    -rootViewPositionInRelationToRootViewController.origin.x,
-                                    -rootViewPositionInRelationToRootViewController.origin.y
-                                    + rootView.bounds.origin.y)).toRect();
-    } else {
-        actualGeometry = fromCGRect(self.frame).toRect();
-    }
-
-    // Persist the actual/new geometry so that QWindow::geometry() can
-    // be queried on the resize event.
-    m_qioswindow->QPlatformWindow::setGeometry(actualGeometry);
-
-    QRect previousGeometry = requestedGeometry != actualGeometry ?
-            requestedGeometry : qt_window_private(m_qioswindow->window())->geometry;
-
-    QWindowSystemInterface::handleGeometryChange(m_qioswindow->window(), actualGeometry, previousGeometry);
-    QWindowSystemInterface::flushWindowSystemEvents();
-
-    if (actualGeometry.size() != previousGeometry.size()) {
-        // Trigger expose event on resize
-        [self setNeedsDisplay];
-
-        // A new size means we also need to resize the FBO's corresponding buffers,
-        // but we defer that to when the application calls makeCurrent.
-    }
-}
-
-- (void)displayLayer:(CALayer *)layer
-{
-    Q_UNUSED(layer);
-    Q_ASSERT(layer == self.layer);
-
-    [self sendUpdatedExposeEvent];
-}
-
-- (void)sendUpdatedExposeEvent
-{
-    QRegion region;
-
-    if (m_qioswindow->isExposed()) {
-        QSize bounds = fromCGRect(self.layer.bounds).toRect().size();
-
-        Q_ASSERT(m_qioswindow->geometry().size() == bounds);
-        Q_ASSERT(self.hidden == !m_qioswindow->window()->isVisible());
-
-        region = QRect(QPoint(), bounds);
-    }
-
-    QWindowSystemInterface::handleExposeEvent(m_qioswindow->window(), region);
-    QWindowSystemInterface::flushWindowSystemEvents();
-}
-
-- (void)updateTouchList:(NSSet *)touches withState:(Qt::TouchPointState)state
-{
-    // We deliver touch events in global coordinates. But global in this respect
-    // means the same coordinate system that we use for describing the geometry
-    // of the top level QWindow we're inside. And that would be the coordinate
-    // system of the superview of the UIView that backs that window:
-    QPlatformWindow *topLevel = m_qioswindow;
-    while (QPlatformWindow *topLevelParent = topLevel->parent())
-        topLevel = topLevelParent;
-    UIView *rootView = reinterpret_cast<UIView *>(topLevel->winId()).superview;
-    CGSize rootViewSize = rootView.frame.size;
-
-    foreach (UITouch *uiTouch, m_activeTouches.keys()) {
-        QWindowSystemInterface::TouchPoint &touchPoint = m_activeTouches[uiTouch];
-        if (![touches containsObject:uiTouch]) {
-            touchPoint.state = Qt::TouchPointStationary;
-        } else {
-            touchPoint.state = state;
-            touchPoint.pressure = (state == Qt::TouchPointReleased) ? 0.0 : 1.0;
-            QPoint touchPos = fromCGPoint([uiTouch locationInView:rootView]).toPoint();
-            touchPoint.area = QRectF(touchPos, QSize(0, 0));
-            touchPoint.normalPosition = QPointF(touchPos.x() / rootViewSize.width, touchPos.y() / rootViewSize.height);
-        }
-    }
-}
-
-- (void) sendTouchEventWithTimestamp:(ulong)timeStamp
-{
-    // Send touch event synchronously
-    QIOSIntegration *iosIntegration = static_cast<QIOSIntegration *>(QGuiApplicationPrivate::platformIntegration());
-    QWindowSystemInterface::handleTouchEvent(m_qioswindow->window(), timeStamp, iosIntegration->touchDevice(), m_activeTouches.values());
-    QWindowSystemInterface::flushWindowSystemEvents();
-}
-
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    // UIKit generates [Began -> Moved -> Ended] event sequences for
-    // each touch point. Internally we keep a hashmap of active UITouch
-    // points to QWindowSystemInterface::TouchPoints, and assigns each TouchPoint
-    // an id for use by Qt.
-    for (UITouch *touch in touches) {
-        Q_ASSERT(!m_activeTouches.contains(touch));
-        m_activeTouches[touch].id = m_nextTouchId++;
-    }
-
-    if (m_activeTouches.size() == 1) {
-        QPlatformWindow *topLevel = m_qioswindow;
-        while (QPlatformWindow *p = topLevel->parent())
-            topLevel = p;
-        if (topLevel->window() != QGuiApplication::focusWindow())
-            topLevel->requestActivateWindow();
-    }
-
-    [self updateTouchList:touches withState:Qt::TouchPointPressed];
-    [self sendTouchEventWithTimestamp:ulong(event.timestamp * 1000)];
-}
-
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    [self updateTouchList:touches withState:Qt::TouchPointMoved];
-    [self sendTouchEventWithTimestamp:ulong(event.timestamp * 1000)];
-}
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    [self updateTouchList:touches withState:Qt::TouchPointReleased];
-    [self sendTouchEventWithTimestamp:ulong(event.timestamp * 1000)];
-
-    // Remove ended touch points from the active set:
-    for (UITouch *touch in touches)
-        m_activeTouches.remove(touch);
-    if (m_activeTouches.isEmpty())
-        m_nextTouchId = 0;
-}
-
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    if (!touches && m_activeTouches.isEmpty())
-        return;
-
-    if (!touches) {
-        m_activeTouches.clear();
-    } else {
-        for (UITouch *touch in touches)
-            m_activeTouches.remove(touch);
-
-        Q_ASSERT_X(m_activeTouches.isEmpty(), Q_FUNC_INFO,
-            "Subset of active touches cancelled by UIKit");
-    }
-
-    m_nextTouchId = 0;
-
-    NSTimeInterval timestamp = event ? event.timestamp : [[NSProcessInfo processInfo] systemUptime];
-
-    // Send cancel touch event synchronously
-    QIOSIntegration *iosIntegration = static_cast<QIOSIntegration *>(QGuiApplicationPrivate::platformIntegration());
-    QWindowSystemInterface::handleTouchCancelEvent(m_qioswindow->window(), ulong(timestamp * 1000), iosIntegration->touchDevice());
-    QWindowSystemInterface::flushWindowSystemEvents();
-}
-
-@end
-
-@implementation UIView (QIOS)
-
-- (QWindow *)qwindow
-{
-    if ([self isKindOfClass:[QUIView class]]) {
-        if (QIOSWindow *w = static_cast<QUIView *>(self)->m_qioswindow)
-            return w->window();
-    }
-    return nil;
-}
-
-- (UIViewController *)viewController
-{
-    id responder = self;
-    while ((responder = [responder nextResponder])) {
-        if ([responder isKindOfClass:UIViewController.class])
-            return responder;
-    }
-    return nil;
-}
-
-@end
-
-QT_BEGIN_NAMESPACE
 
 QIOSWindow::QIOSWindow(QWindow *window)
     : QPlatformWindow(window)
@@ -360,6 +74,16 @@ QIOSWindow::QIOSWindow(QWindow *window)
         screen()->availableGeometry().width(), screen()->availableGeometry().height());
 
     setWindowState(window->windowState());
+    setOpacity(window->opacity());
+
+    Qt::ScreenOrientation initialOrientation = window->contentOrientation();
+    if (initialOrientation != Qt::PrimaryOrientation) {
+        // Start up in portrait, then apply possible content orientation,
+        // as per Apple's documentation.
+        dispatch_async(dispatch_get_main_queue(), ^{
+            handleContentOrientationChange(initialOrientation);
+        });
+    }
 }
 
 QIOSWindow::~QIOSWindow()
@@ -371,6 +95,7 @@ QIOSWindow::~QIOSWindow()
     // cancellation of all touch events.
     [m_view touchesCancelled:0 withEvent:0];
 
+    clearAccessibleCache();
     m_view->m_qioswindow = 0;
     [m_view removeFromSuperview];
     [m_view release];
@@ -401,23 +126,43 @@ void QIOSWindow::setVisible(bool visible)
         return;
     }
 
-    if (visible) {
+    if (visible && shouldAutoActivateWindow()) {
         requestActivateWindow();
-        static_cast<QIOSScreen *>(screen())->updateStatusBarVisibility();
-    } else {
-        // Activate top-most visible QWindow:
+    } else if (!visible && qGuiApp->focusWindow() == window()) {
+        // Our window was active/focus window but now hidden, so relinquish
+        // focus to the next possible window in the stack.
         NSArray *subviews = m_view.viewController.view.subviews;
         for (int i = int(subviews.count) - 1; i >= 0; --i) {
             UIView *view = [subviews objectAtIndex:i];
-            if (!view.hidden) {
-                QWindow *w = view.qwindow;
-                if (w && w->isTopLevel()) {
-                    static_cast<QIOSWindow *>(w->handle())->requestActivateWindow();
-                    break;
-                }
-            }
+            if (view.hidden)
+                continue;
+
+            QWindow *w = view.qwindow;
+            if (!w || !w->isTopLevel())
+                continue;
+
+            QIOSWindow *iosWindow = static_cast<QIOSWindow *>(w->handle());
+            if (!iosWindow->shouldAutoActivateWindow())
+                continue;
+
+            iosWindow->requestActivateWindow();
+            break;
         }
     }
+}
+
+bool QIOSWindow::shouldAutoActivateWindow() const
+{
+    // We don't want to do automatic window activation for popup windows
+    // that are unlikely to contain editable controls (to avoid hiding
+    // the keyboard while the popup is showing)
+    const Qt::WindowType type = window()->type();
+    return (type != Qt::Popup && type != Qt::ToolTip) || !window()->isActive();
+}
+
+void QIOSWindow::setOpacity(qreal level)
+{
+    m_view.alpha = qBound(0.0, level, 1.0);
 }
 
 void QIOSWindow::setGeometry(const QRect &rect)
@@ -457,24 +202,7 @@ void QIOSWindow::applyGeometry(const QRect &rect)
     // The baseclass takes care of persisting this for us.
     QPlatformWindow::setGeometry(rect);
 
-    if (window()->isTopLevel()) {
-        // The QWindow is in QScreen coordinates, which maps to a possibly rotated root-view-controller.
-        // Since the root-view-controller might be translated in relation to the UIWindow, we need to
-        // check specifically for that and compensate. Also check if the root view has been scrolled
-        // as a result of the keyboard being open.
-        UIWindow *uiWindow = m_view.window;
-        UIView *rootView = uiWindow.rootViewController.view;
-        CGRect rootViewPositionInRelationToRootViewController =
-            [rootView convertRect:uiWindow.bounds fromView:uiWindow];
-
-        m_view.frame = CGRectOffset([m_view.superview convertRect:toCGRect(rect) fromView:rootView],
-                rootViewPositionInRelationToRootViewController.origin.x,
-                rootViewPositionInRelationToRootViewController.origin.y
-                + rootView.bounds.origin.y);
-    } else {
-        // Easy, in parent's coordinates
-        m_view.frame = toCGRect(rect);
-    }
+    m_view.frame = toCGRect(rect);
 
     // iOS will automatically trigger -[layoutSubviews:] for resize,
     // but not for move, so we force it just in case.
@@ -498,7 +226,7 @@ void QIOSWindow::setWindowState(Qt::WindowState state)
     qt_window_private(window())->windowState = state;
 
     if (window()->isTopLevel() && window()->isVisible() && window()->isActive())
-        static_cast<QIOSScreen *>(screen())->updateStatusBarVisibility();
+        [m_view.qtViewController updateProperties];
 
     switch (state) {
     case Qt::WindowNoState:
@@ -543,12 +271,12 @@ void QIOSWindow::requestActivateWindow()
     if (blockedByModal())
         return;
 
+    Q_ASSERT(m_view.window);
     [m_view.window makeKeyWindow];
+    [m_view becomeFirstResponder];
 
     if (window()->isTopLevel())
         raise();
-
-    QWindowSystemInterface::handleWindowActivated(window());
 }
 
 void QIOSWindow::raiseOrLower(bool raise)
@@ -577,7 +305,7 @@ void QIOSWindow::raiseOrLower(bool raise)
 
 void QIOSWindow::updateWindowLevel()
 {
-    Qt::WindowType type = windowType();
+    Qt::WindowType type = window()->type();
 
     if (type == Qt::ToolTip)
         m_windowLevel = 120;
@@ -603,10 +331,12 @@ void QIOSWindow::updateWindowLevel()
 
 void QIOSWindow::handleContentOrientationChange(Qt::ScreenOrientation orientation)
 {
-    // Keep the status bar in sync with content orientation. This will ensure
-    // that the task bar (and associated gestures) are aligned correctly:
-    UIInterfaceOrientation uiOrientation = UIInterfaceOrientation(fromQtScreenOrientation(orientation));
-    [[UIApplication sharedApplication] setStatusBarOrientation:uiOrientation animated:NO];
+    // Update the QWindow representation straight away, so that
+    // we can update the statusbar orientation based on the new
+    // content orientation.
+    qt_window_private(window())->contentOrientation = orientation;
+
+    [m_view.qtViewController updateProperties];
 }
 
 void QIOSWindow::applicationStateChanged(Qt::ApplicationState)
@@ -618,6 +348,11 @@ void QIOSWindow::applicationStateChanged(Qt::ApplicationState)
 qreal QIOSWindow::devicePixelRatio() const
 {
     return m_view.contentScaleFactor;
+}
+
+void QIOSWindow::clearAccessibleCache()
+{
+    [m_view clearAccessibleCache];
 }
 
 #include "moc_qioswindow.cpp"

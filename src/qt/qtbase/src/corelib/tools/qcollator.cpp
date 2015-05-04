@@ -1,40 +1,32 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Copyright (C) 2013 Aleix Pol Gonzalez <aleixpol@kde.org>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -74,7 +66,7 @@ QT_BEGIN_NAMESPACE
 
 /*!
     Constructs a QCollator from \a locale. If \a locale is not specified
-    QLocale::default() will be used.
+    the system's default locale is used.
 
     \sa setLocale()
  */
@@ -166,10 +158,12 @@ void QCollator::detach()
  */
 void QCollator::setLocale(const QLocale &locale)
 {
+    if (locale == d->locale)
+        return;
+
     detach();
-    d->clear();
     d->locale = locale;
-    d->init();
+    d->dirty = true;
 }
 
 /*!
@@ -187,6 +181,15 @@ QLocale QCollator::locale() const
 
     \sa caseSensitivity()
  */
+void QCollator::setCaseSensitivity(Qt::CaseSensitivity cs)
+{
+    if (d->caseSensitivity == cs)
+        return;
+
+    detach();
+    d->caseSensitivity = cs;
+    d->dirty = true;
+}
 
 /*!
     \fn Qt::CaseSensitivity QCollator::caseSensitivity() const
@@ -195,6 +198,10 @@ QLocale QCollator::locale() const
 
     \sa setCaseSensitivity()
  */
+Qt::CaseSensitivity QCollator::caseSensitivity() const
+{
+    return d->caseSensitivity;
+}
 
 /*!
     \fn void QCollator::setNumericMode(bool on)
@@ -205,8 +212,22 @@ QLocale QCollator::locale() const
 
     By default this mode is off.
 
+    \note On Windows, this functionality makes use of the \l{ICU} library. If Qt was
+    compiled without ICU support, it falls back to code using native Windows API,
+    which only works from Windows 7 onwards. On older versions of Windows, it will not work
+    and a warning will be emitted at runtime.
+
     \sa numericMode()
  */
+void QCollator::setNumericMode(bool on)
+{
+    if (d->numericMode == on)
+        return;
+
+    detach();
+    d->numericMode = on;
+    d->dirty = true;
+}
 
 /*!
     \fn bool QCollator::numericMode() const
@@ -215,6 +236,10 @@ QLocale QCollator::locale() const
 
     \sa setNumericMode()
  */
+bool QCollator::numericMode() const
+{
+    return d->numericMode;
+}
 
 /*!
     \fn void QCollator::setIgnorePunctuation(bool on)
@@ -225,6 +250,15 @@ QLocale QCollator::locale() const
 
     \sa ignorePunctuation()
  */
+void QCollator::setIgnorePunctuation(bool on)
+{
+    if (d->ignorePunctuation == on)
+        return;
+
+    detach();
+    d->ignorePunctuation = on;
+    d->dirty = true;
+}
 
 /*!
     \fn bool QCollator::ignorePunctuation() const
@@ -233,6 +267,10 @@ QLocale QCollator::locale() const
 
     \sa setIgnorePunctuation()
  */
+bool QCollator::ignorePunctuation() const
+{
+    return d->ignorePunctuation;
+}
 
 /*!
     \fn int QCollator::compare(const QString &s1, const QString &s2) const

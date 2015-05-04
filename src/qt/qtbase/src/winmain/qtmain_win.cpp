@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the Windows main function of the Qt Toolkit.
@@ -43,6 +43,10 @@
 #include "qstring.h"
 #include "qvector.h"
 
+#ifndef Q_OS_WINCE
+#  include <shlobj.h>
+#endif
+
 /*
   This file contains the code in the qtmain library for Windows.
   qtmain contains the Windows startup code and is required for
@@ -83,26 +87,49 @@ extern "C" int main(int, char **);
   application.
 */
 
-#ifdef Q_OS_WINCE
+#ifndef Q_OS_WINCE
+
+// Convert a wchar_t to char string, equivalent to QString::toLocal8Bit()
+// when passed CP_ACP.
+static inline char *wideToMulti(int codePage, const wchar_t *aw)
+{
+    const int required = WideCharToMultiByte(codePage, 0, aw, -1, NULL, 0, NULL, NULL);
+    char *result = new char[required];
+    WideCharToMultiByte(codePage, 0, aw, -1, result, required, NULL, NULL);
+    return result;
+}
+
+extern "C" int APIENTRY WinMain(HINSTANCE, HINSTANCE, LPSTR /*cmdParamarg*/, int /* cmdShow */)
+{
+    int argc;
+    wchar_t **argvW = CommandLineToArgvW(GetCommandLineW(), &argc);
+    if (!argvW)
+        return -1;
+    char **argv = new char *[argc];
+    for (int i = 0; i < argc; ++i)
+        argv[i] = wideToMulti(CP_ACP, argvW[i]);
+    LocalFree(argvW);
+    const int exitCode = main(argc, argv);
+    for (int i = 0; i < argc; ++i)
+        delete [] argv[i];
+    delete [] argv;
+    return exitCode;
+}
+
+#else // !Q_OS_WINCE
+
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPWSTR /*wCmdParam*/, int cmdShow)
-#else
-extern "C"
-int APIENTRY WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR /*cmdParamarg*/, int cmdShow)
-#endif
 {
     QByteArray cmdParam = QString::fromWCharArray(GetCommandLine()).toLocal8Bit();
 
-#if defined(Q_OS_WINCE)
     wchar_t appName[MAX_PATH];
     GetModuleFileName(0, appName, MAX_PATH);
     cmdParam.prepend(QString(QLatin1String("\"%1\" ")).arg(QString::fromWCharArray(appName)).toLocal8Bit());
-#endif
 
     int argc = 0;
     QVector<char *> argv(8);
     qWinMain(instance, prevInstance, cmdParam.data(), cmdShow, argc, argv);
 
-#if defined(Q_OS_WINCE)
     wchar_t uniqueAppID[MAX_PATH];
     GetModuleFileName(0, uniqueAppID, MAX_PATH);
     QString uid = QString::fromWCharArray(uniqueAppID).toLower().replace(QLatin1String("\\"), QLatin1String("_"));
@@ -126,11 +153,10 @@ int APIENTRY WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR /*cmdPara
             SetForegroundWindow((HWND)(((ULONG)aHwnd) | 0x01));
         return 0;
     }
-#endif // Q_OS_WINCE
 
     int result = main(argc, argv.data());
-#if defined(Q_OS_WINCE)
     CloseHandle(mutex);
-#endif
     return result;
 }
+
+#endif // Q_OS_WINCE

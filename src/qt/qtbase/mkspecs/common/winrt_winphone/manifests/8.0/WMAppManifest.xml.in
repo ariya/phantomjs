@@ -1,6 +1,6 @@
 <?xml version=\"1.0\" encoding=\"utf-8\"?>
 <Deployment xmlns=\"http://schemas.microsoft.com/windowsphone/2012/deployment\" AppPlatformVersion=\"8.0\">
-  <DefaultLanguage xmlns=\"\" code=\"en-US\" />
+  <DefaultLanguage xmlns=\"\" code=\"$${WINRT_MANIFEST.default_language}\" />$${WINRT_MANIFEST.languages}
   <App xmlns=\"\"
     ProductID=\"$${WINRT_MANIFEST.identity}\"
     Title=\"$${WINRT_MANIFEST.name}\"

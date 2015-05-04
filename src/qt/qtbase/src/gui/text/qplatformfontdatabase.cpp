@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -41,7 +33,7 @@
 
 #include "qplatformfontdatabase.h"
 #include <QtGui/private/qfontengine_p.h>
-#include <QtGui/private/qfontengine_qpa_p.h>
+#include <QtGui/private/qfontengine_qpf2_p.h>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QDir>
 
@@ -69,12 +61,12 @@ void QPlatformFontDatabase::registerQPF2Font(const QByteArray &dataArray, void *
         return;
 
     const uchar *data = reinterpret_cast<const uchar *>(dataArray.constData());
-    if (QFontEngineQPA::verifyHeader(data, dataArray.size())) {
-        QString fontName = QFontEngineQPA::extractHeaderField(data, QFontEngineQPA::Tag_FontName).toString();
-        int pixelSize = QFontEngineQPA::extractHeaderField(data, QFontEngineQPA::Tag_PixelSize).toInt();
-        QVariant weight = QFontEngineQPA::extractHeaderField(data, QFontEngineQPA::Tag_Weight);
-        QVariant style = QFontEngineQPA::extractHeaderField(data, QFontEngineQPA::Tag_Style);
-        QByteArray writingSystemBits = QFontEngineQPA::extractHeaderField(data, QFontEngineQPA::Tag_WritingSystems).toByteArray();
+    if (QFontEngineQPF2::verifyHeader(data, dataArray.size())) {
+        QString fontName = QFontEngineQPF2::extractHeaderField(data, QFontEngineQPF2::Tag_FontName).toString();
+        int pixelSize = QFontEngineQPF2::extractHeaderField(data, QFontEngineQPF2::Tag_PixelSize).toInt();
+        QVariant weight = QFontEngineQPF2::extractHeaderField(data, QFontEngineQPF2::Tag_Weight);
+        QVariant style = QFontEngineQPF2::extractHeaderField(data, QFontEngineQPF2::Tag_Style);
+        QByteArray writingSystemBits = QFontEngineQPF2::extractHeaderField(data, QFontEngineQPF2::Tag_WritingSystems).toByteArray();
 
         if (!fontName.isEmpty() && pixelSize) {
             QFont::Weight fontWeight = QFont::Normal;
@@ -322,7 +314,7 @@ void QPlatformFontDatabase::invalidate()
 */
 QFontEngineMulti *QPlatformFontDatabase::fontEngineMulti(QFontEngine *fontEngine, QChar::Script script)
 {
-    return new QFontEngineMultiQPA(fontEngine, script);
+    return new QFontEngineMultiBasicImpl(fontEngine, script);
 }
 
 /*!
@@ -332,7 +324,7 @@ QFontEngineMulti *QPlatformFontDatabase::fontEngineMulti(QFontEngine *fontEngine
 QFontEngine *QPlatformFontDatabase::fontEngine(const QFontDef &fontDef, void *handle)
 {
     QByteArray *fileDataPtr = static_cast<QByteArray *>(handle);
-    QFontEngineQPA *engine = new QFontEngineQPA(fontDef,*fileDataPtr);
+    QFontEngineQPF2 *engine = new QFontEngineQPF2(fontDef,*fileDataPtr);
     //qDebug() << fontDef.pixelSize << fontDef.weight << fontDef.style << fontDef.stretch << fontDef.styleHint << fontDef.styleStrategy << fontDef.family;
     return engine;
 }
@@ -399,6 +391,16 @@ QString QPlatformFontDatabase::fontDir() const
     }
 
     return fontpath;
+}
+
+/*!
+    Returns true if the font family is private. For any given family name,
+    the result is platform dependent.
+*/
+bool QPlatformFontDatabase::isPrivateFontFamily(const QString &family) const
+{
+    Q_UNUSED(family);
+    return false;
 }
 
 /*!
@@ -540,60 +542,58 @@ QSupportedWritingSystems QPlatformFontDatabase::writingSystemsFromTrueTypeBits(q
             }
         }
     }
-    if (!hasScript) {
-        if (codePageRange[0] & ((1 << Latin1CsbBit) | (1 << CentralEuropeCsbBit) | (1 << TurkishCsbBit) | (1 << BalticCsbBit))) {
-            writingSystems.setSupported(QFontDatabase::Latin);
-            hasScript = true;
-            //qDebug("font %s supports Latin", familyName.latin1());
-        }
-        if (codePageRange[0] & (1 << CyrillicCsbBit)) {
-            writingSystems.setSupported(QFontDatabase::Cyrillic);
-            hasScript = true;
-            //qDebug("font %s supports Cyrillic", familyName.latin1());
-        }
-        if (codePageRange[0] & (1 << GreekCsbBit)) {
-            writingSystems.setSupported(QFontDatabase::Greek);
-            hasScript = true;
-            //qDebug("font %s supports Greek", familyName.latin1());
-        }
-        if (codePageRange[0] & (1 << HebrewCsbBit)) {
-            writingSystems.setSupported(QFontDatabase::Hebrew);
-            hasScript = true;
-            //qDebug("font %s supports Hebrew", familyName.latin1());
-        }
-        if (codePageRange[0] & (1 << ArabicCsbBit)) {
-            writingSystems.setSupported(QFontDatabase::Arabic);
-            hasScript = true;
-            //qDebug("font %s supports Arabic", familyName.latin1());
-        }
-        if (codePageRange[0] & (1 << VietnameseCsbBit)) {
-            writingSystems.setSupported(QFontDatabase::Vietnamese);
-            hasScript = true;
-            //qDebug("font %s supports Vietnamese", familyName.latin1());
-        }
-        if (codePageRange[0] & (1 << SimplifiedChineseCsbBit)) {
-            writingSystems.setSupported(QFontDatabase::SimplifiedChinese);
-            hasScript = true;
-            //qDebug("font %s supports Simplified Chinese", familyName.latin1());
-        }
-        if (codePageRange[0] & (1 << TraditionalChineseCsbBit)) {
-            writingSystems.setSupported(QFontDatabase::TraditionalChinese);
-            hasScript = true;
-            //qDebug("font %s supports Traditional Chinese", familyName.latin1());
-        }
-        if (codePageRange[0] & (1 << JapaneseCsbBit)) {
-            writingSystems.setSupported(QFontDatabase::Japanese);
-            hasScript = true;
-            //qDebug("font %s supports Japanese", familyName.latin1());
-        }
-        if (codePageRange[0] & ((1 << KoreanCsbBit) | (1 << KoreanJohabCsbBit))) {
-            writingSystems.setSupported(QFontDatabase::Korean);
-            hasScript = true;
-            //qDebug("font %s supports Korean", familyName.latin1());
-        }
-        if (!hasScript)
-            writingSystems.setSupported(QFontDatabase::Symbol);
+    if (codePageRange[0] & ((1 << Latin1CsbBit) | (1 << CentralEuropeCsbBit) | (1 << TurkishCsbBit) | (1 << BalticCsbBit))) {
+        writingSystems.setSupported(QFontDatabase::Latin);
+        hasScript = true;
+        //qDebug("font %s supports Latin", familyName.latin1());
     }
+    if (codePageRange[0] & (1 << CyrillicCsbBit)) {
+        writingSystems.setSupported(QFontDatabase::Cyrillic);
+        hasScript = true;
+        //qDebug("font %s supports Cyrillic", familyName.latin1());
+    }
+    if (codePageRange[0] & (1 << GreekCsbBit)) {
+        writingSystems.setSupported(QFontDatabase::Greek);
+        hasScript = true;
+        //qDebug("font %s supports Greek", familyName.latin1());
+    }
+    if (codePageRange[0] & (1 << HebrewCsbBit)) {
+        writingSystems.setSupported(QFontDatabase::Hebrew);
+        hasScript = true;
+        //qDebug("font %s supports Hebrew", familyName.latin1());
+    }
+    if (codePageRange[0] & (1 << ArabicCsbBit)) {
+        writingSystems.setSupported(QFontDatabase::Arabic);
+        hasScript = true;
+        //qDebug("font %s supports Arabic", familyName.latin1());
+    }
+    if (codePageRange[0] & (1 << VietnameseCsbBit)) {
+        writingSystems.setSupported(QFontDatabase::Vietnamese);
+        hasScript = true;
+        //qDebug("font %s supports Vietnamese", familyName.latin1());
+    }
+    if (codePageRange[0] & (1 << SimplifiedChineseCsbBit)) {
+        writingSystems.setSupported(QFontDatabase::SimplifiedChinese);
+        hasScript = true;
+        //qDebug("font %s supports Simplified Chinese", familyName.latin1());
+    }
+    if (codePageRange[0] & (1 << TraditionalChineseCsbBit)) {
+        writingSystems.setSupported(QFontDatabase::TraditionalChinese);
+        hasScript = true;
+        //qDebug("font %s supports Traditional Chinese", familyName.latin1());
+    }
+    if (codePageRange[0] & (1 << JapaneseCsbBit)) {
+        writingSystems.setSupported(QFontDatabase::Japanese);
+        hasScript = true;
+        //qDebug("font %s supports Japanese", familyName.latin1());
+    }
+    if (codePageRange[0] & ((1 << KoreanCsbBit) | (1 << KoreanJohabCsbBit))) {
+        writingSystems.setSupported(QFontDatabase::Korean);
+        hasScript = true;
+        //qDebug("font %s supports Korean", familyName.latin1());
+    }
+    if (!hasScript)
+        writingSystems.setSupported(QFontDatabase::Symbol);
 
     return writingSystems;
 }

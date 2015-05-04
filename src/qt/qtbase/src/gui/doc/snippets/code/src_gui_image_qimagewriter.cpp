@@ -57,3 +57,10 @@ QImageWriter writer(fileName);
 if (writer.supportsOption(QImageIOHandler::Description))
     writer.setText("Author", "John Smith");
 //! [2]
+
+//! [3]
+QImageWriter writer("some/image.dds");
+if (writer.supportsOption(QImageIOHandler::SubType))
+    writer.setSubType("A8R8G8B8");
+writer.write(image);
+//! [3]

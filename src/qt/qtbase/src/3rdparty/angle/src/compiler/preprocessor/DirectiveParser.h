@@ -22,35 +22,35 @@ class Tokenizer;
 class DirectiveParser : public Lexer
 {
   public:
-    DirectiveParser(Tokenizer* tokenizer,
-                    MacroSet* macroSet,
-                    Diagnostics* diagnostics,
-                    DirectiveHandler* directiveHandler);
+    DirectiveParser(Tokenizer *tokenizer,
+                    MacroSet *macroSet,
+                    Diagnostics *diagnostics,
+                    DirectiveHandler *directiveHandler);
 
-    virtual void lex(Token* token);
+    virtual void lex(Token *token);
 
   private:
     PP_DISALLOW_COPY_AND_ASSIGN(DirectiveParser);
 
-    void parseDirective(Token* token);
-    void parseDefine(Token* token);
-    void parseUndef(Token* token);
-    void parseIf(Token* token);
-    void parseIfdef(Token* token);
-    void parseIfndef(Token* token);
-    void parseElse(Token* token);
-    void parseElif(Token* token);
-    void parseEndif(Token* token);
-    void parseError(Token* token);
-    void parsePragma(Token* token);
-    void parseExtension(Token* token);
-    void parseVersion(Token* token);
-    void parseLine(Token* token);
+    void parseDirective(Token *token);
+    void parseDefine(Token *token);
+    void parseUndef(Token *token);
+    void parseIf(Token *token);
+    void parseIfdef(Token *token);
+    void parseIfndef(Token *token);
+    void parseElse(Token *token);
+    void parseElif(Token *token);
+    void parseEndif(Token *token);
+    void parseError(Token *token);
+    void parsePragma(Token *token);
+    void parseExtension(Token *token);
+    void parseVersion(Token *token);
+    void parseLine(Token *token);
 
     bool skipping() const;
-    void parseConditionalIf(Token* token);
-    int parseExpressionIf(Token* token);
-    int parseExpressionIfdef(Token* token);
+    void parseConditionalIf(Token *token);
+    int parseExpressionIf(Token *token);
+    int parseExpressionIfdef(Token *token);
 
     struct ConditionalBlock
     {
@@ -61,20 +61,20 @@ class DirectiveParser : public Lexer
         bool foundValidGroup;
         bool foundElseGroup;
 
-        ConditionalBlock() :
-            skipBlock(false),
-            skipGroup(false),
-            foundValidGroup(false),
-            foundElseGroup(false)
+        ConditionalBlock()
+            : skipBlock(false),
+              skipGroup(false),
+              foundValidGroup(false),
+              foundElseGroup(false)
         {
         }
     };
     bool mPastFirstStatement;
     std::vector<ConditionalBlock> mConditionalStack;
-    Tokenizer* mTokenizer;
-    MacroSet* mMacroSet;
-    Diagnostics* mDiagnostics;
-    DirectiveHandler* mDirectiveHandler;
+    Tokenizer *mTokenizer;
+    MacroSet *mMacroSet;
+    Diagnostics *mDiagnostics;
+    DirectiveHandler *mDirectiveHandler;
 };
 
 }  // namespace pp

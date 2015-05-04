@@ -1,0 +1,83 @@
+/****************************************************************************
+**
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \class QXcbWindowFunctions
+    \inmodule QtPlatformHeaders
+
+    \brief The QXcbWindowFunctions class is an inline class containing
+    miscellaneous functionality for xcb window specific functionality.
+
+    A commen usage pattern is as follows:
+    \snippet qxcbwindowfunctions/main.cpp 0
+
+    \note There is no binary compatibility guarantee for this class,
+    meaning that an application using it is only guaranteed to work with the Qt
+    version it was developed against.
+*/
+
+/*!
+    \enum QXcbWindowFunctions::WmWindowType
+
+    This enum represents the supported WM_WINDOW_TYPE atoms.
+
+    \value Normal
+    \value Desktop
+    \value Dock
+    \value Toolbar
+    \value Menu
+    \value Utility
+    \value Splash
+    \value Dialog
+    \value DropDownMenu
+    \value PopupMenu
+    \value Tooltip
+    \value Notification
+    \value Combo
+    \value Dnd
+    \value KdeOverride
+*/
+
+/*!
+    \typedef QXcbWindowFunctions::SetWmWindowType
+
+    This is the typedef for the function returned by QGuiApplication::platformFunction when passed setWmWindowTypeIdentifier.
+*/
+
+/*!
+    \fn QByteArray QXcbWindowFunctions::setWmWindowTypeIdentifier()
+
+    This function returnes the bytearray that can be used to query
+    QGuiApplication::platformFunction to retrieve the SetWmWindowType function.
+*/
+
+/*!
+    \fn void QXcbWindowFunctions::setWmWindowType(QWindow *window, WmWindowType type)
+
+    This is a convenience function that can be used directly instead of resolving the function pointer.
+    \a window and \a type will be relayed to the function retrieved by QGuiApplication
+*/

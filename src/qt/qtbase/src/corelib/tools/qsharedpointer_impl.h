@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -91,6 +83,7 @@ template<typename T> inline void qt_sharedpointer_cast_check(T *) { }
 //
 template <class T> class QWeakPointer;
 template <class T> class QSharedPointer;
+template <class T> class QEnableSharedFromThis;
 
 class QVariant;
 
@@ -318,16 +311,22 @@ public:
     inline QSharedPointer(T *ptr, Deleter deleter) : value(ptr) // throws
     { internalConstruct(ptr, deleter); }
 
-    inline QSharedPointer(const QSharedPointer<T> &other) : value(other.value), d(other.d)
+    inline QSharedPointer(const QSharedPointer &other) : value(other.value), d(other.d)
     { if (d) ref(); }
-    inline QSharedPointer<T> &operator=(const QSharedPointer<T> &other)
+    inline QSharedPointer &operator=(const QSharedPointer &other)
     {
         QSharedPointer copy(other);
         swap(copy);
         return *this;
     }
 #ifdef Q_COMPILER_RVALUE_REFS
-    inline QSharedPointer<T> &operator=(QSharedPointer<T> &&other)
+    inline QSharedPointer(QSharedPointer &&other)
+        : value(other.value), d(other.d)
+    {
+        other.d = 0;
+        other.value = 0;
+    }
+    inline QSharedPointer &operator=(QSharedPointer &&other)
     {
         swap(other);
         return *this;
@@ -339,7 +338,7 @@ public:
     { if (d) ref(); }
 
     template <class X>
-    inline QSharedPointer<T> &operator=(const QSharedPointer<X> &other)
+    inline QSharedPointer &operator=(const QSharedPointer<X> &other)
     {
         QSHAREDPOINTER_VERIFY_AUTO_CAST(T, X); // if you get an error in this line, the cast is invalid
         internalCopy(other);
@@ -355,7 +354,7 @@ public:
     { internalSet(other.d, other.value); return *this; }
 
     inline void swap(QSharedPointer &other)
-    { QSharedPointer<T>::internalSwap(other); }
+    { this->internalSwap(other); }
 
     inline void reset() { clear(); }
     inline void reset(T *t)
@@ -396,7 +395,7 @@ public:
 
 #if defined(Q_COMPILER_RVALUE_REFS) && defined(Q_COMPILER_VARIADIC_TEMPLATES)
     template <typename... Args>
-    static QSharedPointer<T> create(Args && ...arguments)
+    static QSharedPointer create(Args && ...arguments)
     {
         typedef QtSharedPointer::ExternalRefCountWithContiguousData<T> Private;
 # ifdef QT_SHAREDPOINTER_TRACK_POINTERS
@@ -404,7 +403,7 @@ public:
 # else
         typename Private::DestroyerFn destroy = &Private::deleter;
 # endif
-        QSharedPointer<T> result(Qt::Uninitialized);
+        QSharedPointer result(Qt::Uninitialized);
         result.d = Private::create(&result.value, destroy);
 
         // now initialize the data
@@ -416,7 +415,7 @@ public:
         return result;
     }
 #else
-    static inline QSharedPointer<T> create()
+    static inline QSharedPointer create()
     {
         typedef QtSharedPointer::ExternalRefCountWithContiguousData<T> Private;
 # ifdef QT_SHAREDPOINTER_TRACK_POINTERS
@@ -424,11 +423,32 @@ public:
 # else
         typename Private::DestroyerFn destroy = &Private::deleter;
 # endif
-        QSharedPointer<T> result(Qt::Uninitialized);
+        QSharedPointer result(Qt::Uninitialized);
         result.d = Private::create(&result.value, destroy);
 
         // now initialize the data
         new (result.data()) T();
+# ifdef QT_SHAREDPOINTER_TRACK_POINTERS
+        internalSafetyCheckAdd(result.d, result.value);
+# endif
+        result.d->setQObjectShared(result.value, true);
+        return result;
+    }
+
+    template <typename Arg>
+    static inline QSharedPointer create(const Arg &arg)
+    {
+        typedef QtSharedPointer::ExternalRefCountWithContiguousData<T> Private;
+# ifdef QT_SHAREDPOINTER_TRACK_POINTERS
+        typename Private::DestroyerFn destroy = &Private::safetyCheckDeleter;
+# else
+        typename Private::DestroyerFn destroy = &Private::deleter;
+# endif
+        QSharedPointer result(Qt::Uninitialized);
+        result.d = Private::create(&result.value, destroy);
+
+        // now initialize the data
+        new (result.data()) T(arg);
 # ifdef QT_SHAREDPOINTER_TRACK_POINTERS
         internalSafetyCheckAdd(result.d, result.value);
 # endif
@@ -452,6 +472,14 @@ private:
             delete d;
     }
 
+    template <class X>
+    inline void enableSharedFromThis(const QEnableSharedFromThis<X> *ptr)
+    {
+        ptr->initializeFromSharedPointer(*this);
+    }
+
+    inline void enableSharedFromThis(...) {}
+
     template <typename Deleter>
     inline void internalConstruct(T *ptr, Deleter deleter)
     {
@@ -472,6 +500,7 @@ private:
         internalSafetyCheckAdd(d, ptr);
 #endif
         d->setQObjectShared(ptr, true);
+        enableSharedFromThis(ptr);
     }
 
     template <class X>
@@ -555,7 +584,7 @@ public:
     inline bool operator !() const { return isNull(); }
     inline T *data() const { return d == 0 || d->strongref.load() == 0 ? 0 : value; }
 
-    inline QWeakPointer() : d(0), value(0) { }
+    Q_DECL_CONSTEXPR inline QWeakPointer() : d(0), value(0) { }
     inline ~QWeakPointer() { if (d && !d->weakref.deref()) delete d; }
 
 #ifndef QT_NO_QOBJECT
@@ -573,17 +602,23 @@ public:
     { return *this = QWeakPointer(ptr); }
 #endif
 
-    inline QWeakPointer(const QWeakPointer<T> &o) : d(o.d), value(o.value)
+    inline QWeakPointer(const QWeakPointer &o) : d(o.d), value(o.value)
     { if (d) d->weakref.ref(); }
-    inline QWeakPointer<T> &operator=(const QWeakPointer<T> &o)
+    inline QWeakPointer &operator=(const QWeakPointer &o)
     {
         internalSet(o.d, o.value);
         return *this;
     }
 
+    inline void swap(QWeakPointer &other)
+    {
+        qSwap(this->d, other.d);
+        qSwap(this->value, other.value);
+    }
+
     inline QWeakPointer(const QSharedPointer<T> &o) : d(o.d), value(o.data())
     { if (d) d->weakref.ref();}
-    inline QWeakPointer<T> &operator=(const QSharedPointer<T> &o)
+    inline QWeakPointer &operator=(const QSharedPointer<T> &o)
     {
         internalSet(o.d, o.value);
         return *this;
@@ -594,7 +629,7 @@ public:
     { *this = o; }
 
     template <class X>
-    inline QWeakPointer<T> &operator=(const QWeakPointer<X> &o)
+    inline QWeakPointer &operator=(const QWeakPointer<X> &o)
     {
         // conversion between X and T could require access to the virtual table
         // so force the operation to go through QSharedPointer
@@ -615,7 +650,7 @@ public:
     { *this = o; }
 
     template <class X>
-    inline QWeakPointer<T> &operator=(const QSharedPointer<X> &o)
+    inline QWeakPointer &operator=(const QSharedPointer<X> &o)
     {
         QSHAREDPOINTER_VERIFY_AUTO_CAST(T, X); // if you get an error in this line, the cast is invalid
         internalSet(o.d, o.data());
@@ -630,9 +665,11 @@ public:
     inline bool operator!=(const QSharedPointer<X> &o) const
     { return !(*this == o); }
 
-    inline void clear() { *this = QWeakPointer<T>(); }
+    inline void clear() { *this = QWeakPointer(); }
 
     inline QSharedPointer<T> toStrongRef() const { return QSharedPointer<T>(*this); }
+    // std::weak_ptr compatibility:
+    inline QSharedPointer<T> lock() const { return toStrongRef(); }
 
 #if defined(QWEAKPOINTER_ENABLE_ARROW)
     inline T *operator->() const { return data(); }
@@ -670,6 +707,37 @@ public:
 
     Data *d;
     T *value;
+};
+
+template <class T>
+class QEnableSharedFromThis
+{
+protected:
+#ifdef Q_COMPILER_DEFAULT_MEMBERS
+    QEnableSharedFromThis() = default;
+#else
+    Q_DECL_CONSTEXPR QEnableSharedFromThis() {}
+#endif
+    QEnableSharedFromThis(const QEnableSharedFromThis &) {}
+    QEnableSharedFromThis &operator=(const QEnableSharedFromThis &) { return *this; }
+
+public:
+    inline QSharedPointer<T> sharedFromThis() { return QSharedPointer<T>(weakPointer); }
+    inline QSharedPointer<const T> sharedFromThis() const { return QSharedPointer<const T>(weakPointer); }
+
+#ifndef Q_NO_TEMPLATE_FRIENDS
+private:
+    template <class X> friend class QSharedPointer;
+#else
+public:
+#endif
+    template <class X>
+    inline void initializeFromSharedPointer(const QSharedPointer<X> &ptr) const
+    {
+        weakPointer = ptr;
+    }
+
+    mutable QWeakPointer<T> weakPointer;
 };
 
 //

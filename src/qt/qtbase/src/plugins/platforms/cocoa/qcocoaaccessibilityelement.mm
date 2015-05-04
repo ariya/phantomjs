@@ -43,12 +43,12 @@
 #include "qcocoahelpers.h"
 #include "qcocoawindow.h"
 #include "private/qaccessiblecache_p.h"
-
+#include <QtPlatformSupport/private/qaccessiblebridgeutils_p.h>
 #include <QtGui/qaccessible.h>
 
 #import <AppKit/NSAccessibility.h>
 
-@implementation QCocoaAccessibleElement
+@implementation QMacAccessibilityElement
 
 - (id)initWithId:(QAccessible::Id)anId
 {
@@ -72,7 +72,7 @@
 
     QAccessibleCache *cache = QAccessibleCache::instance();
 
-    QCocoaAccessibleElement *element = cache->elementForId(anId);
+    QMacAccessibilityElement *element = cache->elementForId(anId);
     if (!element) {
         QAccessibleInterface *iface = QAccessible::accessibleInterface(anId);
         Q_ASSERT(iface);
@@ -95,8 +95,8 @@
 }
 
 - (BOOL)isEqual:(id)object {
-    if ([object isKindOfClass:[QCocoaAccessibleElement class]]) {
-        QCocoaAccessibleElement *other = object;
+    if ([object isKindOfClass:[QMacAccessibilityElement class]]) {
+        QMacAccessibilityElement *other = object;
         return other->axid == axid;
     } else {
         return NO;
@@ -135,6 +135,7 @@
         defaultAttributes = [[NSArray alloc] initWithObjects:
         NSAccessibilityRoleAttribute,
         NSAccessibilityRoleDescriptionAttribute,
+        NSAccessibilitySubroleAttribute,
         NSAccessibilityChildrenAttribute,
         NSAccessibilityFocusedAttribute,
         NSAccessibilityParentAttribute,
@@ -168,6 +169,14 @@
 // TODO: multi-selection: NSAccessibilitySelectedTextRangesAttribute,
     }
 
+    if (iface->valueInterface()) {
+        [attributes addObjectsFromArray: [[NSArray alloc] initWithObjects:
+            NSAccessibilityMinValueAttribute,
+            NSAccessibilityMaxValueAttribute,
+            nil
+        ]];
+    }
+
     return [attributes autorelease];
 }
 
@@ -188,7 +197,20 @@
     }
 
     QAccessible::Id parentId = QAccessible::uniqueId(parent);
-    return [QCocoaAccessibleElement elementWithId: parentId];
+    return [QMacAccessibilityElement elementWithId: parentId];
+}
+
+
+- (id) minValueAttribute:(QAccessibleInterface*)iface {
+    if (QAccessibleValueInterface *val = iface->valueInterface())
+        return [NSNumber numberWithDouble: val->minimumValue().toDouble()];
+    return nil;
+}
+
+- (id) maxValueAttribute:(QAccessibleInterface*)iface {
+    if (QAccessibleValueInterface *val = iface->valueInterface())
+        return [NSNumber numberWithDouble: val->maximumValue().toDouble()];
+    return nil;
 }
 
 - (id)accessibilityAttributeValue:(NSString *)attribute {
@@ -200,6 +222,8 @@
 
     if ([attribute isEqualToString:NSAccessibilityRoleAttribute]) {
         return role;
+    } else if ([attribute isEqualToString:NSAccessibilitySubroleAttribute]) {
+        return QCocoaAccessible::macSubrole(iface);
     } else if ([attribute isEqualToString:NSAccessibilityRoleDescriptionAttribute]) {
         return NSAccessibilityRoleDescription(role, nil);
     } else if ([attribute isEqualToString:NSAccessibilityChildrenAttribute]) {
@@ -272,6 +296,10 @@
             return [NSNumber numberWithInt: textBeforeCursor.count(QLatin1Char('\n'))];
         }
         return nil;
+    } else if ([attribute isEqualToString:NSAccessibilityMinValueAttribute]) {
+        return [self minValueAttribute:iface];
+    } else if ([attribute isEqualToString:NSAccessibilityMaxValueAttribute]) {
+        return [self maxValueAttribute:iface];
     }
 
     return nil;
@@ -320,7 +348,7 @@
     }
     if ([attribute isEqualToString: NSAccessibilityLineForIndexParameterizedAttribute]) {
         int index = [parameter intValue];
-        NSNumber *ln = [QCocoaAccessibleElement lineNumberForIndex: index forText: iface->text(QAccessible::Value)];
+        NSNumber *ln = [QMacAccessibilityElement lineNumberForIndex: index forText: iface->text(QAccessible::Value)];
         return ln;
     }
     if ([attribute isEqualToString: NSAccessibilityRangeForLineParameterizedAttribute]) {
@@ -332,7 +360,7 @@
             startOffset = text.indexOf(QLatin1Char('\n'), startOffset) + 1;
         if (startOffset < 0) // invalid line number, return the first line
             startOffset = 0;
-        int endOffset = text.indexOf(QLatin1Char('\n'), startOffset + 1);
+        int endOffset = text.indexOf(QLatin1Char('\n'), startOffset);
         if (endOffset == -1)
             endOffset = text.length();
         return [NSValue valueWithRange:NSMakeRange(quint32(startOffset), quint32(endOffset - startOffset))];
@@ -359,6 +387,12 @@
 
     if ([attribute isEqualToString:NSAccessibilityFocusedAttribute]) {
         return iface->state().focusable ? YES : NO;
+    } else if ([attribute isEqualToString:NSAccessibilityValueAttribute]) {
+        if (iface->textInterface() && iface->state().editable)
+            return YES;
+        if (iface->valueInterface())
+            return YES;
+        return NO;
     } else if ([attribute isEqualToString:NSAccessibilitySelectedTextRangeAttribute]) {
         return iface->textInterface() ? YES : NO;
     }
@@ -372,6 +406,14 @@
     if ([attribute isEqualToString:NSAccessibilityFocusedAttribute]) {
         if (QAccessibleActionInterface *action = iface->actionInterface())
             action->doAction(QAccessibleActionInterface::setFocusAction());
+    } else if ([attribute isEqualToString:NSAccessibilityValueAttribute]) {
+        if (iface->textInterface()) {
+            QString text = QString::fromNSString((NSString *)value);
+            iface->setText(QAccessible::Value, text);
+        } else if (QAccessibleValueInterface *valueIface = iface->valueInterface()) {
+            double val = [value doubleValue];
+            valueIface->setCurrentValue(val);
+        }
     } else if ([attribute isEqualToString:NSAccessibilitySelectedTextRangeAttribute]) {
         if (QAccessibleTextInterface *text = iface->textInterface()) {
             NSRange range = [value rangeValue];
@@ -391,15 +433,11 @@
     if (!iface)
         return nsActions;
 
-    QAccessibleActionInterface *actionInterface = iface->actionInterface();
-    if (actionInterface) {
-        QStringList supportedActionNames = actionInterface->actionNames();
-
-        foreach (const QString &qtAction, supportedActionNames) {
-            NSString *nsAction = QCocoaAccessible::getTranslatedAction(qtAction);
-            if (nsAction)
-                [nsActions addObject : nsAction];
-        }
+    const QStringList &supportedActionNames = QAccessibleBridgeUtils::effectiveActionNames(iface);
+    foreach (const QString &qtAction, supportedActionNames) {
+        NSString *nsAction = QCocoaAccessible::getTranslatedAction(qtAction);
+        if (nsAction)
+            [nsActions addObject : nsAction];
     }
 
     return nsActions;
@@ -409,27 +447,25 @@
     QAccessibleInterface *iface = QAccessible::accessibleInterface(axid);
     if (!iface)
         return nil; // FIXME is that the right return type??
-    QAccessibleActionInterface *actionInterface = iface->actionInterface();
-    if (actionInterface) {
-        QString qtAction = QCocoaAccessible::translateAction(action);
-
-        // Return a description from the action interface if this action is not known to the OS.
-        if (qtAction.isEmpty()) {
-            QString description = actionInterface->localizedActionDescription(qtAction);
-            return QCFString::toNSString(description);
+    QString qtAction = QCocoaAccessible::translateAction(action);
+    QString description;
+    // Return a description from the action interface if this action is not known to the OS.
+    if (qtAction.isEmpty()) {
+        if (QAccessibleActionInterface *actionInterface = iface->actionInterface()) {
+            qtAction = QString::fromNSString((NSString *)action);
+            description = actionInterface->localizedActionDescription(qtAction);
         }
+    } else {
+        description = qAccessibleLocalizedActionDescription(qtAction);
     }
-
-    return NSAccessibilityActionDescription(action);
+    return QCFString::toNSString(description);
 }
 
 - (void)accessibilityPerformAction:(NSString *)action {
     QAccessibleInterface *iface = QAccessible::accessibleInterface(axid);
     if (iface) {
-        QAccessibleActionInterface *actionInterface = iface->actionInterface();
-        if (actionInterface) {
-            actionInterface->doAction(QCocoaAccessible::translateAction(action));
-        }
+        const QString qtAction = QCocoaAccessible::translateAction(action);
+        QAccessibleBridgeUtils::performEffectiveAction(iface, qtAction);
     }
 }
 
@@ -465,7 +501,7 @@
 
     QAccessible::Id childId = QAccessible::uniqueId(childInterface);
     // hit a child, forward to child accessible interface.
-    QCocoaAccessibleElement *accessibleElement = [QCocoaAccessibleElement elementWithId:childId];
+    QMacAccessibilityElement *accessibleElement = [QMacAccessibilityElement elementWithId:childId];
     if (accessibleElement)
         return NSAccessibilityUnignoredAncestor(accessibleElement);
     return NSAccessibilityUnignoredAncestor(self);
@@ -482,7 +518,7 @@
     QAccessibleInterface *childInterface = iface->focusChild();
     if (childInterface) {
         QAccessible::Id childAxid = QAccessible::uniqueId(childInterface);
-        QCocoaAccessibleElement *accessibleElement = [QCocoaAccessibleElement elementWithId:childAxid];
+        QMacAccessibilityElement *accessibleElement = [QMacAccessibilityElement elementWithId:childAxid];
         return NSAccessibilityUnignoredAncestor(accessibleElement);
     }
 

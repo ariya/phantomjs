@@ -12,7 +12,7 @@
 // A macro to disallow the copy constructor and operator= functions
 // This must be used in the private: declarations for a class.
 #define PP_DISALLOW_COPY_AND_ASSIGN(TypeName) \
-  TypeName(const TypeName&);               \
-  void operator=(const TypeName&)
+  TypeName(const TypeName &);               \
+  void operator=(const TypeName &)
 
 #endif // COMPILER_PREPROCESSOR_PPUTILS_H_

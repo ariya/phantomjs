@@ -21,24 +21,24 @@ namespace pp
 
 struct PreprocessorImpl
 {
-    Diagnostics* diagnostics;
+    Diagnostics *diagnostics;
     MacroSet macroSet;
     Tokenizer tokenizer;
     DirectiveParser directiveParser;
     MacroExpander macroExpander;
 
-    PreprocessorImpl(Diagnostics* diag,
-                     DirectiveHandler* directiveHandler) :
-        diagnostics(diag),
-        tokenizer(diag),
-        directiveParser(&tokenizer, &macroSet, diag, directiveHandler),
-        macroExpander(&directiveParser, &macroSet, diag)
+    PreprocessorImpl(Diagnostics *diag,
+                     DirectiveHandler *directiveHandler)
+        : diagnostics(diag),
+          tokenizer(diag),
+          directiveParser(&tokenizer, &macroSet, diag, directiveHandler),
+          macroExpander(&directiveParser, &macroSet, diag)
     {
     }
 };
 
-Preprocessor::Preprocessor(Diagnostics* diagnostics,
-                           DirectiveHandler* directiveHandler)
+Preprocessor::Preprocessor(Diagnostics *diagnostics,
+                           DirectiveHandler *directiveHandler)
 {
     mImpl = new PreprocessorImpl(diagnostics, directiveHandler);
 }
@@ -49,7 +49,7 @@ Preprocessor::~Preprocessor()
 }
 
 bool Preprocessor::init(size_t count,
-                        const char* const string[],
+                        const char * const string[],
                         const int length[])
 {
     static const int kGLSLVersion = 100;
@@ -63,7 +63,7 @@ bool Preprocessor::init(size_t count,
     return mImpl->tokenizer.init(count, string, length);
 }
 
-void Preprocessor::predefineMacro(const char* name, int value)
+void Preprocessor::predefineMacro(const char *name, int value)
 {
     std::ostringstream stream;
     stream << value;
@@ -81,12 +81,7 @@ void Preprocessor::predefineMacro(const char* name, int value)
     mImpl->macroSet[name] = macro;
 }
 
-void Preprocessor::setMaxTokenLength(size_t maxLength)
-{
-    mImpl->tokenizer.setMaxTokenLength(maxLength);
-}
-
-void Preprocessor::lex(Token* token)
+void Preprocessor::lex(Token *token)
 {
     bool validToken = false;
     while (!validToken)
@@ -115,5 +110,9 @@ void Preprocessor::lex(Token* token)
     }
 }
 
-}  // namespace pp
+void Preprocessor::setMaxTokenSize(size_t maxTokenSize)
+{
+    mImpl->tokenizer.setMaxTokenSize(maxTokenSize);
+}
 
+}  // namespace pp

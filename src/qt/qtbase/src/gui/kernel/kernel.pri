@@ -66,13 +66,14 @@ HEADERS += \
         kernel/qplatformsharedgraphicscache.h \
         kernel/qplatformdialoghelper.h \
         kernel/qplatformservices.h \
-        kernel/qplatformscreenpageflipper.h \
         kernel/qplatformsystemtrayicon.h \
-        kernel/qplatformsessionmanager.h
+        kernel/qplatformsessionmanager.h \
+        kernel/qpixelformat.h \
+        kernel/qpaintdevicewindow.h \
+        kernel/qpaintdevicewindow_p.h \
+        kernel/qrasterwindow.h
 
 SOURCES += \
-        kernel/qclipboard_qpa.cpp \
-        kernel/qcursor_qpa.cpp \
         kernel/qgenericpluginfactory.cpp \
         kernel/qgenericplugin.cpp \
         kernel/qwindowsysteminterface.cpp \
@@ -109,7 +110,6 @@ SOURCES += \
         kernel/qinputmethod.cpp \
         kernel/qkeysequence.cpp \
         kernel/qkeymapper.cpp \
-        kernel/qkeymapper_qpa.cpp \
         kernel/qpalette.cpp \
         kernel/qguivariant.cpp \
         kernel/qscreen.cpp \
@@ -119,20 +119,24 @@ SOURCES += \
         kernel/qplatformsharedgraphicscache.cpp \
         kernel/qplatformdialoghelper.cpp \
         kernel/qplatformservices.cpp \
-        kernel/qplatformscreenpageflipper.cpp \
-        kernel/qplatformsystemtrayicon_qpa.cpp \
+        kernel/qplatformsystemtrayicon.cpp \
         kernel/qplatformsessionmanager.cpp \
-        kernel/qplatformmenu.cpp
+        kernel/qplatformmenu.cpp \
+        kernel/qpixelformat.cpp \
+        kernel/qpaintdevicewindow.cpp \
+        kernel/qrasterwindow.cpp
 
 contains(QT_CONFIG, opengl)|contains(QT_CONFIG, opengles2) {
     HEADERS += \
             kernel/qplatformopenglcontext.h \
             kernel/qopenglcontext.h \
-            kernel/qopenglcontext_p.h
+            kernel/qopenglcontext_p.h \
+            kernel/qopenglwindow.h
 
     SOURCES += \
             kernel/qplatformopenglcontext.cpp \
-            kernel/qopenglcontext.cpp
+            kernel/qopenglcontext.cpp \
+            kernel/qopenglwindow.cpp
 }
 
 win32:HEADERS+=kernel/qwindowdefs_win.h

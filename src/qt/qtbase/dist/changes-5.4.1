@@ -1,0 +1,184 @@
+Qt 5.4.1 is a bug-fix release. It maintains both forward and backward
+compatibility (source and binary) with Qt 5.4.0 except on Windows
+when using MSVC 2012 or MSVC 2013. See note below.
+
+For more details, refer to the online documentation included in this
+distribution. The documentation is also available online:
+
+  http://doc.qt.io/qt-5.4/
+
+The Qt version 5.4 series is binary compatible with the 5.3.x series.
+Applications compiled for 5.3 will continue to run with 5.4 with the
+exception of on Windows when using MSVC 2012 or MSVC 2013. See note
+below.
+
+Some of the changes listed in this file include issue tracking numbers
+corresponding to tasks in the Qt Bug Tracker:
+
+  http://bugreports.qt.io/
+
+Each of these identifiers can be entered in the bug tracker to obtain more
+information about a particular change.
+
+****************************************************************************
+*                        Important Behavior Changes                        *
+****************************************************************************
+- Restored binary compatibility with Qt 5.3.2 on Windows when using MSVC
+  2012 or MSVC 2013. This means that Qt 5.4.1 is no longer binary compatible
+  with Qt 5.4.0 when using either of those compilers.
+- [QTBUG-42594] OS X binary package: fixed incorrect linking to libraries in
+  /opt/local/lib
+
+****************************************************************************
+*                               Library                                    *
+****************************************************************************
+
+QtCore
+------
+ - [QTBUG-43893] Fixed memory leak in qSetMessagePattern
+ - [QTBUG-43513] QXmlStreamReader: Correctly parse XML containing NUL bytes
+   in the input stream
+ - [QTBUG-43352] QTemporaryDirectory: Properly clean up in case of a failure
+ - [QTBUG-43827] Fixed regression in QSortFilterProxyModel which crashed when
+   sorting a tree model
+
+QtGui
+-----
+ - [QTBUG-44273] Fixed misplacement of outlined text with native text rendering
+ - [QTBUG-44147] Fixed VNC not working on some VNC servers
+ - [QTBUG-43850] Fixed crash with multi-threaded font usage
+ - [QTBUG-43850] Made the old harfbuzz fallback available at runtime
+ - Improvements to the experimental high-dpi support
+ - [QTBUG-43318] Better resolving of GLES3 functions to avoid issues when deploying
+   on systems with GLES 2.0 only
+
+QtWidgets
+---------
+ - [QTBUG-43830] Fixed crash in stylesheets when styling QProgressBar
+ - [QTBUG-43663] QColorDialog: Don't lose focus while color picking
+
+QtNetwork
+---------
+ - [QTBUG-43793] Fixed disconnections of QSSLSocket after starting encryption
+
+QtSql
+-----
+ - [QTBUG-36211] qpsql: Added timezone support for datetime fields.
+ - qodbc: Fixed converted string values on Microsoft SQL Server 2012
+ - [QTBUG-43874] QSqlQuery: Fixed failure of multiple execBatch() calls after
+   a single prepare() call
+
+QtPrintSupport
+--------------
+ - [QTBUG-43124] Fixed QPrinter::{width,height} return values
+
+****************************************************************************
+*                      Platform Specific Changes                           *
+****************************************************************************
+
+Linux/XCB
+---------
+ - [QTBUG-43436] Fixed regression when drag and drop to other applications
+ - [QTBUG-43809] Turned off font hinting when doing high DPI scaling
+ - [QTBUG-43743] Fixed constantly resizing bigger window when devicePixelRatio is
+   greater than 1
+ - [QTBUG-43713] Fixed problems with multiple screens with different device pixel
+   ratios regarding window mapping and font sizes.
+ - [QTBUG-43688] Fixed physical DPI and size for rotated screens on X11
+ - [QTBUG-43049] Fixed grabKeyboard and grabMouse
+ - [QTBUG-36862] Now sends a leave event to the other window when a popup shows
+   which grabs the input
+ - [QTBUG-41590] Turned off subpixel gamma-correction on XCB
+ - Added support for SelectionClientClose in QXcbClipboard
+ - Fixed -nograb and -dograb arguments
+ - [QTBUG-43623] Fixed use after free
+ - [QTBUG-43436] Fixed regression in DnD. Make sure to preserve the QDrag until all
+   data has been received.
+
+OS X
+----
+ - [QTBUG-42952] macdeployqt: Fixed incorrect links to QtQuick plugin libraries
+ - [QTBUG-43061] Fixed namespacing of QNSViewMouseMoveHelper
+ - [QTBUG-43471] Fixed regression with Cut/Copy/Paste menu items staying disabled
+   after a filedialog was closed
+ - [QTBUG-42728] Fixed crash in QAction::setFont() when the font is unknown
+ - qt_mac_loadMenuNib: Prevent stale NIB files by diffing file size
+ - [QTBUG-43710] Fixed memory leak in QUrl::toCFUrl()
+ - [QTBUG-43061] Fixed namespacing of QNSViewMouseMoveHelper
+ - [QTBUG-40449] QMacPasteboardMimeFileUri: Use file paths instead of file references
+ - [QTBUG-36787] Fixed crashes occurring during PAC detection in
+   QNetworkProxyFactory::systemProxyForQuery()
+
+Windows
+-------
+ - [QTBUG-44021][QTBUG-35734] Fixed standard shortcuts when using a
+   non-Latin keyboard layout
+ - ANGLE: Fixed initialization of contexts
+ - [QTBUG-43832] Delayed the creation of static OpenGL context
+ - [QTBUG-43870] Fallback to ANGLE when OpenGL 1.x is detected
+ - [QTBUG-43466] Use the chosen DnD effect in drag enter/move for drop
+ - [QTBUG-41162] Fixed regression with dialogs not rendering when WA_TransluentBackground
+   is used
+ - [QTBUG-43833] Fixed crash when focus window does not have a native window
+ - [QTBUG-43263] Added infrastructure for GPU-specific GL renderers
+ - [QTBUG-43263] Added support for GPU detection
+ - [QTBUG-41782] Prevent buffer over-run when getting the glyph images
+ - [QTBUG-43420] Removed check for minimum/maximum size constraints
+ - [QTBUG-43308] Release mouse capture when window blocked by modal window
+ - [QTBUG-43082] Fixed PDF output when embedding fonts with a large internal leading
+ - [QTBUG-43343] Pass on any unhandled multimedia keys back to the system
+ - [QTBUG-43252] Do not register windows obtained by QWindow::fromWinId() for touch
+ - [QTBUG-43252] Fixed window geometry when using QWindow::fromWinId()
+ - [QTBUG-40578] Skip calculating margins for Qt::FramelessWindowHint
+ - [QTBUG-36318] Handle WM_WINDOWPOSCHANGING during window creation
+ - [QTBUG-42564] Brought FreeType rendering up to par with other platforms
+ - [QTBUG-36220] [QTBUG-36318] Implement heightForWidth()
+ - [QTBUG-40691] Correctly associate IME contexts
+ - [QTBUG-40691] Added support for capabilities to QPlatformInputContext
+ - Limit cursor cache to avoid hitting GDI resource limits
+ - [QTBUG-43900] rcc: Fixed build failure on Windows XP / MingW 4.9
+ - [QTBUG-41782] DirectWrite: Fixed possible buffer over-run in font handling
+
+Android
+-------
+ - [QTBUG-39712] Fixed problems caused by surface creation/destruction
+
+iOS
+---
+ - [QTBUG-43716] guard text responder from clearing selection
+
+WinRT
+-----
+ - [QTBUG-43862] Fixed QCoreApplication::quit() to exit application.
+ - [QTBUG-44196] Fixed click events being ignored when using pressAndHold.
+
+Windows Embedded
+----------------
+ - [QTBUG-44022] Fixed finding windows and widgets
+
+QNX
+---
+ - [QTBUG-43850] Fixed Harfbuzz-NG support
+
+****************************************************************************
+*                                Tools                                     *
+****************************************************************************
+
+configure & build system
+------------------------
+
+ - configure will now reject invalid -no-feature-* options.
+ - pkg-config assisted libudev detection was fixed.
+ - [QTBUG-43302][Android] The Android style is included when cross-building
+   on Windows as well.
+ - [QTBUG-43205][Unix] Fixed build D-Bus headers cannot be found.
+
+qmake
+-----
+
+ - [QTBUG-39690][Windows] Fixed file separators in 'make clean'.
+ - [QTBUG-40264][Unix] Fixed 'make distclean' for a dynamic library target.
+ - [QTBUG-42678] 'make distclean' now removes .qmake.{stash|super}.
+ - [QTBUG-43026][VS2010+] Fixed compilation of .rc files.
+ - [QTBUG-43457][MSVC] Fixed QMAKE_TARGET.arch for amd64_x86 x-build.
+ - INCLUDEPATH+=. is now unnecessary with all generators.

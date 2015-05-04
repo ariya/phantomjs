@@ -90,7 +90,7 @@ static void writeTextStream_snippet()
 //! [2]
 }
 
-static void writeTextStream_snippet()
+static void writeDataStream_snippet()
 {
     QFile file("out.dat");
     if (!file.open(QIODevice::WriteOnly))

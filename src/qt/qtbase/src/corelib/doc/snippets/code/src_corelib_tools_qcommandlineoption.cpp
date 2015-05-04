@@ -39,6 +39,7 @@
 ****************************************************************************/
 
 #include <QCommandLineOption>
+#include <QCommandLineParser>
 
 int main()
 {
@@ -47,5 +48,15 @@ int main()
 QCommandLineOption verboseOption("verbose", "Verbose mode. Prints out more information.");
 QCommandLineOption outputOption(QStringList() << "o" << "output", "Write generated data into <file>.", "file");
 //! [0]
+
+//! [cxx11-init]
+QCommandLineParser parser;
+parser.addOption({"verbose", "Verbose mode. Prints out more information."});
+//! [cxx11-init]
+
+//! [cxx11-init-list]
+QCommandLineParser parser;
+parser.addOption({{"o", "output"}, "Write generated data into <file>.", "file"});
+//! [cxx11-init-list]
 
 }

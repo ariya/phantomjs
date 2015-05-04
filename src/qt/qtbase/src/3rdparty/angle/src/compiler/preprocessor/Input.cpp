@@ -17,7 +17,7 @@ Input::Input() : mCount(0), mString(0)
 {
 }
 
-Input::Input(size_t count, const char* const string[], const int length[]) :
+Input::Input(size_t count, const char *const string[], const int length[]) :
     mCount(count),
     mString(string)
 {
@@ -29,7 +29,7 @@ Input::Input(size_t count, const char* const string[], const int length[]) :
     }
 }
 
-size_t Input::read(char* buf, size_t maxSize)
+size_t Input::read(char *buf, size_t maxSize)
 {
     size_t nRead = 0;
     while ((nRead < maxSize) && (mReadLoc.sIndex < mCount))

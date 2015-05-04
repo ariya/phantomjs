@@ -1,6 +1,5 @@
-#include "precompiled.h"
 //
-// Copyright (c) 2002-2013 The ANGLE Project Authors. All rights reserved.
+// Copyright (c) 2002-2014 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -9,255 +8,219 @@
 // objects and related functionality. [OpenGL ES 2.0.24] section 4.4 page 105.
 
 #include "libGLESv2/Framebuffer.h"
-
 #include "libGLESv2/main.h"
-#include "libGLESv2/utilities.h"
+#include "libGLESv2/formatutils.h"
 #include "libGLESv2/Texture.h"
 #include "libGLESv2/Context.h"
-#include "libGLESv2/renderer/Renderer.h"
 #include "libGLESv2/Renderbuffer.h"
+#include "libGLESv2/FramebufferAttachment.h"
+#include "libGLESv2/renderer/Renderer.h"
+#include "libGLESv2/renderer/RenderTarget.h"
+#include "libGLESv2/renderer/RenderbufferImpl.h"
+#include "libGLESv2/renderer/Workarounds.h"
+#include "libGLESv2/renderer/d3d/TextureD3D.h"
+#include "libGLESv2/renderer/d3d/RenderbufferD3D.h"
+
+#include "common/utilities.h"
+
+namespace rx
+{
+// TODO: Move these functions, and the D3D-specific header inclusions above,
+//       to FramebufferD3D.
+gl::Error GetAttachmentRenderTarget(gl::FramebufferAttachment *attachment, RenderTarget **outRT)
+{
+    if (attachment->isTexture())
+    {
+        gl::Texture *texture = attachment->getTexture();
+        ASSERT(texture);
+        TextureD3D *textureD3D = TextureD3D::makeTextureD3D(texture->getImplementation());
+        const gl::ImageIndex *index = attachment->getTextureImageIndex();
+        ASSERT(index);
+        return textureD3D->getRenderTarget(*index, outRT);
+    }
+    else
+    {
+        gl::Renderbuffer *renderbuffer = attachment->getRenderbuffer();
+        ASSERT(renderbuffer);
+        RenderbufferD3D *renderbufferD3D = RenderbufferD3D::makeRenderbufferD3D(renderbuffer->getImplementation());
+        *outRT = renderbufferD3D->getRenderTarget();
+        return gl::Error(GL_NO_ERROR);
+    }
+}
+
+// Note: RenderTarget serials should ideally be in the RenderTargets themselves.
+unsigned int GetAttachmentSerial(gl::FramebufferAttachment *attachment)
+{
+    if (attachment->isTexture())
+    {
+        gl::Texture *texture = attachment->getTexture();
+        ASSERT(texture);
+        TextureD3D *textureD3D = TextureD3D::makeTextureD3D(texture->getImplementation());
+        const gl::ImageIndex *index = attachment->getTextureImageIndex();
+        ASSERT(index);
+        return textureD3D->getRenderTargetSerial(*index);
+    }
+
+    gl::Renderbuffer *renderbuffer = attachment->getRenderbuffer();
+    ASSERT(renderbuffer);
+    RenderbufferD3D *renderbufferD3D = RenderbufferD3D::makeRenderbufferD3D(renderbuffer->getImplementation());
+    return renderbufferD3D->getRenderTargetSerial();
+}
+
+}
 
 namespace gl
 {
 
-Framebuffer::Framebuffer(rx::Renderer *renderer)
-    : mRenderer(renderer)
+Framebuffer::Framebuffer(GLuint id)
+    : mId(id),
+      mReadBufferState(GL_COLOR_ATTACHMENT0_EXT),
+      mDepthbuffer(NULL),
+      mStencilbuffer(NULL)
 {
     for (unsigned int colorAttachment = 0; colorAttachment < IMPLEMENTATION_MAX_DRAW_BUFFERS; colorAttachment++)
     {
-        mColorbufferTypes[colorAttachment] = GL_NONE;
+        mColorbuffers[colorAttachment] = NULL;
         mDrawBufferStates[colorAttachment] = GL_NONE;
     }
     mDrawBufferStates[0] = GL_COLOR_ATTACHMENT0_EXT;
-    mReadBufferState = GL_COLOR_ATTACHMENT0_EXT;
-
-    mDepthbufferType = GL_NONE;
-    mStencilbufferType = GL_NONE;
 }
 
 Framebuffer::~Framebuffer()
 {
     for (unsigned int colorAttachment = 0; colorAttachment < IMPLEMENTATION_MAX_DRAW_BUFFERS; colorAttachment++)
     {
-        mColorbufferPointers[colorAttachment].set(NULL);
+        SafeDelete(mColorbuffers[colorAttachment]);
     }
-    mDepthbufferPointer.set(NULL);
-    mStencilbufferPointer.set(NULL);
+    SafeDelete(mDepthbuffer);
+    SafeDelete(mStencilbuffer);
 }
 
-Renderbuffer *Framebuffer::lookupRenderbuffer(GLenum type, GLuint handle) const
-{
-    gl::Context *context = gl::getContext();
-    Renderbuffer *buffer = NULL;
-
-    if (type == GL_NONE)
-    {
-        buffer = NULL;
-    }
-    else if (type == GL_RENDERBUFFER)
-    {
-        buffer = context->getRenderbuffer(handle);
-    }
-    else if (IsInternalTextureTarget(type))
-    {
-        buffer = context->getTexture(handle)->getRenderbuffer(type);
-    }
-    else
-    {
-        UNREACHABLE();
-    }
-
-    return buffer;
-}
-
-void Framebuffer::setColorbuffer(unsigned int colorAttachment, GLenum type, GLuint colorbuffer)
-{
-    ASSERT(colorAttachment < IMPLEMENTATION_MAX_DRAW_BUFFERS);
-    mColorbufferTypes[colorAttachment] = (colorbuffer != 0) ? type : GL_NONE;
-    mColorbufferPointers[colorAttachment].set(lookupRenderbuffer(type, colorbuffer));
-}
-
-void Framebuffer::setDepthbuffer(GLenum type, GLuint depthbuffer)
-{
-    mDepthbufferType = (depthbuffer != 0) ? type : GL_NONE;
-    mDepthbufferPointer.set(lookupRenderbuffer(type, depthbuffer));
-}
-
-void Framebuffer::setStencilbuffer(GLenum type, GLuint stencilbuffer)
-{
-    mStencilbufferType = (stencilbuffer != 0) ? type : GL_NONE;
-    mStencilbufferPointer.set(lookupRenderbuffer(type, stencilbuffer));
-}
-
-void Framebuffer::detachTexture(GLuint texture)
+void Framebuffer::detachTexture(GLuint textureId)
 {
     for (unsigned int colorAttachment = 0; colorAttachment < IMPLEMENTATION_MAX_DRAW_BUFFERS; colorAttachment++)
     {
-        if (mColorbufferPointers[colorAttachment].id() == texture && IsInternalTextureTarget(mColorbufferTypes[colorAttachment]))
+        FramebufferAttachment *attachment = mColorbuffers[colorAttachment];
+
+        if (attachment && attachment->isTextureWithId(textureId))
         {
-            mColorbufferTypes[colorAttachment] = GL_NONE;
-            mColorbufferPointers[colorAttachment].set(NULL);
+            SafeDelete(mColorbuffers[colorAttachment]);
         }
     }
 
-    if (mDepthbufferPointer.id() == texture && IsInternalTextureTarget(mDepthbufferType))
+    if (mDepthbuffer && mDepthbuffer->isTextureWithId(textureId))
     {
-        mDepthbufferType = GL_NONE;
-        mDepthbufferPointer.set(NULL);
+        SafeDelete(mDepthbuffer);
     }
 
-    if (mStencilbufferPointer.id() == texture && IsInternalTextureTarget(mStencilbufferType))
+    if (mStencilbuffer && mStencilbuffer->isTextureWithId(textureId))
     {
-        mStencilbufferType = GL_NONE;
-        mStencilbufferPointer.set(NULL);
+        SafeDelete(mStencilbuffer);
     }
 }
 
-void Framebuffer::detachRenderbuffer(GLuint renderbuffer)
+void Framebuffer::detachRenderbuffer(GLuint renderbufferId)
 {
     for (unsigned int colorAttachment = 0; colorAttachment < IMPLEMENTATION_MAX_DRAW_BUFFERS; colorAttachment++)
     {
-        if (mColorbufferPointers[colorAttachment].id() == renderbuffer && mColorbufferTypes[colorAttachment] == GL_RENDERBUFFER)
+        FramebufferAttachment *attachment = mColorbuffers[colorAttachment];
+
+        if (attachment && attachment->isRenderbufferWithId(renderbufferId))
         {
-            mColorbufferTypes[colorAttachment] = GL_NONE;
-            mColorbufferPointers[colorAttachment].set(NULL);
+            SafeDelete(mColorbuffers[colorAttachment]);
         }
     }
 
-    if (mDepthbufferPointer.id() == renderbuffer && mDepthbufferType == GL_RENDERBUFFER)
+    if (mDepthbuffer && mDepthbuffer->isRenderbufferWithId(renderbufferId))
     {
-        mDepthbufferType = GL_NONE;
-        mDepthbufferPointer.set(NULL);
+        SafeDelete(mDepthbuffer);
     }
 
-    if (mStencilbufferPointer.id() == renderbuffer && mStencilbufferType == GL_RENDERBUFFER)
+    if (mStencilbuffer && mStencilbuffer->isRenderbufferWithId(renderbufferId))
     {
-        mStencilbufferType = GL_NONE;
-        mStencilbufferPointer.set(NULL);
+        SafeDelete(mStencilbuffer);
     }
 }
 
-unsigned int Framebuffer::getRenderTargetSerial(unsigned int colorAttachment) const
+FramebufferAttachment *Framebuffer::getColorbuffer(unsigned int colorAttachment) const
 {
     ASSERT(colorAttachment < IMPLEMENTATION_MAX_DRAW_BUFFERS);
-
-    Renderbuffer *colorbuffer = mColorbufferPointers[colorAttachment].get();
-
-    if (colorbuffer)
-    {
-        return colorbuffer->getSerial();
-    }
-
-    return 0;
+    return mColorbuffers[colorAttachment];
 }
 
-unsigned int Framebuffer::getDepthbufferSerial() const
+FramebufferAttachment *Framebuffer::getDepthbuffer() const
 {
-    Renderbuffer *depthbuffer = mDepthbufferPointer.get();
-
-    if (depthbuffer)
-    {
-        return depthbuffer->getSerial();
-    }
-
-    return 0;
+    return mDepthbuffer;
 }
 
-unsigned int Framebuffer::getStencilbufferSerial() const
+FramebufferAttachment *Framebuffer::getStencilbuffer() const
 {
-    Renderbuffer *stencilbuffer = mStencilbufferPointer.get();
-
-    if (stencilbuffer)
-    {
-        return stencilbuffer->getSerial();
-    }
-
-    return 0;
+    return mStencilbuffer;
 }
 
-Renderbuffer *Framebuffer::getColorbuffer(unsigned int colorAttachment) const
+FramebufferAttachment *Framebuffer::getDepthStencilBuffer() const
 {
-    ASSERT(colorAttachment < IMPLEMENTATION_MAX_DRAW_BUFFERS);
-    return mColorbufferPointers[colorAttachment].get();
+    return (hasValidDepthStencil() ? mDepthbuffer : NULL);
 }
 
-Renderbuffer *Framebuffer::getDepthbuffer() const
+FramebufferAttachment *Framebuffer::getDepthOrStencilbuffer() const
 {
-    return mDepthbufferPointer.get();
-}
-
-Renderbuffer *Framebuffer::getStencilbuffer() const
-{
-    return mStencilbufferPointer.get();
-}
-
-Renderbuffer *Framebuffer::getDepthOrStencilbuffer() const
-{
-    Renderbuffer *depthstencilbuffer = mDepthbufferPointer.get();
+    FramebufferAttachment *depthstencilbuffer = mDepthbuffer;
     
     if (!depthstencilbuffer)
     {
-        depthstencilbuffer = mStencilbufferPointer.get();
+        depthstencilbuffer = mStencilbuffer;
     }
 
     return depthstencilbuffer;
 }
 
-Renderbuffer *Framebuffer::getReadColorbuffer() const
+FramebufferAttachment *Framebuffer::getReadColorbuffer() const
 {
     // Will require more logic if glReadBuffers is supported
-    return mColorbufferPointers[0].get();
+    return mColorbuffers[0];
 }
 
 GLenum Framebuffer::getReadColorbufferType() const
 {
     // Will require more logic if glReadBuffers is supported
-    return mColorbufferTypes[0];
+    return (mColorbuffers[0] ? mColorbuffers[0]->type() : GL_NONE);
 }
 
-Renderbuffer *Framebuffer::getFirstColorbuffer() const
+FramebufferAttachment *Framebuffer::getFirstColorbuffer() const
 {
     for (unsigned int colorAttachment = 0; colorAttachment < IMPLEMENTATION_MAX_DRAW_BUFFERS; colorAttachment++)
     {
-        if (mColorbufferTypes[colorAttachment] != GL_NONE)
+        if (mColorbuffers[colorAttachment])
         {
-            return mColorbufferPointers[colorAttachment].get();
+            return mColorbuffers[colorAttachment];
         }
     }
 
     return NULL;
 }
 
-GLenum Framebuffer::getColorbufferType(unsigned int colorAttachment) const
+FramebufferAttachment *Framebuffer::getAttachment(GLenum attachment) const
 {
-    ASSERT(colorAttachment < IMPLEMENTATION_MAX_DRAW_BUFFERS);
-    return mColorbufferTypes[colorAttachment];
-}
-
-GLenum Framebuffer::getDepthbufferType() const
-{
-    return mDepthbufferType;
-}
-
-GLenum Framebuffer::getStencilbufferType() const
-{
-    return mStencilbufferType;
-}
-
-GLuint Framebuffer::getColorbufferHandle(unsigned int colorAttachment) const
-{
-    ASSERT(colorAttachment < IMPLEMENTATION_MAX_DRAW_BUFFERS);
-    return mColorbufferPointers[colorAttachment].id();
-}
-
-GLuint Framebuffer::getDepthbufferHandle() const
-{
-    return mDepthbufferPointer.id();
-}
-
-GLuint Framebuffer::getStencilbufferHandle() const
-{
-    return mStencilbufferPointer.id();
+    if (attachment >= GL_COLOR_ATTACHMENT0 && attachment <= GL_COLOR_ATTACHMENT15)
+    {
+        return getColorbuffer(attachment - GL_COLOR_ATTACHMENT0);
+    }
+    else
+    {
+        switch (attachment)
+        {
+          case GL_DEPTH_ATTACHMENT:
+            return getDepthbuffer();
+          case GL_STENCIL_ATTACHMENT:
+            return getStencilbuffer();
+          case GL_DEPTH_STENCIL_ATTACHMENT:
+            return getDepthStencilBuffer();
+          default:
+            UNREACHABLE();
+            return NULL;
+        }
+    }
 }
 
 GLenum Framebuffer::getDrawBufferState(unsigned int colorAttachment) const
@@ -272,7 +235,7 @@ void Framebuffer::setDrawBufferState(unsigned int colorAttachment, GLenum drawBu
 
 bool Framebuffer::isEnabledColorAttachment(unsigned int colorAttachment) const
 {
-    return (mColorbufferTypes[colorAttachment] != GL_NONE && mDrawBufferStates[colorAttachment] != GL_NONE);
+    return (mColorbuffers[colorAttachment] && mDrawBufferStates[colorAttachment] != GL_NONE);
 }
 
 bool Framebuffer::hasEnabledColorAttachment() const
@@ -290,17 +253,7 @@ bool Framebuffer::hasEnabledColorAttachment() const
 
 bool Framebuffer::hasStencil() const
 {
-    if (mStencilbufferType != GL_NONE)
-    {
-        const Renderbuffer *stencilbufferObject = getStencilbuffer();
-
-        if (stencilbufferObject)
-        {
-            return stencilbufferObject->getStencilSize() > 0;
-        }
-    }
-
-    return false;
+    return (mStencilbuffer && mStencilbuffer->getStencilSize() > 0);
 }
 
 bool Framebuffer::usingExtendedDrawBuffers() const
@@ -316,67 +269,46 @@ bool Framebuffer::usingExtendedDrawBuffers() const
     return false;
 }
 
-GLenum Framebuffer::completeness() const
+GLenum Framebuffer::completeness(const gl::Data &data) const
 {
     int width = 0;
     int height = 0;
-    int colorbufferSize = 0;
+    unsigned int colorbufferSize = 0;
     int samples = -1;
     bool missingAttachment = true;
 
     for (unsigned int colorAttachment = 0; colorAttachment < IMPLEMENTATION_MAX_DRAW_BUFFERS; colorAttachment++)
     {
-        if (mColorbufferTypes[colorAttachment] != GL_NONE)
+        const FramebufferAttachment *colorbuffer = mColorbuffers[colorAttachment];
+
+        if (colorbuffer)
         {
-            const Renderbuffer *colorbuffer = getColorbuffer(colorAttachment);
-
-            if (!colorbuffer)
-            {
-                return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
-            }
-
             if (colorbuffer->getWidth() == 0 || colorbuffer->getHeight() == 0)
             {
                 return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
             }
 
-            if (mColorbufferTypes[colorAttachment] == GL_RENDERBUFFER)
+            GLenum internalformat = colorbuffer->getInternalFormat();
+            const TextureCaps &formatCaps = data.textureCaps->get(internalformat);
+            const InternalFormat &formatInfo = GetInternalFormatInfo(internalformat);
+            if (colorbuffer->isTexture())
             {
-                if (!gl::IsColorRenderable(colorbuffer->getInternalFormat()))
-                {
-                    return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
-                }
-            }
-            else if (IsInternalTextureTarget(mColorbufferTypes[colorAttachment]))
-            {
-                GLint internalformat = colorbuffer->getInternalFormat();
-                GLenum format = gl::ExtractFormat(internalformat);
-
-                if (IsCompressed(format) ||
-                    format == GL_ALPHA ||
-                    format == GL_LUMINANCE ||
-                    format == GL_LUMINANCE_ALPHA)
+                if (!formatCaps.renderable)
                 {
                     return GL_FRAMEBUFFER_UNSUPPORTED;
                 }
 
-                bool filtering, renderable;
-
-                if ((gl::IsFloat32Format(internalformat) && !mRenderer->getFloat32TextureSupport(&filtering, &renderable)) ||
-                    (gl::IsFloat16Format(internalformat) && !mRenderer->getFloat16TextureSupport(&filtering, &renderable)))
-                {
-                    return GL_FRAMEBUFFER_UNSUPPORTED;
-                }
-
-                if (gl::IsDepthTexture(internalformat) || gl::IsStencilTexture(internalformat))
+                if (formatInfo.depthBits > 0 || formatInfo.stencilBits > 0)
                 {
                     return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
                 }
             }
             else
             {
-                UNREACHABLE();
-                return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
+                if (!formatCaps.renderable || formatInfo.depthBits > 0 || formatInfo.stencilBits > 0)
+                {
+                    return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
+                }
             }
 
             if (!missingAttachment)
@@ -394,16 +326,24 @@ GLenum Framebuffer::completeness() const
                     return GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE_EXT;
                 }
 
-                // all color attachments attachments must have the same number of bitplanes
-                if (gl::ComputePixelSize(colorbuffer->getInternalFormat()) != colorbufferSize)
+                // in GLES 2.0, all color attachments attachments must have the same number of bitplanes
+                // in GLES 3.0, there is no such restriction
+                if (data.clientVersion < 3)
                 {
-                    return GL_FRAMEBUFFER_UNSUPPORTED;
+                    if (formatInfo.pixelBytes != colorbufferSize)
+                    {
+                        return GL_FRAMEBUFFER_UNSUPPORTED;
+                    }
                 }
 
                 // D3D11 does not allow for overlapping RenderTargetViews, so ensure uniqueness
                 for (unsigned int previousColorAttachment = 0; previousColorAttachment < colorAttachment; previousColorAttachment++)
                 {
-                    if (mColorbufferPointers[colorAttachment].get() == mColorbufferPointers[previousColorAttachment].get())
+                    const FramebufferAttachment *previousAttachment = mColorbuffers[previousColorAttachment];
+
+                    if (previousAttachment &&
+                        (colorbuffer->id() == previousAttachment->id() &&
+                         colorbuffer->type() == previousAttachment->type()))
                     {
                         return GL_FRAMEBUFFER_UNSUPPORTED;
                     }
@@ -414,129 +354,114 @@ GLenum Framebuffer::completeness() const
                 width = colorbuffer->getWidth();
                 height = colorbuffer->getHeight();
                 samples = colorbuffer->getSamples();
-                colorbufferSize = gl::ComputePixelSize(colorbuffer->getInternalFormat());
+                colorbufferSize = formatInfo.pixelBytes;
                 missingAttachment = false;
             }
         }
     }
 
-    const Renderbuffer *depthbuffer = NULL;
-    const Renderbuffer *stencilbuffer = NULL;
-
-    if (mDepthbufferType != GL_NONE)
+    if (mDepthbuffer)
     {
-        depthbuffer = getDepthbuffer();
-
-        if (!depthbuffer)
+        if (mDepthbuffer->getWidth() == 0 || mDepthbuffer->getHeight() == 0)
         {
             return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
         }
 
-        if (depthbuffer->getWidth() == 0 || depthbuffer->getHeight() == 0)
+        GLenum internalformat = mDepthbuffer->getInternalFormat();
+        const TextureCaps &formatCaps = data.textureCaps->get(internalformat);
+        const InternalFormat &formatInfo = GetInternalFormatInfo(internalformat);
+        if (mDepthbuffer->isTexture())
         {
-            return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
-        }
-
-        if (mDepthbufferType == GL_RENDERBUFFER)
-        {
-            if (!gl::IsDepthRenderable(depthbuffer->getInternalFormat()))
-            {
-                return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
-            }
-        }
-        else if (IsInternalTextureTarget(mDepthbufferType))
-        {
-            GLint internalformat = depthbuffer->getInternalFormat();
-
             // depth texture attachments require OES/ANGLE_depth_texture
-            if (!mRenderer->getDepthTextureSupport())
+            if (!data.extensions->depthTextures)
             {
                 return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
             }
 
-            if (!gl::IsDepthTexture(internalformat))
+            if (!formatCaps.renderable)
+            {
+                return GL_FRAMEBUFFER_UNSUPPORTED;
+            }
+
+            if (formatInfo.depthBits == 0)
             {
                 return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
             }
         }
         else
         {
-            UNREACHABLE();
-            return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
+            if (!formatCaps.renderable || formatInfo.depthBits == 0)
+            {
+                return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
+            }
         }
 
         if (missingAttachment)
         {
-            width = depthbuffer->getWidth();
-            height = depthbuffer->getHeight();
-            samples = depthbuffer->getSamples();
+            width = mDepthbuffer->getWidth();
+            height = mDepthbuffer->getHeight();
+            samples = mDepthbuffer->getSamples();
             missingAttachment = false;
         }
-        else if (width != depthbuffer->getWidth() || height != depthbuffer->getHeight())
+        else if (width != mDepthbuffer->getWidth() || height != mDepthbuffer->getHeight())
         {
             return GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS;
         }
-        else if (samples != depthbuffer->getSamples())
+        else if (samples != mDepthbuffer->getSamples())
         {
             return GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE_ANGLE;
         }
     }
 
-    if (mStencilbufferType != GL_NONE)
+    if (mStencilbuffer)
     {
-        stencilbuffer = getStencilbuffer();
-
-        if (!stencilbuffer)
+        if (mStencilbuffer->getWidth() == 0 || mStencilbuffer->getHeight() == 0)
         {
             return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
         }
 
-        if (stencilbuffer->getWidth() == 0 || stencilbuffer->getHeight() == 0)
+        GLenum internalformat = mStencilbuffer->getInternalFormat();
+        const TextureCaps &formatCaps = data.textureCaps->get(internalformat);
+        const InternalFormat &formatInfo = GetInternalFormatInfo(internalformat);
+        if (mStencilbuffer->isTexture())
         {
-            return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
-        }
-
-        if (mStencilbufferType == GL_RENDERBUFFER)
-        {
-            if (!gl::IsStencilRenderable(stencilbuffer->getInternalFormat()))
-            {
-                return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
-            }
-        }
-        else if (IsInternalTextureTarget(mStencilbufferType))
-        {
-            GLint internalformat = stencilbuffer->getInternalFormat();
-
             // texture stencil attachments come along as part
             // of OES_packed_depth_stencil + OES/ANGLE_depth_texture
-            if (!mRenderer->getDepthTextureSupport())
+            if (!data.extensions->depthTextures)
             {
                 return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
             }
 
-            if (!gl::IsStencilTexture(internalformat))
+            if (!formatCaps.renderable)
+            {
+                return GL_FRAMEBUFFER_UNSUPPORTED;
+            }
+
+            if (formatInfo.stencilBits == 0)
             {
                 return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
             }
         }
         else
         {
-            UNREACHABLE();
-            return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
+            if (!formatCaps.renderable || formatInfo.stencilBits == 0)
+            {
+                return GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
+            }
         }
 
         if (missingAttachment)
         {
-            width = stencilbuffer->getWidth();
-            height = stencilbuffer->getHeight();
-            samples = stencilbuffer->getSamples();
+            width = mStencilbuffer->getWidth();
+            height = mStencilbuffer->getHeight();
+            samples = mStencilbuffer->getSamples();
             missingAttachment = false;
         }
-        else if (width != stencilbuffer->getWidth() || height != stencilbuffer->getHeight())
+        else if (width != mStencilbuffer->getWidth() || height != mStencilbuffer->getHeight())
         {
             return GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS;
         }
-        else if (samples != stencilbuffer->getSamples())
+        else if (samples != mStencilbuffer->getSamples())
         {
             return GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE_ANGLE;
         }
@@ -544,7 +469,7 @@ GLenum Framebuffer::completeness() const
 
     // if we have both a depth and stencil buffer, they must refer to the same object
     // since we only support packed_depth_stencil and not separate depth and stencil
-    if (depthbuffer && stencilbuffer && (depthbuffer != stencilbuffer))
+    if (mDepthbuffer && mStencilbuffer && !hasValidDepthStencil())
     {
         return GL_FRAMEBUFFER_UNSUPPORTED;
     }
@@ -558,34 +483,65 @@ GLenum Framebuffer::completeness() const
     return GL_FRAMEBUFFER_COMPLETE;
 }
 
-DefaultFramebuffer::DefaultFramebuffer(rx::Renderer *renderer, Colorbuffer *colorbuffer, DepthStencilbuffer *depthStencil)
-    : Framebuffer(renderer)
+Error Framebuffer::invalidate(const Caps &caps, GLsizei numAttachments, const GLenum *attachments)
 {
-    mColorbufferPointers[0].set(new Renderbuffer(mRenderer, 0, colorbuffer));
+    GLuint maxDimension = caps.maxRenderbufferSize;
+    return invalidateSub(numAttachments, attachments, 0, 0, maxDimension, maxDimension);
+}
 
-    Renderbuffer *depthStencilRenderbuffer = new Renderbuffer(mRenderer, 0, depthStencil);
-    mDepthbufferPointer.set(depthStencilRenderbuffer);
-    mStencilbufferPointer.set(depthStencilRenderbuffer);
+Error Framebuffer::invalidateSub(GLsizei numAttachments, const GLenum *attachments, GLint x, GLint y, GLsizei width, GLsizei height)
+{
+    for (GLsizei attachIndex = 0; attachIndex < numAttachments; ++attachIndex)
+    {
+        GLenum attachmentTarget = attachments[attachIndex];
 
-    mColorbufferTypes[0] = GL_RENDERBUFFER;
-    mDepthbufferType = (depthStencilRenderbuffer->getDepthSize() != 0) ? GL_RENDERBUFFER : GL_NONE;
-    mStencilbufferType = (depthStencilRenderbuffer->getStencilSize() != 0) ? GL_RENDERBUFFER : GL_NONE;
+        FramebufferAttachment *attachment = (attachmentTarget == GL_DEPTH_STENCIL_ATTACHMENT) ? getDepthOrStencilbuffer()
+                                                                                              : getAttachment(attachmentTarget);
+
+        if (attachment)
+        {
+            rx::RenderTarget *renderTarget = NULL;
+            Error error = rx::GetAttachmentRenderTarget(attachment, &renderTarget);
+            if (error.isError())
+            {
+                return error;
+            }
+
+            renderTarget->invalidate(x, y, width, height);
+        }
+    }
+
+    return Error(GL_NO_ERROR);
+}
+
+DefaultFramebuffer::DefaultFramebuffer(rx::RenderbufferImpl *colorbuffer, rx::RenderbufferImpl *depthStencil)
+    : Framebuffer(0)
+{
+    Renderbuffer *colorRenderbuffer = new Renderbuffer(colorbuffer, 0);
+    mColorbuffers[0] = new RenderbufferAttachment(GL_BACK, colorRenderbuffer);
+
+    Renderbuffer *depthStencilBuffer = new Renderbuffer(depthStencil, 0);
+
+    // Make a new attachment objects to ensure we do not double-delete
+    // See angle issue 686
+    mDepthbuffer = (depthStencilBuffer->getDepthSize() != 0 ? new RenderbufferAttachment(GL_DEPTH_ATTACHMENT, depthStencilBuffer) : NULL);
+    mStencilbuffer = (depthStencilBuffer->getStencilSize() != 0 ? new RenderbufferAttachment(GL_STENCIL_ATTACHMENT, depthStencilBuffer) : NULL);
 
     mDrawBufferStates[0] = GL_BACK;
     mReadBufferState = GL_BACK;
 }
 
-int Framebuffer::getSamples() const
+int Framebuffer::getSamples(const gl::Data &data) const
 {
-    if (completeness() == GL_FRAMEBUFFER_COMPLETE)
+    if (completeness(data) == GL_FRAMEBUFFER_COMPLETE)
     {
         // for a complete framebuffer, all attachments must have the same sample count
         // in this case return the first nonzero sample size
         for (unsigned int colorAttachment = 0; colorAttachment < IMPLEMENTATION_MAX_DRAW_BUFFERS; colorAttachment++)
         {
-            if (mColorbufferTypes[colorAttachment] != GL_NONE)
+            if (mColorbuffers[colorAttachment])
             {
-                return getColorbuffer(colorAttachment)->getSamples();
+                return mColorbuffers[colorAttachment]->getSamples();
             }
         }
     }
@@ -593,11 +549,124 @@ int Framebuffer::getSamples() const
     return 0;
 }
 
-GLenum DefaultFramebuffer::completeness() const
+bool Framebuffer::hasValidDepthStencil() const
+{
+    // A valid depth-stencil attachment has the same resource bound to both the
+    // depth and stencil attachment points.
+    return (mDepthbuffer && mStencilbuffer &&
+            mDepthbuffer->type() == mStencilbuffer->type() &&
+            mDepthbuffer->id() == mStencilbuffer->id());
+}
+
+ColorbufferInfo Framebuffer::getColorbuffersForRender(const rx::Workarounds &workarounds) const
+{
+    ColorbufferInfo colorbuffersForRender;
+
+    for (size_t colorAttachment = 0; colorAttachment < IMPLEMENTATION_MAX_DRAW_BUFFERS; ++colorAttachment)
+    {
+        GLenum drawBufferState = mDrawBufferStates[colorAttachment];
+        FramebufferAttachment *colorbuffer = mColorbuffers[colorAttachment];
+
+        if (colorbuffer != NULL && drawBufferState != GL_NONE)
+        {
+            ASSERT(drawBufferState == GL_BACK || drawBufferState == (GL_COLOR_ATTACHMENT0_EXT + colorAttachment));
+            colorbuffersForRender.push_back(colorbuffer);
+        }
+        else if (!workarounds.mrtPerfWorkaround)
+        {
+            colorbuffersForRender.push_back(NULL);
+        }
+    }
+
+    return colorbuffersForRender;
+}
+
+void Framebuffer::setTextureAttachment(GLenum attachment, Texture *texture, const ImageIndex &imageIndex)
+{
+    setAttachment(attachment, new TextureAttachment(attachment, texture, imageIndex));
+}
+
+void Framebuffer::setRenderbufferAttachment(GLenum attachment, Renderbuffer *renderbuffer)
+{
+    setAttachment(attachment, new RenderbufferAttachment(attachment, renderbuffer));
+}
+
+void Framebuffer::setNULLAttachment(GLenum attachment)
+{
+    setAttachment(attachment, NULL);
+}
+
+void Framebuffer::setAttachment(GLenum attachment, FramebufferAttachment *attachmentObj)
+{
+    if (attachment >= GL_COLOR_ATTACHMENT0 && attachment < (GL_COLOR_ATTACHMENT0 + IMPLEMENTATION_MAX_DRAW_BUFFERS))
+    {
+        size_t colorAttachment = attachment - GL_COLOR_ATTACHMENT0;
+        SafeDelete(mColorbuffers[colorAttachment]);
+        mColorbuffers[colorAttachment] = attachmentObj;
+    }
+    else if (attachment == GL_DEPTH_ATTACHMENT)
+    {
+        SafeDelete(mDepthbuffer);
+        mDepthbuffer = attachmentObj;
+    }
+    else if (attachment == GL_STENCIL_ATTACHMENT)
+    {
+        SafeDelete(mStencilbuffer);
+        mStencilbuffer = attachmentObj;
+    }
+    else if (attachment == GL_DEPTH_STENCIL_ATTACHMENT)
+    {
+        SafeDelete(mDepthbuffer);
+        SafeDelete(mStencilbuffer);
+
+        // ensure this is a legitimate depth+stencil format
+        if (attachmentObj && attachmentObj->getDepthSize() > 0 && attachmentObj->getStencilSize() > 0)
+        {
+            mDepthbuffer = attachmentObj;
+
+            // Make a new attachment object to ensure we do not double-delete
+            // See angle issue 686
+            if (attachmentObj->isTexture())
+            {
+                mStencilbuffer = new TextureAttachment(GL_DEPTH_STENCIL_ATTACHMENT, attachmentObj->getTexture(),
+                                                       *attachmentObj->getTextureImageIndex());
+            }
+            else
+            {
+                mStencilbuffer = new RenderbufferAttachment(GL_DEPTH_STENCIL_ATTACHMENT, attachmentObj->getRenderbuffer());
+            }
+        }
+    }
+    else
+    {
+        UNREACHABLE();
+    }
+}
+
+GLenum DefaultFramebuffer::completeness(const gl::Data &) const
 {
     // The default framebuffer *must* always be complete, though it may not be
     // subject to the same rules as application FBOs. ie, it could have 0x0 size.
     return GL_FRAMEBUFFER_COMPLETE;
+}
+
+FramebufferAttachment *DefaultFramebuffer::getAttachment(GLenum attachment) const
+{
+    switch (attachment)
+    {
+      case GL_COLOR:
+      case GL_BACK:
+        return getColorbuffer(0);
+      case GL_DEPTH:
+        return getDepthbuffer();
+      case GL_STENCIL:
+        return getStencilbuffer();
+      case GL_DEPTH_STENCIL:
+        return getDepthStencilBuffer();
+      default:
+        UNREACHABLE();
+        return NULL;
+    }
 }
 
 }

@@ -29,6 +29,8 @@ host_build|staticlib: CONFIG += static
 
 host_build {
     QT -= gui   # no host module will ever use gui
+    QMAKE_CFLAGS += $$QMAKE_CFLAGS_SPLIT_SECTIONS
+    QMAKE_CXXFLAGS += $$QMAKE_CXXFLAGS_SPLIT_SECTIONS
     force_bootstrap {
         !build_pass: CONFIG += release
         contains(QT, core(-private)?|xml) {
@@ -92,6 +94,8 @@ else: \
 
 # OS X and iOS frameworks
 mac:CONFIG(shared, static|shared):contains(QT_CONFIG, qt_framework) {
+   # Set the CFBundleIdentifier prefix for Qt frameworks
+   QMAKE_TARGET_BUNDLE_PREFIX = org.qt-project
    #QMAKE_FRAMEWORK_VERSION = 4.0
    CONFIG += lib_bundle sliced_bundle qt_framework
    CONFIG -= qt_install_headers #no need to install these as well
@@ -99,8 +103,10 @@ mac:CONFIG(shared, static|shared):contains(QT_CONFIG, qt_framework) {
         FRAMEWORK_HEADERS.version = Versions
         FRAMEWORK_HEADERS.files = $$SYNCQT.HEADER_FILES $$SYNCQT.HEADER_CLASSES
         FRAMEWORK_HEADERS.path = Headers
+        FRAMEWORK_PRIVATE_HEADERS.version = Versions
         FRAMEWORK_PRIVATE_HEADERS.files = $$SYNCQT.PRIVATE_HEADER_FILES
         FRAMEWORK_PRIVATE_HEADERS.path = Headers/$$VERSION/$$MODULE_INCNAME/private
+        FRAMEWORK_QPA_HEADERS.version = Versions
         FRAMEWORK_QPA_HEADERS.files = $$SYNCQT.QPA_HEADER_FILES
         FRAMEWORK_QPA_HEADERS.path = Headers/$$VERSION/$$MODULE_INCNAME/qpa
         QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS FRAMEWORK_PRIVATE_HEADERS FRAMEWORK_QPA_HEADERS
@@ -127,6 +133,8 @@ win32 {
     # keeps the code clean and helps in writing code that is
     # safe across all platforms.
     DEFINES *= _CRT_SECURE_NO_WARNINGS
+
+    DEFINES += _USE_MATH_DEFINES
 }
 
 aix-g++* {
@@ -166,43 +174,29 @@ android: CONFIG += qt_android_deps
 #install directives
 load(qt_installs)
 
-!isEmpty(_QMAKE_SUPER_CACHE_): \
-    rplbase = $$dirname(_QMAKE_SUPER_CACHE_)/[^/][^/]*
-else: \
-    rplbase = $$MODULE_BASE_OUTDIR
-include_replace.match = $$rplbase/include
-include_replace.replace = $$[QT_INSTALL_HEADERS/raw]
-include_replace.CONFIG = path
-lib_replace.match = $$rplbase/lib
-host_build: \
-    lib_replace.replace = $$[QT_HOST_LIBS]
-else: \
-    lib_replace.replace = $$[QT_INSTALL_LIBS/raw]
-lib_replace.CONFIG = path
-QMAKE_PRL_INSTALL_REPLACE += include_replace lib_replace
+load(qt_targets)
+load(qt_common)
 
+# this builds on top of qt_common
 unix|mingw {
-   CONFIG += create_pc
-   QMAKE_PKGCONFIG_LIBDIR = $$lib_replace.replace
-   QMAKE_PKGCONFIG_INCDIR = $$include_replace.replace
-   QMAKE_PKGCONFIG_CFLAGS = -I${includedir}/$$MODULE_INCNAME
-   QMAKE_PKGCONFIG_DESTDIR = pkgconfig
-   QMAKE_PKGCONFIG_INSTALL_REPLACE += include_replace lib_replace
-}
-
-unix {
-   CONFIG += create_libtool explicitlib
-   QMAKE_LIBTOOL_LIBDIR = $$lib_replace.replace
-   QMAKE_LIBTOOL_INSTALL_REPLACE += include_replace lib_replace
-}
-
-unix|mingw {
-    QMAKE_PKGCONFIG_NAME = $$replace(TARGET, ^Qt, "Qt$$section(VERSION, ., 0, 0) ")
-    QMAKE_PKGCONFIG_FILE = $$replace(TARGET, ^Qt, Qt$$section(VERSION, ., 0, 0))
+    CONFIG += create_pc
+    QMAKE_PKGCONFIG_DESTDIR = pkgconfig
+    QMAKE_PKGCONFIG_LIBDIR = $$qt_libdir
+    QMAKE_PKGCONFIG_INCDIR = $$[QT_INSTALL_HEADERS/raw]
+    QMAKE_PKGCONFIG_CFLAGS = -I${includedir}/$$MODULE_INCNAME
+    QMAKE_PKGCONFIG_NAME = $$replace(TARGET, ^Qt, "Qt$$QT_MAJOR_VERSION ")
+    QMAKE_PKGCONFIG_FILE = $$replace(TARGET, ^Qt, Qt$$QT_MAJOR_VERSION)
     for(i, MODULE_DEPENDS): \
         QMAKE_PKGCONFIG_REQUIRES += $$replace(QT.$${i}.name, ^Qt, Qt$$eval(QT.$${i}.MAJOR_VERSION))
     isEmpty(QMAKE_PKGCONFIG_DESCRIPTION): \
         QMAKE_PKGCONFIG_DESCRIPTION = $$replace(TARGET, ^Qt, "Qt ") module
+    QMAKE_PKGCONFIG_INSTALL_REPLACE += lib_replace
+
+    unix {
+        CONFIG += create_libtool explicitlib
+        QMAKE_LIBTOOL_LIBDIR = $$qt_libdir
+        QMAKE_LIBTOOL_INSTALL_REPLACE += lib_replace
+    }
 }
 
 contains(QT_PRODUCT, OpenSource.*):DEFINES *= QT_OPENSOURCE
@@ -221,9 +215,3 @@ win32 {
 }
 
 TARGET = $$qtLibraryTarget($$TARGET$$QT_LIBINFIX) #do this towards the end
-
-load(qt_targets)
-load(qt_common)
-
-win32:DEFINES+=_USE_MATH_DEFINES
-

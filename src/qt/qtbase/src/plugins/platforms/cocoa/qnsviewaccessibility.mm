@@ -59,7 +59,7 @@
         return nil;
 
     QAccessible::Id childId = QAccessible::uniqueId(m_window->accessibleRoot());
-    return [QCocoaAccessibleElement elementWithId: childId];
+    return [QMacAccessibilityElement elementWithId: childId];
 }
 
 // The QNSView is a container that the user does not interact directly with:

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -73,7 +65,7 @@ struct QFreeListElement
     typedef T &ReferenceType;
 
     T _t;
-    int next;
+    QAtomicInt next;
 
     inline ConstReferenceType t() const { return _t; }
     inline ReferenceType t() { return _t; }
@@ -81,7 +73,7 @@ struct QFreeListElement
 
 /*! \internal
 
-    Element in a QFreeList without a paylout. ConstReferenceType and
+    Element in a QFreeList without a payload. ConstReferenceType and
     ReferenceType are void, the t() functions return void and are empty.
 */
 template <>
@@ -90,7 +82,7 @@ struct QFreeListElement<void>
     typedef void ConstReferenceType;
     typedef void ReferenceType;
 
-    int next;
+    QAtomicInt next;
 
     inline void t() const { }
     inline void t() { }
@@ -172,7 +164,7 @@ class QFreeList
         // qDebug("QFreeList: allocating %d elements (%ld bytes) with offset %d", size, size * sizeof(ElementType), offset);
         ElementType *v = new ElementType[size];
         for (int i = 0; i < size; ++i)
-            v[i].next = offset + i + 1;
+            v[i].next.store(offset + i + 1);
         return v;
     }
 
@@ -191,7 +183,7 @@ class QFreeList
     Q_DISABLE_COPY(QFreeList)
 
 public:
-    inline QFreeList();
+    Q_DECL_CONSTEXPR inline QFreeList();
     inline ~QFreeList();
 
     // returns the payload for the given index \a x
@@ -207,7 +199,7 @@ public:
 };
 
 template <typename T, typename ConstantsType>
-inline QFreeList<T, ConstantsType>::QFreeList()
+Q_DECL_CONSTEXPR inline QFreeList<T, ConstantsType>::QFreeList()
     : _next(ConstantsType::InitialNextValue)
 { }
 
@@ -254,7 +246,7 @@ inline int QFreeList<T, ConstantsType>::next()
             }
         }
 
-        newid = v[at].next | (id & ~ConstantsType::IndexMask);
+        newid = v[at].next.load() | (id & ~ConstantsType::IndexMask);
     } while (!_next.testAndSetRelaxed(id, newid));
     // qDebug("QFreeList::next(): returning %d (_next now %d, serial %d)",
     //        id & ConstantsType::IndexMask,
@@ -273,7 +265,7 @@ inline void QFreeList<T, ConstantsType>::release(int id)
     int x, newid;
     do {
         x = _next.loadAcquire();
-        v[at].next = x & ConstantsType::IndexMask;
+        v[at].next.store(x & ConstantsType::IndexMask);
 
         newid = incrementserial(x, id);
     } while (!_next.testAndSetRelease(x, newid));

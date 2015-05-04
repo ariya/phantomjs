@@ -17,6 +17,7 @@ contains(QT_CONFIG, freetype) {
                $$QT_FREETYPE_DIR/src/base/ftbbox.c \
                $$QT_FREETYPE_DIR/src/base/ftdebug.c \
                $$QT_FREETYPE_DIR/src/base/ftglyph.c \
+               $$QT_FREETYPE_DIR/src/base/ftlcdfil.c \
                $$QT_FREETYPE_DIR/src/base/ftinit.c \
                $$QT_FREETYPE_DIR/src/base/ftmm.c \
                $$QT_FREETYPE_DIR/src/base/fttype1.c \

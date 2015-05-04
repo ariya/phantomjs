@@ -5,35 +5,27 @@
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -92,7 +84,7 @@
     whether the type has already been destroyed, to avoid the
     use-after-destruction problem (see QGlobalStatic::isDestroyed()).
 
-    \section1 Constructor and destructor
+    \section1 Constructor and Destructor
 
     For Q_GLOBAL_STATIC, the type \c Type must be publicly
     default-constructible and publicly destructible. For
@@ -164,7 +156,7 @@
 
     This macro will work, but it will add unnecessary overhead.
 
-    \section1 Reentrancy, thread-safety, deadlocks, and exception-safety on construction
+    \section1 Reentrancy, Thread-safety, Deadlocks, and Exception-safety on Construction
 
     The Q_GLOBAL_STATIC macro creates an object that initializes itself on
     first use in a thread-safe manner: if multiple threads attempt to
@@ -232,7 +224,7 @@
         \li the object was always created on the heap.
     \endlist
 
-    \section1 Implementation details
+    \section1 Implementation Details
 
     Q_GLOBAL_STATIC is implemented by creating a QBasicAtomicInt called the \c
     guard and a free, inline function called \c innerFunction. The guard

@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -99,13 +91,13 @@ bool getProxyAuth(const QString& proxyHostname, const QString &scheme, QString& 
     bool retValue = false;
     SecProtocolType protocolType = kSecProtocolTypeAny;
     if (scheme.compare(QLatin1String("ftp"),Qt::CaseInsensitive)==0) {
-        protocolType = kSecProtocolTypeFTP;
+        protocolType = kSecProtocolTypeFTPProxy;
     } else if (scheme.compare(QLatin1String("http"),Qt::CaseInsensitive)==0
                || scheme.compare(QLatin1String("preconnect-http"),Qt::CaseInsensitive)==0) {
-        protocolType = kSecProtocolTypeHTTP;
+        protocolType = kSecProtocolTypeHTTPProxy;
     } else if (scheme.compare(QLatin1String("https"),Qt::CaseInsensitive)==0
                || scheme.compare(QLatin1String("preconnect-https"),Qt::CaseInsensitive)==0) {
-        protocolType = kSecProtocolTypeHTTPS;
+        protocolType = kSecProtocolTypeHTTPSProxy;
     }
     QByteArray proxyHostnameUtf8(proxyHostname.toUtf8());
     err = SecKeychainFindInternetPassword(NULL,
@@ -205,7 +197,7 @@ static void ensureInitialized()
     can be:
     \snippet code/src_network_access_qnetworkaccessmanager.cpp 1
 
-    \section1 Network and Roaming support
+    \section1 Network and Roaming Support
 
     With the addition of the \l {Bearer Management} API to Qt 4.7
     QNetworkAccessManager gained the ability to manage network connections.
@@ -1143,7 +1135,12 @@ QNetworkReply *QNetworkAccessManager::createRequest(QNetworkAccessManager::Opera
     if (!d->networkSessionStrongRef && (d->initializeSession || !d->networkConfiguration.identifier().isEmpty())) {
         QNetworkConfigurationManager manager;
         if (!d->networkConfiguration.identifier().isEmpty()) {
-            d->createSession(d->networkConfiguration);
+            if ((d->networkConfiguration.state() & QNetworkConfiguration::Defined)
+                    && d->networkConfiguration != manager.defaultConfiguration())
+                d->createSession(manager.defaultConfiguration());
+            else
+                d->createSession(d->networkConfiguration);
+
         } else {
             if (manager.capabilities() & QNetworkConfigurationManager::NetworkSessionRequired)
                 d->createSession(manager.defaultConfiguration());
@@ -1392,21 +1389,6 @@ void QNetworkAccessManagerPrivate::authenticationRequired(QAuthenticator *authen
         }
     }
 
-#ifndef QT_NO_NETWORKPROXY
-#if defined(Q_OS_MACX)
-    //now we try to get the username and password from keychain
-    //if not successful signal will be emitted
-    QString username;
-    QString password;
-    if (getProxyAuth(proxy.hostName(),reply->request().url().scheme(),username,password)) {
-        authenticator->setUser(username);
-        authenticator->setPassword(password);
-        authenticationManager->cacheProxyCredentials(proxy, authenticator);
-        return;
-    }
-#endif
-#endif //QT_NO_NETWORKPROXY
-
     // if we emit a signal here in synchronous mode, the user might spin
     // an event loop, which might recurse and lead to problems
     if (synchronous)
@@ -1419,7 +1401,8 @@ void QNetworkAccessManagerPrivate::authenticationRequired(QAuthenticator *authen
 }
 
 #ifndef QT_NO_NETWORKPROXY
-void QNetworkAccessManagerPrivate::proxyAuthenticationRequired(const QNetworkProxy &proxy,
+void QNetworkAccessManagerPrivate::proxyAuthenticationRequired(const QUrl &url,
+                                                               const QNetworkProxy &proxy,
                                                                bool synchronous,
                                                                QAuthenticator *authenticator,
                                                                QNetworkProxy *lastProxyAuthentication)
@@ -1434,6 +1417,26 @@ void QNetworkAccessManagerPrivate::proxyAuthenticationRequired(const QNetworkPro
             return;
         }
     }
+
+#if defined(Q_OS_OSX)
+    //now we try to get the username and password from keychain
+    //if not successful signal will be emitted
+    QString username;
+    QString password;
+    if (getProxyAuth(proxy.hostName(), url.scheme(), username, password)) {
+        // only cache the system credentials if they are correct (or if they have changed)
+        // to not run into an endless loop in case they are wrong
+        QNetworkAuthenticationCredential cred = authenticationManager->fetchCachedProxyCredentials(proxy);
+        if (!priv->hasFailed || cred.user != username || cred.password != password) {
+            authenticator->setUser(username);
+            authenticator->setPassword(password);
+            authenticationManager->cacheProxyCredentials(proxy, authenticator);
+            return;
+        }
+    }
+#else
+    Q_UNUSED(url);
+#endif
 
     // if we emit a signal here in synchronous mode, the user might spin
     // an event loop, which might recurse and lead to problems
@@ -1592,6 +1595,11 @@ void QNetworkAccessManagerPrivate::_q_onlineStateChanged(bool isOnline)
     if (customNetworkConfiguration) {
         online = (networkConfiguration.state() & QNetworkConfiguration::Active);
     } else {
+        if (isOnline && online != isOnline) {
+            networkSessionStrongRef.clear();
+            networkSessionWeakRef.clear();
+        }
+
         online = isOnline;
     }
 }

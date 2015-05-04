@@ -61,7 +61,7 @@
 
     The following \c Message class definition includes these members:
 
-    \snippet customtype/message.h custom type definition
+    \snippet tools/customtype/message.h custom type definition
 
     The class also provides a constructor for normal use and two public member functions
     that are used to obtain the private data.
@@ -77,7 +77,7 @@
     to this class, we invoke the Q_DECLARE_METATYPE() macro on the class in the header
     file where it is defined:
 
-    \snippet customtype/message.h custom type meta-type declaration
+    \snippet tools/customtype/message.h custom type meta-type declaration
 
     This now makes it possible for \c Message values to be stored in QVariant objects
     and retrieved later. See the \l{Custom Type Example} for code that demonstrates
@@ -104,19 +104,19 @@
     The \l{Queued Custom Type Example} declares a \c Block class which is registered
     in the \c{main.cpp} file:
 
-    \snippet queuedcustomtype/main.cpp main start
+    \snippet threads/queuedcustomtype/main.cpp main start
     \dots
-    \snippet queuedcustomtype/main.cpp register meta-type for queued communications
+    \snippet threads/queuedcustomtype/main.cpp register meta-type for queued communications
     \dots
-    \snippet queuedcustomtype/main.cpp main finish
+    \snippet threads/queuedcustomtype/main.cpp main finish
 
     This type is later used in a signal-slot connection in the \c{window.cpp} file:
 
-    \snippet queuedcustomtype/window.cpp Window constructor start
+    \snippet threads/queuedcustomtype/window.cpp Window constructor start
     \dots
-    \snippet queuedcustomtype/window.cpp connecting signal with custom type
+    \snippet threads/queuedcustomtype/window.cpp connecting signal with custom type
     \dots
-    \snippet queuedcustomtype/window.cpp Window constructor finish
+    \snippet threads/queuedcustomtype/window.cpp Window constructor finish
 
     If a type is used in a queued connection without being registered, a warning will be
     printed at the console; for example:
@@ -131,23 +131,23 @@
     It is often quite useful to make a custom type printable for debugging purposes,
     as in the following code:
 
-    \snippet customtype/main.cpp printing a custom type
+    \snippet tools/customtype/main.cpp printing a custom type
 
     This is achieved by creating a streaming operator for the type, which is often
     defined in the header file for that type:
 
-    \snippet customtype/message.h custom type streaming operator
+    \snippet tools/customtype/message.h custom type streaming operator
 
     The implementation for the \c Message type in the \l{Custom Type Example}
     goes to some effort to make the printable representation as readable as
     possible:
 
-    \snippet customtype/message.cpp custom type streaming operator
+    \snippet tools/customtype/message.cpp custom type streaming operator
 
     The output sent to the debug stream can, of course, be made as simple or as
     complicated as you like. Note that the value returned by this function is
     the QDebug object itself, though this is often obtained by calling the
-    maybeSpace() member function of QDebug that pads out the stream with space
+    \l{QDebug::}{maybeSpace()} member function of QDebug that pads out the stream with space
     characters to make it more readable.
 
     \section1 Further Reading

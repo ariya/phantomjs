@@ -3,14 +3,18 @@ TARGET = qtharfbuzzng
 CONFIG += \
     static \
     hide_symbols \
-    exceptions_off rtti_off
+    exceptions_off rtti_off warn_off
 
 load(qt_helper_lib)
 
-DEFINES += HAVE_CONFIG_H
-HEADERS += $$PWD/src/config.h
+DEFINES += HAVE_OT HAVE_QT5_ATOMICS HB_NO_UNICODE_FUNCS HB_DISABLE_DEPRECATED
+
+# platform/compiler specific definitions
+DEFINES += HAVE_ATEXIT
+unix: DEFINES += HAVE_PTHREAD HAVE_SCHED_H HAVE_SCHED_YIELD
 
 INCLUDEPATH += $$PWD/include
+INCLUDEPATH += $$QT.core.includes
 
 SOURCES += \
     $$PWD/src/hb-blob.cc \
@@ -39,6 +43,7 @@ HEADERS += \
     $$PWD/src/hb-object-private.hh \
     $$PWD/src/hb-open-file-private.hh \
     $$PWD/src/hb-open-type-private.hh \
+    $$PWD/src/hb-ot-cmap-table.hh \
     $$PWD/src/hb-ot-head-table.hh \
     $$PWD/src/hb-ot-hhea-table.hh \
     $$PWD/src/hb-ot-hmtx-table.hh \
@@ -58,6 +63,7 @@ HEADERS += \
     $$PWD/src/hb-blob.h \
     $$PWD/src/hb-buffer.h \
     $$PWD/src/hb-common.h \
+    $$PWD/src/hb-deprecated.h \
     $$PWD/src/hb-face.h \
     $$PWD/src/hb-font.h \
     $$PWD/src/hb-set.h \
@@ -68,6 +74,7 @@ HEADERS += \
 
 # Open Type
 SOURCES += \
+    $$PWD/src/hb-ot-font.cc \
     $$PWD/src/hb-ot-layout.cc \
     $$PWD/src/hb-ot-map.cc \
     $$PWD/src/hb-ot-shape.cc \
@@ -106,6 +113,7 @@ HEADERS += \
 
 HEADERS += \
     $$PWD/src/hb-ot.h \
+    $$PWD/src/hb-ot-font.h \
     $$PWD/src/hb-ot-layout.h \
     $$PWD/src/hb-ot-shape.h \
     $$PWD/src/hb-ot-tag.h

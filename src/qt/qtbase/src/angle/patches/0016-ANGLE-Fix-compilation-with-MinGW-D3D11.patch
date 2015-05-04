@@ -1,0 +1,169 @@
+From 43c8ceb17ccd6d5ae13a07c6d01b45eb40983917 Mon Sep 17 00:00:00 2001
+From: Andrew Knight <andrew.knight@theqtcompany.com>
+Date: Tue, 11 Nov 2014 14:36:43 +0200
+Subject: [PATCH 16/16] ANGLE: Fix compilation with MinGW + D3D11
+
+Provide workarounds for things GCC doesn't like, and define a few
+missing definitions not found in the MinGW headers.
+
+Change-Id: I254c208209c0071fae5efb6727f2b3cfd5542da6
+---
+ src/3rdparty/angle/src/common/platform.h           | 73 ++++++++++++++++++++++
+ .../src/libGLESv2/renderer/d3d/HLSLCompiler.cpp    |  6 ++
+ .../libGLESv2/renderer/d3d/d3d11/Renderer11.cpp    |  2 +-
+ .../renderer/d3d/d3d11/renderer11_utils.cpp        |  2 +-
+ .../src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp  |  4 +-
+ 5 files changed, 83 insertions(+), 4 deletions(-)
+
+diff --git a/src/3rdparty/angle/src/common/platform.h b/src/3rdparty/angle/src/common/platform.h
+index 972eee2..0001e71 100644
+--- a/src/3rdparty/angle/src/common/platform.h
++++ b/src/3rdparty/angle/src/common/platform.h
+@@ -81,6 +81,79 @@
+ #       endif
+ #   endif
+ 
++#  if defined(__MINGW32__) // Missing defines on MinGW
++typedef enum D3D11_MAP_FLAG
++{
++    D3D11_MAP_FLAG_DO_NOT_WAIT = 0x100000L
++} D3D11_MAP_FLAG;
++typedef struct D3D11_QUERY_DATA_SO_STATISTICS
++{
++    UINT64 NumPrimitivesWritten;
++    UINT64 PrimitivesStorageNeeded;
++} D3D11_QUERY_DATA_SO_STATISTICS;
++typedef HRESULT (WINAPI *PFN_D3D11_CREATE_DEVICE)(
++        IDXGIAdapter *, D3D_DRIVER_TYPE, HMODULE, UINT, CONST D3D_FEATURE_LEVEL *,
++        UINT FeatureLevels, UINT, ID3D11Device **, D3D_FEATURE_LEVEL *, ID3D11DeviceContext **);
++#define D3D11_MESSAGE_CATEGORY UINT
++#define D3D11_MESSAGE_SEVERITY UINT
++#define D3D11_MESSAGE_ID UINT
++struct D3D11_MESSAGE;
++typedef struct D3D11_INFO_QUEUE_FILTER_DESC
++{
++    UINT NumCategories;
++    D3D11_MESSAGE_CATEGORY *pCategoryList;
++    UINT NumSeverities;
++    D3D11_MESSAGE_SEVERITY *pSeverityList;
++    UINT NumIDs;
++    D3D11_MESSAGE_ID *pIDList;
++} D3D11_INFO_QUEUE_FILTER_DESC;
++typedef struct D3D11_INFO_QUEUE_FILTER
++{
++    D3D11_INFO_QUEUE_FILTER_DESC AllowList;
++    D3D11_INFO_QUEUE_FILTER_DESC DenyList;
++} D3D11_INFO_QUEUE_FILTER;
++static const IID IID_ID3D11InfoQueue = { 0x6543dbb6, 0x1b48, 0x42f5, 0xab, 0x82, 0xe9, 0x7e, 0xc7, 0x43, 0x26, 0xf6 };
++MIDL_INTERFACE("6543dbb6-1b48-42f5-ab82-e97ec74326f6") ID3D11InfoQueue : public IUnknown
++{
++public:
++    virtual HRESULT __stdcall SetMessageCountLimit(UINT64) = 0;
++    virtual void __stdcall ClearStoredMessages() = 0;
++    virtual HRESULT __stdcall GetMessage(UINT64, D3D11_MESSAGE *, SIZE_T *) = 0;
++    virtual UINT64 __stdcall GetNumMessagesAllowedByStorageFilter() = 0;
++    virtual UINT64 __stdcall GetNumMessagesDeniedByStorageFilter() = 0;
++    virtual UINT64 __stdcall GetNumStoredMessages() = 0;
++    virtual UINT64 __stdcall GetNumStoredMessagesAllowedByRetrievalFilter() = 0;
++    virtual UINT64 __stdcall GetNumMessagesDiscardedByMessageCountLimit() = 0;
++    virtual UINT64 __stdcall GetMessageCountLimit() = 0;
++    virtual HRESULT __stdcall AddStorageFilterEntries(D3D11_INFO_QUEUE_FILTER *) = 0;
++    virtual HRESULT __stdcall GetStorageFilter(D3D11_INFO_QUEUE_FILTER *, SIZE_T *) = 0;
++    virtual void __stdcall ClearStorageFilter() = 0;
++    virtual HRESULT __stdcall PushEmptyStorageFilter() = 0;
++    virtual HRESULT __stdcall PushCopyOfStorageFilter() = 0;
++    virtual HRESULT __stdcall PushStorageFilter(D3D11_INFO_QUEUE_FILTER *) = 0;
++    virtual void __stdcall PopStorageFilter() = 0;
++    virtual UINT __stdcall GetStorageFilterStackSize() = 0;
++    virtual HRESULT __stdcall AddRetrievalFilterEntries(D3D11_INFO_QUEUE_FILTER *) = 0;
++    virtual HRESULT __stdcall GetRetrievalFilter(D3D11_INFO_QUEUE_FILTER *, SIZE_T *) = 0;
++    virtual void __stdcall ClearRetrievalFilter() = 0;
++    virtual HRESULT __stdcall PushEmptyRetrievalFilter() = 0;
++    virtual HRESULT __stdcall PushCopyOfRetrievalFilter() = 0;
++    virtual HRESULT __stdcall PushRetrievalFilter(D3D11_INFO_QUEUE_FILTER *) = 0;
++    virtual void __stdcall PopRetrievalFilter() = 0;
++    virtual UINT __stdcall GetRetrievalFilterStackSize() = 0;
++    virtual HRESULT __stdcall AddMessage(D3D11_MESSAGE_CATEGORY, D3D11_MESSAGE_SEVERITY, D3D11_MESSAGE_ID, LPCSTR) = 0;
++    virtual HRESULT __stdcall AddApplicationMessage(D3D11_MESSAGE_SEVERITY, LPCSTR) = 0;
++    virtual HRESULT __stdcall SetBreakOnCategory(D3D11_MESSAGE_CATEGORY, BOOL) = 0;
++    virtual HRESULT __stdcall SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY, BOOL) = 0;
++    virtual HRESULT __stdcall SetBreakOnID(D3D11_MESSAGE_ID, BOOL) = 0;
++    virtual BOOL __stdcall GetBreakOnCategory(D3D11_MESSAGE_CATEGORY) = 0;
++    virtual BOOL __stdcall GetBreakOnSeverity(D3D11_MESSAGE_SEVERITY) = 0;
++    virtual BOOL __stdcall GetBreakOnID(D3D11_MESSAGE_ID) = 0;
++    virtual void __stdcall SetMuteDebugOutput(BOOL) = 0;
++    virtual BOOL __stdcall GetMuteDebugOutput() = 0;
++};
++#endif // __MINGW32__
++
+ #   undef near
+ #   undef far
+ #endif
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/HLSLCompiler.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/HLSLCompiler.cpp
+index 9d003b4..776d92b 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/HLSLCompiler.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/HLSLCompiler.cpp
+@@ -14,6 +14,12 @@
+ #ifndef QT_D3DCOMPILER_DLL
+ #define QT_D3DCOMPILER_DLL D3DCOMPILER_DLL
+ #endif
++#ifndef D3DCOMPILE_RESERVED16
++#define D3DCOMPILE_RESERVED16 (1 << 16)
++#endif
++#ifndef D3DCOMPILE_RESERVED17
++#define D3DCOMPILE_RESERVED17 (1 << 17)
++#endif
+ 
+ // Definitions local to the translation unit
+ namespace
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp
+index a28fd78..e6d7f30 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/Renderer11.cpp
+@@ -333,7 +333,7 @@ EGLint Renderer11::initialize()
+     // Disable some spurious D3D11 debug warnings to prevent them from flooding the output log
+ #if defined(ANGLE_SUPPRESS_D3D11_HAZARD_WARNINGS) && defined(_DEBUG)
+     ID3D11InfoQueue *infoQueue;
+-    result = mDevice->QueryInterface(__uuidof(ID3D11InfoQueue),  (void **)&infoQueue);
++    result = mDevice->QueryInterface(IID_ID3D11InfoQueue, (void **)&infoQueue);
+ 
+     if (SUCCEEDED(result))
+     {
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/renderer11_utils.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/renderer11_utils.cpp
+index 5831c57..121aa3b 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/renderer11_utils.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d11/renderer11_utils.cpp
+@@ -1196,7 +1196,7 @@ void SetPositionLayerTexCoord3DVertex(PositionLayerTexCoord3DVertex* vertex, flo
+ 
+ HRESULT SetDebugName(ID3D11DeviceChild *resource, const char *name)
+ {
+-#if defined(_DEBUG)
++#if defined(_DEBUG) && !defined(__MINGW32__)
+     return resource->SetPrivateData(WKPDID_D3DDebugObjectName, strlen(name), name);
+ #else
+     return S_OK;
+diff --git a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp
+index 4c552b2..601cd24 100644
+--- a/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp
++++ b/src/3rdparty/angle/src/libGLESv2/renderer/d3d/d3d9/Renderer9.cpp
+@@ -200,7 +200,7 @@ EGLint Renderer9::initialize()
+     if (ANGLE_D3D9EX == ANGLE_ENABLED && Direct3DCreate9ExPtr && SUCCEEDED(Direct3DCreate9ExPtr(D3D_SDK_VERSION, &mD3d9Ex)))
+     {
+         ASSERT(mD3d9Ex);
+-        mD3d9Ex->QueryInterface(__uuidof(IDirect3D9), reinterpret_cast<void**>(&mD3d9));
++        mD3d9Ex->QueryInterface(IID_IDirect3D9, reinterpret_cast<void**>(&mD3d9));
+         ASSERT(mD3d9);
+     }
+     else
+@@ -324,7 +324,7 @@ EGLint Renderer9::initialize()
+ 
+     if (mD3d9Ex)
+     {
+-        result = mDevice->QueryInterface(__uuidof(IDirect3DDevice9Ex), (void**)&mDeviceEx);
++        result = mDevice->QueryInterface(IID_IDirect3DDevice9Ex, (void**)&mDeviceEx);
+         ASSERT(SUCCEEDED(result));
+     }
+ 
+-- 
+1.9.4.msysgit.1
+

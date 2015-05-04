@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -79,8 +71,17 @@ QT_BEGIN_NAMESPACE
   function to perform custom processing when the state is exited.
 */
 
+/*!
+    \property QAbstractState::active
+    \since 5.4
+
+    \brief the active property of this state. A state is active between
+    entered() and exited() signals.
+*/
+
+
 QAbstractStatePrivate::QAbstractStatePrivate(StateType type)
-    : stateType(type), isMachine(false), parentState(0)
+    : stateType(type), isMachine(false), active(false), parentState(0)
 {
 }
 
@@ -121,11 +122,19 @@ void QAbstractStatePrivate::emitEntered()
 {
     Q_Q(QAbstractState);
     emit q->entered(QAbstractState::QPrivateSignal());
+    if (!active) {
+        active = true;
+        emit q->activeChanged(true);
+    }
 }
 
 void QAbstractStatePrivate::emitExited()
 {
     Q_Q(QAbstractState);
+    if (active) {
+        active = false;
+        emit q->activeChanged(false);
+    }
     emit q->exited(QAbstractState::QPrivateSignal());
 }
 
@@ -174,6 +183,17 @@ QStateMachine *QAbstractState::machine() const
 }
 
 /*!
+  Returns whether this state is active.
+
+  \sa activeChanged(bool), entered(), exited()
+*/
+bool QAbstractState::active() const
+{
+    Q_D(const QAbstractState);
+    return d->active;
+}
+
+/*!
   \fn QAbstractState::onExit(QEvent *event)
 
   This function is called when the state is exited. The given \a event is what
@@ -201,6 +221,15 @@ QStateMachine *QAbstractState::machine() const
 
   This signal is emitted when the state has been exited (after onExit() has
   been called).
+*/
+
+/*!
+  \fn QAbstractState::activeChanged(bool active)
+  \since 5.4
+
+  This signal is emitted when the active property is changed.
+
+  \sa QAbstractState::active, entered(), exited()
 */
 
 /*!

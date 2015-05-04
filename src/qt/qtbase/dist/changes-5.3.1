@@ -1,0 +1,101 @@
+Qt 5.3.1 is a bug-fix release. It maintains both forward and backward
+compatibility (source and binary) with Qt 5.3.0.
+
+For more details, refer to the online documentation included in this
+distribution. The documentation is also available online:
+
+  http://qt-project.org/doc/qt-5.3
+
+The Qt version 5.3 series is binary compatible with the 5.2.x series.
+Applications compiled for 5.2 will continue to run with 5.3.
+
+Some of the changes listed in this file include issue tracking numbers
+corresponding to tasks in the Qt Bug Tracker:
+
+  http://bugreports.qt-project.org/
+
+Each of these identifiers can be entered in the bug tracker to obtain more
+information about a particular change.
+
+****************************************************************************
+*                          Library                                         *
+****************************************************************************
+
+QtCore
+------
+
+ - QAbstractProxyModel:
+   * Fixed QAbstractProxyModel::sibling to work in the same manner as the
+     Qt4 code used to behave. Previously, Qt5's implementation would treat
+     the row and column as positions in the source model instead of a
+     position in the proxy itself.
+
+QtGui
+-----
+
+ - Text:
+   * [QTBUG-36083] Respect QFont::fixedPitch() for fallbacks when font
+     family cannot be matched.
+   * [QTBUG-37190] Fixed crash when trying to load a font from invalid
+     data.
+
+QtSql
+-----
+
+ - QDB2 and QODBC
+   * [QTBUG-39137] Fix error handling problem caused by unintialized variable
+      passed to SQLNumResultCols.
+
+ - QPSQL
+   * [QTBUG-12477] Fix PSQL column metadata.
+
+ - QSqlQuery
+   * Fix misbehavior of seek in special query positions BeforeFirstRow and
+     AfterLastRow. (commit 3e6e70bddd84536deaae69421d05785ae6ce28cd)
+   * [QTBUG-33169] Fix for bindvalue(int) memory allocation problem.
+
+QtWidgets
+---------
+
+ - QMenu:
+   * [QTBUG-38498] Accessibility: Menus are now read by screen readers
+     with more reliability.
+
+****************************************************************************
+*                      Platform Specific Changes                           *
+****************************************************************************
+
+Android
+-------
+
+ - [QTBUG-38960] Fixed regression where there would be flickering on
+   startup and shutdown of the application.
+ - [QTBUG-35975] Fixed repaint issues in drag and drop.
+
+ - Text:
+   * [QTBUG-37844] Fall back to Droid Sans Mono for QFont::Courier style
+     hint.
+
+****************************************************************************
+*                          Tools                                           *
+****************************************************************************
+
+configure & build system
+------------------------
+
+ - [QTBUG-38445] Fixed build against static ICU on Unix
+ - [QTBUG-38544] Fixed LLVM build with SIMD features
+ - [QTBUG-39253] PDB files are now installed also for static libraries
+ - Added support for -separate-debug-info on Windows
+ - Added [-no]-pulseaudio and [-no]-alsa options on Unix
+ - Several fixes to installed .pc and .prl files
+ - Fixed MinGW build under MSYS
+ - Fixed installation of unneeded static libraries in dynamic builds
+
+qmake
+-----
+
+ - [QTBUG-37054] Fixed use of relative paths in QMAKE_BUNDLE_DATA with Xcode
+ - [QTBUG-38260] Custom Info.plist supplied via QMAKE_INFO_PLIST is now used
+   as-is, without placeholder replacement
+ - QMAKE_TARGET_BUNDLE_PREFIX does not need a trailing dot any more

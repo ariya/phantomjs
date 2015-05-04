@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -67,61 +59,49 @@ void QCUPSSupport::setCupsOption(QStringList &cupsOptions, const QString &option
     }
 }
 
+static inline QString jobHoldToString(const QCUPSSupport::JobHoldUntil jobHold, const QTime holdUntilTime)
+{
+    switch (jobHold) {
+    case QCUPSSupport::Indefinite:
+        return QStringLiteral("indefinite");
+    case QCUPSSupport::DayTime:
+        return QStringLiteral("day-time");
+    case QCUPSSupport::Night:
+        return QStringLiteral("night");
+    case QCUPSSupport::SecondShift:
+        return QStringLiteral("second-shift");
+    case QCUPSSupport::ThirdShift:
+        return QStringLiteral("third-shift");
+    case QCUPSSupport::Weekend:
+        return QStringLiteral("weekend");
+    case QCUPSSupport::SpecificTime:
+        if (!holdUntilTime.isNull()) {
+            // CUPS expects the time in UTC, user has entered in local time, so get the UTS equivalent
+            QDateTime localDateTime = QDateTime::currentDateTime();
+            // Check if time is for tomorrow in case of DST change overnight
+            if (holdUntilTime < localDateTime.time())
+                localDateTime = localDateTime.addDays(1);
+            localDateTime.setTime(holdUntilTime);
+            return localDateTime.toUTC().time().toString(QStringLiteral("HH:mm"));
+        }
+        // else fall through:
+    case QCUPSSupport::NoHold:
+        return QString();
+    }
+    Q_UNREACHABLE();
+    return QString();
+}
+
 void QCUPSSupport::setJobHold(QPrinter *printer, const JobHoldUntil jobHold, const QTime &holdUntilTime)
 {
-    QStringList cupsOptions = cupsOptionsList(printer);
-
-    switch (jobHold) {
-    case NoHold: //default
-        break;
-    case Indefinite:
+    const QString jobHoldUntilArgument = jobHoldToString(jobHold, holdUntilTime);
+    if (!jobHoldUntilArgument.isEmpty()) {
+        QStringList cupsOptions = cupsOptionsList(printer);
         setCupsOption(cupsOptions,
                       QStringLiteral("job-hold-until"),
-                      QStringLiteral("indefinite"));
-        break;
-    case DayTime:
-        setCupsOption(cupsOptions,
-                      QStringLiteral("job-hold-until"),
-                      QStringLiteral("day-time"));
-        break;
-    case Night:
-        setCupsOption(cupsOptions,
-                      QStringLiteral("job-hold-until"),
-                      QStringLiteral("night"));
-        break;
-    case SecondShift:
-        setCupsOption(cupsOptions,
-                      QStringLiteral("job-hold-until"),
-                      QStringLiteral("second-shift"));
-        break;
-    case ThirdShift:
-        setCupsOption(cupsOptions,
-                      QStringLiteral("job-hold-until"),
-                      QStringLiteral("third-shift"));
-        break;
-    case Weekend:
-        setCupsOption(cupsOptions,
-                      QStringLiteral("job-hold-until"),
-                      QStringLiteral("weekend"));
-        break;
-    case SpecificTime:
-        if (holdUntilTime.isNull()) {
-            setJobHold(printer, NoHold);
-            return;
-        }
-        // CUPS expects the time in UTC, user has entered in local time, so get the UTS equivalent
-        QDateTime localDateTime = QDateTime::currentDateTime();
-        // Check if time is for tomorrow in case of DST change overnight
-        if (holdUntilTime < localDateTime.time())
-            localDateTime = localDateTime.addDays(1);
-        localDateTime.setTime(holdUntilTime);
-        setCupsOption(cupsOptions,
-                      QStringLiteral("job-hold-until"),
-                      localDateTime.toUTC().time().toString(QStringLiteral("HH:mm")));
-        break;
+                      jobHoldUntilArgument);
+        setCupsOptions(printer, cupsOptions);
     }
-
-    setCupsOptions(printer, cupsOptions);
 }
 
 void QCUPSSupport::setJobBilling(QPrinter *printer, const QString &jobBilling)
@@ -138,58 +118,26 @@ void QCUPSSupport::setJobPriority(QPrinter *printer, int priority)
     setCupsOptions(printer, cupsOptions);
 }
 
+static inline QString bannerPageToString(const QCUPSSupport::BannerPage bannerPage)
+{
+    switch (bannerPage) {
+    case QCUPSSupport::NoBanner:     return QStringLiteral("none");
+    case QCUPSSupport::Standard:     return QStringLiteral("standard");
+    case QCUPSSupport::Unclassified: return QStringLiteral("unclassified");
+    case QCUPSSupport::Confidential: return QStringLiteral("confidential");
+    case QCUPSSupport::Classified:   return QStringLiteral("classified");
+    case QCUPSSupport::Secret:       return QStringLiteral("secret");
+    case QCUPSSupport::TopSecret:    return QStringLiteral("topsecret");
+    }
+    Q_UNREACHABLE();
+    return QString();
+};
+
 void QCUPSSupport::setBannerPages(QPrinter *printer, const BannerPage startBannerPage, const BannerPage endBannerPage)
 {
     QStringList cupsOptions = cupsOptionsList(printer);
-    QString startBanner, endBanner;
-
-    switch (startBannerPage) {
-    case NoBanner:
-        startBanner = QStringLiteral("none");
-        break;
-    case Standard:
-        startBanner = QStringLiteral("standard");
-        break;
-    case Unclassified:
-        startBanner = QStringLiteral("unclassified");
-        break;
-    case Confidential:
-        startBanner = QStringLiteral("confidential");
-        break;
-    case Classified:
-        startBanner = QStringLiteral("classified");
-        break;
-    case Secret:
-        startBanner = QStringLiteral("secret");
-        break;
-    case TopSecret:
-        startBanner = QStringLiteral("topsecret");
-        break;
-    }
-
-    switch (endBannerPage) {
-    case NoBanner:
-        endBanner = QStringLiteral("none");
-        break;
-    case Standard:
-        endBanner = QStringLiteral("standard");
-        break;
-    case Unclassified:
-        endBanner = QStringLiteral("unclassified");
-        break;
-    case Confidential:
-        endBanner = QStringLiteral("confidential");
-        break;
-    case Classified:
-        endBanner = QStringLiteral("classified");
-        break;
-    case Secret:
-        endBanner = QStringLiteral("secret");
-        break;
-    case TopSecret:
-        endBanner = QStringLiteral("topsecret");
-        break;
-    }
+    const QString startBanner = bannerPageToString(startBannerPage);
+    const QString endBanner   = bannerPageToString(endBannerPage);
 
     setCupsOption(cupsOptions, QStringLiteral("job-sheets"), startBanner + QLatin1Char(',') + endBanner);
     setCupsOptions(printer, cupsOptions);

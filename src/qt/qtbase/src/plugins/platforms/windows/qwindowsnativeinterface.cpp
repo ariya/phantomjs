@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2015 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -42,23 +34,45 @@
 #include "qwindowsnativeinterface.h"
 #include "qwindowswindow.h"
 #include "qwindowscontext.h"
-
-#if defined(QT_OPENGL_ES_2) || defined(QT_OPENGL_DYNAMIC)
-#  include "qwindowseglcontext.h"
-#  include <QtGui/QOpenGLContext>
-#endif
-
-#if !defined(QT_NO_OPENGL) && !defined(QT_OPENGL_ES_2)
-#  include "qwindowsglcontext.h"
-#endif
-
-#if !defined(QT_NO_OPENGL)
-#  include <QtGui/QOpenGLFunctions>
-#endif
+#include "qwindowsopenglcontext.h"
+#include "qwindowsopengltester.h"
+#include "qwindowsintegration.h"
+#include "qwindowsmime.h"
 
 #include <QtGui/QWindow>
+#include <QtGui/QOpenGLContext>
 
 QT_BEGIN_NAMESPACE
+
+enum ResourceType {
+    RenderingContextType,
+    EglContextType,
+    EglDisplayType,
+    EglConfigType,
+    HandleType,
+    GlHandleType,
+    GetDCType,
+    ReleaseDCType
+};
+
+static int resourceType(const QByteArray &key)
+{
+    static const char *names[] = { // match ResourceType
+        "renderingcontext",
+        "eglcontext",
+        "egldisplay",
+        "eglconfig",
+        "handle",
+        "glhandle",
+        "getdc",
+        "releasedc"
+    };
+    const char ** const end = names + sizeof(names) / sizeof(names[0]);
+    const char **result = std::find(names, end, key);
+    if (result == end)
+        result = std::find(names, end, key.toLower());
+    return int(result - names);
+}
 
 void *QWindowsNativeInterface::nativeResourceForWindow(const QByteArray &resource, QWindow *window)
 {
@@ -67,14 +81,15 @@ void *QWindowsNativeInterface::nativeResourceForWindow(const QByteArray &resourc
         return 0;
     }
     QWindowsWindow *bw = static_cast<QWindowsWindow *>(window->handle());
-    if (resource == "handle")
+    int type = resourceType(resource);
+    if (type == HandleType)
         return bw->handle();
     switch (window->surfaceType()) {
     case QWindow::RasterSurface:
     case QWindow::RasterGLSurface:
-        if (resource == "getDC")
+        if (type == GetDCType)
             return bw->getDC();
-        if (resource == "releaseDC") {
+        if (type == ReleaseDCType) {
             bw->releaseDC();
             return 0;
         }
@@ -117,6 +132,16 @@ QVariantMap QWindowsNativeInterface::windowProperties(QPlatformWindow *window) c
     return result;
 }
 
+void *QWindowsNativeInterface::nativeResourceForIntegration(const QByteArray &resource)
+{
+#ifndef QT_NO_OPENGL
+    if (resourceType(resource) == GlHandleType)
+        return QWindowsIntegration::staticOpenGLContext()->moduleHandle();
+#endif
+
+    return 0;
+}
+
 #ifndef QT_NO_OPENGL
 void *QWindowsNativeInterface::nativeResourceForContext(const QByteArray &resource, QOpenGLContext *context)
 {
@@ -124,24 +149,19 @@ void *QWindowsNativeInterface::nativeResourceForContext(const QByteArray &resour
         qWarning("%s: '%s' requested for null context or context without handle.", __FUNCTION__, resource.constData());
         return 0;
     }
-#if defined(QT_OPENGL_ES_2) || defined(QT_OPENGL_DYNAMIC)
-    if (QOpenGLContext::openGLModuleType() != QOpenGLContext::LibGL) {
-        QWindowsEGLContext *windowsEglContext = static_cast<QWindowsEGLContext *>(context->handle());
-        if (resource == QByteArrayLiteral("eglDisplay"))
-            return windowsEglContext->eglDisplay();
-        if (resource == QByteArrayLiteral("eglContext"))
-            return windowsEglContext->eglContext();
-        if (resource == QByteArrayLiteral("eglConfig"))
-            return windowsEglContext->eglConfig();
+
+    QWindowsOpenGLContext *glcontext = static_cast<QWindowsOpenGLContext *>(context->handle());
+    switch (resourceType(resource)) {
+    case RenderingContextType: // Fall through.
+    case EglContextType:
+        return glcontext->nativeContext();
+    case EglDisplayType:
+        return glcontext->nativeDisplay();
+    case EglConfigType:
+        return glcontext->nativeConfig();
+    default:
+        break;
     }
-#endif // QT_OPENGL_ES_2 || QT_OPENGL_DYNAMIC
-#if !defined(QT_OPENGL_ES_2)
-    if (QOpenGLContext::openGLModuleType() == QOpenGLContext::LibGL) {
-        QWindowsGLContext *windowsContext = static_cast<QWindowsGLContext *>(context->handle());
-        if (resource == QByteArrayLiteral("renderingContext"))
-            return windowsContext->renderingContext();
-    }
-#endif // QT_OPENGL_ES_2 || QT_OPENGL_DYNAMIC
 
     qWarning("%s: Invalid key '%s' requested.", __FUNCTION__, resource.constData());
     return 0;
@@ -180,6 +200,26 @@ bool QWindowsNativeInterface::asyncExpose() const
 void QWindowsNativeInterface::setAsyncExpose(bool value)
 {
     QWindowsContext::instance()->setAsyncExpose(value);
+}
+
+void QWindowsNativeInterface::registerWindowsMime(void *mimeIn)
+{
+    QWindowsContext::instance()->mimeConverter().registerMime(reinterpret_cast<QWindowsMime *>(mimeIn));
+}
+
+void QWindowsNativeInterface::unregisterWindowsMime(void *mimeIn)
+{
+    QWindowsContext::instance()->mimeConverter().unregisterMime(reinterpret_cast<QWindowsMime *>(mimeIn));
+}
+
+int QWindowsNativeInterface::registerMimeType(const QString &mimeType)
+{
+    return QWindowsMime::registerMimeType(mimeType);
+}
+
+QVariant QWindowsNativeInterface::gpu() const
+{
+    return GpuDescription::detect().toVariant();
 }
 
 QT_END_NAMESPACE

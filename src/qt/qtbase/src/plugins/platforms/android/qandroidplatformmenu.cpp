@@ -5,35 +5,27 @@
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -42,6 +34,9 @@
 #include "qandroidplatformmenu.h"
 #include "qandroidplatformmenuitem.h"
 #include "androidjnimenu.h"
+#include <QtCore/private/qjni_p.h>
+
+QT_BEGIN_NAMESPACE
 
 QAndroidPlatformMenu::QAndroidPlatformMenu()
 {
@@ -58,18 +53,18 @@ QAndroidPlatformMenu::~QAndroidPlatformMenu()
 void QAndroidPlatformMenu::insertMenuItem(QPlatformMenuItem *menuItem, QPlatformMenuItem *before)
 {
     QMutexLocker lock(&m_menuItemsMutex);
-    m_menuItems.insert(qFind(m_menuItems.begin(),
-                             m_menuItems.end(),
-                             static_cast<QAndroidPlatformMenuItem *>(before)),
+    m_menuItems.insert(std::find(m_menuItems.begin(),
+                                 m_menuItems.end(),
+                                 static_cast<QAndroidPlatformMenuItem *>(before)),
                        static_cast<QAndroidPlatformMenuItem *>(menuItem));
 }
 
 void QAndroidPlatformMenu::removeMenuItem(QPlatformMenuItem *menuItem)
 {
     QMutexLocker lock(&m_menuItemsMutex);
-    PlatformMenuItemsType::iterator it = qFind(m_menuItems.begin(),
-                                               m_menuItems.end(),
-                                               static_cast<QAndroidPlatformMenuItem *>(menuItem));
+    PlatformMenuItemsType::iterator it = std::find(m_menuItems.begin(),
+                                                   m_menuItems.end(),
+                                                   static_cast<QAndroidPlatformMenuItem *>(menuItem));
     if (it != m_menuItems.end())
         m_menuItems.erase(it);
 }
@@ -141,13 +136,12 @@ bool QAndroidPlatformMenu::isVisible() const
     return m_isVisible;
 }
 
-void QAndroidPlatformMenu::showPopup(const QWindow *parentWindow, QPoint pos, const QPlatformMenuItem *item)
+void QAndroidPlatformMenu::showPopup(const QWindow *parentWindow, const QRect &targetRect, const QPlatformMenuItem *item)
 {
     Q_UNUSED(parentWindow);
-    Q_UNUSED(pos);
     Q_UNUSED(item);
     setVisible(true);
-    QtAndroidMenu::showContextMenu(this);
+    QtAndroidMenu::showContextMenu(this, targetRect, QJNIEnvironmentPrivate());
 }
 
 QPlatformMenuItem *QAndroidPlatformMenu::menuItemAt(int position) const
@@ -175,3 +169,5 @@ QMutex *QAndroidPlatformMenu::menuItemsMutex()
 {
     return &m_menuItemsMutex;
 }
+
+QT_END_NAMESPACE

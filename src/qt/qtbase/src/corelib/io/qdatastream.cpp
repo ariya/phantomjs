@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -141,7 +133,7 @@ QT_BEGIN_NAMESPACE
     special requirements.
 
     \target raw
-    \section1 Reading and writing raw binary data
+    \section1 Reading and Writing Raw Binary Data
 
     You may wish to read/write your own raw binary data to/from the
     data stream directly. Data may be read from the stream into a
@@ -157,14 +149,14 @@ QT_BEGIN_NAMESPACE
     data, followed by the data. Note that any encoding/decoding of
     the data (apart from the length quint32) must be done by you.
 
-    \section1 Reading and writing Qt collection classes
+    \section1 Reading and Writing Qt Collection Classes
 
     The Qt container classes can also be serialized to a QDataStream.
     These include QList, QLinkedList, QVector, QSet, QHash, and QMap.
     The stream operators are declared as non-members of the classes.
 
     \target Serializing Qt Classes
-    \section1 Reading and writing other Qt classes.
+    \section1 Reading and Writing Other Qt Classes
 
     In addition to the overloaded stream operators documented here,
     any Qt classes that you might want to serialize to a QDataStream
@@ -250,10 +242,6 @@ QT_BEGIN_NAMESPACE
     if (q_status != Ok) \
         return retVal;
 
-enum {
-    DefaultStreamVersion = QDataStream::Qt_5_3
-};
-
 /*!
     Constructs a data stream that has no I/O device.
 
@@ -265,19 +253,13 @@ QDataStream::QDataStream()
     dev = 0;
     owndev = false;
     byteorder = BigEndian;
-    ver = DefaultStreamVersion;
+    ver = Qt_DefaultCompiledVersion;
     noswap = QSysInfo::ByteOrder == QSysInfo::BigEndian;
     q_status = Ok;
 }
 
 /*!
     Constructs a data stream that uses the I/O device \a d.
-
-    \warning If you use QSocket or QSocketDevice as the I/O device \a d
-    for reading data, you must make sure that enough data is available
-    on the socket for the operation to successfully proceed;
-    QDataStream does not have any means to handle or recover from
-    short-reads.
 
     \sa setDevice(), device()
 */
@@ -287,7 +269,7 @@ QDataStream::QDataStream(QIODevice *d)
     dev = d;                                // set device
     owndev = false;
     byteorder = BigEndian;                        // default byte order
-    ver = DefaultStreamVersion;
+    ver = Qt_DefaultCompiledVersion;
     noswap = QSysInfo::ByteOrder == QSysInfo::BigEndian;
     q_status = Ok;
 }
@@ -315,7 +297,7 @@ QDataStream::QDataStream(QByteArray *a, QIODevice::OpenMode flags)
     dev = buf;
     owndev = true;
     byteorder = BigEndian;
-    ver = DefaultStreamVersion;
+    ver = Qt_DefaultCompiledVersion;
     noswap = QSysInfo::ByteOrder == QSysInfo::BigEndian;
     q_status = Ok;
 }
@@ -339,7 +321,7 @@ QDataStream::QDataStream(const QByteArray &a)
     dev = buf;
     owndev = true;
     byteorder = BigEndian;
-    ver = DefaultStreamVersion;
+    ver = Qt_DefaultCompiledVersion;
     noswap = QSysInfo::ByteOrder == QSysInfo::BigEndian;
     q_status = Ok;
 }
@@ -542,6 +524,8 @@ void QDataStream::setByteOrder(ByteOrder bo)
     \value Qt_5_1 Version 14 (Qt 5.1)
     \value Qt_5_2 Version 15 (Qt 5.2)
     \value Qt_5_3 Same as Qt_5_2
+    \value Qt_5_4 Version 16 (Qt 5.4)
+    \omitvalue Qt_DefaultCompiledVersion
 
     \sa setVersion(), version()
 */
@@ -557,7 +541,8 @@ void QDataStream::setByteOrder(ByteOrder bo)
 /*!
     \fn void QDataStream::setVersion(int v)
 
-    Sets the version number of the data serialization format to \a v.
+    Sets the version number of the data serialization format to \a v,
+    a value of the \l Version enum.
 
     You don't \e have to set a version if you are using the current
     version of Qt, but for your own custom binary formats we
@@ -570,25 +555,6 @@ void QDataStream::setByteOrder(ByteOrder bo)
     Qt, or write data that can be read by a program that was compiled
     with an earlier version of Qt, use this function to modify the
     serialization format used by QDataStream.
-
-    \table
-    \header \li Qt Version       \li QDataStream Version
-    \row \li Qt 5.2                  \li 15
-    \row \li Qt 5.1                  \li 14
-    \row \li Qt 5.0                  \li 13
-    \row \li Qt 4.6                  \li 12
-    \row \li Qt 4.5                  \li 11
-    \row \li Qt 4.4                  \li 10
-    \row \li Qt 4.3                  \li 9
-    \row \li Qt 4.2                  \li 8
-    \row \li Qt 4.0, 4.1            \li 7
-    \row \li Qt 3.3                  \li 6
-    \row \li Qt 3.1, 3.2             \li 5
-    \row \li Qt 3.0                  \li 4
-    \row \li Qt 2.1, 2.2, 2.3      \li 3
-    \row \li Qt 2.0                  \li 2
-    \row \li Qt 1.x                  \li 1
-    \endtable
 
     The \l Version enum provides symbolic constants for the different
     versions of Qt. For example:

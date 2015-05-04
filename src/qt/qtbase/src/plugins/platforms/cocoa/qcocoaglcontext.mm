@@ -46,6 +46,7 @@
 #include <qdebug.h>
 #include <QtCore/private/qcore_mac_p.h>
 #include <QtPlatformSupport/private/cglconvenience_p.h>
+#include <QtPlatformHeaders/qcocoanativecontext.h>
 
 #import <Cocoa/Cocoa.h>
 
@@ -117,11 +118,33 @@ static void updateFormatFromContext(QSurfaceFormat *format)
         format->setProfile(QSurfaceFormat::CompatibilityProfile);
 }
 
-QCocoaGLContext::QCocoaGLContext(const QSurfaceFormat &format, QPlatformOpenGLContext *share)
+QCocoaGLContext::QCocoaGLContext(const QSurfaceFormat &format, QPlatformOpenGLContext *share,
+                                 const QVariant &nativeHandle)
     : m_context(nil),
       m_shareContext(nil),
       m_format(format)
 {
+    if (!nativeHandle.isNull()) {
+        if (!nativeHandle.canConvert<QCocoaNativeContext>()) {
+            qWarning("QCocoaGLContext: Requires a QCocoaNativeContext");
+            return;
+        }
+        QCocoaNativeContext handle = nativeHandle.value<QCocoaNativeContext>();
+        NSOpenGLContext *context = handle.context();
+        if (!context) {
+            qWarning("QCocoaGLContext: No NSOpenGLContext given");
+            return;
+        }
+        m_context = context;
+        [m_context retain];
+        m_shareContext = share ? static_cast<QCocoaGLContext *>(share)->nsOpenGLContext() : nil;
+        // OpenGL surfaces can be ordered either above(default) or below the NSWindow.
+        const GLint order = qt_mac_resolveOption(1, "QT_MAC_OPENGL_SURFACE_ORDER");
+        [m_context setValues:&order forParameter:NSOpenGLCPSurfaceOrder];
+        updateSurfaceFormat();
+        return;
+    }
+
     // we only support OpenGL contexts under Cocoa
     if (m_format.renderableType() == QSurfaceFormat::DefaultRenderableType)
         m_format.setRenderableType(QSurfaceFormat::OpenGL);
@@ -166,6 +189,11 @@ QCocoaGLContext::~QCocoaGLContext()
         static_cast<QCocoaWindow *>(m_currentWindow.data()->handle())->setCurrentContext(0);
 
     [m_context release];
+}
+
+QVariant QCocoaGLContext::nativeHandle() const
+{
+    return QVariant::fromValue<QCocoaNativeContext>(QCocoaNativeContext(m_context));
 }
 
 // Match up with createNSOpenGLPixelFormat!

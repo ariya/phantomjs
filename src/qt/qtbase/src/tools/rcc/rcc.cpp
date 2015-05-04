@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -77,12 +69,16 @@ void RCCResourceLibrary::write(const char *str, int len)
 
 void RCCResourceLibrary::writeByteArray(const QByteArray &other)
 {
-    m_out.append(other);
+    if (m_format == Pass2) {
+        m_outDevice->write(other);
+    } else {
+        m_out.append(other);
+    }
 }
 
 static inline QString msgOpenReadFailed(const QString &fname, const QString &why)
 {
-    return QString::fromUtf8("Unable to open %1 for reading: %2\n").arg(fname).arg(why);
+    return QString::fromLatin1("Unable to open %1 for reading: %2\n").arg(fname).arg(why);
 }
 
 
@@ -164,9 +160,10 @@ QString RCCFileInfo::resourceName() const
 
 void RCCFileInfo::writeDataInfo(RCCResourceLibrary &lib)
 {
-    const bool text = (lib.m_format == RCCResourceLibrary::C_Code);
+    const bool text = lib.m_format == RCCResourceLibrary::C_Code;
+    const bool pass1 = lib.m_format == RCCResourceLibrary::Pass1;
     //some info
-    if (text) {
+    if (text || pass1) {
         if (m_language != QLocale::C) {
             lib.writeString("  // ");
             lib.writeByteArray(resourceName().toLocal8Bit());
@@ -209,14 +206,17 @@ void RCCFileInfo::writeDataInfo(RCCResourceLibrary &lib)
         //data offset
         lib.writeNumber4(m_dataOffset);
     }
-    if (text)
+    if (text || pass1)
         lib.writeChar('\n');
 }
 
 qint64 RCCFileInfo::writeDataBlob(RCCResourceLibrary &lib, qint64 offset,
     QString *errorMessage)
 {
-    const bool text = (lib.m_format == RCCResourceLibrary::C_Code);
+    const bool text = lib.m_format == RCCResourceLibrary::C_Code;
+    const bool pass1 = lib.m_format == RCCResourceLibrary::Pass1;
+    const bool pass2 = lib.m_format == RCCResourceLibrary::Pass2;
+    const bool binary = lib.m_format == RCCResourceLibrary::Binary;
 
     //capture the offset
     m_dataOffset = offset;
@@ -244,7 +244,7 @@ qint64 RCCFileInfo::writeDataBlob(RCCResourceLibrary &lib, qint64 offset,
 #endif // QT_NO_COMPRESS
 
     // some info
-    if (text) {
+    if (text || pass1) {
         lib.writeString("  // ");
         lib.writeByteArray(m_fileInfo.absoluteFilePath().toLocal8Bit());
         lib.writeString("\n  ");
@@ -252,8 +252,9 @@ qint64 RCCFileInfo::writeDataBlob(RCCResourceLibrary &lib, qint64 offset,
 
     // write the length
 
-    lib.writeNumber4(data.size());
-    if (text)
+    if (text || binary || pass2)
+        lib.writeNumber4(data.size());
+    if (text || pass1)
         lib.writeString("\n  ");
     offset += 4;
 
@@ -267,27 +268,27 @@ qint64 RCCFileInfo::writeDataBlob(RCCResourceLibrary &lib, qint64 offset,
                 j = 16;
             }
         }
-    } else {
-        for (int i = data.size(); --i >= 0; )
-           lib.writeChar(*p++);
+    } else if (binary || pass2) {
+        lib.writeByteArray(data);
     }
     offset += data.size();
 
     // done
-    if (text)
+    if (text || pass1)
         lib.writeString("\n  ");
     return offset;
 }
 
 qint64 RCCFileInfo::writeDataName(RCCResourceLibrary &lib, qint64 offset)
 {
-    const bool text = (lib.m_format == RCCResourceLibrary::C_Code);
+    const bool text = lib.m_format == RCCResourceLibrary::C_Code;
+    const bool pass1 = lib.m_format == RCCResourceLibrary::Pass1;
 
     // capture the offset
     m_nameOffset = offset;
 
     // some info
-    if (text) {
+    if (text || pass1) {
         lib.writeString("  // ");
         lib.writeByteArray(m_name.toLocal8Bit());
         lib.writeString("\n  ");
@@ -295,13 +296,13 @@ qint64 RCCFileInfo::writeDataName(RCCResourceLibrary &lib, qint64 offset)
 
     // write the length
     lib.writeNumber2(m_name.length());
-    if (text)
+    if (text || pass1)
         lib.writeString("\n  ");
     offset += 2;
 
     // write the hash
     lib.writeNumber4(qt_hash(m_name));
-    if (text)
+    if (text || pass1)
         lib.writeString("\n  ");
     offset += 4;
 
@@ -309,13 +310,13 @@ qint64 RCCFileInfo::writeDataName(RCCResourceLibrary &lib, qint64 offset)
     const QChar *unicode = m_name.unicode();
     for (int i = 0; i < m_name.length(); ++i) {
         lib.writeNumber2(unicode[i].unicode());
-        if (text && i % 16 == 0)
+        if ((text || pass1) && i % 16 == 0)
             lib.writeString("\n  ");
     }
     offset += m_name.length()*2;
 
     // done
-    if (text)
+    if (text || pass1)
         lib.writeString("\n  ");
     return offset;
 }
@@ -349,7 +350,8 @@ RCCResourceLibrary::RCCResourceLibrary()
     m_namesOffset(0),
     m_dataOffset(0),
     m_useNameSpace(CONSTANT_USENAMESPACE),
-    m_errorDevice(0)
+    m_errorDevice(0),
+    m_outDevice(0)
 {
     m_out.reserve(30 * 1000 * 1000);
 }
@@ -566,7 +568,7 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice,
     }
 
     if (m_root == 0) {
-        const QString msg = QString::fromUtf8("RCC: Warning: No resources in '%1'.\n").arg(fname);
+        const QString msg = QString::fromLatin1("RCC: Warning: No resources in '%1'.\n").arg(fname);
         m_errorDevice->write(msg.toUtf8());
         if (!ignoreErrors && m_format == Binary) {
             // create dummy entry, otherwise loading with QResource will crash
@@ -582,7 +584,7 @@ bool RCCResourceLibrary::addFile(const QString &alias, const RCCFileInfo &file)
 {
     Q_ASSERT(m_errorDevice);
     if (file.m_fileInfo.size() > 0xffffffff) {
-        const QString msg = QString::fromUtf8("File too big: %1\n").arg(file.m_fileInfo.absoluteFilePath());
+        const QString msg = QString::fromLatin1("File too big: %1\n").arg(file.m_fileInfo.absoluteFilePath());
         m_errorDevice->write(msg.toUtf8());
         return false;
     }
@@ -608,11 +610,18 @@ bool RCCResourceLibrary::addFile(const QString &alias, const RCCFileInfo &file)
     const QString filename = nodes.at(nodes.size()-1);
     RCCFileInfo *s = new RCCFileInfo(file);
     s->m_parent = parent;
-    if (parent->m_children.contains(filename)) {
-        foreach (const QString &fileName, m_fileNames)
-            qWarning("%s: Warning: potential duplicate alias detected: '%s'",
-                     qPrintable(fileName), qPrintable(filename));
+    typedef QHash<QString, RCCFileInfo*>::const_iterator ChildConstIterator;
+    const ChildConstIterator cbegin = parent->m_children.constFind(filename);
+    const ChildConstIterator cend = parent->m_children.constEnd();
+    for (ChildConstIterator it = cbegin; it != cend; ++it) {
+        if (it.key() == filename && it.value()->m_language == s->m_language &&
+            it.value()->m_country == s->m_country) {
+            foreach (const QString &name, m_fileNames)
+                qWarning("%s: Warning: potential duplicate alias detected: '%s'",
+                qPrintable(name), qPrintable(filename));
+            break;
         }
+    }
     parent->m_children.insertMulti(filename, s);
     return true;
 }
@@ -634,7 +643,7 @@ bool RCCResourceLibrary::readFiles(bool ignoreErrors, QIODevice &errorDevice)
     m_errorDevice = &errorDevice;
     //read in data
     if (m_verbose) {
-        const QString msg = QString::fromUtf8("Processing %1 files [%2]\n")
+        const QString msg = QString::fromLatin1("Processing %1 files [%2]\n")
             .arg(m_fileNames.size()).arg(static_cast<int>(ignoreErrors));
         m_errorDevice->write(msg.toUtf8());
     }
@@ -659,7 +668,7 @@ bool RCCResourceLibrary::readFiles(bool ignoreErrors, QIODevice &errorDevice)
             }
         }
         if (m_verbose) {
-            const QString msg = QString::fromUtf8("Interpreting %1\n").arg(fname);
+            const QString msg = QString::fromLatin1("Interpreting %1\n").arg(fname);
             m_errorDevice->write(msg.toUtf8());
         }
 
@@ -717,9 +726,43 @@ RCCResourceLibrary::ResourceDataFileMap RCCResourceLibrary::resourceDataFileMap(
     return rc;
 }
 
-bool RCCResourceLibrary::output(QIODevice &outDevice, QIODevice &errorDevice)
+bool RCCResourceLibrary::output(QIODevice &outDevice, QIODevice &tempDevice, QIODevice &errorDevice)
 {
     m_errorDevice = &errorDevice;
+
+    if (m_format == Pass2) {
+        const char pattern[] = { 'Q', 'R', 'C', '_', 'D', 'A', 'T', 'A' };
+        bool foundSignature = false;
+
+        while (true) {
+            char c;
+            for (int i = 0; i < 8; ) {
+                if (!tempDevice.getChar(&c)) {
+                    if (foundSignature)
+                        return true;
+                    m_errorDevice->write("No data signature found\n");
+                    return false;
+                }
+                if (c == pattern[i]) {
+                    ++i;
+                } else {
+                    for (int k = 0; k < i; ++k)
+                        outDevice.putChar(pattern[k]);
+                    outDevice.putChar(c);
+                    i = 0;
+                }
+            }
+
+            m_outDevice = &outDevice;
+            quint64 start = outDevice.pos();
+            writeDataBlobs();
+            quint64 len = outDevice.pos() - start;
+
+            tempDevice.seek(tempDevice.pos() + len - 8);
+            foundSignature = true;
+        }
+    }
+
     //write out
     if (m_verbose)
         m_errorDevice->write("Outputting code\n");
@@ -776,7 +819,12 @@ void RCCResourceLibrary::writeNumber2(quint16 number)
 
 void RCCResourceLibrary::writeNumber4(quint32 number)
 {
-    if (m_format == RCCResourceLibrary::Binary) {
+    if (m_format == RCCResourceLibrary::Pass2) {
+        m_outDevice->putChar(char(number >> 24));
+        m_outDevice->putChar(char(number >> 16));
+        m_outDevice->putChar(char(number >> 8));
+        m_outDevice->putChar(char(number));
+    } else if (m_format == RCCResourceLibrary::Binary) {
         writeChar(number >> 24);
         writeChar(number >> 16);
         writeChar(number >> 8);
@@ -791,7 +839,7 @@ void RCCResourceLibrary::writeNumber4(quint32 number)
 
 bool RCCResourceLibrary::writeHeader()
 {
-    if (m_format == C_Code) {
+    if (m_format == C_Code || m_format == Pass1) {
         writeString("/****************************************************************************\n");
         writeString("** Resource object code\n");
         writeString("**\n");
@@ -800,7 +848,6 @@ bool RCCResourceLibrary::writeHeader()
         writeString("\n**\n");
         writeString("** WARNING! All changes made in this file will be lost!\n");
         writeString( "*****************************************************************************/\n\n");
-        writeString("#include <QtCore/qglobal.h>\n\n");
     } else if (m_format == Binary) {
         writeString("qres");
         writeNumber4(0);
@@ -814,15 +861,16 @@ bool RCCResourceLibrary::writeHeader()
 bool RCCResourceLibrary::writeDataBlobs()
 {
     Q_ASSERT(m_errorDevice);
-    if (m_format == C_Code)
+    if (m_format == C_Code) {
         writeString("static const unsigned char qt_resource_data[] = {\n");
-    else if (m_format == Binary)
+    } else if (m_format == Binary) {
         m_dataOffset = m_out.size();
-    QStack<RCCFileInfo*> pending;
+    }
 
     if (!m_root)
         return false;
 
+    QStack<RCCFileInfo*> pending;
     pending.push(m_root);
     qint64 offset = 0;
     QString errorMessage;
@@ -844,12 +892,19 @@ bool RCCResourceLibrary::writeDataBlobs()
     }
     if (m_format == C_Code)
         writeString("\n};\n\n");
+    else if (m_format == Pass1) {
+        if (offset < 8)
+            offset = 8;
+        writeString("\nstatic const unsigned char qt_resource_data[");
+        writeByteArray(QByteArray::number(offset));
+        writeString("] = { 'Q', 'R', 'C', '_', 'D', 'A', 'T', 'A' };\n\n");
+    }
     return true;
 }
 
 bool RCCResourceLibrary::writeDataNames()
 {
-    if (m_format == C_Code)
+    if (m_format == C_Code || m_format == Pass1)
         writeString("static const unsigned char qt_resource_name[] = {\n");
     else if (m_format == Binary)
         m_namesOffset = m_out.size();
@@ -877,7 +932,7 @@ bool RCCResourceLibrary::writeDataNames()
             }
         }
     }
-    if (m_format == C_Code)
+    if (m_format == C_Code || m_format == Pass1)
         writeString("\n};\n\n");
     return true;
 }
@@ -889,7 +944,7 @@ static bool qt_rcc_compare_hash(const RCCFileInfo *left, const RCCFileInfo *righ
 
 bool RCCResourceLibrary::writeDataStructure()
 {
-    if (m_format == C_Code)
+    if (m_format == C_Code || m_format == Pass1)
         writeString("static const unsigned char qt_resource_struct[] = {\n");
     else if (m_format == Binary)
         m_treeOffset = m_out.size();
@@ -936,7 +991,7 @@ bool RCCResourceLibrary::writeDataStructure()
                 pending.push(child);
         }
     }
-    if (m_format == C_Code)
+    if (m_format == C_Code || m_format == Pass1)
         writeString("\n};\n\n");
 
     return true;
@@ -945,7 +1000,7 @@ bool RCCResourceLibrary::writeDataStructure()
 void RCCResourceLibrary::writeMangleNamespaceFunction(const QByteArray &name)
 {
     if (m_useNameSpace) {
-        writeString("QT_MANGLE_NAMESPACE(");
+        writeString("QT_RCC_MANGLE_NAMESPACE(");
         writeByteArray(name);
         writeChar(')');
     } else {
@@ -956,7 +1011,7 @@ void RCCResourceLibrary::writeMangleNamespaceFunction(const QByteArray &name)
 void RCCResourceLibrary::writeAddNamespaceFunction(const QByteArray &name)
 {
     if (m_useNameSpace) {
-        writeString("QT_PREPEND_NAMESPACE(");
+        writeString("QT_RCC_PREPEND_NAMESPACE(");
         writeByteArray(name);
         writeChar(')');
     } else {
@@ -966,31 +1021,56 @@ void RCCResourceLibrary::writeAddNamespaceFunction(const QByteArray &name)
 
 bool RCCResourceLibrary::writeInitializer()
 {
-    if (m_format == C_Code) {
+    if (m_format == C_Code || m_format == Pass1) {
         //write("\nQT_BEGIN_NAMESPACE\n");
-        QString initName = m_initName;
-        if (!initName.isEmpty()) {
-            initName.prepend(QLatin1Char('_'));
-            initName.replace(QRegExp(QLatin1String("[^a-zA-Z0-9_]")), QLatin1String("_"));
+        QString initNameStr = m_initName;
+        if (!initNameStr.isEmpty()) {
+            initNameStr.prepend(QLatin1Char('_'));
+            initNameStr.replace(QRegExp(QLatin1String("[^a-zA-Z0-9_]")), QLatin1String("_"));
         }
+        QByteArray initName = initNameStr.toLatin1();
 
         //init
-        if (m_useNameSpace)
-            writeString("QT_BEGIN_NAMESPACE\n\n");
+        if (m_useNameSpace) {
+            writeString("#ifdef QT_NAMESPACE\n"
+                        "#  define QT_RCC_PREPEND_NAMESPACE(name) ::QT_NAMESPACE::name\n"
+                        "#  define QT_RCC_MANGLE_NAMESPACE0(x) x\n"
+                        "#  define QT_RCC_MANGLE_NAMESPACE1(a, b) a##_##b\n"
+                        "#  define QT_RCC_MANGLE_NAMESPACE2(a, b) QT_RCC_MANGLE_NAMESPACE1(a,b)\n"
+                        "#  define QT_RCC_MANGLE_NAMESPACE(name) QT_RCC_MANGLE_NAMESPACE2( \\\n"
+                        "        QT_RCC_MANGLE_NAMESPACE0(name), QT_RCC_MANGLE_NAMESPACE0(QT_NAMESPACE))\n"
+                        "#else\n"
+                        "#   define QT_RCC_PREPEND_NAMESPACE(name) name\n"
+                        "#   define QT_RCC_MANGLE_NAMESPACE(name) name\n"
+                        "#endif\n\n");
+
+            writeString("#ifdef QT_NAMESPACE\n"
+                        "namespace QT_NAMESPACE {\n"
+                        "#endif\n\n");
+        }
+
         if (m_root) {
-            writeString("extern Q_CORE_EXPORT bool qRegisterResourceData\n    "
+            writeString("bool qRegisterResourceData"
                 "(int, const unsigned char *, "
                 "const unsigned char *, const unsigned char *);\n\n");
-            writeString("extern Q_CORE_EXPORT bool qUnregisterResourceData\n    "
+            writeString("bool qUnregisterResourceData"
                 "(int, const unsigned char *, "
                 "const unsigned char *, const unsigned char *);\n\n");
         }
+
         if (m_useNameSpace)
-            writeString("QT_END_NAMESPACE\n\n\n");
-        QString initResources = QLatin1String("qInitResources");
+            writeString("#ifdef QT_NAMESPACE\n}\n#endif\n\n");
+
+        QByteArray initResources = "qInitResources";
         initResources += initName;
+
+        // Work around -Wmissing-declarations warnings.
         writeString("int ");
-        writeMangleNamespaceFunction(initResources.toLatin1());
+        writeMangleNamespaceFunction(initResources);
+        writeString("();\n");
+
+        writeString("int ");
+        writeMangleNamespaceFunction(initResources);
         writeString("()\n{\n");
 
         if (m_root) {
@@ -1001,15 +1081,18 @@ bool RCCResourceLibrary::writeInitializer()
         }
         writeString("    return 1;\n");
         writeString("}\n\n");
-        writeString("Q_CONSTRUCTOR_FUNCTION(");
-        writeMangleNamespaceFunction(initResources.toLatin1());
-        writeString(")\n\n");
 
         //cleanup
-        QString cleanResources = QLatin1String("qCleanupResources");
+        QByteArray cleanResources = "qCleanupResources";
         cleanResources += initName;
+
+        // Work around -Wmissing-declarations warnings.
         writeString("int ");
-        writeMangleNamespaceFunction(cleanResources.toLatin1());
+        writeMangleNamespaceFunction(cleanResources);
+        writeString("();\n");
+
+        writeString("int ");
+        writeMangleNamespaceFunction(cleanResources);
         writeString("()\n{\n");
         if (m_root) {
             writeString("    ");
@@ -1019,9 +1102,15 @@ bool RCCResourceLibrary::writeInitializer()
         }
         writeString("    return 1;\n");
         writeString("}\n\n");
-        writeString("Q_DESTRUCTOR_FUNCTION(");
-        writeMangleNamespaceFunction(cleanResources.toLatin1());
-        writeString(")\n\n");
+
+        writeByteArray(
+                    "namespace {\n"
+                  "   struct initializer {\n"
+                  "       initializer() { QT_RCC_MANGLE_NAMESPACE(" + initResources + ")(); }\n"
+                  "       ~initializer() { QT_RCC_MANGLE_NAMESPACE(" + cleanResources + ")(); }\n"
+                  "   } dummy;\n"
+                  "}\n");
+
     } else if (m_format == Binary) {
         int i = 4;
         char *p = m_out.data();

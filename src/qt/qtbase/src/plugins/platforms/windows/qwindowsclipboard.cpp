@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -145,7 +137,7 @@ static void cleanClipboardPostRoutine()
 QWindowsClipboard *QWindowsClipboard::m_instance = 0;
 
 QWindowsClipboard::QWindowsClipboard() :
-    m_data(0), m_clipboardViewer(0), m_nextClipboardViewer(0)
+    m_data(0), m_clipboardViewer(0), m_nextClipboardViewer(0), m_formatListenerRegistered(false)
 {
     QWindowsClipboard::m_instance = this;
     qAddPostRoutine(cleanClipboardPostRoutine);
@@ -178,19 +170,39 @@ void QWindowsClipboard::registerViewer()
     m_clipboardViewer = QWindowsContext::instance()->
         createDummyWindow(QStringLiteral("Qt5ClipboardView"), L"Qt5ClipboardView",
                           qClipboardViewerWndProc, WS_OVERLAPPED);
-    m_nextClipboardViewer = SetClipboardViewer(m_clipboardViewer);
 
-    qCDebug(lcQpaMime) << __FUNCTION__ << "m_clipboardViewer: " << m_clipboardViewer << "next: " << m_nextClipboardViewer;
+    // Try format listener API (Vista onwards) first.
+    if (QWindowsContext::user32dll.addClipboardFormatListener && QWindowsContext::user32dll.removeClipboardFormatListener) {
+        m_formatListenerRegistered = QWindowsContext::user32dll.addClipboardFormatListener(m_clipboardViewer);
+        if (!m_formatListenerRegistered)
+            qErrnoWarning("AddClipboardFormatListener() failed.");
+    }
+
+    if (!m_formatListenerRegistered)
+        m_nextClipboardViewer = SetClipboardViewer(m_clipboardViewer);
+
+    qCDebug(lcQpaMime) << __FUNCTION__ << "m_clipboardViewer:" << m_clipboardViewer
+        << "format listener:" << m_formatListenerRegistered
+        << "next:" << m_nextClipboardViewer;
 }
 
 void QWindowsClipboard::unregisterViewer()
 {
     if (m_clipboardViewer) {
-        ChangeClipboardChain(m_clipboardViewer, m_nextClipboardViewer);
+        if (m_formatListenerRegistered) {
+            QWindowsContext::user32dll.removeClipboardFormatListener(m_clipboardViewer);
+            m_formatListenerRegistered = false;
+        } else {
+            ChangeClipboardChain(m_clipboardViewer, m_nextClipboardViewer);
+            m_nextClipboardViewer = 0;
+        }
         DestroyWindow(m_clipboardViewer);
-        m_clipboardViewer = m_nextClipboardViewer = 0;
+        m_clipboardViewer = 0;
     }
 }
+
+// ### FIXME: Qt 6: Remove the clipboard chain handling code and make the
+// format listener the default.
 
 static bool isProcessBeingDebugged(HWND hwnd)
 {
@@ -232,6 +244,8 @@ void QWindowsClipboard::propagateClipboardMessage(UINT message, WPARAM wParam, L
 
 bool QWindowsClipboard::clipboardViewerWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam, LRESULT *result)
 {
+    enum { wMClipboardUpdate = 0x031D };
+
     *result = 0;
     if (QWindowsContext::verbose)
         qCDebug(lcQpaMime) << __FUNCTION__ << hwnd << message << QWindowsGuiEventDispatcher::windowsMessageName(message);
@@ -246,14 +260,16 @@ bool QWindowsClipboard::clipboardViewerWndProc(HWND hwnd, UINT message, WPARAM w
         }
     }
         return true;
-    case WM_DRAWCLIPBOARD: {
+    case wMClipboardUpdate:  // Clipboard Format listener (Vista onwards)
+    case WM_DRAWCLIPBOARD: { // Clipboard Viewer Chain handling (up to XP)
         const bool owned = ownsClipboard();
         qCDebug(lcQpaMime) << "Clipboard changed owned " << owned;
         emitChanged(QClipboard::Clipboard);
         // clean up the clipboard object if we no longer own the clipboard
         if (!owned && m_data)
             releaseIData();
-        propagateClipboardMessage(message, wParam, lParam);
+        if (!m_formatListenerRegistered)
+            propagateClipboardMessage(message, wParam, lParam);
     }
         return true;
     case WM_DESTROY:

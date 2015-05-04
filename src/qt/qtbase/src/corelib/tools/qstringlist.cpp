@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -98,7 +90,7 @@ QT_BEGIN_NAMESPACE
 
     \tableofcontents
 
-    \section1 Adding strings
+    \section1 Adding Strings
 
     Strings can be added to a list using the \l
     {QList::append()}{append()}, \l
@@ -107,7 +99,7 @@ QT_BEGIN_NAMESPACE
 
     \snippet qstringlist/main.cpp 0
 
-    \section1 Iterating over the strings
+    \section1 Iterating Over the Strings
 
     To iterate over a list, you can either use index positions or
     QList's Java-style and STL-style iterator types:
@@ -129,7 +121,7 @@ QT_BEGIN_NAMESPACE
     QMutableStringListIterator class which is a type definition for
     QMutableListIterator<QString>.
 
-    \section1 Manipulating the strings
+    \section1 Manipulating the Strings
 
     QStringList provides several functions allowing you to manipulate
     the contents of a list. You can concatenate all the strings in a
@@ -191,20 +183,6 @@ QT_BEGIN_NAMESPACE
 */
 
 /*!
-    \fn QStringList::QStringList(const QStringList &other)
-
-    Constructs a copy of the \a other string list.
-
-    This operation takes \l{constant time} because QStringList is
-    \l{implicitly shared}, making the process of returning a
-    QStringList from a function very fast. If a shared instance is
-    modified, it will be copied (copy-on-write), and that takes
-    \l{linear time}.
-
-    \sa operator=()
-*/
-
-/*!
     \fn QStringList::QStringList(const QList<QString> &other)
 
     Constructs a copy of \a other.
@@ -215,6 +193,37 @@ QT_BEGIN_NAMESPACE
     copied (copy-on-write), and that takes \l{linear time}.
 
     \sa operator=()
+*/
+
+/*!
+    \fn QStringList::QStringList(QList<QString> &&other)
+    \overload
+    \since 5.4
+
+    Move-constructs from QList<QString>.
+
+    After a successful construction, \a other will be empty.
+*/
+
+/*!
+    \fn QStringList &QStringList::operator=(const QList<QString> &other)
+    \since 5.4
+
+    Copy assignment operator from QList<QString>. Assigns the \a other
+    list of strings to this string list.
+
+    After the operation, \a other and \c *this will be equal.
+*/
+
+/*!
+    \fn QStringList &QStringList::operator=(QList<QString> &&other)
+    \overload
+    \since 5.4
+
+    Move assignment operator from QList<QString>. Moves the \a other
+    list of strings to this string list.
+
+    After the operation, \a other will be empty.
 */
 
 /*!
@@ -235,9 +244,14 @@ QT_BEGIN_NAMESPACE
     integer index.
 */
 
-static inline bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
-{
-   return s1.compare(s2, Qt::CaseInsensitive) < 0;
+namespace {
+struct CaseInsensitiveLessThan {
+    typedef bool result_type;
+    result_type operator()(const QString &s1, const QString &s2) const
+    {
+        return s1.compare(s2, Qt::CaseInsensitive) < 0;
+    }
+};
 }
 
 void QtPrivate::QStringList_sort(QStringList *that, Qt::CaseSensitivity cs)
@@ -245,7 +259,7 @@ void QtPrivate::QStringList_sort(QStringList *that, Qt::CaseSensitivity cs)
     if (cs == Qt::CaseSensitive)
         std::sort(that->begin(), that->end());
     else
-        std::sort(that->begin(), that->end(), caseInsensitiveLessThan);
+        std::sort(that->begin(), that->end(), CaseInsensitiveLessThan());
 }
 
 
@@ -457,7 +471,7 @@ QString QtPrivate::QStringList_join(const QStringList *that, const QChar *sep, i
     if (totalLength == 0)
         return res;
     res.reserve(totalLength);
-    for (int i = 0; i < that->size(); ++i) {
+    for (int i = 0; i < size; ++i) {
         if (i)
             res.append(sep, seplen);
         res += that->at(i);
@@ -485,6 +499,16 @@ QString QtPrivate::QStringList_join(const QStringList *that, const QChar *sep, i
 
 /*!
     \fn QStringList &QStringList::operator<<(const QStringList &other)
+
+    \overload
+
+    Appends the \a other string list to the string list and returns a reference to
+    the latter string list.
+*/
+
+/*!
+    \fn QStringList &QStringList::operator<<(const QList<QString> &other)
+    \since 5.4
 
     \overload
 
@@ -719,13 +743,15 @@ int QtPrivate::QStringList_removeDuplicates(QStringList *that)
     int j = 0;
     QSet<QString> seen;
     seen.reserve(n);
+    int setSize = 0;
     for (int i = 0; i < n; ++i) {
         const QString &s = that->at(i);
-        if (seen.contains(s))
-            continue;
         seen.insert(s);
+        if (setSize == seen.size()) // unchanged size => was already seen
+            continue;
+        ++setSize;
         if (j != i)
-            (*that)[j] = s;
+            that->swap(i, j);
         ++j;
     }
     if (n != j)

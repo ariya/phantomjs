@@ -31,6 +31,15 @@ RestrictFragmentShaderTiming::RestrictFragmentShaderTiming(TInfoSinkBase& sink)
     mSamplingOps.insert("texture2DRect(1;vf2;");
     mSamplingOps.insert("texture2DRectProj(1;vf3;");
     mSamplingOps.insert("texture2DRectProj(1;vf4;");
+    // Sampling ops provided by EXT_shader_texture_lod.
+    mSamplingOps.insert("texture2DLodEXT(1;vf2;f1;");
+    mSamplingOps.insert("texture2DProjLodEXT(1;vf3;f1;");
+    mSamplingOps.insert("texture2DProjLodEXT(1;vf4;f1;");
+    mSamplingOps.insert("textureCubeLodEXT(1;vf4;f1;");
+    mSamplingOps.insert("texture2DGradEXT(1;vf2;vf2;vf2;");
+    mSamplingOps.insert("texture2DProjGradEXT(1;vf3;vf2;vf2;");
+    mSamplingOps.insert("texture2DProjGradEXT(1;vf4;vf2;vf2;");
+    mSamplingOps.insert("textureCubeGradEXT(1;vf3;vf3;vf3;");
 }
 
 // FIXME(mvujovic): We do not know if the execution time of built-in operations like sin, pow, etc.

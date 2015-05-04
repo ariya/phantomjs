@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -44,7 +36,7 @@
 
 #include <QtCore/qstring.h>
 #include <QtCore/qnamespace.h>
-#include <QtCore/qsharedpointer.h>
+#include <QtCore/qshareddata.h>
 
 #include <limits>
 
@@ -94,9 +86,9 @@ QT_DEPRECATED inline bool setYMD(int y, int m, int d)
 
     void getDate(int *year, int *month, int *day);
 
-    QDate addDays(qint64 days) const;
-    QDate addMonths(int months) const;
-    QDate addYears(int years) const;
+    QDate addDays(qint64 days) const Q_REQUIRED_RESULT;
+    QDate addMonths(int months) const Q_REQUIRED_RESULT;
+    QDate addYears(int years) const Q_REQUIRED_RESULT;
     qint64 daysTo(const QDate &) const;
 
     bool operator==(const QDate &other) const { return jd == other.jd; }
@@ -119,7 +111,8 @@ QT_DEPRECATED inline bool setYMD(int y, int m, int d)
     inline qint64 toJulianDay() const { return jd; }
 
 private:
-    static inline qint64 nullJd() { return std::numeric_limits<qint64>::min(); }
+    // using extra parentheses around min to avoid expanding it if it is a macro
+    static inline qint64 nullJd() { return (std::numeric_limits<qint64>::min)(); }
     static inline qint64 minJd() { return Q_INT64_C(-784350574879); }
     static inline qint64 maxJd() { return Q_INT64_C( 784354017364); }
 
@@ -157,9 +150,9 @@ public:
 #endif
     bool setHMS(int h, int m, int s, int ms = 0);
 
-    QTime addSecs(int secs) const;
+    QTime addSecs(int secs) const Q_REQUIRED_RESULT;
     int secsTo(const QTime &) const;
-    QTime addMSecs(int ms) const;
+    QTime addMSecs(int ms) const Q_REQUIRED_RESULT;
     int msecsTo(const QTime &) const;
 
     bool operator==(const QTime &other) const { return mds == other.mds; }
@@ -251,11 +244,11 @@ public:
     QString toString(Qt::DateFormat f = Qt::TextDate) const;
     QString toString(const QString &format) const;
 #endif
-    QDateTime addDays(qint64 days) const;
-    QDateTime addMonths(int months) const;
-    QDateTime addYears(int years) const;
-    QDateTime addSecs(qint64 secs) const;
-    QDateTime addMSecs(qint64 msecs) const;
+    QDateTime addDays(qint64 days) const Q_REQUIRED_RESULT;
+    QDateTime addMonths(int months) const Q_REQUIRED_RESULT;
+    QDateTime addYears(int years) const Q_REQUIRED_RESULT;
+    QDateTime addSecs(qint64 secs) const Q_REQUIRED_RESULT;
+    QDateTime addMSecs(qint64 msecs) const Q_REQUIRED_RESULT;
 
     QDateTime toTimeSpec(Qt::TimeSpec spec) const;
     inline QDateTime toLocalTime() const { return toTimeSpec(Qt::LocalTime); }

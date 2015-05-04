@@ -5,35 +5,27 @@
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -67,7 +59,7 @@ QOpenGLTexturePrivate::QOpenGLTexturePrivate(QOpenGLTexture::Target textureTarge
       mipLevels(-1),
       layers(1),
       faces(1),
-      samples(1),
+      samples(0),
       fixedSamplePositions(true),
       baseLevel(0),
       maxLevel(1000),
@@ -180,6 +172,10 @@ bool QOpenGLTexturePrivate::create()
 
 void QOpenGLTexturePrivate::destroy()
 {
+    if (!context) {
+        // not created or already destroyed
+        return;
+    }
     if (QOpenGLContext::currentContext() != context) {
         qWarning("Requires a valid current OpenGL context.\n"
                  "Texture has not been destroyed");
@@ -196,7 +192,7 @@ void QOpenGLTexturePrivate::destroy()
     mipLevels = -1;
     layers = 1;
     faces = 1;
-    samples = 1;
+    samples = 0;
     fixedSamplePositions = true,
     baseLevel = 0;
     maxLevel = 1000;
@@ -310,8 +306,239 @@ void QOpenGLTexturePrivate::allocateStorage()
         allocateMutableStorage();
 }
 
+static QOpenGLTexture::PixelFormat pixelFormatCompatibleWithInternalFormat(QOpenGLTexture::TextureFormat internalFormat)
+{
+    switch (internalFormat) {
+    case QOpenGLTexture::NoFormat:
+        return QOpenGLTexture::NoSourceFormat;
+
+    case QOpenGLTexture::R8_UNorm:
+    case QOpenGLTexture::RG8_UNorm:
+    case QOpenGLTexture::RGB8_UNorm:
+    case QOpenGLTexture::RGBA8_UNorm:
+    case QOpenGLTexture::R16_UNorm:
+    case QOpenGLTexture::RG16_UNorm:
+    case QOpenGLTexture::RGB16_UNorm:
+    case QOpenGLTexture::RGBA16_UNorm:
+    case QOpenGLTexture::R8_SNorm:
+    case QOpenGLTexture::RG8_SNorm:
+    case QOpenGLTexture::RGB8_SNorm:
+    case QOpenGLTexture::RGBA8_SNorm:
+    case QOpenGLTexture::R16_SNorm:
+    case QOpenGLTexture::RG16_SNorm:
+    case QOpenGLTexture::RGB16_SNorm:
+    case QOpenGLTexture::RGBA16_SNorm:
+    case QOpenGLTexture::R8U:
+    case QOpenGLTexture::RG8U:
+    case QOpenGLTexture::RGB8U:
+    case QOpenGLTexture::RGBA8U:
+    case QOpenGLTexture::R16U:
+    case QOpenGLTexture::RG16U:
+    case QOpenGLTexture::RGB16U:
+    case QOpenGLTexture::RGBA16U:
+    case QOpenGLTexture::R32U:
+    case QOpenGLTexture::RG32U:
+    case QOpenGLTexture::RGB32U:
+    case QOpenGLTexture::RGBA32U:
+    case QOpenGLTexture::R8I:
+    case QOpenGLTexture::RG8I:
+    case QOpenGLTexture::RGB8I:
+    case QOpenGLTexture::RGBA8I:
+    case QOpenGLTexture::R16I:
+    case QOpenGLTexture::RG16I:
+    case QOpenGLTexture::RGB16I:
+    case QOpenGLTexture::RGBA16I:
+    case QOpenGLTexture::R32I:
+    case QOpenGLTexture::RG32I:
+    case QOpenGLTexture::RGB32I:
+    case QOpenGLTexture::RGBA32I:
+    case QOpenGLTexture::R16F:
+    case QOpenGLTexture::RG16F:
+    case QOpenGLTexture::RGB16F:
+    case QOpenGLTexture::RGBA16F:
+    case QOpenGLTexture::R32F:
+    case QOpenGLTexture::RG32F:
+    case QOpenGLTexture::RGB32F:
+    case QOpenGLTexture::RGBA32F:
+    case QOpenGLTexture::RGB9E5:
+    case QOpenGLTexture::RG11B10F:
+    case QOpenGLTexture::RG3B2:
+    case QOpenGLTexture::R5G6B5:
+    case QOpenGLTexture::RGB5A1:
+    case QOpenGLTexture::RGBA4:
+    case QOpenGLTexture::RGB10A2:
+        return QOpenGLTexture::RGBA;
+
+    case QOpenGLTexture::D16:
+    case QOpenGLTexture::D24:
+    case QOpenGLTexture::D32:
+    case QOpenGLTexture::D32F:
+        return QOpenGLTexture::Depth;
+
+    case QOpenGLTexture::D24S8:
+    case QOpenGLTexture::D32FS8X24:
+        return QOpenGLTexture::DepthStencil;
+
+    case QOpenGLTexture::S8:
+        return QOpenGLTexture::Stencil;
+
+    case QOpenGLTexture::RGB_DXT1:
+    case QOpenGLTexture::RGBA_DXT1:
+    case QOpenGLTexture::RGBA_DXT3:
+    case QOpenGLTexture::RGBA_DXT5:
+    case QOpenGLTexture::R_ATI1N_UNorm:
+    case QOpenGLTexture::R_ATI1N_SNorm:
+    case QOpenGLTexture::RG_ATI2N_UNorm:
+    case QOpenGLTexture::RG_ATI2N_SNorm:
+    case QOpenGLTexture::RGB_BP_UNSIGNED_FLOAT:
+    case QOpenGLTexture::RGB_BP_SIGNED_FLOAT:
+    case QOpenGLTexture::RGB_BP_UNorm:
+    case QOpenGLTexture::SRGB8:
+    case QOpenGLTexture::SRGB8_Alpha8:
+    case QOpenGLTexture::SRGB_DXT1:
+    case QOpenGLTexture::SRGB_Alpha_DXT1:
+    case QOpenGLTexture::SRGB_Alpha_DXT3:
+    case QOpenGLTexture::SRGB_Alpha_DXT5:
+    case QOpenGLTexture::SRGB_BP_UNorm:
+        return QOpenGLTexture::RGBA;
+
+    case QOpenGLTexture::DepthFormat:
+        return QOpenGLTexture::Depth;
+
+    case QOpenGLTexture::AlphaFormat:
+        return QOpenGLTexture::Alpha;
+
+    case QOpenGLTexture::RGBFormat:
+    case QOpenGLTexture::RGBAFormat:
+        return QOpenGLTexture::RGBA;
+
+    case QOpenGLTexture::LuminanceFormat:
+        return QOpenGLTexture::Luminance;
+
+    case QOpenGLTexture::LuminanceAlphaFormat:
+        return QOpenGLTexture::LuminanceAlpha;
+    }
+
+    Q_UNREACHABLE();
+    return QOpenGLTexture::NoSourceFormat;
+}
+
+static QOpenGLTexture::PixelType pixelTypeCompatibleWithInternalFormat(QOpenGLTexture::TextureFormat internalFormat)
+{
+    switch (internalFormat) {
+    case QOpenGLTexture::NoFormat:
+        return QOpenGLTexture::NoPixelType;
+
+    case QOpenGLTexture::R8_UNorm:
+    case QOpenGLTexture::RG8_UNorm:
+    case QOpenGLTexture::RGB8_UNorm:
+    case QOpenGLTexture::RGBA8_UNorm:
+    case QOpenGLTexture::R16_UNorm:
+    case QOpenGLTexture::RG16_UNorm:
+    case QOpenGLTexture::RGB16_UNorm:
+    case QOpenGLTexture::RGBA16_UNorm:
+    case QOpenGLTexture::R8_SNorm:
+    case QOpenGLTexture::RG8_SNorm:
+    case QOpenGLTexture::RGB8_SNorm:
+    case QOpenGLTexture::RGBA8_SNorm:
+    case QOpenGLTexture::R16_SNorm:
+    case QOpenGLTexture::RG16_SNorm:
+    case QOpenGLTexture::RGB16_SNorm:
+    case QOpenGLTexture::RGBA16_SNorm:
+    case QOpenGLTexture::R8U:
+    case QOpenGLTexture::RG8U:
+    case QOpenGLTexture::RGB8U:
+    case QOpenGLTexture::RGBA8U:
+    case QOpenGLTexture::R16U:
+    case QOpenGLTexture::RG16U:
+    case QOpenGLTexture::RGB16U:
+    case QOpenGLTexture::RGBA16U:
+    case QOpenGLTexture::R32U:
+    case QOpenGLTexture::RG32U:
+    case QOpenGLTexture::RGB32U:
+    case QOpenGLTexture::RGBA32U:
+    case QOpenGLTexture::R8I:
+    case QOpenGLTexture::RG8I:
+    case QOpenGLTexture::RGB8I:
+    case QOpenGLTexture::RGBA8I:
+    case QOpenGLTexture::R16I:
+    case QOpenGLTexture::RG16I:
+    case QOpenGLTexture::RGB16I:
+    case QOpenGLTexture::RGBA16I:
+    case QOpenGLTexture::R32I:
+    case QOpenGLTexture::RG32I:
+    case QOpenGLTexture::RGB32I:
+    case QOpenGLTexture::RGBA32I:
+    case QOpenGLTexture::R16F:
+    case QOpenGLTexture::RG16F:
+    case QOpenGLTexture::RGB16F:
+    case QOpenGLTexture::RGBA16F:
+    case QOpenGLTexture::R32F:
+    case QOpenGLTexture::RG32F:
+    case QOpenGLTexture::RGB32F:
+    case QOpenGLTexture::RGBA32F:
+    case QOpenGLTexture::RGB9E5:
+    case QOpenGLTexture::RG11B10F:
+    case QOpenGLTexture::RG3B2:
+    case QOpenGLTexture::R5G6B5:
+    case QOpenGLTexture::RGB5A1:
+    case QOpenGLTexture::RGBA4:
+    case QOpenGLTexture::RGB10A2:
+        return QOpenGLTexture::UInt8;
+
+    case QOpenGLTexture::D16:
+    case QOpenGLTexture::D24:
+    case QOpenGLTexture::D32:
+    case QOpenGLTexture::D32F:
+        return QOpenGLTexture::UInt8;
+
+    case QOpenGLTexture::D24S8:
+        return QOpenGLTexture::UInt32_D24S8;
+
+    case QOpenGLTexture::D32FS8X24:
+        return QOpenGLTexture::Float32_D32_UInt32_S8_X24;
+
+    case QOpenGLTexture::S8:
+        return QOpenGLTexture::UInt8;
+
+    case QOpenGLTexture::RGB_DXT1:
+    case QOpenGLTexture::RGBA_DXT1:
+    case QOpenGLTexture::RGBA_DXT3:
+    case QOpenGLTexture::RGBA_DXT5:
+    case QOpenGLTexture::R_ATI1N_UNorm:
+    case QOpenGLTexture::R_ATI1N_SNorm:
+    case QOpenGLTexture::RG_ATI2N_UNorm:
+    case QOpenGLTexture::RG_ATI2N_SNorm:
+    case QOpenGLTexture::RGB_BP_UNSIGNED_FLOAT:
+    case QOpenGLTexture::RGB_BP_SIGNED_FLOAT:
+    case QOpenGLTexture::RGB_BP_UNorm:
+    case QOpenGLTexture::SRGB8:
+    case QOpenGLTexture::SRGB8_Alpha8:
+    case QOpenGLTexture::SRGB_DXT1:
+    case QOpenGLTexture::SRGB_Alpha_DXT1:
+    case QOpenGLTexture::SRGB_Alpha_DXT3:
+    case QOpenGLTexture::SRGB_Alpha_DXT5:
+    case QOpenGLTexture::SRGB_BP_UNorm:
+        return QOpenGLTexture::UInt8;
+
+    case QOpenGLTexture::DepthFormat:
+    case QOpenGLTexture::AlphaFormat:
+    case QOpenGLTexture::RGBFormat:
+    case QOpenGLTexture::RGBAFormat:
+    case QOpenGLTexture::LuminanceFormat:
+    case QOpenGLTexture::LuminanceAlphaFormat:
+        return QOpenGLTexture::UInt8;
+    }
+
+    Q_UNREACHABLE();
+    return QOpenGLTexture::NoPixelType;
+}
+
 void QOpenGLTexturePrivate::allocateMutableStorage()
 {
+    const QOpenGLTexture::PixelFormat pixelFormat = pixelFormatCompatibleWithInternalFormat(format);
+    const QOpenGLTexture::PixelType pixelType = pixelTypeCompatibleWithInternalFormat(format);
+
     switch (target) {
     case QOpenGLTexture::TargetBuffer:
         // Buffer textures get their storage from an external OpenGL buffer
@@ -324,7 +551,7 @@ void QOpenGLTexturePrivate::allocateMutableStorage()
                 texFuncs->glTextureImage1D(textureId, target, bindingTarget, level, format,
                                            mipLevelSize(level, dimensions[0]),
                                            0,
-                                           QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, 0);
+                                           pixelFormat, pixelType, 0);
         } else {
             qWarning("1D textures are not supported");
             return;
@@ -339,7 +566,7 @@ void QOpenGLTexturePrivate::allocateMutableStorage()
                                            mipLevelSize(level, dimensions[0]),
                                            layers,
                                            0,
-                                           QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, 0);
+                                           pixelFormat, pixelType, 0);
         } else {
             qWarning("1D array textures are not supported");
             return;
@@ -353,7 +580,7 @@ void QOpenGLTexturePrivate::allocateMutableStorage()
                                        mipLevelSize(level, dimensions[0]),
                                        mipLevelSize(level, dimensions[1]),
                                        0,
-                                       QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, 0);
+                                       pixelFormat, pixelType, 0);
         break;
 
     case QOpenGLTexture::TargetCubeMap: {
@@ -373,7 +600,7 @@ void QOpenGLTexturePrivate::allocateMutableStorage()
                                            mipLevelSize(level, dimensions[0]),
                                            mipLevelSize(level, dimensions[1]),
                                            0,
-                                           QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, 0);
+                                           pixelFormat, pixelType, 0);
             }
         }
         break;
@@ -387,7 +614,7 @@ void QOpenGLTexturePrivate::allocateMutableStorage()
                                            mipLevelSize(level, dimensions[1]),
                                            layers,
                                            0,
-                                           QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, 0);
+                                           pixelFormat, pixelType, 0);
         } else {
             qWarning("Array textures are not supported");
             return;
@@ -403,7 +630,7 @@ void QOpenGLTexturePrivate::allocateMutableStorage()
                                            mipLevelSize(level, dimensions[1]),
                                            6 * layers,
                                            0,
-                                           QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, 0);
+                                           pixelFormat, pixelType, 0);
         } else {
             qWarning("Cubemap Array textures are not supported");
             return;
@@ -418,7 +645,7 @@ void QOpenGLTexturePrivate::allocateMutableStorage()
                                            mipLevelSize(level, dimensions[1]),
                                            mipLevelSize(level, dimensions[2]),
                                            0,
-                                           QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, 0);
+                                           pixelFormat, pixelType, 0);
         } else {
             qWarning("3D textures are not supported");
             return;
@@ -1285,6 +1512,7 @@ QOpenGLTexture *QOpenGLTexturePrivate::createTextureView(QOpenGLTexture::Target 
     \value D32 Equivalent to GL_DEPTH_COMPONENT32
     \value D32F Equivalent to GL_DEPTH_COMPONENT32F
     \value D32FS8X24 Equivalent to GL_DEPTH32F_STENCIL8
+    \value S8 Equivalent to GL_STENCIL_INDEX8. Introduced in Qt 5.4
 
     \value RGB_DXT1 Equivalent to GL_COMPRESSED_RGB_S3TC_DXT1_EXT
     \value RGBA_DXT1 Equivalent to GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
@@ -1344,6 +1572,7 @@ QOpenGLTexture *QOpenGLTexturePrivate::createTextureView(QOpenGLTexture::Target 
     \value BGR_Integer Equivalent to GL_BGR_INTEGER
     \value RGBA_Integer Equivalent to GL_RGBA_INTEGER
     \value BGRA_Integer Equivalent to GL_BGRA_INTEGER
+    \value Stencil Equivalent to GL_STENCIL_INDEX. Introduced in Qt 5.4
     \value Depth Equivalent to GL_DEPTH_COMPONENT
     \value DepthStencil Equivalent to GL_DEPTH_STENCIL
     \value Alpha Equivalent to GL_ALPHA (OpenGL ES 2 only)
@@ -1376,8 +1605,12 @@ QOpenGLTexture *QOpenGLTexturePrivate::createTextureView(QOpenGLTexture::Target 
     \value UInt16_R5G6B5_Rev Equivalent to GL_UNSIGNED_SHORT_5_6_5_REV
     \value UInt16_RGBA4 Equivalent to GL_UNSIGNED_SHORT_4_4_4_4
     \value UInt16_RGBA4_Rev Equivalent to GL_UNSIGNED_SHORT_4_4_4_4_REV
+    \value UInt32_RGBA8 Equivalent to GL_UNSIGNED_INT_8_8_8_8
+    \value UInt32_RGBA8_Rev Equivalent to GL_UNSIGNED_INT_8_8_8_8_REV
     \value UInt32_RGB10A2 Equivalent to GL_UNSIGNED_INT_10_10_10_2
     \value UInt32_RGB10A2_Rev Equivalent to GL_UNSIGNED_INT_2_10_10_10_REV
+    \value UInt32_D24S8 Equivalent to GL_UNSIGNED_INT_24_8. Introduced in Qt 5.4
+    \value Float32_D32_UInt32_S8_X24 Equivalent to GL_FLOAT_32_UNSIGNED_INT_24_8_REV. Introduced in Qt 5.4
 */
 
 /*!
@@ -1476,6 +1709,17 @@ QOpenGLTexture::QOpenGLTexture(const QImage& image, MipMapGeneration genMipMaps)
 
 QOpenGLTexture::~QOpenGLTexture()
 {
+}
+
+/*!
+    Returns the binding target of this texture.
+
+    \since 5.4
+*/
+QOpenGLTexture::Target QOpenGLTexture::target() const
+{
+    Q_D(const QOpenGLTexture);
+    return d->target;
 }
 
 /*!
@@ -1816,6 +2060,7 @@ void QOpenGLTexture::setFormat(TextureFormat format)
     case D32:
     case D32F:
     case D32FS8X24:
+    case S8:
     case DepthFormat:
     case AlphaFormat:
     case RGBFormat:
@@ -2059,6 +2304,125 @@ int QOpenGLTexture::faces() const
 }
 
 /*!
+    Sets the number of \a samples to allocate storage for when rendering to
+    a multisample capable texture target. This function should
+    be called before storage is allocated for the texture.
+
+    For targets that do not support multisampling this function has
+    no effect.
+
+    \sa samples(), isStorageAllocated()
+*/
+void QOpenGLTexture::setSamples(int samples)
+{
+    Q_D(QOpenGLTexture);
+    d->create();
+    if (isStorageAllocated()) {
+        qWarning("Cannot set sample count on a texture that already has storage allocated.\n"
+                 "To do so, destroy() the texture and then create() and setSamples()");
+        return;
+    }
+
+    switch (d->target) {
+    case QOpenGLTexture::Target2DMultisample:
+    case QOpenGLTexture::Target2DMultisampleArray:
+        d->samples = samples;
+        break;
+
+    case QOpenGLTexture::Target1D:
+    case QOpenGLTexture::Target2D:
+    case QOpenGLTexture::Target3D:
+    case QOpenGLTexture::Target1DArray:
+    case QOpenGLTexture::Target2DArray:
+    case QOpenGLTexture::TargetCubeMap:
+    case QOpenGLTexture::TargetCubeMapArray:
+    case QOpenGLTexture::TargetBuffer:
+    case QOpenGLTexture::TargetRectangle:
+
+        qWarning("Texture target does not support multisampling");
+        break;
+    }
+}
+
+/*!
+    Returns the number of multisample sample points for this texture.
+    If storage has not yet been allocated for this texture then
+    this function returns the requested number of samples.
+
+    For texture targets that do not support multisampling this
+    will return 0.
+
+    \sa setSamples(), isStorageAllocated()
+*/
+int QOpenGLTexture::samples() const
+{
+    Q_D(const QOpenGLTexture);
+    return d->samples;
+}
+
+/*!
+    Sets whether the sample positions and number of samples used with
+    a multisample capable texture target to \a fixed. If set to \c true
+    the sample positions and number of samples used are the same for
+    all texels in the image and will not depend upon the image size or
+    internal format. This function should be called before storage is allocated
+    for the texture.
+
+    For targets that do not support multisampling this function has
+    no effect.
+
+    The default value is \c true.
+
+    \sa isFixedSamplePositions(), isStorageAllocated()
+*/
+void QOpenGLTexture::setFixedSamplePositions(bool fixed)
+{
+    Q_D(QOpenGLTexture);
+    d->create();
+    if (isStorageAllocated()) {
+        qWarning("Cannot set sample positions on a texture that already has storage allocated.\n"
+                 "To do so, destroy() the texture and then create() and setFixedSamplePositions()");
+        return;
+    }
+
+    switch (d->target) {
+    case QOpenGLTexture::Target2DMultisample:
+    case QOpenGLTexture::Target2DMultisampleArray:
+        d->fixedSamplePositions = fixed;
+        break;
+
+    case QOpenGLTexture::Target1D:
+    case QOpenGLTexture::Target2D:
+    case QOpenGLTexture::Target3D:
+    case QOpenGLTexture::Target1DArray:
+    case QOpenGLTexture::Target2DArray:
+    case QOpenGLTexture::TargetCubeMap:
+    case QOpenGLTexture::TargetCubeMapArray:
+    case QOpenGLTexture::TargetBuffer:
+    case QOpenGLTexture::TargetRectangle:
+
+        qWarning("Texture target does not support multisampling");
+        break;
+    }
+}
+
+/*!
+    Returns whether this texture uses a fixed pattern of multisample
+    samples. If storage has not yet been allocated for this texture then
+    this function returns the requested fixed sample position setting.
+
+    For texture targets that do not support multisampling this
+    will return \c true.
+
+    \sa setFixedSamplePositions(), isStorageAllocated()
+*/
+bool QOpenGLTexture::isFixedSamplePositions() const
+{
+    Q_D(const QOpenGLTexture);
+    return d->fixedSamplePositions;
+}
+
+/*!
     Allocates server-side storage for this texture object taking
     into account, the format, dimensions, mipmap levels, array
     layers and cubemap faces.
@@ -2077,7 +2441,9 @@ int QOpenGLTexture::faces() const
 void QOpenGLTexture::allocateStorage()
 {
     Q_D(QOpenGLTexture);
-    d->allocateStorage();
+    if (d->create()) {
+        d->allocateStorage();
+    }
 }
 
 /*!
@@ -2225,6 +2591,7 @@ void QOpenGLTexture::setData(PixelFormat sourceFormat, PixelType sourceType,
     d->setData(0, 0, QOpenGLTexture::CubeMapPositiveX, sourceFormat, sourceType, data, options);
 }
 
+#if QT_DEPRECATED_SINCE(5, 3)
 /*!
     \obsolete
     \overload
@@ -2282,6 +2649,7 @@ void QOpenGLTexture::setData(PixelFormat sourceFormat, PixelType sourceType,
     Q_ASSERT(d->textureId);
     d->setData(0, 0, QOpenGLTexture::CubeMapPositiveX, sourceFormat, sourceType, data, options);
 }
+#endif
 
 /*!
     This overload of setData() will allocate storage for you.
@@ -2292,7 +2660,16 @@ void QOpenGLTexture::setData(PixelFormat sourceFormat, PixelType sourceType,
 */
 void QOpenGLTexture::setData(const QImage& image, MipMapGeneration genMipMaps)
 {
-    setFormat(QOpenGLTexture::RGBA8_UNorm);
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("QOpenGLTexture::setData() requires a valid current context");
+        return;
+    }
+    if (context->isOpenGLES() && context->format().majorVersion() < 3)
+        setFormat(QOpenGLTexture::RGBAFormat);
+    else
+        setFormat(QOpenGLTexture::RGBA8_UNorm);
+
     setSize(image.width(), image.height());
     setMipLevels(genMipMaps == GenerateMipMaps ? maximumMipLevels() : 1);
     allocateStorage();
@@ -2361,6 +2738,7 @@ void QOpenGLTexture::setCompressedData(int dataSize, const void *data,
     d->setCompressedData(0, 0, QOpenGLTexture::CubeMapPositiveX, dataSize, data, options);
 }
 
+#if QT_DEPRECATED_SINCE(5, 3)
 /*!
     \obsolete
     \overload
@@ -2414,6 +2792,7 @@ void QOpenGLTexture::setCompressedData(int dataSize, void *data,
     Q_ASSERT(d->textureId);
     d->setCompressedData(0, 0, QOpenGLTexture::CubeMapPositiveX, dataSize, data, options);
 }
+#endif
 
 /*!
     Returns \c true if your OpenGL implementation and version supports the texture
@@ -2435,33 +2814,48 @@ bool QOpenGLTexture::hasFeature(Feature feature)
     if (!ctx->isOpenGLES()) {
         switch (feature) {
         case ImmutableMultisampleStorage:
+            supported = f.version() >= qMakePair(4, 3)
+                    || ctx->hasExtension(QByteArrayLiteral("GL_ARB_texture_storage_multisample"));
+            break;
+
         case TextureBuffer:
+            supported = f.version() >= qMakePair(3, 0)
+                    || ctx->hasExtension(QByteArrayLiteral("GL_ARB_texture_buffer_object"));
+            break;
+
         case StencilTexturing:
-            supported = f.version() >= qMakePair(4, 3);
+            supported = f.version() >= qMakePair(4, 3)
+                    || ctx->hasExtension(QByteArrayLiteral("GL_ARB_stencil_texturing"));
             break;
 
         case ImmutableStorage:
-            supported = f.version() >= qMakePair(4, 2);
+            supported = f.version() >= qMakePair(4, 2)
+                    || ctx->hasExtension(QByteArrayLiteral("GL_ARB_texture_storage"));
             break;
 
         case TextureCubeMapArrays:
-            supported = f.version() >= qMakePair(4, 0);
+            supported = f.version() >= qMakePair(4, 0)
+                    || ctx->hasExtension(QByteArrayLiteral("ARB_texture_cube_map_array"));
             break;
 
         case Swizzle:
-            supported = f.version() >= qMakePair(3, 3);
+            supported = f.version() >= qMakePair(3, 3)
+                    || ctx->hasExtension(QByteArrayLiteral("GL_ARB_texture_swizzle"));
             break;
 
         case TextureMultisample:
-            supported = f.version() >= qMakePair(3, 2);
+            supported = f.version() >= qMakePair(3, 2)
+                    || ctx->hasExtension(QByteArrayLiteral("GL_ARB_texture_multisample"));
             break;
 
         case TextureArrays:
-            supported = f.version() >= qMakePair(3, 0);
+            supported = f.version() >= qMakePair(3, 0)
+                    || ctx->hasExtension(QByteArrayLiteral("GL_EXT_texture_array"));
             break;
 
         case TextureRectangle:
-            supported = f.version() >= qMakePair(2, 1);
+            supported = f.version() >= qMakePair(2, 1)
+                    || ctx->hasExtension(QByteArrayLiteral("ARB_texture_rectangle"));
             break;
 
         case Texture3D:
@@ -2792,7 +3186,7 @@ void QOpenGLTexture::setDepthStencilMode(QOpenGLTexture::DepthStencilMode mode)
         Q_ASSERT(d->texFuncs);
         Q_ASSERT(d->textureId);
         if (!d->features.testFlag(StencilTexturing)) {
-            qWarning("QOpenGLTexture::setDepthStencilMode() requires OpenGL >= 4.3");
+            qWarning("QOpenGLTexture::setDepthStencilMode() requires OpenGL >= 4.3 or GL_ARB_stencil_texturing");
             return;
         }
         d->depthStencilMode = mode;

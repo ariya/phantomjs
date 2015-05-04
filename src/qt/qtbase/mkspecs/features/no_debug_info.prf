@@ -7,8 +7,8 @@ win32-msvc2*|wince*msvc* {
     QMAKE_CXXFLAGS_DEBUG -= -Zi
     QMAKE_CXXFLAGS_RELEASE_WITH_DEBUGINFO -= -Zi
 } else {
-    QMAKE_CFLAGS -= -g -ggdb3
-    QMAKE_CXXFLAGS -= -g -ggdb3
-    QMAKE_LFLAGS -= -g -ggdb3
-    QMAKE_LIBFLAGS -= -g -ggdb3
+    QMAKE_CFLAGS -= -g -ggdb3 -gstabs
+    QMAKE_CXXFLAGS -= -g -ggdb3 -gstabs
+    QMAKE_LFLAGS -= -g -ggdb3 -gstabs
+    QMAKE_LIBFLAGS -= -g -ggdb3 -gstabs
 }

@@ -128,6 +128,7 @@ QMacNativeWidget::QMacNativeWidget(NSView *parentView)
     setAttribute(Qt::WA_SetPalette, false);
     setAttribute(Qt::WA_LayoutUsesWidgetRect);
     setAttribute(Qt::WA_TranslucentBackground);
+    setAttribute(Qt::WA_NoSystemBackground, false);
 }
 
 /*!

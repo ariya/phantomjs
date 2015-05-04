@@ -5,35 +5,27 @@
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -57,7 +49,7 @@ enum GuardValues {
 };
 }
 
-#if defined(QT_NO_THREAD) || (defined(Q_CC_GNU) && !defined(Q_OS_MAC))
+#if defined(QT_NO_THREAD) || defined(Q_COMPILER_THREADSAFE_STATICS)
 // some compilers support thread-safe statics
 // The IA-64 C++ ABI requires this, so we know that all GCC versions since 3.4
 // support it. C++11 also requires this behavior.
@@ -68,8 +60,17 @@ enum GuardValues {
 // until the constructor returns ...
 // We better avoid these kind of problems by using our own locked implementation.
 
+#if defined(Q_OS_UNIX) && defined(Q_CC_INTEL)
+// Work around Intel issue ID 6000058488:
+// local statics inside an inline function inside an anonymous namespace are global
+// symbols (this affects the IA-64 C++ ABI, so OS X and Linux only)
+#  define Q_GLOBAL_STATIC_INTERNAL_DECORATION Q_DECL_HIDDEN
+#else
+#  define Q_GLOBAL_STATIC_INTERNAL_DECORATION Q_DECL_HIDDEN inline
+#endif
+
 #define Q_GLOBAL_STATIC_INTERNAL(ARGS)                          \
-    Q_DECL_HIDDEN inline Type *innerFunction()                  \
+    Q_GLOBAL_STATIC_INTERNAL_DECORATION Type *innerFunction()   \
     {                                                           \
         struct HolderBase {                                     \
             ~HolderBase() Q_DECL_NOTHROW                        \

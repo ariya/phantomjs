@@ -7,11 +7,11 @@
 #ifndef COMPILER_TRANSLATORESSL_H_
 #define COMPILER_TRANSLATORESSL_H_
 
-#include "compiler/translator/ShHandle.h"
+#include "compiler/translator/Compiler.h"
 
 class TranslatorESSL : public TCompiler {
 public:
-    TranslatorESSL(ShShaderType type, ShShaderSpec spec);
+    TranslatorESSL(sh::GLenum type, ShShaderSpec spec);
 
 protected:
     virtual void translate(TIntermNode* root);

@@ -4,7 +4,7 @@
 // found in the LICENSE file.
 //
 
-#include "compiler/translator/intermediate.h"
+#include "compiler/translator/IntermNode.h"
 
 class TAliveTraverser : public TIntermTraverser {
 public:

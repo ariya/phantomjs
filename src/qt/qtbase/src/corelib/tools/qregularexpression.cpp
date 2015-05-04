@@ -2,46 +2,40 @@
 **
 ** Copyright (C) 2012 Giuseppe D'Angelo <dangelog@gmail.com>.
 ** Copyright (C) 2012 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com, author Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
 
 #include "qregularexpression.h"
+
+#ifndef QT_NO_REGULAREXPRESSION
 
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qmutex.h>
@@ -51,6 +45,7 @@
 #include <QtCore/qthreadstorage.h>
 #include <QtCore/qglobal.h>
 #include <QtCore/qatomic.h>
+#include <QtCore/qdatastream.h>
 
 #include <pcre.h>
 
@@ -143,7 +138,7 @@ QT_BEGIN_NAMESPACE
 
     \snippet code/src_corelib_tools_qregularexpression.cpp 3
 
-    \section1 Pattern options
+    \section1 Pattern Options
 
     The meaning of the pattern string can be modified by setting one or more
     \e{pattern options}. For instance, it is possible to set a pattern to match
@@ -167,7 +162,7 @@ QT_BEGIN_NAMESPACE
     Please refer to the QRegularExpression::PatternOption enum documentation for
     more information about each pattern option.
 
-    \section1 Match type and match options
+    \section1 Match Type and Match Options
 
     The last two arguments of the match() and the globalMatch() functions set
     the match type and the match options. The match type is a value of the
@@ -182,7 +177,7 @@ QT_BEGIN_NAMESPACE
     QRegularExpression::MatchOption enum documentation for more details.
 
     \target normal matching
-    \section1 Normal matching
+    \section1 Normal Matching
 
     In order to perform a match you can simply invoke the match() function
     passing a string to match against. We refer to this string as the
@@ -232,7 +227,7 @@ QT_BEGIN_NAMESPACE
     \snippet code/src_corelib_tools_qregularexpression.cpp 12
 
     \target global matching
-    \section1 Global matching
+    \section1 Global Matching
 
     \e{Global matching} is useful to find all the occurrences of a given
     regular expression inside a subject string. Suppose that we want to extract
@@ -262,7 +257,7 @@ QT_BEGIN_NAMESPACE
     the globalMatch() function, exactly like normal matching with match().
 
     \target partial matching
-    \section1 Partial matching
+    \section1 Partial Matching
 
     A \e{partial match} is obtained when the end of the subject string is
     reached, but more characters are needed to successfully complete the match.
@@ -401,7 +396,7 @@ QT_BEGIN_NAMESPACE
     text) would have been \c{"abcabc"}; by matching only against the leading
     \c{"abc"} we instead get a partial match.
 
-    \section1 Error handling
+    \section1 Error Handling
 
     It is possible for a QRegularExpression object to be invalid because of
     syntax errors in the pattern string. The isValid() function will return
@@ -420,7 +415,7 @@ QT_BEGIN_NAMESPACE
     its \l{QRegularExpressionMatch::}{isValid()} function will return false).
     The same applies for attempting a global match.
 
-    \section1 Unsupported Perl-compatible regular expressions features
+    \section1 Unsupported Perl-compatible Regular Expressions Features
 
     QRegularExpression does not support all the features available in
     Perl-compatible regular expressions. The most notable one is the fact that
@@ -429,7 +424,7 @@ QT_BEGIN_NAMESPACE
 
     This may change in a future version of Qt.
 
-    \section1 Notes for QRegExp users
+    \section1 Notes for QRegExp Users
 
     The QRegularExpression class introduced in Qt 5 is a big improvement upon
     QRegExp, in terms of APIs offered, supported pattern syntax and speed of
@@ -522,7 +517,7 @@ QT_BEGIN_NAMESPACE
     QRegExp::CaretAtOffset behaviour. There is no equivalent for the other
     QRegExp::CaretMode modes.
 
-    \section1 Debugging code that uses QRegularExpression
+    \section1 Debugging Code that Uses QRegularExpression
 
     QRegularExpression internally uses a just in time compiler (JIT) to
     optimize the execution of the matching algorithm. The JIT makes extensive
@@ -699,6 +694,23 @@ QT_BEGIN_NAMESPACE
         \c{\w} to match any character with either the Unicode L (letter) or N
         (digit) property, plus underscore, and so on. This option corresponds
         to the \c{/u} modifier in Perl regular expressions.
+
+    \value OptimizeOnFirstUsageOption
+        The regular expression will be optimized (and possibly
+        JIT-compiled) on its first usage, instead of after a certain (undefined)
+        number of usages. See also \l{QRegularExpression::}{optimize()}.
+        This enum value has been introduced in Qt 5.4.
+
+    \value DontAutomaticallyOptimizeOption
+        Regular expressions are automatically optimized after a
+        certain number of usages; setting this option prevents such
+        optimizations, therefore avoiding possible unpredictable spikes in
+        CPU and memory usage. If both this option and the
+        \c{OptimizeOnFirstUsageOption} option are set, then this option takes
+        precedence. Note: this option will still let the regular expression
+        to be optimized by manually calling
+        \l{QRegularExpression::}{optimize()}. This enum value has been
+        introduced in Qt 5.4.
 */
 
 /*!
@@ -746,6 +758,13 @@ QT_BEGIN_NAMESPACE
         The match is constrained to start exactly at the offset passed to
         match() in order to be successful, even if the pattern string does not
         contain any metacharacter that anchors the match at that point.
+
+    \value DontCheckSubjectStringMatchOption
+        The subject string is not checked for UTF-16 validity before
+        attempting a match. Use this option with extreme caution, as
+        attempting to match an invalid string may crash the program and/or
+        constitute a security issue. This enum value has been introduced in
+        Qt 5.4.
 */
 
 // after how many usages we optimize the regexp
@@ -802,13 +821,24 @@ struct QRegularExpressionPrivate : QSharedData
     void cleanCompiledPattern();
     void compilePattern();
     void getPatternInfo();
-    void optimizePattern();
+
+    enum OptimizePatternOption {
+        LazyOptimizeOption,
+        ImmediateOptimizeOption
+    };
+
+    void optimizePattern(OptimizePatternOption option);
+
+    enum CheckSubjectStringOption {
+        CheckSubjectString,
+        DontCheckSubjectString
+    };
 
     QRegularExpressionMatchPrivate *doMatch(const QString &subject,
                                             int offset,
                                             QRegularExpression::MatchType matchType,
                                             QRegularExpression::MatchOptions matchOptions,
-                                            bool checkSubjectString = true,
+                                            CheckSubjectStringOption checkSubjectStringOption = CheckSubjectString,
                                             const QRegularExpressionMatchPrivate *previous = 0) const;
 
     int captureIndexForName(const QString &name) const;
@@ -1096,7 +1126,10 @@ static bool isJitEnabled()
     setting the studyData member variable to the result of the study. It gets
     called by doMatch() every time a match is performed. As of now, the
     optimizations on the pattern are performed after a certain number of usages
-    (i.e. the qt_qregularexpression_optimize_after_use_count constant).
+    (i.e. the qt_qregularexpression_optimize_after_use_count constant) unless
+    the DontAutomaticallyOptimizeOption option is set on the QRegularExpression
+    object, or anyhow by calling optimize() (which will pass
+    ImmediateOptimizeOption).
 
     Notice that although the method is protected by a mutex, one thread may
     invoke this function and return immediately (i.e. not study the pattern,
@@ -1107,20 +1140,23 @@ static bool isJitEnabled()
     (localStudyData) before using storeRelease on studyData. In doMatch there's
     the corresponding loadAcquire.
 */
-void QRegularExpressionPrivate::optimizePattern()
+void QRegularExpressionPrivate::optimizePattern(OptimizePatternOption option)
 {
     Q_ASSERT(compiledPattern);
 
     QMutexLocker lock(&mutex);
 
-    if (studyData.load() || (++usedCount != qt_qregularexpression_optimize_after_use_count))
+    if (studyData.load()) // already optimized
+        return;
+
+    if ((option == LazyOptimizeOption) && (++usedCount != qt_qregularexpression_optimize_after_use_count))
         return;
 
     static const bool enableJit = isJitEnabled();
 
     int studyOptions = 0;
     if (enableJit)
-        studyOptions |= PCRE_STUDY_JIT_COMPILE;
+        studyOptions |= (PCRE_STUDY_JIT_COMPILE | PCRE_STUDY_JIT_PARTIAL_SOFT_COMPILE | PCRE_STUDY_JIT_PARTIAL_HARD_COMPILE);
 
     const char *err;
     pcre16_extra * const localStudyData = pcre16_study(compiledPattern, studyOptions, &err);
@@ -1187,7 +1223,9 @@ static int pcre16SafeExec(const pcre16 *code, const pcre16_extra *extra,
     options \a matchOptions and returns the QRegularExpressionMatchPrivate of
     the result. It also advances a match if a previous result is given as \a
     previous. The \a subject string goes a Unicode validity check if
-    \a checkSubjectString is true (PCRE doesn't like illegal UTF-16 sequences).
+    \a checkSubjectString is CheckSubjectString and the match options don't
+    include DontCheckSubjectStringMatchOption (PCRE doesn't like illegal
+    UTF-16 sequences).
 
     Advancing a match is a tricky algorithm. If the previous match matched a
     non-empty string, we just do an ordinary match at the offset position.
@@ -1204,7 +1242,7 @@ QRegularExpressionMatchPrivate *QRegularExpressionPrivate::doMatch(const QString
                                                                    int offset,
                                                                    QRegularExpression::MatchType matchType,
                                                                    QRegularExpression::MatchOptions matchOptions,
-                                                                   bool checkSubjectString,
+                                                                   CheckSubjectStringOption checkSubjectStringOption,
                                                                    const QRegularExpressionMatchPrivate *previous) const
 {
     if (offset < 0)
@@ -1233,8 +1271,15 @@ QRegularExpressionMatchPrivate *QRegularExpressionPrivate::doMatch(const QString
                                                                               matchType, matchOptions,
                                                                               capturingCount + 1);
 
-    // this is mutex protected
-    const_cast<QRegularExpressionPrivate *>(this)->optimizePattern();
+    if (!(patternOptions & QRegularExpression::DontAutomaticallyOptimizeOption)) {
+        const OptimizePatternOption optimizePatternOption =
+                (patternOptions & QRegularExpression::OptimizeOnFirstUsageOption)
+                    ? ImmediateOptimizeOption
+                    : LazyOptimizeOption;
+
+        // this is mutex protected
+        const_cast<QRegularExpressionPrivate *>(this)->optimizePattern(optimizePatternOption);
+    }
 
     // work with a local copy of the study data, as we are running pcre_exec
     // potentially more than once, and we don't want to run call it
@@ -1248,8 +1293,10 @@ QRegularExpressionMatchPrivate *QRegularExpressionPrivate::doMatch(const QString
     else if (matchType == QRegularExpression::PartialPreferFirstMatch)
         pcreOptions |= PCRE_PARTIAL_HARD;
 
-    if (!checkSubjectString)
+    if (checkSubjectStringOption == DontCheckSubjectString
+            || matchOptions & QRegularExpression::DontCheckSubjectStringMatchOption) {
         pcreOptions |= PCRE_NO_UTF16_CHECK;
+    }
 
     bool previousMatchWasEmpty = false;
     if (previous && previous->hasMatch &&
@@ -1360,7 +1407,7 @@ QRegularExpressionMatch QRegularExpressionMatchPrivate::nextMatch() const
     Q_ASSERT(isValid);
     Q_ASSERT(hasMatch || hasPartialMatch);
 
-    // Note the "false" passed for the check of the subject string:
+    // Note the DontCheckSubjectString passed for the check of the subject string:
     // if we're advancing a match on the same subject,
     // then that subject was already checked at least once (when this object
     // was created, or when the object that created this one was created, etc.)
@@ -1368,7 +1415,7 @@ QRegularExpressionMatch QRegularExpressionMatchPrivate::nextMatch() const
                                                                                capturedOffsets.at(1),
                                                                                matchType,
                                                                                matchOptions,
-                                                                               false,
+                                                                               QRegularExpressionPrivate::DontCheckSubjectString,
                                                                                this);
     return QRegularExpressionMatch(*nextPrivate);
 }
@@ -1664,6 +1711,27 @@ QRegularExpressionMatchIterator QRegularExpression::globalMatch(const QString &s
                                                        match(subject, offset, matchType, matchOptions));
 
     return QRegularExpressionMatchIterator(*priv);
+}
+
+/*!
+    \since 5.4
+
+    Forces an immediate optimization of the pattern, including
+    JIT-compiling it (if the JIT compiler is enabled).
+
+    Patterns are normally optimized only after a certain number of usages.
+    If you can predict that this QRegularExpression object is going to be
+    used for several matches, it may be convenient to optimize it in
+    advance by calling this function.
+
+    \sa QRegularExpression::OptimizeOnFirstUsageOption
+*/
+void QRegularExpression::optimize() const
+{
+    if (!isValid()) // will compile the pattern
+        return;
+
+    d->optimizePattern(QRegularExpressionPrivate::ImmediateOptimizeOption);
 }
 
 /*!
@@ -2327,6 +2395,10 @@ QDebug operator<<(QDebug debug, QRegularExpression::PatternOptions patternOption
             flags.append("DontCaptureOption|");
         if (patternOptions & QRegularExpression::UseUnicodePropertiesOption)
             flags.append("UseUnicodePropertiesOption|");
+        if (patternOptions & QRegularExpression::OptimizeOnFirstUsageOption)
+            flags.append("OptimizeOnFirstUsageOption|");
+        if (patternOptions & QRegularExpression::DontAutomaticallyOptimizeOption)
+            flags.append("DontAutomaticallyOptimizeOption|");
         flags.chop(1);
     }
 
@@ -2490,8 +2562,19 @@ static const char *pcreCompileErrorCodes[] =
     QT_TRANSLATE_NOOP("QRegularExpression", "disallowed Unicode code point (>= 0xd800 && <= 0xdfff)"),
     QT_TRANSLATE_NOOP("QRegularExpression", "invalid UTF-16 string"),
     QT_TRANSLATE_NOOP("QRegularExpression", "name is too long in (*MARK), (*PRUNE), (*SKIP), or (*THEN)"),
-    QT_TRANSLATE_NOOP("QRegularExpression", "character value in \\u.... sequence is too large")
+    QT_TRANSLATE_NOOP("QRegularExpression", "character value in \\u.... sequence is too large"),
+    QT_TRANSLATE_NOOP("QRegularExpression", "invalid UTF-32 string"),
+    QT_TRANSLATE_NOOP("QRegularExpression", "setting UTF is disabled by the application"),
+    QT_TRANSLATE_NOOP("QRegularExpression", "non-hex character in \\x{} (closing brace missing?)"),
+    QT_TRANSLATE_NOOP("QRegularExpression", "non-octal character in \\o{} (closing brace missing?)"),
+    QT_TRANSLATE_NOOP("QRegularExpression", "missing opening brace after \\o"),
+    QT_TRANSLATE_NOOP("QRegularExpression", "parentheses are too deeply nested"),
+    QT_TRANSLATE_NOOP("QRegularExpression", "invalid range in character class"),
+    QT_TRANSLATE_NOOP("QRegularExpression", "group name must start with a non-digit"),
+    QT_TRANSLATE_NOOP("QRegularExpression", "parentheses are too deeply nested (stack check)")
 };
 #endif // #if 0
 
 QT_END_NAMESPACE
+
+#endif // QT_NO_REGULAREXPRESSION

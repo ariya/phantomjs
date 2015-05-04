@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
+** a written agreement between you and Digia. For licensing terms and
+** conditions see http://qt.digia.com/licensing. For further information
 ** use the contact form at http://qt.digia.com/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** rights. These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -49,6 +41,7 @@
 #include "ditaxmlgenerator.h"
 #include "doc.h"
 #include "htmlgenerator.h"
+#include "location.h"
 #include "plaincodemarker.h"
 #include "puredocparser.h"
 #include "tokenizer.h"
@@ -63,6 +56,8 @@
 #ifndef QT_BOOTSTRAPPED
 #  include "qcoreapplication.h"
 #endif
+#include "qcommandlineoption.h"
+#include "qcommandlineparser.h"
 
 #include <algorithm>
 
@@ -78,63 +73,14 @@ static bool highlighting = false;
 static bool showInternal = false;
 static bool redirectDocumentationToDevNull = false;
 static bool noLinkErrors = false;
+static bool autolinkErrors = false;
 static bool obsoleteLinks = false;
 static QStringList defines;
 static QStringList dependModules;
 static QStringList indexDirs;
 static QString currentDir;
 static QString prevCurrentDir;
-static QString documentationPath;
 
-/*!
-  Print the help message to \c stdout.
- */
-static void printHelp()
-{
-    Location::information(QCoreApplication::translate("QDoc", "Usage: qdoc [options] file1.qdocconf ...\n"
-                             "Options:\n"
-                             "    -D<name>       "
-                             "Define <name> as a macro while parsing sources\n"
-                             "    -depends       "
-                             "Specify dependent modules\n"
-                             "    -help          "
-                             "Display this information and exit\n"
-                             "    -highlighting  "
-                             "Turn on syntax highlighting (makes qdoc run slower)\n"
-                             "    -indexdir      "
-                             "Specify a directory where QDoc should search for index files to load\n"
-                             "    -installdir    "
-                             "Specify the directory where the output will be after running \"make install\"\n"
-                             "    -no-examples   "
-                             "Do not generate documentation for examples\n"
-                             "    -no-link-errors   "
-                             "Do not print link errors (i.e. missing targets)\n"
-                             "    -obsoletelinks "
-                             "Report links from obsolete items to non-obsolete items\n"
-                             "    -outputdir     "
-                             "Specify output directory, overrides setting in qdocconf file\n"
-                             "    -outputformat  "
-                             "Specify output format, overrides setting in qdocconf file\n"
-                             "    -prepare        "
-                             "Run qdoc only to generate an index file, not the docs\n"
-                             "    -generate        "
-                             "Run qdoc to read the index files and generate the docs\n"
-                             "    -showinternal  "
-                             "Include content marked internal\n"
-                             "    -redirect-documentation-to-dev-null "
-                             "Save all documentation content to /dev/null. Useful if someone is interested in qdoc errors only.\n"
-                             "    -version       "
-                             "Display version of qdoc and exit\n") );
-}
-
-/*!
-  Prints the qdoc version number to stdout.
- */
-static void printVersion()
-{
-    QString s = QCoreApplication::translate("QDoc", "qdoc version %1").arg(QT_VERSION_STR);
-    Location::information(s);
-}
 
 static void loadIndexFiles(Config& config)
 {
@@ -142,9 +88,18 @@ static void loadIndexFiles(Config& config)
     /*
       Read some XML indexes containing definitions from other documentation sets.
      */
-    QStringList indexFiles = config.getStringList(CONFIG_INDEXES);
+    QStringList indexFiles;
+    QStringList configIndexes = config.getStringList(CONFIG_INDEXES);
+    foreach (const QString &index, configIndexes) {
+        QFileInfo fi(index);
+        if (fi.exists() && fi.isFile())
+            indexFiles << index;
+        else
+            Location::null.warning(QString("Index file not found: %1").arg(index));
+    }
 
     dependModules += config.getStringList(CONFIG_DEPENDS);
+    dependModules.removeDuplicates();
 
     bool noOutputSubdirs = false;
     QString singleOutputSubdir;
@@ -154,11 +109,6 @@ static void loadIndexFiles(Config& config)
         if (singleOutputSubdir.isEmpty())
             singleOutputSubdir = "html";
     }
-
-    // Allow modules and third-party application/libraries to link
-    // to the Qt docs without having to explicitly pass --indexdir.
-    if (!indexDirs.contains(documentationPath))
-        indexDirs.append(documentationPath);
 
     if (dependModules.size() > 0) {
         if (indexDirs.size() > 0) {
@@ -208,11 +158,14 @@ static void loadIndexFiles(Config& config)
                         multiple index files for a module, since the last modified file has the
                         highest UNIX timestamp.
                     */
-                    qDebug() << "Multiple indices found for dependency:" << dependModules[i] << "\nFound:";
+                    QStringList indexPaths;
                     for (int k = 0; k < foundIndices.size(); k++)
-                        qDebug() << foundIndices[k].absoluteFilePath();
-                    qDebug() << "Using" << foundIndices[foundIndices.size() - 1].absoluteFilePath()
-                            << "as index for" << dependModules[i];
+                        indexPaths << foundIndices[k].absoluteFilePath();
+                    Location::null.warning(QString("Multiple index files found for dependency \"%1\":\n%2").arg(
+                                               dependModules[i], indexPaths.join('\n')));
+                    Location::null.warning(QString("Using %1 as index file for dependency \"%2\"").arg(
+                                               foundIndices[foundIndices.size() - 1].absoluteFilePath(),
+                                               dependModules[i]));
                     indexToAdd = foundIndices[foundIndices.size() - 1].absoluteFilePath();
                 }
                 else if (foundIndices.size() == 1) {
@@ -222,17 +175,14 @@ static void loadIndexFiles(Config& config)
                     if (!indexFiles.contains(indexToAdd))
                         indexFiles << indexToAdd;
                 }
-                else if (Generator::runGenerateOnly()) {
-                    qDebug() << "warning:" << config.getString(CONFIG_PROJECT)
-                             << "Cannot locate index file for dependency"
-                             << dependModules[i];
+                else {
+                    Location::null.warning(QString("\"%1\" Cannot locate index file for dependency \"%2\"").arg(
+                                               config.getString(CONFIG_PROJECT), dependModules[i]));
                 }
             }
         }
         else {
-            qDebug() << "Dependant modules specified, but no index directories or "
-                     << "install directory were set."
-                     << "There will probably be errors for missing links.";
+            Location::null.warning(QLatin1String("Dependent modules specified, but no index directories were set. There will probably be errors for missing links."));
         }
     }
     qdb->readIndexes(indexFiles);
@@ -282,6 +232,7 @@ static void processQdocconfFile(const QString &fileName)
     config.setStringList(CONFIG_SHOWINTERNAL, QStringList(showInternal ? "true" : "false"));
     config.setStringList(CONFIG_REDIRECTDOCUMENTATIONTODEVNULL, QStringList(redirectDocumentationToDevNull ? "true" : "false"));
     config.setStringList(CONFIG_NOLINKERRORS, QStringList(noLinkErrors ? "true" : "false"));
+    config.setStringList(CONFIG_AUTOLINKERRORS, QStringList(autolinkErrors ? "true" : "false"));
     config.setStringList(CONFIG_OBSOLETELINKS, QStringList(obsoleteLinks ? "true" : "false"));
 
     /*
@@ -296,7 +247,8 @@ static void processQdocconfFile(const QString &fileName)
     currentDir = QFileInfo(fileName).path();
     Location::initialize(config);
     config.load(fileName);
-
+    QString project = config.getString(CONFIG_PROJECT).toLower();
+    //qDebug() << "\nStart project:" << project;
     /*
       Add the defines to the configuration variables.
      */
@@ -370,7 +322,11 @@ static void processQdocconfFile(const QString &fileName)
     Location outputFormatsLocation = config.lastLocation();
 
     //if (!Generator::runPrepareOnly())
+    Generator::debug("  loading index files");
     loadIndexFiles(config);
+    qdb->newPrimaryTree(config.getString(CONFIG_PROJECT));
+    qdb->setSearchOrder();
+    Generator::debug("  done loading index files");
 
     QSet<QString> excludedDirs;
     QSet<QString> excludedFiles;
@@ -379,7 +335,7 @@ static void processQdocconfFile(const QString &fileName)
     QStringList excludedDirsList;
     QStringList excludedFilesList;
 
-    Generator::debugSegfault("Reading excludedirs");
+    Generator::debug("Reading excludedirs");
     excludedDirsList = config.getCanonicalPathList(CONFIG_EXCLUDEDIRS);
     foreach (const QString &excludeDir, excludedDirsList) {
         QString p = QDir::fromNativeSeparators(excludeDir);
@@ -388,14 +344,14 @@ static void processQdocconfFile(const QString &fileName)
             excludedDirs.insert(p);
     }
 
-    Generator::debugSegfault("Reading excludefiles");
-    excludedFilesList = config.getCleanPathList(CONFIG_EXCLUDEFILES);
+    Generator::debug("Reading excludefiles");
+    excludedFilesList = config.getCanonicalPathList(CONFIG_EXCLUDEFILES);
     foreach (const QString& excludeFile, excludedFilesList) {
         QString p = QDir::fromNativeSeparators(excludeFile);
         excludedFiles.insert(p);
     }
 
-    Generator::debugSegfault("Reading headerdirs");
+    Generator::debug("Reading headerdirs");
     headerList = config.getAllFiles(CONFIG_HEADERS,CONFIG_HEADERDIRS,excludedDirs,excludedFiles);
     QMap<QString,QString> headers;
     QMultiMap<QString,QString> headerFileNames;
@@ -409,7 +365,7 @@ static void processQdocconfFile(const QString &fileName)
         headerFileNames.insert(t,t);
     }
 
-    Generator::debugSegfault("Reading sourcedirs");
+    Generator::debug("Reading sourcedirs");
     sourceList = config.getAllFiles(CONFIG_SOURCES,CONFIG_SOURCEDIRS,excludedDirs,excludedFiles);
     QMap<QString,QString> sources;
     QMultiMap<QString,QString> sourceFileNames;
@@ -426,7 +382,7 @@ static void processQdocconfFile(const QString &fileName)
       Find all the qdoc files in the example dirs, and add
       them to the source files to be parsed.
      */
-    Generator::debugSegfault("Reading exampledirs");
+    Generator::debug("Reading exampledirs");
     QStringList exampleQdocList = config.getExampleQdocFiles(excludedDirs, excludedFiles);
     for (int i=0; i<exampleQdocList.size(); ++i) {
         if (!sources.contains(exampleQdocList[i])) {
@@ -436,7 +392,7 @@ static void processQdocconfFile(const QString &fileName)
         }
     }
 
-    Generator::debugSegfault("Adding doc/image dirs found in exampledirs to imagedirs");
+    Generator::debug("Adding doc/image dirs found in exampledirs to imagedirs");
     QSet<QString> exampleImageDirs;
     QStringList exampleImageList = config.getExampleImageFiles(excludedDirs, excludedFiles);
     for (int i=0; i<exampleImageList.size(); ++i) {
@@ -455,13 +411,14 @@ static void processQdocconfFile(const QString &fileName)
      */
     QSet<CodeParser *> usedParsers;
 
-    Generator::debugSegfault("Parsing header files");
+    Generator::debug("Parsing header files");
     int parsed = 0;
     QMap<QString,QString>::ConstIterator h = headers.constBegin();
     while (h != headers.constEnd()) {
         CodeParser *codeParser = CodeParser::parserForHeaderFile(h.key());
         if (codeParser) {
             ++parsed;
+            Generator::debug(QString("Parsing " + h.key()));
             codeParser->parseHeaderFile(config.location(), h.key());
             usedParsers.insert(codeParser);
         }
@@ -472,22 +429,26 @@ static void processQdocconfFile(const QString &fileName)
         codeParser->doneParsingHeaderFiles();
 
     usedParsers.clear();
+    qdb->resolveInheritance();
+
     /*
       Parse each source text file in the set using the appropriate parser and
       add it to the big tree.
      */
     parsed = 0;
-    Generator::debugSegfault("Parsing source files");
+    Generator::debug("Parsing source files");
     QMap<QString,QString>::ConstIterator s = sources.constBegin();
     while (s != sources.constEnd()) {
         CodeParser *codeParser = CodeParser::parserForSourceFile(s.key());
         if (codeParser) {
             ++parsed;
+            Generator::debug(QString("Parsing " + s.key()));
             codeParser->parseSourceFile(config.location(), s.key());
             usedParsers.insert(codeParser);
         }
         ++s;
     }
+    Generator::debug(QString("Parsing done."));
 
     foreach (CodeParser *codeParser, usedParsers)
         codeParser->doneParsingSourceFiles();
@@ -497,7 +458,7 @@ static void processQdocconfFile(const QString &fileName)
       source files. Resolve all the class names, function names,
       targets, URLs, links, and other stuff that needs resolving.
      */
-    Generator::debugSegfault("Resolving stuff prior to generating docs");
+    Generator::debug("Resolving stuff prior to generating docs");
     qdb->resolveIssues();
 
     /*
@@ -506,19 +467,21 @@ static void processQdocconfFile(const QString &fileName)
       documentation output. More than one output format can be
       requested. The tree is traversed for each one.
      */
-    Generator::debugSegfault("Generating docs");
+    Generator::debug("Generating docs");
     QSet<QString>::ConstIterator of = outputFormats.constBegin();
     while (of != outputFormats.constEnd()) {
         Generator* generator = Generator::generatorForFormat(*of);
         if (generator == 0)
             outputFormatsLocation.fatal(QCoreApplication::translate("QDoc", "Unknown output format '%1'").arg(*of));
-        generator->generateTree();
+        generator->generateDocs();
         ++of;
     }
 
 
     //Generator::writeOutFileNames();
-    Generator::debugSegfault("Shutting down qdoc");
+    Generator::debug("Shutting down qdoc");
+    if (Generator::debugging())
+        Generator::stopDebugging(project);
 
     QDocDatabase::qdocDB()->setVersion(QString());
     Generator::terminate();
@@ -539,9 +502,10 @@ static void processQdocconfFile(const QString &fileName)
 #ifdef DEBUG_SHUTDOWN_CRASH
     qDebug() << "main(): qdoc database deleted";
 #endif
-    Generator::debugSegfault("qdoc finished!");
+    Generator::debug("qdoc finished!");
 }
 
+extern Q_CORE_EXPORT QBasicAtomicInt qt_qhash_seed;
 QT_END_NAMESPACE
 
 int main(int argc, char **argv)
@@ -549,8 +513,10 @@ int main(int argc, char **argv)
     QT_USE_NAMESPACE
 
 #ifndef QT_BOOTSTRAPPED
-    QCoreApplication app(argc, argv);
+    qt_qhash_seed.testAndSetRelaxed(-1, 0); // set the hash seed to 0 if it wasn't set yet
 #endif
+    QCoreApplication app(argc, argv);
+    app.setApplicationVersion(QStringLiteral(QT_VERSION_STR));
 
     /*
       Create code parsers for the languages to be parsed,
@@ -572,94 +538,124 @@ int main(int argc, char **argv)
     HtmlGenerator htmlGenerator;
     DitaXmlGenerator ditaxmlGenerator;
 
-    QStringList qdocFiles;
-    QString opt;
-    int i = 1;
+    QCommandLineParser parser;
+    parser.setApplicationDescription(QCoreApplication::translate("qdoc", "Qt documentation generator"));
+    parser.addHelpOption();
+    parser.addVersionOption();
 
-    while (i < argc) {
-        opt = argv[i++];
+    parser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
 
-        if (opt == "-help") {
-            printHelp();
-            return EXIT_SUCCESS;
-        }
-        else if (opt == "-version") {
-            printVersion();
-            return EXIT_SUCCESS;
-        }
-        else if (opt == "--") {
-            while (i < argc)
-                qdocFiles.append(argv[i++]);
-        }
-        else if (opt.startsWith("-D")) {
-            QString define = opt.mid(2);
-            defines += define;
-        }
-        else if (opt == "-depends") {
-            dependModules += argv[i];
-            i++;
-        }
-        else if (opt == "-highlighting") {
-            highlighting = true;
-        }
-        else if (opt == "-showinternal") {
-            showInternal = true;
-        }
-        else if (opt == "-redirect-documentation-to-dev-null") {
-            redirectDocumentationToDevNull = true;
-        }
-        else if (opt == "-no-examples") {
-            Config::generateExamples = false;
-        }
-        else if (opt == "-indexdir") {
-            if (QFile::exists(argv[i])) {
-                indexDirs += argv[i];
-            }
-            else {
-                qDebug() << "Cannot find index directory" << argv[i];
-            }
-            i++;
-        }
-        else if (opt == "-installdir") {
-            Config::installDir = argv[i];
-            indexDirs += argv[i];
-            i++;
-        }
-        else if (opt == "-obsoletelinks") {
-            obsoleteLinks = true;
-        }
-        else if (opt == "-outputdir") {
-            Config::overrideOutputDir = argv[i];
-            i++;
-        }
-        else if (opt == "-outputformat") {
-            Config::overrideOutputFormats.insert(argv[i]);
-            i++;
-        }
-        else if (opt == "-no-link-errors") {
-            noLinkErrors = true;
-        }
-        else if (opt == "-debug") {
-            Generator::setDebugSegfaultFlag(true);
-        }
-        else if (opt == "-prepare") {
-            Generator::setQDocPass(Generator::Prepare);
-        }
-        else if (opt == "-generate") {
-            Generator::setQDocPass(Generator::Generate);
-        }
-        else if (opt == "-log-progress") {
-            Location::startLoggingProgress();
-        }
-        else {
-            qdocFiles.append(opt);
-        }
+    parser.addPositionalArgument("file1.qdocconf ...", QCoreApplication::translate("qdoc", "Input files"));
+
+    QCommandLineOption defineOption(QStringList() << QStringLiteral("D"));
+    defineOption.setDescription(QCoreApplication::translate("qdoc", "Define the argument as a macro while parsing sources"));
+    defineOption.setValueName(QStringLiteral("macro[=def]"));
+    parser.addOption(defineOption);
+
+    QCommandLineOption dependsOption(QStringList() << QStringLiteral("depends"));
+    dependsOption.setDescription(QCoreApplication::translate("qdoc", "Specify dependent modules"));
+    dependsOption.setValueName(QStringLiteral("module"));
+    parser.addOption(dependsOption);
+
+    QCommandLineOption highlightingOption(QStringList() << QStringLiteral("highlighting"));
+    highlightingOption.setDescription(QCoreApplication::translate("qdoc", "Turn on syntax highlighting (makes qdoc run slower)"));
+    parser.addOption(highlightingOption);
+
+    QCommandLineOption showInternalOption(QStringList() << QStringLiteral("showinternal"));
+    showInternalOption.setDescription(QCoreApplication::translate("qdoc", "Include content marked internal"));
+    parser.addOption(showInternalOption);
+
+    QCommandLineOption redirectDocumentationToDevNullOption(QStringList() << QStringLiteral("redirect-documentation-to-dev-null"));
+    redirectDocumentationToDevNullOption.setDescription(QCoreApplication::translate("qdoc", "Save all documentation content to /dev/null. Useful if someone is interested in qdoc errors only."));
+    parser.addOption(redirectDocumentationToDevNullOption);
+
+    QCommandLineOption noExamplesOption(QStringList() << QStringLiteral("no-examples"));
+    noExamplesOption.setDescription(QCoreApplication::translate("qdoc", "Do not generate documentation for examples"));
+    parser.addOption(noExamplesOption);
+
+    QCommandLineOption indexDirOption(QStringList() << QStringLiteral("indexdir"));
+    indexDirOption.setDescription(QCoreApplication::translate("qdoc", "Specify a directory where QDoc should search for index files to load"));
+    indexDirOption.setValueName(QStringLiteral("dir"));
+    parser.addOption(indexDirOption);
+
+    QCommandLineOption installDirOption(QStringList() << QStringLiteral("installdir"));
+    installDirOption.setDescription(QCoreApplication::translate("qdoc", "Specify the directory where the output will be after running \"make install\""));
+    installDirOption.setValueName(QStringLiteral("dir"));
+    parser.addOption(installDirOption);
+
+    QCommandLineOption obsoleteLinksOption(QStringList() << QStringLiteral("obsoletelinks"));
+    obsoleteLinksOption.setDescription(QCoreApplication::translate("qdoc", "Report links from obsolete items to non-obsolete items"));
+    parser.addOption(obsoleteLinksOption);
+
+    QCommandLineOption outputDirOption(QStringList() << QStringLiteral("outputdir"));
+    outputDirOption.setDescription(QCoreApplication::translate("qdoc", "Specify output directory, overrides setting in qdocconf file"));
+    outputDirOption.setValueName(QStringLiteral("dir"));
+    parser.addOption(outputDirOption);
+
+    QCommandLineOption outputFormatOption(QStringList() << QStringLiteral("outputformat"));
+    outputFormatOption.setDescription(QCoreApplication::translate("qdoc", "Specify output format, overrides setting in qdocconf file"));
+    outputFormatOption.setValueName(QStringLiteral("format"));
+    parser.addOption(outputFormatOption);
+
+    QCommandLineOption noLinkErrorsOption(QStringList() << QStringLiteral("no-link-errors"));
+    noLinkErrorsOption.setDescription(QCoreApplication::translate("qdoc", "Do not print link errors (i.e. missing targets)"));
+    parser.addOption(noLinkErrorsOption);
+
+    QCommandLineOption autoLinkErrorsOption(QStringList() << QStringLiteral("autolink-errors"));
+    autoLinkErrorsOption.setDescription(QCoreApplication::translate("qdoc", "Show errors when automatic linking fails"));
+    parser.addOption(autoLinkErrorsOption);
+
+    QCommandLineOption debugOption(QStringList() << QStringLiteral("debug"));
+    debugOption.setDescription(QCoreApplication::translate("qdoc", "Enable debug output"));
+    parser.addOption(debugOption);
+
+    QCommandLineOption prepareOption(QStringList() << QStringLiteral("prepare"));
+    prepareOption.setDescription(QCoreApplication::translate("qdoc", "Run qdoc only to generate an index file, not the docs"));
+    parser.addOption(prepareOption);
+
+    QCommandLineOption generateOption(QStringList() << QStringLiteral("generate"));
+    generateOption.setDescription(QCoreApplication::translate("qdoc", "Run qdoc to read the index files and generate the docs"));
+    parser.addOption(generateOption);
+
+    QCommandLineOption logProgressOption(QStringList() << QStringLiteral("log-progress"));
+    logProgressOption.setDescription(QCoreApplication::translate("qdoc", "Log progress on stderr."));
+    parser.addOption(logProgressOption);
+
+    parser.process(app);
+
+    defines += parser.values(defineOption);
+    dependModules += parser.values(dependsOption);
+    highlighting = parser.isSet(highlightingOption);
+    showInternal = parser.isSet(showInternalOption);
+    redirectDocumentationToDevNull = parser.isSet(redirectDocumentationToDevNullOption);
+    Config::generateExamples = !parser.isSet(noExamplesOption);
+    foreach (const QString &indexDir, parser.values(indexDirOption)) {
+        if (QFile::exists(indexDir))
+            indexDirs += indexDir;
+        else
+            qDebug() << "Cannot find index directory" << indexDir;
     }
+    if (parser.isSet(installDirOption))
+        Config::installDir = parser.value(installDirOption);
+    obsoleteLinks = parser.isSet(obsoleteLinksOption);
+    if (parser.isSet(outputDirOption))
+        Config::overrideOutputDir = parser.value(outputDirOption);
+    foreach (const QString &format, parser.values(outputFormatOption))
+        Config::overrideOutputFormats.insert(format);
+    noLinkErrors = parser.isSet(noLinkErrorsOption);
+    autolinkErrors = parser.isSet(autoLinkErrorsOption);
+    if (parser.isSet(debugOption))
+        Generator::startDebugging(QString("command line"));
+    if (parser.isSet(prepareOption))
+        Generator::setQDocPass(Generator::Prepare);
+    if (parser.isSet(generateOption))
+        Generator::setQDocPass(Generator::Generate);
+    if (parser.isSet(logProgressOption))
+        Location::startLoggingProgress();
 
-    if (qdocFiles.isEmpty()) {
-        printHelp();
-        return EXIT_FAILURE;
-    }
+    const QStringList qdocFiles = parser.positionalArguments();
+    if (qdocFiles.isEmpty())
+        parser.showHelp();
 
     /*
       Main loop.

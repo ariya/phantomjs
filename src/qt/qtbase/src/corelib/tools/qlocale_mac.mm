@@ -502,7 +502,7 @@ QVariant QSystemLocale::query(QueryType type, QVariant in = QVariant()) const
         } else if (typeId == CFStringGetTypeID()) {
             result = QStringList(QCFString::toQString(languages.as<CFStringRef>()));
         } else {
-            qWarning("QLocale::uiLanguages(): CFPreferencesCopyValue returned unhandled type \"%s\"; please report to http://bugreports.qt-project.org",
+            qWarning("QLocale::uiLanguages(): CFPreferencesCopyValue returned unhandled type \"%s\"; please report to http://bugreports.qt.io",
                      qPrintable(QCFString::toQString(CFCopyTypeIDDescription(typeId))));
         }
         return QVariant(result);

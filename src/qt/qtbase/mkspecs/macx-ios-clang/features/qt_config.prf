@@ -9,4 +9,8 @@ isEmpty(QT_ARCH) {
         QT_ARCH = arm
     else: \ # Simulator
         QT_ARCH = i386
+
+    # Prevent the arch/config tests from building as multi-arch binaries,
+    # as we only want the lowest common denominator features.
+    CONFIG += single_arch
 }

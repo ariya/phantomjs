@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2002-2011 The ANGLE Project Authors. All rights reserved.
+// Copyright (c) 2002-2013 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -10,8 +10,9 @@ TOutputESSL::TOutputESSL(TInfoSinkBase& objSink,
                          ShArrayIndexClampingStrategy clampingStrategy,
                          ShHashFunction64 hashFunction,
                          NameMap& nameMap,
-                         TSymbolTable& symbolTable)
-    : TOutputGLSLBase(objSink, clampingStrategy, hashFunction, nameMap, symbolTable)
+                         TSymbolTable& symbolTable,
+                         int shaderVersion)
+    : TOutputGLSLBase(objSink, clampingStrategy, hashFunction, nameMap, symbolTable, shaderVersion)
 {
 }
 

@@ -72,15 +72,15 @@ class Diagnostics
 
     virtual ~Diagnostics();
 
-    void report(ID id, const SourceLocation& loc, const std::string& text);
+    void report(ID id, const SourceLocation &loc, const std::string &text);
 
   protected:
     Severity severity(ID id);
     std::string message(ID id);
 
     virtual void print(ID id,
-                       const SourceLocation& loc,
-                       const std::string& text) = 0;
+                       const SourceLocation &loc,
+                       const std::string &text) = 0;
 };
 
 }  // namespace pp

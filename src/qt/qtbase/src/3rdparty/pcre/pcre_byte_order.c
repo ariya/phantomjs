@@ -6,7 +6,7 @@
 and semantics are as close as possible to those of the Perl 5 language.
 
                        Written by Philip Hazel
-           Copyright (c) 1997-2013 University of Cambridge
+           Copyright (c) 1997-2014 University of Cambridge
 
 -----------------------------------------------------------------------------
 Redistribution and use in source and binary forms, with or without
@@ -311,9 +311,9 @@ while(TRUE)
   ptr++;
   }
 /* Control should never reach here in 16/32 bit mode. */
-#endif /* !COMPILE_PCRE8 */
-
+#else  /* In 8-bit mode, the pattern does not need to be processed. */
 return 0;
+#endif /* !COMPILE_PCRE8 */
 }
 
 /* End of pcre_byte_order.c */
