@@ -906,8 +906,8 @@ bool WebPage::render(const QString &fileName, const QVariantMap &option)
     QString format = "";
     int quality = -1; // QImage#save default
 
-    if( fileName == STDOUT_FILENAME || fileName == STDERR_FILENAME ){
-        if( !QFile::exists(fileName) ){
+    if (fileName == STDOUT_FILENAME || fileName == STDERR_FILENAME) {
+        if (!QFile::exists(fileName)) {
             // create temporary file for OS that have no /dev/stdout or /dev/stderr. (ex. windows)
             tempFileName = QDir::tempPath() + "/phantomjstemp" + QUuid::createUuid().toString();
             outFileName = tempFileName;
@@ -915,39 +915,39 @@ bool WebPage::render(const QString &fileName, const QVariantMap &option)
 
         format = "png"; // default format for stdout and stderr
     }
-    else{
+    else {
         QFileInfo fileInfo(outFileName);
         QDir dir;
         dir.mkpath(fileInfo.absolutePath());
     }
 
-    if( option.contains("format") ){
+    if (option.contains("format")) {
         format = option.value("format").toString();
     }
-    else if (fileName.endsWith(".pdf", Qt::CaseInsensitive) ){
+    else if (fileName.endsWith(".pdf", Qt::CaseInsensitive)) {
         format = "pdf";
     }
 
-    if( option.contains("quality") ){
+    if (option.contains("quality")) {
         quality = option.value("quality").toInt();
     }
 
     bool retval = true;
-    if ( format == "pdf" ){
+    if (format == "pdf") {
         retval = renderPdf(outFileName);
     }
     else{
         QImage rawPageRendering = renderImage();
 
         const char *f = 0; // 0 is QImage#save default
-        if( format != "" ){
+        if (format != "") {
             f = format.toLocal8Bit().constData();
         }
 
         retval = rawPageRendering.save(outFileName, f, quality);
     }
 
-    if( tempFileName != "" ){
+    if (tempFileName != "") {
         // cleanup temporary file and render to stdout or stderr
         QFile i(tempFileName);
         i.open(QIODevice::ReadOnly);
@@ -955,7 +955,7 @@ bool WebPage::render(const QString &fileName, const QVariantMap &option)
         QByteArray ba = i.readAll();
 
         System *system = (System*)Phantom::instance()->createSystem();
-        if( fileName == STDOUT_FILENAME ){
+        if (fileName == STDOUT_FILENAME) {
 #ifdef Q_OS_WIN32
             _setmode(_fileno(stdout), O_BINARY);
 #endif
@@ -966,7 +966,7 @@ bool WebPage::render(const QString &fileName, const QVariantMap &option)
             _setmode(_fileno(stdout), O_TEXT);
 #endif
         }
-        else if( fileName == STDERR_FILENAME ){
+        else if (fileName == STDERR_FILENAME) {
 #ifdef Q_OS_WIN32
             _setmode(_fileno(stderr), O_BINARY);
 #endif
