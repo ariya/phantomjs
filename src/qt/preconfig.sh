@@ -145,6 +145,7 @@ QT_CFG+=' -no-xinerama'
 QT_CFG+=' -no-xinput2'
 QT_CFG+=' -no-xkb'
 QT_CFG+=' -no-xrender'
+QT_CFG+=' -no-feature-PRINTPREVIEWWIDGET'
 
 # This is also unnecessary, but it's not possible to turn it off.
 #QT_CFG+=' -no-xlib'
