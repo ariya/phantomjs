@@ -25,6 +25,7 @@ HEADERS += \
     consts.h \
     utils.h \
     networkaccessmanager.h \
+    networkproxyfactory.h \
     cookiejar.h \
     filesystem.h \
     system.h \
@@ -43,6 +44,7 @@ SOURCES += phantom.cpp \
     main.cpp \
     utils.cpp \
     networkaccessmanager.cpp \
+    networkproxyfactory.cpp \
     cookiejar.cpp \
     filesystem.cpp \
     system.cpp \
