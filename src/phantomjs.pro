@@ -24,6 +24,7 @@ HEADERS += \
     webserver.h \
     consts.h \
     utils.h \
+    networkproxyfactory.h \
     networkaccessmanager.h \
     cookiejar.h \
     filesystem.h \
@@ -42,6 +43,7 @@ SOURCES += phantom.cpp \
     webserver.cpp \
     main.cpp \
     utils.cpp \
+    networkproxyfactory.cpp \
     networkaccessmanager.cpp \
     cookiejar.cpp \
     filesystem.cpp \
