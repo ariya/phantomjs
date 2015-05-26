@@ -113,6 +113,7 @@ ghostdriver.Session = function(desiredCapabilities) {
     _capsPageSettingsProxyPref = "proxy",
     _pageSettings = {},
     _additionalPageSettings = {
+        resourceTimeout: null,
         userName: null,
         password: null
     },
@@ -144,8 +145,8 @@ ghostdriver.Session = function(desiredCapabilities) {
     };
 
     // Searching for `phantomjs.settings.* and phantomjs.customHeaders.*` in the Desired Capabilities and merging with the Negotiated Capabilities
-    // Possible values for settings: @see https://github.com/ariya/phantomjs/wiki/API-Reference#wiki-webpage-settings.
-    // Possible values for customHeaders: @see https://github.com/ariya/phantomjs/wiki/API-Reference-WebPage#wiki-webpage-customHeaders.
+    // Possible values for settings: @see http://phantomjs.org/api/webpage/property/settings.html.
+    // Possible values for customHeaders: @see http://phantomjs.org/api/webpage/property/custom-headers.html.
     for (k in desiredCapabilities) {
         if (k.indexOf(_capsPageSettingsPref) === 0) {
             settingKey = k.substring(_capsPageSettingsPref.length);

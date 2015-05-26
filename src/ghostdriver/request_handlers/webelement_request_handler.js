@@ -424,7 +424,7 @@ ghostdriver.WebElementReqHand = function(idOrElement, session) {
 
                 // Report Load Error, only if callbacks were not "aborted"
                 if (!abortCallback) {
-                    _errors.handleFailedCommandEH(errCode, "Click failed: " + errMsg, req, res, _session);
+                    _errors.handleFailedCommandEH(errCode, "Pageload initiated by click failed. Cause: " + errMsg, req, res, _session);
                 }
             });
     },
