@@ -17,16 +17,16 @@ The following table summarizes the list of various test frameworks and the corre
 |:-----------|:------------|
 | [Buster.JS](http://busterjs.org)| built-in|
 | [Capybara](http://jnicklas.github.com/capybara) |[Poltergeist](https://github.com/jonleighton/poltergeist), [Terminus](http://terminus.jcoglan.com)
-| [Mocha](http://mochajs.org) | [Chutzpah](https://github.com/mmanela/chutzpah), [mocha-phantomjs](http://metaskills.net/mocha-phantomjs) |
+| [Mocha](http://mochajs.org) | [Chutzpah](http://mmanela.github.io/chutzpah/), [mocha-phantomjs](http://metaskills.net/mocha-phantomjs) |
 | [FuncUnit](http://funcunit.com) | built-in|
 | [Hiro](http://hirojs.com) | built-in|
 | [Karma](http://karma-runner.github.com/) (née Testacular) | built-in |
-| [Jasmine](https://github.com/pivotal/jasmine) | [Chutzpah](https://github.com/mmanela/chutzpah), [grunt-contrib-jasmine](https://github.com/gruntjs/grunt-contrib-jasmine), [guard-jasmine](https://github.com/netzpirat/guard-jasmine), [phantom-jasmine](https://github.com/jcarver989/phantom-jasmine)|
+| [Jasmine](https://github.com/pivotal/jasmine) | [Chutzpah](http://mmanela.github.io/chutzpah/), [grunt-contrib-jasmine](https://github.com/gruntjs/grunt-contrib-jasmine), [guard-jasmine](https://github.com/netzpirat/guard-jasmine), [phantom-jasmine](https://github.com/jcarver989/phantom-jasmine)|
 | [JsTestDriver](http://code.google.com/p/js-test-driver/) | [js-test-driver-phantomjs](https://github.com/larrymyers/js-test-driver-phantomjs) |
 | [Laika](http://arunoda.github.io/laika/) | built-in |
 | [Preamble](http://jeffschwartz.github.io/preamble/)| built-in|
 | [phantom-assert](https://bitbucket.org/eradman/phantom-assert)| built-in|
-| [QUnit](http://qunitjs.com) | [qunit-phantomjs-runner](https://github.com/jonkemp/qunit-phantomjs-runner), [Chutzpah](https://github.com/mmanela/chutzpah), [JS Test Runner](http://js-testrunner.codehaus.org), [Qlive](https://github.com/proxv/qlive), [QUnited](http://github.com/aaronroyer/qunited)|
+| [QUnit](http://qunitjs.com) | [qunit-phantomjs-runner](https://github.com/jonkemp/qunit-phantomjs-runner), [Chutzpah](http://mmanela.github.io/chutzpah/), [JS Test Runner](http://js-testrunner.codehaus.org), [Qlive](https://github.com/proxv/qlive), [QUnited](http://github.com/aaronroyer/qunited)|
 | [Robot Framework](http://code.google.com/p/robotframework/) | [phantomrobot](https://github.com/datakurre/phantomrobot)|
 | [tapedeck](https://github.com/juliangruber/tapedeck) | built-in |
 | [Testem](https://github.com/airportyh/testem) | built-in |
