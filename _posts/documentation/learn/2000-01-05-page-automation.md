@@ -52,6 +52,7 @@ The above snippet will open up a web page, include the jQuery library into the p
 ## The Webpage instance
 
 Suppose you have an instance of the webpage:
+
 ```javascript
 var page = require('webpage').create();
 ```
@@ -69,6 +70,7 @@ If window.history.back would be a valid action
 * page.clipRect -> object
 
 Can be set to an object of the following form:
+
 ```javascript
 { top: 0, left: 0, width: 1024, height: 768 }
 ```
@@ -82,6 +84,7 @@ The whole HTML content of the page
 
 The cookies.
 They have this form:
+
 ```javascript
 {
     'name' : 'Valid-Cookie-Name',
@@ -129,7 +132,7 @@ The quota in bytes that can be stored offline
 * page.paperSize -> object 
 
 Similar to clipRect but takes real paper sizes such as A4.
-For an in depth example check: https://github.com/ariya/phantomjs/blob/d10b8dc5832797be434f43fa2cbd4f1110d035fb/examples/printheaderfooter.js
+For an in depth example check  [this](https://github.com/ariya/phantomjs/blob/d10b8dc5832797be434f43fa2cbd4f1110d035fb/examples/printheaderfooter.js).
 
 * page.plainText -> string 
 
@@ -138,6 +141,7 @@ The elements that are plain text in the page
 * page.scrollPosition -> object 
 
 The current scrolling position as an object of the following form:
+
 ```javascript
 {
 	left: 0
@@ -161,6 +165,7 @@ The page url
 * page.viewportSize -> object 
 
 The browser size which is in the following form:
+
 ```javascript
 {
 	width: 1024,
@@ -224,6 +229,4 @@ List of all the page events:
 * onConsoleMessage
 * onClosing
 
-For more information check this in depth example:
-
-https://github.com/ariya/phantomjs/blob/master/examples/page_events.js
+For more information check this in depth [example](https://github.com/ariya/phantomjs/blob/master/examples/page_events.js).
