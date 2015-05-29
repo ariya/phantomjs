@@ -49,6 +49,7 @@ phantomjs rasterize.js 'http://en.wikipedia.org/w/index.php?title=Jakarta&printa
 ```
 
 You can change the size of the screenshot and the webpage using the attribute of the page:
+
 ```javascript
 var page = require('webpage').create();
 //viewportSize being the actual size of the headless browser
