@@ -48,6 +48,21 @@ Producing PDF output is also easy, e.g. from a Wikipedia article:
 phantomjs rasterize.js 'http://en.wikipedia.org/w/index.php?title=Jakarta&printable=yes' jakarta.pdf
 ```
 
+You can change the size of the screenshot and the webpage using the attribute of the page:
+```javascript
+var page = require('webpage').create();
+//viewportSize being the actual size of the headless browser
+page.viewportSize = { width: 1024, height: 768 };
+//the clipRect is the portion of the page you are taking a screenshot of
+page.clipRect = { top: 0, left: 0, width: 1024, height: 768 };
+//the rest of the code is the same as the previous example
+page.open('http://example.com/', function() {
+  page.render('github.png');
+  phantom.exit();
+});
+```
+
+
 Canvas can be easily constructed and converted to an image. The included example [colorwheel.js](https://github.com/ariya/phantomjs/blob/master/examples/colorwheel.js) (50 lines) produces the following color wheel:
 
 ![Color Wheel](https://lh3.googleusercontent.com/-xSIzxPtJULw/TVzeP4NPMDI/AAAAAAAAB10/k-c8jB6I5Cg/s288/colorwheel.png)
