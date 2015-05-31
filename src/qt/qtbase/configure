@@ -716,6 +716,7 @@ CFG_ALSA=auto
 CFG_PULSEAUDIO=auto
 CFG_COREWLAN=auto
 CFG_ICU=auto
+CFG_ICU_STATIC=yes
 CFG_FORCE_ASSERTS=no
 CFG_PCRE=auto
 QPA_PLATFORM_GUARD=yes
@@ -2079,6 +2080,13 @@ while [ "$#" -gt 0 ]; do
     icu)
         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
             CFG_ICU="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
+    icu-static)
+        if [ "$VAL" = "yes" ] || [ "$VAL" = "no"]; then
+            CFG_ICU_STATIC="$VAL"
         else
             UNKNOWN_OPT=yes
         fi
@@ -5722,6 +5730,8 @@ if [ "$CFG_EVENTFD" = "yes" ]; then
 fi
 if [ "$CFG_LIBJPEG" = "no" ]; then
     CFG_JPEG="no"
+elif [ "$CFG_LIBJPEG" = "qt" ]; then
+    QT_CONFIG="$QT_CONFIG qt-jpeg"
 elif [ "$CFG_LIBJPEG" = "system" ]; then
     QT_CONFIG="$QT_CONFIG system-jpeg"
 fi
@@ -5735,6 +5745,8 @@ if [ "$CFG_LIBPNG" = "no" ]; then
 fi
 if [ "$CFG_LIBPNG" = "system" ]; then
     QT_CONFIG="$QT_CONFIG system-png"
+elif [ "$CFG_LIBPNG" = "qt" ]; then
+    QT_CONFIG="$QT_CONFIG qt-png"
 fi
 if [ "$CFG_PNG" = "no" ]; then
     QT_CONFIG="$QT_CONFIG no-png"
@@ -5781,6 +5793,8 @@ if [ "$XPLATFORM_MAC" = "yes" ]; then
 fi
 if [ "$CFG_ZLIB" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG zlib"
+elif [ "$CFG_ZLIB" = "qt" ]; then
+    QT_CONFIG="$QT_CONFIG qt-zlib"
 elif [ "$CFG_ZLIB" = "system" ]; then
     QT_CONFIG="$QT_CONFIG system-zlib"
 fi
@@ -6079,6 +6093,16 @@ if [ "$CFG_SHARED" = "no" ]; then
 /* Qt was configured for a static build */
 #if !defined(QT_SHARED) && !defined(QT_STATIC)
 # define QT_STATIC
+#endif
+
+EOF
+fi
+
+if [ "$CFG_ICU" = "yes" ] && [ "$CFG_ICU_STATIC" = "yes" ]; then
+    cat >>"$outpath/src/corelib/global/qconfig.h.new" <<EOF
+/* ICU was configured for a static build */
+#if !defined(U_STATIC_IMPLEMENTATION)
+#define U_STATIC_IMPLEMENTATION
 #endif
 
 EOF
@@ -6498,7 +6522,6 @@ report_support()
             echo "$heading yes ($2)"
             return
         fi
-        shift
         shift
     done
     echo "$heading $value"
