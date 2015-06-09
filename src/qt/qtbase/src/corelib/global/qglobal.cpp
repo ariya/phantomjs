@@ -2063,6 +2063,8 @@ QSysInfo::WinVersion QSysInfo::windowsVersion()
             winver = QSysInfo::WV_WINDOWS8;
         else if (override == "WINDOWS8_1")
             winver = QSysInfo::WV_WINDOWS8_1;
+        else if (override == "WINDOWS10")
+            winver = QSysInfo::WV_WINDOWS10;
     }
 #endif
 #endif // !Q_OS_WINRT
@@ -2089,6 +2091,8 @@ static const char *winVer_helper()
         return "8";
     case QSysInfo::WV_WINDOWS8_1:
         return "8.1";
+    case QSysInfo::WV_WINDOWS10:
+        return "10";
 
     case QSysInfo::WV_CE:
         return "CE";
