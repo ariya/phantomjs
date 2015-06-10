@@ -14,7 +14,6 @@ var system = require('system');
  * @param timeOutMillis the max amount of time to wait. If not specified, 3 sec is used.
  */
 function waitFor(testFx, onReady, timeOutMillis) {
-    
     var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 3001, //< Default Max Timeout is 3s
         start = new Date().getTime(),
         condition = false,
@@ -47,12 +46,10 @@ var page = require('webpage').create();
 
 // Route "console.log()" calls from within the Page context to the main Phantom context (i.e. current "this")
 page.onConsoleMessage = function(msg) {
-    
     console.log(msg);
 };
 
 page.open(system.args[1], function(status){
-    
     if (status !== "success") {
         console.log("Unable to access network");
         phantom.exit();
