@@ -1,4 +1,5 @@
 /*jslint sloppy: true, nomen: true */
+/*eslint no-underscore-dangle:0, strict:0*/
 /*global exports:true */
 
 /*
@@ -30,136 +31,141 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-var NOP = function () {}
-
-/**
- * spawn(command, [args], [options])
- */
-exports.spawn = function (cmd, args, opts) {
-  var ctx = newContext()
-
-  if (null == opts) {
-    opts = {}
-  }
-
-  opts.encoding = opts.encoding || "utf8"
-  ctx._setEncoding(opts.encoding)
-
-  ctx._start(cmd, args)
-
-  return ctx
-}
-
-/**
- * exec(command, [options], callback)
- */
-exports.exec = function (cmd, opts, cb) {
-  if (null == cb) {
-    cb = NOP
-  }
-
-  return cb(new Error("NotYetImplemented"))
-}
-
-/**
- * execFile(file, args, options, callback)
- */
-exports.execFile = function (cmd, args, opts, cb) {
-  var ctx = newContext()
-
-  if (null == cb) {
-    cb = NOP
-  }
-
-  if (null == opts) {
-    opts = {}
-  }
-
-  opts.encoding = opts.encoding || "utf8"
-  ctx._setEncoding(opts.encoding)
-
-  var stdout = ""
-  ctx.stdout.on("data", function (chunk) {
-    stdout += chunk
-  })
-
-  var stderr = ""
-  ctx.stderr.on("data", function (chunk) {
-    stderr += chunk
-  })
-
-  ctx.on("exit", function (code) {
-    return cb(null, stdout, stderr)
-  })
-
-  ctx._start(cmd, args)
-
-  return ctx
-}
-
-/**
- * fork(modulePath, [args], [options])
- */
-exports.fork = function (modulePath, args, opts) {
-  throw new Error("NotYetImplemented")
-}
-
-
 // private
 
+function isFunction(o) {
+  return typeof o === "function";
+}
+
 function newContext() {
-  var ctx = exports._createChildProcessContext()
+  var ctx = exports._createChildProcessContext();
 
   // TODO: "Buffer" the signals and redispatch them?
 
   ctx.on = function (evt, cb) {
-    var handler
+    var handler;
 
     switch (evt) {
       case "exit":
-        handler = ctx[evt]
-        break
+        handler = ctx[evt];
+        break;
       default:
-        break
+        break;
     }
 
     // Connect the callback to the signal
     if (isFunction(handler)) {
-      handler.connect(cb)
+      handler.connect(cb);
     }
-  }
-
-  ctx.stdout = new FakeReadableStream("stdout")
-  ctx.stderr = new FakeReadableStream("stderr")
+  };
 
   // Emulates `Readable Stream`
   function FakeReadableStream(streamName) {
     this.on = function (evt, cb) {
       switch (evt) {
-        case 'data':
-          ctx[streamName + "Data"].connect(cb)
-          break
+        case "data":
+          ctx[streamName + "Data"].connect(cb);
+          break;
         default:
-          break
+          break;
       }
-    }
+    };
   }
 
-  return ctx
+  ctx.stdout = new FakeReadableStream("stdout");
+  ctx.stderr = new FakeReadableStream("stderr");
+
+  return ctx;
 }
 
+//delayCallback is defined but never used
+
+/*
 function delayCallback() {
-  var args = 0 < arguments.length ? [].slice.call(arguments, 0) : []
-  var fn = args.shift()
-  if (!isFunc(fn)) {
-    return
+  var args = arguments.length > 0 ? [].slice.call(arguments, 0) : [];
+  var fn = args.shift();
+  if (!isFunction(fn)) {
+    return;
   }
-  var that = this
+  var that = this;
   setTimeout(function () {
-    fn.apply(that, args)
-  }, 0)
-}
+    fn.apply(that, args);
+  }, 0);
+}*/
 
-function isFunction(o) {
-  return typeof o === 'function'
-}
+// public
+
+var NOP = function () {
+ };
+
+/**
+ * spawn(command, [args], [options])
+ */
+exports.spawn = function (cmd, args, opts) {
+  var ctx = newContext();
+
+  if (opts === null) {
+    opts = {};
+  }
+
+  opts.encoding = opts.encoding || "utf8";
+  ctx._setEncoding(opts.encoding);
+
+  ctx._start(cmd, args);
+
+  return ctx;
+};
+
+/**
+ * exec(command, [options], callback)
+ */
+exports.exec = function (cmd, opts, cb) {
+  if (cb === null) {
+    cb = NOP;
+  }
+
+  return cb(new Error("NotYetImplemented"));
+};
+
+/**
+ * execFile(file, args, options, callback)
+ */
+exports.execFile = function (cmd, args, opts, cb) {
+  var ctx = newContext();
+
+  if (cb === null) {
+    cb = NOP;
+  }
+
+  if (opts === null) {
+    opts = {};
+  }
+
+  opts.encoding = opts.encoding || "utf8";
+  ctx._setEncoding(opts.encoding);
+
+  var stdout = "";
+  ctx.stdout.on("data", function (chunk) {
+    stdout += chunk;
+  });
+
+  var stderr = "";
+  ctx.stderr.on("data", function (chunk) {
+    stderr += chunk;
+  });
+
+  ctx.on("exit", function (/*code*/) {
+    return cb(null, stdout, stderr);
+  });
+
+  ctx._start(cmd, args);
+
+  return ctx;
+};
+
+/**
+ * fork(modulePath, [args], [options])
+ */
+exports.fork = function (/*modulePath, args, opts*/) {
+  throw new Error("NotYetImplemented");
+};

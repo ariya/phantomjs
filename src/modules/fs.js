@@ -1,5 +1,6 @@
 /*jslint sloppy: true, nomen: true */
-/*global exports:true */
+/*eslint no-underscore-dangle:0, strict:0*/
+/*global exports:true*/
 
 /*
   This file is part of the PhantomJS project from Ofi Labs.
@@ -44,10 +45,10 @@ function modeOrOptsToOpts(modeOrOpts) {
     var opts;
 
     // Extract charset from opts
-    if (modeOrOpts == null) {
+    if (modeOrOpts === null) {
         // Empty options
         opts = {};
-    } else if (typeof modeOrOpts !== 'object') {
+    } else if (typeof modeOrOpts !== "object") {
         opts = {
             mode: modeOrOpts
         };
@@ -90,8 +91,8 @@ exports.open = function (path, modeOrOpts) {
  * @return file content
  */
 exports.read = function (path, modeOrOpts) {
-    if (typeof modeOrOpts == 'string') {
-        if (modeOrOpts.toLowerCase() == 'b') {
+    if (typeof modeOrOpts === "string") {
+        if (modeOrOpts.toLowerCase() === "b") {
             // open binary
             modeOrOpts = {mode: modeOrOpts};
         } else {
@@ -101,10 +102,10 @@ exports.read = function (path, modeOrOpts) {
     }
     var opts = modeOrOptsToOpts(modeOrOpts);
     // ensure we open for reading
-    if ( typeof opts.mode !== 'string' ) {
-        opts.mode = 'r';
-    } else if ( opts.mode.indexOf('r') == -1 ) {
-        opts.mode += 'r';
+    if ( typeof opts.mode !== "string" ) {
+        opts.mode = "r";
+    } else if ( opts.mode.indexOf("r") === -1 ) {
+        opts.mode += "r";
     }
     var f = exports.open(path, opts),
         content = f.read();
@@ -127,10 +128,10 @@ exports.read = function (path, modeOrOpts) {
 exports.write = function (path, content, modeOrOpts) {
     var opts = modeOrOptsToOpts(modeOrOpts);
     // ensure we open for writing
-    if ( typeof opts.mode !== 'string' ) {
-        opts.mode = 'w';
-    } else if ( opts.mode.indexOf('w') == -1 ) {
-        opts.mode += 'w';
+    if ( typeof opts.mode !== "string" ) {
+        opts.mode = "w";
+    } else if ( opts.mode.indexOf("w") === -1 ) {
+        opts.mode += "w";
     }
     var f = exports.open(path, opts);
 
@@ -221,7 +222,7 @@ exports.removeTree = function (path) {
 };
 
 exports.touch = function (path) {
-    exports.write(path, "", 'a');
+    exports.write(path, "", "a");
 };
 
 // Path stuff
@@ -229,28 +230,28 @@ exports.touch = function (path) {
 exports.join = function() {
     var args = [];
 
-    if (0 < arguments.length) {
+    if (arguments.length > 0) {
         args = args.slice.call(arguments, 0)
             // Make sure each part is a string and remove empty parts (except at begining)
             .map(function (part, idx) {
-                if (null != part) {
+                if (typeof part !== "undefined" && part !== null) {
                     var str = part.toString();
-                    if ("" === str) {
-                        return 0 === idx ? "" : null;
-                    } else {
-                        return str;
+                    if (str === "") {
+                        return idx === 0 ? "" : null;
                     }
+                    return str;
                 }
+				return null;
             })
             // Remove empty parts
             .filter(function (part) {
-                return null != part;
+                return part !== null;
             });
     }
 
     var ret = args.join("/");
 
-    return 0 < ret.length ? ret : ".";
+    return ret.length > 0 ? ret : ".";
 };
 
 exports.split = function (path) {
@@ -264,5 +265,5 @@ exports.split = function (path) {
         // Remove separator at end
         .replace(/\/$/, "")
         // And split
-        .split("/")
+        .split("/");
 };
