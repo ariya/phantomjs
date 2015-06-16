@@ -682,7 +682,7 @@ void RenderTable::paintObject(PaintInfo& paintInfo, const LayoutPoint& paintOffs
             if (!info.rect.contains(childPoint.x() + m_head->x(), childPoint.y() + m_head->y())) {
                 repaintedHeadPoint = IntPoint(childPoint.x(), info.rect.y() - m_head->y());
                 repaintedHead = true;
-                dynamic_cast<RenderObject*>(m_head)->paint(info, repaintedHeadPoint.x(), repaintedHeadPoint.y());
+                dynamic_cast<RenderObject*>(m_head)->paint(info, repaintedHeadPoint);
             }
         }
         if (m_foot) {
@@ -718,7 +718,7 @@ void RenderTable::paintObject(PaintInfo& paintInfo, const LayoutPoint& paintOffs
                 }
                 repaintedFoot = true;
                 repaintedFootPoint = IntPoint(childPoint.x(), dy - m_foot->y());
-                dynamic_cast<RenderObject*>(m_foot)->paint(info, repaintedFootPoint.x(), repaintedFootPoint.y());
+                dynamic_cast<RenderObject*>(m_foot)->paint(info, repaintedFootPoint);
             }
         }
     }
