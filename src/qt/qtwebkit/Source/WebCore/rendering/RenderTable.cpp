@@ -670,7 +670,59 @@ void RenderTable::paintObject(PaintInfo& paintInfo, const LayoutPoint& paintOffs
             child->paint(info, childPoint);
         }
     }
-    
+
+    bool repaintedHead = false;
+    IntPoint repaintedHeadPoint;
+    bool repaintedFoot = false;
+    IntPoint repaintedFootPoint;
+    if (view()->pageLogicalHeight()) {
+        // re-paint header/footer if table is split over multiple pages
+        if (m_head) {
+            IntPoint childPoint = flipForWritingMode(m_head, IntPoint(tx, ty), ParentToChildFlippingAdjustment);
+            if (!info.rect.contains(childPoint.x() + m_head->x(), childPoint.y() + m_head->y())) {
+                repaintedHeadPoint = IntPoint(childPoint.x(), info.rect.y() - m_head->y());
+                repaintedHead = true;
+                dynamic_cast<RenderObject*>(m_head)->paint(info, repaintedHeadPoint.x(), repaintedHeadPoint.y());
+            }
+        }
+        if (m_foot) {
+            IntPoint childPoint = flipForWritingMode(m_foot, IntPoint(tx, ty), ParentToChildFlippingAdjustment);
+            if (!info.rect.contains(childPoint.x() + m_foot->x(), childPoint.y() + m_foot->y())) {
+                // find actual end of table on current page
+                int dy = 0;
+                const int max_dy = info.rect.y() + info.rect.height();
+                const int vspace = vBorderSpacing();
+                for (RenderObject* section = firstChild(); section; section = section->nextSibling()) {
+                    if (section->isTableSection()) {
+                        if (toRenderBox(section)->y() > max_dy) {
+                            continue;
+                        }
+                        int i = 0;
+                        for(RenderObject* row = section->firstChild(); row; row = row->nextSibling()) {
+                            if (!row->isTableRow()) {
+                                continue;
+                            }
+                            // get actual bottom-y position of this row - pretty complicated, how could this be simplified?
+                            // note how we have to take the rowPoint and section's y-offset into account, see e.g.
+                            // RenderTableSection::paint where this is also done...
+                            IntPoint rowPoint = flipForWritingMode(toRenderBox(row), IntPoint(tx, ty), ParentToChildFlippingAdjustment);
+                            int row_dy = rowPoint.y() + toRenderBox(row)->y() + toRenderBox(row)->logicalHeight() + toRenderBox(section)->y();
+                            if (row_dy < max_dy && row_dy > dy) {
+                                dy = row_dy;
+                            } else if (row_dy > max_dy) {
+                                break;
+                            }
+                            i++;
+                        }
+                    }
+                }
+                repaintedFoot = true;
+                repaintedFootPoint = IntPoint(childPoint.x(), dy - m_foot->y());
+                dynamic_cast<RenderObject*>(m_foot)->paint(info, repaintedFootPoint.x(), repaintedFootPoint.y());
+            }
+        }
+    }
+
     if (collapseBorders() && paintPhase == PaintPhaseChildBlockBackground && style()->visibility() == VISIBLE) {
         recalcCollapsedBorders();
         // Using our cached sorted styles, we then do individual passes,
@@ -681,6 +733,12 @@ void RenderTable::paintObject(PaintInfo& paintInfo, const LayoutPoint& paintOffs
             m_currentBorder = &m_collapsedBorders[i];
             for (RenderTableSection* section = bottomSection(); section; section = sectionAbove(section)) {
                 LayoutPoint childPoint = flipForWritingModeForChild(section, paintOffset);
+                // also repaint borders of header/footer if required
+                if (section == m_head && repaintedHead) {
+                    childPoint = repaintedHeadPoint;
+                } else if (section == m_foot && repaintedFoot) {
+                    childPoint = repaintedFootPoint;
+                }
                 section->paint(info, childPoint);
             }
         }
