@@ -678,7 +678,7 @@ void RenderTable::paintObject(PaintInfo& paintInfo, const LayoutPoint& paintOffs
     if (view()->pageLogicalHeight()) {
         // re-paint header/footer if table is split over multiple pages
         if (m_head) {
-            IntPoint childPoint = flipForWritingModeForChild(m_head, IntPoint(tx, ty));
+            IntPoint childPoint = flipForWritingModeForChild(m_head, paintOffset);
             if (!info.rect.contains(childPoint.x() + m_head->x(), childPoint.y() + m_head->y())) {
                 repaintedHeadPoint = IntPoint(childPoint.x(), info.rect.y() - m_head->y());
                 repaintedHead = true;
@@ -686,7 +686,7 @@ void RenderTable::paintObject(PaintInfo& paintInfo, const LayoutPoint& paintOffs
             }
         }
         if (m_foot) {
-            IntPoint childPoint = flipForWritingModeForChild(m_foot, IntPoint(tx, ty));
+            IntPoint childPoint = flipForWritingModeForChild(m_foot, paintOffset);
             if (!info.rect.contains(childPoint.x() + m_foot->x(), childPoint.y() + m_foot->y())) {
                 // find actual end of table on current page
                 int dy = 0;
@@ -705,7 +705,7 @@ void RenderTable::paintObject(PaintInfo& paintInfo, const LayoutPoint& paintOffs
                             // get actual bottom-y position of this row - pretty complicated, how could this be simplified?
                             // note how we have to take the rowPoint and section's y-offset into account, see e.g.
                             // RenderTableSection::paint where this is also done...
-                            IntPoint rowPoint = flipForWritingModeForChild(toRenderBox(row), IntPoint(tx, ty));
+                            IntPoint rowPoint = flipForWritingModeForChild(toRenderBox(row), paintOffset);
                             int row_dy = rowPoint.y() + toRenderBox(row)->y() + toRenderBox(row)->logicalHeight() + toRenderBox(section)->y();
                             if (row_dy < max_dy && row_dy > dy) {
                                 dy = row_dy;
