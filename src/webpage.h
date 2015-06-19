@@ -276,6 +276,7 @@ public slots:
      * @return Rendering base-64 encoded of the page if the given format is supported, otherwise an empty string
      */
     QString renderBase64(const QByteArray &format = "png");
+    QByteArray renderBuffer(const QByteArray &format = "png");
     bool injectJs(const QString &jsFilePath);
     void _appendScriptElement(const QString &scriptUrl);
     QObject *_getGenericCallback();
