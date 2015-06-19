@@ -414,6 +414,15 @@ void WebServerResponse::write(const QVariant &body)
     mg_write(m_conn, data.constData(), data.size());
 }
 
+void WebServerResponse::writeBinary(const QByteArray &data)
+{
+    if (!m_headersSent) {
+        writeHead(m_statusCode, m_headers);
+    }
+
+    mg_write(m_conn, data.constData(), data.size());
+}
+
 void WebServerResponse::setEncoding(const QString &encoding)
 {
     m_encoding = encoding;
