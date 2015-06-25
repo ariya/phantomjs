@@ -13,13 +13,16 @@ if (system.args.length !== 2) {
         console.log(JSON.stringify(request, null, 4));
 
         var url = null,
-            format = 'png';
+            format = 'png',
+            quality = -1;
 
         if (request.query) {
             if (request.query.url)
                 url = request.query.url;
             if (request.query.format)
                 format = request.query.format;
+            if (request.query.quality)
+                quality = request.query.quality *1;
         }
 
         if (request.post) {
@@ -27,10 +30,13 @@ if (system.args.length !== 2) {
                 url = request.post.url;
             if (request.post.format)
                 format = request.post.format;
+            if (request.post.quality)
+                quality = request.post.quality *1;
         }
 
         console.log("URL:", url);
         console.log("Format:", format);
+        console.log("Quality:", quality);
 
         if (!url || url.length == 0) {
             response.write("");
@@ -47,7 +53,7 @@ if (system.args.length !== 2) {
             page.open(url, function start(status) {
 
                 // Buffer is an Uint8ClampedArray
-                var buffer = page.renderBuffer(format);
+                var buffer = page.renderBuffer(format, quality);
 
                 response.statusCode = 200;
                 response.setEncoding('binary');

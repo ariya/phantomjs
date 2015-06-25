@@ -1019,7 +1019,7 @@ QString WebPage::renderBase64(const QByteArray &format)
     return "";
 }
 
-QByteArray WebPage::renderBuffer(const QByteArray &format)
+QByteArray WebPage::renderBuffer(const QByteArray &format, const int quality)
 {
     QByteArray nformat = format.toLower();
 
@@ -1033,7 +1033,7 @@ QByteArray WebPage::renderBuffer(const QByteArray &format)
         buffer.open(QIODevice::WriteOnly);
 
         // Writing image to the buffer, using PNG encoding
-        rawPageRendering.save(&buffer, nformat);
+        rawPageRendering.save(&buffer, nformat, quality);
 
         return bytes;
     }
