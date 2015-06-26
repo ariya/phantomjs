@@ -17,6 +17,7 @@ BEGIN
             VALUE "OriginalFilename",   "phantomjs.exe"
             VALUE "ProductName",        "PhantomJS"
             VALUE "ProductVersion",     PHANTOMJS_VERSION_STRING
+            VALUE "CompanyName",        "PhantomJS.org"
         END
     END
 
