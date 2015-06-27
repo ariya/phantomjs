@@ -1968,6 +1968,7 @@ void QWebPage::setViewportSize(const QSize &size) const
     mainFrame->setViewportSize(size);
 }
 
+
 void QWebPagePrivate::updateWindow()
 {
     QWindow* _window = 0;
@@ -1990,6 +1991,15 @@ void QWebPagePrivate::_q_updateScreen(QScreen* screen)
 {
     if (screen)
         setDevicePixelRatio(screen->devicePixelRatio());
+}
+
+void QWebPage::setDevicePixelRatio(float ratio) {
+    d->setDevicePixelRatio(ratio);
+}
+
+float QWebPage::devicePixelRatio() const
+{
+    return d->devicePixelRatio();
 }
 
 static int getintenv(const char* variable)
