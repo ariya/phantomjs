@@ -414,6 +414,15 @@ void Phantom::setProxy(const QString &ip, const qint64 &port, const QString &pro
     }
 }
 
+QString Phantom::proxy()
+{
+    QNetworkProxy proxy = QNetworkProxy::applicationProxy();
+    if (proxy.hostName().isEmpty()) {
+        return NULL;
+    }
+    return proxy.hostName() + ":" + QString::number(proxy.port());
+}
+
 void Phantom::exit(int code)
 {
     if (m_config.debug()) {
