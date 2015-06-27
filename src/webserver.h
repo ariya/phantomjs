@@ -52,7 +52,7 @@ class WebServer : public QObject
     Q_PROPERTY(QString port READ port)
 
 public:
-    WebServer(QObject *parent);
+    WebServer(QObject* parent);
     virtual ~WebServer();
 
 public slots:
@@ -66,7 +66,7 @@ public slots:
      *
      * WARNING: must not be the same name as in the javascript api...
      */
-    bool listenOnPort(const QString &port, const QVariantMap& options);
+    bool listenOnPort(const QString& port, const QVariantMap& options);
     /**
      * @return the port this server is listening on
      *         or an empty string if the server is closed.
@@ -78,13 +78,13 @@ public slots:
 
 signals:
     /// @p request is a WebServerRequest, @p response is a WebServerResponse
-    void newRequest(QVariant request, QObject *response);
+    void newRequest(QVariant request, QObject* response);
 
 public:
-    bool handleRequest(mg_event event, mg_connection *conn, const mg_request_info *request);
+    bool handleRequest(mg_event event, mg_connection* conn, const mg_request_info* request);
 
 private:
-    mg_context *m_ctx;
+    mg_context* m_ctx;
     QString m_port;
     QMutex m_mutex;
     QList<WebServerResponse*> m_pendingResponses;
@@ -102,15 +102,15 @@ class WebServerResponse : public QObject
     Q_PROPERTY(int statusCode READ statusCode WRITE setStatusCode)
     Q_PROPERTY(QVariantMap headers READ headers WRITE setHeaders)
 public:
-    WebServerResponse(mg_connection *conn, QSemaphore* close);
+    WebServerResponse(mg_connection* conn, QSemaphore* close);
 
 public slots:
     /// send @p headers to client with status code @p statusCode
-    void writeHead(int statusCode, const QVariantMap &headers);
+    void writeHead(int statusCode, const QVariantMap& headers);
     /// sends @p data to client and makes sure the headers are send beforehand
-    void write(const QVariant &data);
+    void write(const QVariant& data);
     // sets @p as encoding used to output data
-    void setEncoding(const QString &encoding);
+    void setEncoding(const QString& encoding);
 
     /**
      * Closes the request once all data has been written to the client.
@@ -133,17 +133,17 @@ public slots:
     void setStatusCode(int code);
 
     /// get the value of header @p name
-    QString header(const QString &name) const;
+    QString header(const QString& name) const;
     /// set the value of header @p name to @p value
-    void setHeader(const QString &name, const QString &value);
+    void setHeader(const QString& name, const QString& value);
 
     /// get all headers
     QVariantMap headers() const;
     /// set all headers
-    void setHeaders(const QVariantMap &headers);
+    void setHeaders(const QVariantMap& headers);
 
 private:
-    mg_connection *m_conn;
+    mg_connection* m_conn;
     int m_statusCode;
     QVariantMap m_headers;
     bool m_headersSent;

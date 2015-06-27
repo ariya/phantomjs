@@ -73,27 +73,29 @@ typedef google_breakpad::ExceptionHandler BreakpadEH;
 // Unicode paths anyway, so we use the native API to retrieve %TEMP%
 // as Unicode.  This code based upon qglobal.cpp::qgetenv.
 static QString
-q_wgetenv(const wchar_t *varName)
+q_wgetenv(const wchar_t* varName)
 {
     size_t requiredSize;
     _wgetenv_s(&requiredSize, 0, 0, varName);
-    if (requiredSize == 0 || requiredSize > size_t(INT_MAX / sizeof(wchar_t)))
+    if (requiredSize == 0 || requiredSize > size_t(INT_MAX / sizeof(wchar_t))) {
         return QString();
+    }
 
     // Unfortunately it does not appear to be safe to pass QString::data()
     // to a Windows API that expects wchar_t*.  QChar is too different.
     // We have to employ a scratch buffer.  Limiting the length to
     // INT_MAX / sizeof(wchar_t), above, ensures that the multiplication
     // here cannot overflow.
-    wchar_t *buffer = (wchar_t *)malloc(requiredSize * sizeof(wchar_t));
-    if (!buffer)
+    wchar_t* buffer = (wchar_t*)malloc(requiredSize * sizeof(wchar_t));
+    if (!buffer) {
         return QString();
+    }
 
     // requiredSize includes the terminating null, which we don't want.
     // The range-check above also ensures that the conversion to int here
     // does not overflow.
     _wgetenv_s(&requiredSize, buffer, requiredSize, varName);
-    Q_ASSERT(buffer[requiredSize-1] == L'\0');
+    Q_ASSERT(buffer[requiredSize - 1] == L'\0');
     QString ret = QString::fromWCharArray(buffer, int(requiredSize - 1));
 
     free(buffer);
@@ -132,34 +134,38 @@ static bool minidumpCallback(MDC_PATH_ARG dump_path,
                              MDC_EXTRA_ARGS,
                              bool succeeded)
 {
-    if (succeeded)
+    if (succeeded) {
         fprintf(stderr, CRASH_MESSAGE_HAVE_DUMP, dump_path, minidump_id);
-    else
+    } else {
         fprintf(stderr, CRASH_MESSAGE_NO_DUMP, dump_path);
+    }
     return succeeded;
 }
 
-static BreakpadEH *initBreakpad()
+static BreakpadEH* initBreakpad()
 {
     // On all platforms, Breakpad can be disabled by setting the
     // environment variable PHANTOMJS_DISABLE_CRASH_DUMPS to any
     // non-empty value.  This is not a command line argument because
     // we want to initialize Breakpad before parsing the command line.
-    if (!qEnvironmentVariableIsEmpty("PHANTOMJS_DISABLE_CRASH_DUMPS"))
+    if (!qEnvironmentVariableIsEmpty("PHANTOMJS_DISABLE_CRASH_DUMPS")) {
         return 0;
+    }
 
     // Windows and Unix have different conventions for the environment
     // variable naming the directory that should hold scratch files.
 #ifdef Q_OS_WIN32
     std::wstring dumpPath(L".");
     QString varbuf = q_wgetenv(L"TEMP");
-    if (!varbuf.isEmpty())
+    if (!varbuf.isEmpty()) {
         dumpPath = varbuf.toStdWString();
+    }
 #else
     std::string dumpPath("/tmp");
     QByteArray varbuf = qgetenv("TMPDIR");
-    if (!varbuf.isEmpty())
+    if (!varbuf.isEmpty()) {
         dumpPath = varbuf.constData();
+    }
 #endif
 
     return new BreakpadEH(dumpPath, NULL, minidumpCallback, NULL,
@@ -188,12 +194,12 @@ static BreakpadEH *initBreakpad()
 // and crash promptly if not.
 
 CrashHandler::CrashHandler()
-  : old_terminate_handler(std::set_terminate(std::abort)),
-    eh(initBreakpad())
+    : old_terminate_handler(std::set_terminate(std::abort)),
+      eh(initBreakpad())
 {}
 
 CrashHandler::~CrashHandler()
 {
-  delete eh;
-  std::set_terminate(old_terminate_handler);
+    delete eh;
+    std::set_terminate(old_terminate_handler);
 }

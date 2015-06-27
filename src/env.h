@@ -38,7 +38,7 @@ class Env : public QObject
     Q_OBJECT
 
 public:
-    static Env *instance();
+    static Env* instance();
 
     QVariantMap asVariantMap() const;
 

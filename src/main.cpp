@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 #endif
 
     // Get the Phantom singleton
-    Phantom *phantom = Phantom::instance();
+    Phantom* phantom = Phantom::instance();
 
     // Start script execution
     if (phantom->execute()) {

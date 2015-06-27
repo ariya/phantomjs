@@ -51,43 +51,43 @@ NetworkReplyProxy::NetworkReplyProxy(QObject* parent, QNetworkReply* reply,
 
     // forward signals
     connect(m_reply, SIGNAL(finished()), SIGNAL(finished()));
-    connect(m_reply, SIGNAL(uploadProgress(qint64,qint64)), SIGNAL(uploadProgress(qint64,qint64)));
-    connect(m_reply, SIGNAL(downloadProgress(qint64,qint64)), SIGNAL(downloadProgress(qint64,qint64)));
+    connect(m_reply, SIGNAL(uploadProgress(qint64, qint64)), SIGNAL(uploadProgress(qint64, qint64)));
+    connect(m_reply, SIGNAL(downloadProgress(qint64, qint64)), SIGNAL(downloadProgress(qint64, qint64)));
 
     // for the data proxy...
     setOpenMode(ReadOnly);
 }
 
-QString NetworkReplyProxy::body() 
+QString NetworkReplyProxy::body()
 {
-    //converting data to QString in a special way(without charset encoding), 
+    //converting data to QString in a special way(without charset encoding),
     //similar to File::read method in 'filesystem' module.
     QString ret(m_data.size(), ' ');
-    for(int i = 0; i < m_data.size(); ++i) {
+    for (int i = 0; i < m_data.size(); ++i) {
         ret[i] = m_data.at(i);
     }
 
     return ret;
 }
 
-void NetworkReplyProxy::abort() 
-{ 
-    m_reply->abort(); 
+void NetworkReplyProxy::abort()
+{
+    m_reply->abort();
 }
 
-void NetworkReplyProxy::close() 
-{ 
-    m_reply->close(); 
+void NetworkReplyProxy::close()
+{
+    m_reply->close();
 }
 
-bool NetworkReplyProxy::isSequential() const 
-{ 
-    return m_reply->isSequential(); 
+bool NetworkReplyProxy::isSequential() const
+{
+    return m_reply->isSequential();
 }
 
-void NetworkReplyProxy::setReadBufferSize(qint64 size) 
-{ 
-    QNetworkReply::setReadBufferSize(size); m_reply->setReadBufferSize(size); 
+void NetworkReplyProxy::setReadBufferSize(qint64 size)
+{
+    QNetworkReply::setReadBufferSize(size); m_reply->setReadBufferSize(size);
 }
 
 qint64 NetworkReplyProxy::bytesAvailable() const
@@ -95,9 +95,9 @@ qint64 NetworkReplyProxy::bytesAvailable() const
     return m_buffer.size() + QIODevice::bytesAvailable();
 }
 
-qint64 NetworkReplyProxy::bytesToWrite() const 
-{ 
-    return -1; 
+qint64 NetworkReplyProxy::bytesToWrite() const
+{
+    return -1;
 }
 
 qint64 NetworkReplyProxy::readData(char* data, qint64 maxlen)
@@ -108,22 +108,22 @@ qint64 NetworkReplyProxy::readData(char* data, qint64 maxlen)
     return size;
 }
 
-void NetworkReplyProxy::ignoreSslErrors() 
-{ 
-    m_reply->ignoreSslErrors(); 
+void NetworkReplyProxy::ignoreSslErrors()
+{
+    m_reply->ignoreSslErrors();
 }
 
-void NetworkReplyProxy::applyMetaData() 
+void NetworkReplyProxy::applyMetaData()
 {
     /*
       We have to store headers and attributes, otherwise
       QNetworkReply non-virtual methods (attribute, header, etc.)
       would not have data to return.
     */
-    
+
     QList<QByteArray> headers = m_reply->rawHeaderList();
     foreach(QByteArray header, headers)
-        setRawHeader(header, m_reply->rawHeader(header));
+    setRawHeader(header, m_reply->rawHeader(header));
 
     setHeader(QNetworkRequest::ContentTypeHeader, m_reply->header(QNetworkRequest::ContentTypeHeader));
     setHeader(QNetworkRequest::ContentLengthHeader, m_reply->header(QNetworkRequest::ContentLengthHeader));
@@ -157,7 +157,7 @@ void NetworkReplyProxy::readInternal()
 {
     QByteArray data = m_reply->readAll();
 
-    if(m_shouldCaptureResponseBody) {
+    if (m_shouldCaptureResponseBody) {
         //this is a response buffer, whole response is stored here
         m_data += data;
     }

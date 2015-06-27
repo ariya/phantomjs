@@ -48,14 +48,14 @@ class ChildProcessContext : public QObject
     Q_PROPERTY(qint64 pid READ pid)
 
 public:
-    explicit ChildProcessContext(QObject *parent = 0);
+    explicit ChildProcessContext(QObject* parent = 0);
     virtual ~ChildProcessContext();
 
     qint64 pid() const;
-    Q_INVOKABLE void kill(const QString &signal = "SIGTERM");
+    Q_INVOKABLE void kill(const QString& signal = "SIGTERM");
 
-    Q_INVOKABLE void _setEncoding(const QString &encoding);
-    Q_INVOKABLE bool _start(const QString &cmd, const QStringList &args);
+    Q_INVOKABLE void _setEncoding(const QString& encoding);
+    Q_INVOKABLE bool _start(const QString& cmd, const QStringList& args);
 
 signals:
     void exit(const int code) const;
@@ -63,11 +63,11 @@ signals:
     /**
      * For emulating `child.stdout.on("data", function (data) {})`
      */
-    void stdoutData(const QString &data) const;
+    void stdoutData(const QString& data) const;
     /**
      * For emulating `child.stderr.on("data", function (data) {})`
      */
-    void stderrData(const QString &data) const;
+    void stderrData(const QString& data) const;
 
 private slots:
     void _readyReadStandardOutput();
@@ -88,10 +88,10 @@ class ChildProcess : public QObject
     Q_OBJECT
 
 public:
-    explicit ChildProcess(QObject *parent = 0);
+    explicit ChildProcess(QObject* parent = 0);
     virtual ~ChildProcess();
 
-    Q_INVOKABLE QObject *_createChildProcessContext();
+    Q_INVOKABLE QObject* _createChildProcessContext();
 };
 
 #endif // CHILDPROCESS_H

@@ -67,11 +67,11 @@ class Config: public QObject
     Q_PROPERTY(QString webdriverSeleniumGridHub READ webdriverSeleniumGridHub WRITE setWebdriverSeleniumGridHub)
 
 public:
-    Config(QObject *parent = 0);
+    Config(QObject* parent = 0);
 
-    void init(const QStringList *const args);
-    void processArgs(const QStringList &args);
-    void loadJsonFile(const QString &filePath);
+    void init(const QStringList* const args);
+    void processArgs(const QStringList& args);
+    void loadJsonFile(const QString& filePath);
 
     QString helpText() const;
 
@@ -79,10 +79,10 @@ public:
     void setAutoLoadImages(const bool value);
 
     QString cookiesFile() const;
-    void setCookiesFile(const QString &cookiesFile);
+    void setCookiesFile(const QString& cookiesFile);
 
     QString offlineStoragePath() const;
-    void setOfflineStoragePath(const QString &value);
+    void setOfflineStoragePath(const QString& value);
 
     int offlineStorageDefaultQuota() const;
     void setOfflineStorageDefaultQuota(int offlineStorageDefaultQuota);
@@ -103,37 +103,37 @@ public:
     void setLocalToRemoteUrlAccessEnabled(const bool value);
 
     QString outputEncoding() const;
-    void setOutputEncoding(const QString &value);
+    void setOutputEncoding(const QString& value);
 
     QString proxyType() const;
     void setProxyType(const QString value);
 
     QString proxy() const;
-    void setProxy(const QString &value);
+    void setProxy(const QString& value);
     QString proxyHost() const;
     int proxyPort() const;
 
     QString proxyAuth() const;
-    void setProxyAuth(const QString &value);
+    void setProxyAuth(const QString& value);
     QString proxyAuthUser() const;
     QString proxyAuthPass() const;
-    void setProxyAuthUser(const QString &value);
-    void setProxyAuthPass(const QString &value);
+    void setProxyAuthUser(const QString& value);
+    void setProxyAuthPass(const QString& value);
 
     QStringList scriptArgs() const;
-    void setScriptArgs(const QStringList &value);
+    void setScriptArgs(const QStringList& value);
 
     QString scriptEncoding() const;
-    void setScriptEncoding(const QString &value);
+    void setScriptEncoding(const QString& value);
 
     QString scriptLanguage() const;
-    void setScriptLanguage(const QString &value);
+    void setScriptLanguage(const QString& value);
 
     QString scriptFile() const;
-    void setScriptFile(const QString &value);
+    void setScriptFile(const QString& value);
 
     QString unknownOption() const;
-    void setUnknownOption(const QString &value);
+    void setUnknownOption(const QString& value);
 
     bool versionFlag() const;
     void setVersionFlag(const bool value);
@@ -185,19 +185,19 @@ public:
     QString webdriverSeleniumGridHub() const;
 
 public slots:
-    void handleSwitch(const QString &sw);
-    void handleOption(const QString &option, const QVariant &value);
-    void handleParam(const QString& param, const QVariant &value);
-    void handleError(const QString &error);
+    void handleSwitch(const QString& sw);
+    void handleOption(const QString& option, const QVariant& value);
+    void handleParam(const QString& param, const QVariant& value);
+    void handleError(const QString& error);
 
 private:
     void resetToDefaults();
-    void setProxyHost(const QString &value);
+    void setProxyHost(const QString& value);
     void setProxyPort(const int value);
-    void setAuthUser(const QString &value);
-    void setAuthPass(const QString &value);
+    void setAuthUser(const QString& value);
+    void setAuthPass(const QString& value);
 
-    QCommandLine *m_cmdLine;
+    QCommandLine* m_cmdLine;
     bool m_autoLoadImages;
     QString m_cookiesFile;
     QString m_offlineStoragePath;
