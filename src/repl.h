@@ -56,22 +56,22 @@ class REPL: public QObject
 
 public:
     static bool instanceExists();
-    static REPL *getInstance(QWebFrame *webframe = NULL, Phantom *parent = NULL);
+    static REPL* getInstance(QWebFrame* webframe = NULL, Phantom* parent = NULL);
 
-    Q_INVOKABLE QString _getClassName(QObject *obj) const;
-    Q_INVOKABLE QStringList _enumerateCompletions(QObject *obj) const;
+    Q_INVOKABLE QString _getClassName(QObject* obj) const;
+    Q_INVOKABLE QStringList _enumerateCompletions(QObject* obj) const;
 
 private:
-    REPL(QWebFrame *webframe, Phantom *parent);
-    static void offerCompletion(const char *buf, linenoiseCompletions *lc);
+    REPL(QWebFrame* webframe, Phantom* parent);
+    static void offerCompletion(const char* buf, linenoiseCompletions* lc);
 
 private slots:
     void startLoop();
     void stopLoop(const int code);
 
 private:
-    QWebFrame *m_webframe;
-    Phantom *m_parentPhantom;
+    QWebFrame* m_webframe;
+    Phantom* m_parentPhantom;
     bool m_looping;
     QByteArray m_historyFilepath;
 };

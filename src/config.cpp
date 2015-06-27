@@ -46,8 +46,7 @@
 #include <iostream>
 
 
-static const struct QCommandLineConfigEntry flags[] =
-{
+static const struct QCommandLineConfigEntry flags[] = {
     { QCommandLine::Option, '\0', "cookies-file", "Sets the file name to store the persistent cookies", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "config", "Specifies JSON-formatted configuration file", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "debug", "Prints additional warning and debug message: 'true' or 'false' (default)", QCommandLine::Optional },
@@ -75,7 +74,7 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "webdriver-logfile", "File where to write the WebDriver's Log (default 'none') (NOTE: needs '--webdriver') ", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "webdriver-loglevel", "WebDriver Logging Level: (supported: 'ERROR', 'WARN', 'INFO', 'DEBUG') (default 'INFO') (NOTE: needs '--webdriver') ", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "webdriver-selenium-grid-hub", "URL to the Selenium Grid HUB: 'URL_TO_HUB' (default 'none') (NOTE: needs '--webdriver') ", QCommandLine::Optional },
-    { QCommandLine::Param, '\0', "script", "Script", QCommandLine::Flags(QCommandLine::Optional|QCommandLine::ParameterFence)},
+    { QCommandLine::Param, '\0', "script", "Script", QCommandLine::Flags(QCommandLine::Optional | QCommandLine::ParameterFence)},
     { QCommandLine::Param, '\0', "argument", "Script argument", QCommandLine::OptionalMultiple },
     { QCommandLine::Switch, 'w', "wd", "Equivalent to '--webdriver' option above", QCommandLine::Optional },
     { QCommandLine::Switch, 'h', "help", "Shows this message and quits", QCommandLine::Optional },
@@ -83,7 +82,7 @@ static const struct QCommandLineConfigEntry flags[] =
     QCOMMANDLINE_CONFIG_ENTRY_END
 };
 
-Config::Config(QObject *parent)
+Config::Config(QObject* parent)
     : QObject(parent)
 {
     m_cmdLine = new QCommandLine(this);
@@ -95,23 +94,24 @@ Config::Config(QObject *parent)
     resetToDefaults();
 }
 
-void Config::init(const QStringList *const args)
+void Config::init(const QStringList* const args)
 {
     resetToDefaults();
 
     QByteArray envSslCertDir = qgetenv("SSL_CERT_DIR");
-    if (!envSslCertDir.isEmpty())
+    if (!envSslCertDir.isEmpty()) {
         setSslCertificatesPath(envSslCertDir);
+    }
 
     processArgs(*args);
 }
 
-void Config::processArgs(const QStringList &args)
+void Config::processArgs(const QStringList& args)
 {
-    connect(m_cmdLine, SIGNAL(switchFound(const QString &)), this, SLOT(handleSwitch(const QString &)));
-    connect(m_cmdLine, SIGNAL(optionFound(const QString &, const QVariant &)), this, SLOT(handleOption(const QString &, const QVariant &)));
-    connect(m_cmdLine, SIGNAL(paramFound(const QString &, const QVariant &)), this, SLOT(handleParam(const QString &, const QVariant &)));
-    connect(m_cmdLine, SIGNAL(parseError(const QString &)), this, SLOT(handleError(const QString &)));
+    connect(m_cmdLine, SIGNAL(switchFound(const QString&)), this, SLOT(handleSwitch(const QString&)));
+    connect(m_cmdLine, SIGNAL(optionFound(const QString&, const QVariant&)), this, SLOT(handleOption(const QString&, const QVariant&)));
+    connect(m_cmdLine, SIGNAL(paramFound(const QString&, const QVariant&)), this, SLOT(handleParam(const QString&, const QVariant&)));
+    connect(m_cmdLine, SIGNAL(parseError(const QString&)), this, SLOT(handleError(const QString&)));
 
     m_cmdLine->setArguments(args);
     m_cmdLine->setConfig(flags);
@@ -142,7 +142,7 @@ void Config::processArgs(const QStringList &args)
     }
 }
 
-void Config::loadJsonFile(const QString &filePath)
+void Config::loadJsonFile(const QString& filePath)
 {
     QString jsonConfig;
     QFile f(filePath);
@@ -194,7 +194,7 @@ QString Config::cookiesFile() const
     return m_cookiesFile;
 }
 
-void Config::setCookiesFile(const QString &value)
+void Config::setCookiesFile(const QString& value)
 {
     m_cookiesFile = value;
 }
@@ -204,7 +204,7 @@ QString Config::offlineStoragePath() const
     return m_offlineStoragePath;
 }
 
-void Config::setOfflineStoragePath(const QString &value)
+void Config::setOfflineStoragePath(const QString& value)
 {
     QDir dir(value);
     m_offlineStoragePath = dir.absolutePath();
@@ -275,7 +275,7 @@ QString Config::outputEncoding() const
     return m_outputEncoding;
 }
 
-void Config::setOutputEncoding(const QString &value)
+void Config::setOutputEncoding(const QString& value)
 {
     if (value.isEmpty()) {
         return;
@@ -299,7 +299,7 @@ QString Config::proxy() const
     return m_proxyHost + ":" + QString::number(m_proxyPort);
 }
 
-void Config::setProxy(const QString &value)
+void Config::setProxy(const QString& value)
 {
     QUrl proxyUrl = QUrl::fromUserInput(value);
 
@@ -309,7 +309,7 @@ void Config::setProxy(const QString &value)
     }
 }
 
-void Config::setProxyAuth(const QString &value)
+void Config::setProxyAuth(const QString& value)
 {
     QString proxyUser = value;
     QString proxyPass = "";
@@ -353,7 +353,7 @@ QStringList Config::scriptArgs() const
     return m_scriptArgs;
 }
 
-void Config::setScriptArgs(const QStringList &value)
+void Config::setScriptArgs(const QStringList& value)
 {
     m_scriptArgs.clear();
 
@@ -368,7 +368,7 @@ QString Config::scriptEncoding() const
     return m_scriptEncoding;
 }
 
-void Config::setScriptEncoding(const QString &value)
+void Config::setScriptEncoding(const QString& value)
 {
     if (value.isEmpty()) {
         return;
@@ -382,7 +382,7 @@ QString Config::scriptLanguage() const
     return m_scriptLanguage;
 }
 
-void Config::setScriptLanguage(const QString &value)
+void Config::setScriptLanguage(const QString& value)
 {
     if (value.isEmpty()) {
         return;
@@ -396,7 +396,7 @@ QString Config::scriptFile() const
     return m_scriptFile;
 }
 
-void Config::setScriptFile(const QString &value)
+void Config::setScriptFile(const QString& value)
 {
     m_scriptFile = value;
 }
@@ -406,7 +406,7 @@ QString Config::unknownOption() const
     return m_unknownOption;
 }
 
-void Config::setUnknownOption(const QString &value)
+void Config::setUnknownOption(const QString& value)
 {
     m_unknownOption = value;
 }
@@ -481,7 +481,7 @@ bool Config::javascriptCanCloseWindows() const
     return m_javascriptCanCloseWindows;
 }
 
-void Config::setWebdriver(const QString &webdriverConfig)
+void Config::setWebdriver(const QString& webdriverConfig)
 {
     // Parse and validate the configuration
     bool isValidPort;
@@ -489,7 +489,7 @@ void Config::setWebdriver(const QString &webdriverConfig)
     if (wdCfg.length() == 1 && wdCfg[0].toInt(&isValidPort) && isValidPort) {
         // Only a PORT was provided
         m_webdriverPort = wdCfg[0];
-    } else if(wdCfg.length() == 2 && !wdCfg[0].isEmpty() && wdCfg[1].toInt(&isValidPort) && isValidPort) {
+    } else if (wdCfg.length() == 2 && !wdCfg[0].isEmpty() && wdCfg[1].toInt(&isValidPort) && isValidPort) {
         // Both IP and PORT provided
         m_webdriverIp = wdCfg[0];
         m_webdriverPort = wdCfg[1];
@@ -526,7 +526,7 @@ QString Config::webdriverLogLevel() const
     return m_webdriverLogLevel;
 }
 
-void Config::setWebdriverSeleniumGridHub(const QString &hubUrl)
+void Config::setWebdriverSeleniumGridHub(const QString& hubUrl)
 {
     m_webdriverSeleniumGridHub = hubUrl;
 }
@@ -596,17 +596,17 @@ void Config::resetToDefaults()
     m_webdriverSeleniumGridHub = QString();
 }
 
-void Config::setProxyAuthPass(const QString &value)
+void Config::setProxyAuthPass(const QString& value)
 {
     m_proxyAuthPass = value;
 }
 
-void Config::setProxyAuthUser(const QString &value)
+void Config::setProxyAuthUser(const QString& value)
 {
     m_proxyAuthUser = value;
 }
 
-void Config::setProxyHost(const QString &value)
+void Config::setProxyHost(const QString& value)
 {
     m_proxyHost = value;
 }
@@ -636,7 +636,7 @@ void Config::setPrintDebugMessages(const bool value)
     m_printDebugMessages = value;
 }
 
-void Config::handleSwitch(const QString &sw)
+void Config::handleSwitch(const QString& sw)
 {
     setHelpFlag(sw == "help");
     setVersionFlag(sw == "version");
@@ -646,7 +646,7 @@ void Config::handleSwitch(const QString &sw)
     }
 }
 
-void Config::handleOption(const QString &option, const QVariant &value)
+void Config::handleOption(const QString& option, const QVariant& value)
 {
     bool boolValue = false;
 
@@ -770,17 +770,18 @@ void Config::handleOption(const QString &option, const QVariant &value)
     }
 }
 
-void Config::handleParam(const QString& param, const QVariant &value)
+void Config::handleParam(const QString& param, const QVariant& value)
 {
     Q_UNUSED(param);
 
-    if (m_scriptFile.isEmpty())
+    if (m_scriptFile.isEmpty()) {
         m_scriptFile = value.toString();
-    else
+    } else {
         m_scriptArgs += value.toString();
+    }
 }
 
-void Config::handleError(const QString &error)
+void Config::handleError(const QString& error)
 {
     setUnknownOption(QString("Error: %1").arg(error));
 }
@@ -815,10 +816,11 @@ void Config::setSslCertificatesPath(const QString& sslCertificatesPath)
 {
     QFileInfo sslPathInfo = QFileInfo(sslCertificatesPath);
     if (sslPathInfo.isDir()) {
-        if (sslCertificatesPath.endsWith('/'))
+        if (sslCertificatesPath.endsWith('/')) {
             m_sslCertificatesPath = sslCertificatesPath + "*";
-        else
+        } else {
             m_sslCertificatesPath = sslCertificatesPath + "/*";
+        }
     } else {
         m_sslCertificatesPath = sslCertificatesPath;
     }

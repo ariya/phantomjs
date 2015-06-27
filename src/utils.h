@@ -40,38 +40,39 @@ class QWebFrame;
  * Aggregate common utility functions.
  */
 
-namespace Utils {
+namespace Utils
+{
 
 void messageHandler(QtMsgType type,
-                    const QMessageLogContext &context,
-                    const QString &msg);
+                    const QMessageLogContext& context,
+                    const QString& msg);
 extern bool printDebugMessages;
 
-bool injectJsInFrame(const QString &jsFilePath,
-                     const QString &libraryPath,
-                     QWebFrame *targetFrame,
+bool injectJsInFrame(const QString& jsFilePath,
+                     const QString& libraryPath,
+                     QWebFrame* targetFrame,
                      const bool startingScript = false);
 
-bool injectJsInFrame(const QString &jsFilePath,
-                     const QString &jsFileLanguage,
-                     const Encoding &jsFileEnc,
-                     const QString &libraryPath,
-                     QWebFrame *targetFrame,
+bool injectJsInFrame(const QString& jsFilePath,
+                     const QString& jsFileLanguage,
+                     const Encoding& jsFileEnc,
+                     const QString& libraryPath,
+                     QWebFrame* targetFrame,
                      const bool startingScript = false);
 
- bool loadJSForDebug(const QString &jsFilePath,
-                     const QString &libraryPath,
-                     QWebFrame *targetFrame,
-                     const bool autorun = false);
-
-bool loadJSForDebug(const QString &jsFilePath,
-                    const QString &jsFileLanguage,
-                    const Encoding &jsFileEnc,
-                    const QString &libraryPath,
-                    QWebFrame *targetFrame,
+bool loadJSForDebug(const QString& jsFilePath,
+                    const QString& libraryPath,
+                    QWebFrame* targetFrame,
                     const bool autorun = false);
 
-QString readResourceFileUtf8(const QString &resourceFilePath);
+bool loadJSForDebug(const QString& jsFilePath,
+                    const QString& jsFileLanguage,
+                    const Encoding& jsFileEnc,
+                    const QString& libraryPath,
+                    QWebFrame* targetFrame,
+                    const bool autorun = false);
+
+QString readResourceFileUtf8(const QString& resourceFilePath);
 
 };
 

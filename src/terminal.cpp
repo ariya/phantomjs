@@ -34,12 +34,13 @@
 
 #include <iostream>
 
-static Terminal *terminal_instance = 0;
+static Terminal* terminal_instance = 0;
 
-Terminal *Terminal::instance()
+Terminal* Terminal::instance()
 {
-    if (!terminal_instance)
+    if (!terminal_instance) {
         terminal_instance = new Terminal();
+    }
 
     return terminal_instance;
 }
@@ -54,14 +55,14 @@ QString Terminal::getEncoding() const
     return m_encoding.getName();
 }
 
-bool Terminal::setEncoding(const QString &encoding)
+bool Terminal::setEncoding(const QString& encoding)
 {
     // Since there can be multiple names for the same codec (i.e., "utf8" and
     // "utf-8"), we need to get the codec in the system first and use its
     // canonical name
-    QTextCodec *codec = QTextCodec::codecForName(encoding.toLatin1());
-    if ((QTextCodec *)NULL == codec) {
-      return false;
+    QTextCodec* codec = QTextCodec::codecForName(encoding.toLatin1());
+    if ((QTextCodec*)NULL == codec) {
+        return false;
     }
 
     // Check whether encoding actually needs to be changed
@@ -83,18 +84,18 @@ bool Terminal::setEncoding(const QString &encoding)
     return true;
 }
 
-void Terminal::cout(const QString &string, const bool newline) const
+void Terminal::cout(const QString& string, const bool newline) const
 {
     output(std::cout, string, newline);
 }
 
-void Terminal::cerr(const QString &string, const bool newline) const
+void Terminal::cerr(const QString& string, const bool newline) const
 {
     output(std::cerr, string, newline);
 }
 
 // private
-void Terminal::output(std::ostream &out, const QString &string, const bool newline) const
+void Terminal::output(std::ostream& out, const QString& string, const bool newline) const
 {
     out << m_encoding.encode(string).constData();
     if (newline) {
