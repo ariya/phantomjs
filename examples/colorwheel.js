@@ -46,6 +46,6 @@ page.evaluate(function() {
     document.body.style.margin = '0px';
 });
 
-page.render('colorwheel.png');
+page.render('colorwheel.png',{},{'Title':'picture title','Auhor':'me','Description':'screen from scenario x'});
 
 phantom.exit();

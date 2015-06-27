@@ -905,7 +905,7 @@ void WebPage::close() {
     deleteLater();
 }
 
-bool WebPage::render(const QString &fileName, const QVariantMap &option)
+bool WebPage::render(const QString &fileName, const QVariantMap &option, const QVariantMap &info)
 {
     if (m_mainFrame->contentsSize().isEmpty())
         return false;
@@ -952,6 +952,10 @@ bool WebPage::render(const QString &fileName, const QVariantMap &option)
         const char *f = 0; // 0 is QImage#save default
         if (format != "") {
             f = format.toLocal8Bit().constData();
+        }
+
+        for(QVariantMap::const_iterator iter = info.begin(); iter != info.end(); ++iter) {
+	    rawPageRendering.setText( iter.key(), iter.value().toString());
         }
 
         retval = rawPageRendering.save(outFileName, f, quality);
