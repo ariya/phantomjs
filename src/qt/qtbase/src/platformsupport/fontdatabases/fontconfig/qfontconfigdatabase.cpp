@@ -659,7 +659,12 @@ QFontEngine *QFontconfigDatabase::fontEngine(const QFontDef &f, void *usrPtr)
 
 QFontEngine *QFontconfigDatabase::fontEngine(const QByteArray &fontData, qreal pixelSize, QFont::HintingPreference hintingPreference)
 {
-    QFontEngineFT *engine = static_cast<QFontEngineFT*>(QBasicFontDatabase::fontEngine(fontData, pixelSize, hintingPreference));
+    QFontEngine *e = QBasicFontDatabase::fontEngine(fontData, pixelSize, hintingPreference); // function may return NULL (0)
+    if(e == 0)
+    {
+       return 0;
+    }
+    QFontEngineFT *engine = static_cast<QFontEngineFT*>(e);
     QFontDef fontDef = engine->fontDef;
 
     QFontEngineFT::GlyphFormat format;
@@ -705,6 +710,7 @@ QFontEngine *QFontconfigDatabase::fontEngine(const QByteArray &fontData, qreal p
     engine->glyphFormat = format;
 
     return engine;
+  
 }
 
 QStringList QFontconfigDatabase::fallbacksForFamily(const QString &family, QFont::Style style, QFont::StyleHint styleHint, QChar::Script script) const
