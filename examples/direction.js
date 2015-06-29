@@ -1,5 +1,5 @@
 // Get driving direction using Google Directions API.
-
+"use strict";
 var page = require('webpage').create(),
     system = require('system'),
     origin, dest, steps;

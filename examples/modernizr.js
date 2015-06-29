@@ -21,7 +21,7 @@
  * Authors        Faruk Ates, Paul Irish, Alex Sexton
  * Contributors   Ryan Seddon, Ben Alman
  */
-
+"use strict";
 window.Modernizr = (function( window, document, undefined ) {
 
     var version = '2.8.2',

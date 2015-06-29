@@ -1,5 +1,5 @@
 // Give the estimated location based on the IP address.
-
+"use strict";
 cb = function (data) {
     var loc = data.city;
     if (data.region_name.length > 0)

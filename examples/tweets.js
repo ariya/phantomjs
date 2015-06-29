@@ -1,5 +1,5 @@
 // Get twitter status for given account (or for the default one, "PhantomJS")
-
+"use strict";
 var page = require('webpage').create(),
     system = require('system'),
     twitterId = "PhantomJS"; //< default value

@@ -1,5 +1,5 @@
 // Show BBC seasonal food list.
-
+"use strict";
 var cbfunc = function (data) {
     var list = data.query.results.results.result,
         names = ['January', 'February', 'March',
