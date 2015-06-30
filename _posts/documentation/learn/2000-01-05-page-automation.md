@@ -74,7 +74,7 @@ Can be set to an object of the following form:
 ```javascript
 { top: 0, left: 0, width: 1024, height: 768 }
 ```
-It specifies which part of the screen will be taken in the screnshot
+It specifies which part of the screen will be taken in the screenshot
 
 * page.content -> string
 
