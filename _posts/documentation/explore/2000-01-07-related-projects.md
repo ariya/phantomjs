@@ -22,6 +22,7 @@ The following projects are based on PhantomJS. They provide extra functionalitie
  * [PhearJS](http://phear.io/) a supervisor and API for PhantomJS written in NodeJS.
 
  * [Poltergeist](https://github.com/jonleighton/poltergeist) is a driver for [Capybara](https://github.com/jnicklas/capybara) so you can run your Capybara tests using PhantomJS.
+ * [GastonJS](https://github.com/jcalderonzumba/MinkPhantomJSDriver) is a driver for PHP [Mink](https://github.com/minkphp) so you can run your Behat or Mink tests using PhantomJS.
 
  * [pjscrape](https://github.com/nrabinowitz/pjscrape) combines PhantomJS with jQuery as a command-line scraping tool.
 
