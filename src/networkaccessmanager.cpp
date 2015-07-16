@@ -382,7 +382,16 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
     JsNetworkRequest jsNetworkRequest(&req, this);
     emit resourceRequested(data, &jsNetworkRequest);
 
-    QNetworkReply* nested_reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
+    // file: URLs may be disabled.
+    // The second half of this conditional must match
+    // QNetworkAccessManager's own idea of what a local file URL is.
+    QNetworkReply *nested_reply;
+    if (!m_localUrlAccessEnabled &&
+        (req.url().isLocalFile() || scheme == QLatin1String("qrc"))) {
+        nested_reply = new NoFileAccessReply(this, req, op);
+    } else {
+        nested_reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
+    }
     QNetworkReply* tracked_reply = m_replyTracker.trackReply(nested_reply,
                                    m_idCounter,
                                    shouldCaptureResponse(req.url().toString()));
