@@ -68,6 +68,8 @@ IntSize SVGImageCache::imageSizeForRenderer(const RenderObject* renderer) const
     IntSize imageSize = m_svgImage->size();
     if (!renderer)
         return imageSize;
+    if (renderer->resourceClientType() != CachedResourceClient::SVGDocumentType)
+        return imageSize;
 
     ImageForContainerMap::const_iterator it = m_imageForContainerMap.find(renderer);
     if (it == m_imageForContainerMap.end())
