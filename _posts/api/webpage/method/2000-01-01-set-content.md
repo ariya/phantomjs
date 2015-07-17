@@ -16,7 +16,9 @@ The webpage will be reloaded with the new content and the current location set a
 ```javascript
 var webPage = require('webpage');
 var page = webPage.create();
-// @TODO: Finish page.setContent example.
+var expectedContent = '<html><body><div>Test div</div></body></html>';
+var expectedLocation = 'http://www.phantomjs.org/';
+page.setContent(expectedContent, expectedLocation);
 ```
 
 
