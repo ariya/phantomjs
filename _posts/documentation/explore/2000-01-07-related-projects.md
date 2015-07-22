@@ -38,6 +38,7 @@ Several page capture projects utilizing PhantomJS:
 
  * **command-line**
    * [capturejs](https://github.com/superbrothers/capturejs) (Node.js)
+   * [DeckTape](https://github.com/astefanutti/decktape) a CLI to capture screenshots and export high-quality PDF documents of slides from any HTML presentation frameworks like impress.js, reveal.js, ...
    * [pageres](https://github.com/sindresorhus/pageres) - get screenshots of website(s) in few different resolutions to make sure they are responsive (Node.js) 
    * [phantomjs-screenshots](https://github.com/hggh/phantomjs-screenshots), a system for running screenshot tasks defined in JSON format (Node.js)
  * **web-service**
