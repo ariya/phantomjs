@@ -16,6 +16,8 @@ Source/JavaScriptCore/disassembler/udis86/ud_optable.pyc
 Source/JavaScriptCore/generated/
 Source/WebCore/generated/
 Source/WebCore/inspector/CodeGeneratorInspectorStrings.pyc
+Source/dummy.cpp
+Source/include/
 
 # build folders
 Source/JavaScriptCore/release/
