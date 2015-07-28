@@ -55,6 +55,7 @@ class Phantom : public QObject
     Q_PROPERTY(bool cookiesEnabled READ areCookiesEnabled WRITE setCookiesEnabled)
     Q_PROPERTY(QVariantList cookies READ cookies WRITE setCookies)
     Q_PROPERTY(bool webdriverMode READ webdriverMode)
+    Q_PROPERTY(int remoteDebugPort READ remoteDebugPort)
 
 private:
     // Private constructor: the Phantom class is a singleton
@@ -95,6 +96,8 @@ public:
     void setCookiesEnabled(const bool value);
 
     bool webdriverMode() const;
+
+    int remoteDebugPort() const;
 
     /**
      * Create `child_process` module instance

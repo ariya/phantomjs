@@ -220,12 +220,12 @@ bool Phantom::execute()
         qDebug() << "Phantom - execute: Starting normal mode";
 
         if (m_config.debug()) {
+            m_config.setRemoteDebugPort(m_page->showInspector(m_config.remoteDebugPort()));
             // Debug enabled
             if (!Utils::loadJSForDebug(m_config.scriptFile(), m_config.scriptLanguage(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), m_config.remoteDebugAutorun())) {
                 m_returnValue = -1;
                 return false;
             }
-            m_page->showInspector(m_config.remoteDebugPort());
         } else {
             if (!Utils::injectJsInFrame(m_config.scriptFile(), m_config.scriptLanguage(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
                 m_returnValue = -1;
@@ -418,6 +418,12 @@ void Phantom::setProxy(const QString& ip, const qint64& port, const QString& pro
             QNetworkProxy::setApplicationProxy(proxy);
         }
     }
+}
+
+int Phantom::remoteDebugPort() const
+{
+    QApplication::processEvents();
+    return m_config.remoteDebugPort();
 }
 
 void Phantom::exit(int code)

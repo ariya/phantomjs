@@ -592,7 +592,7 @@ int WebPage::offlineStorageQuota() const
     return m_customWebPage->settings()->offlineStorageDefaultQuota();
 }
 
-void WebPage::showInspector(const int port)
+int WebPage::showInspector(const int port)
 {
     m_customWebPage->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
     m_inspector = new QWebInspector;
@@ -602,7 +602,9 @@ void WebPage::showInspector(const int port)
         m_inspector->setVisible(true);
     } else {
         m_customWebPage->setProperty("_q_webInspectorServerPort", port);
+        return m_customWebPage->property("_q_webInspectorServerPort").toInt();
     }
+    return port;
 }
 
 void WebPage::applySettings(const QVariantMap& def)
