@@ -221,11 +221,15 @@ bool Phantom::execute()
 
         if (m_config.debug()) {
             // Debug enabled
+            int originalPort = m_config.remoteDebugPort();
+            m_config.setRemoteDebugPort(m_page->showInspector(m_config.remoteDebugPort()));
+            if (m_config.remoteDebugPort() == 0) {
+                qWarning() << "Can't bind remote debugging server to the port" << originalPort;
+            }
             if (!Utils::loadJSForDebug(m_config.scriptFile(), m_config.scriptLanguage(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), m_config.remoteDebugAutorun())) {
                 m_returnValue = -1;
                 return false;
             }
-            m_page->showInspector(m_config.remoteDebugPort());
         } else {
             if (!Utils::injectJsInFrame(m_config.scriptFile(), m_config.scriptLanguage(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
                 m_returnValue = -1;
@@ -427,6 +431,11 @@ QString Phantom::proxy()
         return NULL;
     }
     return proxy.hostName() + ":" + QString::number(proxy.port());
+}
+
+int Phantom::remoteDebugPort() const
+{
+    return m_config.remoteDebugPort();
 }
 
 void Phantom::exit(int code)
