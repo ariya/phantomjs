@@ -409,7 +409,7 @@ void WebServerResponse::write(const QVariant& body)
     if (m_encoding.isEmpty()) {
         data = body.toString().toUtf8();
     } else if (m_encoding.toLower() == "binary") {
-        data = body.toByteArray();
+        data = body.toString().toLatin1();
     } else {
         Encoding encoding;
         encoding.setEncoding(m_encoding);
