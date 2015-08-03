@@ -147,9 +147,8 @@ bool loadJSForDebug(const QString& jsFilePath, const QString& jsFileLanguage, co
     QString scriptPath = findScript(jsFilePath, libraryPath);
     QString scriptBody = jsFromScriptFile(scriptPath, jsFileLanguage, jsFileEnc);
 
-    QString remoteDebuggerHarnessSrc =  readResourceFileUtf8(":/remote_debugger_harness.html");
-    remoteDebuggerHarnessSrc = remoteDebuggerHarnessSrc.arg(scriptBody);
-    targetFrame->setHtml(remoteDebuggerHarnessSrc);
+    scriptBody = QString("function __run() {\n%1\n}").arg(scriptBody);
+    targetFrame->evaluateJavaScript(scriptBody);
 
     if (autorun) {
         targetFrame->evaluateJavaScript("__run()", QString());
