@@ -422,7 +422,6 @@ void Phantom::setProxy(const QString& ip, const qint64& port, const QString& pro
 
 int Phantom::remoteDebugPort() const
 {
-    QApplication::processEvents();
     return m_config.remoteDebugPort();
 }
 
