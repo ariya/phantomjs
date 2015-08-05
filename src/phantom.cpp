@@ -220,7 +220,11 @@ bool Phantom::execute()
         qDebug() << "Phantom - execute: Starting normal mode";
 
         if (m_config.debug()) {
+            int originalPort = m_config.remoteDebugPort();
             m_config.setRemoteDebugPort(m_page->showInspector(m_config.remoteDebugPort()));
+            if (m_config.remoteDebugPort() == 0) {
+                qWarning() << "Can't bind remote debugging server to the port" << originalPort;
+            }
             // Debug enabled
             if (!Utils::loadJSForDebug(m_config.scriptFile(), m_config.scriptLanguage(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), m_config.remoteDebugAutorun())) {
                 m_returnValue = -1;
