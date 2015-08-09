@@ -113,8 +113,8 @@ if [[ "$QTCORE" = system ]] && [[ -n "$QT_CFG" ]]; then
     exit 1
 fi
 
-if [[ "$BUILD_CONFIRM" -eq 0 ]]; then
-cat << EOF
+cat <<EOF
+
 ----------------------------------------
                WARNING
 ----------------------------------------
@@ -127,15 +127,6 @@ systems.
 For details, please go the the web site: http://phantomjs.org/download.html.
 
 EOF
-
-    echo "Do you want to continue (y/n)?"
-    read continue
-    if [[ "$continue" != "y" ]]; then
-        exit 1
-    fi
-    echo
-    echo
-fi
 
 UNAME_SYSTEM=`(uname -s) 2>/dev/null`  || UNAME_SYSTEM=unknown
 UNAME_RELEASE=`(uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
