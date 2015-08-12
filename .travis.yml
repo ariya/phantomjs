@@ -18,7 +18,7 @@ before_script:
   
 script:
   - ./build.sh --qtdeps=bundled --confirm --silent   #< Build
-  - ./test/run-tests.sh                              #< Test (PhantomJS)
+  - ./test/run-tests.py                              #< Test (PhantomJS)
   - ./test/run-tests-ghostdriver.sh                  #< Test (GhostDriver / PhantomJSDriver)
 
 notifications:

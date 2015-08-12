@@ -79,7 +79,7 @@ tests.push([function () {
 
 tests.push([function () {
     assert_equals(require('./dummy'),               'require/dummy');
-    assert_equals(require('../dummy'),              'spec/dummy');
+    assert_equals(require('../fixtures/dummy'),     'spec/dummy');
     assert_equals(require('./dir/dummy'),           'dir/dummy');
     assert_equals(require('./dir/subdir/dummy'),    'subdir/dummy');
     assert_equals(require('./dir/../dummy'),        'require/dummy');
@@ -105,7 +105,7 @@ function require_paths_tests_1 () {
                   'spec/node_modules/dummy_file2');
     assert_equals(require('../subdir2/loader'),
                   'require/subdir2/loader');
-    assert_equals(require('../dummy'), 'spec/dummy');
+    assert_equals(require('../fixtures/dummy'), 'spec/dummy');
 }
 function require_paths_tests_2 () {
     assert_throws("Cannot find module 'loader'",

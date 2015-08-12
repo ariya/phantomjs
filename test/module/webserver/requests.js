@@ -119,7 +119,8 @@ async_test(function () {
     var page = require("webpage").create();
     var url = "http://localhost:"+port+"/";
     var fs = require("fs");
-    var png = fs.read(fs.join(phantom.libraryPath, "../../phantomjs.png"), "b");
+    var png = fs.read(fs.join(phantom.libraryPath,
+                              "../../www/phantomjs.png"), "b");
 
     arm_check_request(this, false, png, "image/png");
     page.open(url, "get", this.step_func_done(function (status) {
