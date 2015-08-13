@@ -1,13 +1,14 @@
-var assert = require('../../assert');
-var webpage = require('webpage');
+async_test(function () {
+    var webpage = require('webpage');
+    var page = webpage.create();
+    assert_type_of(page, 'object');
 
-var page = webpage.create();
-assert.typeOf(page, 'object');
-
-page.open('http://localhost:9180/hello.html', function (status) {
-    assert.equal(status, 'success');
-    assert.typeOf(page.title, 'string');
-    assert.equal(page.title, 'Hello');
-    assert.typeOf(page.plainText, 'string');
-    assert.equal(page.plainText, 'Hello, world!');
-});
+    page.open('http://localhost:9180/hello.html',
+              this.step_func_done(function (status) {
+                  assert_equals(status, 'success');
+                  assert_type_of(page.title, 'string');
+                  assert_equals(page.title, 'Hello');
+                  assert_type_of(page.plainText, 'string');
+                  assert_equals(page.plainText, 'Hello, world!');
+              }));
+}, "page.open");

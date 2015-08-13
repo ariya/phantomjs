@@ -1,3 +1,5 @@
+//! no-harness
+
 /*
   This file is part of the PhantomJS project from Ofi Labs.
 
@@ -83,6 +85,9 @@ if (sys.args.length > 1) {
     var rest = 1;
     if (sys.args[1] == "-v" || sys.args[1] == "--verbose") {
         verbose = true;
+        rest = 2;
+    } else if (sys.args[1].slice(0, "--verbose=".length) == "--verbose=") {
+        verbose = parseInt(sys.args[1].slice("--verbose=".length)) > 0;
         rest = 2;
     }
 

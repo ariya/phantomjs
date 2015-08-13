@@ -1,59 +1,67 @@
-var assert = require('../../assert');
-var page = require('webpage').create();
+var webpage = require('webpage');
 
-assert.notEqual(page.onError, undefined);
+test(function () {
+    var page = webpage.create();
+    assert_not_equals(page.onError, undefined);
 
-var onErrorFunc1 = function() { return !"x"; };
-page.onError = onErrorFunc1;
-assert.equal(page.onError, onErrorFunc1);
+    var onErrorFunc1 = function() { return !"x"; };
+    page.onError = onErrorFunc1;
+    assert_equals(page.onError, onErrorFunc1);
 
-var onErrorFunc2 = function() { return !!"y"; };
-page.onError = onErrorFunc2;
-assert.equal(page.onError, onErrorFunc2);
-assert.notEqual(page.onError, onErrorFunc1);
+    var onErrorFunc2 = function() { return !!"y"; };
+    page.onError = onErrorFunc2;
+    assert_equals(page.onError, onErrorFunc2);
+    assert_not_equals(page.onError, onErrorFunc1);
 
-page.onError = null;
-// Will only allow setting to a function value, so setting it to `null` returns `undefined`
-assert.equal(page.onError, undefined);
-page.onError = undefined;
-assert.equal(page.onError, undefined);
+    page.onError = null;
+    // Will only allow setting to a function value, so setting it to `null` returns `undefined`
+    assert_equals(page.onError, undefined);
+    page.onError = undefined;
+    assert_equals(page.onError, undefined);
+}, "setting and clearing page.onError");
 
-// reports error
-var lastError = null;
-page.onError = function(message) { lastError = message; };
+test(function () {
+    var page = webpage.create();
+    var lastError = null;
+    page.onError = function(message) { lastError = message; };
 
-page.evaluate(function() { referenceError2(); });
-assert.equal(lastError, "ReferenceError: Can't find variable: referenceError2");
+    page.evaluate(function() { referenceError2(); });
+    assert_equals(lastError, "ReferenceError: Can't find variable: referenceError2");
 
-page.evaluate(function() { throw "foo"; });
-assert.equal(lastError, "foo");
+    page.evaluate(function() { throw "foo"; });
+    assert_equals(lastError, "foo");
 
-page.evaluate(function() { throw Error("foo"); });
-assert.equal(lastError, "Error: foo");
+    page.evaluate(function() { throw Error("foo"); });
+    assert_equals(lastError, "Error: foo");
+}, "basic error reporting");
 
-// don't report handled errors
-var hadError = false;
-var caughtError = false;
+async_test(function () {
+    var page = webpage.create();
+    var lastError = null;
+    page.onError = this.step_func_done(function(message) {
+        assert_equals(message, "ReferenceError: Can't find variable: referenceError");
+    });
 
-page.onError = function() { hadError = true; };
-page.evaluate(function() {
-    caughtError = false;
+    page.evaluate(function() {
+        setTimeout(function() { referenceError(); }, 0);
+    });
 
-    try {
-        referenceError();
-    } catch(e) {
-        caughtError = true;
-    }
-});
+}, "error reporting from async events");
 
-assert.equal(hadError, false);
-assert.isTrue(page.evaluate(function() { return caughtError; }));
+test(function () {
+    var page = webpage.create();
+    var hadError = false;
+    page.onError = function() { hadError = true; };
+    page.evaluate(function() {
+        window.caughtError = false;
 
-// even with async
-page.evaluate(function() {
-    setTimeout(function() { referenceError(); }, 0);
-});
+        try {
+            referenceError();
+        } catch(e) {
+            window.caughtError = true;
+        }
+    });
 
-assert.waitFor(function() {
-  return lastError == "ReferenceError: Can't find variable: referenceError";
-});
+    assert_equals(hadError, false);
+    assert_is_true(page.evaluate(function() { return window.caughtError; }));
+}, "should not report errors that were caught");

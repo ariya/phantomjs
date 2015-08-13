@@ -1,18 +1,22 @@
 //! phantomjs: --web-security=no --local-url-access=no
 
-var assert = require("../../assert");
-var p = require("webpage").create();
+var webpage = require("webpage");
 
-var url = "http://localhost:9180/iframe.html#file:///nonexistent";
+async_test(function () {
+    var page = webpage.create();
+    var url = "http://localhost:9180/iframe.html#file:///nonexistent";
+    var rsErrorCalled = false;
 
-var rsErrorCalled = false;
-p.onResourceError = function (error) {
-    rsErrorCalled = true;
-    assert.strictEqual(error.url, "file:///nonexistent");
-    assert.strictEqual(error.errorCode, 301);
-    assert.strictEqual(error.errorString, 'Protocol "file" is unknown');
-};
+    page.onResourceError = this.step_func(function (error) {
+        rsErrorCalled = true;
+        assert_equals(error.url, "file:///nonexistent");
+        assert_equals(error.errorCode, 301);
+        assert_equals(error.errorString, 'Protocol "file" is unknown');
+    });
 
-p.open(url, function () {
-    assert.isTrue(rsErrorCalled);
-});
+    page.open(url, this.step_func_done(function () {
+        assert_is_true(rsErrorCalled);
+    }));
+
+},
+"doesn't attempt to load a file: URL in an iframe with --local-url-access=no");

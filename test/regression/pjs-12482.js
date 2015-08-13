@@ -1,3 +1,5 @@
+//! no-harness
+
 // https://github.com/ariya/phantomjs/issues/12482
 // regression caused by fix for
 // https://github.com/ariya/phantomjs/issues/12431

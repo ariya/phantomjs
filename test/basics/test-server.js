@@ -1,28 +1,25 @@
 /* Test the test server itself. */
 
-var assert = require('../assert');
 var webpage = require('webpage');
-var page = webpage.create();
 
-var urlsToTest = [
+function test_one_page(url) {
+    async_test(function () {
+        var page = webpage.create();
+        page.onResourceReceived = this.step_func(function (response) {
+            assert_equals(response.status, 200);
+        });
+        page.onResourceError = this.unreached_func();
+        page.onResourceTimeout = this.unreached_func();
+        page.onLoadFinished = this.step_func_done(function (status) {
+            assert_equals(status, 'success');
+        });
+        page.open(url);
+    }, url);
+}
+
+[
     'http://localhost:9180/hello.html',
     'http://localhost:9180/status?200',
     'http://localhost:9180/echo'
-];
-var i = 0;
-
-page.onResourceReceived = function (response) {
-    assert.equal(response.status, 200);
-};
-
-page.onLoadFinished = function (status) {
-    assert.equal(status, 'success');
-    i++;
-    if (i == urlsToTest.length) {
-        phantom.exit(0);
-    } else {
-        page.open(urlsToTest[i]);
-    }
-}
-
-page.open(urlsToTest[i]);
+]
+    .forEach(test_one_page);

@@ -1,4 +1,4 @@
-console.log('Hello, world!');
+//! no-harness
+console.log('     PASS we are alive');
 phantom.exit();
-
-console.log('This should never appear');
+console.log('     FAIL this should never appear');

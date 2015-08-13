@@ -30,6 +30,8 @@ TESTS = [
 ]
 
 TIMEOUT    = 20    # Maximum duration of PhantomJS execution (in seconds).
+                   # This is a backstop; testharness.js imposes a shorter,
+                   # adjustable timeout.
                    # There's currently no way to adjust this on a per-test
                    # basis, so it has to be large.
 
@@ -290,6 +292,7 @@ class TestRunner(object):
     def __init__(self, base_path, phantomjs_exe, options):
         self.base_path       = base_path
         self.cert_path       = os.path.join(base_path, 'certs')
+        self.harness         = os.path.join(base_path, 'testharness.js')
         self.phantomjs_exe   = phantomjs_exe
         self.verbose         = options.verbose
         self.debugger        = options.debugger
@@ -339,6 +342,7 @@ class TestRunner(object):
     def run_test(self, script, name):
         script_args = []
         pjs_args = []
+        use_harness = True
         use_snakeoil = True
 
         # Parse any directives at the top of the script.
@@ -351,7 +355,9 @@ class TestRunner(object):
 
                     for i in range(len(tokens)):
                         tok = tokens[i]
-                        if tok == "no-snakeoil":
+                        if tok == "no-harness":
+                            use_harness = False
+                        elif tok == "no-snakeoil":
                             use_snakeoil = False
                         elif tok == "phantomjs:":
                             if i+1 == len(tokens):
@@ -376,6 +382,10 @@ class TestRunner(object):
             sys.stdout.write('{} ({}): {}\n'
                              .format(name, script, str(e)))
             return 1
+
+        if use_harness:
+            script_args.insert(0, script)
+            script = self.harness
 
         if use_snakeoil:
             pjs_args.insert(0, '--ssl-certificates-path=' + self.cert_path)

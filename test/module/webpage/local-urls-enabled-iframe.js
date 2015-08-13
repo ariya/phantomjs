@@ -1,19 +1,22 @@
 //! phantomjs: --web-security=no --local-url-access=yes
 
-var assert = require("../../assert");
-var p = require("webpage").create();
+var webpage = require("webpage");
 
-var url = "http://localhost:9180/iframe.html#file:///nonexistent";
+async_test(function () {
+    var page = webpage.create();
+    var url = "http://localhost:9180/iframe.html#file:///nonexistent";
+    var rsErrorCalled = false;
 
-var rsErrorCalled = false;
-p.onResourceError = function (error) {
-    rsErrorCalled = true;
-    assert.strictEqual(error.url, "file:///nonexistent");
-    assert.strictEqual(error.errorCode, 203);
-    assert.strictEqual(/^Error opening\b.*?\bnonexistent:/.test(error.errorString),
-                       true);
-};
+    page.onResourceError = this.step_func(function (error) {
+        rsErrorCalled = true;
+        assert_equals(error.url, "file:///nonexistent");
+        assert_equals(error.errorCode, 203);
+        assert_regexp_match(error.errorString,
+                            /^Error opening\b.*?\bnonexistent:/);
+    });
 
-p.open(url, function () {
-    assert.isTrue(rsErrorCalled);
-});
+    page.open(url, this.step_func_done(function () {
+        assert_is_true(rsErrorCalled);
+    }));
+
+}, "attempts to load a file: URL in an iframe with --local-url-access=yes");
