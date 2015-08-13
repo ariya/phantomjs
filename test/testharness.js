@@ -693,8 +693,6 @@ Test.statuses = {
     NOTRUN: -1,
     PASS:    0,
     FAIL:    1,
-    TIMEOUT: 2,
-    ERROR:   3,
     XFAIL:   4,
     XPASS:   5
 };
@@ -917,7 +915,7 @@ Test.prototype.add_cleanup = function add_cleanup(callback) {
 /** Treat this test as having timed out. */
 Test.prototype.force_timeout = function force_timeout() {
     this.message = "Test timed out";
-    this.status = this.TIMEOUT;
+    this.status = this.FAIL;
     this.phase = this.phases.HAS_RESULT;
     this.done();
 };
@@ -1091,6 +1089,15 @@ Tests.prototype.run_tests = function run_tests() {
     }
 };
 
+Tests.prototype.begin = function begin() {
+    this.all_loaded = true;
+    this.output.begin(this.tests.length, this.phase);
+    this.run_tests();
+    if (this.all_done()) {
+        this.complete();
+    }
+};
+
 Tests.prototype.complete = function complete() {
     var i, x;
 
@@ -1109,136 +1116,67 @@ Tests.prototype.complete = function complete() {
  * The Output object is responsible for reporting the status of each
  * test.  For PhantomJS, output is much simpler than for the W3C
  * harness; we basically just log things to the console as
- * appropriate.
+ * appropriate.  The output format is meant to be compatible with
+ * TAP (http://testanything.org/tap-specification.html).
  */
 
 function Output(fp, verbose) {
     this.fp = fp;
     this.verbose = verbose;
-
-    this.status_summary = {};
-    this.status_summary[Test.PASS]    = 0;
-    this.status_summary[Test.FAIL]    = 0;
-    this.status_summary[Test.XPASS]   = 0;
-    this.status_summary[Test.XFAIL]   = 0;
-    this.status_summary[Test.TIMEOUT] = 0;
-    this.status_summary[Test.ERROR]   = 0;
-    this.status_summary[Test.NOTRUN]  = 0;
+    this.failed = false;
 }
 
-Output.prototype.status_labels = {};
-Output.prototype.status_labels[Test.PASS]    = "     PASS ";
-Output.prototype.status_labels[Test.FAIL]    = "     FAIL ";
-Output.prototype.status_labels[Test.XPASS]   = "    XPASS ";
-Output.prototype.status_labels[Test.XFAIL]   = "    XFAIL ";
-Output.prototype.status_labels[Test.TIMEOUT] = "  TIMEOUT ";
-Output.prototype.status_labels[Test.ERROR]   = "    ERROR ";
-Output.prototype.status_labels[Test.NOTRUN]  = "  SKIPPED ";
-Output.prototype.status_labels["info"]       = "     INFO ";
-
-
-Output.prototype.result = function result(test) {
-    if (test.phase !== Test.phases.COMPLETE) {
-        this.fp.write(this.status_labels[Test.FAIL]);
-        this.fp.write(test.name);
-        this.fp.write(" | Subtest never completed\n");
-        this.status_summary[Test.FAIL] += 1;
+Output.prototype.begin = function begin(n, phase) {
+    if (phase === Tests.phases.ABANDONED) {
+        this.fp.write("1..0 # SKIP: setup failed\n");
     } else {
-        this.fp.write(this.status_labels[test.status]);
-        this.fp.write(test.name);
-        if (test.message) {
-            this.fp.write(" | ");
-            this.fp.write(test.message);
-        }
-        this.fp.write("\n");
-        this.status_summary[test.status] += 1;
+        this.fp.write("1.." + n + "\n");
     }
+};
+
+Output.prototype.diagnostic = function diagnostic(message, is_info) {
+    var fp     = this.fp;
+    var prefix = "# ";
+    if (is_info) {
+        prefix = "## ";
+    }
+    message.split("\n").forEach(function (line) {
+        fp.write(prefix + line + "\n");
+    });
 };
 
 Output.prototype.error = function error(message) {
-    this.fp.write(this.status_labels[Test.ERROR]);
-    this.fp.write("| ");
-    this.fp.write(message);
-    this.fp.write("\n");
-    this.status_summary[Test.ERROR] += 1;
+    this.diagnostic("ERROR: " + message);
+    this.failed = true;
 };
 
 Output.prototype.info = function info(message) {
-    this.fp.write(this.status_labels["info"]);
-    this.fp.write("| ");
-    this.fp.write(message);
-    this.fp.write("\n");
+    this.diagnostic(message, true);
+};
+
+Output.prototype.result = function result(test) {
+    if (test.message) {
+        this.diagnostic(test.message);
+    }
+    var prefix, directive = "";
+    switch (test.status) {
+    case Test.PASS:   prefix =     "ok "; break;
+    case Test.FAIL:   prefix = "not ok "; break;
+    case Test.XPASS:  prefix =     "ok "; directive = " # TODO"; break;
+    case Test.XFAIL:  prefix = "not ok "; directive = " # TODO"; break;
+    case Test.NOTRUN: prefix =     "ok "; directive = " # SKIP"; break;
+    default:
+        this.error("Unrecognized test status " + test.status);
+        prefix = "not ok ";
+    }
+    if (prefix === "not ok " && directive !== " # TODO") {
+        this.failed = true;
+    }
+    this.fp.write(prefix + test.number + " " + test.name + directive + "\n");
 };
 
 Output.prototype.complete = function complete(tests) {
-    var summary = "  ";
-    var need_comma = false;
-    var success = (
-        tests.tests.length                 > 0 &&
-        this.status_summary[Test.PASS]    >= 0 &&
-        this.status_summary[Test.FAIL]    == 0 &&
-        this.status_summary[Test.XPASS]   == 0 &&
-        this.status_summary[Test.TIMEOUT] == 0 &&
-        this.status_summary[Test.ERROR]   == 0);
-
-    if (success) {
-        if (this.status_summary[Test.XFAIL] > 0) {
-            if (this.status_summary[Test.PASS] > 0) {
-                summary += this.status_summary[Test.PASS];
-                summary += " passed";
-                need_comma = true;
-            }
-            if (need_comma) summary += ", ";
-            summary += this.status_summary[Test.XFAIL];
-            summary += " failed as expected\n";
-        } else {
-            summary = "  All tests successful.\n";
-        }
-    } else {
-        if (this.status_summary[Test.PASS] > 0) {
-            summary += this.status_summary[Test.PASS];
-            summary += " passed";
-            need_comma = true;
-        }
-        if (this.status_summary[Test.XPASS] > 0) {
-            summary += this.status_summary[Test.XPASS];
-            summary += " passed unexpectedly";
-            need_comma = true;
-        }
-        if (this.status_summary[Test.FAIL] > 0) {
-            if (need_comma) summary += ", ";
-            summary += this.status_summary[Test.FAIL];
-            summary += " failed";
-            need_comma = true;
-        }
-        if (this.status_summary[Test.XFAIL] > 0) {
-            if (need_comma) summary += ", ";
-            summary += this.status_summary[Test.XFAIL];
-            summary += " failed as expected";
-            need_comma = true;
-        }
-        if (this.status_summary[Test.TIMEOUT] > 0) {
-            if (need_comma) summary += ", ";
-            summary += this.status_summary[Test.TIMEOUT];
-            summary += " timed out";
-            need_comma = true;
-        }
-        if (this.status_summary[Test.NOTRUN] > 0) {
-            if (need_comma) summary += ", ";
-            summary += this.status_summary[Test.NOTRUN];
-            summary += " skipped";
-            need_comma = true;
-        }
-        if (this.status_summary[Test.ERROR] > 0) {
-            if (need_comma) summary += ", ";
-            summary += this.status_summary[Test.ERROR];
-            summary += " had errors";
-            need_comma = true;
-        }
-        summary += "\n";
-    }
-    this.fp.write(summary);
-    phantom.exit(success ? 0 : 1);
+    phantom.exit(this.failed ? 1 : 0);
 };
 
 /*
@@ -1537,11 +1475,7 @@ if (args.test_script === "") {
     // Any errors should be caught by our onError hook.
     phantom.injectJs(test_script);
 
-    tests.all_loaded = true;
-    tests.run_tests();
-    if (tests.all_done()) {
-        tests.complete();
-    }
+    tests.begin();
 }
 
 })();

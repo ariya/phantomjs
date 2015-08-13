@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 import argparse
+import collections
 import errno
 import glob
 import imp
 import os
 import posixpath
+import re
 import shlex
 import SimpleHTTPServer
 import socket
@@ -36,6 +38,66 @@ TIMEOUT    = 20    # Maximum duration of PhantomJS execution (in seconds).
 
 HTTP_PORT  = 9180  # These are currently hardwired into every test that
 HTTPS_PORT = 9181  # uses the test servers.
+
+#
+# Utilities
+#
+
+# FIXME: assumes ANSI/VT100 escape sequences
+# properly this should use curses, but that's an awful lot of work
+# One of colors 30 ("black" -- usually a dark gray) and 37 ("white" --
+# usually a very light gray) will almost certainly be illegible
+# against the terminal background, so we provide neither.
+# The colorization mode is global because so is sys.stdout.
+_COLOR_NONE = {
+    "_": "", "^": "",
+    "r": "", "R": "",
+    "g": "", "G": "",
+    "y": "", "Y": "",
+    "b": "", "B": "",
+    "m": "", "M": "",
+    "c": "", "C": "",
+}
+_COLOR_ON = {
+    "_": "\033[0m",  "^": "\033[1m",
+    "r": "\033[31m", "R": "\033[1;31m",
+    "g": "\033[32m", "G": "\033[1;32m",
+    "y": "\033[33m", "Y": "\033[1;33m",
+    "b": "\033[34m", "B": "\033[1;34m",
+    "m": "\033[35m", "M": "\033[1;35m",
+    "c": "\033[36m", "C": "\033[1;36m",
+}
+_COLOR_BOLD = {
+    "_": "\033[0m", "^": "\033[1m",
+    "r": "\033[0m", "R": "\033[1m",
+    "g": "\033[0m", "G": "\033[1m",
+    "y": "\033[0m", "Y": "\033[1m",
+    "b": "\033[0m", "B": "\033[1m",
+    "m": "\033[0m", "M": "\033[1m",
+    "c": "\033[0m", "C": "\033[1m",
+}
+_COLORS = None
+def activate_colorization(options):
+    global _COLORS
+    if options.color == "always":
+        _COLORS = _COLOR_ON
+    elif options.color == "never":
+        _COLORS = _COLOR_NONE
+    else:
+        if sys.stdout.isatty():
+            try:
+                n = int(subprocess.check_output(["tput", "colors"]))
+                if n >= 8:
+                    _COLORS = _COLOR_ON
+                else:
+                    _COLORS = _COLOR_BOLD
+            except subprocess.CalledProcessError:
+                _COLORS = _COLOR_NONE
+        else:
+            _COLORS = _COLOR_NONE
+
+def colorize(color, message):
+    return _COLORS[color] + message + _COLORS["_"]
 
 # create_default_context and SSLContext were only added in 2.7.9,
 # which is newer than the python2 that ships with OSX :-(
@@ -97,7 +159,7 @@ def record_process_output(proc, verbose, timeout):
             line = line.rstrip()
             if line:
                 linebuf.append(line)
-                if verbose:
+                if verbose >= 3:
                     sys.stdout.write(line + '\n')
 
     stdout = []
@@ -116,10 +178,13 @@ def record_process_output(proc, verbose, timeout):
     sethrd.join()
     proc.wait()
     if timed_out:
-        stderr.append("  TIMEOUT | Process terminated after {} seconds."
+        stderr.append("TIMEOUT: Process terminated after {} seconds."
                       .format(timeout))
     return proc.returncode, stdout, stderr
 
+#
+# HTTP/HTTPS server, presented on localhost to the tests
+#
 
 class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler, object):
 
@@ -287,6 +352,265 @@ class HTTPTestServer(object):
         self.httpd.shutdown()
         self.httpsd.shutdown()
 
+#
+# Running tests and interpreting their results
+#
+class TestDetailCode(collections.namedtuple("TestDetailCode", (
+        "idx", "color", "short_label", "label", "long_label"))):
+    def __index__(self): return self.idx
+    def __hash__(self): return self.idx
+    def __eq__(self, other): return self.idx == other.idx
+    def __ne__(self, other): return self.idx != other.idx
+
+class T(object):
+    PASS  = TestDetailCode(0, "g", ".", "pass",  "passed")
+    FAIL  = TestDetailCode(1, "R", "F", "FAIL",  "failed")
+    XFAIL = TestDetailCode(2, "y", "f", "xfail", "failed as expected")
+    XPASS = TestDetailCode(3, "Y", "P", "XPASS", "passed unexpectedly")
+    ERROR = TestDetailCode(4, "R", "E", "ERROR", "had errors")
+    SKIP  = TestDetailCode(5, "m", "s", "skip",  "skipped")
+    MAX   = 6
+
+class TestDetail(object):
+    """Holds one block of details about a test that failed."""
+    # types of details:
+
+    def __init__(self, message, test_id, detail_type):
+        if not isinstance(message, list):
+            message = [message]
+        self.message = [line.rstrip()
+                        for chunk in message
+                        for line in chunk.split("\n")]
+
+        self.dtype   = detail_type
+        self.test_id = test_id
+
+    def report(self, fp):
+        col, label = self.dtype.color, self.dtype.label
+        if self.test_id:
+            fp.write("{:>5}: {}\n".format(colorize(col, label),
+                                          self.test_id))
+            lo = 0
+        else:
+            fp.write("{:>5}: {}\n".format(colorize(col, label),
+                                          self.message[0]))
+            lo = 1
+        for line in self.message[lo:]:
+            fp.write("  {}\n".format(colorize("b", line)))
+
+class TestGroup(object):
+    """Holds the result of one group of tests (that is, one .js file),
+       parsed from the output of run_phantomjs (see below).
+       Subclasses specify what the output means.
+       A test with zero details is considered to be successful.
+    """
+
+    def __init__(self, name):
+        self.name    = name
+        self.n       = [0]*T.MAX
+        self.details = []
+
+    def parse(self, rc, out, err):
+        raise NotImplementedError
+
+    def _add_d(self, message, test_id, dtype):
+        self.n[dtype] += 1
+        self.details.append(TestDetail(message, test_id, dtype))
+
+    def add_pass (self, m, t): self._add_d(m, t, T.PASS)
+    def add_fail (self, m, t): self._add_d(m, t, T.FAIL)
+    def add_xpass(self, m, t): self._add_d(m, t, T.XPASS)
+    def add_xfail(self, m, t): self._add_d(m, t, T.XFAIL)
+    def add_error(self, m, t): self._add_d(m, t, T.ERROR)
+    def add_skip (self, m, t): self._add_d(m, t, T.SKIP)
+
+    def default_interpret_exit_code(self, rc):
+        if rc == 0:
+            if not self.is_successful() and not self.n[T.ERROR]:
+                self.add_error([],
+                    "PhantomJS exited successfully when test failed")
+
+        # Exit code -15 indicates a timeout.
+        elif rc == 1 or rc == -15:
+            if self.is_successful():
+                self.add_error([], "PhantomJS exited unsuccessfully")
+
+        elif rc >= 2:
+            self.add_error([], "PhantomJS exited with code {}".format(rc))
+        else:
+            self.add_error([], "PhantomJS killed by signal {}".format(-rc))
+
+    def is_successful(self):
+        return self.n[T.FAIL] + self.n[T.XPASS] + self.n[T.ERROR] == 0
+
+    def worst_code(self):
+        # worst-to-best ordering
+        for code in (T.ERROR, T.FAIL, T.XPASS, T.SKIP, T.XFAIL, T.PASS):
+            if self.n[code] > 0:
+                return code
+        return T.PASS
+
+    def one_char_summary(self, fp):
+        code = self.worst_code()
+        fp.write(colorize(code.color, code.short_label))
+        fp.flush()
+
+    def line_summary(self, fp):
+        code = self.worst_code()
+        fp.write("{}: {}\n".format(colorize("^", self.name),
+                                   colorize(code.color, code.label)))
+
+    def report(self, fp, show_all):
+        self.line_summary(fp)
+        need_blank_line = False
+        for detail in self.details:
+            if show_all or detail.dtype not in (T.PASS, T.XFAIL, T.SKIP):
+                detail.report(fp)
+                need_blank_line = True
+        if need_blank_line:
+            fp.write("\n")
+
+    def report_for_verbose_level(self, fp, verbose):
+        if verbose == 0:
+            self.one_char_summary(sys.stdout)
+        elif verbose == 1:
+            self.report(sys.stdout, False)
+        else:
+            self.report(sys.stdout, True)
+
+class TAPTestGroup(TestGroup):
+    """Test group whose interpretation is defined by a variant of the Test
+       Anything Protocol (http://testanything.org/tap-specification.html).
+
+       Relative to that specification, these are the changes:
+
+         * Plan-at-the-end, explanations for directives, and "Bail out!"
+           are not supported.  ("1..0 # SKIP: explanation" *is* supported.)
+         * "Anything else" lines are an error.
+         * Repeating a test point number, or using one outside the plan
+           range, is an error (this is unspecified in TAP proper).
+         * Diagnostic lines beginning with # are taken as additional
+           information about the *next* test point.  Diagnostic lines
+           beginning with ## are ignored.
+         * Directives are case sensitive.
+
+    """
+
+    diag_r = re.compile(r"^#(#*)\s*(.*)$")
+    plan_r = re.compile(r"^1..(\d+)(?:\s*\#\s*SKIP(?::\s*(.*)))?$")
+    test_r = re.compile(r"^(not ok|ok)\s*"
+                        r"([0-9]+)?\s*"
+                        r"([^#]*)(?:# (TODO|SKIP))?$")
+
+    def parse(self, rc, out, err):
+        self.parse_tap(out, err)
+
+        self.default_interpret_exit_code(rc)
+
+    def parse_tap(self, out, err):
+        points_already_used = set()
+        messages = []
+
+        # Look for the plan.
+        # Diagnostic lines are allowed to appear above the plan, but not
+        # test lines.
+        for i in range(len(out)):
+            line = out[i]
+            m = self.diag_r.match(line)
+            if m:
+                if not m.group(1):
+                    messages.append(m.group(2))
+                continue
+
+            m = self.plan_r.match(line)
+            if m:
+                break
+
+            messages.insert(0, line)
+            self.add_error(messages, "Plan line not interpretable")
+            if i + 1 < len(out):
+                self.add_skip(out[(i+1):], "All further output ignored")
+            return
+        else:
+            self.add_error(messages, "No plan line detected in output")
+            return
+
+        max_point = int(m.group(1))
+        if max_point == 0:
+            self.add_skip(out[1:], m.group(2) or "Test group skipped")
+            return
+
+        prev_point = 0
+
+        for i in range(i+1, len(out)):
+            line = out[i]
+            m = self.diag_r.match(line)
+            if m:
+                if not m.group(1):
+                    messages.append(m.group(2))
+                continue
+            m = self.test_r.match(line)
+            if m:
+                status = m.group(1)
+                point  = m.group(2)
+                desc   = m.group(3)
+                dirv   = m.group(4)
+
+                if point:
+                    point = int(point)
+                else:
+                    point = prev_point + 1
+
+                if point in points_already_used:
+                    # A reused test point is an error.
+                    self.add_error(messages, desc + " [test point repeated]")
+                else:
+                    points_already_used.add(point)
+                    # A point above the plan limit is an automatic *fail*.
+                    # The test suite relies on this in testing exit().
+                    if point > max_point:
+                        status = "not ok"
+
+                    if status == "ok":
+                        if not dirv:
+                            self.add_pass(messages, desc)
+                        elif dirv == "TODO":
+                            self.add_xpass(messages, desc)
+                        elif dirv == "SKIP":
+                            self.add_skip(messages, desc)
+                        else:
+                            self.add_error(messages, desc +
+                                " [ok, with invalid directive "+dirv+"]")
+                    else:
+                        if not dirv:
+                            self.add_fail(messages, desc)
+                        elif dirv == "TODO":
+                            self.add_xfail(messages, desc)
+                        else:
+                            self.add_error(messages, desc +
+                                " [not ok, with invalid directive "+dirv+"]")
+
+                del messages[:]
+                prev_point = point
+
+            else:
+                self.add_error([line], "neither a test nor a diagnostic")
+
+        # Any output on stderr is an error, with one exception: the timeout
+        # message added by record_process_output, which is treated as an
+        # unnumbered "not ok".
+        if err:
+            if len(err) == 1 and err[0].startswith("TIMEOUT: "):
+                points_already_used.add(prev_point + 1)
+                self.add_fail(messages, err[0][len("TIMEOUT: "):])
+            else:
+                self.add_error(err, "Unexpected output on stderr")
+
+        # Any missing test points are fails.
+        for pt in range(1, max_point+1):
+            if pt not in points_already_used:
+                self.add_fail([], "test {} did not report status".format(pt))
+
 class TestRunner(object):
     def __init__(self, base_path, phantomjs_exe, options):
         self.base_path       = base_path
@@ -296,10 +620,10 @@ class TestRunner(object):
         self.verbose         = options.verbose
         self.debugger        = options.debugger
         self.to_run          = options.to_run
-        self.http_server_err = None
+        self.server_errs     = []
 
     def signal_server_error(self, exc_info):
-        self.http_server_err = exc_info
+        self.server_errs.append(exc_info)
 
     def get_base_command(self, debugger):
         if debugger is None:
@@ -344,6 +668,8 @@ class TestRunner(object):
         use_harness = True
         use_snakeoil = True
 
+        if self.verbose >= 3:
+            sys.stdout.write(colorize("^", name) + ":\n")
         # Parse any directives at the top of the script.
         try:
             with open(script, "rt") as s:
@@ -373,14 +699,15 @@ class TestRunner(object):
                         else:
                             raise ValueError("unrecognized directive: " + tok)
 
-        except OSError as e:
-            sys.stdout.write('{} ({}): {}\n'
-                             .format(name, e.filename, e.strerror))
-            return 1
         except Exception as e:
-            sys.stdout.write('{} ({}): {}\n'
-                             .format(name, script, str(e)))
-            return 1
+            grp = TestGroup(name)
+            if hasattr(e, 'strerror') and hasattr(e, 'filename'):
+                grp.add_error([], '{} ({}): {}\n'
+                              .format(name, e.filename, e.strerror))
+            else:
+                grp.add_error([], '{} ({}): {}\n'
+                              .format(name, script, str(e)))
+            return grp
 
         if use_harness:
             script_args.insert(0, script)
@@ -389,39 +716,21 @@ class TestRunner(object):
         if use_snakeoil:
             pjs_args.insert(0, '--ssl-certificates-path=' + self.cert_path)
 
-        sys.stdout.write(name + ":\n")
-        self.http_server_err = None
         returncode, out, err = self.run_phantomjs(script, script_args, pjs_args)
 
-        if returncode != 0:
-            if not self.verbose:
-                if out:
-                    sys.stdout.write("\n".join(out))
-                    sys.stdout.write("\n")
-                if err:
-                    sys.stdout.write("\n".join(err))
-                    sys.stdout.write("\n")
-
-        if self.http_server_err is not None:
-            ty, val, tb = self.http_server_err
-            sys.stdout.write("    ERROR | httpd: {}\n".format(
-                traceback.format_exception_only(ty, val)[-1]))
-            if self.verbose:
-                for line in traceback.format_tb(tb, 5):
-                    sys.stdout.write("## " + line)
-            return 1
-
-        return returncode
+        grp = TAPTestGroup(name)
+        grp.parse(returncode, out, err)
+        return grp
 
     def run_tests(self):
         start = time.time()
-
-        result = 0
-        any_executed = False
         base = self.base_path
         nlen = len(base) + 1
-        for test_group in TESTS:
-            test_glob = os.path.join(base, test_group)
+
+        results = []
+
+        for test_glob in TESTS:
+            test_glob = os.path.join(base, test_glob)
 
             for test_script in sorted(glob.glob(test_glob)):
                 tname = os.path.splitext(test_script)[0][nlen:]
@@ -433,21 +742,42 @@ class TestRunner(object):
                         continue
 
                 any_executed = True
-                ret = self.run_test(test_script, tname)
-                if ret != 0:
-                    sys.stdout.write('The test {} FAILED\n\n'.format(tname))
-                    result = 1
+                grp = self.run_test(test_script, tname)
+                grp.report_for_verbose_level(sys.stdout, self.verbose)
+                results.append(grp)
 
-        if not any_executed:
-            sys.stdout.write("All tests skipped.\n")
+        grp = TestGroup("HTTP server errors")
+        for ty, val, tb in self.server_errs:
+            grp.add_error(traceback.format_tb(tb, 5),
+                          traceback.format_exception_only(ty, val)[-1])
+        grp.report_for_verbose_level(sys.stdout, self.verbose)
+        results.append(grp)
+
+        sys.stdout.write("\n")
+        return self.report(results, time.time() - start)
+
+    def report(self, results, elapsed):
+        # There is always one test group, for the HTTP server errors.
+        if len(results) == 1:
+            sys.stderr.write("No tests selected for execution.\n")
             return 1
 
-        if result == 0:
-            sys.stdout.write("\nAll tests successful. "
-                             "Total time: {:.3f} seconds.\n"
-                             .format(time.time() - start))
+        n = [0] * T.MAX
 
-        return result
+        for grp in results:
+            if self.verbose == 0 and not grp.is_successful():
+                grp.report(sys.stdout, False)
+            for i, x in enumerate(grp.n): n[i] += x
+
+        sys.stdout.write("{:6.3f}s elapsed\n".format(elapsed))
+        for s in (T.PASS, T.FAIL, T.XPASS, T.XFAIL, T.ERROR, T.SKIP):
+            if n[s]:
+                sys.stdout.write(" {:>4} {}\n".format(n[s], s.long_label))
+
+        if n[T.FAIL] == 0 and n[T.XPASS] == 0 and n[T.ERROR] == 0:
+            return 0
+        else:
+            return 1
 
 def init():
     base_path = os.path.normpath(os.path.dirname(os.path.abspath(__file__)))
@@ -460,25 +790,32 @@ def init():
         sys.exit(1)
 
     parser = argparse.ArgumentParser(description='Run PhantomJS tests.')
-    parser.add_argument('-v', '--verbose', action='count',
+    parser.add_argument('-v', '--verbose', action='count', default=0,
                         help='Increase verbosity of logs (repeat for more)')
     parser.add_argument('to_run', nargs='*', metavar='test',
                         help='tests to run (default: all of them)')
     parser.add_argument('--debugger', default=None,
                         help="Run PhantomJS under DEBUGGER")
+    parser.add_argument('--color', metavar="WHEN", default='auto',
+                        choices=['always', 'never', 'auto'],
+                        help="colorize the output; can be 'always',"
+                        " 'never', or 'auto' (the default)")
 
     options = parser.parse_args()
+    activate_colorization(options)
     runner = TestRunner(base_path, phantomjs_exe, options)
     if options.verbose:
         rc, ver, err = runner.run_phantomjs('--version', silent=True)
         if rc != 0 or len(ver) != 1 or len(err) != 0:
-            sys.stdout.write("    ERROR | Version check failed\n")
-            for l in ver: sys.stdout.write("## {}\n".format(l))
-            for l in err: sys.stdout.write("## {}\n".format(l))
-            sys.stdout.write("## exit {}".format(rc))
+            sys.stdout.write(colorize("R", "FATAL")+": Version check failed\n")
+            for l in ver:
+                sys.stdout.write(colorize("b", "## " + l) + "\n")
+            for l in err:
+                sys.stdout.write(colorize("b", "## " + l) + "\n")
+            sys.stdout.write(colorize("b", "## exit {}".format(rc)) + "\n")
             sys.exit(1)
 
-        sys.stdout.write("     INFO | Testing PhantomJS {}\n".format(ver[0]))
+        sys.stdout.write(colorize("b", "## Testing PhantomJS "+ver[0])+"\n")
 
     return runner
 
@@ -488,14 +825,16 @@ def main():
         with HTTPTestServer(runner.base_path, runner.signal_server_error):
             sys.exit(runner.run_tests())
 
-    except Exception as e:
-        ty, val, tb = sys.exc_info()
-        sys.stdout.write("    ERROR | {}\n".format(
-            traceback.format_exception_only(ty, val)[-1]))
-        if runner.verbose:
-            for line in traceback.format_tb(tb, 5):
-                sys.stdout.write("## " + line)
+    except Exception:
+        trace = traceback.format_exc(5).split("\n")
+        # there will be a blank line at the end of 'trace'
+        sys.stdout.write(colorize("R", "FATAL") + ": " + trace[-2] + "\n")
+        for line in trace[:-2]:
+            sys.stdout.write(colorize("b", "## " + line) + "\n")
 
         sys.exit(1)
+
+    except KeyboardInterrupt:
+        sys.exit(2)
 
 main()

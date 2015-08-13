@@ -1,4 +1,6 @@
 //! no-harness
-console.log('     PASS we are alive');
+
+var sys = require('system');
+sys.stdout.write("1..1\nok 1 we are alive\n");
 phantom.exit();
-console.log('     FAIL this should never appear');
+sys.stdout.write("not ok 2 control passed beyond phantom.exit # TODO");
