@@ -1,4 +1,9 @@
-var page = require("webpage").create();
+var webpage = require("webpage");
+var page = webpage.create();
+
+test(function () {
+    assert_equals(webpage.create, WebPage);
+}, "require('webpage').create === global WebPage");
 
 test(function () {
     assert_type_of(page, 'object');

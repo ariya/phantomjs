@@ -65,3 +65,44 @@ test(function () {
     assert_equals(hadError, false);
     assert_is_true(page.evaluate(function() { return window.caughtError; }));
 }, "should not report errors that were caught");
+
+function check_stack(message, stack) {
+    assert_equals(message, "ReferenceError: Can't find variable: referenceError");
+
+    if (typeof stack === "string") {
+        var lines = stack.split("\n");
+        assert_equals(lines[0], "\tat bar ("+helperFile+":7:23)");
+        assert_equals(lines[1], "\tat foo ("+helperFile+":3:17)");
+    } else {
+        assert_equals(stack[0].file, helperFile);
+        assert_equals(stack[0].line, 7);
+        assert_equals(stack[0]["function"], "bar");
+
+        assert_equals(stack[1].file, helperFile);
+        assert_equals(stack[1].line, 3);
+        assert_equals(stack[1]["function"], "foo");
+    }
+}
+
+var helperFile = "../../fixtures/error-helper.js";
+assert_is_true(phantom.injectJs(helperFile));
+
+test(function () {
+    try {
+        ErrorHelper.foo();
+    } catch (e) {
+        check_stack(e.toString(), e.stack);
+    }
+}, "stack trace accuracy (controller script)");
+
+async_test(function () {
+    var page = webpage.create();
+    page.libraryPath = phantom.libraryPath;
+    assert_is_true(page.injectJs(helperFile));
+
+    page.onError = this.step_func_done(check_stack);
+    page.evaluate(function () {
+        setTimeout(function () { ErrorHelper.foo(); }, 0);
+    });
+}, "stack trace accuracy (webpage script)");
+

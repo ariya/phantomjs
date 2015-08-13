@@ -134,7 +134,7 @@ async_test(function () {
         }
         // XFAIL: image doesn't load properly and we receive the dimensions of
         // the ?-in-a-box placeholder
-        assert_object_equals(page.evaluate(checkImg), { w: 200, h: 200 });
+        assert_deep_equals(page.evaluate(checkImg), { w: 200, h: 200 });
     }));
 
 }, "handling binary data", {

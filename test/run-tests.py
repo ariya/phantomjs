@@ -26,7 +26,6 @@ TESTS = [
     'module/*/*.js',
     'standards/*/*.js',
     'regression/*.js',
-    'run-tests.js'
 ]
 
 TIMEOUT    = 20    # Maximum duration of PhantomJS execution (in seconds).
