@@ -1,4 +1,4 @@
-// phantomjs: --web-security=no --local-url-access=yes
+//! phantomjs: --web-security=no --local-url-access=yes
 
 var assert = require("../../assert");
 var p = require("webpage").create();
