@@ -30,11 +30,9 @@ TESTS = [
     'regression/*.js',
 ]
 
-TIMEOUT    = 20    # Maximum duration of PhantomJS execution (in seconds).
-                   # This is a backstop; testharness.js imposes a shorter,
-                   # adjustable timeout.
-                   # There's currently no way to adjust this on a per-test
-                   # basis, so it has to be large.
+TIMEOUT    = 7     # Maximum duration of PhantomJS execution (in seconds).
+                   # This is a backstop; testharness.js imposes a shorter
+                   # timeout.  Both can be increased if necessary.
 
 HTTP_PORT  = 9180  # These are currently hardwired into every test that
 HTTPS_PORT = 9181  # uses the test servers.
@@ -146,11 +144,20 @@ class ResponseHookImporter(object):
         except KeyError:
             return imp.load_source(modname, path)
 
-# This should also be in the standard library somewhere, and definitely
-# isn't.
-# FIXME: Use non-blocking I/O and select on Unix for efficiency.
-# FIXME: Can hang forever if the subprocess closes its stdout but doesn't exit.
-def record_process_output(proc, verbose, timeout):
+# This should also be in the standard library somewhere, and
+# definitely isn't.
+#
+# FIXME: This currently involves *three* threads for every process,
+# and a fourth if the process takes input.  (On Unix, clever use of
+# select() might be able to get that down to one, but zero is Hard.
+# On Windows, we're hosed.  3.4's asyncio module would make everything
+# better, but 3.4 is its own can of worms.)
+try:
+    devnull = subprocess.DEVNULL
+except:
+    devnull = os.open(os.devnull, os.O_RDONLY)
+
+def do_call_subprocess(command, verbose, stdin_data, timeout):
 
     def read_thread(linebuf, fp):
         while True:
@@ -162,24 +169,67 @@ def record_process_output(proc, verbose, timeout):
                 if verbose >= 3:
                     sys.stdout.write(line + '\n')
 
+    def write_thread(data, fp):
+        fp.writelines(data)
+        fp.close()
+
+    def reap_thread(proc, timed_out):
+        if proc.returncode is None:
+            proc.terminate()
+            timed_out[0] = True
+
+    class DummyThread:
+        def start(self): pass
+        def join(self):  pass
+
+    if stdin_data:
+        stdin = subprocess.PIPE
+    else:
+        stdin = devnull
+
+    proc = subprocess.Popen(command,
+                            stdin=stdin,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+
+    if stdin_data:
+        sithrd = threading.Thread(target=write_thread,
+                                  args=(stdin_data, proc.stdin))
+    else:
+        sithrd = DummyThread()
+
     stdout = []
     stderr = []
+    timed_out = [False]
     sothrd = threading.Thread(target=read_thread, args=(stdout, proc.stdout))
     sethrd = threading.Thread(target=read_thread, args=(stderr, proc.stderr))
-    timed_out = False
+    rpthrd = threading.Timer(timeout, reap_thread, args=(proc, timed_out))
 
+    sithrd.start()
     sothrd.start()
     sethrd.start()
-    sothrd.join(timeout)
-    if sothrd.is_alive():
-        timed_out = True
-        proc.terminate()
-        sothrd.join()
-    sethrd.join()
+    rpthrd.start()
+
     proc.wait()
-    if timed_out:
+    if not timed_out[0]: rpthrd.cancel()
+
+    sithrd.join()
+    sothrd.join()
+    sethrd.join()
+    rpthrd.join()
+
+    if timed_out[0]:
         stderr.append("TIMEOUT: Process terminated after {} seconds."
                       .format(timeout))
+        if verbose >= 3:
+            sys.stdout.write(stderr[-1] + "\n")
+
+    rc = proc.returncode
+    if verbose >= 3:
+        if rc < 0:
+            sys.stdout.write("## killed by signal {}\n".format(-rc))
+        else:
+            sys.stdout.write("## exit {}\n".format(rc))
     return proc.returncode, stdout, stderr
 
 #
@@ -478,9 +528,73 @@ class TestGroup(object):
         else:
             self.report(sys.stdout, True)
 
+class ExpectTestGroup(TestGroup):
+    """Test group whose output must be exactly as specified by directives
+       in the file.  This is how you test for an _unsuccessful_ exit code,
+       or for output appearing on a specific one of stdout/stderr.
+    """
+    def __init__(self, name, rc_exp, stdout_exp, stderr_exp,
+                 rc_xfail, stdout_xfail, stderr_xfail):
+        TestGroup.__init__(self, name)
+        if rc_exp is None: rc_exp = 0
+        self.rc_exp = rc_exp
+        self.stdout_exp = stdout_exp
+        self.stderr_exp = stderr_exp
+        self.rc_xfail = rc_xfail
+        self.stdout_xfail = stdout_xfail
+        self.stderr_xfail = stderr_xfail
+
+    def parse(self, rc, out, err):
+        self.parse_output("stdout", self.stdout_exp, out, self.stdout_xfail)
+        self.parse_output("stderr", self.stderr_exp, err, self.stderr_xfail)
+
+        exit_msg = ["expected exit code {} got {}"
+                    .format(self.rc_exp, rc)]
+
+        if rc != self.rc_exp:
+            exit_desc = "did not exit as expected"
+            if self.rc_xfail:
+                self.add_xfail(exit_msg, exit_desc)
+            else:
+                self.add_fail(exit_msg, exit_desc)
+        else:
+            exit_desc = "exited as expected"
+            if self.rc_xfail:
+                self.add_xpass(exit_msg, exit_desc)
+            else:
+                self.add_pass(exit_msg, exit_desc)
+
+    def parse_output(self, what, exp, got, xfail):
+        diff = []
+        le = len(exp)
+        lg = len(got)
+        for i in range(max(le, lg)):
+            e = ""
+            g = ""
+            if i < le: e = exp[i]
+            if i < lg: g = got[i]
+            if e != g:
+                diff.extend(("{}: line {} not as expected".format(what, i+1),
+                             "-" + repr(e)[1:-1],
+                             "+" + repr(g)[1:-1]))
+
+        if diff:
+            desc = what + " not as expected"
+            if xfail:
+                self.add_xfail(diff, desc)
+            else:
+                self.add_fail(diff, desc)
+        else:
+            desc = what + " as expected"
+            if xfail:
+                self.add_xpass(diff, desc)
+            else:
+                self.add_pass(diff, desc)
+
+
 class TAPTestGroup(TestGroup):
-    """Test group whose interpretation is defined by a variant of the Test
-       Anything Protocol (http://testanything.org/tap-specification.html).
+    """Test group whose output is interpreted according to a variant of the
+       Test Anything Protocol (http://testanything.org/tap-specification.html).
 
        Relative to that specification, these are the changes:
 
@@ -504,7 +618,6 @@ class TAPTestGroup(TestGroup):
 
     def parse(self, rc, out, err):
         self.parse_tap(out, err)
-
         self.default_interpret_exit_code(rc)
 
     def parse_tap(self, out, err):
@@ -537,7 +650,12 @@ class TAPTestGroup(TestGroup):
 
         max_point = int(m.group(1))
         if max_point == 0:
-            self.add_skip(out[1:], m.group(2) or "Test group skipped")
+            if any(msg.startswith("ERROR:") for msg in messages):
+                self.add_error(messages, m.group(2) or "Test group skipped")
+            else:
+                self.add_skip(messages, m.group(2) or "Test group skipped")
+            if i + 1 < len(out):
+                self.add_skip(out[(i+1):], "All further output ignored")
             return
 
         prev_point = 0
@@ -635,7 +753,9 @@ class TestRunner(object):
         else:
             raise RuntimeError("Don't know how to invoke " + self.debugger)
 
-    def run_phantomjs(self, script, script_args=[], pjs_args=[], silent=False):
+    def run_phantomjs(self, script,
+                      script_args=[], pjs_args=[], stdin_data=[],
+                      timeout=TIMEOUT, silent=False):
         verbose  = self.verbose
         debugger = self.debugger
         if silent:
@@ -654,19 +774,31 @@ class TestRunner(object):
             sys.stdout.write("## running {}\n".format(" ".join(command)))
 
         if debugger:
+            # FIXME: input-feed mode doesn't work with a debugger,
+            # because how do you tell the debugger that the *debuggee*
+            # needs to read from a pipe?
             subprocess.call(command)
             return 0, [], []
         else:
-            proc = subprocess.Popen(command,
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
-            return record_process_output(proc, verbose, TIMEOUT)
+            return do_call_subprocess(command, verbose, stdin_data, timeout)
 
     def run_test(self, script, name):
         script_args = []
         pjs_args = []
         use_harness = True
         use_snakeoil = True
+        stdin_data = []
+        stdout_exp = []
+        stderr_exp = []
+        rc_exp = None
+        stdout_xfail = False
+        stderr_xfail = False
+        rc_xfail = False
+        timeout = TIMEOUT
+
+        def require_args(what, i, tokens):
+            if i+1 == len(tokens):
+                raise ValueError(what + "directive requires an argument")
 
         if self.verbose >= 3:
             sys.stdout.write(colorize("^", name) + ":\n")
@@ -678,23 +810,51 @@ class TestRunner(object):
                         break
                     tokens = shlex.split(line[3:], comments=True)
 
+                    skip = False
                     for i in range(len(tokens)):
+                        if skip:
+                            skip = False
+                            continue
                         tok = tokens[i]
                         if tok == "no-harness":
                             use_harness = False
                         elif tok == "no-snakeoil":
                             use_snakeoil = False
+                        elif tok == "expect-exit-fails":
+                            rc_xfail = True
+                        elif tok == "expect-stdout-fails":
+                            stdout_xfail = True
+                        elif tok == "expect-stderr-fails":
+                            stderr_xfail = True
+                        elif tok == "timeout:":
+                            require_args(tok, i, tokens)
+                            timeout = float(tokens[i+1])
+                            if timeout <= 0:
+                                raise ValueError("timeout must be positive")
+                            skip = True
+                        elif tok == "expect-exit:":
+                            require_args(tok, i, tokens)
+                            rc_exp = int(tokens[i+1])
+                            skip = True
                         elif tok == "phantomjs:":
-                            if i+1 == len(tokens):
-                                raise ValueError("phantomjs: directive requires"
-                                                 "at least one argument")
+                            require_args(tok, i, tokens)
                             pjs_args.extend(tokens[(i+1):])
                             break
                         elif tok == "script:":
-                            if i+1 == len(tokens):
-                                raise ValueError("script: directive requires"
-                                                 "at least one argument")
+                            require_args(tok, i, tokens)
                             script_args.extend(tokens[(i+1):])
+                            break
+                        elif tok == "stdin:":
+                            require_args(tok, i, tokens)
+                            stdin_data.append(" ".join(tokens[(i+1):]) + "\n")
+                            break
+                        elif tok == "expect-stdout:":
+                            require_args(tok, i, tokens)
+                            stdout_exp.append(" ".join(tokens[(i+1):]))
+                            break
+                        elif tok == "expect-stderr:":
+                            require_args(tok, i, tokens)
+                            stderr_exp.append(" ".join(tokens[(i+1):]))
                             break
                         else:
                             raise ValueError("unrecognized directive: " + tok)
@@ -716,10 +876,16 @@ class TestRunner(object):
         if use_snakeoil:
             pjs_args.insert(0, '--ssl-certificates-path=' + self.cert_path)
 
-        returncode, out, err = self.run_phantomjs(script, script_args, pjs_args)
+        rc, out, err = self.run_phantomjs(script, script_args, pjs_args,
+                                          stdin_data, timeout)
 
-        grp = TAPTestGroup(name)
-        grp.parse(returncode, out, err)
+        if rc_exp or stdout_exp or stderr_exp:
+            grp = ExpectTestGroup(name,
+                                  rc_exp, stdout_exp, stderr_exp,
+                                  rc_xfail, stdout_xfail, stderr_xfail)
+        else:
+            grp = TAPTestGroup(name)
+        grp.parse(rc, out, err)
         return grp
 
     def run_tests(self):

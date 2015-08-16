@@ -142,7 +142,7 @@ expose(generate_tests, 'generate_tests');
         non-test code as an error.  (Exceptions thrown out of test
         functions are still errors.)
 
-    timeout - Global timeout in milliseconds (default: 10 seconds)
+    timeout - Global timeout in milliseconds (default: 5 seconds)
     test_timeout - Per-test timeout in milliseconds, unless overridden
         by the timeout property on a specific test (default: none)
  */
@@ -1446,7 +1446,7 @@ function process_command_line(sys) {
  */
 
 var settings = {
-    harness_timeout: 10000,
+    harness_timeout: 5000,
     test_timeout: null
 };
 
