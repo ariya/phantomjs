@@ -9,7 +9,8 @@ async_test(function () {
     assert_is_false(page.loading);
     assert_equals(page.loadingProgress, 0);
 
-    page.open('http://localhost:9180/hello.html', this.step_func_done(function (status) {
+    page.open(TEST_HTTP_BASE + 'hello.html',
+              this.step_func_done(function (status) {
         assert_equals(status, 'success');
         assert_equals(page.loading, false);
         assert_equals(page.loadingProgress, 100);

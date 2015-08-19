@@ -4,7 +4,7 @@ async_test(function () {
     // that the test HTTPS server uses, so it should succeed.
 
     var page = require('webpage').create();
-    var url = 'https://localhost:9181/';
+    var url = TEST_HTTPS_BASE;
     page.onResourceError = this.unreached_func();
     page.open(url, this.step_func_done(function (status) {
         assert_equals(status, "success");

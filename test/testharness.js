@@ -1468,6 +1468,11 @@ if (args.test_script === "") {
         test_script.lastIndexOf(fs.separator));
     require.paths.push(phantom.libraryPath);
 
+    // run-tests.py sets these environment variables to the base URLs
+    // of its HTTP and HTTPS servers.
+    expose(sys.env['TEST_HTTP_BASE'], 'TEST_HTTP_BASE');
+    expose(sys.env['TEST_HTTPS_BASE'], 'TEST_HTTPS_BASE');
+
     var output = new Output(sys.stdout, args.verbose);
     var tests = new Tests(output);
 

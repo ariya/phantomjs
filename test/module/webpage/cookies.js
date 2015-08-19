@@ -1,5 +1,5 @@
 async_test(function () {
-    var url = "http://localhost:9180/echo";
+    var url = TEST_HTTP_BASE + "echo";
     var page = new WebPage();
 
     page.cookies = [{
@@ -39,7 +39,7 @@ async_test(function () {
 }, "adding and deleting cookies with page.cookies");
 
 async_test(function () {
-    var url = "http://localhost:9180/echo";
+    var url = TEST_HTTP_BASE + "echo";
     var page = new WebPage();
 
     page.addCookie({
@@ -66,7 +66,7 @@ async_test(function () {
 }, "adding and deleting cookies with page.addCookie and page.deleteCookie");
 
 async_test(function () {
-    var url = "http://localhost:9180/echo";
+    var url = TEST_HTTP_BASE + "echo";
     var page = new WebPage();
 
     page.cookies = [

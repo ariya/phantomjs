@@ -1,7 +1,7 @@
 async_test(function () {
     var page = require("webpage").create();
-    var url1 = "http://localhost:9180/navigation/index.html";
-    var url2 = "http://localhost:9180/navigation/dest.html";
+    var url1 = TEST_HTTP_BASE + "navigation/index.html";
+    var url2 = TEST_HTTP_BASE + "navigation/dest.html";
 
     var onLoadFinished1 = this.step_func(function (status) {
         assert_equals(status, "success");

@@ -3,8 +3,8 @@ var webpage = require('webpage');
 async_test(function () {
 
     var page = webpage.create();
-    var urlToChange = 'http://localhost:9180/logo.png';
-    var alternativeUrl = 'http://localhost:9180/phantomjs-logo.gif';
+    var urlToChange = TEST_HTTP_BASE + 'logo.png';
+    var alternativeUrl = TEST_HTTP_BASE + 'phantomjs-logo.gif';
     var startStage = 0;
     var endStage = 0;
 
@@ -25,7 +25,7 @@ async_test(function () {
         }
     });
 
-    page.open('http://localhost:9180/logo.html',
+    page.open(TEST_HTTP_BASE + 'logo.html',
               this.step_func_done(function (status) {
                   assert_equals(status, 'success');
                   assert_equals(startStage, 1);

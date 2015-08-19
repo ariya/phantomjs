@@ -2,7 +2,7 @@ var webpage = require('webpage');
 
 async_test(function () {
     var page = webpage.create();
-    var url = 'http://localhost:9180/status?400';
+    var url = TEST_HTTP_BASE + 'status?400';
     var startStage = 0;
     var endStage = 0;
     var errors = 0;

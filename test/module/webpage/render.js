@@ -25,7 +25,7 @@ function render_test(format, option) {
     p.clipRect = { top: 0, left: 0, width: 300, height: 300};
     p.viewportSize = { width: 300, height: 300};
 
-    p.open("http://localhost:9180/render/", this.step_func_done(function (status) {
+    p.open(TEST_HTTP_BASE + "render/", this.step_func_done(function (status) {
         p.render(scratch, opt);
         this.add_cleanup(function () { fs.remove(scratch); });
         var content = fs.read(scratch, "b");

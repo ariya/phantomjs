@@ -1,6 +1,6 @@
 // Issue 10690: the second page load used to crash on OSX.
 
-var url = 'http://localhost:9180/regression/pjs-10690/index.html';
+var url = TEST_HTTP_BASE + 'regression/pjs-10690/index.html';
 function do_test() {
     var page = require('webpage').create();
 

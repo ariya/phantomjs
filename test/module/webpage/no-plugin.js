@@ -7,7 +7,7 @@ async_test(function () {
     });
     assert_equals(pluginLength, 0);
 
-    page.open('http://localhost:9180/hello.html',
+    page.open(TEST_HTTP_BASE + 'hello.html',
               this.step_func_done(function (status) {
         assert_equals(status, 'success');
         var pluginLength = page.evaluate(function() {

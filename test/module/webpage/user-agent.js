@@ -10,7 +10,7 @@ async_test(function () {
 
     assert_equals(page.settings.userAgent, ua);
 
-    page.open('http://localhost:9180/user-agent.html',
+    page.open(TEST_HTTP_BASE + 'user-agent.html',
               this.step_func_done(function (status) {
         assert_equals(status, 'success');
         var agent = page.evaluate(function() {

@@ -17,7 +17,7 @@ async_test(function () {
         lastChunk = resource.body;
         bodySize = resource.bodySize;
     };
-    page.open("http://localhost:9180/hello.html",
+    page.open(TEST_HTTP_BASE + "hello.html",
               this.step_func_done(function (status) {
                   assert_equals(status, "success");
                   assert_equals(bodySize, content.length);
@@ -37,7 +37,7 @@ async_test(function () {
         lastChunk = resource.body;
         bodySize = resource.bodySize;
     };
-    page.open("http://localhost:9180/hello.html",
+    page.open(TEST_HTTP_BASE + "hello.html",
               this.step_func_done(function (status) {
                   assert_equals(status, "success");
                   assert_equals(bodySize, 0);

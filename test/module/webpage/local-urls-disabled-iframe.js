@@ -4,7 +4,7 @@ var webpage = require("webpage");
 
 async_test(function () {
     var page = webpage.create();
-    var url = "http://localhost:9180/iframe.html#file:///nonexistent";
+    var url = TEST_HTTP_BASE + "iframe.html#file:///nonexistent";
     var rsErrorCalled = false;
 
     page.onResourceError = this.step_func(function (error) {

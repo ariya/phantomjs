@@ -60,7 +60,7 @@ async_test(function () {
                             ["frame2-1", "frame2-2", "frame2-3"]);
     }
 
-    p.open("http://localhost:9180/frameset", this.step_func_done(function (s) {
+    p.open(TEST_HTTP_BASE + "frameset", this.step_func_done(function (s) {
         assert_equals(s, "success");
         testFrameSwitchingDeprecated();
     }));

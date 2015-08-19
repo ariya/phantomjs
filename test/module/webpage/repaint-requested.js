@@ -10,7 +10,7 @@ async_test(function () {
         }
     });
 
-    page.open('http://localhost:9180/hello.html',
+    page.open(TEST_HTTP_BASE + 'hello.html',
               this.step_func_done(function (status) {
                   assert_equals(status, 'success');
                   assert_greater_than(requestCount, 0);

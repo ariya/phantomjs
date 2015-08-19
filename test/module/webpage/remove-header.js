@@ -14,7 +14,7 @@ async_test(function () {
         request.setHeader('CustomHeader', null);
     });
 
-    page.open('http://localhost:9180/echo',
+    page.open(TEST_HTTP_BASE + 'echo',
               this.step_func_done(function (status) {
                   var json, headers;
                   assert_equals(status, 'success');

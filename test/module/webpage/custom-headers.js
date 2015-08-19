@@ -11,7 +11,7 @@ async_test(function () {
         'User-Agent': 'Overriden-UA',
         'Referer': 'Overriden-Referer'
     };
-    page.open('http://localhost:9180/echo', this.step_func_done(function (status) {
+    page.open(TEST_HTTP_BASE + 'echo', this.step_func_done(function (status) {
         var json, headers;
         assert_equals(status, 'success');
         json = JSON.parse(page.plainText);

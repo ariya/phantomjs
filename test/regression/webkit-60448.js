@@ -1,5 +1,4 @@
-var url =
-    "http://localhost:9180/regression/webkit-60448.html";
+var url = TEST_HTTP_BASE + "regression/webkit-60448.html";
 
 async_test(function () {
     var p = require("webpage").create();

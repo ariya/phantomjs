@@ -22,7 +22,7 @@ async_test(function () {
         })
     };
     var page = new WebPage(pageOptions);
-    page.openUrl("http://localhost:9180/echo", openOptions, {});
+    page.openUrl(TEST_HTTP_BASE + "echo", openOptions, {});
 
 
 }, "processing request body for POST");
@@ -40,7 +40,7 @@ async_test(function () {
     };
 
     var page = new WebPage(pageOptions);
-    page.open("http://localhost:9180/echo", 'post', postdata);
+    page.open(TEST_HTTP_BASE + "echo", 'post', postdata);
 
 
 }, "POST data is available in onResourceRequested");

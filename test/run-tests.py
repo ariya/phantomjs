@@ -34,9 +34,6 @@ TIMEOUT    = 7     # Maximum duration of PhantomJS execution (in seconds).
                    # This is a backstop; testharness.js imposes a shorter
                    # timeout.  Both can be increased if necessary.
 
-HTTP_PORT  = 9180  # These are currently hardwired into every test that
-HTTPS_PORT = 9181  # uses the test servers.
-
 #
 # Utilities
 #
@@ -346,8 +343,8 @@ class TCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     # https://docs.python.org/2/library/socketserver.html#SocketServer.BaseServer.allow_reuse_address
     allow_reuse_address = True
 
-    def __init__(self, port, use_ssl, handler, base_path, signal_error):
-        SocketServer.TCPServer.__init__(self, ('localhost', port), handler)
+    def __init__(self, use_ssl, handler, base_path, signal_error):
+        SocketServer.TCPServer.__init__(self, ('localhost', 0), handler)
         if use_ssl:
             self.socket = wrap_socket_ssl(self.socket, base_path)
         self._signal_error = signal_error
@@ -365,12 +362,13 @@ class TCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
         self._signal_error(sys.exc_info())
 
 class HTTPTestServer(object):
-    def __init__(self, base_path, signal_error):
+    def __init__(self, base_path, signal_error, verbose):
         self.httpd        = None
         self.httpsd       = None
         self.base_path    = base_path
         self.www_path     = os.path.join(base_path, 'www')
         self.signal_error = signal_error
+        self.verbose      = verbose
 
     def __enter__(self):
         handler = FileHandler
@@ -384,23 +382,35 @@ class HTTPTestServer(object):
         handler.www_path = self.www_path
         handler.get_response_hook = ResponseHookImporter(self.www_path)
 
-        self.httpd  = TCPServer(HTTP_PORT, False,
-                                handler, self.base_path, self.signal_error)
+        self.httpd  = TCPServer(False, handler,
+                                self.base_path, self.signal_error)
+        os.environ['TEST_HTTP_BASE'] = \
+            'http://localhost:{}/'.format(self.httpd.server_address[1])
         httpd_thread = threading.Thread(target=self.httpd.serve_forever)
         httpd_thread.daemon = True
         httpd_thread.start()
+        if self.verbose >= 3:
+            sys.stdout.write("## HTTP server at {}\n".format(
+                os.environ['TEST_HTTP_BASE']))
 
-        self.httpsd = TCPServer(HTTPS_PORT, True,
-                                handler, self.base_path, self.signal_error)
+        self.httpsd = TCPServer(True, handler,
+                                self.base_path, self.signal_error)
+        os.environ['TEST_HTTPS_BASE'] = \
+            'https://localhost:{}/'.format(self.httpsd.server_address[1])
         httpsd_thread = threading.Thread(target=self.httpsd.serve_forever)
         httpsd_thread.daemon = True
         httpsd_thread.start()
+        if self.verbose >= 3:
+            sys.stdout.write("## HTTPS server at {}\n".format(
+                os.environ['TEST_HTTPS_BASE']))
 
         return self
 
     def __exit__(self, *dontcare):
         self.httpd.shutdown()
+        del os.environ['TEST_HTTP_BASE']
         self.httpsd.shutdown()
+        del os.environ['TEST_HTTPS_BASE']
 
 #
 # Running tests and interpreting their results
@@ -988,7 +998,9 @@ def init():
 def main():
     runner = init()
     try:
-        with HTTPTestServer(runner.base_path, runner.signal_server_error):
+        with HTTPTestServer(runner.base_path,
+                            runner.signal_server_error,
+                            runner.verbose):
             sys.exit(runner.run_tests())
 
     except Exception:

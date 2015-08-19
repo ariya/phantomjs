@@ -3,7 +3,7 @@ var webpage = require('webpage');
 async_test(function () {
     var page = webpage.create();
 
-    var url = "http://localhost:9180/cdn-cgi/pe/bag?r%5B%5D="+
+    var url = TEST_HTTP_BASE + "cdn-cgi/pe/bag?r%5B%5D="+
               "http%3A%2F%2Fwww.example.org%2Fcdn-cgi%2Fnexp%2F"+
               "abv%3D927102467%2Fapps%2Fabetterbrowser.js";
     var receivedUrl;

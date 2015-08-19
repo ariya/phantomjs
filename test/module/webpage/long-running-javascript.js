@@ -5,7 +5,7 @@ async_test(function () {
         page.stopJavaScript();
     });
 
-    page.open("http://localhost:9180/js-infinite-loop.html",
+    page.open(TEST_HTTP_BASE + "js-infinite-loop.html",
               this.step_func(function (s) {
                   assert_equals(s, "success");
               }));

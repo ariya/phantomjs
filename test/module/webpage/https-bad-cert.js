@@ -5,7 +5,7 @@ async_test(function () {
     // HTTPS server uses, so it should fail.
 
     var page = require('webpage').create();
-    var url = 'https://localhost:9181/';
+    var url = TEST_HTTPS_BASE;
     page.onResourceError = this.step_func(function (err) {
         assert_equals(err.url, url);
         assert_equals(err.errorString, "SSL handshake failed");

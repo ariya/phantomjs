@@ -6,7 +6,7 @@ async_test(function () {
     page.onResourceReceived = this.step_func(function (resource) {
         assert_equals(resource.status, 200);
     });
-    page.open('http://localhost:9180/hello.html',
+    page.open(TEST_HTTP_BASE + 'hello.html',
               this.step_func_done(function (status) {
                   assert_equals(status, 'success');
                   assert_type_of(page.title, 'string');
@@ -28,7 +28,7 @@ async_test(function () {
         assert_equals(err.errorString, "Operation canceled");
     });
 
-    page.open('http://localhost:9180/status?status=401' +
+    page.open(TEST_HTTP_BASE + 'status?status=401' +
               '&WWW-Authenticate=Basic%20realm%3D%22PhantomJS%20test%22',
               this.step_func_done(function (status) {
                   assert_equals(status, 'fail');
@@ -45,7 +45,7 @@ async_test(function () {
     // This is all you have to do to assert that a hook does get called.
     page.onResourceTimeout = this.step_func(function(){});
 
-    page.open("http://localhost:9180/delay?5",
+    page.open(TEST_HTTP_BASE + "delay?5",
               this.step_func_done(function (s) {
                   assert_not_equals(s, "success");
               }));

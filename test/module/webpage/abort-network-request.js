@@ -26,7 +26,7 @@ async_test(function () {
         assert_regexp_not_match(response.url, urlToBlockRegExp);
     });
 
-    page.open('http://localhost:9180/logo.html',
+    page.open(TEST_HTTP_BASE + 'logo.html',
               this.step_func_done(function (status) {
                   assert_equals(status, 'success');
                   assert_equals(abortCount, 1);
