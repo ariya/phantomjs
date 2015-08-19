@@ -61,10 +61,12 @@ page.open(system.args[1], function(status){
             var exitCode = page.evaluate(function(){
                 console.log('');
 
-                var el = document.body.querySelector('.banner');
-                var banner = el.querySelector('.title').innerText + " " +
-                             el.querySelector('.version').innerText + " " +
-                             el.querySelector('.duration').innerText;
+                var alertEl = document.body.querySelector('.alert');
+                var bannerEl = document.body.querySelector('.banner');
+
+                var banner = "Jasmine " +
+                             bannerEl.querySelector('.version').innerText + " " +
+                             alertEl.querySelector('.duration').innerText;
                 console.log(banner);
 
                 var list = document.body.querySelectorAll('.results > .failures > .spec-detail.failed');
