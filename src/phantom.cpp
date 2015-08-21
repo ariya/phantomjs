@@ -376,7 +376,7 @@ void Phantom::loadModule(const QString& moduleSource, const QString& filename)
         "require.cache['" + filename + "']._getRequire()," +
         "require.cache['" + filename + "'].exports," +
         "require.cache['" + filename + "']" +
-        "));";
+        ")); undefined";
     m_page->mainFrame()->evaluateJavaScript(scriptSource, "");
 }
 
