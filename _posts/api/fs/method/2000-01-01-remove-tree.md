@@ -21,7 +21,7 @@ fs.makeDirectory(toDelete);
 fs.touch(toDelete + '/test.txt');
 
 // It will delete the 'someFolder' and the 'test.txt' in it
-fs.removeDirectory(toDelete);
+fs.removeTree(toDelete);
 
 phantom.exit();
 ```
