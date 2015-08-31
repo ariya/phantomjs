@@ -15,7 +15,7 @@ mkdir -p ${buildroot} ${builddir}
 echo "=> Copying sources..."
 ( cd .. && tar cf - ./[A-Z]* ./bin ./examples | tar xf - -C ${builddir} )
 echo "=> Creating source tarball under ${sourcedir}..."
-( cd ${builddir}/.. && zip -r ${sourcedir}/${name}-${version}-source.zip ${name}-${version}
+( cd ${builddir}/.. && zip -r ${sourcedir}/${name}-${version}-source.zip ${name}-${version} )
 echo "=> Building RPM..."
 rpmbuild --define "_topdir ${topdir}" --buildroot ${buildroot} --clean -bb ${name}.spec
 RPMS=(`ls ${topdir}/RPMS/*/*.rpm`)
