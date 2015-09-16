@@ -29,6 +29,7 @@ PhantomJS needs not be used only as a stand-alone tool. Check also some excellen
 - [Guard::Jasmine](https://github.com/netzpirat/guard-jasmine) automatically tests Jasmine specs on Rails when files are modified.
 - [GhostDriver](http://github.com/detro/ghostdriver/) complements Selenium tests with a PhantomJS WebDriver implementation.
 - [PhantomRobot](https://github.com/datakurre/phantomrobot) runs Robot Framework acceptance tests in the background via PhantomJS.
+- [PhearJS](https://github.com/Tomtomgo/phearjs) scales PhantomJS instances for web scraping through a JSON API.
 - [Mocha-PhantomJS](https://github.com/metaskills/mocha-phantomjs) run Mocha tests using PhantomJS.
 
 and many others [related projects](http://phantomjs.org/related-projects.html).
