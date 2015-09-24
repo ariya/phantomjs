@@ -23,6 +23,5 @@ rpmbuild --define "_topdir ${topdir}" --buildroot ${buildroot} --clean -bb ${nam
 RPMS=(`ls ${topdir}/RPMS/*/*.rpm`)
 cp ${topdir}/RPMS/*/*.rpm ${destdir}/
 rm -fr ${topdir} ${builddir}
-for rpm in "${RPMS[@]}"; do
-    echo ${TMPDIR:-/tmp}/${rpm##*/}
-done
+echo -ne "\n=> RPM build completed\n"
+for rpm in $(ls ${destdir}/*.rpm); do echo ${rpm}; done
