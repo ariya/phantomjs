@@ -91,6 +91,8 @@ public:
     virtual QVariant property(PrintEnginePropertyKey key) const = 0;
 
     virtual bool newPage() = 0;
+    virtual void beginSectionOutline(const QString &text, const QString &anchor) {Q_UNUSED(text); Q_UNUSED(anchor);}
+    virtual void endSectionOutline() {}
     virtual bool abort() = 0;
 
     virtual int metric(QPaintDevice::PaintDeviceMetric) const = 0;
