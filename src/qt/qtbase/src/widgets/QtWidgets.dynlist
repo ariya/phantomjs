@@ -1,5 +1,0 @@
-{
-     extern "C++" {
-         "QApplication::notify(QObject*, QEvent*)";
-     };
-};

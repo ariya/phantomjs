@@ -1,2 +1,0 @@
-SOURCES += \
-        animation/qguivariantanimation.cpp

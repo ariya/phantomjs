@@ -1,3 +1,0 @@
-[Tokens]
-TOK_A = a[^b]c
-TOK_B = abd

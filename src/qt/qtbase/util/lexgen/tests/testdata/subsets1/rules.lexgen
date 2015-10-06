@@ -1,3 +1,0 @@
-[Tokens]
-TOK_AB = ab
-TOK_AZ = a[a-z]
