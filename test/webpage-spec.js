@@ -997,7 +997,7 @@ describe("WebPage closing notification/alerting: closing propagation control", f
 });
 
 describe("WebPage 'onFilePicker'", function() {
-    xit("should be able to set the file to upload when the File Picker is invoked (i.e. clicking on a 'input[type=file]')", function() {
+    it("should be able to set the file to upload when the File Picker is invoked (i.e. clicking on a 'input[type=file]')", function() {
         var system = require('system'),
             fileToUpload = system.os.name === "windows" ? "C:\\Windows\\System32\\drivers\\etc\\hosts" : "/etc/hosts",
             server = require("webserver").create(),
