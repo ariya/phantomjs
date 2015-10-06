@@ -2,3 +2,7 @@
 	path = src/qt/qtbase
 	url = https://github.com/Vitallium/qtbase.git
 	branch = phantomjs
+[submodule "qtwebkit"]
+	path = src/qt/qtwebkit
+	url = https://github.com/Vitallium/qtwebkit.git
+	branch = phantomjs
