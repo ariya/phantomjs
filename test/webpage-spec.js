@@ -183,7 +183,7 @@ describe("WebPage object", function() {
     it("should contain resource body when last chunk of resource received", function() {
         var page = require('webpage').create();
         page.captureContent = ['/foo'];
-        
+
         var server = require('webserver').create();
         server.listen(12345, function(request, response) {
             response.statusCode = 200;
@@ -214,6 +214,39 @@ describe("WebPage object", function() {
 
     });
 
+    it("should contain preserved binary resource body", function() {
+        var page = require('webpage').create();
+        page.captureContent = ['/foo'];
+
+        var server = require('webserver').create();
+        server.listen(12345, function(request, response) {
+            response.statusCode = 200;
+            response.write("\ud83d\udca9");
+            response.close();
+        });
+
+        var url = "http://localhost:12345/foo";
+        var lastChunk = "";
+        var bodySize = 0;
+        runs(function() {
+            page.onResourceReceived = function(resource) {
+                lastChunk = resource.body;
+                bodySize = resource.bodySize;
+            };
+            page.open(url, function(status) {
+            });
+        });
+
+        waits(50);
+
+        runs(function() {
+            expect(lastChunk).toEqual("\ud83d\udca9");
+            expect(bodySize).toEqual(lastChunk.length);
+            page.onResourceReceived = null;
+            server.close();
+        });
+
+    });
 
     it("should not contain resource body if not in the captureContent list", function() {
         var page = require('webpage').create();
