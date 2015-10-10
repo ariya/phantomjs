@@ -128,6 +128,9 @@ mac {
 }
 
 win32-msvc* {
+    # ingore warnings:
+    # 4049 - locally defined symbol 'symbol' imported
+    QMAKE_LFLAGS += /ignore:4049
     LIBS += -lCrypt32 -lzlib
     INCLUDEPATH += breakpad/src
     SOURCES += breakpad/src/client/windows/handler/exception_handler.cc \
