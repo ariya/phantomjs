@@ -43,7 +43,7 @@
 #include <QNetworkCookie>
 #include <QNetworkRequest>
 #include <QPainter>
-#include <QPrinter>
+#include <QtPrintSupport/QPrinter>
 #include <QWebHistory>
 #include <QWebHistoryItem>
 #include <QWebElement>
