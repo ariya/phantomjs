@@ -38,6 +38,10 @@ import subprocess
 import re
 import multiprocessing
 
+root = os.path.abspath(os.path.dirname(__file__))
+third_party_names = ["libicu", "libxml", "openssl", "zlib"]
+third_party_path = os.path.join(root, "src", "qt", "3rdparty")
+
 # check if path points to an executable
 # source: http://stackoverflow.com/a/377028
 def isExe(fpath):
@@ -62,6 +66,17 @@ def qmakePath():
     if platform.system() == "Windows":
         exe += ".exe"
     return os.path.abspath("src/qt/qtbase/bin/" + exe)
+
+# returns paths for 3rd party libraries (Windows only)
+def findThirdPartyDeps():
+    include_dirs = []
+    lib_dirs = []
+    for dep in third_party_names:
+        include_dirs.append("-I")
+        include_dirs.append(os.path.join(third_party_path, dep, "include"))
+        lib_dirs.append("-L")
+        lib_dirs.append(os.path.join(third_party_path, dep, "lib"))
+    return (include_dirs, lib_dirs)
 
 class PhantomJSBuilder(object):
     options = {}
@@ -127,22 +142,21 @@ class PhantomJSBuilder(object):
             platformOptions = [
                 "-mp",
                 "-no-cetest",
-                "-no-iwmmxt",
-                "-no-vcproj",
                 "-no-angle",
                 "-icu",
+                "-openssl",
+                "-openssl-linked",
             ]
-            ssl = os.getenv("OPENSSL_LIBS", None)
-            if ssl:
-                platformOptions.append("-openssl-linked")
-                platformOptions.append(ssl)
+            deps = findThirdPartyDeps()
+            platformOptions.extend(deps[0])
+            platformOptions.extend(deps[1])
         else:
             # Unix platform options
             platformOptions = [
                 # use the headless QPA platform
                 "-qpa", "phantom",
                 # explicitly compile with SSL support, so build will fail if headers are missing
-                "-openssl",
+                "-openssl", "-openssl-linked",
                 # disable unnecessary Qt features
                 "-no-openvg",
                 "-no-eglfs",
@@ -159,7 +173,8 @@ class PhantomJSBuilder(object):
                 "-no-directfb",
                 "-no-mtdev",
                 "-no-libudev",
-                "-no-evdev"
+                "-no-evdev",
+                "-no-feature-PRINTPREVIEWWIDGET"
             ]
 
             if self.options.silent:
@@ -212,6 +227,7 @@ class PhantomJSBuilder(object):
             "-D", "QT_NO_STYLE_CLEANLOOKS",
             "-D", "QT_NO_STYLE_MOTIF",
             "-D", "QT_NO_STYLE_PLASTIQUE",
+            "-D", "QT_NO_PRINTPREVIEWDIALOG"
         ]
         configure.extend(self.platformQtConfigureOptions())
         if self.options.qt_config:
@@ -220,6 +236,9 @@ class PhantomJSBuilder(object):
         if self.options.debug:
             configure.append("-debug")
         elif self.options.release:
+            configure.append("-release")
+        else:
+            # build Release by default
             configure.append("-release")
 
         if self.execute(configure, "src/qt/qtbase") != 0:
