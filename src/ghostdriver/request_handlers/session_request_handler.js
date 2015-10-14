@@ -56,6 +56,7 @@ ghostdriver.SessionReqHand = function(session) {
         WINDOW_HANDLE   : "window_handle",
         WINDOW_HANDLES  : "window_handles",
         FRAME           : "frame",
+        FRAME_DIR       : "/frame/",
         SOURCE          : "source",
         COOKIE          : "cookie",
         KEYS            : "keys",
@@ -155,6 +156,9 @@ ghostdriver.SessionReqHand = function(session) {
             return;
         } else if (req.urlParsed.file === _const.FRAME && req.method === "POST") {
             _postFrameCommand(req, res);
+            return;
+        } else if (req.urlParsed.directory == _const.FRAME_DIR && req.method === "POST") {
+            _postFrameParentCommand(req, res);
             return;
         } else if (req.urlParsed.file === _const.SOURCE && req.method === "GET") {
             _getSourceCommand(req, res);
@@ -656,6 +660,26 @@ ghostdriver.SessionReqHand = function(session) {
             }
         } else {
             throw _errors.createInvalidReqMissingCommandParameterEH(req);
+        }
+    },
+
+    _postFrameParentCommand = function(req, res) {
+
+        var currWindow = _protoParent.getSessionCurrWindow.call(this, _session, req),
+            switched;
+
+        _log.debug("_postFrameParentCommand");
+
+        switched = currWindow.switchToParentFrame();
+
+        if (switched) {
+            res.success(_session.getId());
+        } else {
+            // ... otherwise, throw the appropriate exception
+            throw _errors.createFailedCommandEH(_errors.FAILED_CMD_STATUS_CODES.NoSuchFrame,
+                "Unable to switch to frame",
+                req,
+                _session);
         }
     },
 
