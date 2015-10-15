@@ -258,9 +258,12 @@ void ImageBuffer::putByteArray(Multiply multiplied, Uint8ClampedArray* source, c
 
 static bool encodeImage(const QPixmap& pixmap, const String& format, const double* quality, QByteArray& data)
 {
-    int compressionQuality = 100;
-    if (quality && *quality >= 0.0 && *quality <= 1.0)
-        compressionQuality = static_cast<int>(*quality * 100 + 0.5);
+    int compressionQuality = -1;
+    if (format == "jpeg") {
+        compressionQuality = 100;
+        if (quality && *quality >= 0.0 && *quality <= 1.0)
+            compressionQuality = static_cast<int>(*quality * 100 + 0.5);
+    }
 
     QBuffer buffer(&data);
     buffer.open(QBuffer::WriteOnly);
