@@ -238,7 +238,23 @@ function decorateNewPage(opts, page) {
     } catch (e) {}
 
     // deep copy
-    page.settings = JSON.parse(JSON.stringify(phantom.defaultPageSettings));
+    var pageSettings = JSON.parse(JSON.stringify(phantom.defaultPageSettings));
+    page.settings = {};
+    for (var p in pageSettings) {
+        (function (prop) {
+            Object.defineProperty(page.settings, prop, {
+                get: function() {
+                    return pageSettings[prop];
+                },
+                set: function(val) {
+                    if (pageSettings[prop] !== val && typeof(pageSettings[prop]) === typeof(val)) {
+                        pageSettings[prop] = val;   
+                        page.applySettings(pageSettings);
+                    }
+                }
+            });
+        })(p);
+    }
 
     definePageSignalHandler(page, handlers, "onInitialized", "initialized");
 
@@ -277,30 +293,30 @@ function decorateNewPage(opts, page) {
         var thisPage = this;
 
         if (arguments.length === 1) {
-            this.openUrl(url, 'get', this.settings);
+            this.openUrl(url, 'get');
             return;
         } else if (arguments.length === 2 && typeof arg1 === 'function') {
             this._onPageOpenFinished = function() {
                 thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
                 arg1.apply(thisPage, arguments);     //< Invoke the actual callback
             }
-            this.openUrl(url, 'get', this.settings);
+            this.openUrl(url, 'get');
             return;
         } else if (arguments.length === 2) {
-            this.openUrl(url, arg1, this.settings);
+            this.openUrl(url, arg1);
             return;
         } else if (arguments.length === 3 && typeof arg2 === 'function') {
             this._onPageOpenFinished = function() {
                 thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
                 arg2.apply(thisPage, arguments);     //< Invoke the actual callback
             }
-            this.openUrl(url, arg1, this.settings);
+            this.openUrl(url, arg1);
             return;
         } else if (arguments.length === 3) {
             this.openUrl(url, {
                 operation: arg1,
                 data: arg2
-            }, this.settings);
+            });
             return;
         } else if (arguments.length === 4) {
             this._onPageOpenFinished = function() {
@@ -310,7 +326,7 @@ function decorateNewPage(opts, page) {
             this.openUrl(url, {
                 operation: arg1,
                 data: arg2
-            }, this.settings);
+            });
             return;
         } else if (arguments.length === 5) {
             this._onPageOpenFinished = function() {
@@ -321,7 +337,7 @@ function decorateNewPage(opts, page) {
                 operation: arg1,
                 data: arg2,
                 headers : arg3
-            }, this.settings);
+            });
             return;
         }
         throw "Wrong use of WebPage#open";

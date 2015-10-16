@@ -255,7 +255,7 @@ public:
     QString focusedFrameName() const;
 
 public slots:
-    void openUrl(const QString& address, const QVariant& op, const QVariantMap& settings);
+    void openUrl(const QString& address, const QVariant& op);
     void release();
     void close();
 
@@ -500,6 +500,8 @@ public slots:
     void stopJavaScript();
 
     void clearMemoryCache();
+    
+    void applySettings(const QVariantMap& defaultSettings);
 
 signals:
     void initialized();
@@ -527,7 +529,6 @@ private slots:
 private:
     QImage renderImage();
     bool renderPdf(const QString& fileName);
-    void applySettings(const QVariantMap& defaultSettings);
     QString userAgent() const;
 
     /**
