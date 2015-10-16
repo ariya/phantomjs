@@ -865,12 +865,13 @@ bool WebPage::clearCookies()
     return m_cookieJar->deleteCookies(this->url());
 }
 
-void WebPage::openUrl(const QString& address, const QVariant& op)
+void WebPage::openUrl(const QString& address, const QVariant& op, const QVariantMap& settings)
 {
     QString operation;
     QByteArray body;
     QNetworkRequest request;
 
+    applySettings(settings);
     m_customWebPage->triggerAction(QWebPage::Stop);
 
     if (op.type() == QVariant::String) {

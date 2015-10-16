@@ -293,30 +293,30 @@ function decorateNewPage(opts, page) {
         var thisPage = this;
 
         if (arguments.length === 1) {
-            this.openUrl(url, 'get');
+            this.openUrl(url, 'get', pageSettings);
             return;
         } else if (arguments.length === 2 && typeof arg1 === 'function') {
             this._onPageOpenFinished = function() {
                 thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
                 arg1.apply(thisPage, arguments);     //< Invoke the actual callback
             }
-            this.openUrl(url, 'get');
+            this.openUrl(url, 'get', pageSettings);
             return;
         } else if (arguments.length === 2) {
-            this.openUrl(url, arg1);
+            this.openUrl(url, arg1, pageSettings);
             return;
         } else if (arguments.length === 3 && typeof arg2 === 'function') {
             this._onPageOpenFinished = function() {
                 thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
                 arg2.apply(thisPage, arguments);     //< Invoke the actual callback
             }
-            this.openUrl(url, arg1);
+            this.openUrl(url, arg1, pageSettings);
             return;
         } else if (arguments.length === 3) {
             this.openUrl(url, {
                 operation: arg1,
                 data: arg2
-            });
+            }, pageSettings);
             return;
         } else if (arguments.length === 4) {
             this._onPageOpenFinished = function() {
@@ -326,7 +326,7 @@ function decorateNewPage(opts, page) {
             this.openUrl(url, {
                 operation: arg1,
                 data: arg2
-            });
+            }, pageSettings);
             return;
         } else if (arguments.length === 5) {
             this._onPageOpenFinished = function() {
@@ -337,7 +337,7 @@ function decorateNewPage(opts, page) {
                 operation: arg1,
                 data: arg2,
                 headers : arg3
-            });
+            }, pageSettings);
             return;
         }
         throw "Wrong use of WebPage#open";
