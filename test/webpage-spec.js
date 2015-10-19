@@ -1147,7 +1147,7 @@ describe("WebPage render image", function(){
 
             // Content comparison works for PNG and JPEG.
             if (format === "png" || format === "jpg") {
-                expect(content).toEqual(expect_content);
+                expect(btoa(content)).toEqual(btoa(expect_content));
             }
 
             rendered = true;
