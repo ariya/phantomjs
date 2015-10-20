@@ -13,13 +13,11 @@ addons:
 
 before_script:
   - chmod +x ./build.sh
-  - chmod +x ./test/run-tests.sh
   - chmod +x ./test/run-tests-ghostdriver.sh
   
 script:
   - ./build.sh --qtdeps=bundled --confirm --silent   #< Build
   - ./test/run-tests.py                              #< Test (PhantomJS)
-  - ./test/run-tests-ghostdriver.sh                  #< Test (GhostDriver / PhantomJSDriver)
 
 notifications:
   irc:
