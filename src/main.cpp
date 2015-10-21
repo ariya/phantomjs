@@ -40,9 +40,11 @@
 #include <QSslSocket>
 #include <QIcon>
 
-int main(int argc, char** argv)
+#include <exception>
+#include <stdio.h>
+
+static int inner_main(int argc, char** argv)
 {
-    CrashHandler crash_guard;
     QApplication app(argc, argv);
 
     app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
@@ -69,8 +71,41 @@ int main(int argc, char** argv)
         app.exec();
     }
 
-    // End script execution: delete the phantom singleton and set execution return value
+    // End script execution: delete the phantom singleton and set
+    // execution return value
     int retVal = phantom->returnValue();
     delete phantom;
     return retVal;
+}
+
+int main(int argc, char** argv)
+{
+    try {
+        init_crash_handler();
+        return inner_main(argc, argv);
+
+    // These last-ditch exception handlers write to the C stderr
+    // because who knows what kind of state Qt is in.  And they avoid
+    // using fprintf because _that_ might be in bad shape too.
+    // (I would drop all the way down to write() but then I'd have to
+    // write the code again for Windows.)
+    //
+    // print_crash_message includes a call to fflush(stderr).
+    } catch (std::bad_alloc) {
+        fputs("Memory exhausted.\n", stderr);
+        fflush(stderr);
+        return 1;
+
+    } catch (std::exception& e) {
+        fputs("Uncaught C++ exception: ", stderr);
+        fputs(e.what(), stderr);
+        putc('\n', stderr);
+        print_crash_message();
+        return 1;
+
+    } catch (...) {
+        fputs("Uncaught nonstandard exception.\n", stderr);
+        print_crash_message();
+        return 1;
+    }
 }
