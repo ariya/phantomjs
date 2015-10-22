@@ -65,6 +65,7 @@ class WebPage : public QObject, public QWebFrame::PrintCallback
     Q_PROPERTY(int offlineStorageQuota READ offlineStorageQuota)
     Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
     Q_PROPERTY(QVariantMap paperSize READ paperSize WRITE setPaperSize)
+    Q_PROPERTY(int dpi READ dpi WRITE setDpi)
     Q_PROPERTY(QVariantMap clipRect READ clipRect WRITE setClipRect)
     Q_PROPERTY(QVariantMap scrollPosition READ scrollPosition WRITE setScrollPosition)
     Q_PROPERTY(bool navigationLocked READ navigationLocked WRITE setNavigationLocked)
@@ -122,6 +123,9 @@ public:
 
     void setPaperSize(const QVariantMap& size);
     QVariantMap paperSize() const;
+
+    void setDpi(const int dpi);
+    int dpi() const;
 
     void setNavigationLocked(bool lock);
     bool navigationLocked();
@@ -551,6 +555,7 @@ private:
     QRect m_clipRect;
     QPoint m_scrollPosition;
     QVariantMap m_paperSize; // For PDF output via render()
+    int m_dpi;
     QString m_libraryPath;
     QWebInspector* m_inspector;
     WebpageCallbacks* m_callbacks;
