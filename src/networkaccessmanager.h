@@ -127,6 +127,7 @@ private:
     void prepareSslConfiguration(const Config* config);
 
     int m_idCounter;
+    QVariant m_lastHttpStatus;
     QNetworkDiskCache* m_networkDiskCache;
     QVariantMap m_customHeaders;
     QStringList m_captureContentPatterns;

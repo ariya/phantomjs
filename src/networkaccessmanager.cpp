@@ -161,6 +161,7 @@ NetworkAccessManager::NetworkAccessManager(QObject* parent, const Config* config
     , m_maxAuthAttempts(3)
     , m_resourceTimeout(0)
     , m_idCounter(0)
+    , m_lastHttpStatus(0)
     , m_networkDiskCache(0)
     , m_sslConfiguration(QSslConfiguration::defaultConfiguration())
     , m_replyTracker(this)
@@ -355,10 +356,18 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
     }
 
     // set custom HTTP headers
-    QVariantMap::const_iterator i = m_customHeaders.begin();
+    QVariantMap::iterator i = m_customHeaders.begin();
     while (i != m_customHeaders.end()) {
-        req.setRawHeader(i.key().toLatin1(), i.value().toByteArray());
-        ++i;
+        if(m_idCounter != 0 &&
+            (!(m_lastHttpStatus.toInt() == 301 || m_lastHttpStatus.toInt() == 302
+                || m_lastHttpStatus.toInt() == 304 || m_lastHttpStatus.toInt() == 307)) &&
+            QLatin1String("referer")==i.key().toLatin1().toLower())
+        {
+            i = m_customHeaders.erase(i);
+        }else{
+            req.setRawHeader(i.key().toLatin1(), i.value().toByteArray());
+            ++i;
+        }
     }
 
     m_idCounter++;
@@ -455,6 +464,8 @@ void NetworkAccessManager::handleStarted(QNetworkReply* reply, int requestId)
         headers += header;
     }
 
+    m_lastHttpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+    
     QVariantMap data;
     data["stage"] = "start";
     data["id"] = requestId;
@@ -491,6 +502,8 @@ void NetworkAccessManager::handleFinished(QNetworkReply* reply, int requestId, i
         header["value"] = QString::fromUtf8(reply->rawHeader(headerName));
         headers += header;
     }
+
+    m_lastHttpStatus = status;
 
     QVariantMap data;
     data["stage"] = "end";
