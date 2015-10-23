@@ -700,7 +700,12 @@ void QCoreTextFontEngine::recalcAdvances(QGlyphLayout *glyphs, QFontEngine::Shap
 
 QFontEngine::FaceId QCoreTextFontEngine::faceId() const
 {
-    return QFontEngine::FaceId();
+    FaceId result;
+    result.index = 0;
+    QCFString name = CTFontCopyName(ctfont, kCTFontUniqueNameKey);
+    result.filename = QCFString::toQString(name).toUtf8();
+
+    return result;
 }
 
 bool QCoreTextFontEngine::canRender(const QChar *string, int len) const
@@ -714,9 +719,26 @@ bool QCoreTextFontEngine::getSfntTableData(uint tag, uchar *buffer, uint *length
     return ct_getSfntTable((void *)&ctfont, tag, buffer, length);
 }
 
-void QCoreTextFontEngine::getUnscaledGlyph(glyph_t, QPainterPath *, glyph_metrics_t *)
+void QCoreTextFontEngine::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metric)
 {
-    // ###
+    CGAffineTransform cgMatrix = CGAffineTransformIdentity;
+
+    qreal emSquare = CTFontGetUnitsPerEm(ctfont);
+    qreal scale = emSquare / CTFontGetSize(ctfont);
+    cgMatrix = CGAffineTransformScale(cgMatrix, scale, -scale);
+
+    QCFType<CGPathRef> cgpath = CTFontCreatePathForGlyph(ctfont, (CGGlyph) glyph, &cgMatrix);
+    ConvertPathInfo info(path, QPointF(0,0));
+    CGPathApply(cgpath, &info, convertCGPathToQPainterPath);
+
+    *metric = boundingBox(glyph);
+    // scale the metrics too
+    metric->width  = QFixed::fromReal(metric->width.toReal() * scale);
+    metric->height = QFixed::fromReal(metric->height.toReal() * scale);
+    metric->x      = QFixed::fromReal(metric->x.toReal() * scale);
+    metric->y      = QFixed::fromReal(metric->y.toReal() * scale);
+    metric->xoff   = QFixed::fromReal(metric->xoff.toReal() * scale);
+    metric->yoff   = QFixed::fromReal(metric->yoff.toReal() * scale);
 }
 
 QFixed QCoreTextFontEngine::emSquareSize() const
@@ -742,6 +764,45 @@ bool QCoreTextFontEngine::supportsTransformation(const QTransform &transform) co
         return true;
     else
         return false;
+}
+
+QFontEngine::Properties QCoreTextFontEngine::properties() const
+{
+    Properties result;
+
+    QCFString psName, copyright;
+    psName = CTFontCopyPostScriptName(ctfont);
+    copyright = CTFontCopyName(ctfont, kCTFontCopyrightNameKey);
+    result.postscriptName = QCFString::toQString(psName).toUtf8();
+    result.copyright = QCFString::toQString(copyright).toUtf8();
+
+    qreal emSquare = CTFontGetUnitsPerEm(ctfont);
+    qreal scale = emSquare / CTFontGetSize(ctfont);
+
+    CGRect cgRect = CTFontGetBoundingBox(ctfont);
+    result.boundingBox = QRectF(cgRect.origin.x * scale,
+                                -CTFontGetAscent(ctfont) * scale,
+                                cgRect.size.width * scale,
+                                cgRect.size.height * scale);
+
+    result.emSquare = emSquareSize();
+    result.ascent = QFixed::fromReal(CTFontGetAscent(ctfont) * scale);
+    result.descent = QFixed::fromReal(CTFontGetDescent(ctfont) * scale);
+    result.leading = QFixed::fromReal(CTFontGetLeading(ctfont) * scale);
+    result.italicAngle = QFixed::fromReal(CTFontGetSlantAngle(ctfont));
+    result.capHeight = QFixed::fromReal(CTFontGetCapHeight(ctfont) * scale);
+    result.lineWidth = QFixed::fromReal(CTFontGetUnderlineThickness(ctfont) * scale);
+
+    if (fontDef.styleStrategy & QFont::ForceIntegerMetrics) {
+        result.ascent = result.ascent.round();
+        result.descent = result.descent.round();
+        result.leading = result.leading.round();
+        result.italicAngle = result.italicAngle.round();
+        result.capHeight = result.capHeight.round();
+        result.lineWidth = result.lineWidth.round();
+    }
+
+    return result;
 }
 
 QT_END_NAMESPACE

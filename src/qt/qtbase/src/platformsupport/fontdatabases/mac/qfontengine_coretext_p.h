@@ -104,6 +104,7 @@ public:
     bool supportsTransformation(const QTransform &transform) const;
 
     virtual QFontEngine *cloneWithSize(qreal pixelSize) const;
+    virtual QFontEngine::Properties properties() const;
     virtual int glyphMargin(QFontEngine::GlyphFormat format) { Q_UNUSED(format); return 0; }
 
     static bool supportsColorGlyphs()
