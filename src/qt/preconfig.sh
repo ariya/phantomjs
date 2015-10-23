@@ -147,9 +147,6 @@ QT_CFG+=' -no-xkb'
 QT_CFG+=' -no-xrender'
 QT_CFG+=' -no-feature-PRINTPREVIEWWIDGET'
 
-# This is also unnecessary, but it's not possible to turn it off.
-#QT_CFG+=' -no-xlib'
-
 # QtWebkit can only detect that system sqlite is in use if pkg-config
 # support is available in qmake.
 if [[ $C_SQLITE == *qt* ]]; then
@@ -160,11 +157,11 @@ fi
 
 # Explicitly compile with support for OpenSSL enabled, so the build
 # will fail if headers are missing.
-QT_CFG+=' -openssl -openssl-linked'
+QT_CFG+=' -openssl-linked'
 
 # ICU support in QtBase is reported to be unnecessary for Darwin.
 if [[ $OSTYPE != darwin* ]]; then
-    QT_CFG+=' -icu'
+    QT_CFG+=' -icu -icu-static'
 fi
 
 # Configurable libraries.

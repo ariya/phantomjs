@@ -9,6 +9,7 @@ win32 {
         } else {
             LIBS += -lsicuin -lsicuuc -lsicudt
         }
+        LIBS +=  -lsicudata
     } else {
         LIBS += -licuin -licuuc -licudt
     }
