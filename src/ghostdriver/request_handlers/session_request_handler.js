@@ -208,7 +208,7 @@ ghostdriver.SessionReqHand = function(session) {
             inputFileSelector = postObj.selector,
             filePath = postObj.filepath;
 
-        _log.debug("_postUploadFileCommand about to upload file", inputFileSelector, filePath)
+        _log.info("_postUploadFileCommand about to upload file(selector/filePath): ", inputFileSelector + ', ' + filePath)
         currWindow.uploadFile(inputFileSelector, filePath);
         res.success(_session.getId())
     },

@@ -187,8 +187,8 @@ void FileInputType::handleDOMActivateEvent(Event* event)
     if (element()->isDisabledFormControl())
         return;
 
-    if (!ScriptController::processingUserGesture())
-        return;
+    // if (!ScriptController::processingUserGesture())
+    //     return;
 
     if (Chrome* chrome = this->chrome()) {
         FileChooserSettings settings;
