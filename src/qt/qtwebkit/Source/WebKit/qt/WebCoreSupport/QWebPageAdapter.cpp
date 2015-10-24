@@ -845,7 +845,7 @@ void QWebPageAdapter::dynamicPropertyChangeEvent(QObject* obj, QDynamicPropertyC
         QVariant port = obj->property("_q_webInspectorServerPort");
         if (port.isValid()) {
             InspectorServerQt* inspectorServer = InspectorServerQt::server();
-            inspectorServer->listen(port.toInt());
+            obj->setProperty("_q_webInspectorServerPort", inspectorServer->listen(port.toInt()));
         }
 #endif
     } else if (event->propertyName() == "_q_deadDecodedDataDeletionInterval") {

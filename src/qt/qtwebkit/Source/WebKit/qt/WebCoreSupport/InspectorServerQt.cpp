@@ -78,14 +78,15 @@ InspectorServerQt::~InspectorServerQt()
     close();
 }
 
-void InspectorServerQt::listen(quint16 port)
+int InspectorServerQt::listen(quint16 port)
 {
     if (m_tcpServer)
-        return;
+        return m_tcpServer->serverPort();
 
     m_tcpServer = new QTcpServer();
     m_tcpServer->listen(QHostAddress::Any, port);
     connect(m_tcpServer, SIGNAL(newConnection()), SLOT(newConnection()));
+    return m_tcpServer->serverPort();
 }
 
 void InspectorServerQt::close()

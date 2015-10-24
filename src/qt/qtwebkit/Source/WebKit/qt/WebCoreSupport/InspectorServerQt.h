@@ -43,7 +43,7 @@ public:
 
     static InspectorServerQt* server();
 
-    void listen(quint16 port);
+    int listen(quint16 port);
 
     void registerClient(InspectorClientQt*);
     void unregisterClient(InspectorClientQt*);
