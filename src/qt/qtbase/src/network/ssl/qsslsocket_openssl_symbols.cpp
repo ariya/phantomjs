@@ -266,7 +266,9 @@ DEFINEFUNC(SSL_SESSION*, SSL_get_session, const SSL *ssl, ssl, return 0, return)
 #ifndef OPENSSL_NO_SSL2
 DEFINEFUNC(const SSL_METHOD *, SSLv2_client_method, DUMMYARG, DUMMYARG, return 0, return)
 #endif
+#ifndef OPENSSL_NO_SSL3_METHOD
 DEFINEFUNC(const SSL_METHOD *, SSLv3_client_method, DUMMYARG, DUMMYARG, return 0, return)
+#endif
 DEFINEFUNC(const SSL_METHOD *, SSLv23_client_method, DUMMYARG, DUMMYARG, return 0, return)
 DEFINEFUNC(const SSL_METHOD *, TLSv1_client_method, DUMMYARG, DUMMYARG, return 0, return)
 #if OPENSSL_VERSION_NUMBER >= 0x10001000L
@@ -276,7 +278,9 @@ DEFINEFUNC(const SSL_METHOD *, TLSv1_2_client_method, DUMMYARG, DUMMYARG, return
 #ifndef OPENSSL_NO_SSL2
 DEFINEFUNC(const SSL_METHOD *, SSLv2_server_method, DUMMYARG, DUMMYARG, return 0, return)
 #endif
+#ifndef OPENSSL_NO_SSL3_METHOD
 DEFINEFUNC(const SSL_METHOD *, SSLv3_server_method, DUMMYARG, DUMMYARG, return 0, return)
+#endif
 DEFINEFUNC(const SSL_METHOD *, SSLv23_server_method, DUMMYARG, DUMMYARG, return 0, return)
 DEFINEFUNC(const SSL_METHOD *, TLSv1_server_method, DUMMYARG, DUMMYARG, return 0, return)
 #if OPENSSL_VERSION_NUMBER >= 0x10001000L
@@ -285,11 +289,15 @@ DEFINEFUNC(const SSL_METHOD *, TLSv1_2_server_method, DUMMYARG, DUMMYARG, return
 #endif
 #else
 DEFINEFUNC(SSL_METHOD *, SSLv2_client_method, DUMMYARG, DUMMYARG, return 0, return)
+#ifndef OPENSSL_NO_SSL3_METHOD
 DEFINEFUNC(SSL_METHOD *, SSLv3_client_method, DUMMYARG, DUMMYARG, return 0, return)
+#endif
 DEFINEFUNC(SSL_METHOD *, SSLv23_client_method, DUMMYARG, DUMMYARG, return 0, return)
 DEFINEFUNC(SSL_METHOD *, TLSv1_client_method, DUMMYARG, DUMMYARG, return 0, return)
 DEFINEFUNC(SSL_METHOD *, SSLv2_server_method, DUMMYARG, DUMMYARG, return 0, return)
+#ifndef OPENSSL_NO_SSL3_METHOD
 DEFINEFUNC(SSL_METHOD *, SSLv3_server_method, DUMMYARG, DUMMYARG, return 0, return)
+#endif
 DEFINEFUNC(SSL_METHOD *, SSLv23_server_method, DUMMYARG, DUMMYARG, return 0, return)
 DEFINEFUNC(SSL_METHOD *, TLSv1_server_method, DUMMYARG, DUMMYARG, return 0, return)
 #endif
@@ -767,7 +775,9 @@ bool q_resolveOpenSslSymbols()
 #ifndef OPENSSL_NO_SSL2
     RESOLVEFUNC(SSLv2_client_method)
 #endif
+#ifndef OPENSSL_NO_SSL3_METHOD
     RESOLVEFUNC(SSLv3_client_method)
+#endif
     RESOLVEFUNC(SSLv23_client_method)
     RESOLVEFUNC(TLSv1_client_method)
 #if OPENSSL_VERSION_NUMBER >= 0x10001000L
@@ -777,7 +787,9 @@ bool q_resolveOpenSslSymbols()
 #ifndef OPENSSL_NO_SSL2
     RESOLVEFUNC(SSLv2_server_method)
 #endif
+#ifndef OPENSSL_NO_SSL3_METHOD
     RESOLVEFUNC(SSLv3_server_method)
+#endif
     RESOLVEFUNC(SSLv23_server_method)
     RESOLVEFUNC(TLSv1_server_method)
 #if OPENSSL_VERSION_NUMBER >= 0x10001000L
