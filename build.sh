@@ -133,6 +133,15 @@ EOF
     if [[ "$continue" != "y" ]]; then
         exit 1
     fi
+
+    echo "Clean previously compiled files (y/n)?"
+    read continue
+    if [[ "$continue" == "y" ]]; then
+        git clean -dxf
+    else
+        continue
+    fi
+
     echo
     echo
 fi
