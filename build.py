@@ -42,6 +42,22 @@ root = os.path.abspath(os.path.dirname(__file__))
 third_party_names = ["libicu", "libxml", "openssl", "zlib"]
 third_party_path = os.path.join(root, "src", "qt", "3rdparty")
 
+openssl_search_paths = [{
+  "name": "Brew",
+  "header": "/usr/local/opt/openssl/include/openssl/opensslv.h",
+  "flags": [
+    "-I/usr/local/opt/openssl/include",
+    "-L/usr/local/opt/openssl/lib"
+  ]
+}, {
+  "name": "MacPorts",
+  "header": "/opt/local/include/openssl/opensslv.h",
+  "flags": [
+    "-I/opt/local/include",
+    "-L/opt/local/lib"
+  ]
+}]
+
 # check if path points to an executable
 # source: http://stackoverflow.com/a/377028
 def isExe(fpath):
@@ -190,13 +206,19 @@ class PhantomJSBuilder(object):
                 # Dirty hack to find OpenSSL libs
                 openssl = os.getenv("OPENSSL", "")
                 if openssl == "":
-                  # try OpenSSL installed via Brew
-                  platformOptions.extend([
-                    "-I/usr/local/opt/openssl/include",
-                    "-L/usr/local/opt/openssl/lib"
-                  ])
+                  # search for OpenSSL
+                  openssl_found = False
+                  for search_path in openssl_search_paths:
+                    if os.path.exists(search_path["header"]):
+                      openssl_found = True
+                      platformOptions.extend(search_path["flags"])
+                      print("Found OpenSSL installed via %s" % search_path["name"])
+
+                  if not openssl_found:
+                    raise RuntimeError("Could not find OpenSSL")
                 else:
-                  raise RuntimeError("Could not find OpenSSL")
+                  # TODO: Implement
+                  raise RuntimeError("Not implemented")
             else:
                 # options specific to other Unixes, like Linux, BSD, ...
                 platformOptions.extend([
