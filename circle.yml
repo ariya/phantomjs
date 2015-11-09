@@ -1,0 +1,18 @@
+machine:
+  pre:
+    - |
+      sudo curl -L -o /usr/bin/docker 'http://s3-external-1.amazonaws.com/circle-downloads/docker-1.8.2-circleci'
+      sudo chmod 0755 /usr/bin/docker
+      sudo service docker start
+checkout:
+  post:
+    - git submodule sync
+    - git submodule update --init
+dependencies:
+  post:
+   - sudo pip install docker-compose
+test:
+   pre:
+     - sudo docker build -t 'ubuntu-build-env' . 
+   override:
+     - sudo docker run -v `pwd`:/home/app ubuntu-build-env ./build.sh --confirm 
