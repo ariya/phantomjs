@@ -9,7 +9,7 @@ COMPILE_JOBS=1
 MAKEFLAGS_JOBS=''
 
 if [[ "$MAKEFLAGS" != "" ]]; then
-  MAKEFLAGS_JOBS=$(echo $MAKEFLAGS | egrep -o '\-j[0-9]+' | egrep -o '[0-9]+')
+  MAKEFLAGS_JOBS=$(echo $MAKEFLAGS | egrep -o '\-j *[0-9]+' | egrep -o '[0-9]+')
 fi
 
 if [[ "$MAKEFLAGS_JOBS" != "" ]]; then
