@@ -1,3 +1,6 @@
+general:
+  artifacts:
+    - "bin/phantomjs" # a single file, relative to the build directory
 machine:
   pre:
     - |
