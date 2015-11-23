@@ -12,12 +12,13 @@ addons:
     - libssl-dev
 
 before_script:
-  - chmod +x ./build.sh
+  - chmod +x ./build.py
+  - chmod +x ./test/run-tests.py
   - chmod +x ./test/run-tests-ghostdriver.sh
   
 script:
-  - ./build.sh --qtdeps=bundled --confirm --silent   #< Build
-  - ./test/run-tests.py                              #< Test (PhantomJS)
+  - ./build.py --confirm --silent   #< Build
+  - ./test/run-tests.py             #< Test (PhantomJS)
 
 notifications:
   irc:
