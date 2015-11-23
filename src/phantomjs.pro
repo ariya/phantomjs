@@ -90,6 +90,9 @@ mac {
 }
 
 win32-msvc* {
+    DEFINES += NOMINMAX \
+      WIN32_LEAN_AND_MEAN \
+      _CRT_SECURE_NO_WARNINGS
     # ingore warnings:
     # 4049 - locally defined symbol 'symbol' imported
     QMAKE_LFLAGS += /ignore:4049

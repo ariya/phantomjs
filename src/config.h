@@ -93,7 +93,7 @@ public:
     void setOfflineStorageDefaultQuota(int offlineStorageDefaultQuota);
 
     QString localStoragePath() const;
-    void setLocalStoragePath(const QString &value);
+    void setLocalStoragePath(const QString& value);
 
     int localStorageDefaultQuota() const;
     void setLocalStorageDefaultQuota(int localStorageDefaultQuota);

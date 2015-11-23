@@ -66,7 +66,7 @@ System::System(QObject* parent) :
     m_os.insert("architecture", QString("%1bit").arg(QSysInfo::WordSize));
 
     // "os.name" and "os.version"
-#if defined(Q_OS_WIN32)
+#if defined(Q_OS_WIN)
     m_os.insert("name", "windows");
     switch (QSysInfo::WindowsVersion) {
     case QSysInfo::WV_32s:

@@ -26,10 +26,6 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifdef _WIN32
-#define NOMINMAX
-#endif
-
 #include "consts.h"
 #include "utils.h"
 #include "env.h"
@@ -84,13 +80,13 @@ int main(int argc, char** argv)
         init_crash_handler();
         return inner_main(argc, argv);
 
-    // These last-ditch exception handlers write to the C stderr
-    // because who knows what kind of state Qt is in.  And they avoid
-    // using fprintf because _that_ might be in bad shape too.
-    // (I would drop all the way down to write() but then I'd have to
-    // write the code again for Windows.)
-    //
-    // print_crash_message includes a call to fflush(stderr).
+        // These last-ditch exception handlers write to the C stderr
+        // because who knows what kind of state Qt is in.  And they avoid
+        // using fprintf because _that_ might be in bad shape too.
+        // (I would drop all the way down to write() but then I'd have to
+        // write the code again for Windows.)
+        //
+        // print_crash_message includes a call to fflush(stderr).
     } catch (std::bad_alloc) {
         fputs("Memory exhausted.\n", stderr);
         fflush(stderr);

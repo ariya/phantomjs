@@ -65,7 +65,7 @@
 #include "cookiejar.h"
 #include "system.h"
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN
 #include <io.h>
 #include <fcntl.h>
 #endif
@@ -415,9 +415,9 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     m_customWebPage->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
 
     if (phantomCfg->localStoragePath().isEmpty()) {
-      m_customWebPage->settings()->setLocalStoragePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+        m_customWebPage->settings()->setLocalStoragePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
     } else {
-      m_customWebPage->settings()->setLocalStoragePath(phantomCfg->localStoragePath());
+        m_customWebPage->settings()->setLocalStoragePath(phantomCfg->localStoragePath());
     }
 
     // Custom network access manager to allow traffic monitoring.
@@ -1001,23 +1001,23 @@ bool WebPage::render(const QString& fileName, const QVariantMap& option)
 
         System* system = (System*)Phantom::instance()->createSystem();
         if (fileName == STDOUT_FILENAME) {
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN
             _setmode(_fileno(stdout), O_BINARY);
 #endif
 
             ((File*)system->_stdout())->write(QString::fromLatin1(ba.constData(), ba.size()));
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN
             _setmode(_fileno(stdout), O_TEXT);
 #endif
         } else if (fileName == STDERR_FILENAME) {
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN
             _setmode(_fileno(stderr), O_BINARY);
 #endif
 
             ((File*)system->_stderr())->write(QString::fromLatin1(ba.constData(), ba.size()));
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN
             _setmode(_fileno(stderr), O_TEXT);
 #endif
         }
@@ -1065,7 +1065,7 @@ QImage WebPage::renderImage()
     QSize viewportSize = m_customWebPage->viewportSize();
     m_customWebPage->setViewportSize(contentsSize);
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN
     QImage::Format format = QImage::Format_ARGB32_Premultiplied;
 #else
     QImage::Format format = QImage::Format_ARGB32;

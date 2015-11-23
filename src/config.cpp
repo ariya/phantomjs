@@ -231,7 +231,7 @@ QString Config::localStoragePath() const
     return m_localStoragePath;
 }
 
-void Config::setLocalStoragePath(const QString &value)
+void Config::setLocalStoragePath(const QString& value)
 {
     QDir dir(value);
     m_localStoragePath = dir.absolutePath();

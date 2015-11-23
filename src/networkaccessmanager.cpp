@@ -385,9 +385,9 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
     // file: URLs may be disabled.
     // The second half of this conditional must match
     // QNetworkAccessManager's own idea of what a local file URL is.
-    QNetworkReply *nested_reply;
+    QNetworkReply* nested_reply;
     if (!m_localUrlAccessEnabled &&
-        (req.url().isLocalFile() || scheme == QLatin1String("qrc"))) {
+            (req.url().isLocalFile() || scheme == QLatin1String("qrc"))) {
         nested_reply = new NoFileAccessReply(this, req, op);
     } else {
         nested_reply = QNetworkAccessManager::createRequest(op, req, outgoingData);

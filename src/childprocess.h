@@ -33,7 +33,7 @@
 #include <QObject>
 #include <QProcess>
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN
 #include <QtCore/qt_windows.h>
 #endif
 
