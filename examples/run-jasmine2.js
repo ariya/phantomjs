@@ -83,7 +83,7 @@ page.open(system.args[1], function(status){
                   }
                   return 1;
                 } else {
-                  console.log(document.body.querySelector('.alert > .bar.passed').innerText);
+                  console.log(document.body.querySelector('.alert > .bar.passed,.alert > .bar.skipped').innerText);
                   return 0;
                 }
             });
