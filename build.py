@@ -157,6 +157,7 @@ class PhantomJSBuilder(object):
         if platform.system() == "Windows":
             platformOptions = [
                 "-mp",
+                "-static-runtime",
                 "-no-cetest",
                 "-no-angle",
                 "-icu",
@@ -247,6 +248,7 @@ class PhantomJSBuilder(object):
             "-qt-zlib",
             "-qt-libpng",
             "-qt-libjpeg",
+            "-qt-pcre",
             # disable unnecessary Qt features
             "-nomake", "examples",
             "-nomake", "tools",
@@ -254,6 +256,7 @@ class PhantomJSBuilder(object):
             "-no-qml-debug",
             "-no-dbus",
             "-no-opengl",
+            "-no-audio-backend",
             "-D", "QT_NO_GRAPHICSVIEW",
             "-D", "QT_NO_GRAPHICSEFFECT",
             "-D", "QT_NO_STYLESHEET",
