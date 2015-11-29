@@ -249,6 +249,8 @@ QVariantList CookieJar::cookiesToMap(const QString &url) const
     QList<QNetworkCookie> cookiesList = cookies(url);
     for (int i = cookiesList.length() -1; i >= 0; --i) {
         c = cookiesList.at(i);
+		
+		cookie.clear();
 
         cookie["domain"] = QVariant(c.domain());
         cookie["name"] = QVariant(QString(c.name()));
