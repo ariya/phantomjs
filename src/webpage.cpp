@@ -989,6 +989,18 @@ bool WebPage::render(const QString& fileName, const QVariantMap& option)
             f = format.toLocal8Bit().constData();
         }
 
+        if( option.contains("maxWidth") && option.contains("maxHeight") ){
+            int maxWidth = option.value("maxWidth").toInt();
+            int maxHeight = option.value("maxHeight").toInt();
+            rawPageRendering = rawPageRendering.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio);
+        } else if( option.contains("maxWidth") ){
+            int maxWidth = option.value("maxWidth").toInt();
+            rawPageRendering = rawPageRendering.scaledToWidth(maxWidth);
+        } else if( option.contains("maxHeight") ){
+            int maxHeight = option.value("maxHeight").toInt();
+            rawPageRendering = rawPageRendering.scaledToHeight(maxHeight);
+        }
+
         retval = rawPageRendering.save(outFileName, f, quality);
     }
 
