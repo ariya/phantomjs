@@ -33,6 +33,7 @@
 #include "cookiejar.h"
 
 #include <QDateTime>
+#include <QDataStream>
 #include <QSettings>
 #include <QTimer>
 
