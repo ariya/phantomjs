@@ -71,7 +71,7 @@ static const struct QCommandLineConfigEntry flags[] = {
     { QCommandLine::Option, '\0', "web-security", "Enables web security, 'true' (default) or 'false'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-protocol", "Selects a specific SSL protocol version to offer. Values (case insensitive): TLSv1.2, TLSv1.1, TLSv1.0, TLSv1 (same as v1.0), SSLv3, or ANY. Default is to offer all that Qt thinks are secure (SSLv3 and up). Not all values may be supported, depending on the system OpenSSL library.", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-ciphers", "Sets supported TLS/SSL ciphers. Argument is a colon-separated list of OpenSSL cipher names (macros like ALL, kRSA, etc. may not be used). Default matches modern browsers.", QCommandLine::Optional },
-    { QCommandLine::Option, '\0', "ssl-certificates-path", "Sets the location for custom CA certificates (if none set, uses system default)", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "ssl-certificates-path", "Sets the location for custom CA certificates (if none set, uses environment variable SSL_CERT_DIR. If none set too, uses system default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-client-certificate-file", "Sets the location of a client certificate", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-client-key-file", "Sets the location of a clients' private key", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-client-key-passphrase", "Sets the passphrase for the clients' private key", QCommandLine::Optional },
