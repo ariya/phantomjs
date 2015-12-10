@@ -118,6 +118,11 @@ class PhantomJSBuilder(object):
             self.makeCommand = ["make"]
             self.makeCommand.extend(flags)
 
+        # if there is no git subdirectory, automatically go into no-git
+        # mode
+        if not os.path.isdir(".git"):
+            self.options.skip_git = True
+
     # run the given command in the given working directory
     def execute(self, command, workingDirectory):
         # python 2 compatibility: manually convert to strings
@@ -132,6 +137,7 @@ class PhantomJSBuilder(object):
 
     # run git clean in the specified path
     def gitClean(self, path):
+        if self.options.skip_git: return 0
         return self.execute(["git", "clean", "-xfd"], path)
 
     # run make, nmake or jom in the specified path
@@ -339,6 +345,7 @@ class PhantomJSBuilder(object):
 
     # ensure the git submodules are all available
     def ensureSubmodulesAvailable(self):
+        if self.options.skip_git: return
         if self.execute(["git", "submodule", "init"], ".") != 0:
             raise RuntimeError("Initialization of git submodules failed.")
         if self.execute(["git", "submodule", "update", "--init"], ".") != 0:
@@ -401,6 +408,9 @@ def parseArguments():
                             help="Skip configure step of Qt WebKit, only build it.\n"
                                  "Only enable this option when neither the environment nor Qt Base "
                                  "has changed and only an update of Qt WebKit is required.")
+    advanced.add_argument("--skip-git", action="store_true",
+                            help="Skip all actions that require Git.  For use when building from "
+                                 "a tarball release.")
     options = parser.parse_args()
     if options.debug and options.release:
         raise RuntimeError("Cannot build with both debug and release mode enabled.")
