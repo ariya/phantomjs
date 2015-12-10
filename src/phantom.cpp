@@ -436,15 +436,15 @@ void Phantom::debugExit(int code)
 
 QString Phantom::resolveRelativeUrl(QString url, QString base)
 {
-  QUrl u = QUrl::fromEncoded(url.toLatin1());
-  QUrl b = QUrl::fromEncoded(base.toLatin1());
+    QUrl u = QUrl::fromEncoded(url.toLatin1());
+    QUrl b = QUrl::fromEncoded(base.toLatin1());
 
-  return b.resolved(u).toEncoded();
+    return b.resolved(u).toEncoded();
 }
 
 QString Phantom::fullyDecodeUrl(QString url)
 {
-  return QUrl::fromEncoded(url.toLatin1()).toDisplayString();
+    return QUrl::fromEncoded(url.toLatin1()).toDisplayString();
 }
 
 // private slots:
@@ -504,7 +504,7 @@ void Phantom::doExit(int code)
     emit aboutToExit(code);
     m_terminated = true;
     m_returnValue = code;
-    foreach(QPointer<WebPage> page, m_pages) {
+    foreach (QPointer<WebPage> page, m_pages) {
         if (!page) {
             continue;
         }

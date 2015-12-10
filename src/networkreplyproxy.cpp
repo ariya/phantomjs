@@ -122,8 +122,9 @@ void NetworkReplyProxy::applyMetaData()
     */
 
     QList<QByteArray> headers = m_reply->rawHeaderList();
-    foreach(QByteArray header, headers)
-    setRawHeader(header, m_reply->rawHeader(header));
+    foreach (QByteArray header, headers) {
+        setRawHeader(header, m_reply->rawHeader(header));
+    }
 
     setHeader(QNetworkRequest::ContentTypeHeader, m_reply->header(QNetworkRequest::ContentTypeHeader));
     setHeader(QNetworkRequest::ContentLengthHeader, m_reply->header(QNetworkRequest::ContentLengthHeader));

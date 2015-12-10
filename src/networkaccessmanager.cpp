@@ -214,9 +214,9 @@ void NetworkAccessManager::prepareSslConfiguration(const Config* config)
     // That overload isn't available on QSslConfiguration.
     if (!config->sslCiphers().isEmpty()) {
         QList<QSslCipher> cipherList;
-        foreach(const QString & cipherName,
-                config->sslCiphers().split(QLatin1String(":"),
-                                           QString::SkipEmptyParts)) {
+        foreach (const QString& cipherName,
+                 config->sslCiphers().split(QLatin1String(":"),
+                                            QString::SkipEmptyParts)) {
             QSslCipher cipher(cipherName);
             if (!cipher.isNull()) {
                 cipherList << cipher;
@@ -364,7 +364,7 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
     m_idCounter++;
 
     QVariantList headers;
-    foreach(QByteArray headerName, req.rawHeaderList()) {
+    foreach (QByteArray headerName, req.rawHeaderList()) {
         QVariantMap header;
         header["name"] = QString::fromUtf8(headerName);
         header["value"] = QString::fromUtf8(req.rawHeader(headerName));
@@ -448,7 +448,7 @@ void NetworkAccessManager::handleTimeout()
 void NetworkAccessManager::handleStarted(QNetworkReply* reply, int requestId)
 {
     QVariantList headers;
-    foreach(QByteArray headerName, reply->rawHeaderList()) {
+    foreach (QByteArray headerName, reply->rawHeaderList()) {
         QVariantMap header;
         header["name"] = QString::fromUtf8(headerName);
         header["value"] = QString::fromUtf8(reply->rawHeader(headerName));
@@ -485,7 +485,7 @@ void NetworkAccessManager::provideAuthentication(QNetworkReply* reply, QAuthenti
 void NetworkAccessManager::handleFinished(QNetworkReply* reply, int requestId, int status, const QString& statusText, const QString& body)
 {
     QVariantList headers;
-    foreach(QByteArray headerName, reply->rawHeaderList()) {
+    foreach (QByteArray headerName, reply->rawHeaderList()) {
         QVariantMap header;
         header["name"] = QString::fromUtf8(headerName);
         header["value"] = QString::fromUtf8(reply->rawHeader(headerName));
@@ -511,7 +511,7 @@ void NetworkAccessManager::handleFinished(QNetworkReply* reply, int requestId, i
 
 void NetworkAccessManager::handleSslErrors(QNetworkReply* reply, const QList<QSslError>& errors)
 {
-    foreach(QSslError e, errors) {
+    foreach (QSslError e, errors) {
         qDebug() << "Network - SSL Error:" << e;
     }
 
