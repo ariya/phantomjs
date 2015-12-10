@@ -1,4 +1,4 @@
-var assert = require('../../assert');
-
-assert.isTrue(window.hasOwnProperty('WebPage'));
-assert.typeOf(window.WebPage, 'function');
+test(function () {
+    assert_own_property(window, 'WebPage');
+    assert_type_of(window.WebPage, 'function');
+}, "window.WebPage global property");

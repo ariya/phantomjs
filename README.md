@@ -1,6 +1,6 @@
 # [PhantomJS](http://phantomjs.org) - Scriptable Headless WebKit
 
-PhantomJS ([www.phantomjs.org](http://phantomjs.org)) is a headless WebKit scriptable with JavaScript. It is used by hundreds of [developers](http://phantomjs.org/buzz.html) and dozens of [organizations](http://phantomjs.org/users.html) for web-related development workflow.
+PhantomJS ([phantomjs.org](http://phantomjs.org)) is a headless WebKit scriptable with JavaScript. It is used by hundreds of [developers](http://phantomjs.org/buzz.html) and dozens of [organizations](http://phantomjs.org/users.html) for web-related development workflow.
 
 The latest [stable release](http://phantomjs.org/release-2.0.html) is version 2.0.
 

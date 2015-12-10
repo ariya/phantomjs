@@ -1,3 +1,0 @@
-Attempts to load a Qt plugin, and shows the error message if the plugin could not be loaded.
-
-Use this tool to check why your database driver is not there, or why that style doesn't show.

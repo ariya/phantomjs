@@ -41,9 +41,9 @@
 #define HTTP_HEADER_CONTENT_TYPE        "content-type"
 
 #define JS_ELEMENT_CLICK "(function (el) { " \
-        "var ev = document.createEvent('MouseEvents');" \
-        "ev.initEvent(\"click\", true, true);" \
-        "el.dispatchEvent(ev);" \
+    "var ev = document.createEvent('MouseEvents');" \
+    "ev.initEvent(\"click\", true, true);" \
+    "el.dispatchEvent(ev);" \
     "})(this);"
 
 #define JS_APPEND_SCRIPT_ELEMENT "var el = document.createElement('script');" \

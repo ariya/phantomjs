@@ -1,23 +1,32 @@
-var assert = require('../../assert');
 var webpage = require('webpage');
 
-var page = webpage.create();
+async_test(function () {
+    var page = webpage.create();
+    var url = TEST_HTTP_BASE + 'status?400';
+    var startStage = 0;
+    var endStage = 0;
+    var errors = 0;
 
-// It should still fire `onResourceReceived` callback twice
-// (for each start and end stage) when the resource error occured
+    page.onResourceReceived = this.step_func(function (resource) {
+        assert_equals(resource.url, url);
+        if (resource.stage === 'start') {
+            ++startStage;
+        }
+        if (resource.stage === 'end') {
+            ++endStage;
+        }
+    });
+    page.onResourceError = this.step_func(function (error) {
+        assert_equals(error.url, url);
+        assert_equals(error.status, 400);
+        ++errors;
+    });
 
-var startStage = 0;
-var endStage = 0;
-page.onResourceReceived = function (resource) {
-    if (resource.stage === 'start') {
-        ++startStage;
-    }
-    if (resource.stage === 'end') {
-        ++endStage;
-    }
-};
+    page.open(url, this.step_func_done(function (status) {
+        assert_equals(status, 'success');
+        assert_equals(startStage, 1);
+        assert_equals(endStage, 1);
+        assert_equals(errors, 1);
+    }));
 
-page.open('http://localhost:9180/status?400', function (status) {
-    assert.equal(startStage, 1);
-    assert.equal(endStage, 1);
-});
+}, "onResourceReceived should still be called for failed requests");

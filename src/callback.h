@@ -40,7 +40,7 @@ class Callback : public QObject
     Q_PROPERTY(QVariant returnValue READ returnValue WRITE setReturnValue)
 
 public:
-    Callback(QObject *parent);
+    Callback(QObject* parent);
 
     QVariant call(const QVariantList& arguments);
 

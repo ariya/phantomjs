@@ -1,6 +1,0 @@
-If this package is accessed by Qt Creator, certain changes can be
-overwritten without warning. In particular, Qt Creator may overwrite
-settings which are maintained using its own UI, and files and
-directories containing the string "--Managed_by_Qt_Creator--", as well
-as native libraries whose file names begin with "libQt5" may be
-deleted without warning if they are contained inside this package.

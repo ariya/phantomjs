@@ -1,6 +1,0 @@
-
-!!IF isEmpty(CMAKE_INSTALL_DATA_DIR_IS_ABSOLUTE)
-set(_qt5_corelib_extra_includes \"${_qt5Core_install_prefix}/$${CMAKE_INSTALL_DATA_DIR}/mkspecs/$${CMAKE_MKSPEC}\")
-!!ELSE
-set(_qt5_corelib_extra_includes \"$${CMAKE_INSTALL_DATA_DIR}mkspecs/$${CMAKE_MKSPEC}\")
-!!ENDIF

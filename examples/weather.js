@@ -7,7 +7,7 @@ city = 'Mountain View, California'; // default
 if (system.args.length > 1) {
     city = Array.prototype.slice.call(system.args, 1).join(' ');
 }
-url = encodeURI('http://api.openweathermap.org/data/2.1/find/name?q=' + city);
+url = encodeURI('http://api.openweathermap.org/data/2.5/find?q=' + city);
 
 console.log('Checking weather condition for', city, '...');
 

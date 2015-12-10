@@ -1,4 +1,0 @@
-dbus_type = interface
-qdbusxml2cpp_option = -p
-
-include(dbuscommon.pri)

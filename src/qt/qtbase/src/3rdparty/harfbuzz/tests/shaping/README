@@ -1,9 +1,0 @@
-These shaper tests need some specific TrueType fonts. You can get a package of
-them from
-
-        http://people.freedesktop.org/~hausmann/harfbuzz-test-fonts-0.1.tar.bz2
-
-In addition you may need two fonts (Mangal and Tunga) from Microsoft Windows
-for some of the test cases. These fonts are not freely redistributable.
-
-The test program looks for them in a fonts/ subdirectory.

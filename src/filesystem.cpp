@@ -37,12 +37,12 @@
 
 // File
 // public:
-File::File(QFile *openfile, QTextCodec *codec, QObject *parent) :
+File::File(QFile* openfile, QTextCodec* codec, QObject* parent) :
     QObject(parent),
     m_file(openfile),
     m_fileStream(0)
 {
-    if ( codec ) {
+    if (codec) {
         m_fileStream = new QTextStream(m_file);
         m_fileStream->setCodec(codec);
     }
@@ -59,7 +59,7 @@ File::~File()
 //      encounters \0 or similar
 
 // public slots:
-QString File::read(const QVariant &n)
+QString File::read(const QVariant& n)
 {
     // Default to 1024 (used when n is "null")
     qint64 bytesToRead = 1024;
@@ -71,15 +71,15 @@ QString File::read(const QVariant &n)
 
     const bool isReadAll = 0 > bytesToRead;
 
-    if ( !m_file->isReadable() ) {
+    if (!m_file->isReadable()) {
         qDebug() << "File::read - " << "Couldn't read:" << m_file->fileName();
         return QString();
     }
-    if ( m_file->isWritable() ) {
+    if (m_file->isWritable()) {
         // make sure we write everything to disk before reading
         flush();
     }
-    if ( m_fileStream ) {
+    if (m_fileStream) {
         // text file
         QString ret;
         if (isReadAll) {
@@ -107,20 +107,20 @@ QString File::read(const QVariant &n)
             data = m_file->read(bytesToRead);
         }
         QString ret(data.size(), ' ');
-        for(int i = 0; i < data.size(); ++i) {
+        for (int i = 0; i < data.size(); ++i) {
             ret[i] = data.at(i);
         }
         return ret;
     }
 }
 
-bool File::write(const QString &data)
+bool File::write(const QString& data)
 {
-    if ( !m_file->isWritable() ) {
+    if (!m_file->isWritable()) {
         qDebug() << "File::write - " << "Couldn't write:" << m_file->fileName();
         return true;
     }
-    if ( m_fileStream ) {
+    if (m_fileStream) {
         // text file
         (*m_fileStream) << data;
         if (_isUnbuffered()) {
@@ -130,7 +130,7 @@ bool File::write(const QString &data)
     } else {
         // binary file
         QByteArray bytes(data.size(), Qt::Uninitialized);
-        for(int i = 0; i < data.size(); ++i) {
+        for (int i = 0; i < data.size(); ++i) {
             bytes[i] = data.at(i).toLatin1();
         }
         return m_file->write(bytes);
@@ -148,15 +148,15 @@ bool File::seek(const qint64 pos)
 
 QString File::readLine()
 {
-    if ( !m_file->isReadable() ) {
+    if (!m_file->isReadable()) {
         qDebug() << "File::readLine - " << "Couldn't read:" << m_file->fileName();
         return QString();
     }
-    if ( m_file->isWritable() ) {
+    if (m_file->isWritable()) {
         // make sure we write everything to disk before reading
         flush();
     }
-    if ( m_fileStream ) {
+    if (m_fileStream) {
         // text file
         return m_fileStream->readLine();
     } else {
@@ -165,9 +165,9 @@ QString File::readLine()
     }
 }
 
-bool File::writeLine(const QString &data)
+bool File::writeLine(const QString& data)
 {
-    if ( write(data) && write("\n") ) {
+    if (write(data) && write("\n")) {
         return true;
     }
     qDebug() << "File::writeLine - " << "Couldn't write:" << m_file->fileName();
@@ -176,7 +176,7 @@ bool File::writeLine(const QString &data)
 
 bool File::atEnd() const
 {
-    if ( m_file->isReadable() ) {
+    if (m_file->isReadable()) {
         if (m_fileStream) {
             // text file
             return m_fileStream->atEnd();
@@ -191,8 +191,8 @@ bool File::atEnd() const
 
 void File::flush()
 {
-    if ( m_file ) {
-        if ( m_fileStream ) {
+    if (m_file) {
+        if (m_fileStream) {
             // text file
             m_fileStream->flush();
         }
@@ -204,11 +204,11 @@ void File::flush()
 void File::close()
 {
     flush();
-    if ( m_fileStream ) {
+    if (m_fileStream) {
         delete m_fileStream;
         m_fileStream = 0;
     }
-    if ( m_file ) {
+    if (m_file) {
         m_file->close();
         delete m_file;
         m_file = NULL;
@@ -216,13 +216,14 @@ void File::close()
     deleteLater();
 }
 
-bool File::setEncoding(const QString &encoding) {
+bool File::setEncoding(const QString& encoding)
+{
     if (encoding.isEmpty() || encoding.isNull()) {
         return false;
     }
 
     // "Binary" mode doesn't use/need text codecs
-    if ((QTextStream *)NULL == m_fileStream) {
+    if ((QTextStream*)NULL == m_fileStream) {
         // TODO: Should we switch to "text" mode?
         return false;
     }
@@ -230,9 +231,9 @@ bool File::setEncoding(const QString &encoding) {
     // Since there can be multiple names for the same codec (i.e., "utf8" and
     // "utf-8"), we need to get the codec in the system first and use its
     // canonical name
-    QTextCodec *codec = QTextCodec::codecForName(encoding.toLatin1());
-    if ((QTextCodec *)NULL == codec) {
-      return false;
+    QTextCodec* codec = QTextCodec::codecForName(encoding.toLatin1());
+    if ((QTextCodec*)NULL == codec) {
+        return false;
     }
 
     // Check whether encoding actually needs to be changed
@@ -252,7 +253,7 @@ QString File::getEncoding() const
 {
     QString encoding;
 
-    if ((QTextStream *)NULL != m_fileStream) {
+    if ((QTextStream*)NULL != m_fileStream) {
         encoding = QString(m_fileStream->codec()->name());
     }
 
@@ -269,14 +270,14 @@ bool File::_isUnbuffered() const
 
 // FileSystem
 // public:
-FileSystem::FileSystem(QObject *parent)
+FileSystem::FileSystem(QObject* parent)
     : QObject(parent)
 { }
 
 // public slots:
 
 // Attributes
-int FileSystem::_size(const QString &path) const
+int FileSystem::_size(const QString& path) const
 {
     QFileInfo fi(path);
     if (fi.exists()) {
@@ -285,7 +286,7 @@ int FileSystem::_size(const QString &path) const
     return -1;
 }
 
-QVariant FileSystem::lastModified(const QString &path) const
+QVariant FileSystem::lastModified(const QString& path) const
 {
     QFileInfo fi(path);
     if (fi.exists()) {
@@ -295,49 +296,55 @@ QVariant FileSystem::lastModified(const QString &path) const
 }
 
 // Links
-QString FileSystem::readLink(const QString &path) const
+QString FileSystem::readLink(const QString& path) const
 {
     return QFileInfo(path).symLinkTarget();
 }
 
 // Tests
-bool FileSystem::exists(const QString &path) const
+bool FileSystem::exists(const QString& path) const
 {
     return QFile::exists(path);
 }
 
-bool FileSystem::isDirectory(const QString &path) const
+bool FileSystem::isDirectory(const QString& path) const
 {
     return QFileInfo(path).isDir();
 }
 
-bool FileSystem::isFile(const QString &path) const
+bool FileSystem::isFile(const QString& path) const
 {
     return QFileInfo(path).isFile();
 }
 
-bool FileSystem::isAbsolute(const QString &path) const {
-   return QFileInfo(path).isAbsolute();
+bool FileSystem::isAbsolute(const QString& path) const
+{
+    return QFileInfo(path).isAbsolute();
 }
 
-bool FileSystem::isExecutable(const QString &path) const {
-   return QFileInfo(path).isExecutable();
+bool FileSystem::isExecutable(const QString& path) const
+{
+    return QFileInfo(path).isExecutable();
 }
 
-bool FileSystem::isLink(const QString &path) const {
-   return QFileInfo(path).isSymLink();
+bool FileSystem::isLink(const QString& path) const
+{
+    return QFileInfo(path).isSymLink();
 }
 
-bool FileSystem::isReadable(const QString &path) const {
-   return QFileInfo(path).isReadable();
+bool FileSystem::isReadable(const QString& path) const
+{
+    return QFileInfo(path).isReadable();
 }
 
-bool FileSystem::isWritable(const QString &path) const {
-   return QFileInfo(path).isWritable();
+bool FileSystem::isWritable(const QString& path) const
+{
+    return QFileInfo(path).isWritable();
 }
 
 // Directory
-bool FileSystem::_copyTree(const QString &source, const QString &destination) const {
+bool FileSystem::_copyTree(const QString& source, const QString& destination) const
+{
     QDir sourceDir(source);
     QDir::Filters sourceDirFilter = QDir::NoDotAndDotDot | QDir::AllDirs | QDir::Files | QDir::NoSymLinks | QDir::Drives;
 
@@ -347,15 +354,15 @@ bool FileSystem::_copyTree(const QString &source, const QString &destination) co
             return false;
         }
 
-        foreach(QFileInfo entry, sourceDir.entryInfoList(sourceDirFilter, QDir::DirsFirst)) {
+        foreach (QFileInfo entry, sourceDir.entryInfoList(sourceDirFilter, QDir::DirsFirst)) {
             if (entry.isDir()) {
                 if (!FileSystem::_copyTree(entry.absoluteFilePath(),
-                            destination + "/" + entry.fileName())) { //< directory: recursive call
+                                           destination + "/" + entry.fileName())) { //< directory: recursive call
                     return false;
                 }
             } else {
                 if (!FileSystem::_copy(entry.absoluteFilePath(),
-                                destination + "/" + entry.fileName())) { //< file: copy
+                                       destination + "/" + entry.fileName())) { //< file: copy
                     return false;
                 }
             }
@@ -365,28 +372,28 @@ bool FileSystem::_copyTree(const QString &source, const QString &destination) co
     return true;
 }
 
-bool FileSystem::makeDirectory(const QString &path) const
+bool FileSystem::makeDirectory(const QString& path) const
 {
     return QDir().mkdir(path);
 }
 
-bool FileSystem::makeTree(const QString &path) const
+bool FileSystem::makeTree(const QString& path) const
 {
     return QDir().mkpath(path);
 }
 
-bool FileSystem::_removeDirectory(const QString &path) const
+bool FileSystem::_removeDirectory(const QString& path) const
 {
     return QDir().rmdir(path);
 }
 
-bool FileSystem::_removeTree(const QString &path) const
+bool FileSystem::_removeTree(const QString& path) const
 {
     QDir dir(path);
     QDir::Filters dirFilter = QDir::NoDotAndDotDot | QDir::System | QDir::Hidden | QDir::AllDirs | QDir::Files;
 
     if (dir.exists()) {
-        foreach(QFileInfo info, dir.entryInfoList(dirFilter, QDir::DirsFirst)) {
+        foreach (QFileInfo info, dir.entryInfoList(dirFilter, QDir::DirsFirst)) {
             if (info.isDir()) {
                 if (!FileSystem::_removeTree(info.absoluteFilePath())) { //< directory: recursive call
                     return false;
@@ -405,7 +412,7 @@ bool FileSystem::_removeTree(const QString &path) const
     return true;
 }
 
-QStringList FileSystem::list(const QString &path) const
+QStringList FileSystem::list(const QString& path) const
 {
     return QDir(path).entryList();
 }
@@ -421,28 +428,28 @@ QString FileSystem::workingDirectory() const
     return QDir::currentPath();
 }
 
-bool FileSystem::changeWorkingDirectory(const QString &path) const
+bool FileSystem::changeWorkingDirectory(const QString& path) const
 {
     return QDir::setCurrent(path);
 }
 
-QString FileSystem::absolute(const QString &relativePath) const
+QString FileSystem::absolute(const QString& relativePath) const
 {
     return QFileInfo(relativePath).absoluteFilePath();
 }
 
-QString FileSystem::fromNativeSeparators(const QString &path) const
+QString FileSystem::fromNativeSeparators(const QString& path) const
 {
     return QDir::fromNativeSeparators(path);
 }
 
-QString FileSystem::toNativeSeparators(const QString &path) const
+QString FileSystem::toNativeSeparators(const QString& path) const
 {
     return QDir::toNativeSeparators(path);
 }
 
 // Files
-QObject *FileSystem::_open(const QString &path, const QVariantMap &opts) const
+QObject* FileSystem::_open(const QString& path, const QVariantMap& opts) const
 {
     qDebug() << "FileSystem - _open:" << path << opts;
 
@@ -457,8 +464,8 @@ QObject *FileSystem::_open(const QString &path, const QVariantMap &opts) const
     QFile::OpenMode modeCode = QFile::NotOpen;
 
     // Determine the OpenMode
-    foreach(const QChar &c, modeVar.toString()) {
-        switch(c.toLatin1()) {
+    foreach (const QChar& c, modeVar.toString()) {
+        switch (c.toLatin1()) {
         case 'r': case 'R': {
             modeCode |= QFile::ReadOnly;
             break;
@@ -484,20 +491,20 @@ QObject *FileSystem::_open(const QString &path, const QVariantMap &opts) const
     }
 
     // Make sure the file exists OR it can be created at the required path
-    if ( !QFile::exists(path) && modeCode & QFile::WriteOnly ) {
-        if ( !makeTree(QFileInfo(path).dir().absolutePath()) ) {
+    if (!QFile::exists(path) && modeCode & QFile::WriteOnly) {
+        if (!makeTree(QFileInfo(path).dir().absolutePath())) {
             qDebug() << "FileSystem::open - " << "Full path coulnd't be created:" << path;
             return 0;
         }
     }
 
     // Make sure there is something to read
-    if ( !QFile::exists(path) && modeCode & QFile::ReadOnly ) {
+    if (!QFile::exists(path) && modeCode & QFile::ReadOnly) {
         qDebug() << "FileSystem::open - " << "Trying to read a file that doesn't exist:" << path;
         return 0;
     }
 
-    QTextCodec *codec = 0;
+    QTextCodec* codec = 0;
     if (!isBinary) {
         // default to UTF-8 encoded files
         const QString charset = opts.value("charset", "UTF-8").toString();
@@ -510,7 +517,7 @@ QObject *FileSystem::_open(const QString &path, const QVariantMap &opts) const
 
     // Try to Open
     QFile* file = new QFile(path);
-    if ( !file->open(modeCode) ) {
+    if (!file->open(modeCode)) {
         // Return "NULL" if the file couldn't be opened as requested
         delete file;
         qDebug() << "FileSystem::open - " << "Couldn't be opened:" << path;
@@ -520,11 +527,12 @@ QObject *FileSystem::_open(const QString &path, const QVariantMap &opts) const
     return new File(file, codec);
 }
 
-bool FileSystem::_remove(const QString &path) const
+bool FileSystem::_remove(const QString& path) const
 {
     return QFile::remove(path);
 }
 
-bool FileSystem::_copy(const QString &source, const QString &destination) const {
+bool FileSystem::_copy(const QString& source, const QString& destination) const
+{
     return QFile(source).copy(destination);
 }

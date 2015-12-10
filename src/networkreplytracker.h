@@ -45,7 +45,8 @@ class NetworkReplyProxy;
   to phantomjs specific ones. It uses NetworkReplyProxy to collect
   body of the response and passes body as a signal argument.
  */
-class NetworkReplyTracker: public QObject {
+class NetworkReplyTracker: public QObject
+{
     Q_OBJECT
 public:
 
@@ -57,7 +58,7 @@ public:
       requestId - unique request id, used to distinguis replies internally
       shouldCaptureResponseBody - if true, response body will be available in 'finished' signal
      */
-    QNetworkReply* trackReply(QNetworkReply *reply, int requestId,
+    QNetworkReply* trackReply(QNetworkReply* reply, int requestId,
                               bool shouldCaptureResponseBody);
 
 
@@ -66,9 +67,9 @@ public:
       status - set custom HTTP status code
       statusString - text description of status code
      */
-    void abort(QNetworkReply *reply, int status, const QString& statusString);
+    void abort(QNetworkReply* reply, int status, const QString& statusString);
 
-    
+
 signals:
 
     void started(QNetworkReply* reply, int requestId);
@@ -78,10 +79,10 @@ signals:
 
 
 private slots:
-    
+
     void handleIncomingData();
     void handleReplyFinished();
-    void handleSslErrors(const QList<QSslError> &errors);
+    void handleSslErrors(const QList<QSslError>& errors);
     void handleNetworkError(QNetworkReply::NetworkError);
 
 
@@ -89,7 +90,7 @@ private:
     Q_DISABLE_COPY(NetworkReplyTracker)
 
 
-    void finishReply(QNetworkReply *reply, int status, const QString& statusText);
+    void finishReply(QNetworkReply* reply, int status, const QString& statusText);
 
     NetworkReplyProxy* getProxyFor(QNetworkReply* reply);
 
