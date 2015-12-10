@@ -1,1 +1,0 @@
-#import <JavaScriptCore/Global.h>

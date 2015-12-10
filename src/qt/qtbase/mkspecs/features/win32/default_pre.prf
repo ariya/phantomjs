@@ -1,3 +1,0 @@
-CONFIG = rtti_off incremental_off windows $$CONFIG
-load(default_pre)
-

@@ -33,21 +33,21 @@
 
 
 NetworkReplyTracker::NetworkReplyTracker(QObject* parent)
-    :QObject(parent)
+    : QObject(parent)
 {
 }
 
 
-QNetworkReply* NetworkReplyTracker::trackReply(QNetworkReply *reply, int requestId,
-                                               bool shouldCaptureResponseBody)
+QNetworkReply* NetworkReplyTracker::trackReply(QNetworkReply* reply, int requestId,
+        bool shouldCaptureResponseBody)
 {
-    NetworkReplyProxy *proxy = new NetworkReplyProxy(this, reply, shouldCaptureResponseBody);
+    NetworkReplyProxy* proxy = new NetworkReplyProxy(this, reply, shouldCaptureResponseBody);
 
     /*
       Tracking link between proxy and proxied reply.
       Its possible to get nested reply as a slot argument instead of proxy.
       QNetworkAccessManager::createRequest stores original reply internally
-      and passes it in certain conditions as a signal argument - 
+      and passes it in certain conditions as a signal argument -
       authenticationRequire slot, for instance, will receive original reply not the proxy.
      */
     m_replies[reply] = proxy;
@@ -56,14 +56,14 @@ QNetworkReply* NetworkReplyTracker::trackReply(QNetworkReply *reply, int request
 
     connect(proxy, SIGNAL(readyRead()), this, SLOT(handleIncomingData()));
     connect(proxy, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(handleNetworkError(QNetworkReply::NetworkError)));
-    connect(proxy, SIGNAL(sslErrors(const QList<QSslError> &)), this, SLOT(handleSslErrors(const QList<QSslError> &)));
+    connect(proxy, SIGNAL(sslErrors(const QList<QSslError>&)), this, SLOT(handleSslErrors(const QList<QSslError>&)));
     connect(proxy, SIGNAL(finished()), SLOT(handleReplyFinished()));
 
     return proxy;
 }
 
 
-void NetworkReplyTracker::abort(QNetworkReply *reply, int status, const QString& statusString)
+void NetworkReplyTracker::abort(QNetworkReply* reply, int status, const QString& statusString)
 {
     finishReply(reply, status, statusString);
 
@@ -71,16 +71,17 @@ void NetworkReplyTracker::abort(QNetworkReply *reply, int status, const QString&
 }
 
 
-void NetworkReplyTracker::finishReply(QNetworkReply *reply, int status, const QString& statusText)
+void NetworkReplyTracker::finishReply(QNetworkReply* reply, int status, const QString& statusText)
 {
-    NetworkReplyProxy *proxy = getProxyFor(reply);
+    NetworkReplyProxy* proxy = getProxyFor(reply);
 
-    if (!m_ids.contains(proxy))
+    if (!m_ids.contains(proxy)) {
         return;
+    }
 
     m_replies.remove(proxy->nestedReply());
 
-    
+
     int requestId = m_ids.value(proxy);
     m_ids.remove(proxy);
 
@@ -92,15 +93,17 @@ void NetworkReplyTracker::finishReply(QNetworkReply *reply, int status, const QS
 
 void NetworkReplyTracker::handleIncomingData()
 {
-    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
 
-    if (!reply)
+    if (!reply) {
         return;
+    }
 
-    NetworkReplyProxy *proxy = getProxyFor(reply);
-    
-    if (m_started.contains(proxy))
+    NetworkReplyProxy* proxy = getProxyFor(reply);
+
+    if (m_started.contains(proxy)) {
         return;
+    }
 
     m_started.insert(proxy);
 
@@ -111,7 +114,7 @@ void NetworkReplyTracker::handleIncomingData()
 
 void NetworkReplyTracker::handleReplyFinished()
 {
-    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
 
     QVariant status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
     QVariant statusText = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
@@ -120,11 +123,11 @@ void NetworkReplyTracker::handleReplyFinished()
 }
 
 
-void NetworkReplyTracker::handleSslErrors(const QList<QSslError> &errors)
+void NetworkReplyTracker::handleSslErrors(const QList<QSslError>& errors)
 {
-    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
 
-    NetworkReplyProxy *proxy = getProxyFor(reply);
+    NetworkReplyProxy* proxy = getProxyFor(reply);
 
     emit sslErrors(proxy, errors);
 }
@@ -132,9 +135,9 @@ void NetworkReplyTracker::handleSslErrors(const QList<QSslError> &errors)
 
 void NetworkReplyTracker::handleNetworkError(QNetworkReply::NetworkError err)
 {
-    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
 
-    NetworkReplyProxy *proxy = getProxyFor(reply);
+    NetworkReplyProxy* proxy = getProxyFor(reply);
 
     emit error(proxy, m_ids.value(proxy), err);
 }
@@ -142,9 +145,9 @@ void NetworkReplyTracker::handleNetworkError(QNetworkReply::NetworkError err)
 
 NetworkReplyProxy* NetworkReplyTracker::getProxyFor(QNetworkReply* reply)
 {
-    NetworkReplyProxy *proxy = NULL;
+    NetworkReplyProxy* proxy = NULL;
     // first trying to find proxy assuming that we got nested reply
-    if(m_replies.contains(reply)) {
+    if (m_replies.contains(reply)) {
         proxy = m_replies.value(reply);
     } else {
         //if not then it is proxy

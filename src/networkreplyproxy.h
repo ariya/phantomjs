@@ -38,7 +38,8 @@
   Proxy class for QNetworkReply. Collects response body, which can
   be retreived using 'body' method.
  */
-class NetworkReplyProxy : public QNetworkReply {
+class NetworkReplyProxy : public QNetworkReply
+{
     Q_OBJECT
 public:
 

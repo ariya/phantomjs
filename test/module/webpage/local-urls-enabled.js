@@ -1,19 +1,22 @@
-// phantomjs: --local-url-access=yes
+//! phantomjs: --local-url-access=yes
 
-var assert = require("../../assert");
-var p = require("webpage").create();
+var webpage = require("webpage");
 
-var url = "file:///nonexistent";
+async_test(function () {
+    var page = webpage.create();
+    var url = "file:///nonexistent";
+    var rsErrorCalled = false;
 
-var rsErrorCalled = false;
-p.onResourceError = function (error) {
-    rsErrorCalled = true;
-    assert.strictEqual(error.url, url);
-    assert.strictEqual(error.errorCode, 203);
-    assert.strictEqual(/^Error opening\b.*?\bnonexistent:/.test(error.errorString),
-                       true);
-};
+    page.onResourceError = this.step_func(function (error) {
+        rsErrorCalled = true;
+        assert_equals(error.url, url);
+        assert_equals(error.errorCode, 203);
+        assert_regexp_match(error.errorString,
+                            /^Error opening\b.*?\bnonexistent:/);
+    });
 
-p.open(url, function () {
-    assert(rsErrorCalled);
-});
+    page.open(url, this.step_func_done(function () {
+        assert_is_true(rsErrorCalled);
+    }));
+
+}, "attempts to load a file: URL with --local-url-access=yes");

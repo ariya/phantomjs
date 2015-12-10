@@ -1,6 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="ministro_not_found_msg">无法找到Ministro服务。\n应用程序无法启动。</string>
-    <string name="ministro_needed_msg">此应用程序需要Ministro服务。您想安装它吗？</string>
-    <string name="fatal_error_msg">您的应用程序遇到一个致命错误导致它无法继续。</string>
-</resources>

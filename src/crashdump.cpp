@@ -30,170 +30,192 @@
 
 #include "crashdump.h"
 
-#include <QtGlobal>
-#include <QString>
-#include <QByteArray>
-
 #include <exception>
-#include <cstdlib>
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
 
-#ifdef Q_OS_LINUX
-#include "client/linux/handler/exception_handler.h"
-#define HAVE_BREAKPAD
-#define EHC_EXTRA_ARGS true
-#define MDC_PATH_ARG   const char*
-#define MDC_EXTRA_ARGS void*
-#endif
-#ifdef Q_OS_MAC
-#include "client/mac/handler/exception_handler.h"
-#define HAVE_BREAKPAD
-#define EHC_EXTRA_ARGS true, NULL
-#define MDC_PATH_ARG   const char*
-#define MDC_EXTRA_ARGS void*
-#endif
-#ifdef Q_OS_WIN32
-#include "client/windows/handler/exception_handler.h"
-#define HAVE_BREAKPAD
-#define EHC_EXTRA_ARGS BreakpadEH::HANDLER_ALL
-#define MDC_PATH_ARG   const wchar_t*
-#define MDC_EXTRA_ARGS void*, EXCEPTION_POINTERS*, MDRawAssertionInfo*
-#endif
+#include <QtGlobal>
 
-#ifdef HAVE_BREAKPAD
-
-// This is not just 'using google_breakpad::ExceptionHandler' because
-// one of the headers included by exception_handler.h on MacOS defines
-// a typedef name 'ExceptionHandler' in the global namespace, and
-// (apparently) a using-directive doesn't completely mask that.
-typedef google_breakpad::ExceptionHandler BreakpadEH;
-
-#ifdef Q_OS_WIN32
-// qgetenv doesn't handle environment variables containing Unicode
-// characters very well.  Breakpad-for-Windows works exclusively with
-// Unicode paths anyway, so we use the native API to retrieve %TEMP%
-// as Unicode.  This code based upon qglobal.cpp::qgetenv.
-static QString
-q_wgetenv(const wchar_t *varName)
-{
-    size_t requiredSize;
-    _wgetenv_s(&requiredSize, 0, 0, varName);
-    if (requiredSize == 0 || requiredSize > size_t(INT_MAX / sizeof(wchar_t)))
-        return QString();
-
-    // Unfortunately it does not appear to be safe to pass QString::data()
-    // to a Windows API that expects wchar_t*.  QChar is too different.
-    // We have to employ a scratch buffer.  Limiting the length to
-    // INT_MAX / sizeof(wchar_t), above, ensures that the multiplication
-    // here cannot overflow.
-    wchar_t *buffer = (wchar_t *)malloc(requiredSize * sizeof(wchar_t));
-    if (!buffer)
-        return QString();
-
-    // requiredSize includes the terminating null, which we don't want.
-    // The range-check above also ensures that the conversion to int here
-    // does not overflow.
-    _wgetenv_s(&requiredSize, buffer, requiredSize, varName);
-    Q_ASSERT(buffer[requiredSize-1] == L'\0');
-    QString ret = QString::fromWCharArray(buffer, int(requiredSize - 1));
-
-    free(buffer);
-    return ret;
-}
-#endif
-
-//
-// Crash messages.
-//
-
-#ifdef Q_OS_WIN32
-#define CRASH_DUMP_FMT "%ls\\%ls.dmp"
-#define CRASH_DIR_FMT  "%%TEMP%% (%ls)"
+#if defined(Q_OS_WIN)
+#include <windows.h>
 #else
-#define CRASH_DUMP_FMT "%s/%s.dmp"
-#define CRASH_DIR_FMT  "$TMPDIR (%s)"
+#include <sys/resource.h>
+#include <string.h>
 #endif
 
-#define CRASH_MESSAGE_BASE \
-    "PhantomJS has crashed. Please read the crash reporting guide at\n" \
-    "<http://phantomjs.org/crash-reporting.html> and file a bug report at\n" \
-    "<https://github.com/ariya/phantomjs/issues/new>.\n"
-
-#define CRASH_MESSAGE_HAVE_DUMP \
-    CRASH_MESSAGE_BASE \
-    "Please attach the crash dump file:\n  " CRASH_DUMP_FMT "\n"
-
-#define CRASH_MESSAGE_NO_DUMP \
-    CRASH_MESSAGE_BASE \
-    "Unfortunately, no crash dump is available.\n" \
-    "(Is " CRASH_DIR_FMT " a directory you cannot write?)\n"
-
-static bool minidumpCallback(MDC_PATH_ARG dump_path,
-                             MDC_PATH_ARG minidump_id,
-                             MDC_EXTRA_ARGS,
-                             bool succeeded)
+void
+print_crash_message()
 {
-    if (succeeded)
-        fprintf(stderr, CRASH_MESSAGE_HAVE_DUMP, dump_path, minidump_id);
-    else
-        fprintf(stderr, CRASH_MESSAGE_NO_DUMP, dump_path);
-    return succeeded;
+    fputs("PhantomJS has crashed. Please read the bug reporting guide at\n"
+          "<http://phantomjs.org/bug-reporting.html> and file a bug report.\n",
+          stderr);
+    fflush(stderr);
 }
 
-static BreakpadEH *initBreakpad()
-{
-    // On all platforms, Breakpad can be disabled by setting the
-    // environment variable PHANTOMJS_DISABLE_CRASH_DUMPS to any
-    // non-empty value.  This is not a command line argument because
-    // we want to initialize Breakpad before parsing the command line.
-    if (!qEnvironmentVariableIsEmpty("PHANTOMJS_DISABLE_CRASH_DUMPS"))
-        return 0;
+#if defined(Q_OS_WIN)
 
-    // Windows and Unix have different conventions for the environment
-    // variable naming the directory that should hold scratch files.
-#ifdef Q_OS_WIN32
-    std::wstring dumpPath(L".");
-    QString varbuf = q_wgetenv(L"TEMP");
-    if (!varbuf.isEmpty())
-        dumpPath = varbuf.toStdWString();
+static LONG WINAPI unhandled_exception_filter(LPEXCEPTION_POINTERS ptrs)
+{
+    fprintf(stderr, "Fatal Windows exception, code 0x%08x.\n",
+            ptrs->ExceptionRecord->ExceptionCode);
+    print_crash_message();
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+
+#if _MSC_VER >= 1400
+static void
+invalid_parameter_handler(const wchar_t* expression,
+                          const wchar_t* function,
+                          const wchar_t* file,
+                          unsigned int line,
+                          uintptr_t /*reserved*/)
+{
+    // The parameters all have the value NULL unless a debug version of the CRT library is used
+    // https://msdn.microsoft.com/en-us/library/a9yf33zb(v=VS.80).aspx
+#ifndef _DEBUG
+    Q_UNUSED(expression);
+    Q_UNUSED(function);
+    Q_UNUSED(file);
+    Q_UNUSED(line);
+    fprintf(stderr, "Invalid parameter detected.\n");
 #else
-    std::string dumpPath("/tmp");
-    QByteArray varbuf = qgetenv("TMPDIR");
-    if (!varbuf.isEmpty())
-        dumpPath = varbuf.constData();
-#endif
-
-    return new BreakpadEH(dumpPath, NULL, minidumpCallback, NULL,
-                          EHC_EXTRA_ARGS);
+    fprintf(stderr, "Invalid parameter detected at %ls:%u: %ls: %ls\n",
+            file, line, function, expression);
+#endif // _DEBUG
+    print_crash_message();
+    ExitProcess(STATUS_FATAL_APP_EXIT);
 }
-#else // no HAVE_BREAKPAD
-#define initBreakpad() NULL
 #endif
 
-// Qt, QtWebkit, and PhantomJS mostly don't make use of C++ exceptions,
-// so in the rare cases where an exception does get thrown, it tends
-// to pass all the way up the stack and cause the C++ runtime to call
-// std::terminate().  The default std::terminate() handler in some
-// C++ runtimes tries to print details of the exception or maybe even
-// a stack trace.  Breakpad does a better job of this.
-//
-// Worse, if the exception is bad_alloc, thrown because we've run into
-// a system-imposed hard upper limit on memory allocation, a clever
-// terminate handler like that may itself perform more memory allocation,
-// which will throw another bad_alloc, and cause a recursive call to
-// terminate.  In some cases this may happen several times before the
-// process finally dies.
-//
-// Short-circuit all this mess by forcing the terminate handler to
-// be plain old std::abort, which will invoke Breakpad if it's active
-// and crash promptly if not.
-
-CrashHandler::CrashHandler()
-  : old_terminate_handler(std::set_terminate(std::abort)),
-    eh(initBreakpad())
-{}
-
-CrashHandler::~CrashHandler()
+static void
+pure_virtual_call_handler()
 {
-  delete eh;
-  std::set_terminate(old_terminate_handler);
+    fputs("Pure virtual method called.\n", stderr);
+    print_crash_message();
+    ExitProcess(STATUS_FATAL_APP_EXIT);
+}
+
+static void
+handle_fatal_signal(int signo)
+{
+    Q_UNUSED(signo);
+
+    print_crash_message();
+    // Because signals on Windows are fake, and because it doesn't provide
+    // sigaction(), we cannot rely on reraising the exception.
+    ExitProcess(STATUS_FATAL_APP_EXIT);
+}
+
+static void
+init_crash_handler_os()
+{
+    SetErrorMode(SEM_FAILCRITICALERRORS |
+                 SEM_NOALIGNMENTFAULTEXCEPT |
+                 SEM_NOGPFAULTERRORBOX |
+                 SEM_NOOPENFILEERRORBOX);
+    SetUnhandledExceptionFilter(unhandled_exception_filter);
+
+    // When the app crashes, don't print the abort message
+    // and don't call Dr. Watson to make a crash dump.
+    // http://msdn.microsoft.com/en-us/library/e631wekh(v=VS.100).aspx
+    _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
+
+
+#if _MSC_VER >= 1400
+    _set_invalid_parameter_handler(invalid_parameter_handler);
+#endif
+    _set_purecall_handler(pure_virtual_call_handler);
+
+    // Signals on Windows are not operating system primitives and mostly
+    // shouldn't be used, but installing a handler for SIGABRT is the only
+    // way to intercept calls to abort().
+    signal(SIGABRT, handle_fatal_signal);
+}
+
+#else // not Windows; Unix assumed
+
+static void
+handle_fatal_signal(int signo)
+{
+    // It would be nice to print the offending signal name here, but
+    // strsignal() isn't reliably available.  Instead we let the shell do it.
+    print_crash_message();
+    raise(signo);
+}
+
+static void
+init_crash_handler_os()
+{
+    const char* offender;
+
+    // Disable core dumps; they are gigantic and useless.
+    offender = "setrlimit";
+    struct rlimit rl;
+    rl.rlim_cur = 0;
+    rl.rlim_max = 0;
+    if (setrlimit(RLIMIT_CORE, &rl)) { goto fail; }
+
+    // Ensure that none of the signals that indicate a fatal CPU exception
+    // are blocked.  (If they are delivered while blocked, the behavior is
+    // undefined per POSIX -- usually the kernel just zaps the process
+    // without giving it a chance to print a helpful message or anything.)
+    offender = "sigprocmask";
+    sigset_t mask;
+    sigemptyset(&mask);
+    sigaddset(&mask, SIGABRT);
+    sigaddset(&mask, SIGBUS);
+    sigaddset(&mask, SIGFPE);
+    sigaddset(&mask, SIGILL);
+    sigaddset(&mask, SIGSEGV);
+    sigaddset(&mask, SIGQUIT);
+    if (sigprocmask(SIG_UNBLOCK, &mask, 0)) { goto fail; }
+
+    // Install a signal handler for all the above signals.  This will call
+    // print_crash_message and then reraise the signal (so the exit code will
+    // be accurate).
+    offender = "sigaction";
+    struct sigaction sa;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_handler = handle_fatal_signal;
+    sa.sa_flags   = SA_NODEFER | SA_RESETHAND;
+
+    if (sigaction(SIGABRT, &sa, 0)) { goto fail; }
+    if (sigaction(SIGBUS,  &sa, 0)) { goto fail; }
+    if (sigaction(SIGFPE,  &sa, 0)) { goto fail; }
+    if (sigaction(SIGILL,  &sa, 0)) { goto fail; }
+    if (sigaction(SIGSEGV, &sa, 0)) { goto fail; }
+    if (sigaction(SIGQUIT, &sa, 0)) { goto fail; }
+
+    return;
+
+fail:
+    perror(offender);
+    exit(1);
+}
+
+#endif // not Windows
+
+void
+init_crash_handler()
+{
+    // Qt, QtWebkit, and PhantomJS mostly don't make use of C++ exceptions,
+    // so in the rare cases where an exception does get thrown, it will
+    // pass all the way up the stack and cause the C++ runtime to call
+    // std::terminate().  The default std::terminate() handler in some C++
+    // runtimes tries to print details of the exception or maybe even a stack
+    // trace.  That's great, but... the most frequent case is bad_alloc,
+    // thrown because we've run into a system-imposed hard upper limit on
+    // memory allocation.  A clever terminate handler may itself perform more
+    // memory allocation, which will throw another bad_alloc, and cause a
+    // recursive call to terminate.  In some cases this may happen several
+    // times before the process finally dies.
+    //
+    // So we have last-ditch exception handlers in main.cpp that should catch
+    // everything, and in case _that_ fails, we replace the terminate handler
+    // with something that is guaranteed not to allocate memory.
+    std::set_terminate(abort);
+
+    // Initialize system-specific crash detection.
+    init_crash_handler_os();
 }

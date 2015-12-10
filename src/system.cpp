@@ -52,11 +52,11 @@ QString getOSRelease()
 }
 #endif
 
-System::System(QObject *parent) :
+System::System(QObject* parent) :
     QObject(parent)
-  , m_stdout((File *)NULL)
-  , m_stderr((File *)NULL)
-  , m_stdin((File *)NULL)
+    , m_stdout((File*)NULL)
+    , m_stderr((File*)NULL)
+    , m_stdin((File*)NULL)
 {
     // Populate "env"
     m_env = Env::instance()->asVariantMap();
@@ -66,7 +66,7 @@ System::System(QObject *parent) :
     m_os.insert("architecture", QString("%1bit").arg(QSysInfo::WordSize));
 
     // "os.name" and "os.version"
-#if defined(Q_OS_WIN32)
+#if defined(Q_OS_WIN)
     m_os.insert("name", "windows");
     switch (QSysInfo::WindowsVersion) {
     case QSysInfo::WV_32s:
@@ -169,17 +169,17 @@ System::System(QObject *parent) :
 System::~System()
 {
     // Clean-up standard streams
-    if ((File *)NULL != m_stdout) {
+    if ((File*)NULL != m_stdout) {
         delete m_stdout;
-        m_stdout = (File *)NULL;
+        m_stdout = (File*)NULL;
     }
-    if ((File *)NULL != m_stderr) {
+    if ((File*)NULL != m_stderr) {
         delete m_stderr;
-        m_stderr = (File *)NULL;
+        m_stderr = (File*)NULL;
     }
-    if ((File *)NULL != m_stdin) {
+    if ((File*)NULL != m_stdin) {
         delete m_stdin;
-        m_stdin = (File *)NULL;
+        m_stdin = (File*)NULL;
     }
 }
 
@@ -188,7 +188,7 @@ qint64 System::pid() const
     return QApplication::applicationPid();
 }
 
-void System::setArgs(const QStringList &args)
+void System::setArgs(const QStringList& args)
 {
     m_args = args;
 }
@@ -213,9 +213,10 @@ bool System::isSSLSupported() const
     return QSslSocket::supportsSsl();
 }
 
-QObject *System::_stdout() {
-    if ((File *)NULL == m_stdout) {
-        QFile *f = new QFile();
+QObject* System::_stdout()
+{
+    if ((File*)NULL == m_stdout) {
+        QFile* f = new QFile();
         f->open(stdout, QIODevice::WriteOnly | QIODevice::Unbuffered);
         m_stdout = createFileInstance(f);
     }
@@ -223,9 +224,10 @@ QObject *System::_stdout() {
     return m_stdout;
 }
 
-QObject *System::_stderr() {
-    if ((File *)NULL == m_stderr) {
-        QFile *f = new QFile();
+QObject* System::_stderr()
+{
+    if ((File*)NULL == m_stderr) {
+        QFile* f = new QFile();
         f->open(stderr, QIODevice::WriteOnly | QIODevice::Unbuffered);
         m_stderr = createFileInstance(f);
     }
@@ -233,9 +235,10 @@ QObject *System::_stderr() {
     return m_stderr;
 }
 
-QObject *System::_stdin() {
-    if ((File *)NULL == m_stdin) {
-        QFile *f = new QFile();
+QObject* System::_stdin()
+{
+    if ((File*)NULL == m_stdin) {
+        QFile* f = new QFile();
         f->open(stdin, QIODevice::ReadOnly | QIODevice::Unbuffered);
         m_stdin = createFileInstance(f);
     }
@@ -245,27 +248,27 @@ QObject *System::_stdin() {
 
 // private slots:
 
-void System::_onTerminalEncodingChanged(const QString &encoding)
+void System::_onTerminalEncodingChanged(const QString& encoding)
 {
-    if ((File *)NULL != m_stdin) {
+    if ((File*)NULL != m_stdin) {
         m_stdin->setEncoding(encoding);
     }
 
-    if ((File *)NULL != m_stdout) {
+    if ((File*)NULL != m_stdout) {
         m_stdout->setEncoding(encoding);
     }
 
-    if ((File *)NULL != m_stderr) {
+    if ((File*)NULL != m_stderr) {
         m_stderr->setEncoding(encoding);
     }
 }
 
 // private:
 
-File *System::createFileInstance(QFile *f)
+File* System::createFileInstance(QFile* f)
 {
     // Get the Encoding used by the Terminal at this point in time
     Encoding e(Terminal::instance()->getEncoding());
-    QTextCodec *codec = e.getCodec();
+    QTextCodec* codec = e.getCodec();
     return new File(f, codec, this);
 }

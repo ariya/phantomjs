@@ -1,40 +1,46 @@
-var assert = require('../../assert');
+test(function () {
+    assert_type_of(Function.length, 'number');
+    assert_type_of(Function.prototype, 'function');
+    assert_type_of(Function.prototype.apply, 'function');
+    assert_type_of(Function.prototype.bind, 'function');
+    assert_type_of(Function.prototype.call, 'function');
+    assert_type_of(Function.prototype.name, 'string');
+    assert_type_of(Function.prototype.toString, 'function');
+}, "Function properties");
 
-assert.typeOf(Function.length, 'number');
-assert.typeOf(Function.prototype, 'function');
-assert.typeOf(Function.prototype.apply, 'function');
-assert.typeOf(Function.prototype.bind, 'function');
-assert.typeOf(Function.prototype.call, 'function');
-assert.typeOf(Function.prototype.name, 'string');
-assert.typeOf(Function.prototype.toString, 'function');
+test(function () {
+    var f = function foo(){};
+    assert_equals(f.name, 'foo');
+}, "<function>.name");
 
-var f = function foo(){};
-assert.equal(f.name, 'foo');
+test(function () {
+    assert_equals(Function.length, 1);
+    assert_equals(function(){}.length, 0);
+    assert_equals(function(x){}.length, 1);
+    assert_equals(function(x, y){}.length, 2);
+    assert_equals(function(x, y){}.length, 2);
+}, "<function>.length");
 
-assert.equal(Function.length, 1);
-assert.equal(function(){}.length, 0);
-assert.equal(function(x){}.length, 1);
-assert.equal(function(x, y){}.length, 2);
-assert.equal(function(x, y){}.length, 2);
+test(function () {
+    var args, keys, str, enumerable;
+    (function() {
+        args = arguments;
+        keys = Object.keys(arguments);
+        str = JSON.stringify(arguments);
+        enumerable = false;
+        for (var i in arguments) enumerable = true;
+    })(14);
 
-var args, keys, str, enumerable;
-(function() {
-    args = arguments;
-    keys = Object.keys(arguments);
-    str = JSON.stringify(arguments);
-    enumerable = false;
-    for (var i in arguments) enumerable = true;
-})(14);
+    assert_type_of(args, 'object');
+    assert_type_of(args.length, 'number');
+    assert_equals(args.toString(), '[object Arguments]');
+    assert_equals(args.length, 1);
+    assert_equals(args[0], 14);
 
-assert.typeOf(args, 'object');
-assert.typeOf(args.length, 'number');
-assert.strictEqual(args.toString(), '[object Arguments]');
-assert.strictEqual(args.length, 1);
-assert.strictEqual(args[0], 14);
+    assert_type_of(keys.length, 'number');
+    assert_equals(keys.length, 1);
+    assert_equals(keys[0], "0");
 
-assert.typeOf(keys.length, 'number');
-assert.strictEqual(keys.length, 1);
-assert.equal(keys[0], 0);
-
-assert.strictEqual(str, '{"0":14}');
-assert.isTrue(enumerable);
+    assert_equals(str, '{"0":14}');
+    assert_is_true(enumerable);
+}, "arguments object");

@@ -31,19 +31,7 @@
 #ifndef CRASHDUMP_H
 #define CRASHDUMP_H
 
-namespace google_breakpad {
-    class ExceptionHandler;
-}
-
-class CrashHandler
-{
-public:
-    CrashHandler();
-    ~CrashHandler();
-
-private:
-    void (*old_terminate_handler)();
-    google_breakpad::ExceptionHandler *eh;
-};
+extern void print_crash_message();
+extern void init_crash_handler();
 
 #endif // CRASHDUMP_H

@@ -54,6 +54,8 @@ class Config: public QObject
     Q_PROPERTY(QString scriptEncoding READ scriptEncoding WRITE setScriptEncoding)
     Q_PROPERTY(bool webSecurityEnabled READ webSecurityEnabled WRITE setWebSecurityEnabled)
     Q_PROPERTY(QString offlineStoragePath READ offlineStoragePath WRITE setOfflineStoragePath)
+    Q_PROPERTY(QString localStoragePath READ localStoragePath WRITE setLocalStoragePath)
+    Q_PROPERTY(int localStorageDefaultQuota READ localStorageDefaultQuota WRITE setLocalStorageDefaultQuota)
     Q_PROPERTY(int offlineStorageDefaultQuota READ offlineStorageDefaultQuota WRITE setOfflineStorageDefaultQuota)
     Q_PROPERTY(bool printDebugMessages READ printDebugMessages WRITE setPrintDebugMessages)
     Q_PROPERTY(bool javascriptCanOpenWindows READ javascriptCanOpenWindows WRITE setJavascriptCanOpenWindows)
@@ -61,17 +63,20 @@ class Config: public QObject
     Q_PROPERTY(QString sslProtocol READ sslProtocol WRITE setSslProtocol)
     Q_PROPERTY(QString sslCiphers READ sslCiphers WRITE setSslCiphers)
     Q_PROPERTY(QString sslCertificatesPath READ sslCertificatesPath WRITE setSslCertificatesPath)
+    Q_PROPERTY(QString sslClientCertificateFile READ sslClientCertificateFile WRITE setSslClientCertificateFile)
+    Q_PROPERTY(QString sslClientKeyFile READ sslClientKeyFile WRITE setSslClientKeyFile)
+    Q_PROPERTY(QByteArray sslClientKeyPassphrase READ sslClientKeyPassphrase WRITE setSslClientKeyPassphrase)
     Q_PROPERTY(QString webdriver READ webdriver WRITE setWebdriver)
     Q_PROPERTY(QString webdriverLogFile READ webdriverLogFile WRITE setWebdriverLogFile)
     Q_PROPERTY(QString webdriverLogLevel READ webdriverLogLevel WRITE setWebdriverLogLevel)
     Q_PROPERTY(QString webdriverSeleniumGridHub READ webdriverSeleniumGridHub WRITE setWebdriverSeleniumGridHub)
 
 public:
-    Config(QObject *parent = 0);
+    Config(QObject* parent = 0);
 
-    void init(const QStringList *const args);
-    void processArgs(const QStringList &args);
-    void loadJsonFile(const QString &filePath);
+    void init(const QStringList* const args);
+    void processArgs(const QStringList& args);
+    void loadJsonFile(const QString& filePath);
 
     QString helpText() const;
 
@@ -79,13 +84,19 @@ public:
     void setAutoLoadImages(const bool value);
 
     QString cookiesFile() const;
-    void setCookiesFile(const QString &cookiesFile);
+    void setCookiesFile(const QString& cookiesFile);
 
     QString offlineStoragePath() const;
-    void setOfflineStoragePath(const QString &value);
+    void setOfflineStoragePath(const QString& value);
 
     int offlineStorageDefaultQuota() const;
     void setOfflineStorageDefaultQuota(int offlineStorageDefaultQuota);
+
+    QString localStoragePath() const;
+    void setLocalStoragePath(const QString& value);
+
+    int localStorageDefaultQuota() const;
+    void setLocalStorageDefaultQuota(int localStorageDefaultQuota);
 
     bool diskCacheEnabled() const;
     void setDiskCacheEnabled(const bool value);
@@ -103,37 +114,37 @@ public:
     void setLocalToRemoteUrlAccessEnabled(const bool value);
 
     QString outputEncoding() const;
-    void setOutputEncoding(const QString &value);
+    void setOutputEncoding(const QString& value);
 
     QString proxyType() const;
     void setProxyType(const QString value);
 
     QString proxy() const;
-    void setProxy(const QString &value);
+    void setProxy(const QString& value);
     QString proxyHost() const;
     int proxyPort() const;
 
     QString proxyAuth() const;
-    void setProxyAuth(const QString &value);
+    void setProxyAuth(const QString& value);
     QString proxyAuthUser() const;
     QString proxyAuthPass() const;
-    void setProxyAuthUser(const QString &value);
-    void setProxyAuthPass(const QString &value);
+    void setProxyAuthUser(const QString& value);
+    void setProxyAuthPass(const QString& value);
 
     QStringList scriptArgs() const;
-    void setScriptArgs(const QStringList &value);
+    void setScriptArgs(const QStringList& value);
 
     QString scriptEncoding() const;
-    void setScriptEncoding(const QString &value);
+    void setScriptEncoding(const QString& value);
 
     QString scriptLanguage() const;
-    void setScriptLanguage(const QString &value);
+    void setScriptLanguage(const QString& value);
 
     QString scriptFile() const;
-    void setScriptFile(const QString &value);
+    void setScriptFile(const QString& value);
 
     QString unknownOption() const;
-    void setUnknownOption(const QString &value);
+    void setUnknownOption(const QString& value);
 
     bool versionFlag() const;
     void setVersionFlag(const bool value);
@@ -171,6 +182,15 @@ public:
     void setSslCertificatesPath(const QString& sslCertificatesPath);
     QString sslCertificatesPath() const;
 
+    void setSslClientCertificateFile(const QString& sslClientCertificateFile);
+    QString sslClientCertificateFile() const;
+
+    void setSslClientKeyFile(const QString& sslClientKeyFile);
+    QString sslClientKeyFile() const;
+
+    void setSslClientKeyPassphrase(const QByteArray& sslClientKeyPassphrase);
+    QByteArray sslClientKeyPassphrase() const;
+
     void setWebdriver(const QString& webdriverConfig);
     QString webdriver() const;
     bool isWebdriverMode() const;
@@ -185,23 +205,25 @@ public:
     QString webdriverSeleniumGridHub() const;
 
 public slots:
-    void handleSwitch(const QString &sw);
-    void handleOption(const QString &option, const QVariant &value);
-    void handleParam(const QString& param, const QVariant &value);
-    void handleError(const QString &error);
+    void handleSwitch(const QString& sw);
+    void handleOption(const QString& option, const QVariant& value);
+    void handleParam(const QString& param, const QVariant& value);
+    void handleError(const QString& error);
 
 private:
     void resetToDefaults();
-    void setProxyHost(const QString &value);
+    void setProxyHost(const QString& value);
     void setProxyPort(const int value);
-    void setAuthUser(const QString &value);
-    void setAuthPass(const QString &value);
+    void setAuthUser(const QString& value);
+    void setAuthPass(const QString& value);
 
-    QCommandLine *m_cmdLine;
+    QCommandLine* m_cmdLine;
     bool m_autoLoadImages;
     QString m_cookiesFile;
     QString m_offlineStoragePath;
     int m_offlineStorageDefaultQuota;
+    QString m_localStoragePath;
+    int m_localStorageDefaultQuota;
     bool m_diskCacheEnabled;
     int m_maxDiskCacheSize;
     bool m_ignoreSslErrors;
@@ -232,6 +254,9 @@ private:
     QString m_sslProtocol;
     QString m_sslCiphers;
     QString m_sslCertificatesPath;
+    QString m_sslClientCertificateFile;
+    QString m_sslClientKeyFile;
+    QByteArray m_sslClientKeyPassphrase;
     QString m_webdriverIp;
     QString m_webdriverPort;
     QString m_webdriverLogFile;

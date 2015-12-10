@@ -6,6 +6,7 @@ Makefile*
 *.moc
 moc_*
 qrc_*
+.qmake.stash
 *.o
 *.swp
 *.pyc

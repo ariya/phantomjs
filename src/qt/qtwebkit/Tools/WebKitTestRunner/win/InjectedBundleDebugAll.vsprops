@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="Windows-1252"?>
-<VisualStudioPropertySheet
-	ProjectType="Visual C++"
-	Version="8.00"
-	Name="InjectedBundleDebugAll"
-	InheritedPropertySheets="$(WebKitVSPropsRedirectionDir)..\..\..\WebKitLibraries\win\tools\vsprops\common.vsprops;$(WebKitVSPropsRedirectionDir)..\..\..\WebKitLibraries\win\tools\vsprops\debug.vsprops;$(WebKitVSPropsRedirectionDir)..\..\..\WebKitLibraries\win\tools\vsprops\debug_all.vsprops;..\Configurations\InjectedBundleCoreFoundation.vsprops;..\Configurations\InjectedBundleCommon.vsprops"
-	>
-</VisualStudioPropertySheet>

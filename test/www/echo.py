@@ -17,7 +17,8 @@ def handle_request(req):
         params   = url.params,
         query    = url.query,
         fragment = url.fragment,
-        headers  = headers
+        headers  = headers,
+        postdata = req.postdata
     )
     body = json.dumps(d, indent=2) + '\n'
 

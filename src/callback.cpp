@@ -32,7 +32,7 @@
 #include <QDebug>
 
 Callback::Callback(QObject* parent)
-: QObject(parent)
+    : QObject(parent)
 {
 }
 

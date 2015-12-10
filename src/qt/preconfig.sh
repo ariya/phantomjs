@@ -33,6 +33,7 @@ C_PCRE=' -qt-pcre'
 C_HARFBUZZ=' -qt-harfbuzz'
 C_SQLITE=' -qt-sql-sqlite'
 
+QT_CFG=''
 while [[ -n "$1" && "$1" == --* ]]; do
     arg="$1"
     shift
@@ -43,6 +44,11 @@ while [[ -n "$1" && "$1" == --* ]]; do
 
         (--silent)
             SILENT=' -silent'
+            ;;
+
+        (--qt-config)
+            QT_CFG+=" $1"
+            shift
             ;;
 
         (--qtdeps=system)
@@ -92,13 +98,11 @@ while [[ -n "$1" && "$1" == --* ]]; do
 done
 
 # Baseline Qt configuration.
-QT_CFG=''
 QT_CFG+=' -opensource'          # Use the open-source license
 QT_CFG+=' -confirm-license'     # Silently acknowledge the license confirmation
 QT_CFG+=' -v'                   # Reveal what header dependencies are missing
 QT_CFG+=' -static'              # No shared libraries
 QT_CFG+=' -qpa phantom'         # Default to our custom QPA platform
-QT_CFG+=' -release'             # Build only for release (no debugging support)
 QT_CFG+=' -nomake tools'        # Don't build the tools
 QT_CFG+=' -nomake examples'     # Don't build any examples
 QT_CFG+=' -no-compile-examples' # Seriously, don't build any examples
@@ -145,6 +149,7 @@ QT_CFG+=' -no-xinerama'
 QT_CFG+=' -no-xinput2'
 QT_CFG+=' -no-xkb'
 QT_CFG+=' -no-xrender'
+QT_CFG+=' -no-feature-PRINTPREVIEWWIDGET'
 
 # This is also unnecessary, but it's not possible to turn it off.
 #QT_CFG+=' -no-xlib'

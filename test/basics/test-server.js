@@ -1,28 +1,32 @@
 /* Test the test server itself. */
 
-var assert = require('../assert');
 var webpage = require('webpage');
-var page = webpage.create();
 
-var urlsToTest = [
-    'http://localhost:9180/hello.html',
-    'http://localhost:9180/status?200',
-    'http://localhost:9180/echo'
-];
-var i = 0;
-
-page.onResourceReceived = function (response) {
-    assert.equal(response.status, 200);
-};
-
-page.onLoadFinished = function (status) {
-    assert.equal(status, 'success');
-    i++;
-    if (i == urlsToTest.length) {
-        phantom.exit(0);
-    } else {
-        page.open(urlsToTest[i]);
-    }
+function test_one_page(url) {
+    var page = webpage.create();
+    page.onResourceReceived = this.step_func(function (response) {
+        assert_equals(response.status, 200);
+    });
+    page.onResourceError = this.unreached_func();
+    page.onResourceTimeout = this.unreached_func();
+    page.onLoadFinished = this.step_func_done(function (status) {
+        assert_equals(status, 'success');
+    });
+    page.open(url);
 }
 
-page.open(urlsToTest[i]);
+function do_test(path) {
+    var http_url  = TEST_HTTP_BASE  + path;
+    var https_url = TEST_HTTPS_BASE + path;
+    var http_test = async_test(http_url);
+    var https_test = async_test(https_url);
+    http_test.step(test_one_page, null, http_url);
+    https_test.step(test_one_page, null, https_url);
+}
+
+[
+    'hello.html',
+    'status?200',
+    'echo'
+]
+    .forEach(do_test);
