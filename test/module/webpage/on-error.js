@@ -71,8 +71,8 @@ function check_stack(message, stack) {
 
     if (typeof stack === "string") {
         var lines = stack.split("\n");
-        assert_equals(lines[0], "\tat bar ("+helperFile+":7:23)");
-        assert_equals(lines[1], "\tat foo ("+helperFile+":3:17)");
+        assert_equals(lines[0], "bar@"+helperFile+":7:23");
+        assert_equals(lines[1], "foo@"+helperFile+":3:17");
     } else {
         assert_equals(stack[0].file, helperFile);
         assert_equals(stack[0].line, 7);

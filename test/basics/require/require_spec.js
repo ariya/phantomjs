@@ -46,16 +46,18 @@ tests.push([function () {
     try {
         require('./not_found').requireNonExistent();
     } catch (e) {
-        assert_regexp_match(e.stack, /\n\s+at require/);
+        assert_regexp_match(e.stack, /\nrequire@/);
     }
 }, "error handling 1"]);
 
+// XFAIL: 'thrower' and 'error_handling_2' fail to have source locations
+// reported.
 tests.push([function error_handling_2 () {
     try {
         require('./thrower').fn();
     } catch (e) {
         assert_regexp_match(e.toString() + "\n" + e.stack,
-            /^Error: fn\n\s+at thrower\n\s+at error_handling_2\n/);
+            /^Error: fn\nthrower@[^\n]+?\nerror_handling_2@[^\n]+?\n/);
     }
 }, "error handling 2", { expected_fail: true }]);
 
