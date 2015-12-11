@@ -1169,7 +1169,8 @@ Output.prototype.result = function result(test) {
         this.error("Unrecognized test status " + test.status);
         prefix = "not ok ";
     }
-    if (prefix === "not ok " && directive !== " # TODO") {
+    if ((prefix === "not ok " && directive !== " # TODO") ||
+        (prefix === "ok "     && directive === " # TODO")) {
         this.failed = true;
     }
     this.fp.write(prefix + test.number + " " + test.name + directive + "\n");
