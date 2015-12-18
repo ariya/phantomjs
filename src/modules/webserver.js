@@ -1,4 +1,5 @@
 /*jslint sloppy: true, nomen: true */
+/*eslint no-underscore-dangle:0, strict:0, no-empty:0*/
 /*global exports:true,phantom:true */
 
 /*
@@ -44,15 +45,15 @@ exports.create = function (opts) {
     }
 
     function isObject(o) {
-        return checkType(o, 'object');
+        return checkType(o, "object");
     }
 
     function isUndefined(o) {
-        return checkType(o, 'undefined');
+        return checkType(o, "undefined");
     }
 
     function isUndefinedOrNull(o) {
-        return isUndefined(o) || null === o;
+        return isUndefined(o) || o === null;
     }
 
     function copyInto(target, source) {
@@ -97,10 +98,12 @@ exports.create = function (opts) {
     function defineSetter(handlerName, signalName) {
         Object.defineProperty(server, handlerName, {
             set: function (f) {
-                if (handlers && typeof handlers[signalName] === 'function') {
+                if (handlers && typeof handlers[signalName] === "function") {
                     try {
                         this[signalName].disconnect(handlers[signalName]);
-                    } catch (e) {}
+                    } catch (e) {
+//                        throw "Disconnection failed";
+                    }
                 }
                 handlers[signalName] = f;
                 this[signalName].connect(handlers[signalName]);
@@ -111,11 +114,11 @@ exports.create = function (opts) {
     defineSetter("onNewRequest", "newRequest");
 
     server.listen = function (port, arg1, arg2) {
-        if (arguments.length === 2 && typeof arg1 === 'function') {
+        if (arguments.length === 2 && typeof arg1 === "function") {
             this.onNewRequest = arg1;
             return this.listenOnPort(port, {});
         }
-        if (arguments.length === 3 && typeof arg2 === 'function') {
+        if (arguments.length === 3 && typeof arg2 === "function") {
             this.onNewRequest = arg2;
             // arg1 == settings
             return this.listenOnPort(port, arg1);

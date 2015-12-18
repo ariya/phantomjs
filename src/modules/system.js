@@ -1,11 +1,14 @@
+/*eslint strict:0*/
+/*global exports:true */
+
 /*
  * CommonJS System/1.0
  * Spec: http://wiki.commonjs.org/wiki/System/1.0
  */
 
-exports.platform = 'phantomjs';
+exports.platform = "phantomjs";
 
-Object.defineProperty(exports, 'stdout', {
+Object.defineProperty(exports, "stdout", {
     enumerable: true,
     writeable: false,
     get: function() {
@@ -13,7 +16,7 @@ Object.defineProperty(exports, 'stdout', {
     }
 });
 
-Object.defineProperty(exports, 'stdin', {
+Object.defineProperty(exports, "stdin", {
     enumerable: true,
     writeable: false,
     get: function() {
@@ -21,7 +24,7 @@ Object.defineProperty(exports, 'stdin', {
     }
 });
 
-Object.defineProperty(exports, 'stderr', {
+Object.defineProperty(exports, "stderr", {
     enumerable: true,
     writeable: false,
     get: function() {
