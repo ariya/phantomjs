@@ -44,7 +44,7 @@ Photo by christopher goodband [CC BY-SA 2.0](http://creativecommons.org/licenses
 [![](http://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Liatris_spicata_close-up.jpg/220px-Liatris_spicata_close-up.jpg)](http://commons.wikimedia.org/wiki/File:Liatris_spicata_close-up.jpg)
 
 Blazing Star is an autumn flower. See Ariya's
-[email](http://groups.google.com/d/topic/phantomjs/7jiydz_52cg) on Sep 22, 2102:
+[email](http://groups.google.com/d/topic/phantomjs/7jiydz_52cg) on Sep 22, 2012:
 
 > "Blazing Star" is a mesmerizing and beautiful flower, it is often used
 > as a symbol representing happiness and satisfaction. Tending these
