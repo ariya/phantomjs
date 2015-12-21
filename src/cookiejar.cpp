@@ -254,6 +254,7 @@ QVariantList CookieJar::cookiesToMap(const QString& url) const
     for (int i = cookiesList.length() - 1; i >= 0; --i) {
         c = cookiesList.at(i);
 
+        cookie.clear();
         cookie["domain"] = QVariant(c.domain());
         cookie["name"] = QVariant(QString(c.name()));
         cookie["value"] = QVariant(QString(c.value()));
