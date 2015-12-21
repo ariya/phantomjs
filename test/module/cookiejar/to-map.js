@@ -31,8 +31,8 @@ var cookies = {
 test(function () {
     var i, c, d, prop;
     for (i in cookies) {
-        if (!cookiesWithExpires.hasOwnProperty(i)) continue;
-        phantom.addCookie(cookiesWithExpires[i]);
+        if (!cookies.hasOwnProperty(i)) continue;
+        phantom.addCookie(cookies[i]);
     }
     for (i in phantom.cookies) {
         d = phantom.cookies[i];
