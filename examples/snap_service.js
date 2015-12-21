@@ -22,7 +22,7 @@ if (system.args.length !== 2) {
             if (request.query.format)
                 format = request.query.format;
             if (request.query.quality)
-                quality = request.query.quality *1;
+                quality = parseFloat(request.query.quality);
         }
 
         if (request.post) {
@@ -31,7 +31,7 @@ if (system.args.length !== 2) {
             if (request.post.format)
                 format = request.post.format;
             if (request.post.quality)
-                quality = request.post.quality *1;
+                quality = parseFloat(request.post.quality);
         }
 
         console.log("URL:", url);
@@ -56,7 +56,6 @@ if (system.args.length !== 2) {
                 var buffer = page.renderBuffer(format, quality);
 
                 response.statusCode = 200;
-                response.setEncoding('binary');
                 response.headers = {
                     "Cache": "no-cache",
                     "Content-Type": "image/" + format
@@ -64,8 +63,8 @@ if (system.args.length !== 2) {
                 page.clearCookies();
                 page.close();
 
-                // Use 'writeBinary' to send Uint8ClampedArray
-                response.writeBinary(buffer);
+                // Pass the Buffer to 'write' to send Uint8ClampedArray
+                response.write(buffer);
                 response.close();
             });
         }

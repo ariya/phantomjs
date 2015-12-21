@@ -209,6 +209,7 @@ bool WebServer::handleRequest(mg_event event, mg_connection* conn, const mg_requ
         qs = qs.toPercentEncoding(/*exclude=*/ "!$&'()*+,;=:/[]@?");
         uri.append('?');
         uri.append(qs);
+        requestObject["query"] = UrlEncodedParser::parse(qs);
     }
     requestObject["url"] = uri.data();
 
@@ -420,26 +421,21 @@ void WebServerResponse::writeHead(int statusCode, const QVariantMap& headers)
 
 void WebServerResponse::write(const QVariant& body)
 {
-    if (!m_headersSent) {
-        writeHead(m_statusCode, m_headers);
-    }
-
     QByteArray data;
-    if (m_encoding.isEmpty()) {
-        data = body.toString().toUtf8();
-    } else if (m_encoding.toLower() == "binary") {
-        data = body.toString().toLatin1();
-    } else {
-        Encoding encoding;
-        encoding.setEncoding(m_encoding);
-        data = encoding.encode(body.toString());
+    if(body.type() == QVariant::ByteArray) {
+        data = body.toByteArray();
+    }else{
+        if (m_encoding.isEmpty()) {
+            data = body.toString().toUtf8();
+        } else if (m_encoding.toLower() == "binary") {
+            data = body.toString().toLatin1();
+        } else {
+            Encoding encoding;
+            encoding.setEncoding(m_encoding);
+            data = encoding.encode(body.toString());
+        }
     }
 
-    mg_write(m_conn, data.constData(), data.size());
-}
-
-void WebServerResponse::writeBinary(const QByteArray& data)
-{
     if (!m_headersSent) {
         writeHead(m_statusCode, m_headers);
     }
