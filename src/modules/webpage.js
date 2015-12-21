@@ -342,7 +342,7 @@ function decorateNewPage(opts, page) {
                 }
                 // And disconnect the signal handler
                 try {
-                    this.javaScriptAlertSent.disconnect(arguments.callee);
+                    page.javaScriptAlertSent.disconnect(arguments.callee);
                 } catch (e) {}
             }
         });
