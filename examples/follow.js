@@ -1,5 +1,5 @@
 // List following and followers from several accounts
-
+"use strict";
 var users = ['PhantomJS',
         'ariyahidayat',
         'detronizator',

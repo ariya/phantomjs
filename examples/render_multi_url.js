@@ -1,5 +1,5 @@
 // Render Multiple URLs to file
-
+"use strict";
 var RenderUrlsToFile, arrayOfUrls, system;
 
 system = require("system");

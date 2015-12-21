@@ -1,5 +1,5 @@
 // List movies from kids-in-mind.com
-
+"use strict";
 var cbfunc = function (data) {
     globaldata= data;
     var list = data.query.results.movie;

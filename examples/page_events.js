@@ -1,3 +1,4 @@
+"use strict";
 // The purpose of this is to show how and when events fire, considering 5 steps
 // happening as follows:
 //

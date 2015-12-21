@@ -1,5 +1,5 @@
 // Read the Phantom webpage '#intro' element text using jQuery and "includeJs"
-
+"use strict";
 var page = require('webpage').create();
 
 page.onConsoleMessage = function(msg) {

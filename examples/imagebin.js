@@ -1,5 +1,5 @@
 // Upload an image to imagebin.org
-
+"use strict";
 var page = require('webpage').create(),
     system = require('system'),
     fname;

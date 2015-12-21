@@ -1,3 +1,4 @@
+"use strict";
 function helloWorld() {
 	console.log(phantom.outputEncoding + ": こんにちは、世界！");
 }
