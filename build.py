@@ -442,6 +442,7 @@ For details, please go the the web site: http://phantomjs.org/download.html.
     except RuntimeError as error:
         sys.stderr.write("\nERROR: Failed to build PhantomJS! %s\n" % error)
         sys.stderr.flush()
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
