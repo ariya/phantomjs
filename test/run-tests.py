@@ -109,8 +109,8 @@ CIPHERLIST_2_7_9 = (
     '!eNULL:!MD5:!DSS:!RC4'
 )
 def wrap_socket_ssl(sock, base_path):
-    crtfile = os.path.join(base_path, 'certs/https-snakeoil.crt')
-    keyfile = os.path.join(base_path, 'certs/https-snakeoil.key')
+    crtfile = os.path.join(base_path, 'lib/certs/https-snakeoil.crt')
+    keyfile = os.path.join(base_path, 'lib/certs/https-snakeoil.key')
 
     try:
         ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
@@ -367,7 +367,7 @@ class HTTPTestServer(object):
         self.httpd        = None
         self.httpsd       = None
         self.base_path    = base_path
-        self.www_path     = os.path.join(base_path, 'www')
+        self.www_path     = os.path.join(base_path, 'lib/www')
         self.signal_error = signal_error
         self.verbose      = verbose
 
@@ -669,6 +669,13 @@ class TAPTestGroup(TestGroup):
                 self.add_skip(out[(i+1):], "All further output ignored")
             return
 
+        if any(msg.startswith("ERROR:") for msg in messages):
+            self.add_error(messages, "Before tests")
+            messages = []
+        elif messages:
+            self.add_error(messages, "Stray diagnostic")
+            messages = []
+
         prev_point = 0
 
         for i in range(i+1, len(out)):
@@ -743,8 +750,8 @@ class TAPTestGroup(TestGroup):
 class TestRunner(object):
     def __init__(self, base_path, phantomjs_exe, options):
         self.base_path       = base_path
-        self.cert_path       = os.path.join(base_path, 'certs')
-        self.harness         = os.path.join(base_path, 'testharness.js')
+        self.cert_path       = os.path.join(base_path, 'lib/certs')
+        self.harness         = os.path.join(base_path, 'lib/testharness.js')
         self.phantomjs_exe   = phantomjs_exe
         self.verbose         = options.verbose
         self.debugger        = options.debugger
@@ -960,6 +967,8 @@ class TestRunner(object):
 
 def init():
     base_path = os.path.normpath(os.path.dirname(os.path.abspath(__file__)))
+    os.environ["TEST_DIR"] = base_path
+
     phantomjs_exe = os.path.normpath(base_path + '/../bin/phantomjs')
     if sys.platform in ('win32', 'cygwin'):
         phantomjs_exe += '.exe'
@@ -1008,6 +1017,15 @@ def init():
     # Note that the offset in a TZ value is the negative of the way it's
     # usually written, e.g. UTC+1 would be xxx-1:00.
     os.environ["TZ"] = "CIST-12:45:00"
+
+    # Run all the tests in the "C" locale.  (A UTF-8-based locale
+    # which is thoroughly different from "C" would flush out more
+    # bugs, but we have no way of knowing if such a locale exists.)
+    for var in list(os.environ.keys()):
+        if var[:3] == 'LC_' or var[:4] == 'LANG':
+            del os.environ[var]
+
+    os.environ["LANG"] = "C"
 
     return runner
 

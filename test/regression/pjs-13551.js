@@ -6,7 +6,7 @@ var webpage = require('webpage');
 function test_template(parent, action) {
     var page;
     var url = TEST_HTTP_BASE +
-              "/regression/pjs-13551/" + parent + "-parent.html";
+              "regression/pjs-13551/" + parent + "-parent.html";
     var s_callback0, s_callback1, s_callback2;
 
     function callback0 (n) {

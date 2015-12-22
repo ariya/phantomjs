@@ -1461,6 +1461,13 @@ if (args.test_script === "") {
     // process_command_line has already issued an error message.
     phantom.exit(2);
 } else {
+    // run-tests.py sets this environment variable to the root of the
+    // test directory.
+    expose(sys.env['TEST_DIR'], 'TEST_DIR');
+
+    // The JS modules in TEST_DIR/lib/node_modules are always available.
+    require.paths.push(fs.join(sys.env['TEST_DIR'], 'lib', 'node_modules'));
+
     // Reset the library paths for injectJs and require to the
     // directory containing the test script, so relative imports work
     // as expected.  Unfortunately, phantom.libraryPath is not a

@@ -8,11 +8,11 @@ of test subdirectories is in
 [the `TESTS` variable in `run-tests.py`](run-tests.py#L26).)
 
 In addition to all of the usual PhantomJS API, these scripts have
-access to a special testing API, loosely based on
-[W3C testharness.js](https://github.com/w3c/testharness.js) and
-defined in [`testharness.js`](testharness.js) in this directory.  They
-also have access to HTTP and HTTPS servers on `localhost`, which serve
-the files in the [`www`](www) directory.
+access to a special testing API, loosely based on [W3C
+testharness.js](https://github.com/w3c/testharness.js) and defined
+in [`lib/testharness.js`](lib/testharness.js).  They also have
+access to HTTP and HTTPS servers on `localhost`, which serve the
+files in the [`lib/www`](lib/www) directory.
 
 ## The Structure of Test Scripts
 
@@ -561,20 +561,20 @@ respective streams.
 
 ## Test Server Modules
 
-The HTTP and HTTPS servers exposed to the test suite serve the static
-files in the `www` subdirectory with URLs corresponding to their paths
-relative to that directory.  If you need more complicated server
-behavior than that, you can write custom Python code that executes
-when the server receives a request.  Any `.py` file below the `www`
-directory will be invoked to provide the response for that path
-*without* the `.py` suffix.  (For instance, `www/echo.py` provides
-responses for `TEST_HTTP_BASE + 'echo'`.)  Such files must define a
-top-level function named `handle_request`.  This function receives a
-single argument, which is an instance of a subclass of
+The HTTP and HTTPS servers exposed to the test suite serve the
+static files in the `lib/www` subdirectory, with URLs corresponding
+to their paths relative to that directory.  If you need more
+complicated server behavior than that, you can write custom Python
+code that executes when the server receives a request.  Any `.py`
+file below `lib/www` will be invoked to provide the response for
+that path *without* the `.py` suffix.  (For instance, `lib/www/echo.py`
+provides responses for `TEST_HTTP_BASE + 'echo'`.)  Such files must
+define a top-level function named `handle_request`.  This function
+receives a single argument, which is an instance of a subclass of
 [`BaseHTTPServer.BaseHTTPRequestHandler`](https://docs.python.org/2/library/basehttpserver.html#BaseHTTPServer.BaseHTTPRequestHandler).
 The request headers and body (if any) may be retrieved from this
-object.  The function must use the `send_response`, `send_header`, and
-`end_headers` methods of this object to generate HTTP response
+object.  The function must use the `send_response`, `send_header`,
+and `end_headers` methods of this object to generate HTTP response
 headers, and then return a *file-like object* (**not** a string)
 containing the response body.  The function is responsible for
 generating appropriate `Content-Type` and `Content-Length` headers;
