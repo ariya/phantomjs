@@ -376,7 +376,7 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
 
     m_customWebPage->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
 	if (phantomCfg->localStoragePath().isEmpty()) {
-		m_customWebPage->settings()->setLocalStoragePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+		m_customWebPage->settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
 	} else {
 		m_customWebPage->settings()->setLocalStoragePath(phantomCfg->localStoragePath());
 	}	
