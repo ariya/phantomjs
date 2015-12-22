@@ -1,5 +1,6 @@
 // Use 'page.injectJs()' to load the script itself in the Page context
 
+"use strict";
 if ( typeof(phantom) !== "undefined" ) {
     var page = require('webpage').create();
 

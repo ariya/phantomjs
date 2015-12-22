@@ -1,3 +1,4 @@
+"use strict";
 var t = 10,
     interval = setInterval(function(){
         if ( t > 0 ) {

@@ -67,24 +67,26 @@ test(function () {
 }, "should not report errors that were caught");
 
 function check_stack(message, stack) {
-    assert_equals(message, "ReferenceError: Can't find variable: referenceError");
+    assert_equals(message,
+                  "ReferenceError: Can't find variable: referenceError");
 
     if (typeof stack === "string") {
         var lines = stack.split("\n");
-        assert_equals(lines[0], "\tat bar ("+helperFile+":7:23)");
-        assert_equals(lines[1], "\tat foo ("+helperFile+":3:17)");
+        assert_regexp_match(lines[0], RegExp("^bar@.*?"+helperBase+":7:23$"));
+        assert_regexp_match(lines[1], RegExp("^foo@.*?"+helperBase+":3:17$"));
     } else {
-        assert_equals(stack[0].file, helperFile);
+        assert_regexp_match(stack[0].file, RegExp(helperBase));
         assert_equals(stack[0].line, 7);
         assert_equals(stack[0]["function"], "bar");
 
-        assert_equals(stack[1].file, helperFile);
+        assert_regexp_match(stack[1].file, RegExp(helperBase));
         assert_equals(stack[1].line, 3);
         assert_equals(stack[1]["function"], "foo");
     }
 }
 
-var helperFile = "../../fixtures/error-helper.js";
+var helperBase = "error-helper.js";
+var helperFile = "../../fixtures/" + helperBase;
 assert_is_true(phantom.injectJs(helperFile));
 
 test(function () {

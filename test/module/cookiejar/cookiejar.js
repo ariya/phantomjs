@@ -1,42 +1,42 @@
 var cookie0 = {
-    'name' : 'Valid-Cookie-Name',
-    'value' : 'Valid-Cookie-Value',
-    'domain' : 'localhost',
-    'path' : '/foo',
-    'httponly' : true,
-    'secure' : false
+    'name':     'Valid-Cookie-Name',
+    'value':    'Valid-Cookie-Value',
+    'domain':   'localhost',
+    'path':     '/foo',
+    'httponly': true,
+    'secure':   false
 };
 var cookie1 = {
-    'name' : 'Valid-Cookie-Name-1',
-    'value' : 'Valid-Cookie-Value',
-    'domain' : 'localhost',
-    'path' : '/foo',
-    'httponly' : true,
-    'secure' : false
+    'name':     'Valid-Cookie-Name-1',
+    'value':    'Valid-Cookie-Value',
+    'domain':   'localhost',
+    'path':     '/foo',
+    'httponly': true,
+    'secure':   false
 };
 var cookie2 = {
-    'name' : 'Valid-Cookie-Name-2',
-    'value' : 'Valid-Cookie-Value',
-    'domain' : 'localhost',
-    'path' : '/foo',
-    'httponly' : true,
-    'secure' : false
+    'name':     'Valid-Cookie-Name-2',
+    'value':    'Valid-Cookie-Value',
+    'domain':   'localhost',
+    'path':     '/foo',
+    'httponly': true,
+    'secure':   false
 };
 var cookies = [{
-    'name' : 'Valid-Cookie-Name',
-    'value' : 'Valid-Cookie-Value',
-    'domain' : 'localhost',
-    'path' : '/foo',
-    'httponly' : true,
-    'secure' : false
+    'name':     'Valid-Cookie-Name',
+    'value':    'Valid-Cookie-Value',
+    'domain':   'localhost',
+    'path':     '/foo',
+    'httponly': true,
+    'secure':   false
 },{
-    'name' : 'Valid-Cookie-Name-Sec',
-    'value' : 'Valid-Cookie-Value-Sec',
-    'domain' : 'localhost',
-    'path' : '/foo',
-    'httponly' : true,
-    'secure' : false,
-    'expires' : new Date().getTime() + 3600 //< expires in 1h
+    'name':     'Valid-Cookie-Name-Sec',
+    'value':    'Valid-Cookie-Value-Sec',
+    'domain':   'localhost',
+    'path':     '/foo',
+    'httponly': true,
+    'secure':   false,
+    'expires':  new Date().getTime() + 3600 //< expires in 1h
 }];
 
 var cookiejar, jar1, jar2;
