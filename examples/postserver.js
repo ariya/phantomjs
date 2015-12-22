@@ -1,5 +1,6 @@
 // Example using HTTP POST operation
 
+"use strict";
 var page = require('webpage').create(),
     server = require('webserver').create(),
     system = require('system'),

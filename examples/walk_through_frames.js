@@ -1,3 +1,4 @@
+"use strict";
 var p = require("webpage").create();
 
 function pageTitle(page) {

@@ -1169,7 +1169,8 @@ Output.prototype.result = function result(test) {
         this.error("Unrecognized test status " + test.status);
         prefix = "not ok ";
     }
-    if (prefix === "not ok " && directive !== " # TODO") {
+    if ((prefix === "not ok " && directive !== " # TODO") ||
+        (prefix === "ok "     && directive === " # TODO")) {
         this.failed = true;
     }
     this.fp.write(prefix + test.number + " " + test.name + directive + "\n");
@@ -1373,7 +1374,7 @@ function format_exception (e) {
         // We do not need to hear about initial lines naming the
         // assertion function.
         for (lo = 0; lo < stack.length; lo++) {
-            if (!/^\s+at assert(?:_[a-z0-9_]+)? \(.*testharness\.js:/
+            if (!/^assert(?:_[a-z0-9_]+)?@.*?testharness\.js:/
                 .test(stack[lo])) {
                 break;
             }
@@ -1382,7 +1383,7 @@ function format_exception (e) {
         // The caller of the test function is guaranteed to have "_step" in
         // its name.
         for (hi = lo; hi < stack.length; hi++) {
-            if (/^\s+at [a-z_]+_step \(.*testharness\.js:/.test(stack[hi])) {
+            if (/^[a-z_]+_step.*?testharness\.js:/.test(stack[hi])) {
                 break;
             }
         }

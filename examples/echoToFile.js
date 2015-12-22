@@ -1,4 +1,5 @@
 // echoToFile.js - Write in a given file all the parameters passed on the CLI
+"use strict";
 var fs = require('fs'),
     system = require('system');
 

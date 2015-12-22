@@ -993,6 +993,19 @@ def init():
 
         sys.stdout.write(colorize("b", "## Testing PhantomJS "+ver[0])+"\n")
 
+    # Run all the tests in Chatham Islands Standard Time, UTC+12:45.
+    # This timezone is deliberately chosen to be unusual: it's not a
+    # whole number of hours offset from UTC *and* it's more than twelve
+    # hours offset from UTC.
+    #
+    # The Chatham Islands do observe daylight savings, but we don't
+    # implement that because testsuite issues only reproducible on two
+    # particular days out of the year are too much tsuris.
+    #
+    # Note that the offset in a TZ value is the negative of the way it's
+    # usually written, e.g. UTC+1 would be xxx-1:00.
+    os.environ["TZ"] = "CIST-12:45:00"
+
     return runner
 
 def main():

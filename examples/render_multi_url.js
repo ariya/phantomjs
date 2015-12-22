@@ -1,5 +1,6 @@
 // Render Multiple URLs to file
 
+"use strict";
 var RenderUrlsToFile, arrayOfUrls, system;
 
 system = require("system");
@@ -59,7 +60,7 @@ if (system.args.length > 1) {
     arrayOfUrls = Array.prototype.slice.call(system.args, 1);
 } else {
     console.log("Usage: phantomjs render_multi_url.js [domain.name1, domain.name2, ...]");
-    arrayOfUrls = ["www.google.com", "www.bbc.co.uk", "www.phantomjs.org"];
+    arrayOfUrls = ["www.google.com", "www.bbc.co.uk", "phantomjs.org"];
 }
 
 RenderUrlsToFile(arrayOfUrls, (function(status, url, file) {

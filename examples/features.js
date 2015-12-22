@@ -1,3 +1,4 @@
+"use strict";
 var feature, supported = [], unsupported = [];
 
 phantom.injectJs('modernizr.js');

@@ -1,3 +1,4 @@
+"use strict";
 var page = require('webpage').create();
 page.viewportSize = { width: 320, height: 480 };
 page.open('http://news.google.com/news/i/section?&topic=t', function (status) {
