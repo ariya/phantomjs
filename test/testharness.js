@@ -785,6 +785,8 @@ Test.prototype.fail = function fail(message) {
 Test.prototype.done = function done() {
     var i;
 
+    this.in_done = true;
+
     if (this.timeout_id !== null) {
         clearTimeout(this.timeout_id);
         this.timeout_id = null;

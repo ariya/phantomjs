@@ -760,6 +760,8 @@ class TestRunner(object):
             return ["gdb", "--args", self.phantomjs_exe]
         elif debugger == "lldb":
             return ["lldb", "--", self.phantomjs_exe]
+        elif debugger == "valgrind":
+            return ["valgrind", self.phantomjs_exe]
         else:
             raise RuntimeError("Don't know how to invoke " + self.debugger)
 
