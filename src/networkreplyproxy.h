@@ -57,6 +57,10 @@ public:
      */
     QString body();
 
+    /*
+      Returns the body size. Even if body isn't being captured.
+     */
+    int bodySize();
 
     /*
       Returns nested reply
@@ -92,6 +96,7 @@ public Q_SLOTS:
 private:
     QNetworkReply* m_reply;
     QByteArray m_data;
+    int m_dataSize;
     QByteArray m_buffer;
     bool m_shouldCaptureResponseBody;
 };

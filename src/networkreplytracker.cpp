@@ -88,7 +88,7 @@ void NetworkReplyTracker::finishReply(QNetworkReply* reply, int status, const QS
     m_started.remove(proxy);
 
 
-    emit finished(proxy, requestId, status, statusText, proxy->body());
+    emit finished(proxy, requestId, status, statusText, proxy->body(), proxy->bodySize());
 }
 
 void NetworkReplyTracker::handleIncomingData()

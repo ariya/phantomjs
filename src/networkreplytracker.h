@@ -73,7 +73,7 @@ public:
 signals:
 
     void started(QNetworkReply* reply, int requestId);
-    void finished(QNetworkReply* reply, int requestId, int status, const QString& statusText, const QString& body);
+    void finished(QNetworkReply* reply, int requestId, int status, const QString& statusText, const QString& body, int bodySize);
     void sslErrors(QNetworkReply*, const QList<QSslError>&);
     void error(QNetworkReply*, int requestId, QNetworkReply::NetworkError);
 

@@ -56,6 +56,8 @@ NetworkReplyProxy::NetworkReplyProxy(QObject* parent, QNetworkReply* reply,
 
     // for the data proxy...
     setOpenMode(ReadOnly);
+
+    m_dataSize = 0;
 }
 
 QString NetworkReplyProxy::body()
@@ -68,6 +70,11 @@ QString NetworkReplyProxy::body()
     }
 
     return ret;
+}
+
+int NetworkReplyProxy::bodySize()
+{
+    return m_dataSize;
 }
 
 void NetworkReplyProxy::abort()
@@ -162,6 +169,8 @@ void NetworkReplyProxy::readInternal()
         //this is a response buffer, whole response is stored here
         m_data += data;
     }
+
+    m_dataSize += data.size();
 
     //this is a temporary buffer, data is wiped after a call to 'readData'
     m_buffer += data;
