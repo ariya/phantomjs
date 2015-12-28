@@ -470,10 +470,18 @@ void WebPage::setContent(const QString& content, const QString& baseUrl)
     }
 }
 
-
 void WebPage::setFrameContent(const QString& content)
 {
     m_currentFrame->setHtml(content);
+}
+
+void WebPage::setFrameContent(const QString& content, const QString& baseUrl)
+{
+    if (baseUrl == "about:blank") {
+        m_currentFrame->setHtml(BLANK_HTML);
+    } else {
+        m_currentFrame->setHtml(content, QUrl(baseUrl));
+    }
 }
 
 QString WebPage::title() const
