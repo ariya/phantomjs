@@ -33,6 +33,7 @@
 #include <math.h>
 
 #include <QApplication>
+#include <QContextMenuEvent>
 #include <QDesktopServices>
 #include <QDateTime>
 #include <QDir>
@@ -1513,6 +1514,29 @@ void WebPage::sendEvent(const QString& type, const QVariant& arg1, const QVarian
         QApplication::processEvents();
         return;
     }
+
+    // context click
+    if (type == "contextmenu") {
+        QContextMenuEvent::Reason reason = QContextMenuEvent::Mouse;
+
+        // Gather coordinates
+        if (arg1.isValid() && arg2.isValid()) {
+            m_mousePos.setX(arg1.toInt());
+            m_mousePos.setY(arg2.toInt());
+        }
+
+        // Prepare the context menu event
+        qDebug() << "Context Menu Event:" << eventType << "(" << reason << "," << m_mousePos << ")";
+        QContextMenuEvent* event = new QContextMenuEvent(reason, m_mousePos, QCursor::pos(), keyboardModifiers);
+
+        // Post and process events
+        // Send the context menu event directly to QWebPage::swallowContextMenuEvent which forwards it to JS
+        // If we fire the event using postEvent to m_customWebPage, it will end up in QWebPagePrivate::contextMenuEvent, 
+        // which will not forward it to JS at all
+        m_customWebPage->swallowContextMenuEvent(event);
+        return;
+    }
+
 
     // mouse click events: Qt doesn't provide this as a separate events,
     // so we compose it with a mousedown/mouseup sequence
