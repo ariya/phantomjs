@@ -17,6 +17,8 @@ The following projects are based on PhantomJS. They provide extra functionalitie
 
  * [GhostDriver](https://github.com/detro/ghostdriver) implements Remote WebDriver Wire protocol for PhantomJS. Although it is developed separately, it has been a part of PhantomJS core since PhantomJS 1.8.
 
+ * [GhostJS](https://github.com/KevinGrandon/ghostjs) simplifies test logic with ES7 async functions and removes the need for callbacks.
+
  * [Lotte](https://github.com/StanAngeloff/lotte) adds jQuery-like methods, chaining, and more assertion logic.
 
  * [PhearJS](http://phear.io/) a supervisor and API for PhantomJS written in NodeJS.
