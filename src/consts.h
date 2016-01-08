@@ -40,6 +40,9 @@
 #define HTTP_HEADER_CONTENT_LENGTH      "content-length"
 #define HTTP_HEADER_CONTENT_TYPE        "content-type"
 
+#define JAVASCRIPT_SOURCE_PLATFORM_URL  "phantomjs://platform/%1"
+#define JAVASCRIPT_SOURCE_CODE_URL      "phantomjs://code/%1"
+
 #define JS_ELEMENT_CLICK "(function (el) { " \
     "var ev = document.createEvent('MouseEvents');" \
     "ev.initEvent(\"click\", true, true);" \
