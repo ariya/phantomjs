@@ -66,6 +66,34 @@ page.onCallback = function(data) {
 };
 ```
 
+### Allow web page Javascript to close PhantomJS
+
+This can be helpful when the web page running in PhantomJS needs to exit PhantomJS.
+
+#### WebPage (client-side)
+
+```javascript
+if (typeof window.callPhantom === 'function') {
+  var status = window.callPhantom({
+    command: 'exit',
+    reason:  'User Request.'
+  });
+}
+```
+
+#### PhantomJS (server-side)
+
+```javascript
+var webPage = require('webpage');
+var page = webPage.create();
+
+page.onCallback = function(data) {
+  if (data && data.command && (data.command === 'exit')) {
+   if (data.reason) console.log('web page requested exit: '+data.reason);
+    phantom.exit(0);
+  }
+};
+```
 
 
 
