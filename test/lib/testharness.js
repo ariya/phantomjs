@@ -693,8 +693,8 @@ Test.statuses = {
     NOTRUN: -1,
     PASS:    0,
     FAIL:    1,
-    XFAIL:   4,
-    XPASS:   5
+    XFAIL:   2,
+    XPASS:   3
 };
 Test.prototype.phases = Test.phases;
 Test.prototype.statuses = Test.phases;
