@@ -381,7 +381,7 @@ void Phantom::loadModule(const QString& moduleSource, const QString& filename)
         "require.cache['" + filename + "'].exports," +
         "require.cache['" + filename + "']" +
         "));";
-    m_page->mainFrame()->evaluateJavaScript(scriptSource);
+    m_page->mainFrame()->evaluateJavaScript(scriptSource, QString(JAVASCRIPT_SOURCE_PLATFORM_URL).arg(QFileInfo(filename).fileName()));
 }
 
 bool Phantom::injectJs(const QString& jsFilePath)
@@ -479,7 +479,7 @@ void Phantom::onInitialized()
     // Bootstrap the PhantomJS scope
     m_page->mainFrame()->evaluateJavaScript(
         Utils::readResourceFileUtf8(":/bootstrap.js"),
-        QString("phantomjs://bootstrap.js")
+        QString(JAVASCRIPT_SOURCE_PLATFORM_URL).arg("bootstrap.js")
     );
 }
 
