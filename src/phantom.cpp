@@ -110,7 +110,7 @@ void Phantom::init()
         QWebSettings::setOfflineStorageDefaultQuota(m_config.offlineStorageDefaultQuota());
     }
 
-    m_page = new WebPage(this, QUrl(QString(JAVASCRIPT_SOURCE_CODE_URL).arg("html")));
+    m_page = new WebPage(this, QUrl::fromLocalFile(m_config.scriptFile()));
     m_page->setCookieJar(m_defaultCookieJar);
     m_pages.append(m_page);
 
