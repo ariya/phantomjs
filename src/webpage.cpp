@@ -1454,7 +1454,7 @@ void WebPage::sendEvent(const QString& type, const QVariant& arg1, const QVarian
         if (arg1.type() == QVariant::String) {
             // this is the case for e.g. sendEvent("...", 'A')
             // but also works with sendEvent("...", "ABCD")
-            foreach (const QChar typeChar, arg1.toString()) {
+            foreach(const QChar typeChar, arg1.toString()) {
                 sendEvent("keydown", typeChar, QVariant(), QString(), modifierArg);
                 sendEvent("keyup", typeChar, QVariant(), QString(), modifierArg);
             }
@@ -1546,7 +1546,7 @@ QStringList WebPage::pagesWindowName() const
 {
     QStringList pagesWindowName;
 
-    foreach (const WebPage* p, this->findChildren<WebPage*>()) {
+    foreach(const WebPage * p, this->findChildren<WebPage*>()) {
         pagesWindowName << p->windowName();
     }
 
@@ -1588,7 +1588,7 @@ QStringList WebPage::framesName() const
 {
     QStringList framesName;
 
-    foreach (const QWebFrame* f, m_currentFrame->childFrames()) {
+    foreach(const QWebFrame * f, m_currentFrame->childFrames()) {
         framesName << f->frameName();
     }
     return framesName;

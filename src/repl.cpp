@@ -188,7 +188,7 @@ void REPL::offerCompletion(const char* buf, linenoiseCompletions* lc)
                                   QString()
                               ).toStringList();
 
-    foreach (QString c, completions) {
+    foreach(QString c, completions) {
         if (lastIndexOfDot > -1) {
             // Preserve the "toInspect" portion of the string to complete
             linenoiseAddCompletion(lc, QString("%1.%2").arg(toInspect, c).toLocal8Bit().data());

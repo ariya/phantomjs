@@ -122,7 +122,7 @@ void NetworkReplyProxy::applyMetaData()
     */
 
     QList<QByteArray> headers = m_reply->rawHeaderList();
-    foreach (QByteArray header, headers) {
+    foreach(QByteArray header, headers) {
         setRawHeader(header, m_reply->rawHeader(header));
     }
 

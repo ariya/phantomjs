@@ -522,7 +522,7 @@ void Phantom::doExit(int code)
     emit aboutToExit(code);
     m_terminated = true;
     m_returnValue = code;
-    foreach (QPointer<WebPage> page, m_pages) {
+    foreach(QPointer<WebPage> page, m_pages) {
         if (!page) {
             continue;
         }
