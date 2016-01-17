@@ -313,10 +313,13 @@ void NetworkAccessManager::setCaptureContent(const QStringList& patterns)
 
 void NetworkAccessManager::compileCaptureContentPatterns()
 {
-    for (QStringList::const_iterator it = m_captureContentPatterns.constBegin();
-            it != m_captureContentPatterns.constEnd(); ++it) {
-
-        m_compiledCaptureContentPatterns.append(QRegExp(*it, Qt::CaseInsensitive));
+    foreach (const QString& plainRegex, m_captureContentPatterns) {
+        QRegExp regexp = QRegExp(plainRegex, Qt::CaseInsensitive);
+        if (m_compiledCaptureContentPatterns.contains(regexp)) {
+            qWarning() << "Attempt to add duplicate regular expression: " << plainRegex;
+        } else {
+            m_compiledCaptureContentPatterns.append(regexp);
+        }
     }
 }
 
@@ -423,10 +426,8 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
 
 bool NetworkAccessManager::shouldCaptureResponse(const QString& url)
 {
-    for (QList<QRegExp>::const_iterator it = m_compiledCaptureContentPatterns.constBegin();
-            it != m_compiledCaptureContentPatterns.constEnd(); ++it) {
-
-        if (-1 != it->indexIn(url)) {
+    foreach (QRegExp regexp, m_compiledCaptureContentPatterns) {
+        if (regexp.indexIn(url) != -1) {
             return true;
         }
     }
@@ -510,7 +511,6 @@ void NetworkAccessManager::handleFinished(QNetworkReply* reply, int requestId, i
     data["time"] = QDateTime::currentDateTime();
     data["body"] = body;
     data["bodySize"] = body.length();
-
 
     emit resourceReceived(data);
 }
