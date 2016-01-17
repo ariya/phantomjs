@@ -454,13 +454,7 @@ void NetworkAccessManager::handleTimeout()
 
 void NetworkAccessManager::handleStarted(QNetworkReply* reply, int requestId)
 {
-    QVariantList headers;
-    foreach (QByteArray headerName, reply->rawHeaderList()) {
-        QVariantMap header;
-        header["name"] = QString::fromUtf8(headerName);
-        header["value"] = QString::fromUtf8(reply->rawHeader(headerName));
-        headers += header;
-    }
+    QVariantList headers = getHeadersFromReply(reply);
 
     QVariantMap data;
     data["stage"] = "start";
@@ -491,13 +485,7 @@ void NetworkAccessManager::provideAuthentication(QNetworkReply* reply, QAuthenti
 
 void NetworkAccessManager::handleFinished(QNetworkReply* reply, int requestId, int status, const QString& statusText, const QString& body)
 {
-    QVariantList headers;
-    foreach (QByteArray headerName, reply->rawHeaderList()) {
-        QVariantMap header;
-        header["name"] = QString::fromUtf8(headerName);
-        header["value"] = QString::fromUtf8(reply->rawHeader(headerName));
-        headers += header;
-    }
+    QVariantList headers = getHeadersFromReply(reply);
 
     QVariantMap data;
     data["stage"] = "end";
@@ -542,4 +530,17 @@ void NetworkAccessManager::handleNetworkError(QNetworkReply* reply, int requestI
     data["statusText"] = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
 
     emit resourceError(data);
+}
+
+QVariantList NetworkAccessManager::getHeadersFromReply(const QNetworkReply* reply)
+{
+  QVariantList headers;
+  foreach (QByteArray headerName, reply->rawHeaderList()) {
+    QVariantMap header;
+    header["name"] = QString::fromUtf8(headerName);
+    header["value"] = QString::fromUtf8(reply->rawHeader(headerName));
+    headers += header;
+  }
+
+  return headers;
 }

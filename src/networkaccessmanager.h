@@ -125,6 +125,7 @@ private:
     bool shouldCaptureResponse(const QString& url);
     void compileCaptureContentPatterns();
     void prepareSslConfiguration(const Config* config);
+    QVariantList getHeadersFromReply(const QNetworkReply* reply);
 
     int m_idCounter;
     QNetworkDiskCache* m_networkDiskCache;
