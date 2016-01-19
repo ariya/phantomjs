@@ -541,7 +541,7 @@ static int outputChars(struct current *current, const char *buf, int len)
 {
     COORD pos = { current->x, current->y };
     DWORD n;
-	
+
     WriteConsoleOutputCharacterA(current->outh, buf, len, pos, &n);
     current->x += len;
     return 0;
@@ -1210,7 +1210,7 @@ process_char:
             refreshLine(current->prompt, current);
             break;
         default:
-	    if (characterCallback[(int)c]) { 
+	    if (characterCallback[(int)c]) {
               int rcode;
 
               rcode = characterCallback[(int)c](current->buf,current->len,c);

@@ -83,4 +83,3 @@ def handle_request(req):
             '<p>URL not found: {}</p>'
             .format(html_esc(req.path)),
             code=404)
-

@@ -3749,7 +3749,7 @@ static void handle_proxy_request(struct mg_connection *conn) {
     }
     conn->peer->client.is_ssl = is_ssl;
   }
-  
+
   // Forward client's request to the target
   mg_printf(conn->peer, "%s %s HTTP/%s\r\n", ri->request_method, ri->uri + len,
             ri->http_version);

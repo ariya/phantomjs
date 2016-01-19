@@ -532,4 +532,3 @@ QCommandLine::showVersion(bool quit, int returnCode)
     exit(returnCode);
   }
 }
-

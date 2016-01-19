@@ -60,4 +60,3 @@ cp bin/phantomjs $SOURCE_PATH
 echo
 
 echo "Finished."
-

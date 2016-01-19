@@ -71,4 +71,3 @@ p.open("../test/webpage-spec-frames/index.html", function(status) {
 
     phantom.exit();
 });
-

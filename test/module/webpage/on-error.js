@@ -107,4 +107,3 @@ async_test(function () {
         setTimeout(function () { ErrorHelper.foo(); }, 0);
     });
 }, "stack trace accuracy (webpage script)");
-

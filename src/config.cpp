@@ -921,4 +921,3 @@ void Config::setSslClientKeyPassphrase(const QByteArray& sslClientKeyPassphrase)
 {
     m_sslClientKeyPassphrase = sslClientKeyPassphrase;
 }
-
