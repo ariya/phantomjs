@@ -828,16 +828,6 @@ QVariantMap WebPage::customHeaders() const
     return m_networkAccessManager->customHeaders();
 }
 
-QStringList WebPage::captureContent() const
-{
-    return m_networkAccessManager->captureContent();
-}
-
-void WebPage::setCaptureContent(const QStringList& patterns)
-{
-    m_networkAccessManager->setCaptureContent(patterns);
-}
-
 void WebPage::setCookieJar(CookieJar* cookieJar)
 {
     m_cookieJar = cookieJar;
