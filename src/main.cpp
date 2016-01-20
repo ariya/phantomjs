@@ -35,6 +35,7 @@
 #include <QApplication>
 #include <QSslSocket>
 #include <QIcon>
+#include <QtWebKitWidgets/QWebPage>
 
 #include <exception>
 #include <stdio.h>
@@ -71,6 +72,13 @@ static int inner_main(int argc, char** argv)
     // execution return value
     int retVal = phantom->returnValue();
     delete phantom;
+
+#ifndef NDEBUG
+    // Prevent a bunch of leak reports that cause errors in test/run-tests.py.
+    // The leaks are only reported when compiled for debug.
+    QWebSettings::clearMemoryCaches();
+#endif
+
     return retVal;
 }
 
