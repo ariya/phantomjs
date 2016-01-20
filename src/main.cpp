@@ -35,6 +35,7 @@
 #include <QApplication>
 #include <QSslSocket>
 #include <QIcon>
+#include <QWebSettings>
 
 #include <exception>
 #include <stdio.h>
@@ -71,6 +72,13 @@ static int inner_main(int argc, char** argv)
     // execution return value
     int retVal = phantom->returnValue();
     delete phantom;
+
+#ifndef QT_NO_DEBUG
+    // Clear all cached data before exiting, so it is not detected as
+    // leaked.
+    QWebSettings::clearMemoryCaches();
+#endif
+
     return retVal;
 }
 
