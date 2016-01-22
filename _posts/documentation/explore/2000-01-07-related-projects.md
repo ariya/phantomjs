@@ -103,7 +103,8 @@ Several page capture projects utilizing PhantomJS:
  * [PhantomLint](https://github.com/arthurakay/LintRoller/tree/v1.3.0) uses PhantomJS to run JSLint on JavaScript application code.
 
  * [PhantomXHR](https://github.com/Huddle/PhantomXHR) isolates UI from server API for fast automated UI testing.
-
+ 
+ * [PHP PhantomJs](http://jonnnnyw.github.io/php-phantomjs/) provides a PHP interface for PhantomJS.
 
  * [shortcut.io](https://github.com/hukl/shortcut.io) uses PhantomJS to generate the screenshot of the bookmarked web sites.
 
