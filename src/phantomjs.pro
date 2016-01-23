@@ -26,8 +26,6 @@ HEADERS += \
     webserver.h \
     consts.h \
     utils.h \
-    networkreplyproxy.h \
-    networkreplytracker.h \
     networkaccessmanager.h \
     cookiejar.h \
     filesystem.h \
@@ -46,8 +44,6 @@ SOURCES += phantom.cpp \
     webserver.cpp \
     main.cpp \
     utils.cpp \
-    networkreplyproxy.cpp \
-    networkreplytracker.cpp \
     networkaccessmanager.cpp \
     cookiejar.cpp \
     filesystem.cpp \
