@@ -40,7 +40,6 @@
 
 static QString findScript(const QString& jsFilePath, const QString& libraryPath)
 {
-    QString filePath = jsFilePath;
     if (!jsFilePath.isEmpty()) {
         QFile jsFile;
 

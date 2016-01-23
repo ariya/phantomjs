@@ -410,16 +410,17 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     m_mainFrame->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_mainFrame->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
-    m_customWebPage->settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
-    m_customWebPage->settings()->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
-    m_customWebPage->settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
+    QWebSettings* pageSettings = m_customWebPage->settings();
+    pageSettings->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
+    pageSettings->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
+    pageSettings->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
 
-    m_customWebPage->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
+    pageSettings->setAttribute(QWebSettings::LocalStorageEnabled, true);
 
     if (phantomCfg->localStoragePath().isEmpty()) {
-        m_customWebPage->settings()->setLocalStoragePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+        pageSettings->setLocalStoragePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
     } else {
-        m_customWebPage->settings()->setLocalStoragePath(phantomCfg->localStoragePath());
+        pageSettings->setLocalStoragePath(phantomCfg->localStoragePath());
     }
 
     // Custom network access manager to allow traffic monitoring.

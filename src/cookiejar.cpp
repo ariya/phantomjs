@@ -435,7 +435,7 @@ bool CookieJar::purgeSessionCookies()
     // Check if any cookie has expired
     int prePurgeCookiesCount = cookiesList.count();
     for (int i = cookiesList.count() - 1; i >= 0; --i) {
-        if (cookiesList.at(i).isSessionCookie() || !cookiesList.at(i).expirationDate().isValid() || cookiesList.at(i).expirationDate().isNull()) {
+        if (cookiesList.at(i).isSessionCookie()) {
             qDebug() << "CookieJar - Purged (session)" << cookiesList.at(i).toRawForm();
             cookiesList.removeAt(i);
         }
@@ -492,18 +492,11 @@ void CookieJar::load()
     }
 }
 
-bool CookieJar::contains(const QNetworkCookie& cookie) const
+bool CookieJar::contains(const QNetworkCookie& cookieToFind) const
 {
     QList<QNetworkCookie> cookiesList = allCookies();
-    for (int i = cookiesList.length() - 1; i >= 0; --i) {
-        if (cookie.name() == cookiesList.at(i).name() &&
-                cookie.value() == cookiesList.at(i).value() &&
-                (cookie.domain().isEmpty() || cookiesList.at(i).domain().prepend('.').endsWith(cookie.domain())) &&
-                (cookie.path().isEmpty() || cookiesList.at(i).path() == cookie.path()) &&
-                cookie.isSecure() == cookiesList.at(i).isSecure() &&
-                cookie.isHttpOnly() == cookiesList.at(i).isHttpOnly() &&
-                cookie.expirationDate().toMSecsSinceEpoch() == cookiesList.at(i).expirationDate().toMSecsSinceEpoch()
-           ) {
+    foreach(QNetworkCookie cookie, cookiesList) {
+        if (cookieToFind == cookie) {
             return true;
         }
     }
