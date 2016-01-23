@@ -482,6 +482,7 @@ void NetworkAccessManager::handleFinished(QNetworkReply* reply, const QVariant& 
 
     m_ids.remove(reply);
     m_started.remove(reply);
+    reply->deleteLater();
 
     emit resourceReceived(data);
 }
