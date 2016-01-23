@@ -6,6 +6,7 @@ import errno
 import glob
 import imp
 import os
+import platform
 import posixpath
 import re
 import shlex
@@ -79,7 +80,7 @@ def activate_colorization(options):
     elif options.color == "never":
         _COLORS = _COLOR_NONE
     else:
-        if sys.stdout.isatty():
+        if sys.stdout.isatty() and platform.system() != "Windows":
             try:
                 n = int(subprocess.check_output(["tput", "colors"]))
                 if n >= 8:
