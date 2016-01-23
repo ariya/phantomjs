@@ -6,7 +6,7 @@ PhantomJS ([phantomjs.org](http://phantomjs.org)) is a headless WebKit scriptabl
 
 ## Use Cases
 
-- **Headless web testing**. Lightning-fast testing without the browser is now possible! Various [test frameworks](http://phantomjs.org/headless-testing.html) such as Jasmine, Capybara, QUnit, Mocha, WebDriver, YUI Test, BusterJS, FuncUnit, Robot Framework, and many others are supported.
+- **Headless web testing**. Lightning-fast testing without the browser is now possible!
 - **Page automation**. [Access and manipulate](http://phantomjs.org/page-automation.html) web pages with the standard DOM API, or with usual libraries like jQuery.
 - **Screen capture**. Programmatically [capture web contents](http://phantomjs.org/screen-capture.html), including CSS, SVG and Canvas. Build server-side web graphics apps, from a screenshot service to a vector chart rasterizer.
 - **Network monitoring**. Automate performance analysis, track [page loading](http://phantomjs.org/network-monitoring.html) and export as standard HAR format.
@@ -17,19 +17,6 @@ PhantomJS ([phantomjs.org](http://phantomjs.org)) is a headless WebKit scriptabl
 - **Fast and native implementation** of web standards: DOM, CSS, JavaScript, Canvas, and SVG. No emulation!
 - **Pure headless (no X11) on Linux**, ideal for continuous integration systems. Also runs on Amazon EC2, Heroku, and Iron.io.
 - **Easy to install**: [Download](http://phantomjs.org/download.html), unpack, and start having fun in just 5 minutes.
-
-## Ecosystem
-
-PhantomJS needs not be used only as a stand-alone tool. Check also some excellent related projects:
-
-- [CasperJS](http://casperjs.org) enables easy navigation scripting and common high-level testing.
-- [Poltergeist](https://github.com/jonleighton/poltergeist) allows running Capybara tests headlessly.
-- [Guard::Jasmine](https://github.com/netzpirat/guard-jasmine) automatically tests Jasmine specs on Rails when files are modified.
-- [GhostDriver](http://github.com/detro/ghostdriver/) complements Selenium tests with a PhantomJS WebDriver implementation.
-- [PhantomRobot](https://github.com/datakurre/phantomrobot) runs Robot Framework acceptance tests in the background via PhantomJS.
-- [Mocha-PhantomJS](https://github.com/metaskills/mocha-phantomjs) run Mocha tests using PhantomJS.
-
-and many others [related projects](http://phantomjs.org/related-projects.html).
 
 ## Questions?
 
