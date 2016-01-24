@@ -1,12 +1,12 @@
-var assert = require('../../assert');
+test(function() {
+    var date = new Date('2012-09-07');
+    assert_not_equals(date.toString(), 'Invalid Date');
+    assert_equals(date.getUTCDate(), 7);
+    assert_equals(date.getUTCMonth(), 8);
+    assert_equals(date.getYear(), 112);
+}, "new Date()");
 
-// construct date in mm-dd-yyyy format
-var date = new Date('2012-09-07');
-assert.isTrue(date.toString() != 'Invalid Date');
-assert.equal(date.getDate(), 6);
-assert.equal(date.getMonth(), 8);
-assert.equal(date.getYear(), 112);
-
-// parse date in ISO8601 format (yyyy-mm-dd)
-var date = Date.parse("2012-01-01");
-assert.equal(date, 1325376000000);
+test(function () {
+    var date = Date.parse("2012-01-01");
+    assert_equals(date, 1325376000000);
+}, "Date.parse()");

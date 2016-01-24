@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>useragentlist.txt</file>
-        <file>favicon.png</file>
-    </qresource>
-</RCC>

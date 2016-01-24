@@ -1,2 +1,0 @@
-cc -g -o testbindingsM testbindings.mm -I../kjs -F$SYMROOTS -framework JavaScriptCore -framework Foundation -lstdc++
-cc -g -o testbindingsC testbindings.cpp -I../kjs -F$SYMROOTS -framework JavaScriptCore -framework Foundation -lstdc++

@@ -1,12 +1,7 @@
-var assert = require('../assert');
-
-assert.isTrue(phantom.hasOwnProperty('version'));
-
-assert.typeOf(phantom.version, 'object');
-assert.typeOf(phantom.version.major, 'number');
-assert.typeOf(phantom.version.minor, 'number');
-assert.typeOf(phantom.version.patch, 'number');
-
-assert.equal(phantom.version.major, 2);
-assert.equal(phantom.version.minor, 0);
-assert.equal(phantom.version.patch, 0);
+// This is separate from basics/phantom-object.js because it has to be
+// updated with every release.
+test(function () {
+    assert_equals(phantom.version.major, 2);
+    assert_equals(phantom.version.minor, 0);
+    assert_equals(phantom.version.patch, 0);
+}, "PhantomJS version number is accurate");

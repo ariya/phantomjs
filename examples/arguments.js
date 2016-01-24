@@ -1,3 +1,4 @@
+"use strict";
 var system = require('system');
 if (system.args.length === 1) {
     console.log('Try to pass some args when invoking this script!');

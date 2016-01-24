@@ -1,14 +1,17 @@
-var assert = require('../../assert');
 var webpage = require('webpage');
 
-var defaultPage = webpage.create();
-assert.jsonEqual(defaultPage.scrollPosition, {left:0,top:0});
+test(function () {
+    var defaultPage = webpage.create();
+    assert_deep_equals(defaultPage.scrollPosition, {left:0,top:0});
+}, "default scroll position");
 
-var options = {
-    scrollPosition: {
-        left: 1,
-        top: 2
-    }
-};
-var customPage = webpage.create(options);
-assert.jsonEqual(customPage.scrollPosition, options.scrollPosition);
+test(function () {
+    var options = {
+        scrollPosition: {
+            left: 1,
+            top: 2
+        }
+    };
+    var customPage = webpage.create(options);
+    assert_deep_equals(customPage.scrollPosition, options.scrollPosition);
+}, "custom scroll position");

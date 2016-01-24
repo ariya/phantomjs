@@ -33,6 +33,7 @@
 #include <math.h>
 
 #include <QApplication>
+#include <QContextMenuEvent>
 #include <QDesktopServices>
 #include <QDateTime>
 #include <QDir>
@@ -43,7 +44,7 @@
 #include <QNetworkCookie>
 #include <QNetworkRequest>
 #include <QPainter>
-#include <QPrinter>
+#include <QtPrintSupport/QPrinter>
 #include <QWebHistory>
 #include <QWebHistoryItem>
 #include <QWebElement>
@@ -55,6 +56,8 @@
 #include <QDebug>
 #include <QImageWriter>
 #include <QUuid>
+#include <QUrl>
+#include <QNetworkProxy>
 
 #include "phantom.h"
 #include "networkaccessmanager.h"
@@ -65,7 +68,7 @@
 #include "cookiejar.h"
 #include "system.h"
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN
 #include <io.h>
 #include <fcntl.h>
 #endif
@@ -214,7 +217,7 @@ protected:
         bool isNavigationLocked = m_webPage->navigationLocked();
 
         emit m_webPage->navigationRequested(
-            request.url(),                   //< Requested URL
+            request.url().toEncoded(),       //< Requested URL
             navigationType,                  //< Navigation Type
             !isNavigationLocked,             //< Will navigate (not locked)?
             isMainFrame);                    //< Is main frame?
@@ -383,12 +386,11 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     // (no parameter == main frame) but we make sure to do the setup only once.
     //
     // @see WebPage::setupFrame(QWebFrame *) for details.
-    connect(m_mainFrame, SIGNAL(loadStarted()), this, SLOT(switchToMainFrame()), Qt::QueuedConnection);
     connect(m_mainFrame, SIGNAL(loadFinished(bool)), this, SLOT(setupFrame()), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(frameCreated(QWebFrame*)), this, SLOT(setupFrame(QWebFrame*)), Qt::DirectConnection);
     connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(setupFrame()));
     connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), SIGNAL(initialized()));
-    connect(m_mainFrame, SIGNAL(urlChanged(QUrl)), SIGNAL(urlChanged(QUrl)));
+    connect(m_mainFrame, SIGNAL(urlChanged(QUrl)), this, SLOT(handleUrlChanged(QUrl)));
     connect(m_customWebPage, SIGNAL(loadStarted()), SIGNAL(loadStarted()), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(loadFinished(bool)), SLOT(finish(bool)), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(windowCloseRequested()), this, SLOT(close()), Qt::QueuedConnection);
@@ -408,16 +410,17 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     m_mainFrame->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_mainFrame->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
-    m_customWebPage->settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
-    m_customWebPage->settings()->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
-    m_customWebPage->settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
+    QWebSettings* pageSettings = m_customWebPage->settings();
+    pageSettings->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
+    pageSettings->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
+    pageSettings->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
 
-    m_customWebPage->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
+    pageSettings->setAttribute(QWebSettings::LocalStorageEnabled, true);
 
     if (phantomCfg->localStoragePath().isEmpty()) {
-      m_customWebPage->settings()->setLocalStoragePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+        pageSettings->setLocalStoragePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
     } else {
-      m_customWebPage->settings()->setLocalStoragePath(phantomCfg->localStoragePath());
+        pageSettings->setLocalStoragePath(phantomCfg->localStoragePath());
     }
 
     // Custom network access manager to allow traffic monitoring.
@@ -469,10 +472,18 @@ void WebPage::setContent(const QString& content, const QString& baseUrl)
     }
 }
 
-
 void WebPage::setFrameContent(const QString& content)
 {
     m_currentFrame->setHtml(content);
+}
+
+void WebPage::setFrameContent(const QString& content, const QString& baseUrl)
+{
+    if (baseUrl == "about:blank") {
+        m_currentFrame->setHtml(BLANK_HTML);
+    } else {
+        m_currentFrame->setHtml(content, QUrl(baseUrl));
+    }
 }
 
 QString WebPage::title() const
@@ -487,12 +498,16 @@ QString WebPage::frameTitle() const
 
 QString WebPage::url() const
 {
-    return m_mainFrame->url().toString();
+    return m_mainFrame->url().toEncoded();
 }
 
 QString WebPage::frameUrl() const
 {
-    return m_currentFrame->url().toString();
+    // Issue #11035: QWebFrame::url() is only set by QWebFrame::setUrl();
+    // it doesn't reflect a URL specified in a <frame> tag.
+    // QWebFrame::baseUrl() will be other than expected in the presence of
+    // <base href>, but it's less wrong.
+    return m_currentFrame->baseUrl().toEncoded();
 }
 
 bool WebPage::loading() const
@@ -592,7 +607,7 @@ int WebPage::offlineStorageQuota() const
     return m_customWebPage->settings()->offlineStorageDefaultQuota();
 }
 
-void WebPage::showInspector(const int port)
+int WebPage::showInspector(const int port)
 {
     m_customWebPage->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
     m_inspector = new QWebInspector;
@@ -602,7 +617,9 @@ void WebPage::showInspector(const int port)
         m_inspector->setVisible(true);
     } else {
         m_customWebPage->setProperty("_q_webInspectorServerPort", port);
+        return m_customWebPage->property("_q_webInspectorServerPort").toInt();
     }
+    return port;
 }
 
 void WebPage::applySettings(const QVariantMap& def)
@@ -637,6 +654,21 @@ void WebPage::applySettings(const QVariantMap& def)
         m_networkAccessManager->setResourceTimeout(def[PAGE_SETTINGS_RESOURCE_TIMEOUT].toInt());
     }
 
+    if (def.contains(PAGE_SETTINGS_PROXY)) {
+        setProxy(def[PAGE_SETTINGS_PROXY].toString());
+    }
+}
+
+void WebPage::setProxy(const QString& proxyUrl)
+{
+    QUrl url(proxyUrl);
+    qDebug() << "Setting proxy to: " << url.scheme() << url.host() << url.port();
+    QNetworkProxy::ProxyType type = QNetworkProxy::HttpProxy;
+    if (url.scheme() == "socks5") {
+        type = QNetworkProxy::Socks5Proxy;
+    }
+    QNetworkProxy proxy(type, url.host(), url.port(), url.userName(), url.password());
+    m_networkAccessManager->setProxy(proxy);
 }
 
 QString WebPage::userAgent() const
@@ -804,16 +836,6 @@ void WebPage::setCustomHeaders(const QVariantMap& headers)
 QVariantMap WebPage::customHeaders() const
 {
     return m_networkAccessManager->customHeaders();
-}
-
-QStringList WebPage::captureContent() const
-{
-    return m_networkAccessManager->captureContent();
-}
-
-void WebPage::setCaptureContent(const QStringList& patterns)
-{
-    m_networkAccessManager->setCaptureContent(patterns);
 }
 
 void WebPage::setCookieJar(CookieJar* cookieJar)
@@ -1001,23 +1023,23 @@ bool WebPage::render(const QString& fileName, const QVariantMap& option)
 
         System* system = (System*)Phantom::instance()->createSystem();
         if (fileName == STDOUT_FILENAME) {
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN
             _setmode(_fileno(stdout), O_BINARY);
 #endif
 
             ((File*)system->_stdout())->write(QString::fromLatin1(ba.constData(), ba.size()));
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN
             _setmode(_fileno(stdout), O_TEXT);
 #endif
         } else if (fileName == STDERR_FILENAME) {
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN
             _setmode(_fileno(stderr), O_BINARY);
 #endif
 
             ((File*)system->_stderr())->write(QString::fromLatin1(ba.constData(), ba.size()));
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN
             _setmode(_fileno(stderr), O_TEXT);
 #endif
         }
@@ -1065,7 +1087,7 @@ QImage WebPage::renderImage()
     QSize viewportSize = m_customWebPage->viewportSize();
     m_customWebPage->setViewportSize(contentsSize);
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN
     QImage::Format format = QImage::Format_ARGB32_Premultiplied;
 #else
     QImage::Format format = QImage::Format_ARGB32;
@@ -1492,6 +1514,29 @@ void WebPage::sendEvent(const QString& type, const QVariant& arg1, const QVarian
         return;
     }
 
+    // context click
+    if (type == "contextmenu") {
+        QContextMenuEvent::Reason reason = QContextMenuEvent::Mouse;
+
+        // Gather coordinates
+        if (arg1.isValid() && arg2.isValid()) {
+            m_mousePos.setX(arg1.toInt());
+            m_mousePos.setY(arg2.toInt());
+        }
+
+        // Prepare the context menu event
+        qDebug() << "Context Menu Event:" << eventType << "(" << reason << "," << m_mousePos << ")";
+        QContextMenuEvent* event = new QContextMenuEvent(reason, m_mousePos, QCursor::pos(), keyboardModifiers);
+
+        // Post and process events
+        // Send the context menu event directly to QWebPage::swallowContextMenuEvent which forwards it to JS
+        // If we fire the event using postEvent to m_customWebPage, it will end up in QWebPagePrivate::contextMenuEvent,
+        // which will not forward it to JS at all
+        m_customWebPage->swallowContextMenuEvent(event);
+        return;
+    }
+
+
     // mouse click events: Qt doesn't provide this as a separate events,
     // so we compose it with a mousedown/mouseup sequence
     // mouse doubleclick events: It is not enough to simply send a
@@ -1577,12 +1622,42 @@ QStringList WebPage::childFramesName() const //< deprecated
     return this->framesName();
 }
 
+// The main frame is never destroyed unexpectedly, but child frames
+// can go away for all sorts of reasons.  When this happens to the
+// frame that is m_currentFrame, we need to reset m_currentFrame to
+// m_mainFrame, *immediately* (hence Qt::DirectConnection), and
+// without touching any members of m_currentFrame.  It is sufficient
+// to register m_currentFrame for this treatment, because if any of
+// its parent frames are destroyed it will be destroyed too.
+
 void WebPage::changeCurrentFrame(QWebFrame* const frame)
 {
     if (frame != m_currentFrame) {
-        qDebug() << "WebPage - changeCurrentFrame" << "from" << (m_currentFrame == NULL ? "Undefined" : m_currentFrame->frameName()) << "to" << frame->frameName();
+        qDebug() << "WebPage - changeCurrentFrame"
+                 << "from" << m_currentFrame->frameName()
+                 << "to" << frame->frameName();
+
+        if (m_currentFrame != m_mainFrame) {
+            disconnect(m_currentFrame, &QWebFrame::destroyed,
+                       this, &WebPage::handleCurrentFrameDestroyed);
+        }
+
         m_currentFrame = frame;
+
+        if (m_currentFrame != m_mainFrame) {
+            connect(m_currentFrame, &QWebFrame::destroyed,
+                    this, &WebPage::handleCurrentFrameDestroyed,
+                    Qt::DirectConnection);
+        }
     }
+}
+
+// This is called from the QObject::destroyed signal and does not need
+// to (indeed, must not) do the monkeying with signals that
+// changeCurrentFrame does.
+void WebPage::handleCurrentFrameDestroyed()
+{
+    m_currentFrame = m_mainFrame;
 }
 
 bool WebPage::switchToFrame(const QString& frameName)
@@ -1682,6 +1757,10 @@ void WebPage::handleRepaintRequested(const QRect& dirtyRect)
     emit repaintRequested(dirtyRect.x(), dirtyRect.y(), dirtyRect.width(), dirtyRect.height());
 }
 
+void WebPage::handleUrlChanged(const QUrl& url)
+{
+    emit urlChanged(url.toEncoded());
+}
 
 void WebPage::stopJavaScript()
 {

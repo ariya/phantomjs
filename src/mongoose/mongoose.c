@@ -24,7 +24,7 @@
 #endif
 
 #if defined(_WIN32)
-#define _CRT_SECURE_NO_WARNINGS // Disable deprecation warning in VS2005
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #else
 #define _XOPEN_SOURCE 600 // For flockfile() on Linux
 #define _LARGEFILE_SOURCE // Enable 64-bit file offsets
@@ -37,13 +37,13 @@
 #define PATH_MAX FILENAME_MAX
 #endif // __SYMBIAN32__
 
-#ifndef _WIN32_WCE // Some ANSI #includes are not available on Windows CE
+#ifndef _WIN32
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
 #include <signal.h>
 #include <fcntl.h>
-#endif // !_WIN32_WCE
+#endif // !_WIN32
 
 #include <time.h>
 #include <stdlib.h>
@@ -63,20 +63,18 @@
 #define PATH_MAX MAX_PATH
 #endif
 
-#ifndef _WIN32_WCE
+#ifndef _WIN32
 #include <process.h>
 #include <direct.h>
-#include <io.h>
-#else // _WIN32_WCE
+#else // _WIN32
 #include <winsock2.h>
-#define NO_CGI // WinCE has no pipes
+#include <io.h>
+#include <fcntl.h>
 
 typedef long off_t;
-#define BUFSIZ  4096
 
-#define errno   GetLastError()
 #define strerror(x)  _ultoa(x, (char *) _alloca(sizeof(x) *3 ), 10)
-#endif // _WIN32_WCE
+#endif // _WIN32
 
 #define MAKEUQUAD(lo, hi) ((uint64_t)(((uint32_t)(lo)) | \
       ((uint64_t)((uint32_t)(hi))) << 32))
@@ -3751,7 +3749,7 @@ static void handle_proxy_request(struct mg_connection *conn) {
     }
     conn->peer->client.is_ssl = is_ssl;
   }
-  
+
   // Forward client's request to the target
   mg_printf(conn->peer, "%s %s HTTP/%s\r\n", ri->request_method, ri->uri + len,
             ri->http_version);

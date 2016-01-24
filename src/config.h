@@ -44,6 +44,7 @@ class Config: public QObject
     Q_PROPERTY(QString cookiesFile READ cookiesFile WRITE setCookiesFile)
     Q_PROPERTY(bool diskCacheEnabled READ diskCacheEnabled WRITE setDiskCacheEnabled)
     Q_PROPERTY(int maxDiskCacheSize READ maxDiskCacheSize WRITE setMaxDiskCacheSize)
+    Q_PROPERTY(QString diskCachePath READ diskCachePath WRITE setDiskCachePath)
     Q_PROPERTY(bool ignoreSslErrors READ ignoreSslErrors WRITE setIgnoreSslErrors)
     Q_PROPERTY(bool localUrlAccessEnabled READ localUrlAccessEnabled WRITE setLocalUrlAccessEnabled)
     Q_PROPERTY(bool localToRemoteUrlAccessEnabled READ localToRemoteUrlAccessEnabled WRITE setLocalToRemoteUrlAccessEnabled)
@@ -93,7 +94,7 @@ public:
     void setOfflineStorageDefaultQuota(int offlineStorageDefaultQuota);
 
     QString localStoragePath() const;
-    void setLocalStoragePath(const QString &value);
+    void setLocalStoragePath(const QString& value);
 
     int localStorageDefaultQuota() const;
     void setLocalStorageDefaultQuota(int localStorageDefaultQuota);
@@ -103,6 +104,9 @@ public:
 
     int maxDiskCacheSize() const;
     void setMaxDiskCacheSize(int maxDiskCacheSize);
+
+    QString diskCachePath() const;
+    void setDiskCachePath(const QString& value);
 
     bool ignoreSslErrors() const;
     void setIgnoreSslErrors(const bool value);
@@ -117,7 +121,7 @@ public:
     void setOutputEncoding(const QString& value);
 
     QString proxyType() const;
-    void setProxyType(const QString value);
+    void setProxyType(const QString& value);
 
     QString proxy() const;
     void setProxy(const QString& value);
@@ -226,6 +230,7 @@ private:
     int m_localStorageDefaultQuota;
     bool m_diskCacheEnabled;
     int m_maxDiskCacheSize;
+    QString m_diskCachePath;
     bool m_ignoreSslErrors;
     bool m_localUrlAccessEnabled;
     bool m_localToRemoteUrlAccessEnabled;

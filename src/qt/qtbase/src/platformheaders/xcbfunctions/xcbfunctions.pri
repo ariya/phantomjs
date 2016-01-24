@@ -1,1 +1,0 @@
-HEADERS += $$PWD/qxcbwindowfunctions.h

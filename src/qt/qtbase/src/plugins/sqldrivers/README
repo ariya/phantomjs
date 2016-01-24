@@ -1,5 +1,0 @@
-Please note that the DB2, Oracle and TDS client drivers are not distributed
-with the Qt Open Source Editions.
-
-This is because the client libraries are distributed under a license which
-is not compatible with the GPL license.

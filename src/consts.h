@@ -33,12 +33,15 @@
 #define CONSTS_H
 
 #define PHANTOMJS_VERSION_MAJOR     2
-#define PHANTOMJS_VERSION_MINOR     0
+#define PHANTOMJS_VERSION_MINOR     1
 #define PHANTOMJS_VERSION_PATCH     0
-#define PHANTOMJS_VERSION_STRING    "2.0.0"
+#define PHANTOMJS_VERSION_STRING    "2.1.0"
 
 #define HTTP_HEADER_CONTENT_LENGTH      "content-length"
 #define HTTP_HEADER_CONTENT_TYPE        "content-type"
+
+#define JAVASCRIPT_SOURCE_PLATFORM_URL  "phantomjs://platform/%1"
+#define JAVASCRIPT_SOURCE_CODE_URL      "phantomjs://code/%1"
 
 #define JS_ELEMENT_CLICK "(function (el) { " \
     "var ev = document.createEvent('MouseEvents');" \
@@ -55,6 +58,7 @@
 #define PAGE_SETTINGS_JS_ENABLED            "javascriptEnabled"
 #define PAGE_SETTINGS_XSS_AUDITING          "XSSAuditingEnabled"
 #define PAGE_SETTINGS_USER_AGENT            "userAgent"
+#define PAGE_SETTINGS_PROXY                 "proxy"
 #define PAGE_SETTINGS_LOCAL_ACCESS_REMOTE   "localToRemoteUrlAccessEnabled"
 #define PAGE_SETTINGS_USERNAME              "userName"
 #define PAGE_SETTINGS_PASSWORD              "password"

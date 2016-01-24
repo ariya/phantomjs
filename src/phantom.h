@@ -55,6 +55,7 @@ class Phantom : public QObject
     Q_PROPERTY(bool cookiesEnabled READ areCookiesEnabled WRITE setCookiesEnabled)
     Q_PROPERTY(QVariantList cookies READ cookies WRITE setCookies)
     Q_PROPERTY(bool webdriverMode READ webdriverMode)
+    Q_PROPERTY(int remoteDebugPort READ remoteDebugPort)
 
 private:
     // Private constructor: the Phantom class is a singleton
@@ -95,6 +96,8 @@ public:
     void setCookiesEnabled(const bool value);
 
     bool webdriverMode() const;
+
+    int remoteDebugPort() const;
 
     /**
      * Create `child_process` module instance
@@ -170,9 +173,45 @@ public slots:
      */
     void setProxy(const QString& ip, const qint64& port = 80, const QString& proxyType = "http", const QString& user = NULL, const QString& password = NULL);
 
+    QString proxy();
+
     // exit() will not exit in debug mode. debugExit() will always exit.
     void exit(int code = 0);
     void debugExit(int code = 0);
+
+    // URL utilities
+
+    /**
+     * Resolve a URL relative to a base.
+     */
+    QString resolveRelativeUrl(QString url, QString base);
+
+    /**
+     * Decode a URL to human-readable form.
+     * @param url The URL to be decoded.
+     *
+     * This operation potentially destroys information.  It should only be
+     * used when displaying URLs to the user, not when recording URLs for
+     * later processing.  Quoting http://qt-project.org/doc/qt-5/qurl.html:
+     *
+     *   _Full decoding_
+     *
+     *   This [operation] should be used with care, since there are
+     *   two conditions that cannot be reliably represented in the
+     *   returned QString. They are:
+     *
+     *   + Non-UTF-8 sequences: URLs may contain sequences of
+     *     percent-encoded characters that do not form valid UTF-8
+     *     sequences. Since URLs need to be decoded using UTF-8, any
+     *     decoder failure will result in the QString containing one or
+     *     more replacement characters where the sequence existed.
+     *
+     *   + Encoded delimiters: URLs are also allowed to make a
+     *     distinction between a delimiter found in its literal form and
+     *     its equivalent in percent-encoded form. This is most commonly
+     *     found in the query, but is permitted in most parts of the URL.
+     */
+    QString fullyDecodeUrl(QString url);
 
 signals:
     void aboutToExit(int code);

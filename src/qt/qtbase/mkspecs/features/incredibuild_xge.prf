@@ -1,8 +1,0 @@
-contains(TEMPLATE, "vc.*") {
-    # The VCPROJ generator will replace the \r\h with the coded \r\n: &#x0d;&#x0a;
-    EOC = $$escape_expand(\\r\\h)
-
-    for(xge, INCREDIBUILD_XGE) {
-        $${xge}.commands = Rem IncrediBuild_AllowRemote $$EOC Rem IncrediBuild_OutputFile $$system_path($${xge}.output) $$EOC $$eval($${xge}.commands)
-    }
-}

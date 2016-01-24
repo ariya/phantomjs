@@ -1,6 +1,6 @@
 
-if(!equals(QT_MAJOR_VERSION, 5)|!equals(QT_MINOR_VERSION, 4)) {
-    error("This program can only be compiled with Qt 5.4.x.")
+if(!equals(QT_MAJOR_VERSION, 5)|!equals(QT_MINOR_VERSION, 5)) {
+    error("This program can only be compiled with Qt 5.5.x.")
 }
 
 TEMPLATE = app
@@ -19,10 +19,6 @@ win32 {
      qt/qtwebkit/Source/WebCore/generated/InspectorBackendCommands.qrc
 }
 
-!winrt:!win32: {
-    QTPLUGIN += qphantom
-}
-
 HEADERS += \
     phantom.h \
     callback.h \
@@ -30,8 +26,6 @@ HEADERS += \
     webserver.h \
     consts.h \
     utils.h \
-    networkreplyproxy.h \
-    networkreplytracker.h \
     networkaccessmanager.h \
     cookiejar.h \
     filesystem.h \
@@ -50,8 +44,6 @@ SOURCES += phantom.cpp \
     webserver.cpp \
     main.cpp \
     utils.cpp \
-    networkreplyproxy.cpp \
-    networkreplytracker.cpp \
     networkaccessmanager.cpp \
     cookiejar.cpp \
     filesystem.cpp \
@@ -78,44 +70,6 @@ include(mongoose/mongoose.pri)
 include(linenoise/linenoise.pri)
 include(qcommandline/qcommandline.pri)
 
-linux*|mac|openbsd* {
-    INCLUDEPATH += breakpad/src
-
-    SOURCES += breakpad/src/client/minidump_file_writer.cc \
-      breakpad/src/common/convert_UTF.c \
-      breakpad/src/common/md5.cc \
-      breakpad/src/common/string_conversion.cc
-}
-
-linux* {
-    SOURCES += breakpad/src/client/linux/crash_generation/crash_generation_client.cc \
-      breakpad/src/client/linux/handler/exception_handler.cc \
-      breakpad/src/client/linux/log/log.cc \
-      breakpad/src/client/linux/minidump_writer/linux_dumper.cc \
-      breakpad/src/client/linux/minidump_writer/linux_ptrace_dumper.cc \
-      breakpad/src/client/linux/minidump_writer/minidump_writer.cc \
-      breakpad/src/common/linux/file_id.cc \
-      breakpad/src/common/linux/guid_creator.cc \
-      breakpad/src/common/linux/memory_mapped_file.cc \
-      breakpad/src/common/linux/safe_readlink.cc
-}
-
-mac {
-    SOURCES += breakpad/src/client/mac/crash_generation/crash_generation_client.cc \
-      breakpad/src/client/mac/handler/exception_handler.cc \
-      breakpad/src/client/mac/handler/minidump_generator.cc \
-      breakpad/src/client/mac/handler/dynamic_images.cc \
-      breakpad/src/client/mac/handler/breakpad_nlist_64.cc \
-      breakpad/src/common/mac/bootstrap_compat.cc \
-      breakpad/src/common/mac/file_id.cc \
-      breakpad/src/common/mac/macho_id.cc \
-      breakpad/src/common/mac/macho_utilities.cc \
-      breakpad/src/common/mac/macho_walker.cc \
-      breakpad/src/common/mac/string_utilities.cc
-
-    OBJECTIVE_SOURCES += breakpad/src/common/mac/MachIPC.mm
-}
-
 win32: RC_FILE = phantomjs_win.rc
 os2:   RC_FILE = phantomjs_os2.rc
 
@@ -128,11 +82,13 @@ mac {
 }
 
 win32-msvc* {
-    LIBS += -lCrypt32 -llibxml2
-    INCLUDEPATH += breakpad/src
-    SOURCES += breakpad/src/client/windows/handler/exception_handler.cc \
-      breakpad/src/client/windows/crash_generation/crash_generation_client.cc \
-      breakpad/src/common/windows/guid_string.cc
+    DEFINES += NOMINMAX \
+      WIN32_LEAN_AND_MEAN \
+      _CRT_SECURE_NO_WARNINGS
+    # ingore warnings:
+    # 4049 - locally defined symbol 'symbol' imported
+    QMAKE_LFLAGS += /ignore:4049
+    LIBS += -lCrypt32 -lzlib
     CONFIG(static) {
         DEFINES += STATIC_BUILD
     }

@@ -1,9 +1,0 @@
-<!DOCTYPE RCC><RCC version="1.0">
-<qresource>
-    <file>resources/index.html</file>
-    <file>resources/frame_a.html</file>
-    <file>resources/input_types.html</file>
-    <file>resources/scrolltest_page.html</file>
-</qresource>
-</RCC>
-

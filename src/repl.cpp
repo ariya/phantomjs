@@ -147,7 +147,7 @@ REPL::REPL(QWebFrame* webframe, Phantom* parent)
     linenoiseSetCompletionCallback(REPL::offerCompletion);
 
     // Inject REPL utility functions
-    m_webframe->evaluateJavaScript(Utils::readResourceFileUtf8(":/repl.js"), QString("phantomjs://repl.js"));
+    m_webframe->evaluateJavaScript(Utils::readResourceFileUtf8(":/repl.js"), QString(JAVASCRIPT_SOURCE_PLATFORM_URL).arg("repl.js"));
 
     // Add self to JavaScript world
     m_webframe->addToJavaScriptWindowObject("_repl", this);

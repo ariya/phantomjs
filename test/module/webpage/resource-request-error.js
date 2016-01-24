@@ -1,17 +1,26 @@
-var assert = require('../../assert');
 var webpage = require('webpage');
 
-var page = webpage.create();
+async_test(function () {
+    var page = webpage.create();
+    var resourceErrors = 0;
 
-page.onResourceError = function(err) {
-    assert.equal(err.status, 404);
-    assert.equal(err.statusText, 'File not found');
-    assert.equal(err.url, 'http://localhost:9180/notExist.png');
-    assert.equal(err.errorCode, 203);
-    assert.isTrue(err.errorString.match('Error downloading http://localhost:9180/notExist.png'));
-    assert.isTrue(err.errorString.match('server replied: File not found'));
-};
+    page.onResourceError = this.step_func(function(err) {
+        ++resourceErrors;
 
-page.open('http://localhost:9180/missing-img.html', function (status) {
-    assert.equal(status, 'success');
-});
+        assert_equals(err.status, 404);
+        assert_equals(err.statusText, 'File not found');
+        assert_equals(err.url, TEST_HTTP_BASE + 'notExist.png');
+        assert_equals(err.errorCode, 203);
+        assert_regexp_match(err.errorString,
+            /Error downloading http:\/\/localhost:[0-9]+\/notExist\.png/);
+        assert_regexp_match(err.errorString,
+            /server replied: File not found/);
+    });
+
+    page.open(TEST_HTTP_BASE + 'missing-img.html',
+              this.step_func_done(function (status) {
+                  assert_equals(status, 'success');
+                  assert_equals(resourceErrors, 1);
+              }));
+
+}, "resourceError basic functionality");

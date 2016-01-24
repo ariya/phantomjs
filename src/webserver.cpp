@@ -167,29 +167,48 @@ bool WebServer::handleRequest(mg_event event, mg_connection* conn, const mg_requ
     // Modelled after http://nodejs.org/docs/latest/api/http.html#http.ServerRequest
     QVariantMap requestObject;
 
-    ///TODO: encoding?!
-
     qDebug() << "HTTP Request - URI" << request->uri;
     qDebug() << "HTTP Request - Method" << request->request_method;
     qDebug() << "HTTP Request - HTTP Version" << request->http_version;
     qDebug() << "HTTP Request - Query String" << request->query_string;
 
+    // Presumably we would not have gotten this far if the
+    // request_method or http_version were syntactically invalid.
+    // Therefore, per RFC 2616, they *should* consist entirely of
+    // US-ASCII characters, so use of QString::fromLatin1 here is safe.
+    // (It'd be nice if QString had a fromAsciiStrict or something that
+    // would throw an exception if the argument was outside ASCII.)
     if (request->request_method) {
-        requestObject["method"] = QString::fromLocal8Bit(request->request_method);
+        requestObject["method"] = QString::fromLatin1(request->request_method);
     }
     if (request->http_version) {
-        requestObject["httpVersion"] = QString::fromLocal8Bit(request->http_version);
+        requestObject["httpVersion"] = QString::fromLatin1(request->http_version);
     }
     if (request->status_code >= 0) {
         requestObject["statusCode"] = request->status_code;
     }
 
+    // request->uri and request->query_string may contain arbitrary
+    // bytes, and their encoding is unknown.  We must not do anything
+    // that would cause an attempt to decode characters outside the
+    // ASCII printable range.  (The encoding might not even be ASCII-
+    // compatible!)  QByteArray::toPercentEncoding, unlike
+    // QUrl::toEncoded and friends, makes no assumptions about the
+    // encoding of high-half bytes.
+    //
+    // See the long comment beginning "From RFC 3986, Appendix A
+    // Collected ABNF for URI" in qurl.cpp for rationale for the
+    // exclude strings used here.  (The short version is that of all
+    // the gen-delims and sub-delims, only '?' and '#' should be
+    // force-encoded in ->uri, and only '#' should be force-encoded
+    // in ->query_string.)
     QByteArray uri(request->uri);
-    if (uri.startsWith('/')) {
-        uri = '/' + QUrl::toPercentEncoding(QString::fromLatin1(request->uri + 1), "/?&#");
-    }
+    uri = uri.toPercentEncoding(/*exclude=*/ "!$&'()*+,;=:/[]@");
     if (request->query_string) {
-        uri.append('?').append(QByteArray(request->query_string));
+        QByteArray qs(request->query_string);
+        qs = qs.toPercentEncoding(/*exclude=*/ "!$&'()*+,;=:/[]@?");
+        uri.append('?');
+        uri.append(qs);
     }
     requestObject["url"] = uri.data();
 
@@ -409,7 +428,7 @@ void WebServerResponse::write(const QVariant& body)
     if (m_encoding.isEmpty()) {
         data = body.toString().toUtf8();
     } else if (m_encoding.toLower() == "binary") {
-        data = body.toByteArray();
+        data = body.toString().toLatin1();
     } else {
         Encoding encoding;
         encoding.setEncoding(m_encoding);

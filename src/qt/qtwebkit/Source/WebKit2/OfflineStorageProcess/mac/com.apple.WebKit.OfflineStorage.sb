@@ -1,4 +1,0 @@
-(version 1)
-(deny default (with partial-symbolication))
-
-(import "system.sb")

@@ -10,6 +10,8 @@
  * as a callback function.
  * @param timeOutMillis the max amount of time to wait. If not specified, 3 sec is used.
  */
+
+"use strict";
 function waitFor(testFx, onReady, timeOutMillis) {
     var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 3000, //< Default Max Timout is 3s
         start = new Date().getTime(),
@@ -51,7 +53,6 @@ page.open("http://twitter.com/#!/sencha", function (status) {
         }, function() {
            console.log("The sign-in dialog should be visible now.");
            phantom.exit();
-        });        
+        });
     }
 });
-

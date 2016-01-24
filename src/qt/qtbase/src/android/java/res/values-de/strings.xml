@@ -1,6 +1,0 @@
-﻿<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="ministro_not_found_msg">Ministro-Dienst wurde nicht gefunden.\nAnwendung kann nicht gestartet werden</string>
-    <string name="ministro_needed_msg">Diese Anwendung benötigt den Ministro-Dienst. Möchten Sie ihn installieren?</string>
-    <string name="fatal_error_msg">In Ihrer Anwendung ist ein schwerwiegender Fehler aufgetreten, sie kann nicht fortgesetzt werden</string>
-</resources>

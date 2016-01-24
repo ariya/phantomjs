@@ -1,5 +1,0 @@
-# This is an empty prf file to overwrite the win32 version.
-# On Windows RT all applications need to be windows applications
-# and also link to winmain. Inside winmain we create the launch
-# arguments and also initialize the UI.
-

@@ -51,6 +51,7 @@ static const struct QCommandLineConfigEntry flags[] = {
     { QCommandLine::Option, '\0', "config", "Specifies JSON-formatted configuration file", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "debug", "Prints additional warning and debug message: 'true' or 'false' (default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "disk-cache", "Enables disk cache: 'true' or 'false' (default)", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "disk-cache-path", "Specifies the location for the disk cache", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ignore-ssl-errors", "Ignores SSL errors (expired/self-signed certificate errors): 'true' or 'false' (default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "load-images", "Loads all inlined images: 'true' (default) or 'false'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "local-url-access", "Allows use of 'file:///' URLs: 'true' (default) or 'false'", QCommandLine::Optional },
@@ -71,7 +72,7 @@ static const struct QCommandLineConfigEntry flags[] = {
     { QCommandLine::Option, '\0', "web-security", "Enables web security, 'true' (default) or 'false'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-protocol", "Selects a specific SSL protocol version to offer. Values (case insensitive): TLSv1.2, TLSv1.1, TLSv1.0, TLSv1 (same as v1.0), SSLv3, or ANY. Default is to offer all that Qt thinks are secure (SSLv3 and up). Not all values may be supported, depending on the system OpenSSL library.", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-ciphers", "Sets supported TLS/SSL ciphers. Argument is a colon-separated list of OpenSSL cipher names (macros like ALL, kRSA, etc. may not be used). Default matches modern browsers.", QCommandLine::Optional },
-    { QCommandLine::Option, '\0', "ssl-certificates-path", "Sets the location for custom CA certificates (if none set, uses system default)", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "ssl-certificates-path", "Sets the location for custom CA certificates (if none set, uses environment variable SSL_CERT_DIR. If none set too, uses system default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-client-certificate-file", "Sets the location of a client certificate", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-client-key-file", "Sets the location of a clients' private key", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-client-key-passphrase", "Sets the passphrase for the clients' private key", QCommandLine::Optional },
@@ -231,7 +232,7 @@ QString Config::localStoragePath() const
     return m_localStoragePath;
 }
 
-void Config::setLocalStoragePath(const QString &value)
+void Config::setLocalStoragePath(const QString& value)
 {
     QDir dir(value);
     m_localStoragePath = dir.absolutePath();
@@ -265,6 +266,17 @@ int Config::maxDiskCacheSize() const
 void Config::setMaxDiskCacheSize(int maxDiskCacheSize)
 {
     m_maxDiskCacheSize = maxDiskCacheSize;
+}
+
+QString Config::diskCachePath() const
+{
+    return m_diskCachePath;
+}
+
+void Config::setDiskCachePath(const QString& value)
+{
+    QDir dir(value);
+    m_diskCachePath = dir.absolutePath();
 }
 
 bool Config::ignoreSslErrors() const
@@ -316,7 +328,7 @@ QString Config::proxyType() const
     return m_proxyType;
 }
 
-void Config::setProxyType(const QString value)
+void Config::setProxyType(const QString& value)
 {
     m_proxyType = value;
 }
@@ -574,6 +586,7 @@ void Config::resetToDefaults()
     m_localStorageDefaultQuota = -1;
     m_diskCacheEnabled = false;
     m_maxDiskCacheSize = -1;
+    m_diskCachePath = QString();
     m_ignoreSslErrors = false;
     m_localUrlAccessEnabled = true;
     m_localToRemoteUrlAccessEnabled = false;
@@ -713,6 +726,10 @@ void Config::handleOption(const QString& option, const QVariant& value)
 
     if (option == "disk-cache") {
         setDiskCacheEnabled(boolValue);
+    }
+
+    if (option == "disk-cache-path") {
+        setDiskCachePath(value.toString());
     }
 
     if (option == "ignore-ssl-errors") {
@@ -904,4 +921,3 @@ void Config::setSslClientKeyPassphrase(const QByteArray& sslClientKeyPassphrase)
 {
     m_sslClientKeyPassphrase = sslClientKeyPassphrase;
 }
-

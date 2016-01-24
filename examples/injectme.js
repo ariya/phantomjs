@@ -1,5 +1,6 @@
 // Use 'page.injectJs()' to load the script itself in the Page context
 
+"use strict";
 if ( typeof(phantom) !== "undefined" ) {
     var page = require('webpage').create();
 
@@ -7,11 +8,11 @@ if ( typeof(phantom) !== "undefined" ) {
     page.onConsoleMessage = function(msg) {
         console.log(msg);
     };
-    
+
     page.onAlert = function(msg) {
         console.log(msg);
     };
-    
+
     console.log("* Script running in the Phantom context.");
     console.log("* Script will 'inject' itself in a page...");
     page.open("about:blank", function(status) {

@@ -221,11 +221,15 @@ bool Phantom::execute()
 
         if (m_config.debug()) {
             // Debug enabled
+            int originalPort = m_config.remoteDebugPort();
+            m_config.setRemoteDebugPort(m_page->showInspector(m_config.remoteDebugPort()));
+            if (m_config.remoteDebugPort() == 0) {
+                qWarning() << "Can't bind remote debugging server to the port" << originalPort;
+            }
             if (!Utils::loadJSForDebug(m_config.scriptFile(), m_config.scriptLanguage(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), m_config.remoteDebugAutorun())) {
                 m_returnValue = -1;
                 return false;
             }
-            m_page->showInspector(m_config.remoteDebugPort());
         } else {
             if (!Utils::injectJsInFrame(m_config.scriptFile(), m_config.scriptLanguage(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
                 m_returnValue = -1;
@@ -377,7 +381,7 @@ void Phantom::loadModule(const QString& moduleSource, const QString& filename)
         "require.cache['" + filename + "'].exports," +
         "require.cache['" + filename + "']" +
         "));";
-    m_page->mainFrame()->evaluateJavaScript(scriptSource, "");
+    m_page->mainFrame()->evaluateJavaScript(scriptSource, QString(JAVASCRIPT_SOURCE_PLATFORM_URL).arg(QFileInfo(filename).fileName()));
 }
 
 bool Phantom::injectJs(const QString& jsFilePath)
@@ -420,6 +424,20 @@ void Phantom::setProxy(const QString& ip, const qint64& port, const QString& pro
     }
 }
 
+QString Phantom::proxy()
+{
+    QNetworkProxy proxy = QNetworkProxy::applicationProxy();
+    if (proxy.hostName().isEmpty()) {
+        return NULL;
+    }
+    return proxy.hostName() + ":" + QString::number(proxy.port());
+}
+
+int Phantom::remoteDebugPort() const
+{
+    return m_config.remoteDebugPort();
+}
+
 void Phantom::exit(int code)
 {
     if (m_config.debug()) {
@@ -432,6 +450,19 @@ void Phantom::exit(int code)
 void Phantom::debugExit(int code)
 {
     doExit(code);
+}
+
+QString Phantom::resolveRelativeUrl(QString url, QString base)
+{
+    QUrl u = QUrl::fromEncoded(url.toLatin1());
+    QUrl b = QUrl::fromEncoded(base.toLatin1());
+
+    return b.resolved(u).toEncoded();
+}
+
+QString Phantom::fullyDecodeUrl(QString url)
+{
+    return QUrl::fromEncoded(url.toLatin1()).toDisplayString();
 }
 
 // private slots:
@@ -448,7 +479,7 @@ void Phantom::onInitialized()
     // Bootstrap the PhantomJS scope
     m_page->mainFrame()->evaluateJavaScript(
         Utils::readResourceFileUtf8(":/bootstrap.js"),
-        QString("phantomjs://bootstrap.js")
+        QString(JAVASCRIPT_SOURCE_PLATFORM_URL).arg("bootstrap.js")
     );
 }
 
@@ -491,7 +522,15 @@ void Phantom::doExit(int code)
     emit aboutToExit(code);
     m_terminated = true;
     m_returnValue = code;
-    foreach(QPointer<WebPage> page, m_pages) {
+
+    // Iterate in reverse order so the first page is the last one scheduled for deletion.
+    // The first page is the root object, which will be invalidated when it is deleted.
+    // This causes an assertion to go off in BridgeJSC.cpp Instance::createRuntimeObject.
+    QListIterator<QPointer<WebPage> > i(m_pages);
+    i.toBack();
+    while (i.hasPrevious()) {
+        const QPointer<WebPage> page = i.previous();
+
         if (!page) {
             continue;
         }

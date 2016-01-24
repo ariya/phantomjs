@@ -1,3 +1,0 @@
-CALLBACK([{% for file in files %}
-  { "key": "{{ file.key }}" },{% endfor %}
-]);

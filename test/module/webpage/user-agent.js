@@ -1,20 +1,22 @@
-var assert = require('../../assert');
 var webpage = require('webpage');
 
-
-var ua = 'PHANTOMJS-TEST-USER-AGENT';
-var page = webpage.create({
-    settings: {
-        userAgent: ua
-    }
-});
-
-assert.equal(page.settings.userAgent, ua);
-
-page.open('http://localhost:9180/user-agent.html', function (status) {
-    assert.equal(status, 'success');
-    var agent = page.evaluate(function() {
-        return document.getElementById('ua').textContent;
+async_test(function () {
+    var ua = 'PHANTOMJS-TEST-USER-AGENT';
+    var page = webpage.create({
+        settings: {
+            userAgent: ua
+        }
     });
-    assert.equal(agent, ua);
-});
+
+    assert_equals(page.settings.userAgent, ua);
+
+    page.open(TEST_HTTP_BASE + 'user-agent.html',
+              this.step_func_done(function (status) {
+        assert_equals(status, 'success');
+        var agent = page.evaluate(function() {
+            return document.getElementById('ua').textContent;
+        });
+        assert_equals(agent, ua);
+    }));
+
+}, "load a page with a custom user agent");

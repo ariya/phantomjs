@@ -1,23 +1,21 @@
-var assert = require('../../assert');
-var webpage = require('webpage');
+async_test(function () {
+    var webpage = require('webpage');
+    var page = webpage.create();
 
-var page = webpage.create();
-assert.typeOf(page, 'object');
-assert.typeOf(page.loading, 'boolean');
-assert.typeOf(page.loadingProgress, 'number');
+    assert_type_of(page, 'object');
+    assert_type_of(page.loading, 'boolean');
+    assert_type_of(page.loadingProgress, 'number');
 
-assert.equal(page.loading, false);
-assert.equal(page.loadingProgress, 0);
-page.open('http://localhost:9180/hello.html');
-assert.isTrue(page.loading);
-assert.isTrue(page.loadingProgress > 0);
+    assert_is_false(page.loading);
+    assert_equals(page.loadingProgress, 0);
 
-// Another page
-page = webpage.create();
-assert.equal(page.loading, false);
-assert.equal(page.loadingProgress, 0);
-page.open('http://localhost:9180/hello.html', function (status) {
-    assert.equal(status, 'success');
-    assert.equal(page.loading, false);
-    assert.equal(page.loadingProgress, 100);
-});
+    page.open(TEST_HTTP_BASE + 'hello.html',
+              this.step_func_done(function (status) {
+        assert_equals(status, 'success');
+        assert_equals(page.loading, false);
+        assert_equals(page.loadingProgress, 100);
+    }));
+
+    assert_is_true(page.loading);
+    assert_greater_than(page.loadingProgress, 0);
+}, "page loading progress");
