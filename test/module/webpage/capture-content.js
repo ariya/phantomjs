@@ -6,6 +6,7 @@ setup(function () {
                               "../../www/hello.html"));
 });
 
+// XFAIL: This feature had to be backed out for breaking WebSockets.
 async_test(function () {
     var page = require('webpage').create();
     var lastChunk = "";
@@ -24,7 +25,9 @@ async_test(function () {
                   assert_equals(lastChunk, content);
               }));
 
-}, "onResourceReceived sees the body if captureContent is activated");
+}, "onResourceReceived sees the body if captureContent is activated",
+   { expected_fail: true }
+);
 
 async_test(function () {
     var page = require('webpage').create();
