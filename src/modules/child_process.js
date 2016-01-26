@@ -169,7 +169,7 @@ function newContext() {
     }
 
     this.end = function () {
-      throw new Error("NotYetImplemented")
+        ctx._close();
     }
   }
 
