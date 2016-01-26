@@ -106,6 +106,11 @@ qint64 ChildProcessContext::_write(const QString &chunk, const QString &encoding
     return bytesWritten;
 }
 
+void ChildProcessContext::_close()
+{
+    m_proc.closeWriteChannel();
+}
+
 // private slots:
 
 void ChildProcessContext::_readyReadStandardOutput()

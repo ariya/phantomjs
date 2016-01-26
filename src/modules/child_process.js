@@ -164,8 +164,12 @@ function newContext() {
       return bytesWritten
     }
 
+    this.close = function close() {
+        ctx._close();
+    }
+
     this.end = function () {
-      throw new Error("NotYetImplemented")
+        ctx._close();
     }
   }
 
