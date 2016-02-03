@@ -771,6 +771,36 @@ class TestRunner(object):
         self.debugger        = options.debugger
         self.to_run          = options.to_run
         self.server_errs     = []
+        self.prepare_environ()
+
+    def prepare_environ(self):
+        os.environ["TEST_DIR"] = self.base_path
+
+        # Tell test processes where to find the PhantomJS binary and
+        # the Python interpreter.
+        os.environ["PHANTOMJS"] = self.phantomjs_exe
+        os.environ["PYTHON"] = sys.executable
+
+        # Run all the tests in the "C" locale.  (A UTF-8-based locale
+        # which is thoroughly different from "C" would flush out more
+        # bugs, but we have no way of knowing if such a locale exists.)
+        for var in list(os.environ.keys()):
+            if var[:3] == 'LC_' or var[:4] == 'LANG':
+                del os.environ[var]
+        os.environ["LANG"] = "C"
+
+        # Run all the tests in Chatham Islands Standard Time, UTC+12:45.
+        # This timezone is deliberately chosen to be unusual: it's not a
+        # whole number of hours offset from UTC *and* it's more than twelve
+        # hours offset from UTC.
+        #
+        # The Chatham Islands do observe daylight savings, but we don't
+        # implement that because testsuite issues only reproducible on two
+        # particular days out of the year are too much tsuris.
+        #
+        # Note that the offset in a TZ value is the negative of the way it's
+        # usually written, e.g. UTC+1 would be xxx-1:00.
+        os.environ["TZ"] = "CIST-12:45:00"
 
     def signal_server_error(self, exc_info):
         self.server_errs.append(exc_info)
@@ -981,7 +1011,6 @@ class TestRunner(object):
 
 def init():
     base_path = os.path.normpath(os.path.dirname(os.path.abspath(__file__)))
-    os.environ["TEST_DIR"] = base_path
 
     phantomjs_exe = os.path.normpath(base_path + '/../bin/phantomjs')
     if sys.platform in ('win32', 'cygwin'):
@@ -1018,28 +1047,6 @@ def init():
             sys.exit(1)
 
         sys.stdout.write(colorize("b", "## Testing PhantomJS "+ver[0])+"\n")
-
-    # Run all the tests in Chatham Islands Standard Time, UTC+12:45.
-    # This timezone is deliberately chosen to be unusual: it's not a
-    # whole number of hours offset from UTC *and* it's more than twelve
-    # hours offset from UTC.
-    #
-    # The Chatham Islands do observe daylight savings, but we don't
-    # implement that because testsuite issues only reproducible on two
-    # particular days out of the year are too much tsuris.
-    #
-    # Note that the offset in a TZ value is the negative of the way it's
-    # usually written, e.g. UTC+1 would be xxx-1:00.
-    os.environ["TZ"] = "CIST-12:45:00"
-
-    # Run all the tests in the "C" locale.  (A UTF-8-based locale
-    # which is thoroughly different from "C" would flush out more
-    # bugs, but we have no way of knowing if such a locale exists.)
-    for var in list(os.environ.keys()):
-        if var[:3] == 'LC_' or var[:4] == 'LANG':
-            del os.environ[var]
-
-    os.environ["LANG"] = "C"
 
     return runner
 

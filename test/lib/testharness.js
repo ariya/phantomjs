@@ -1461,6 +1461,16 @@ if (args.test_script === "") {
     // process_command_line has already issued an error message.
     phantom.exit(2);
 } else {
+    // run-tests.py sets these environment variables to the base URLs
+    // of its HTTP and HTTPS servers.
+    expose(sys.env['TEST_HTTP_BASE'], 'TEST_HTTP_BASE');
+    expose(sys.env['TEST_HTTPS_BASE'], 'TEST_HTTPS_BASE');
+
+    // run-tests.py sets these environment variables to the full pathnames
+    // of the PhantomJS binary and Python interpreter.
+    expose(sys.env['PHANTOMJS'], 'PHANTOMJS');
+    expose(sys.env['PYTHON'], 'PYTHON');
+
     // run-tests.py sets this environment variable to the root of the
     // test directory.
     expose(sys.env['TEST_DIR'], 'TEST_DIR');
@@ -1477,11 +1487,6 @@ if (args.test_script === "") {
     phantom.libraryPath = test_script.slice(0,
         test_script.lastIndexOf(fs.separator));
     require.paths.push(phantom.libraryPath);
-
-    // run-tests.py sets these environment variables to the base URLs
-    // of its HTTP and HTTPS servers.
-    expose(sys.env['TEST_HTTP_BASE'], 'TEST_HTTP_BASE');
-    expose(sys.env['TEST_HTTPS_BASE'], 'TEST_HTTPS_BASE');
 
     var output = new Output(sys.stdout, args.verbose);
     var tests = new Tests(output);
