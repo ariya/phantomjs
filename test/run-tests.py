@@ -242,9 +242,13 @@ class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler, object):
         self.postdata = None
         super(FileHandler, self).__init__(*args, **kwargs)
 
-    # silent, do not pollute stdout nor stderr.
     def log_message(self, format, *args):
-        return
+        if self.verbose >= 3:
+            sys.stdout.write("## " +
+                             ("HTTPS: " if self.server.is_ssl else "HTTP: ") +
+                             (format % args) +
+                             "\n")
+            sys.stdout.flush()
 
     # accept POSTs, read the postdata and stash it in an instance variable,
     # then forward to do_GET; handle_request hooks can vary their behavior
@@ -267,6 +271,14 @@ class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler, object):
     # produce the response.
     def send_head(self):
         path = self.translate_path(self.path)
+
+        if self.verbose >= 3:
+            sys.stdout.write("## " +
+                             ("HTTPS: " if self.server.is_ssl else "HTTP: ") +
+                             self.command + " " + self.path + " -> " +
+                             path +
+                             "\n")
+            sys.stdout.flush()
 
         # do not allow direct references to .py(c) files,
         # or indirect references to __init__.py
@@ -349,6 +361,7 @@ class TCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
         if use_ssl:
             self.socket = wrap_socket_ssl(self.socket, base_path)
         self._signal_error = signal_error
+        self.is_ssl = use_ssl
 
     def handle_error(self, request, client_address):
         # Ignore errors which can occur naturally if the client
@@ -382,6 +395,7 @@ class HTTPTestServer(object):
         })
         handler.www_path = self.www_path
         handler.get_response_hook = ResponseHookImporter(self.www_path)
+        handler.verbose = self.verbose
 
         self.httpd  = TCPServer(False, handler,
                                 self.base_path, self.signal_error)
