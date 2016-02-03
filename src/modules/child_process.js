@@ -145,6 +145,34 @@ function newContext() {
     }
   }
 
+  ctx.stdin = new FakeWritableStream()
+
+  // Emulates `Writable Stream`
+  function FakeWritableStream() {
+    /**
+     * @param chunk String Data to write.
+     * @param encoding String Optional.  Defaults to "utf8".
+     * @returns Number Bytes written; `-1` for failure.
+     */
+    this.write = function write(chunk, encoding) {
+      if ("string" !== typeof encoding) {
+        encoding = "utf8"
+      }
+
+      var bytesWritten = ctx._write(chunk, encoding)
+
+      return bytesWritten
+    }
+
+    this.close = function close() {
+        ctx._close();
+    }
+
+    this.end = function () {
+        ctx._close();
+    }
+  }
+
   return ctx
 }
 
