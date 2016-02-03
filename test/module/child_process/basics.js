@@ -4,7 +4,7 @@
 var ECHO_SCRIPT = 'echo.py';
 var CAT_SCRIPT = 'cat.py';
 
-setup(function(){
+var createScripts = function(){
     var f;
     var fs = require('fs');
 
@@ -23,9 +23,17 @@ setup(function(){
     f.writeLine('');
     f.writeLine('sys.stdout.write(sys.stdin.read())');
     f.close();
-});
+};
+
+var deleteScripts = function() {
+    var fs = require('fs');
+    fs.remove(CAT_SCRIPT);
+    fs.remove(ECHO_SCRIPT);
+};
 
 async_test(function(){
+    createScripts();
+    this.add_cleanup(deleteScripts);
     var text = "hello";
     var process = require('child_process');
     var p = process.spawn("python", [ECHO_SCRIPT, text]);
@@ -39,6 +47,8 @@ async_test(function(){
 }, "call a simple subprocess");
 
 async_test(function(){
+    createScripts();
+    this.add_cleanup(deleteScripts);
     var text = "hello";
     var process = require('child_process');
     var p = process.spawn("python", [CAT_SCRIPT]);
