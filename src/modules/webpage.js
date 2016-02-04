@@ -1,5 +1,5 @@
-/*jslint sloppy: true, nomen: true */
-/*global exports:true,phantom:true */
+/* jslint sloppy: true, nomen: true */
+/* global exports:true,phantom:true */
 
 /*
   This file is part of the PhantomJS project from Ofi Labs.
@@ -281,8 +281,8 @@ function decorateNewPage (opts, page) {
             return;
         } else if (arguments.length === 2 && typeof arg1 === 'function') {
             this._onPageOpenFinished = function () {
-                thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
-                arg1.apply(thisPage, arguments);     //< Invoke the actual callback
+                thisPage._onPageOpenFinished = null; // Disconnect callback (should fire only once)
+                arg1.apply(thisPage, arguments);     // Invoke the actual callback
             }
             this.openUrl(url, 'get', this.settings);
             return;
@@ -291,8 +291,8 @@ function decorateNewPage (opts, page) {
             return;
         } else if (arguments.length === 3 && typeof arg2 === 'function') {
             this._onPageOpenFinished = function () {
-                thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
-                arg2.apply(thisPage, arguments);     //< Invoke the actual callback
+                thisPage._onPageOpenFinished = null; // Disconnect callback (should fire only once)
+                arg2.apply(thisPage, arguments);     // Invoke the actual callback
             }
             this.openUrl(url, arg1, this.settings);
             return;
@@ -304,8 +304,8 @@ function decorateNewPage (opts, page) {
             return;
         } else if (arguments.length === 4) {
             this._onPageOpenFinished = function () {
-                thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
-                arg3.apply(thisPage, arguments);     //< Invoke the actual callback
+                thisPage._onPageOpenFinished = null; // Disconnect callback (should fire only once)
+                arg3.apply(thisPage, arguments);     // Invoke the actual callback
             }
             this.openUrl(url, {
                 operation: arg1,
@@ -314,8 +314,8 @@ function decorateNewPage (opts, page) {
             return;
         } else if (arguments.length === 5) {
             this._onPageOpenFinished = function () {
-                thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
-                arg4.apply(thisPage, arguments);     //< Invoke the actual callback
+                thisPage._onPageOpenFinished = null; // Disconnect callback (should fire only once)
+                arg4.apply(thisPage, arguments);     // Invoke the actual callback
             }
             this.openUrl(url, {
                 operation: arg1,
@@ -370,14 +370,14 @@ function decorateNewPage (opts, page) {
             argType = detectType(arg);
 
             switch (argType) {
-            case "object":      //< for type "object"
-            case "array":       //< for type "array"
+            case "object":      // for type "object"
+            case "array":       // for type "array"
                 str += JSON.stringify(arg) + ","
                 break;
-            case "date":        //< for type "date"
+            case "date":        // for type "date"
                 str += "new Date(" + JSON.stringify(arg) + "),"
                 break;
-            case "string":      //< for type "string"
+            case "string":      // for type "string"
                 str += quoteString(arg) + ',';
                 break;
             default:            // for types: "null", "number", "function", "regexp", "undefined"
