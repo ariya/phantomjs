@@ -324,7 +324,7 @@ function decorateNewPage(opts, page) {
             }, this.settings);
             return;
         }
-        throw "Wrong use of WebPage#open";
+        throw new Error("Wrong use of WebPage#open");
     };
 
     /**
@@ -362,7 +362,7 @@ function decorateNewPage(opts, page) {
     page.evaluate = function (func, args) {
         var str, arg, argType, i, l;
         if (!(func instanceof Function || typeof func === 'string' || func instanceof String)) {
-            throw "Wrong use of WebPage#evaluate";
+            throw new Error("Wrong use of WebPage#evaluate");
         }
         str = 'function() { return (' + func.toString() + ')(';
         for (i = 1, l = arguments.length; i < l; i++) {
@@ -404,7 +404,7 @@ function decorateNewPage(opts, page) {
             funcTimeoutWrapper;
 
         if (!(func instanceof Function || typeof func === 'string' || func instanceof String)) {
-            throw "Wrong use of WebPage#evaluateAsync";
+            throw new Error("Wrong use of WebPage#evaluateAsync");
         }
         // Wrapping the "func" argument into a setTimeout
         funcTimeoutWrapper = "function() { setTimeout(" + func.toString() + ", " + timeMs;

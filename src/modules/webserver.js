@@ -120,7 +120,7 @@ exports.create = function (opts) {
             // arg1 == settings
             return this.listenOnPort(port, arg1);
         }
-        throw "Wrong use of WebServer#listen";
+        throw new Error("Wrong use of WebServer#listen");
     };
 
     // Copy options into server

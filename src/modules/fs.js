@@ -75,7 +75,7 @@ exports.open = function (path, modeOrOpts) {
     if (file) {
         return file;
     }
-    throw "Unable to open file '" + path + "'";
+    throw new Error("Unable to open file '" + path + "'");
 };
 
 /** Open, read and return text content of a file.
@@ -149,7 +149,7 @@ exports.size = function (path) {
     if (size !== -1) {
         return size;
     }
-    throw "Unable to read file '" + path + "' size";
+    throw new Error("Unable to read file '" + path + "' size");
 };
 
 /** Copy a file.
@@ -160,7 +160,7 @@ exports.size = function (path) {
  */
 exports.copy = function (source, destination) {
     if (!exports._copy(source, destination)) {
-        throw "Unable to copy file '" + source + "' at '" + destination + "'";
+        throw new Error("Unable to copy file '" + source + "' at '" + destination + "'");
     }
 };
 
@@ -172,7 +172,7 @@ exports.copy = function (source, destination) {
  */
 exports.copyTree = function (source, destination) {
     if (!exports._copyTree(source, destination)) {
-        throw "Unable to copy directory tree '" + source + "' at '" + destination + "'";
+        throw new Error("Unable to copy directory tree '" + source + "' at '" + destination + "'");
     }
 };
 
@@ -194,7 +194,7 @@ exports.move = function (source, destination) {
  */
 exports.remove = function (path) {
     if (!exports._remove(path)) {
-        throw "Unable to remove file '" + path + "'";
+        throw new Error("Unable to remove file '" + path + "'");
     }
 };
 
@@ -205,7 +205,7 @@ exports.remove = function (path) {
  */
 exports.removeDirectory = function (path) {
     if (!exports._removeDirectory(path)) {
-        throw "Unable to remove directory '" + path + "'";
+        throw new Error("Unable to remove directory '" + path + "'");
     }
 };
 
@@ -216,7 +216,7 @@ exports.removeDirectory = function (path) {
  */
 exports.removeTree = function (path) {
     if (!exports._removeTree(path)) {
-        throw "Unable to remove directory tree '" + path + "'";
+        throw new Error("Unable to remove directory tree '" + path + "'");
     }
 };
 
