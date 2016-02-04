@@ -399,7 +399,7 @@ function decorateNewPage (opts, page) {
      * @param   {number}    timeMs  time to wait before execution
      * @param   {...}       args    function arguments
      */
-    page.evaluateAsync = function (func, timeMs, args) {
+    page.evaluateAsync = function (func, timeMs) {
         // Remove the first 2 arguments because we are going to consume them
         var args = Array.prototype.slice.call(arguments, 2);
         var numArgsToAppend = args.length;
