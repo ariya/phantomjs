@@ -410,7 +410,7 @@ function decorateNewPage (opts, page) {
         }
         // Wrapping the "func" argument into a setTimeout
         funcTimeoutWrapper = "function () { setTimeout(" + func.toString() + ", " + timeMs;
-        while(numArgsToAppend > 0) {
+        while (numArgsToAppend > 0) {
             --numArgsToAppend;
             funcTimeoutWrapper += ", arguments[" + numArgsToAppend + "]";
         }
