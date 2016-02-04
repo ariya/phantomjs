@@ -106,8 +106,8 @@ exports.read = function (path, modeOrOpts) {
     } else if (opts.mode.indexOf('r') === -1) {
         opts.mode += 'r';
     }
-    var f = exports.open(path, opts),
-        content = f.read();
+    var f = exports.open(path, opts);
+    var content = f.read();
 
     f.close();
     return content;

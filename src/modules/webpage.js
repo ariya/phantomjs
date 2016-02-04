@@ -167,7 +167,9 @@ function definePageCallbackHandler (page, handlers, handlerName, callbackConstru
 // Inspired by Douglas Crockford's remedies: proper String quoting.
 // @see http://javascript.crockford.com/remedial.html
 function quoteString (str) {
-    var c, i, l = str.length, o = '"';
+    var c, i;
+    var l = str.length;
+    var o = '"';
     for (i = 0; i < l; i += 1) {
         c = str.charAt(i);
         if (c >= ' ') {
@@ -399,9 +401,9 @@ function decorateNewPage (opts, page) {
      */
     page.evaluateAsync = function (func, timeMs, args) {
         // Remove the first 2 arguments because we are going to consume them
-        var args = Array.prototype.slice.call(arguments, 2),
-            numArgsToAppend = args.length,
-            funcTimeoutWrapper;
+        var args = Array.prototype.slice.call(arguments, 2);
+        var numArgsToAppend = args.length;
+        var funcTimeoutWrapper;
 
         if (!(func instanceof Function || typeof func === 'string' || func instanceof String)) {
             throw new Error("Wrong use of WebPage#evaluateAsync");
