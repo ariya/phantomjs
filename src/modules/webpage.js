@@ -47,7 +47,7 @@ function isUndefined(o) {
 }
 
 function isUndefinedOrNull(o) {
-    return isUndefined(o) || null === o;
+    return isUndefined(o) || o === null;
 }
 
 function copyInto(target, source) {

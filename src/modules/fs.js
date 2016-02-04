@@ -229,14 +229,14 @@ exports.touch = function (path) {
 exports.join = function() {
     var args = [];
 
-    if (0 < arguments.length) {
+    if (arguments.length > 0) {
         args = args.slice.call(arguments, 0)
             // Make sure each part is a string and remove empty parts (except at begining)
             .map(function (part, idx) {
-                if (null != part) {
+                if (part != null) {
                     var str = part.toString();
-                    if ("" === str) {
-                        return 0 === idx ? "" : null;
+                    if (str === "") {
+                        return idx === 0 ? "" : null;
                     } else {
                         return str;
                     }
@@ -244,13 +244,13 @@ exports.join = function() {
             })
             // Remove empty parts
             .filter(function (part) {
-                return null != part;
+                return part != null;
             });
     }
 
     var ret = args.join("/");
 
-    return 0 < ret.length ? ret : ".";
+    return ret.length > 0 ? ret : ".";
 };
 
 exports.split = function (path) {

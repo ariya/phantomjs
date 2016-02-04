@@ -38,7 +38,7 @@ var NOP = function () {}
 exports.spawn = function (cmd, args, opts) {
   var ctx = newContext()
 
-  if (null == opts) {
+  if (opts == null) {
     opts = {}
   }
 
@@ -54,7 +54,7 @@ exports.spawn = function (cmd, args, opts) {
  * exec(command, [options], callback)
  */
 exports.exec = function (cmd, opts, cb) {
-  if (null == cb) {
+  if (cb == null) {
     cb = NOP
   }
 
@@ -67,11 +67,11 @@ exports.exec = function (cmd, opts, cb) {
 exports.execFile = function (cmd, args, opts, cb) {
   var ctx = newContext()
 
-  if (null == cb) {
+  if (cb == null) {
     cb = NOP
   }
 
-  if (null == opts) {
+  if (opts == null) {
     opts = {}
   }
 
@@ -155,7 +155,7 @@ function newContext() {
      * @returns Number Bytes written; `-1` for failure.
      */
     this.write = function write(chunk, encoding) {
-      if ("string" !== typeof encoding) {
+      if (typeof encoding !== "string") {
         encoding = "utf8"
       }
 
@@ -177,7 +177,7 @@ function newContext() {
 }
 
 function delayCallback() {
-  var args = 0 < arguments.length ? [].slice.call(arguments, 0) : []
+  var args = arguments.length > 0 ? [].slice.call(arguments, 0) : []
   var fn = args.shift()
   if (!isFunc(fn)) {
     return
