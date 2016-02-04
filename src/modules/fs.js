@@ -40,7 +40,7 @@
  *          - mode (see Open Mode above)
  *          - charset An IANA, case insensitive, charset name.
  */
-function modeOrOptsToOpts(modeOrOpts) {
+function modeOrOptsToOpts (modeOrOpts) {
     var opts;
 
     // Extract charset from opts
@@ -226,7 +226,7 @@ exports.touch = function (path) {
 
 // Path stuff
 
-exports.join = function() {
+exports.join = function () {
     var args = [];
 
     if (arguments.length > 0) {

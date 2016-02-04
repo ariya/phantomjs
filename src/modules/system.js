@@ -8,7 +8,7 @@ exports.platform = 'phantomjs';
 Object.defineProperty(exports, 'stdout', {
     enumerable: true,
     writeable: false,
-    get: function() {
+    get: function () {
         return exports.standardout;
     }
 });
@@ -16,7 +16,7 @@ Object.defineProperty(exports, 'stdout', {
 Object.defineProperty(exports, 'stdin', {
     enumerable: true,
     writeable: false,
-    get: function() {
+    get: function () {
         return exports.standardin;
     }
 });
@@ -24,7 +24,7 @@ Object.defineProperty(exports, 'stdin', {
 Object.defineProperty(exports, 'stderr', {
     enumerable: true,
     writeable: false,
-    get: function() {
+    get: function () {
         return exports.standarderr;
     }
 });

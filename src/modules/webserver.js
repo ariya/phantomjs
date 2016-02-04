@@ -39,23 +39,23 @@ exports.create = function (opts) {
     var server = phantom.createWebServer(),
         handlers = {};
 
-    function checkType(o, type) {
+    function checkType (o, type) {
         return typeof o === type;
     }
 
-    function isObject(o) {
+    function isObject (o) {
         return checkType(o, 'object');
     }
 
-    function isUndefined(o) {
+    function isUndefined (o) {
         return checkType(o, 'undefined');
     }
 
-    function isUndefinedOrNull(o) {
+    function isUndefinedOrNull (o) {
         return isUndefined(o) || o === null;
     }
 
-    function copyInto(target, source) {
+    function copyInto (target, source) {
         if (target === source || isUndefinedOrNull(source)) {
             return target;
         }
@@ -94,7 +94,7 @@ exports.create = function (opts) {
         return target;
     }
 
-    function defineSetter(handlerName, signalName) {
+    function defineSetter (handlerName, signalName) {
         Object.defineProperty(server, handlerName, {
             set: function (f) {
                 if (handlers && typeof handlers[signalName] === 'function') {

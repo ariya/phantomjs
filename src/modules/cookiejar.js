@@ -31,7 +31,7 @@
 */
 
 /* Only there for backwards compatibility. */
-function decorateCookieJar(jar) {
+function decorateCookieJar (jar) {
     return jar;
 }
 

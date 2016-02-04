@@ -107,7 +107,7 @@ exports.fork = function (modulePath, args, opts) {
 
 // private
 
-function newContext() {
+function newContext () {
   var ctx = exports._createChildProcessContext()
 
   // TODO: "Buffer" the signals and redispatch them?
@@ -133,7 +133,7 @@ function newContext() {
   ctx.stderr = new FakeReadableStream("stderr")
 
   // Emulates `Readable Stream`
-  function FakeReadableStream(streamName) {
+  function FakeReadableStream (streamName) {
     this.on = function (evt, cb) {
       switch (evt) {
         case 'data':
@@ -148,13 +148,13 @@ function newContext() {
   ctx.stdin = new FakeWritableStream()
 
   // Emulates `Writable Stream`
-  function FakeWritableStream() {
+  function FakeWritableStream () {
     /**
      * @param chunk String Data to write.
      * @param encoding String Optional.  Defaults to "utf8".
      * @returns Number Bytes written; `-1` for failure.
      */
-    this.write = function write(chunk, encoding) {
+    this.write = function write (chunk, encoding) {
       if (typeof encoding !== "string") {
         encoding = "utf8"
       }
@@ -164,7 +164,7 @@ function newContext() {
       return bytesWritten
     }
 
-    this.close = function close() {
+    this.close = function close () {
         ctx._close();
     }
 
@@ -176,7 +176,7 @@ function newContext() {
   return ctx
 }
 
-function delayCallback() {
+function delayCallback () {
   var args = arguments.length > 0 ? [].slice.call(arguments, 0) : []
   var fn = args.shift()
   if (!isFunc(fn)) {
@@ -188,6 +188,6 @@ function delayCallback() {
   }, 0)
 }
 
-function isFunction(o) {
+function isFunction (o) {
   return typeof o === 'function'
 }

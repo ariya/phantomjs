@@ -34,23 +34,23 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-function checkType(o, type) {
+function checkType (o, type) {
     return typeof o === type;
 }
 
-function isObject(o) {
+function isObject (o) {
     return checkType(o, 'object');
 }
 
-function isUndefined(o) {
+function isUndefined (o) {
     return checkType(o, 'undefined');
 }
 
-function isUndefinedOrNull(o) {
+function isUndefinedOrNull (o) {
     return isUndefined(o) || o === null;
 }
 
-function copyInto(target, source) {
+function copyInto (target, source) {
     if (target === source || isUndefinedOrNull(source)) {
         return target;
     }
@@ -89,7 +89,7 @@ function copyInto(target, source) {
     return target;
 }
 
-function definePageSignalHandler(page, handlers, handlerName, signalName) {
+function definePageSignalHandler (page, handlers, handlerName, signalName) {
     Object.defineProperty(page, handlerName, {
         set: function (f) {
             // Disconnect previous handler (if any)
@@ -111,7 +111,7 @@ function definePageSignalHandler(page, handlers, handlerName, signalName) {
                 this[signalName].connect(f);
             }
         },
-        get: function() {
+        get: function () {
             return !!handlers[handlerName] && typeof handlers[handlerName].callback === "function" ?
                 handlers[handlerName].callback :
                 undefined;
@@ -119,9 +119,9 @@ function definePageSignalHandler(page, handlers, handlerName, signalName) {
     });
 }
 
-function definePageCallbackHandler(page, handlers, handlerName, callbackConstructor) {
+function definePageCallbackHandler (page, handlers, handlerName, callbackConstructor) {
     Object.defineProperty(page, handlerName, {
-        set: function(f) {
+        set: function (f) {
             // Fetch the right callback object
             var callbackObj = page[callbackConstructor]();
 
@@ -140,7 +140,7 @@ function definePageCallbackHandler(page, handlers, handlerName, callbackConstruc
 
             // Connect the new handler iff it's a function
             if (typeof f === "function") {
-                var connector = function() {
+                var connector = function () {
                     // Callback will receive a "deserialized", normal "arguments" array
                     callbackObj.returnValue = f.apply(this, arguments[0]);
                 };
@@ -155,7 +155,7 @@ function definePageCallbackHandler(page, handlers, handlerName, callbackConstruc
                 callbackObj.called.connect(connector);
             }
         },
-        get: function() {
+        get: function () {
             var handlerObj = handlers[handlerName];
             return (!!handlerObj && typeof handlerObj.callback === "function" && typeof handlerObj.connector === "function") ?
                 handlers[handlerName].callback :
@@ -166,7 +166,7 @@ function definePageCallbackHandler(page, handlers, handlerName, callbackConstruc
 
 // Inspired by Douglas Crockford's remedies: proper String quoting.
 // @see http://javascript.crockford.com/remedial.html
-function quoteString(str) {
+function quoteString (str) {
     var c, i, l = str.length, o = '"';
     for (i = 0; i < l; i += 1) {
         c = str.charAt(i);
@@ -204,7 +204,7 @@ function quoteString(str) {
 
 // Inspired by Douglas Crockford's remedies: a better Type Detection.
 // @see http://javascript.crockford.com/remedial.html
-function detectType(value) {
+function detectType (value) {
     var s = typeof value;
     if (s === 'object') {
         if (value) {
@@ -222,11 +222,11 @@ function detectType(value) {
     return s;
 }
 
-function decorateNewPage(opts, page) {
+function decorateNewPage (opts, page) {
     var handlers = {};
 
     try {
-        page.rawPageCreated.connect(function(newPage) {
+        page.rawPageCreated.connect(function (newPage) {
             // Decorate the new raw page appropriately
             newPage = decorateNewPage(opts, newPage);
 
@@ -280,7 +280,7 @@ function decorateNewPage(opts, page) {
             this.openUrl(url, 'get', this.settings);
             return;
         } else if (arguments.length === 2 && typeof arg1 === 'function') {
-            this._onPageOpenFinished = function() {
+            this._onPageOpenFinished = function () {
                 thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
                 arg1.apply(thisPage, arguments);     //< Invoke the actual callback
             }
@@ -290,7 +290,7 @@ function decorateNewPage(opts, page) {
             this.openUrl(url, arg1, this.settings);
             return;
         } else if (arguments.length === 3 && typeof arg2 === 'function') {
-            this._onPageOpenFinished = function() {
+            this._onPageOpenFinished = function () {
                 thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
                 arg2.apply(thisPage, arguments);     //< Invoke the actual callback
             }
@@ -303,7 +303,7 @@ function decorateNewPage(opts, page) {
             }, this.settings);
             return;
         } else if (arguments.length === 4) {
-            this._onPageOpenFinished = function() {
+            this._onPageOpenFinished = function () {
                 thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
                 arg3.apply(thisPage, arguments);     //< Invoke the actual callback
             }
@@ -313,7 +313,7 @@ function decorateNewPage(opts, page) {
             }, this.settings);
             return;
         } else if (arguments.length === 5) {
-            this._onPageOpenFinished = function() {
+            this._onPageOpenFinished = function () {
                 thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
                 arg4.apply(thisPage, arguments);     //< Invoke the actual callback
             }
@@ -364,7 +364,7 @@ function decorateNewPage(opts, page) {
         if (!(func instanceof Function || typeof func === 'string' || func instanceof String)) {
             throw new Error("Wrong use of WebPage#evaluate");
         }
-        str = 'function() { return (' + func.toString() + ')(';
+        str = 'function () { return (' + func.toString() + ')(';
         for (i = 1, l = arguments.length; i < l; i++) {
             arg = arguments[i];
             argType = detectType(arg);
@@ -407,7 +407,7 @@ function decorateNewPage(opts, page) {
             throw new Error("Wrong use of WebPage#evaluateAsync");
         }
         // Wrapping the "func" argument into a setTimeout
-        funcTimeoutWrapper = "function() { setTimeout(" + func.toString() + ", " + timeMs;
+        funcTimeoutWrapper = "function () { setTimeout(" + func.toString() + ", " + timeMs;
         while(numArgsToAppend > 0) {
             --numArgsToAppend;
             funcTimeoutWrapper += ", arguments[" + numArgsToAppend + "]";
@@ -425,7 +425,7 @@ function decorateNewPage(opts, page) {
      * @param {string}       selector  css selector for the file input element
      * @param {string,array} fileNames the name(s) of the file(s) to upload
      */
-    page.uploadFile = function(selector, fileNames) {
+    page.uploadFile = function (selector, fileNames) {
         if (typeof fileNames == "string") {
             fileNames = [fileNames];
         }
