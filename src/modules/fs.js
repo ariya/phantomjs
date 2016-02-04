@@ -221,7 +221,7 @@ exports.removeTree = function (path) {
 };
 
 exports.touch = function (path) {
-    exports.write(path, "", 'a');
+    exports.write(path, '', 'a');
 };
 
 // Path stuff
@@ -235,8 +235,8 @@ exports.join = function () {
             .map(function (part, idx) {
                 if (part != null) {
                     var str = part.toString();
-                    if (str === "") {
-                        return idx === 0 ? "" : null;
+                    if (str === '') {
+                        return idx === 0 ? '' : null;
                     } else {
                         return str;
                     }
@@ -248,21 +248,21 @@ exports.join = function () {
             });
     }
 
-    var ret = args.join("/");
+    var ret = args.join('/');
 
-    return ret.length > 0 ? ret : ".";
+    return ret.length > 0 ? ret : '.';
 };
 
 exports.split = function (path) {
-    if (typeof path !== "string") {
+    if (typeof path !== 'string') {
         return [];
     }
 
     return exports.fromNativeSeparators(path)
         // Collapse redundant separators
-        .replace(/\/+/g, "/")
+        .replace(/\/+/g, '/')
         // Remove separator at end
-        .replace(/\/$/, "")
+        .replace(/\/$/, '')
         // And split
-        .split("/")
+        .split('/')
 };

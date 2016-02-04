@@ -42,7 +42,7 @@ exports.spawn = function (cmd, args, opts) {
     opts = {}
   }
 
-  opts.encoding = opts.encoding || "utf8"
+  opts.encoding = opts.encoding || 'utf8'
   ctx._setEncoding(opts.encoding)
 
   ctx._start(cmd, args)
@@ -58,7 +58,7 @@ exports.exec = function (cmd, opts, cb) {
     cb = NOP
   }
 
-  return cb(new Error("NotYetImplemented"))
+  return cb(new Error('NotYetImplemented'))
 }
 
 /**
@@ -75,20 +75,20 @@ exports.execFile = function (cmd, args, opts, cb) {
     opts = {}
   }
 
-  opts.encoding = opts.encoding || "utf8"
+  opts.encoding = opts.encoding || 'utf8'
   ctx._setEncoding(opts.encoding)
 
-  var stdout = ""
-  ctx.stdout.on("data", function (chunk) {
+  var stdout = ''
+  ctx.stdout.on('data', function (chunk) {
     stdout += chunk
   })
 
-  var stderr = ""
-  ctx.stderr.on("data", function (chunk) {
+  var stderr = ''
+  ctx.stderr.on('data', function (chunk) {
     stderr += chunk
   })
 
-  ctx.on("exit", function (code) {
+  ctx.on('exit', function (code) {
     return cb(null, stdout, stderr)
   })
 
@@ -101,7 +101,7 @@ exports.execFile = function (cmd, args, opts, cb) {
  * fork(modulePath, [args], [options])
  */
 exports.fork = function (modulePath, args, opts) {
-  throw new Error("NotYetImplemented")
+  throw new Error('NotYetImplemented')
 }
 
 // private
@@ -115,7 +115,7 @@ function newContext () {
     var handler
 
     switch (evt) {
-      case "exit":
+      case 'exit':
         handler = ctx[evt]
         break
       default:
@@ -128,15 +128,15 @@ function newContext () {
     }
   }
 
-  ctx.stdout = new FakeReadableStream("stdout")
-  ctx.stderr = new FakeReadableStream("stderr")
+  ctx.stdout = new FakeReadableStream('stdout')
+  ctx.stderr = new FakeReadableStream('stderr')
 
   // Emulates `Readable Stream`
   function FakeReadableStream (streamName) {
     this.on = function (evt, cb) {
       switch (evt) {
         case 'data':
-          ctx[streamName + "Data"].connect(cb)
+          ctx[streamName + 'Data'].connect(cb)
           break
         default:
           break
@@ -154,8 +154,8 @@ function newContext () {
      * @returns Number Bytes written; `-1` for failure.
      */
     this.write = function write (chunk, encoding) {
-      if (typeof encoding !== "string") {
-        encoding = "utf8"
+      if (typeof encoding !== 'string') {
+        encoding = 'utf8'
       }
 
       var bytesWritten = ctx._write(chunk, encoding)

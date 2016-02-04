@@ -111,7 +111,7 @@ exports.create = function (opts) {
         });
     }
 
-    defineSetter("onNewRequest", "newRequest");
+    defineSetter('onNewRequest', 'newRequest');
 
     server.listen = function (port, arg1, arg2) {
         if (arguments.length === 2 && typeof arg1 === 'function') {
@@ -123,7 +123,7 @@ exports.create = function (opts) {
             // arg1 == settings
             return this.listenOnPort(port, arg1);
         }
-        throw new Error("Wrong use of WebServer#listen");
+        throw new Error('Wrong use of WebServer#listen');
     };
 
     // Copy options into server

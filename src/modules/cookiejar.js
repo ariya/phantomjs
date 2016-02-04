@@ -41,7 +41,7 @@ function decorateCookieJar (jar) {
  */
 exports.create = function (path) {
     if (arguments.length < 1) {
-        path = "";
+        path = '';
     }
     return decorateCookieJar(phantom.createCookieJar(path));
 };
