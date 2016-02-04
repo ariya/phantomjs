@@ -104,7 +104,6 @@ exports.fork = function (modulePath, args, opts) {
   throw new Error("NotYetImplemented")
 }
 
-
 // private
 
 function newContext () {
