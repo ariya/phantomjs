@@ -32,7 +32,7 @@
 
 /* Only there for backwards compatibility. */
 function decorateCookieJar (jar) {
-    return jar;
+    return jar
 }
 
 /* Creates and decorates a new cookie jar.
@@ -41,10 +41,10 @@ function decorateCookieJar (jar) {
  */
 exports.create = function (path) {
     if (arguments.length < 1) {
-        path = '';
+        path = ''
     }
-    return decorateCookieJar(phantom.createCookieJar(path));
-};
+    return decorateCookieJar(phantom.createCookieJar(path))
+}
 
 /* Exports the decorateCookieJar function */
-exports.decorate = decorateCookieJar;
+exports.decorate = decorateCookieJar

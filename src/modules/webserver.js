@@ -36,100 +36,100 @@
 */
 
 exports.create = function (opts) {
-    var server = phantom.createWebServer();
-    var handlers = {};
+    var server = phantom.createWebServer()
+    var handlers = {}
 
     function checkType (o, type) {
-        return typeof o === type;
+        return typeof o === type
     }
 
     function isObject (o) {
-        return checkType(o, 'object');
+        return checkType(o, 'object')
     }
 
     function isUndefined (o) {
-        return checkType(o, 'undefined');
+        return checkType(o, 'undefined')
     }
 
     function isUndefinedOrNull (o) {
-        return isUndefined(o) || o === null;
+        return isUndefined(o) || o === null
     }
 
     function copyInto (target, source) {
         if (target === source || isUndefinedOrNull(source)) {
-            return target;
+            return target
         }
 
-        target = target || {};
+        target = target || {}
 
         // Copy into objects only
         if (isObject(target)) {
             // Make sure source exists
-            source = source || {};
+            source = source || {}
 
             if (isObject(source)) {
-                var i, newTarget, newSource;
+                var i, newTarget, newSource
                 for (i in source) {
                     if (source.hasOwnProperty(i)) {
-                        newTarget = target[i];
-                        newSource = source[i];
+                        newTarget = target[i]
+                        newSource = source[i]
 
                         if (newTarget && isObject(newSource)) {
                             // Deep copy
-                            newTarget = copyInto(target[i], newSource);
+                            newTarget = copyInto(target[i], newSource)
                         } else {
-                            newTarget = newSource;
+                            newTarget = newSource
                         }
 
                         if (!isUndefined(newTarget)) {
-                            target[i] = newTarget;
+                            target[i] = newTarget
                         }
                     }
                 }
             } else {
-                target = source;
+                target = source
             }
         }
 
-        return target;
+        return target
     }
 
     function defineSetter (handlerName, signalName) {
         Object.defineProperty(server, handlerName, {
             get: function () {
-                return undefined;
+                return undefined
             },
             set: function (f) {
                 if (handlers && typeof handlers[signalName] === 'function') {
                     try {
-                        this[signalName].disconnect(handlers[signalName]);
+                        this[signalName].disconnect(handlers[signalName])
                     } catch (e) {}
                 }
-                handlers[signalName] = f;
-                this[signalName].connect(handlers[signalName]);
+                handlers[signalName] = f
+                this[signalName].connect(handlers[signalName])
             }
-        });
+        })
     }
 
-    defineSetter('onNewRequest', 'newRequest');
+    defineSetter('onNewRequest', 'newRequest')
 
     server.listen = function (port, arg1, arg2) {
         if (arguments.length === 2 && typeof arg1 === 'function') {
-            this.onNewRequest = arg1;
-            return this.listenOnPort(port, {});
+            this.onNewRequest = arg1
+            return this.listenOnPort(port, {})
         }
         if (arguments.length === 3 && typeof arg2 === 'function') {
-            this.onNewRequest = arg2;
+            this.onNewRequest = arg2
             // arg1 == settings
-            return this.listenOnPort(port, arg1);
+            return this.listenOnPort(port, arg1)
         }
-        throw new Error('Wrong use of WebServer#listen');
-    };
+        throw new Error('Wrong use of WebServer#listen')
+    }
 
     // Copy options into server
     if (opts) {
-        server = copyInto(server, opts);
+        server = copyInto(server, opts)
     }
 
-    return server;
-};
+    return server
+}

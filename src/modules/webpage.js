@@ -35,58 +35,58 @@
 */
 
 function checkType (o, type) {
-    return typeof o === type;
+    return typeof o === type
 }
 
 function isObject (o) {
-    return checkType(o, 'object');
+    return checkType(o, 'object')
 }
 
 function isUndefined (o) {
-    return checkType(o, 'undefined');
+    return checkType(o, 'undefined')
 }
 
 function isUndefinedOrNull (o) {
-    return isUndefined(o) || o === null;
+    return isUndefined(o) || o === null
 }
 
 function copyInto (target, source) {
     if (target === source || isUndefinedOrNull(source)) {
-        return target;
+        return target
     }
 
-    target = target || {};
+    target = target || {}
 
     // Copy into objects only
     if (isObject(target)) {
         // Make sure source exists
-        source = source || {};
+        source = source || {}
 
         if (isObject(source)) {
-            var i, newTarget, newSource;
+            var i, newTarget, newSource
             for (i in source) {
                 if (source.hasOwnProperty(i)) {
-                    newTarget = target[i];
-                    newSource = source[i];
+                    newTarget = target[i]
+                    newSource = source[i]
 
                     if (newTarget && isObject(newSource)) {
                         // Deep copy
-                        newTarget = copyInto(target[i], newSource);
+                        newTarget = copyInto(target[i], newSource)
                     } else {
-                        newTarget = newSource;
+                        newTarget = newSource
                     }
 
                     if (!isUndefined(newTarget)) {
-                        target[i] = newTarget;
+                        target[i] = newTarget
                     }
                 }
             }
         } else {
-            target = source;
+            target = source
         }
     }
 
-    return target;
+    return target
 }
 
 function definePageSignalHandler (page, handlers, handlerName, signalName) {
@@ -95,12 +95,12 @@ function definePageSignalHandler (page, handlers, handlerName, signalName) {
             // Disconnect previous handler (if any)
             if (!!handlers[handlerName] && typeof handlers[handlerName].callback === 'function') {
                 try {
-                    this[signalName].disconnect(handlers[handlerName].callback);
+                    this[signalName].disconnect(handlers[handlerName].callback)
                 } catch (e) {}
             }
 
             // Delete the previous handler
-            delete handlers[handlerName];
+            delete handlers[handlerName]
 
             // Connect the new handler iff it's a function
             if (typeof f === 'function') {
@@ -108,226 +108,226 @@ function definePageSignalHandler (page, handlers, handlerName, signalName) {
                 handlers[handlerName] = {
                     callback: f
                 }
-                this[signalName].connect(f);
+                this[signalName].connect(f)
             }
         },
         get: function () {
             return (!!handlers[handlerName] && typeof handlers[handlerName].callback === 'function'
                 ? handlers[handlerName].callback
-                : undefined);
+                : undefined)
         }
-    });
+    })
 }
 
 function definePageCallbackHandler (page, handlers, handlerName, callbackConstructor) {
     Object.defineProperty(page, handlerName, {
         set: function (f) {
             // Fetch the right callback object
-            var callbackObj = page[callbackConstructor]();
+            var callbackObj = page[callbackConstructor]()
 
             // Disconnect previous handler (if any)
-            var handlerObj = handlers[handlerName];
+            var handlerObj = handlers[handlerName]
             if (!!handlerObj && typeof handlerObj.callback === 'function' && typeof handlerObj.connector === 'function') {
                 try {
-                    callbackObj.called.disconnect(handlerObj.connector);
+                    callbackObj.called.disconnect(handlerObj.connector)
                 } catch (e) {
-                    console.log(e);
+                    console.log(e)
                 }
             }
 
             // Delete the previous handler
-            delete handlers[handlerName];
+            delete handlers[handlerName]
 
             // Connect the new handler iff it's a function
             if (typeof f === 'function') {
                 var connector = function () {
                     // Callback will receive a "deserialized", normal "arguments" array
-                    callbackObj.returnValue = f.apply(this, arguments[0]);
-                };
+                    callbackObj.returnValue = f.apply(this, arguments[0])
+                }
 
                 // Store the new handler for reference
                 handlers[handlerName] = {
                     callback: f,
                     connector: connector
-                };
+                }
 
                 // Connect a new handler
-                callbackObj.called.connect(connector);
+                callbackObj.called.connect(connector)
             }
         },
         get: function () {
-            var handlerObj = handlers[handlerName];
+            var handlerObj = handlers[handlerName]
             return (!!handlerObj && typeof handlerObj.callback === 'function' && typeof handlerObj.connector === 'function'
                 ? handlers[handlerName].callback
-                : undefined);
+                : undefined)
         }
-    });
+    })
 }
 
 // Inspired by Douglas Crockford's remedies: proper String quoting.
 // @see http://javascript.crockford.com/remedial.html
 function quoteString (str) {
-    var c, i;
-    var l = str.length;
-    var o = '"';
+    var c, i
+    var l = str.length
+    var o = '"'
     for (i = 0; i < l; i += 1) {
-        c = str.charAt(i);
+        c = str.charAt(i)
         if (c >= ' ') {
             if (c === '\\' || c === '"') {
-                o += '\\';
+                o += '\\'
             }
-            o += c;
+            o += c
         } else {
             switch (c) {
             case '\b':
-                o += '\\b';
-                break;
+                o += '\\b'
+                break
             case '\f':
-                o += '\\f';
-                break;
+                o += '\\f'
+                break
             case '\n':
-                o += '\\n';
-                break;
+                o += '\\n'
+                break
             case '\r':
-                o += '\\r';
-                break;
+                o += '\\r'
+                break
             case '\t':
-                o += '\\t';
-                break;
+                o += '\\t'
+                break
             default:
-                c = c.charCodeAt();
+                c = c.charCodeAt()
                 o += '\\u00' + Math.floor(c / 16).toString(16) +
-                    (c % 16).toString(16);
+                    (c % 16).toString(16)
             }
         }
     }
-    return o + '"';
+    return o + '"'
 }
 
 // Inspired by Douglas Crockford's remedies: a better Type Detection.
 // @see http://javascript.crockford.com/remedial.html
 function detectType (value) {
-    var s = typeof value;
+    var s = typeof value
     if (s === 'object') {
         if (value) {
             if (value instanceof Array) {
-                s = 'array';
+                s = 'array'
             } else if (value instanceof RegExp) {
-                s = 'regexp';
+                s = 'regexp'
             } else if (value instanceof Date) {
-                s = 'date';
+                s = 'date'
             }
         } else {
-            s = 'null';
+            s = 'null'
         }
     }
-    return s;
+    return s
 }
 
 function decorateNewPage (opts, page) {
-    var handlers = {};
+    var handlers = {}
 
     try {
         page.rawPageCreated.connect(function (newPage) {
             // Decorate the new raw page appropriately
-            newPage = decorateNewPage(opts, newPage);
+            newPage = decorateNewPage(opts, newPage)
 
             // Notify via callback, if a callback was provided
             if (page.onPageCreated && typeof page.onPageCreated === 'function') {
-                page.onPageCreated(newPage);
+                page.onPageCreated(newPage)
             }
-        });
+        })
     } catch (e) {}
 
     // deep copy
-    page.settings = JSON.parse(JSON.stringify(phantom.defaultPageSettings));
+    page.settings = JSON.parse(JSON.stringify(phantom.defaultPageSettings))
 
-    definePageSignalHandler(page, handlers, 'onInitialized', 'initialized');
+    definePageSignalHandler(page, handlers, 'onInitialized', 'initialized')
 
-    definePageSignalHandler(page, handlers, 'onLoadStarted', 'loadStarted');
+    definePageSignalHandler(page, handlers, 'onLoadStarted', 'loadStarted')
 
-    definePageSignalHandler(page, handlers, 'onLoadFinished', 'loadFinished');
+    definePageSignalHandler(page, handlers, 'onLoadFinished', 'loadFinished')
 
-    definePageSignalHandler(page, handlers, 'onUrlChanged', 'urlChanged');
+    definePageSignalHandler(page, handlers, 'onUrlChanged', 'urlChanged')
 
-    definePageSignalHandler(page, handlers, 'onNavigationRequested', 'navigationRequested');
+    definePageSignalHandler(page, handlers, 'onNavigationRequested', 'navigationRequested')
 
-    definePageSignalHandler(page, handlers, 'onRepaintRequested', 'repaintRequested');
+    definePageSignalHandler(page, handlers, 'onRepaintRequested', 'repaintRequested')
 
-    definePageSignalHandler(page, handlers, 'onResourceRequested', 'resourceRequested');
+    definePageSignalHandler(page, handlers, 'onResourceRequested', 'resourceRequested')
 
-    definePageSignalHandler(page, handlers, 'onResourceReceived', 'resourceReceived');
+    definePageSignalHandler(page, handlers, 'onResourceReceived', 'resourceReceived')
 
-    definePageSignalHandler(page, handlers, 'onResourceError', 'resourceError');
+    definePageSignalHandler(page, handlers, 'onResourceError', 'resourceError')
 
-    definePageSignalHandler(page, handlers, 'onResourceTimeout', 'resourceTimeout');
+    definePageSignalHandler(page, handlers, 'onResourceTimeout', 'resourceTimeout')
 
-    definePageSignalHandler(page, handlers, 'onAlert', 'javaScriptAlertSent');
+    definePageSignalHandler(page, handlers, 'onAlert', 'javaScriptAlertSent')
 
-    definePageSignalHandler(page, handlers, 'onConsoleMessage', 'javaScriptConsoleMessageSent');
+    definePageSignalHandler(page, handlers, 'onConsoleMessage', 'javaScriptConsoleMessageSent')
 
-    definePageSignalHandler(page, handlers, 'onClosing', 'closing');
+    definePageSignalHandler(page, handlers, 'onClosing', 'closing')
 
     // Private callback for "page.open()"
-    definePageSignalHandler(page, handlers, '_onPageOpenFinished', 'loadFinished');
+    definePageSignalHandler(page, handlers, '_onPageOpenFinished', 'loadFinished')
 
-    phantom.__defineErrorSignalHandler__(page, page, handlers);
+    phantom.__defineErrorSignalHandler__(page, page, handlers)
 
-    page.onError = phantom.defaultErrorHandler;
+    page.onError = phantom.defaultErrorHandler
 
     page.open = function (url, arg1, arg2, arg3, arg4) {
-        var thisPage = this;
+        var thisPage = this
 
         if (arguments.length === 1) {
-            this.openUrl(url, 'get', this.settings);
-            return;
+            this.openUrl(url, 'get', this.settings)
+            return
         } else if (arguments.length === 2 && typeof arg1 === 'function') {
             this._onPageOpenFinished = function () {
-                thisPage._onPageOpenFinished = null; // Disconnect callback (should fire only once)
-                arg1.apply(thisPage, arguments);     // Invoke the actual callback
+                thisPage._onPageOpenFinished = null // Disconnect callback (should fire only once)
+                arg1.apply(thisPage, arguments)     // Invoke the actual callback
             }
-            this.openUrl(url, 'get', this.settings);
-            return;
+            this.openUrl(url, 'get', this.settings)
+            return
         } else if (arguments.length === 2) {
-            this.openUrl(url, arg1, this.settings);
-            return;
+            this.openUrl(url, arg1, this.settings)
+            return
         } else if (arguments.length === 3 && typeof arg2 === 'function') {
             this._onPageOpenFinished = function () {
-                thisPage._onPageOpenFinished = null; // Disconnect callback (should fire only once)
-                arg2.apply(thisPage, arguments);     // Invoke the actual callback
+                thisPage._onPageOpenFinished = null // Disconnect callback (should fire only once)
+                arg2.apply(thisPage, arguments)     // Invoke the actual callback
             }
-            this.openUrl(url, arg1, this.settings);
-            return;
+            this.openUrl(url, arg1, this.settings)
+            return
         } else if (arguments.length === 3) {
             this.openUrl(url, {
                 operation: arg1,
                 data: arg2
-            }, this.settings);
-            return;
+            }, this.settings)
+            return
         } else if (arguments.length === 4) {
             this._onPageOpenFinished = function () {
-                thisPage._onPageOpenFinished = null; // Disconnect callback (should fire only once)
-                arg3.apply(thisPage, arguments);     // Invoke the actual callback
+                thisPage._onPageOpenFinished = null // Disconnect callback (should fire only once)
+                arg3.apply(thisPage, arguments)     // Invoke the actual callback
             }
             this.openUrl(url, {
                 operation: arg1,
                 data: arg2
-            }, this.settings);
-            return;
+            }, this.settings)
+            return
         } else if (arguments.length === 5) {
             this._onPageOpenFinished = function () {
-                thisPage._onPageOpenFinished = null; // Disconnect callback (should fire only once)
-                arg4.apply(thisPage, arguments);     // Invoke the actual callback
+                thisPage._onPageOpenFinished = null // Disconnect callback (should fire only once)
+                arg4.apply(thisPage, arguments)     // Invoke the actual callback
             }
             this.openUrl(url, {
                 operation: arg1,
                 data: arg2,
                 headers: arg3
-            }, this.settings);
-            return;
+            }, this.settings)
+            return
         }
-        throw new Error('Wrong use of WebPage#open');
-    };
+        throw new Error('Wrong use of WebPage#open')
+    }
 
     /**
      * Include an external JavaScript file and notify when done.
@@ -336,24 +336,24 @@ function decorateNewPage (opts, page) {
      */
     page.includeJs = function (scriptUrl, onScriptLoaded) {
         // Register temporary signal handler for 'alert()'
-        var self = this;
+        var self = this
         function alertCallback (msgFromAlert) {
             if (msgFromAlert === scriptUrl) {
                 // Resource loaded, time to fire the callback (if any)
                 if (onScriptLoaded && typeof onScriptLoaded === 'function') {
-                    onScriptLoaded(scriptUrl);
+                    onScriptLoaded(scriptUrl)
                 }
                 // And disconnect the signal handler
                 try {
-                    self.javaScriptAlertSent.disconnect(alertCallback);
+                    self.javaScriptAlertSent.disconnect(alertCallback)
                 } catch (e) {}
             }
         }
-        self.javaScriptAlertSent.connect(alertCallback);
+        self.javaScriptAlertSent.connect(alertCallback)
 
         // Append the script tag to the body
-        self._appendScriptElement(scriptUrl);
-    };
+        self._appendScriptElement(scriptUrl)
+    }
 
     /**
      * evaluate a function in the page
@@ -362,34 +362,34 @@ function decorateNewPage (opts, page) {
      * @return  {*}                 the function call result
      */
     page.evaluate = function (func, args) {
-        var str, arg, argType, i, l;
+        var str, arg, argType, i, l
         if (!(func instanceof Function || typeof func === 'string' || func instanceof String)) {
-            throw new Error('Wrong use of WebPage#evaluate');
+            throw new Error('Wrong use of WebPage#evaluate')
         }
-        str = 'function () { return (' + func.toString() + ')(';
+        str = 'function () { return (' + func.toString() + ')('
         for (i = 1, l = arguments.length; i < l; i++) {
-            arg = arguments[i];
-            argType = detectType(arg);
+            arg = arguments[i]
+            argType = detectType(arg)
 
             switch (argType) {
             case 'object':      // for type "object"
             case 'array':       // for type "array"
                 str += JSON.stringify(arg) + ','
-                break;
+                break
             case 'date':        // for type "date"
                 str += 'new Date(' + JSON.stringify(arg) + '),'
-                break;
+                break
             case 'string':      // for type "string"
-                str += quoteString(arg) + ',';
-                break;
+                str += quoteString(arg) + ','
+                break
             default:            // for types: "null", "number", "function", "regexp", "undefined"
-                str += arg + ',';
-                break;
+                str += arg + ','
+                break
             }
         }
-        str = str.replace(/,$/, '') + '); }';
-        return this.evaluateJavaScript(str);
-    };
+        str = str.replace(/,$/, '') + '); }'
+        return this.evaluateJavaScript(str)
+    }
 
     /**
      * evaluate a function in the page, asynchronously
@@ -401,26 +401,26 @@ function decorateNewPage (opts, page) {
      */
     page.evaluateAsync = function (func, timeMs) {
         // Remove the first 2 arguments because we are going to consume them
-        var args = Array.prototype.slice.call(arguments, 2);
-        var numArgsToAppend = args.length;
-        var funcTimeoutWrapper;
+        var args = Array.prototype.slice.call(arguments, 2)
+        var numArgsToAppend = args.length
+        var funcTimeoutWrapper
 
         if (!(func instanceof Function || typeof func === 'string' || func instanceof String)) {
-            throw new Error('Wrong use of WebPage#evaluateAsync');
+            throw new Error('Wrong use of WebPage#evaluateAsync')
         }
         // Wrapping the "func" argument into a setTimeout
-        funcTimeoutWrapper = 'function () { setTimeout(' + func.toString() + ', ' + timeMs;
+        funcTimeoutWrapper = 'function () { setTimeout(' + func.toString() + ', ' + timeMs
         while (numArgsToAppend > 0) {
-            --numArgsToAppend;
-            funcTimeoutWrapper += ', arguments[' + numArgsToAppend + ']';
+            --numArgsToAppend
+            funcTimeoutWrapper += ', arguments[' + numArgsToAppend + ']'
         }
-        funcTimeoutWrapper += '); }';
+        funcTimeoutWrapper += '); }'
 
         // Augment the "args" array
-        args.splice(0, 0, funcTimeoutWrapper);
+        args.splice(0, 0, funcTimeoutWrapper)
 
-        this.evaluate.apply(this, args);
-    };
+        this.evaluate.apply(this, args)
+    }
 
     /**
      * upload a file
@@ -429,42 +429,42 @@ function decorateNewPage (opts, page) {
      */
     page.uploadFile = function (selector, fileNames) {
         if (typeof fileNames === 'string') {
-            fileNames = [fileNames];
+            fileNames = [fileNames]
         }
 
-        this._uploadFile(selector, fileNames);
-    };
+        this._uploadFile(selector, fileNames)
+    }
 
     // Copy options into page
     if (opts) {
-        page = copyInto(page, opts);
+        page = copyInto(page, opts)
     }
 
     // Calls from within the page to "phantomCallback()" arrive to this handler
-    definePageCallbackHandler(page, handlers, 'onCallback', '_getGenericCallback');
+    definePageCallbackHandler(page, handlers, 'onCallback', '_getGenericCallback')
 
     // Calls arrive to this handler when the user is asked to pick a file
-    definePageCallbackHandler(page, handlers, 'onFilePicker', '_getFilePickerCallback');
+    definePageCallbackHandler(page, handlers, 'onFilePicker', '_getFilePickerCallback')
 
     // Calls from within the page to "window.confirm(message)" arrive to this handler
     // @see https://developer.mozilla.org/en/DOM/window.confirm
-    definePageCallbackHandler(page, handlers, 'onConfirm', '_getJsConfirmCallback');
+    definePageCallbackHandler(page, handlers, 'onConfirm', '_getJsConfirmCallback')
 
     // Calls from within the page to "window.prompt(message, defaultValue)" arrive to this handler
     // @see https://developer.mozilla.org/en/DOM/window.prompt
-    definePageCallbackHandler(page, handlers, 'onPrompt', '_getJsPromptCallback');
+    definePageCallbackHandler(page, handlers, 'onPrompt', '_getJsPromptCallback')
 
     // Calls from within the page when some javascript code running to long
-    definePageCallbackHandler(page, handlers, 'onLongRunningScript', '_getJsInterruptCallback');
+    definePageCallbackHandler(page, handlers, 'onLongRunningScript', '_getJsInterruptCallback')
 
-    page.event = {};
+    page.event = {}
     page.event.modifier = {
         shift: 0x02000000,
         ctrl: 0x04000000,
         alt: 0x08000000,
         meta: 0x10000000,
         keypad: 0x20000000
-    };
+    }
 
     page.event.key = {
         '0': 48,
@@ -885,11 +885,11 @@ function decorateNewPage (opts, page) {
         'unknown': 33554431,
         'ydiaeresis': 255,
         'yen': 165
-    };
+    }
 
-    return page;
+    return page
 }
 
 exports.create = function (opts) {
-    return decorateNewPage(opts, phantom.createWebPage());
-};
+    return decorateNewPage(opts, phantom.createWebPage())
+}
