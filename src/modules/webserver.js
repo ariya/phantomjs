@@ -96,6 +96,9 @@ exports.create = function (opts) {
 
     function defineSetter (handlerName, signalName) {
         Object.defineProperty(server, handlerName, {
+            get: function () {
+                return undefined;
+            },
             set: function (f) {
                 if (handlers && typeof handlers[signalName] === 'function') {
                     try {
