@@ -1,7 +1,7 @@
 "use strict";
 var page = require('webpage').create(),
     system = require('system'),
-    address, output, size;
+    address, output, size, pageWidth, pageHeight;
 
 if (system.args.length < 3 || system.args.length > 5) {
     console.log('Usage: rasterize.js URL filename [paperwidth*paperheight|paperformat] [zoom]');
