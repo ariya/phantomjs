@@ -164,11 +164,11 @@ function newContext () {
     }
 
     this.close = function close () {
-        ctx._close()
+      ctx._close()
     }
 
     this.end = function () {
-        ctx._close()
+      ctx._close()
     }
   }
 
