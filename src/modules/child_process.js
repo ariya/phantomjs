@@ -175,18 +175,6 @@ function newContext () {
   return ctx
 }
 
-function delayCallback () {
-  var args = arguments.length > 0 ? [].slice.call(arguments, 0) : []
-  var fn = args.shift()
-  if (!isFunc(fn)) {
-    return
-  }
-  var that = this
-  setTimeout(function () {
-    fn.apply(that, args)
-  }, 0)
-}
-
 function isFunction (o) {
   return typeof o === 'function'
 }
