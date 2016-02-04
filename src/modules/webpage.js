@@ -231,7 +231,7 @@ function decorateNewPage(opts, page) {
             newPage = decorateNewPage(opts, newPage);
 
             // Notify via callback, if a callback was provided
-            if (page.onPageCreated && typeof(page.onPageCreated) === "function") {
+            if (page.onPageCreated && typeof page.onPageCreated === "function") {
                 page.onPageCreated(newPage);
             }
         });
@@ -338,7 +338,7 @@ function decorateNewPage(opts, page) {
         function alertCallback (msgFromAlert) {
             if (msgFromAlert === scriptUrl) {
                 // Resource loaded, time to fire the callback (if any)
-                if (onScriptLoaded && typeof(onScriptLoaded) === "function") {
+                if (onScriptLoaded && typeof onScriptLoaded === "function") {
                     onScriptLoaded(scriptUrl);
                 }
                 // And disconnect the signal handler
