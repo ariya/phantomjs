@@ -426,7 +426,7 @@ function decorateNewPage (opts, page) {
      * @param {string,array} fileNames the name(s) of the file(s) to upload
      */
     page.uploadFile = function (selector, fileNames) {
-        if (typeof fileNames == "string") {
+        if (typeof fileNames === "string") {
             fileNames = [fileNames];
         }
 

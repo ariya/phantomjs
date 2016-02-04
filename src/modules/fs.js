@@ -90,8 +90,8 @@ exports.open = function (path, modeOrOpts) {
  * @return file content
  */
 exports.read = function (path, modeOrOpts) {
-    if (typeof modeOrOpts == 'string') {
-        if (modeOrOpts.toLowerCase() == 'b') {
+    if (typeof modeOrOpts === 'string') {
+        if (modeOrOpts.toLowerCase() === 'b') {
             // open binary
             modeOrOpts = {mode: modeOrOpts};
         } else {
@@ -103,7 +103,7 @@ exports.read = function (path, modeOrOpts) {
     // ensure we open for reading
     if ( typeof opts.mode !== 'string' ) {
         opts.mode = 'r';
-    } else if ( opts.mode.indexOf('r') == -1 ) {
+    } else if ( opts.mode.indexOf('r') === -1 ) {
         opts.mode += 'r';
     }
     var f = exports.open(path, opts),
@@ -129,7 +129,7 @@ exports.write = function (path, content, modeOrOpts) {
     // ensure we open for writing
     if ( typeof opts.mode !== 'string' ) {
         opts.mode = 'w';
-    } else if ( opts.mode.indexOf('w') == -1 ) {
+    } else if ( opts.mode.indexOf('w') === -1 ) {
         opts.mode += 'w';
     }
     var f = exports.open(path, opts);
