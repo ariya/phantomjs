@@ -459,10 +459,10 @@ function decorateNewPage (opts, page) {
 
     page.event = {};
     page.event.modifier = {
-        shift:  0x02000000,
-        ctrl:   0x04000000,
-        alt:    0x08000000,
-        meta:   0x10000000,
+        shift: 0x02000000,
+        ctrl: 0x04000000,
+        alt: 0x08000000,
+        meta: 0x10000000,
         keypad: 0x20000000
     };
 
