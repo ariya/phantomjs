@@ -112,9 +112,9 @@ function definePageSignalHandler (page, handlers, handlerName, signalName) {
             }
         },
         get: function () {
-            return !!handlers[handlerName] && typeof handlers[handlerName].callback === "function" ?
-                handlers[handlerName].callback :
-                undefined;
+            return (!!handlers[handlerName] && typeof handlers[handlerName].callback === "function"
+                ? handlers[handlerName].callback
+                : undefined);
         }
     });
 }
@@ -157,9 +157,9 @@ function definePageCallbackHandler (page, handlers, handlerName, callbackConstru
         },
         get: function () {
             var handlerObj = handlers[handlerName];
-            return (!!handlerObj && typeof handlerObj.callback === "function" && typeof handlerObj.connector === "function") ?
-                handlers[handlerName].callback :
-                undefined;
+            return (!!handlerObj && typeof handlerObj.callback === "function" && typeof handlerObj.connector === "function"
+                ? handlers[handlerName].callback
+                : undefined);
         }
     });
 }
