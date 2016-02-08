@@ -1,11 +1,11 @@
 //! phantomjs: --load-images=no
+"use strict";
 
 // Compiled for debug, this tests for leaks when not loading images.
-//
 
 var url = TEST_HTTP_BASE + 'load-images.html';
 
-function do_test() {
+async_test(function testLoadImagesNo () {
     var page = require('webpage').create();
 
     var numImagesRequested = 0;
@@ -21,7 +21,7 @@ function do_test() {
 
     function checkImageCounts ()
     {
-        var imageCounts = page.evaluate (function() {    
+        var imageCounts = page.evaluate (function countImages() {    
             "use strict";
             try
             {
@@ -40,13 +40,11 @@ function do_test() {
         assert_equals(imageCounts.numComplete, 2);  // Images are complete even when loading suppressed.
         assert_equals(numImagesRequested, 0);
         assert_equals(numImagesLoaded, 0);
-        page.release();
     }
     
-    page.open(url, this.step_func_done (function (status) {
+    page.open(url, this.step_func_done (function pageOpened(status) {
         assert_equals(status, "success");
-        checkImageCounts ();
+        checkImageCounts();
+        page.release();
     }));
-}
-
-async_test(do_test, "load a page two images with --load-images=no");
+}, "load a page two images with --load-images=no");
