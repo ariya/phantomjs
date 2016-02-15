@@ -82,7 +82,7 @@ Several page capture projects utilizing PhantomJS:
 
  * [phridge](https://github.com/peerigon/phridge) provides an easy way to run scripts in PhantomJS and return results back to node.js.
 
- * [phantomjs-node](https://github.com/sgentle/phantomjs-node) provides PhantomJS bridge for Node.js applications.
+ * [phantomjs-node](https://github.com/amir20/phantomjs-node) provides PhantomJS bridge for Node.js applications.
 
  * [node-phantom](https://github.com/alexscheelmeyer/node-phantom) is a bridge between PhantomJS and Node.js.
 
