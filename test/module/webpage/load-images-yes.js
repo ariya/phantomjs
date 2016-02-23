@@ -35,7 +35,7 @@ async_test(function testLoadImagesYes () {
             }
         });
         assert_equals(imageCounts.numImages, 2);
-        assert_equals(imageCounts.numComplete, 2);  // Images are complete even when loading suppressed.
+        assert_equals(imageCounts.numComplete, 2);
         assert_equals(numImagesRequested, 2);
         assert_equals(numImagesLoaded, 2);
     }
