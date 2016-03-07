@@ -65,7 +65,7 @@ public:
     bool isEnabled() const;
 
 public slots:
-    void addCookie(const QVariantMap& cookie);
+    bool addCookie(const QVariantMap& cookie);
     bool addCookieFromMap(const QVariantMap& cookie, const QString& url = QString());
     bool addCookiesFromMap(const QVariantList& cookiesList, const QString& url = QString());
     QVariantList cookiesToMap(const QString& url = QString()) const;

@@ -107,13 +107,14 @@ CookieJar::~CookieJar()
 
 bool CookieJar::setCookiesFromUrl(const QList<QNetworkCookie>& cookieList, const QUrl& url)
 {
+    bool isCookieAdded = false;
     // Update cookies in memory
     if (isEnabled()) {
-        QNetworkCookieJar::setCookiesFromUrl(cookieList, url);
+        isCookieAdded = QNetworkCookieJar::setCookiesFromUrl(cookieList, url);
         save();
     }
     // No changes occurred
-    return false;
+    return isCookieAdded;
 }
 
 QList<QNetworkCookie> CookieJar::cookiesForUrl(const QUrl& url) const
@@ -127,9 +128,10 @@ QList<QNetworkCookie> CookieJar::cookiesForUrl(const QUrl& url) const
 
 bool CookieJar::addCookie(const QNetworkCookie& cookie, const QString& url)
 {
+    bool isCookieAdded = false;
     if (isEnabled() && (!url.isEmpty() || !cookie.domain().isEmpty())) {
         // Save a single cookie
-        setCookiesFromUrl(
+        isCookieAdded = setCookiesFromUrl(
             QList<QNetworkCookie>() << cookie, //< unfortunately, "setCookiesFromUrl" requires a list
             !url.isEmpty() ?
             url :           //< use given URL
@@ -140,17 +142,19 @@ bool CookieJar::addCookie(const QNetworkCookie& cookie, const QString& url)
 
         // Return "true" if the cookie was really set
         if (contains(cookie)) {
-            return true;
+            isCookieAdded = true;
         }
-        qDebug() << "CookieJar - Rejected Cookie" << cookie.toRawForm();
-        return false;
     }
-    return false;
+
+    if (!isCookieAdded) {
+        qDebug() << "CookieJar - Rejected Cookie" << cookie.toRawForm();
+    }
+    return isCookieAdded;
 }
 
-void CookieJar::addCookie(const QVariantMap& cookie)
+bool CookieJar::addCookie(const QVariantMap& cookie)
 {
-    addCookieFromMap(cookie);
+    return addCookieFromMap(cookie);
 }
 
 bool CookieJar::addCookieFromMap(const QVariantMap& cookie, const QString& url)
@@ -206,6 +210,8 @@ bool CookieJar::addCookieFromMap(const QVariantMap& cookie, const QString& url)
 
         return addCookie(newCookie, url);
     }
+
+    qDebug() << "Cookie must have name and value";
     return false;
 }
 
