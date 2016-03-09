@@ -31,6 +31,6 @@ QCommandLine - http://xf.iksaif.net/dev/qcommandline.html
 License: GNU Lesser General Public License (LGPL) version 2.1.
 Reference: http://dev.iksaif.net/projects/qcommandline/repository/revisions/master/entry/COPYING
 
-wkhtmlpdf - http://code.google.com/p/wkhtmltopdf/
+wkhtmlpdf - http://wkhtmltopdf.org
 License: GNU Lesser General Public License (LGPL)
-Reference: http://code.google.com/p/wkhtmltopdf/
+Reference: https://github.com/wkhtmltopdf/wkhtmltopdf/blob/master/LICENSE
