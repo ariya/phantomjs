@@ -369,6 +369,8 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
         reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
     }
 
+    m_ids[reply] = m_idCounter;
+
     // reparent jsNetworkRequest to make sure that it will be destroyed with QNetworkReply
     jsNetworkRequest.setParent(reply);
 
@@ -385,11 +387,15 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
         connect(nt, SIGNAL(timeout()), this, SLOT(handleTimeout()));
     }
 
-    m_ids[reply] = m_idCounter;
-
     connect(reply, SIGNAL(readyRead()), this, SLOT(handleStarted()));
     connect(reply, SIGNAL(sslErrors(const QList<QSslError>&)), this, SLOT(handleSslErrors(const QList<QSslError>&)));
     connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(handleNetworkError()));
+
+    // synchronous requests will be finished at this point
+    if (reply->isFinished()) {
+        handleFinished(reply);
+        return reply;
+    }
 
     return reply;
 }
