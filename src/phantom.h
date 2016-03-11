@@ -237,6 +237,7 @@ private:
     QList<QPointer<WebServer> > m_servers;
     Config m_config;
     CookieJar* m_defaultCookieJar;
+    qreal m_defaultDpi;
 
     friend class CustomPage;
 };

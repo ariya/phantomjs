@@ -31,25 +31,26 @@
 #include "phantom.h"
 
 #include <QApplication>
-#include <QDir>
-#include <QFileInfo>
-#include <QFile>
-#include <QtWebKitWidgets/QWebPage>
 #include <QDebug>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 #include <QMetaObject>
 #include <QMetaProperty>
+#include <QScreen>
 #include <QStandardPaths>
+#include <QtWebKitWidgets/QWebPage>
 
+#include "callback.h"
+#include "childprocess.h"
 #include "consts.h"
+#include "cookiejar.h"
+#include "repl.h"
+#include "system.h"
 #include "terminal.h"
 #include "utils.h"
 #include "webpage.h"
 #include "webserver.h"
-#include "repl.h"
-#include "system.h"
-#include "callback.h"
-#include "cookiejar.h"
-#include "childprocess.h"
 
 static Phantom* phantomInstance = NULL;
 
@@ -100,6 +101,9 @@ void Phantom::init()
     // Initialize the CookieJar
     m_defaultCookieJar = new CookieJar(m_config.cookiesFile());
 
+    // set the default DPI
+    m_defaultDpi = qRound(QApplication::primaryScreen()->logicalDotsPerInch());
+
     QWebSettings::setOfflineWebApplicationCachePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
     if (m_config.offlineStoragePath().isEmpty()) {
         QWebSettings::setOfflineStoragePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
@@ -139,6 +143,7 @@ void Phantom::init()
     m_defaultPageSettings[PAGE_SETTINGS_WEB_SECURITY_ENABLED] = QVariant::fromValue(m_config.webSecurityEnabled());
     m_defaultPageSettings[PAGE_SETTINGS_JS_CAN_OPEN_WINDOWS] = QVariant::fromValue(m_config.javascriptCanOpenWindows());
     m_defaultPageSettings[PAGE_SETTINGS_JS_CAN_CLOSE_WINDOWS] = QVariant::fromValue(m_config.javascriptCanCloseWindows());
+    m_defaultPageSettings[PAGE_SETTINGS_DPI] = QVariant::fromValue(m_defaultDpi);
     m_page->applySettings(m_defaultPageSettings);
 
     setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());

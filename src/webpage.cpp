@@ -30,47 +30,47 @@
 
 #include "webpage.h"
 
-#include <math.h>
-
 #include <QApplication>
+#include <QBuffer>
 #include <QContextMenuEvent>
-#include <QDesktopServices>
 #include <QDateTime>
+#include <QDebug>
+#include <QDesktopServices>
 #include <QDir>
 #include <QFileInfo>
+#include <QImageWriter>
 #include <QKeyEvent>
+#include <QMapIterator>
 #include <QMouseEvent>
 #include <QNetworkAccessManager>
 #include <QNetworkCookie>
+#include <QNetworkProxy>
 #include <QNetworkRequest>
 #include <QPainter>
-#include <QtPrintSupport/QPrinter>
-#include <QWebHistory>
-#include <QWebHistoryItem>
+#include <QScreen>
+#include <QUrl>
+#include <QUuid>
 #include <QWebElement>
 #include <QWebFrame>
-#include <QWebPage>
+#include <QWebHistory>
+#include <QWebHistoryItem>
 #include <QWebInspector>
-#include <QMapIterator>
-#include <QBuffer>
-#include <QDebug>
-#include <QImageWriter>
-#include <QUuid>
-#include <QUrl>
-#include <QNetworkProxy>
+#include <QWebPage>
+#include <QtPrintSupport/QPrinter>
+#include <math.h>
 
-#include "phantom.h"
-#include "networkaccessmanager.h"
-#include "utils.h"
+#include "callback.h"
 #include "config.h"
 #include "consts.h"
-#include "callback.h"
 #include "cookiejar.h"
+#include "networkaccessmanager.h"
+#include "phantom.h"
 #include "system.h"
+#include "utils.h"
 
 #ifdef Q_OS_WIN
-#include <io.h>
 #include <fcntl.h>
+#include <io.h>
 #endif
 
 // Ensure we have at least head and body.
@@ -435,6 +435,7 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     connect(m_networkAccessManager, SIGNAL(resourceTimeout(QVariant)),
             SIGNAL(resourceTimeout(QVariant)));
 
+    m_dpi = qRound(QApplication::primaryScreen()->logicalDotsPerInch());
     m_customWebPage->setViewportSize(QSize(400, 300));
 }
 
@@ -656,6 +657,10 @@ void WebPage::applySettings(const QVariantMap& def)
 
     if (def.contains(PAGE_SETTINGS_PROXY)) {
         setProxy(def[PAGE_SETTINGS_PROXY].toString());
+    }
+
+    if (def.contains(PAGE_SETTINGS_DPI)) {
+        m_dpi = def[PAGE_SETTINGS_DPI].toReal();
     }
 }
 
@@ -1132,9 +1137,7 @@ QImage WebPage::renderImage()
     return buffer;
 }
 
-#define PHANTOMJS_PDF_DPI 72            // Different defaults. OSX: 72, X11: 75(?), Windows: 96
-
-qreal stringToPointSize(const QString& string)
+qreal WebPage::stringToPointSize(const QString& string) const
 {
     static const struct {
         QString unit;
@@ -1143,8 +1146,8 @@ qreal stringToPointSize(const QString& string)
         { "mm", 72 / 25.4 },
         { "cm", 72 / 2.54 },
         { "in", 72 },
-        { "px", 72.0 / PHANTOMJS_PDF_DPI },
-        { "", 72.0 / PHANTOMJS_PDF_DPI }
+        { "px", 72.0 / m_dpi },
+        { "", 72.0 / m_dpi }
     };
     for (uint i = 0; i < sizeof(units) / sizeof(units[0]); ++i) {
         if (string.endsWith(units[i].unit)) {
@@ -1156,7 +1159,7 @@ qreal stringToPointSize(const QString& string)
     return 0;
 }
 
-qreal printMargin(const QVariantMap& map, const QString& key)
+qreal WebPage::printMargin(const QVariantMap& map, const QString& key)
 {
     const QVariant margin = map.value(key);
     if (margin.isValid() && margin.canConvert(QVariant::String)) {
@@ -1171,7 +1174,7 @@ bool WebPage::renderPdf(const QString& fileName)
     QPrinter printer;
     printer.setOutputFormat(QPrinter::PdfFormat);
     printer.setOutputFileName(fileName);
-    printer.setResolution(PHANTOMJS_PDF_DPI);
+    printer.setResolution(m_dpi);
     QVariantMap paperSize = m_paperSize;
 
     if (paperSize.isEmpty()) {
@@ -1284,7 +1287,7 @@ QString WebPage::windowName() const
     return m_mainFrame->evaluateJavaScript("window.name;").toString();
 }
 
-qreal getHeight(const QVariantMap& map, const QString& key)
+qreal WebPage::getHeight(const QVariantMap& map, const QString& key) const
 {
     QVariant footer = map.value(key);
     if (!footer.canConvert(QVariant::Map)) {
