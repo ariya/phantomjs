@@ -67,6 +67,7 @@
 #define PAGE_SETTINGS_WEB_SECURITY_ENABLED  "webSecurityEnabled"
 #define PAGE_SETTINGS_JS_CAN_OPEN_WINDOWS   "javascriptCanOpenWindows"
 #define PAGE_SETTINGS_JS_CAN_CLOSE_WINDOWS  "javascriptCanCloseWindows"
+#define PAGE_SETTINGS_DPI                   "dpi"
 
 #define DEFAULT_WEBDRIVER_CONFIG            "127.0.0.1:8910"
 
