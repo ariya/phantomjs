@@ -415,12 +415,16 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     pageSettings->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
     pageSettings->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
 
-    pageSettings->setAttribute(QWebSettings::LocalStorageEnabled, true);
+    bool isLocalStorageEnabled = phantomCfg->localStorageDefaultQuota() >= 0;
+    pageSettings->setAttribute(QWebSettings::LocalStorageEnabled, isLocalStorageEnabled);
 
-    if (phantomCfg->localStoragePath().isEmpty()) {
-        pageSettings->setLocalStoragePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
-    } else {
-        pageSettings->setLocalStoragePath(phantomCfg->localStoragePath());
+    if (isLocalStorageEnabled) {
+        if (phantomCfg->localStoragePath().isEmpty()) {
+            pageSettings->setLocalStoragePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+        }
+        else {
+            pageSettings->setLocalStoragePath(phantomCfg->localStoragePath());
+        }
     }
 
     // Custom network access manager to allow traffic monitoring.
