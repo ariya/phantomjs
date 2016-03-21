@@ -13,8 +13,16 @@ Stream objects are returned from the [fs.open]({{ site.url }}/api/fs/method/open
 
 ```javascript
 var fs = require('fs');
-var stream = fs.open('data.xml', 'r');
-// @TODO: Finish stream.writeLine example.
+var stream = fs.open('output.txt', 'w');
+
+stream.writeLine('Hello');
+stream.writeLine('world!');
+stream.close();
+
+stream = fs.open('output.txt', 'r');
+console.log(stream.read());
+stream.close();
+phantom.exit();
 ```
 
 
