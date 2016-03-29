@@ -274,7 +274,7 @@ class PhantomJSBuilder(object):
         ]
         configure.extend(self.platformQtConfigureOptions())
         if self.options.qt_config:
-            configure.extend(self.options.qt_config)
+            configure.extend(''.join(self.options.qt_config).split(" "))
 
         if self.options.debug:
             configure.append("-debug")
