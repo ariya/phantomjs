@@ -87,7 +87,7 @@ win32-msvc* {
       _CRT_SECURE_NO_WARNINGS
     # ingore warnings:
     # 4049 - locally defined symbol 'symbol' imported
-    QMAKE_LFLAGS += /ignore:4049
+    QMAKE_LFLAGS += /ignore:4049 /LARGEADDRESSAWARE
     LIBS += -lCrypt32 -lzlib
     CONFIG(static) {
         DEFINES += STATIC_BUILD
