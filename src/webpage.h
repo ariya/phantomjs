@@ -515,7 +515,8 @@ private slots:
     void handleCurrentFrameDestroyed();
 
 private:
-    QImage renderImage();
+    enum RenderMode { Content, Viewport };
+    QImage renderImage(const RenderMode mode = Content);
     bool renderPdf(QPdfWriter& pdfWriter);
     void applySettings(const QVariantMap& defaultSettings);
     QString userAgent() const;
