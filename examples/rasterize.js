@@ -1,7 +1,7 @@
 "use strict";
 var page = require('webpage').create(),
     system = require('system'),
-    address, output, size;
+    address, output, size, pageWidth, pageHeight;
 
 if (system.args.length < 3 || system.args.length > 5) {
     console.log('Usage: rasterize.js URL filename [paperwidth*paperheight|paperformat] [zoom]');
@@ -28,7 +28,7 @@ if (system.args.length < 3 || system.args.length > 5) {
             console.log("size:", system.args[3]);
             pageWidth = parseInt(system.args[3], 10);
             pageHeight = parseInt(pageWidth * 3/4, 10); // it's as good an assumption as any
-            console.log ("pageHeight:",pageHeight);
+            console.log ("pageHeight:", pageHeight);
             page.viewportSize = { width: pageWidth, height: pageHeight };
         }
     }
