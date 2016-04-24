@@ -82,6 +82,7 @@
 
 #define STDOUT_FILENAME "/dev/stdout"
 #define STDERR_FILENAME "/dev/stderr"
+#define MIN_BUFFER_SIZE 4096
 
 
 /**
@@ -249,6 +250,11 @@ protected:
         return newPage->m_customWebPage;
     }
 
+    void fileDownloadRequested(const QString& url, const QVariantMap& responseData)
+    {
+        emit m_webPage->fileDownloadRequested(QUrl(url), responseData);
+    }
+
 private:
     WebPage* m_webPage;
     QString m_userAgent;
@@ -277,6 +283,7 @@ public:
         , m_jsConfirmCallback(NULL)
         , m_jsPromptCallback(NULL)
         , m_jsInterruptCallback(NULL)
+        , m_fileDownloadCallback(NULL)
     {
     }
 
@@ -330,6 +337,17 @@ public:
         return m_jsInterruptCallback;
     }
 
+    QObject *getFileDownloadCallback()
+    {
+        qDebug() << "WebpageCallbacks - getFileDownloadCallback";
+
+        if (!m_fileDownloadCallback) {
+            m_fileDownloadCallback = new Callback(this);
+        }
+
+        return m_fileDownloadCallback;
+    }
+
 public slots:
     QVariant call(const QVariantList& arguments)
     {
@@ -345,6 +363,7 @@ private:
     Callback* m_jsConfirmCallback;
     Callback* m_jsPromptCallback;
     Callback* m_jsInterruptCallback;
+    Callback* m_fileDownloadCallback;
 
     friend class WebPage;
 };
@@ -396,6 +415,7 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     connect(m_customWebPage, SIGNAL(windowCloseRequested()), this, SLOT(close()), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(loadProgress(int)), this, SLOT(updateLoadingProgress(int)));
     connect(m_customWebPage, SIGNAL(repaintRequested(QRect)), this, SLOT(handleRepaintRequested(QRect)), Qt::QueuedConnection);
+    connect(m_customWebPage, SIGNAL(unsupportedContent(QNetworkReply*)), this, SLOT(downloadRequested(QNetworkReply*)));
 
 
     // Start with transparent background.
@@ -410,6 +430,7 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     m_mainFrame->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_mainFrame->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
+    m_customWebPage->setForwardUnsupportedContent(true);
     QWebSettings* pageSettings = m_customWebPage->settings();
     pageSettings->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
     pageSettings->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
@@ -829,6 +850,18 @@ void WebPage::javascriptInterrupt()
             m_shouldInterruptJs = res.toBool();
         }
     }
+}
+
+QString WebPage::fileDownloadPrompt(const QUrl& url, const QVariantMap& responseData)
+{
+    if (m_callbacks->m_fileDownloadCallback) {
+        QVariant res = m_callbacks->m_fileDownloadCallback->call(QVariantList() << url << responseData);
+        if (!res.isNull() && res.canConvert<QString>()) {
+            return res.toString();
+        }
+    }
+
+    return "";
 }
 
 void WebPage::finish(bool ok)
@@ -1417,6 +1450,15 @@ QObject* WebPage::_getJsInterruptCallback()
     return m_callbacks->getJsInterruptCallback();
 }
 
+QObject *WebPage::_getFileDownloadCallback()
+{
+    if (!m_callbacks) {
+        m_callbacks = new WebpageCallbacks(this);
+    }
+
+    return m_callbacks->getFileDownloadCallback();
+}
+
 void WebPage::sendEvent(const QString& type, const QVariant& arg1, const QVariant& arg2, const QString& mouseButton, const QVariant& modifierArg)
 {
     Qt::KeyboardModifiers keyboardModifiers(modifierArg.toInt());
@@ -1777,6 +1819,78 @@ void WebPage::stopJavaScript()
 void WebPage::clearMemoryCache()
 {
     QWebSettings::clearMemoryCaches();
+}
+
+void WebPage::downloadRequested(QNetworkReply* networkReply)
+{
+    QUrl downloadUrl = networkReply->url();
+    qDebug() << "WebPage - downloadRequested:" << downloadUrl;
+
+    QVariant header = networkReply->header(QNetworkRequest::ContentLengthHeader);
+    bool ok;
+    int size = header.toInt(&ok);
+    if (ok && size == 0)
+        return;
+
+    QVariantMap responseData;
+    responseData["filename"] = QFileInfo(downloadUrl.toString()).fileName();
+    responseData["size"] = size;
+    responseData["contentType"] = networkReply->header(QNetworkRequest::ContentTypeHeader).toString();
+
+    QString filename = fileDownloadPrompt(downloadUrl, responseData);
+
+    if (filename.isEmpty()) {
+        qDebug() << "WebPage - downloadRequested. File download aborted (filename is empty)";
+        networkReply->abort();
+    } else {
+        QString downloadingFilename = QFileInfo(downloadUrl.toString()).fileName();
+        QFileInfo fileInfo(filename);
+
+        if (fileInfo.isRelative()) {
+            fileInfo.makeAbsolute();
+        }
+
+        if (fileInfo.isDir()) {
+            // check if the target directory is writable
+            if (!fileInfo.isWritable()) {
+                emit fileDownloadError("Requested path is not writable");
+                networkReply->abort();
+                return;
+            }
+
+            m_downloadingFiles[networkReply] = fileInfo.path() + downloadingFilename;
+        } else {
+            m_downloadingFiles[networkReply]  = fileInfo.filePath();
+        }
+
+        connect(networkReply, SIGNAL(finished()), this, SLOT(downloadFinished()));
+    }
+}
+
+void WebPage::downloadFinished()
+{
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+
+    if (reply && reply->error() == QNetworkReply::NoError && m_downloadingFiles.contains(reply)) {
+        qDebug() << "WebPage - downloadFinished";
+        QFile file(m_downloadingFiles[reply]);
+
+        if (!file.open(QIODevice::WriteOnly)) {
+            emit fileDownloadError("Error opening output file: " + file.errorString());
+        } else {
+            qint64 bufferSize = qMin<qint64>(MIN_BUFFER_SIZE, reply->size());
+            QByteArray buffer;
+            while (!(buffer = reply->read(bufferSize)).isEmpty()) {
+                file.write(buffer);
+            }
+            file.close();
+        }
+
+        m_downloadingFiles.remove(reply);
+
+        // We can safely mark this QNetworkReply for deleting later since Webkit will not handle it
+        reply->deleteLater();
+    }
 }
 
 #include "webpage.moc"
