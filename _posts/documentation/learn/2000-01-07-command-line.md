@@ -23,6 +23,7 @@ Supported command-line options are:
 
  * `--help` or `-h` lists all possible command-line options. _Halts immediately, will not run a script passed as argument._
  * `--version` or `-v` prints out the version of PhantomJS. _Halts immediately, will not run a script passed as argument._
+ * `--debug=[true|false]` prints additional warning and debug message, default is `false`. Also accepted: `[yes|no]`.
  * `--cookies-file=/path/to/cookies.txt` specifies the file name to store the persistent Cookies.
  * `--disk-cache=[true|false]` enables disk cache (at desktop services cache storage location, default is `false`). Also accepted: `[yes|no]`.
  * `--ignore-ssl-errors=[true|false]` ignores SSL errors, such as expired or self-signed certificate errors (default is `false`). Also accepted: `[yes|no]`.
