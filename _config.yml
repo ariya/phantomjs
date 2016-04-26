@@ -1,8 +1,10 @@
 name: PhantomJS
-markdown: redcarpet
-redcarpet:
-  extensions: ["tables"]
-pygments: true
+highlighter: rouge
+markdown: kramdown
+kramdown:
+  input: GFM
+  auto_ids: true
+  syntax_highlighter: rouge
 
 # root URL for editing pages on GitHub (remember trailing slash)
 githubEdit: https://github.com/ariya/phantomjs/edit/gh-pages/
