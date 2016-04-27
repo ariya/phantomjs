@@ -75,5 +75,6 @@ There are some keys that do not translate directly:
  * --local-storage-quota => offlineStorageDefaultQuota
  * --local-to-remote-url-access => localToRemoteUrlAccessEnabled
  * --web-security => webSecurityEnabled
+ * --debug => printDebugMessages
 
 ```
