@@ -56,7 +56,6 @@
 #include <QWebHistoryItem>
 #include <QWebInspector>
 #include <QWebPage>
-#include <QtPrintSupport/QPrinter>
 #include <math.h>
 
 #include "callback.h"
@@ -1011,7 +1010,8 @@ bool WebPage::render(const QString& fileName, const QVariantMap& option)
 
     bool retval = true;
     if (format == "pdf") {
-        retval = renderPdf(outFileName);
+        QPdfWriter pdfWriter(fileName);
+        retval = renderPdf(pdfWriter);
     } else {
         QImage rawPageRendering = renderImage();
 
@@ -1065,23 +1065,31 @@ QString WebPage::renderBase64(const QByteArray& format)
 {
     QByteArray nformat = format.toLower();
 
-    // Check if the given format is supported
-    if (QImageWriter::supportedImageFormats().contains(nformat)) {
-        QImage rawPageRendering = renderImage();
+    if (format != "pdf" && !QImageWriter::supportedImageFormats().contains(nformat)) {
+        // Return an empty string in case an unsupported format was provided
+        return "";
+    }
 
-        // Prepare buffer for writing
-        QByteArray bytes;
-        QBuffer buffer(&bytes);
-        buffer.open(QIODevice::WriteOnly);
+    // Prepare buffer for writing
+    QByteArray bytes;
+    QBuffer buffer(&bytes);
+    buffer.open(QIODevice::WriteOnly);
+
+    if (format == "pdf") {
+        QPdfWriter pdfWriter(&buffer);
+
+        if (!renderPdf(pdfWriter)) {
+            // Return an empty string if pdf render fails
+            return "";
+        }
+    } else {
+        QImage rawPageRendering = renderImage();
 
         // Writing image to the buffer, using PNG encoding
         rawPageRendering.save(&buffer, nformat);
-
-        return bytes.toBase64();
     }
 
-    // Return an empty string in case an unsupported format was provided
-    return "";
+    return bytes.toBase64();
 }
 
 QImage WebPage::renderImage()
@@ -1173,12 +1181,9 @@ qreal WebPage::printMargin(const QVariantMap& map, const QString& key)
     }
 }
 
-bool WebPage::renderPdf(const QString& fileName)
+bool WebPage::renderPdf(QPdfWriter& pdfWriter)
 {
-    QPrinter printer;
-    printer.setOutputFormat(QPrinter::PdfFormat);
-    printer.setOutputFileName(fileName);
-    printer.setResolution(m_dpi);
+    pdfWriter.setResolution(m_dpi);
     QVariantMap paperSize = m_paperSize;
 
     if (paperSize.isEmpty()) {
@@ -1191,51 +1196,51 @@ bool WebPage::renderPdf(const QString& fileName)
     if (paperSize.contains("width") && paperSize.contains("height")) {
         const QSizeF sizePt(ceil(stringToPointSize(paperSize.value("width").toString())),
                             ceil(stringToPointSize(paperSize.value("height").toString())));
-        printer.setPaperSize(sizePt, QPrinter::Point);
+        pdfWriter.setPageSize(QPageSize(sizePt, QPageSize::Point));
     } else if (paperSize.contains("format")) {
-        const QPrinter::Orientation orientation = paperSize.contains("orientation")
+        const QPageLayout::Orientation orientation = paperSize.contains("orientation")
                 && paperSize.value("orientation").toString().compare("landscape", Qt::CaseInsensitive) == 0 ?
-                QPrinter::Landscape : QPrinter::Portrait;
-        printer.setOrientation(orientation);
+                QPageLayout::Portrait : QPageLayout::Landscape;
+        pdfWriter.setPageOrientation(orientation);
         static const struct {
             QString format;
-            QPrinter::PaperSize paperSize;
+            QPageSize::PageSizeId paperSize;
         } formats[] = {
-            { "A0", QPrinter::A0 },
-            { "A1", QPrinter::A1 },
-            { "A2", QPrinter::A2 },
-            { "A3", QPrinter::A3 },
-            { "A4", QPrinter::A4 },
-            { "A5", QPrinter::A5 },
-            { "A6", QPrinter::A6 },
-            { "A7", QPrinter::A7 },
-            { "A8", QPrinter::A8 },
-            { "A9", QPrinter::A9 },
-            { "B0", QPrinter::B0 },
-            { "B1", QPrinter::B1 },
-            { "B2", QPrinter::B2 },
-            { "B3", QPrinter::B3 },
-            { "B4", QPrinter::B4 },
-            { "B5", QPrinter::B5 },
-            { "B6", QPrinter::B6 },
-            { "B7", QPrinter::B7 },
-            { "B8", QPrinter::B8 },
-            { "B9", QPrinter::B9 },
-            { "B10", QPrinter::B10 },
-            { "C5E", QPrinter::C5E },
-            { "Comm10E", QPrinter::Comm10E },
-            { "DLE", QPrinter::DLE },
-            { "Executive", QPrinter::Executive },
-            { "Folio", QPrinter::Folio },
-            { "Ledger", QPrinter::Ledger },
-            { "Legal", QPrinter::Legal },
-            { "Letter", QPrinter::Letter },
-            { "Tabloid", QPrinter::Tabloid }
+            { "A0", QPageSize::A0 },
+            { "A1", QPageSize::A1 },
+            { "A2", QPageSize::A2 },
+            { "A3", QPageSize::A3 },
+            { "A4", QPageSize::A4 },
+            { "A5", QPageSize::A5 },
+            { "A6", QPageSize::A6 },
+            { "A7", QPageSize::A7 },
+            { "A8", QPageSize::A8 },
+            { "A9", QPageSize::A9 },
+            { "B0", QPageSize::B0 },
+            { "B1", QPageSize::B1 },
+            { "B2", QPageSize::B2 },
+            { "B3", QPageSize::B3 },
+            { "B4", QPageSize::B4 },
+            { "B5", QPageSize::B5 },
+            { "B6", QPageSize::B6 },
+            { "B7", QPageSize::B7 },
+            { "B8", QPageSize::B8 },
+            { "B9", QPageSize::B9 },
+            { "B10", QPageSize::B10 },
+            { "C5E", QPageSize::C5E },
+            { "Comm10E", QPageSize::Comm10E },
+            { "DLE", QPageSize::DLE },
+            { "Executive", QPageSize::Executive },
+            { "Folio", QPageSize::Folio },
+            { "Ledger", QPageSize::Ledger },
+            { "Legal", QPageSize::Legal },
+            { "Letter", QPageSize::Letter },
+            { "Tabloid", QPageSize::Tabloid }
         };
-        printer.setPaperSize(QPrinter::A4); // Fallback
+        pdfWriter.setPageSize(QPageSize(QPageSize::A4)); // Fallback
         for (uint i = 0; i < sizeof(formats) / sizeof(formats[0]); ++i) {
             if (paperSize.value("format").toString().compare(formats[i].format, Qt::CaseInsensitive) == 0) {
-                printer.setPaperSize(formats[i].paperSize);
+                pdfWriter.setPageSize(QPageSize(formats[i].paperSize));
                 break;
             }
         }
@@ -1270,9 +1275,12 @@ bool WebPage::renderPdf(const QString& fileName)
         }
     }
 
-    printer.setPageMargins(marginLeft, marginTop, marginRight, marginBottom, QPrinter::Point);
+    pdfWriter.setPageMargins(QMarginsF(marginLeft, marginTop, marginRight, marginBottom), QPageLayout::Point);
 
-    m_mainFrame->print(&printer, this);
+    QPainter painter(&pdfWriter);
+    m_mainFrame->render(&painter);
+    painter.end();
+
     return true;
 }
 
