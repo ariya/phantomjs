@@ -1,0 +1,15 @@
+language: cpp
+
+script:
+  # -j 2 required because travis gives the wrong cpu count
+  - ./build.py -c -j 2 --condense-output
+  - ./test/run-tests.py
+
+addons:
+  apt:
+    packages:
+      - gperf
+
+os:
+  - linux
+  - osx

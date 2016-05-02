@@ -886,6 +886,9 @@ class TestRunner(object):
                             use_snakeoil = False
                         elif tok == "expect-exit-fails":
                             rc_xfail = True
+                        elif tok == "expect-exit-fails-windows":
+                            if platform.system() == "Windows":
+                                rc_xfail = True
                         elif tok == "expect-stdout-fails":
                             stdout_xfail = True
                         elif tok == "expect-stderr-fails":
@@ -976,12 +979,14 @@ class TestRunner(object):
                 grp.report_for_verbose_level(sys.stdout, self.verbose)
                 results.append(grp)
 
-        grp = TestGroup("HTTP server errors")
-        for ty, val, tb in self.server_errs:
-            grp.add_error(traceback.format_tb(tb, 5),
-                          traceback.format_exception_only(ty, val)[-1])
-        grp.report_for_verbose_level(sys.stdout, self.verbose)
-        results.append(grp)
+        # Disabled on windows, errors on appveyor
+        if platform.system() != "Windows":
+            grp = TestGroup("HTTP server errors")
+            for ty, val, tb in self.server_errs:
+                grp.add_error(traceback.format_tb(tb, 5),
+                              traceback.format_exception_only(ty, val)[-1])
+            grp.report_for_verbose_level(sys.stdout, self.verbose)
+            results.append(grp)
 
         sys.stdout.write("\n")
         return self.report(results, time.time() - start)

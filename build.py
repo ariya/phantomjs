@@ -131,7 +131,22 @@ class PhantomJSBuilder(object):
         print("Executing in %s: %s" % (workingDirectory, " ".join(command)))
         if self.options.dry_run:
             return 0
-        process = subprocess.Popen(command, stdout=sys.stdout, stderr=sys.stderr, cwd=workingDirectory)
+
+        stdout = sys.stdout
+        if self.options.condense_output:
+            stdout = subprocess.PIPE
+
+        process = subprocess.Popen(command, stdout=stdout, stderr=sys.stderr, cwd=workingDirectory)
+        if self.options.condense_output:
+            while True:
+                line = process.stdout.readline()
+                if line != '':
+                    # Show a single . per line of stdout
+                    sys.stdout.write('.')
+                    sys.stdout.flush()
+                else:
+                    print ''
+                    break
         process.wait()
         return process.returncode
 
@@ -411,6 +426,8 @@ def parseArguments():
     advanced.add_argument("--skip-git", action="store_true",
                             help="Skip all actions that require Git.  For use when building from "
                                  "a tarball release.")
+    advanced.add_argument("--condense-output", action="store_true",
+                            help="Condense build output by replacing stdout lines with '.' ")
     options = parser.parse_args()
     if options.debug and options.release:
         raise RuntimeError("Cannot build with both debug and release mode enabled.")

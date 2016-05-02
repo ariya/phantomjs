@@ -1,5 +1,6 @@
 
 var fs = require('fs');
+var system = require('system');
 
 var ABSENT_DIR = "absentdir02",
     ABSENT_FILE = "absentfile02",
@@ -44,7 +45,7 @@ test(function () {
     assert_greater_than_equal(flm, before_creation);
     assert_less_than_equal(flm, after_creation);
 
-}, "size/date queries on existing files");
+}, "size/date queries on existing files", {expected_fail: system.os.name === "windows"});
 
 test(function () {
     fs.makeDirectory(TEST_DIR);

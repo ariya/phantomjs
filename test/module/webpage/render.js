@@ -1,7 +1,8 @@
 var fs      = require("fs");
 var system  = require("system");
 var webpage = require("webpage");
-var renders = require("./renders");
+// Windows needs absolute paths
+var renders = require(phantom.libraryPath + "/renders");
 
 function clean_pdf(data) {
     // FIXME: This is not nearly enough normalization.
@@ -57,9 +58,16 @@ function render_test(format, option) {
     var opt    = arr[2];
     var props  = {};
 
-    // All tests fail on Linux.  All tests except JPG fail on Mac.
-    // Currently unknown which tests fail on Windows.
-    if (format !== "jpg" || system.os.name !== "mac")
+    // All tests fail on windows
+    if (system.os.name === "windows")
+        props.expected_fail = true;
+
+    // Only jpg passes on linux
+    if (format !== "jpg" && system.os.name === "linux")
+        props.expected_fail = true;
+
+    // Only jpg passes on mac
+    if (format !== "jpg" && system.os.name === "mac")
         props.expected_fail = true;
 
     async_test(function () { render_test.call(this, format, opt); },

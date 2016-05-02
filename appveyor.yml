@@ -1,0 +1,11 @@
+version: 1.0.{build}
+image: Visual Studio 2013
+install:
+- cmd: '"C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\Tools\VsDevCmd.bat"'
+build_script:
+- cmd: >-
+    SET PATH=%CD%\src\qt\3rdparty\gnuwin32\bin;%PATH%
+
+    python build.py -c --condense-output
+test_script:
+- cmd: python test\run-tests.py
