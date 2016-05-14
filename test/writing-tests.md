@@ -543,7 +543,7 @@ output-expectations test:
   expected to hit the backstop timeout.)
 
 * `expect-stdout:` All subsequent tokens on the line are concatenated,
-  with spaces in between, and a newline is appeneded.  The PhantomJS
+  with spaces in between, and a newline is appended.  The PhantomJS
   process is expected to emit that text, verbatim, on its standard
   output.  If used more than once, that produces multiple lines of
   expected output.
