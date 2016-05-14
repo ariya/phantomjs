@@ -58,7 +58,7 @@ var page = require('webpage').create();
 ```
 What can be extracted and executed on it?
 
-####Attributes
+#### Attributes
 * page.canGoForward -> boolean
 
 If window.history.forward would be a valid action
