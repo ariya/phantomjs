@@ -91,24 +91,27 @@ bool printDebugMessages = false;
 void messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
     Q_UNUSED(context);
-    QDateTime now = QDateTime::currentDateTime();
+    QString now = QDateTime::currentDateTime().toString(Qt::ISODate);
 
     switch (type) {
+    case QtInfoMsg:
+        fprintf(stderr, "%s [INFO] %s\n", qPrintable(now), qPrintable(msg));
+        break;
     case QtDebugMsg:
         if (printDebugMessages) {
-            fprintf(stderr, "%s [DEBUG] %s\n", qPrintable(now.toString(Qt::ISODate)), qPrintable(msg));
+            fprintf(stderr, "%s [DEBUG] %s\n", qPrintable(now), qPrintable(msg));
         }
         break;
     case QtWarningMsg:
         if (printDebugMessages) {
-            fprintf(stderr, "%s [WARNING] %s\n", qPrintable(now.toString(Qt::ISODate)), qPrintable(msg));
+            fprintf(stderr, "%s [WARNING] %s\n", qPrintable(now), qPrintable(msg));
         }
         break;
     case QtCriticalMsg:
-        fprintf(stderr, "%s [CRITICAL] %s\n", qPrintable(now.toString(Qt::ISODate)), qPrintable(msg));
+        fprintf(stderr, "%s [CRITICAL] %s\n", qPrintable(now), qPrintable(msg));
         break;
     case QtFatalMsg:
-        fprintf(stderr, "%s [FATAL] %s\n", qPrintable(now.toString(Qt::ISODate)), qPrintable(msg));
+        fprintf(stderr, "%s [FATAL] %s\n", qPrintable(now), qPrintable(msg));
         abort();
     }
 }
