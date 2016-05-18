@@ -1,6 +1,5 @@
-
-if(!equals(QT_MAJOR_VERSION, 5)|!equals(QT_MINOR_VERSION, 5)) {
-    error("This program can only be compiled with Qt 5.5.x.")
+if(!equals(QT_MAJOR_VERSION, 5)|!equals(QT_MINOR_VERSION, 6)) {
+    error("This program can only be compiled with Qt 5.6.x.")
 }
 
 TEMPLATE = app
@@ -19,51 +18,52 @@ win32 {
      qt/qtwebkit/Source/WebCore/generated/InspectorBackendCommands.qrc
 }
 
-HEADERS += \
-    phantom.h \
+HEADERS = \
     callback.h \
-    webpage.h \
-    webserver.h \
-    consts.h \
-    utils.h \
-    networkaccessmanager.h \
-    cookiejar.h \
-    filesystem.h \
-    system.h \
-    env.h \
-    terminal.h \
-    encoding.h \
-    config.h \
     childprocess.h \
+    config.h \
+    consts.h \
+    cookiejar.h \
+    crashdump.h \
+    encoding.h \
+    env.h \
+    filesystem.h \
+    networkaccessmanager.h \
+    phantom.h \
     repl.h \
-    crashdump.h
+    system.h \
+    terminal.h \
+    utils.h \
+    webpage.h \
+    webserver.h
 
-SOURCES += phantom.cpp \
+SOURCES = \
     callback.cpp \
-    webpage.cpp \
-    webserver.cpp \
-    main.cpp \
-    utils.cpp \
-    networkaccessmanager.cpp \
-    cookiejar.cpp \
-    filesystem.cpp \
-    system.cpp \
-    env.cpp \
-    terminal.cpp \
-    encoding.cpp \
-    config.cpp \
     childprocess.cpp \
+    config.cpp \
+    cookiejar.cpp \
+    crashdump.cpp \
+    encoding.cpp \
+    env.cpp \
+    filesystem.cpp \
+    main.cpp \
+    networkaccessmanager.cpp \
+    phantom.cpp \
     repl.cpp \
-    crashdump.cpp
+    system.cpp \
+    terminal.cpp \
+    utils.cpp \
+    webpage.cpp \
+    webserver.cpp
 
-OTHER_FILES += \
+OTHER_FILES = \
     bootstrap.js \
     configurator.js \
+    modules/child_process.js \
+    modules/cookiejar.js \
     modules/fs.js \
     modules/webpage.js \
     modules/webserver.js \
-    modules/child_process.js \
-    modules/cookiejar.js \
     repl.js
 
 include(mongoose/mongoose.pri)
@@ -83,8 +83,8 @@ mac {
 
 win32-msvc* {
     DEFINES += NOMINMAX \
-      WIN32_LEAN_AND_MEAN \
-      _CRT_SECURE_NO_WARNINGS
+        WIN32_LEAN_AND_MEAN \
+        _CRT_SECURE_NO_WARNINGS
     # ingore warnings:
     # 4049 - locally defined symbol 'symbol' imported
     QMAKE_LFLAGS += /ignore:4049 /LARGEADDRESSAWARE
