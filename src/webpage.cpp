@@ -1212,7 +1212,7 @@ bool WebPage::renderPdf(QPdfWriter& pdfWriter)
     } else if (paperSize.contains("format")) {
         const QPageLayout::Orientation orientation = paperSize.contains("orientation")
                 && paperSize.value("orientation").toString().compare("landscape", Qt::CaseInsensitive) == 0 ?
-                QPageLayout::Portrait : QPageLayout::Landscape;
+                QPageLayout::Landscape : QPageLayout::Portrait;
         pdfWriter.setPageOrientation(orientation);
         static const struct {
             QString format;
