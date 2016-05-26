@@ -226,8 +226,15 @@ class PhantomJSBuilder(object):
                   if not openssl_found:
                     raise RuntimeError("Could not find OpenSSL")
                 else:
-                  # TODO: Implement
-                  raise RuntimeError("Not implemented")
+                  if os.path.exists(openssl + "/include/openssl/opensslv.h"):
+                    openssl_found = True
+                    openssl_include = "-I" + openssl + "/include"
+                    openssl_lib = "-L" + openssl + "/lib"
+                    platformOptions.extend([openssl_include, openssl_lib])
+                    print("Using OpenSSL at %s" % openssl)
+
+                  if not openssl_found:
+                    raise RuntimeError("No OpenSSL specified: OPENSSL environment variable not found")
             else:
                 # options specific to other Unixes, like Linux, BSD, ...
                 platformOptions.extend([
