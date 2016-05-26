@@ -51,11 +51,15 @@ phantom.__defineErrorSignalHandler__ = function(obj, page, handlers) {
 
             if (typeof f === 'function') {
                 var connector = function (message, lineNumber, source, stack) {
-                    var revisedStack = JSON.parse(stack).map(function (item) {
-                        return { file: item.url, line: item.lineNumber, function: item.functionName };
-                    });
-                    if (revisedStack.length == 0)
+                    if (stack.length > 0) {
+                        var revisedStack = JSON.parse(stack).map(function (item) {
+                            return { file: item.url, line: item.lineNumber, function: item.functionName };
+                        });
+                        if (revisedStack.length == 0)
+                            revisedStack = [{ file: source, line: lineNumber }];
+                    } else {
                         revisedStack = [{ file: source, line: lineNumber }];
+                    }
 
                     f(message, revisedStack);
                 };
