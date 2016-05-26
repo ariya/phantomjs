@@ -1,6 +1,3 @@
-/*jslint sloppy: true, nomen: true */
-/*global exports:true */
-
 /*
   This file is part of the PhantomJS project from Ofi Labs.
 
@@ -38,11 +35,11 @@ var NOP = function () {}
 exports.spawn = function (cmd, args, opts) {
   var ctx = newContext()
 
-  if (null == opts) {
+  if (opts == null) {
     opts = {}
   }
 
-  opts.encoding = opts.encoding || "utf8"
+  opts.encoding = opts.encoding || 'utf8'
   ctx._setEncoding(opts.encoding)
 
   ctx._start(cmd, args)
@@ -54,11 +51,11 @@ exports.spawn = function (cmd, args, opts) {
  * exec(command, [options], callback)
  */
 exports.exec = function (cmd, opts, cb) {
-  if (null == cb) {
+  if (cb == null) {
     cb = NOP
   }
 
-  return cb(new Error("NotYetImplemented"))
+  return cb(new Error('NotYetImplemented'))
 }
 
 /**
@@ -67,28 +64,28 @@ exports.exec = function (cmd, opts, cb) {
 exports.execFile = function (cmd, args, opts, cb) {
   var ctx = newContext()
 
-  if (null == cb) {
+  if (cb == null) {
     cb = NOP
   }
 
-  if (null == opts) {
+  if (opts == null) {
     opts = {}
   }
 
-  opts.encoding = opts.encoding || "utf8"
+  opts.encoding = opts.encoding || 'utf8'
   ctx._setEncoding(opts.encoding)
 
-  var stdout = ""
-  ctx.stdout.on("data", function (chunk) {
+  var stdout = ''
+  ctx.stdout.on('data', function (chunk) {
     stdout += chunk
   })
 
-  var stderr = ""
-  ctx.stderr.on("data", function (chunk) {
+  var stderr = ''
+  ctx.stderr.on('data', function (chunk) {
     stderr += chunk
   })
 
-  ctx.on("exit", function (code) {
+  ctx.on('exit', function (code) {
     return cb(null, stdout, stderr)
   })
 
@@ -101,13 +98,12 @@ exports.execFile = function (cmd, args, opts, cb) {
  * fork(modulePath, [args], [options])
  */
 exports.fork = function (modulePath, args, opts) {
-  throw new Error("NotYetImplemented")
+  throw new Error('NotYetImplemented')
 }
-
 
 // private
 
-function newContext() {
+function newContext () {
   var ctx = exports._createChildProcessContext()
 
   // TODO: "Buffer" the signals and redispatch them?
@@ -116,7 +112,7 @@ function newContext() {
     var handler
 
     switch (evt) {
-      case "exit":
+      case 'exit':
         handler = ctx[evt]
         break
       default:
@@ -129,15 +125,15 @@ function newContext() {
     }
   }
 
-  ctx.stdout = new FakeReadableStream("stdout")
-  ctx.stderr = new FakeReadableStream("stderr")
+  ctx.stdout = new FakeReadableStream('stdout')
+  ctx.stderr = new FakeReadableStream('stderr')
 
   // Emulates `Readable Stream`
-  function FakeReadableStream(streamName) {
+  function FakeReadableStream (streamName) {
     this.on = function (evt, cb) {
       switch (evt) {
         case 'data':
-          ctx[streamName + "Data"].connect(cb)
+          ctx[streamName + 'Data'].connect(cb)
           break
         default:
           break
@@ -148,15 +144,15 @@ function newContext() {
   ctx.stdin = new FakeWritableStream()
 
   // Emulates `Writable Stream`
-  function FakeWritableStream() {
+  function FakeWritableStream () {
     /**
      * @param chunk String Data to write.
      * @param encoding String Optional.  Defaults to "utf8".
      * @returns Number Bytes written; `-1` for failure.
      */
-    this.write = function write(chunk, encoding) {
-      if ("string" !== typeof encoding) {
-        encoding = "utf8"
+    this.write = function write (chunk, encoding) {
+      if (typeof encoding !== 'string') {
+        encoding = 'utf8'
       }
 
       var bytesWritten = ctx._write(chunk, encoding)
@@ -164,30 +160,18 @@ function newContext() {
       return bytesWritten
     }
 
-    this.close = function close() {
-        ctx._close();
+    this.close = function close () {
+      ctx._close()
     }
 
     this.end = function () {
-        ctx._close();
+      ctx._close()
     }
   }
 
   return ctx
 }
 
-function delayCallback() {
-  var args = 0 < arguments.length ? [].slice.call(arguments, 0) : []
-  var fn = args.shift()
-  if (!isFunc(fn)) {
-    return
-  }
-  var that = this
-  setTimeout(function () {
-    fn.apply(that, args)
-  }, 0)
-}
-
-function isFunction(o) {
+function isFunction (o) {
   return typeof o === 'function'
 }

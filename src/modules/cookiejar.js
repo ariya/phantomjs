@@ -1,5 +1,4 @@
-/*jslint sloppy: true, nomen: true */
-/*global exports:true */
+/* global phantom */
 
 /*
   This file is part of the PhantomJS project from Ofi Labs.
@@ -31,8 +30,8 @@
 */
 
 /* Only there for backwards compatibility. */
-function decorateCookieJar(jar) {
-    return jar;
+function decorateCookieJar (jar) {
+  return jar
 }
 
 /* Creates and decorates a new cookie jar.
@@ -40,11 +39,11 @@ function decorateCookieJar(jar) {
  * path is not mandatory.
  */
 exports.create = function (path) {
-    if (arguments.length < 1) {
-        path = "";
-    }
-    return decorateCookieJar(phantom.createCookieJar(path));
-};
+  if (arguments.length < 1) {
+    path = ''
+  }
+  return decorateCookieJar(phantom.createCookieJar(path))
+}
 
 /* Exports the decorateCookieJar function */
-exports.decorate = decorateCookieJar;
+exports.decorate = decorateCookieJar
