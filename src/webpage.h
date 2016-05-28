@@ -33,8 +33,8 @@
 
 #include <QMap>
 #include <QVariantMap>
-#include <QtWebKitWidgets/QWebPage>
-#include <QtWebKitWidgets/QWebFrame>
+#include <QWebPage>
+#include <QWebFrame>
 #include <QPdfWriter>
 
 #include "cookiejar.h"
@@ -46,7 +46,7 @@ class NetworkAccessManager;
 class QWebInspector;
 class Phantom;
 
-class WebPage : public QObject, public QWebFrame::PrintCallback
+class WebPage : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title)

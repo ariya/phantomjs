@@ -34,8 +34,8 @@
 
 #include <QDir>
 #include <QFileInfo>
-#include <QtWebKitWidgets/QWebPage>
-#include <QtWebKitWidgets/QWebFrame>
+#include <QWebPage>
+#include <QWebFrame>
 #include <QNetworkProxy>
 
 #include "terminal.h"
@@ -177,7 +177,7 @@ void Config::loadJsonFile(const QString& filePath)
     // Add this object to the global scope
     webPage.mainFrame()->addToJavaScriptWindowObject("config", this);
     // Apply the JSON config settings to this very object
-    webPage.mainFrame()->evaluateJavaScript(configurator.arg(jsonConfig), QString());
+    webPage.mainFrame()->evaluateJavaScript(configurator.arg(jsonConfig));
 }
 
 QString Config::helpText() const
