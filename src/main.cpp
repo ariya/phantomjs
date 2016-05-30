@@ -35,7 +35,7 @@
 #include <QApplication>
 #include <QSslSocket>
 #include <QIcon>
-#include <QWebSettings>
+#include <QtWebKit/QWebSettings>
 
 #include <exception>
 #include <stdio.h>
