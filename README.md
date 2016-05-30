@@ -6,7 +6,9 @@ The latest [stable release](http://phantomjs.org/release-1.9.html) is version 1.
 
 **Note**: Please **do not** create a GitHub pull request **without** reading the [Contribution Guide](https://github.com/ariya/phantomjs/blob/master/CONTRIBUTING.md) first. Failure to do so may result in the rejection of the pull request.
 
+
 ## Use Cases
+
 
 - **Headless web testing**. Lightning-fast testing without the browser is now possible! Various [test frameworks](http://phantomjs.org/headless-testing.html) such as Jasmine, Capybara, QUnit, Mocha, WebDriver, YUI Test, BusterJS, FuncUnit, Robot Framework, and many others are supported.
 - **Page automation**. [Access and manipulate](http://phantomjs.org/page-automation.html) web pages with the standard DOM API, or with usual libraries like jQuery.
@@ -35,11 +37,14 @@ and many others [related projects](http://phantomjs.org/related-projects.html).
 
 ## Questions?
 
+
 - Explore the complete [documentation](http://phantomjs.org/documentation/).
 - Read tons of [user articles](http://phantomjs.org/buzz.html) on using PhantomJS.
 - Join the [mailing-list](http://groups.google.com/group/phantomjs) and discuss with other PhantomJS fans.
 
+
 PhantomJS is free software/open source, and is distributed under the [BSD license](http://opensource.org/licenses/BSD-3-Clause). It contains third-party code, see the included `third-party.txt` file for the license information on third-party code.
+
 
 PhantomJS is created and maintained by [Ariya Hidayat](http://ariya.ofilabs.com/about) (Twitter: [@ariyahidayat](http://twitter.com/ariyahidayat)), with the help of [many contributors](https://github.com/ariya/phantomjs/contributors).
 
