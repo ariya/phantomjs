@@ -139,6 +139,34 @@ bool injectJsInFrame(const QString& jsFilePath, const QString& jsFileLanguage, c
     return true;
 }
 
+// 加载js模块,类似nodejs 的module.exports
+QVariant injectJsInFrameAsModule(const QString& jsFilePath, const QString& libraryPath, QWebFrame* targetFrame, const bool startingScript)
+{
+    return injectJsInFrameAsModule(jsFilePath, QString(), Encoding::UTF8, libraryPath, targetFrame, startingScript);
+}
+
+QVariant injectJsInFrameAsModule(const QString& jsFilePath, const QString& jsFileLanguage, const Encoding& jsFileEnc, const QString& libraryPath, QWebFrame* targetFrame, const bool startingScript)
+{
+    // Don't do anything if an empty string is passed
+    QString scriptPath = findScript(jsFilePath, libraryPath);
+    QString scriptBody = jsFromScriptFile(scriptPath, jsFileLanguage, jsFileEnc);
+    if (scriptBody.isEmpty()) {
+        if (startingScript) {
+            Terminal::instance()->cerr(QString("Can't open '%1'").arg(jsFilePath));
+        } else {
+            qWarning("Can't open '%s'", qPrintable(jsFilePath));
+        }
+        return false;
+    }
+    // TODO js代码module.exports是否存在验证
+    QString newScriptBody = "(function(){var module={};"+scriptBody+" return module.exports;})()";
+    // Execute JS code in the context of the document
+    return targetFrame->evaluateJavaScript(newScriptBody, QString(JAVASCRIPT_SOURCE_CODE_URL).arg(QFileInfo(scriptPath).fileName()));
+}
+
+
+
+
 bool loadJSForDebug(const QString& jsFilePath, const QString& libraryPath, QWebFrame* targetFrame, const bool autorun)
 {
     return loadJSForDebug(jsFilePath, QString(), Encoding::UTF8, libraryPath, targetFrame, autorun);

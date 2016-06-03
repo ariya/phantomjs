@@ -40,6 +40,8 @@
 #include "childprocess.h"
 #include "cookiejar.h"
 
+#include <QVariant>
+
 class WebPage;
 class CustomPage;
 class WebServer;
@@ -113,6 +115,9 @@ public slots:
     QObject* createCallback();
     void loadModule(const QString& moduleSource, const QString& filename);
     bool injectJs(const QString& jsFilePath);
+    
+    // 以模块的方式引入js
+    QVariant loadJsAsModule(const QString& jsFilePath);
 
     /**
      * Allows to set cookies into the CookieJar.
