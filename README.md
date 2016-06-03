@@ -19,13 +19,17 @@ test.js
    }
 ```
 
-控制塔输出
+控制台输出:
 
 ```javascript
 	[object Object]
 	this is key.
 	function
 ```
+
+bug:
+
+通常typeof test.fn的结果为object,why?
 
 
 
