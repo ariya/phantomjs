@@ -182,7 +182,7 @@ The name of the browser window that is assigned by the WM.
 The zoom factor. 1 is the normal zoom.
 
 
-####Functions
+#### Functions
 * page.childFramesCount
 * page.childFramesName
 * page.close
@@ -212,7 +212,7 @@ The zoom factor. 1 is the normal zoom.
 * page.deleteCookie
 * page.clearCookies
 
-####Handlers/Callbacks
+#### Handlers/Callbacks
 List of all the page events:
 
 * onInitialized
