@@ -770,7 +770,7 @@ QVariant WebPage::evaluateJavaScript(const QString& code)
 
     evalResult = m_currentFrame->evaluateJavaScript(
                      function,                                   //< function evaluated
-                     QString("phantomjs://webpage.evaluate()")); //< reference source file
+                     QString("arieljs://webpage.evaluate()")); //< reference source file
 
     qDebug() << "WebPage - evaluateJavaScript result" << evalResult;
 

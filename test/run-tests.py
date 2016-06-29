@@ -900,7 +900,7 @@ class TestRunner(object):
                             require_args(tok, i, tokens)
                             rc_exp = int(tokens[i+1])
                             skip = True
-                        elif tok == "phantomjs:":
+                        elif tok == "arieljs:":
                             require_args(tok, i, tokens)
                             pjs_args.extend(tokens[(i+1):])
                             break

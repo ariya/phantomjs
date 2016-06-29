@@ -210,7 +210,7 @@ void REPL::startLoop()
             // Send the user input to the main Phantom frame for evaluation
             m_webframe->evaluateJavaScript(
                 QString(JS_EVAL_USER_INPUT).arg(
-                    QString(userInput).replace('"', "\\\"")), QString("phantomjs://repl-input"));
+                    QString(userInput).replace('"', "\\\"")), QString("arieljs://repl-input"));
 
             // Save command in the REPL history
             linenoiseHistoryAdd(userInput);
