@@ -9,7 +9,7 @@ test(function () {
         return a + b;
     };
     result = page.evaluate(function(a, b) {
-        return window.callPhantom(a, b);
+        return window.callAriel(a, b);
     }, msgA, msgB);
 
     assert_equals(result, expected);

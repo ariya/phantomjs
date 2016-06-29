@@ -434,7 +434,7 @@ ghostdriver.SessionReqHand = function(session) {
             _protoParent.getSessionCurrWindow.call(this, _session, req).evaluate(
                 "function(script, args, timeout) { " +
                     "return (" + require("./webdriver_atoms.js").get("execute_async_script") + ")" +
-                        "(script, args, timeout, callPhantom, true); " +
+                        "(script, args, timeout, callAriel, true); " +
                 "}",
                 postObj.script,
                 postObj.args,
