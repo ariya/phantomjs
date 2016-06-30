@@ -486,7 +486,7 @@ void NetworkAccessManager::handleFinished(QNetworkReply* reply, const QVariant& 
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
 
-    data["body"] = reply->readAll();
+    //data["body"] = reply->readAll();
 
     m_ids.remove(reply);
     m_started.remove(reply);
