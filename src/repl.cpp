@@ -40,7 +40,7 @@
 #include "terminal.h"
 #include "utils.h"
 
-#define PROMPT                          "phantomjs> "
+#define PROMPT                          "arieljs> "
 #define HISTORY_FILENAME                "phantom_repl_history"
 
 // Only with word characters, spaces and the dot ('.')

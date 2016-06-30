@@ -45,9 +45,9 @@ static int inner_main(int argc, char** argv)
     QApplication app(argc, argv);
 
     app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
-    app.setApplicationName("PhantomJS");
-    app.setOrganizationName("Ofi Labs");
-    app.setOrganizationDomain("www.ofilabs.com");
+    app.setApplicationName("ArielJS");
+    app.setOrganizationName("Clickadu");
+    app.setOrganizationDomain("www.clickadu.com");
     app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
 
     // Registering an alternative Message Handler
