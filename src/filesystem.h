@@ -35,6 +35,7 @@
 #include <QTextCodec>
 #include <QTextStream>
 #include <QVariant>
+#include <QtConcurrent/QtConcurrent>
 
 class File : public QObject
 {
@@ -53,6 +54,7 @@ public slots:
      * @see <a href="http://wiki.commonjs.org/wiki/IO/A#Instance_Methods">IO/A spec</a>
      */
     QString read(const QVariant& n = -1);
+    QObject *_getAsyncReadRequest(const QVariant &n = -1);
     bool write(const QString& data);
 
     bool seek(const qint64 pos);
@@ -139,6 +141,47 @@ public slots:
     bool isReadable(const QString& path) const;
     bool isWritable(const QString& path) const;
     bool isLink(const QString& path) const;
+};
+
+// taken from https://raw.githubusercontent.com/execjosh/phantomjs/7d7f021832b2f320bb53210886d222b89270685a/src/asyncreadrequest.h
+class AsyncReadRequest : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QString data READ data)
+
+public:
+    explicit AsyncReadRequest(File *file, const QVariant &n = 1, QObject *parent = 0);
+
+    QString data() const;
+
+signals:
+    void complete();
+
+public slots:
+    /**
+     * Moves association to a new thread calling `_read`
+     */
+    void read();
+    /**
+     * Moves association to a new thread calling `_readLine`
+     */
+    void readLine();
+    void setFile(File &file);
+
+private slots:
+    /**
+     * Does the actual read and emits `complete`
+     */
+    void _read();
+    /**
+     * Does the actual readLine and emits `complete`
+     */
+    void _readLine();
+
+private:
+    File *m_file;
+    QVariant m_param;
+    QString m_data;
 };
 
 #endif // FILESYSTEM_H

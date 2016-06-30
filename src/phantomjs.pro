@@ -64,6 +64,7 @@ OTHER_FILES = \
     modules/fs.js \
     modules/webpage.js \
     modules/webserver.js \
+    modules/system.js \
     repl.js
 
 include(mongoose/mongoose.pri)

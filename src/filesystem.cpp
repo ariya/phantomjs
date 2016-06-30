@@ -114,6 +114,11 @@ QString File::read(const QVariant& n)
     }
 }
 
+QObject* File::_getAsyncReadRequest(const QVariant &n)
+{
+    return new AsyncReadRequest(this, n, this);
+}
+
 bool File::write(const QString& data)
 {
     if (!m_file->isWritable()) {
@@ -535,4 +540,51 @@ bool FileSystem::_remove(const QString& path) const
 bool FileSystem::_copy(const QString& source, const QString& destination) const
 {
     return QFile(source).copy(destination);
+}
+
+// taken from https://raw.githubusercontent.com/execjosh/phantomjs/7d7f021832b2f320bb53210886d222b89270685a/src/asyncreadrequest.cpp
+AsyncReadRequest::AsyncReadRequest(File *file, const QVariant &n, QObject *parent)
+    : QObject(parent)
+    , m_file(file)
+    , m_param(n)
+    , m_data()
+{
+}
+
+// public:
+
+QString AsyncReadRequest::data() const
+{
+    return m_data;
+}
+
+void AsyncReadRequest::setFile(File &file)
+{
+    m_file = &file;
+}
+
+// public slots:
+
+void AsyncReadRequest::read()
+{
+    QtConcurrent::run(this, &AsyncReadRequest::_read);
+}
+
+void AsyncReadRequest::readLine()
+{
+    QtConcurrent::run(this, &AsyncReadRequest::_readLine);
+}
+
+// private slots:
+
+void AsyncReadRequest::_read()
+{
+    m_data = m_file->read(m_param);
+    emit complete();
+}
+
+void AsyncReadRequest::_readLine()
+{
+    m_data = m_file->readLine();
+    emit complete();
 }

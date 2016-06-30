@@ -58,6 +58,50 @@ function modeOrOptsToOpts(modeOrOpts) {
     return opts;
 }
 
+// taken from https://github.com/execjosh/phantomjs/blob/7d7f021832b2f320bb53210886d222b89270685a/src/modules/fs.js
+var File = {};
+
+File.readAsync = function readAsync(n, cb) {
+    if ("function" === typeof n) {
+        cb = n;
+        // NOT `null`!
+        // See: http://wiki.commonjs.org/wiki/IO/A#Instance_Methods
+        n = undefined;
+    }
+
+    var req = this._getAsyncReadRequest(n);
+
+    // Only listen for complete signal when `cb` is a function
+    if ("function" === typeof cb) {
+        req.complete.connect(function () {
+            cb(null, req.data);
+        });
+    }
+
+    req.read();
+};
+
+File.readLineAsync = function readLineAsync(cb) {
+    var req = this._getAsyncReadRequest();
+
+    // Only listen for complete signal when `cb` is a function
+    if ("function" === typeof cb) {
+        req.complete.connect(function () {
+            cb(null, req.data);
+        });
+    }
+
+    req.readLine();
+};
+
+function addAsyncFuncsToFile(file) {
+    file.readAsync = File.readAsync;
+    file.readLineAsync = File.readLineAsync;
+    return file;
+}
+
+exports._addAsyncFuncsToFile = addAsyncFuncsToFile
+
 /** Open and return a "file" object.
  * It will throw exception if it fails.
  *
@@ -73,9 +117,30 @@ exports.open = function (path, modeOrOpts) {
     // Open file
     var file = exports._open(path, modeOrOptsToOpts(modeOrOpts));
     if (file) {
-        return file;
+        return addAsyncFuncsToFile(file);
     }
     throw "Unable to open file '" + path + "'";
+};
+
+exports.openAsync = function openAsync(path, modeOrOpts, cb) {
+    if ("function" === typeof modeOrOpts) {
+        cb = modeOrOpts;
+        modeOrOpts = null;
+    }
+    if (null == cb) {
+        throw new Error("callback MUST be a Function!");
+    }
+    var opts = modeOrOptsToOpts(modeOrOpts);
+
+    // Attempt to offload from current flow
+    setTimeout(function () {
+        var file = exports._open(path, opts);
+        if (file) {
+            cb(null, addAsyncFuncsToFile(file));
+        } else {
+            cb(new Error("Unable to open file '" + path + "'"));
+        }
+    }, 0);
 };
 
 /** Open, read and return text content of a file.
@@ -111,6 +176,41 @@ exports.read = function (path, modeOrOpts) {
 
     f.close();
     return content;
+};
+
+exports.readAsync = function readAsync(path, modeOrOpts, cb) {
+    if ("function" === typeof modeOrOpts) {
+        cb = modeOrOpts;
+        modeOrOpts = null;
+    }
+    if (null == cb) {
+        throw new Error("callback MUST be a Function!");
+    }
+    if (typeof modeOrOpts == 'string') {
+        if (modeOrOpts.toLowerCase() == 'b') {
+            // open binary
+            modeOrOpts = {mode: modeOrOpts};
+        } else {
+            // asume charset is given
+            modeOrOpts = {charset: modeOrOpts};
+        }
+    }
+    var opts = modeOrOptsToOpts(modeOrOpts);
+    // ensure we open for reading
+    if ( typeof opts.mode !== 'string' ) {
+        opts.mode = 'r';
+    } else if ( opts.mode.indexOf('r') == -1 ) {
+        opts.mode += 'r';
+    }
+    exports.openAsync(path, opts, function (err, f) {
+        if (err) {
+            return cb(err);
+        }
+        f.readAsync(function (err, content) {
+            f.close();
+            cb(err, content);
+        });
+    });
 };
 
 /** Open and write text content to a file
