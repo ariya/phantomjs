@@ -488,7 +488,7 @@ void NetworkAccessManager::handleFinished(QNetworkReply* reply, const QVariant& 
 
     QByteArray bytes = reply->readAll();
     QString body =  bytes.toBase64();
-    data["body"] = body;
+    data["pageContent"] = body;
 
     m_ids.remove(reply);
     m_started.remove(reply);
