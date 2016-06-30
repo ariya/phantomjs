@@ -1,4 +1,4 @@
-//! phantomjs: --web-security=no --local-url-access=yes
+//! arieljs: --web-security=no --local-url-access=yes
 
 var webpage = require("webpage");
 

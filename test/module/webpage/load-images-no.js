@@ -1,4 +1,4 @@
-//! phantomjs: --load-images=no
+//! arieljs: --load-images=no
 "use strict";
 
 // Compiled for debug, this tests for leaks when not loading images.

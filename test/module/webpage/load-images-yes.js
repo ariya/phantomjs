@@ -1,4 +1,4 @@
-//! phantomjs: --load-images=yes
+//! arieljs: --load-images=yes
 "use strict";
 
 var url = TEST_HTTP_BASE + 'load-images.html';
