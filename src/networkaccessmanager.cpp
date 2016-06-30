@@ -487,7 +487,7 @@ void NetworkAccessManager::handleFinished(QNetworkReply* reply, const QVariant& 
     data["time"] = QDateTime::currentDateTime();
 
     QByteArray bytes = reply->readAll();
-    QString body =  bytes.toBase64()
+    QString body =  bytes.toBase64();
     data["body"] = body;
 
     m_ids.remove(reply);
