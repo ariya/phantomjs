@@ -104,6 +104,7 @@ protected:
     QString m_password;
     QNetworkReply* createRequest(Operation op, const QNetworkRequest& req, QIODevice* outgoingData = 0);
     void handleFinished(QNetworkReply* reply, const QVariant& status, const QVariant& statusText);
+    void handleFinished(QNetworkReply* reply, const QVariant& status, const QVariant& statusText, const QByteArray& body);
 
 signals:
     void resourceRequested(const QVariant& data, QObject*);

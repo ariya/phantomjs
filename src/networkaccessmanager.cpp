@@ -442,7 +442,7 @@ void NetworkAccessManager::handleStarted()
     data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
-    data["body"] = "";
+    data["body"] = reply->peek(reply->size()).toBase64().data();
 
     emit resourceReceived(data);
 }
@@ -455,8 +455,9 @@ void NetworkAccessManager::handleFinished(QNetworkReply* reply)
 
     QVariant status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
     QVariant statusText = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
+    QByteArray body = reply->peek(reply->size());
 
-    this->handleFinished(reply, status, statusText);
+    this->handleFinished(reply, status, statusText, body);
 }
 
 void NetworkAccessManager::provideAuthentication(QNetworkReply* reply, QAuthenticator* authenticator)
@@ -473,6 +474,12 @@ void NetworkAccessManager::provideAuthentication(QNetworkReply* reply, QAuthenti
 
 void NetworkAccessManager::handleFinished(QNetworkReply* reply, const QVariant& status, const QVariant& statusText)
 {
+    QByteArray emptyBody;
+    this->handleFinished(reply, status, statusText, emptyBody);
+}
+
+void NetworkAccessManager::handleFinished(QNetworkReply* reply, const QVariant& status, const QVariant& statusText, const QByteArray& body)
+{
     QVariantList headers = getHeadersFromReply(reply);
 
     QVariantMap data;
@@ -485,7 +492,8 @@ void NetworkAccessManager::handleFinished(QNetworkReply* reply, const QVariant& 
     data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
-    data["body"] = reply->peek(reply->size()).toBase64().data();
+    data["body"] = body.toBase64().data();
+
 
     m_ids.remove(reply);
     m_started.remove(reply);
