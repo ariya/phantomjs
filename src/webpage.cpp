@@ -50,12 +50,12 @@
 #include <QScreen>
 #include <QUrl>
 #include <QUuid>
-#include <QtWebKit/QWebElement>
-#include <QtWebKit/QWebHistory>
-#include <QtWebKit/QWebHistoryItem>
-#include <QtWebKitWidgets/QWebFrame>
-#include <QtWebKitWidgets/QWebInspector>
-#include <QtWebKitWidgets/QWebPage>
+#include <QWebElement>
+#include <QWebHistory>
+#include <QWebHistoryItem>
+#include <QWebFrame>
+#include <QWebInspector>
+#include <QWebPage>
 #include <math.h>
 
 #include "callback.h"

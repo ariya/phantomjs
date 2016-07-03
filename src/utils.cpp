@@ -36,7 +36,7 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QDir>
-#include <QtWebKitWidgets/QWebFrame>
+#include <QWebFrame>
 
 static QString findScript(const QString& jsFilePath, const QString& libraryPath)
 {

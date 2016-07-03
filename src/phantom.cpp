@@ -39,7 +39,7 @@
 #include <QMetaProperty>
 #include <QScreen>
 #include <QStandardPaths>
-#include <QtWebKitWidgets/QWebPage>
+#include <QWebPage>
 
 #include "callback.h"
 #include "childprocess.h"

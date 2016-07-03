@@ -33,8 +33,8 @@
 
 #include <QMap>
 #include <QVariantMap>
-#include <QtWebKitWidgets/QWebPage>
-#include <QtWebKitWidgets/QWebFrame>
+#include <QWebPage>
+#include <QWebFrame>
 #include <QPdfWriter>
 
 #include "cookiejar.h"
