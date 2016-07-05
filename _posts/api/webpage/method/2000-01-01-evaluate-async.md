@@ -12,7 +12,9 @@ Evaluates the given function in the context of the web page, without blocking th
 The second argument indicates the time (in milliseconds) before the function should execute. The remaining arguments are passed to the function, as with [`evaluate`](http://phantomjs.org/api/webpage/method/evaluate.html). You must specify a delay (which can be `0`) if you want to pass in any arguments.
 
 ## Examples
+
 ###Asynchronous AJAX
+
 ```javascript
 var webPage = require('webpage');
 var page = webPage.create();
