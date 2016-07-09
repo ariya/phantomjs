@@ -407,6 +407,14 @@ public slots:
      */
     QVariantList cookies() const;
     /**
+     * Cookies visible by this Page, at the specified URL.
+     *
+     * @see WebPage::setCookies for details on the format
+     * @brief cookiesForUrl
+     * @return QList of QVariantMap cookies visible to this Page, at the specified URL
+     */
+    QVariantList cookiesForUrl(const QString& url) const;
+    /**
      * Add a Cookie in QVariantMap format
      * @see WebPage::setCookies for details on the format
      * @brief addCookie

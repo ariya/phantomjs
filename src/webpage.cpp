@@ -877,6 +877,12 @@ QVariantList WebPage::cookies() const
     return m_cookieJar->cookiesToMap(this->url());
 }
 
+QVariantList WebPage::cookiesForUrl(const QString& url) const
+{
+    // Return all the Cookies visible to this Page, at the specified URL, as a list of Maps (aka JSON in JS space)
+    return m_cookieJar->cookiesToMap(url);
+}
+
 bool WebPage::addCookie(const QVariantMap& cookie)
 {
     return m_cookieJar->addCookieFromMap(cookie, this->url());

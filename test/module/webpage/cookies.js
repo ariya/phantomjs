@@ -109,3 +109,40 @@ async_test(function () {
         assert_no_property(headers, 'cookie');
     }));
 }, "page.cookies provides cookies only to appropriate requests");
+
+test(function() {
+    var page = new WebPage();
+    
+    page.cookies = [
+        {
+            'name' : 'Valid-Cookie-Name-1',
+            'value' : 'Valid-Cookie-Value-1',
+            'domain' : 'localhost'
+        },{
+            'name' : 'Valid-Cookie-Name-2',
+            'value' : 'Valid-Cookie-Value-2',
+            'domain' : 'localhost',
+            'path': '/bar'
+        },{
+            'name' : 'Valid-Cookie-Name-3',
+            'value' : 'Valid-Cookie-Value-3',
+            'domain' : 'foo.example',
+            'path': '/bar'
+        },{
+            'name' : 'Valid-Cookie-Name-4',
+            'value' : 'Valid-Cookie-Value-4',
+            'domain' : 'foo.example',
+            'path': '/bar'
+        },{
+            'name' : 'Valid-Cookie-Name-5',
+            'value' : 'Valid-Cookie-Value-5',
+            'domain' : 'foo.example',
+            'path': '/foo'
+        }];
+    
+    assert_equals(page.cookiesForUrl('http://localhost/bar').length, 2);
+    assert_equals(page.cookiesForUrl('http://localhost/').length, 1);
+    assert_equals(page.cookiesForUrl('http://foo.example/').length, 0);
+    assert_equals(page.cookiesForUrl('http://foo.example/bar').length, 2);
+    assert_equals(page.cookiesForUrl('http://foo.example/foo').length, 1);
+}, "page.cookiesForUrl returns the cookies for the specified URL");
