@@ -13,7 +13,7 @@ The second argument indicates the time (in milliseconds) before the function sho
 
 ## Examples
 
-###Asynchronous AJAX
+### Asynchronous AJAX
 
 ```javascript
 var webPage = require('webpage');
