@@ -693,8 +693,8 @@ Test.statuses = {
     NOTRUN: -1,
     PASS:    0,
     FAIL:    1,
-    XFAIL:   4,
-    XPASS:   5
+    XFAIL:   2,
+    XPASS:   3
 };
 Test.prototype.phases = Test.phases;
 Test.prototype.statuses = Test.phases;
@@ -784,6 +784,8 @@ Test.prototype.fail = function fail(message) {
 /** Mark this test as completed. */
 Test.prototype.done = function done() {
     var i;
+
+    this.in_done = true;
 
     if (this.timeout_id !== null) {
         clearTimeout(this.timeout_id);
@@ -1459,6 +1461,23 @@ if (args.test_script === "") {
     // process_command_line has already issued an error message.
     phantom.exit(2);
 } else {
+    // run-tests.py sets these environment variables to the base URLs
+    // of its HTTP and HTTPS servers.
+    expose(sys.env['TEST_HTTP_BASE'], 'TEST_HTTP_BASE');
+    expose(sys.env['TEST_HTTPS_BASE'], 'TEST_HTTPS_BASE');
+
+    // run-tests.py sets these environment variables to the full pathnames
+    // of the PhantomJS binary and Python interpreter.
+    expose(sys.env['PHANTOMJS'], 'PHANTOMJS');
+    expose(sys.env['PYTHON'], 'PYTHON');
+
+    // run-tests.py sets this environment variable to the root of the
+    // test directory.
+    expose(sys.env['TEST_DIR'], 'TEST_DIR');
+
+    // The JS modules in TEST_DIR/lib/node_modules are always available.
+    require.paths.push(fs.join(sys.env['TEST_DIR'], 'lib', 'node_modules'));
+
     // Reset the library paths for injectJs and require to the
     // directory containing the test script, so relative imports work
     // as expected.  Unfortunately, phantom.libraryPath is not a
@@ -1468,11 +1487,6 @@ if (args.test_script === "") {
     phantom.libraryPath = test_script.slice(0,
         test_script.lastIndexOf(fs.separator));
     require.paths.push(phantom.libraryPath);
-
-    // run-tests.py sets these environment variables to the base URLs
-    // of its HTTP and HTTPS servers.
-    expose(sys.env['TEST_HTTP_BASE'], 'TEST_HTTP_BASE');
-    expose(sys.env['TEST_HTTPS_BASE'], 'TEST_HTTPS_BASE');
 
     var output = new Output(sys.stdout, args.verbose);
     var tests = new Tests(output);

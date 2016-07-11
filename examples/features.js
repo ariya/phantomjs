@@ -28,4 +28,3 @@ unsupported.forEach(function (e) {
     console.log('  ' + e);
 });
 phantom.exit();
-

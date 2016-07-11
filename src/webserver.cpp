@@ -66,7 +66,7 @@ QVariantMap parse(const QByteArray& data)
     if (data.isEmpty()) {
         return ret;
     }
-    foreach (const QByteArray& part, data.split('&')) {
+    foreach(const QByteArray & part, data.split('&')) {
         const int eqPos = part.indexOf('=');
         if (eqPos == -1) {
             ret[unescape(part)] = "";
@@ -144,7 +144,7 @@ void WebServer::close()
             // make sure we wake up all pending responses, such that mg_stop()
             // can be called without deadlocking
             QMutexLocker lock(&m_mutex);
-            foreach (WebServerResponse* response, m_pendingResponses) {
+            foreach(WebServerResponse * response, m_pendingResponses) {
                 response->close();
             }
         }

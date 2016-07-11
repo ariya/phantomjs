@@ -31,25 +31,26 @@
 #include "phantom.h"
 
 #include <QApplication>
-#include <QDir>
-#include <QFileInfo>
-#include <QFile>
-#include <QtWebKitWidgets/QWebPage>
 #include <QDebug>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 #include <QMetaObject>
 #include <QMetaProperty>
+#include <QScreen>
 #include <QStandardPaths>
+#include <QtWebKitWidgets/QWebPage>
 
+#include "callback.h"
+#include "childprocess.h"
 #include "consts.h"
+#include "cookiejar.h"
+#include "repl.h"
+#include "system.h"
 #include "terminal.h"
 #include "utils.h"
 #include "webpage.h"
 #include "webserver.h"
-#include "repl.h"
-#include "system.h"
-#include "callback.h"
-#include "cookiejar.h"
-#include "childprocess.h"
 
 static Phantom* phantomInstance = NULL;
 
@@ -100,6 +101,9 @@ void Phantom::init()
     // Initialize the CookieJar
     m_defaultCookieJar = new CookieJar(m_config.cookiesFile());
 
+    // set the default DPI
+    m_defaultDpi = qRound(QApplication::primaryScreen()->logicalDotsPerInch());
+
     QWebSettings::setOfflineWebApplicationCachePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
     if (m_config.offlineStoragePath().isEmpty()) {
         QWebSettings::setOfflineStoragePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
@@ -139,6 +143,7 @@ void Phantom::init()
     m_defaultPageSettings[PAGE_SETTINGS_WEB_SECURITY_ENABLED] = QVariant::fromValue(m_config.webSecurityEnabled());
     m_defaultPageSettings[PAGE_SETTINGS_JS_CAN_OPEN_WINDOWS] = QVariant::fromValue(m_config.javascriptCanOpenWindows());
     m_defaultPageSettings[PAGE_SETTINGS_JS_CAN_CLOSE_WINDOWS] = QVariant::fromValue(m_config.javascriptCanCloseWindows());
+    m_defaultPageSettings[PAGE_SETTINGS_DPI] = QVariant::fromValue(m_defaultDpi);
     m_page->applySettings(m_defaultPageSettings);
 
     setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());
@@ -221,11 +226,15 @@ bool Phantom::execute()
 
         if (m_config.debug()) {
             // Debug enabled
+            int originalPort = m_config.remoteDebugPort();
+            m_config.setRemoteDebugPort(m_page->showInspector(m_config.remoteDebugPort()));
+            if (m_config.remoteDebugPort() == 0) {
+                qWarning() << "Can't bind remote debugging server to the port" << originalPort;
+            }
             if (!Utils::loadJSForDebug(m_config.scriptFile(), m_config.scriptLanguage(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), m_config.remoteDebugAutorun())) {
                 m_returnValue = -1;
                 return false;
             }
-            m_page->showInspector(m_config.remoteDebugPort());
         } else {
             if (!Utils::injectJsInFrame(m_config.scriptFile(), m_config.scriptLanguage(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
                 m_returnValue = -1;
@@ -377,7 +386,7 @@ void Phantom::loadModule(const QString& moduleSource, const QString& filename)
         "require.cache['" + filename + "'].exports," +
         "require.cache['" + filename + "']" +
         "));";
-    m_page->mainFrame()->evaluateJavaScript(scriptSource);
+    m_page->mainFrame()->evaluateJavaScript(scriptSource, QString(JAVASCRIPT_SOURCE_PLATFORM_URL).arg(QFileInfo(filename).fileName()));
 }
 
 bool Phantom::injectJs(const QString& jsFilePath)
@@ -429,6 +438,11 @@ QString Phantom::proxy()
     return proxy.hostName() + ":" + QString::number(proxy.port());
 }
 
+int Phantom::remoteDebugPort() const
+{
+    return m_config.remoteDebugPort();
+}
+
 void Phantom::exit(int code)
 {
     if (m_config.debug()) {
@@ -470,7 +484,7 @@ void Phantom::onInitialized()
     // Bootstrap the PhantomJS scope
     m_page->mainFrame()->evaluateJavaScript(
         Utils::readResourceFileUtf8(":/bootstrap.js"),
-        QString("phantomjs://bootstrap.js")
+        QString(JAVASCRIPT_SOURCE_PLATFORM_URL).arg("bootstrap.js")
     );
 }
 
@@ -513,7 +527,15 @@ void Phantom::doExit(int code)
     emit aboutToExit(code);
     m_terminated = true;
     m_returnValue = code;
-    foreach (QPointer<WebPage> page, m_pages) {
+
+    // Iterate in reverse order so the first page is the last one scheduled for deletion.
+    // The first page is the root object, which will be invalidated when it is deleted.
+    // This causes an assertion to go off in BridgeJSC.cpp Instance::createRuntimeObject.
+    QListIterator<QPointer<WebPage> > i(m_pages);
+    i.toBack();
+    while (i.hasPrevious()) {
+        const QPointer<WebPage> page = i.previous();
+
         if (!page) {
             continue;
         }

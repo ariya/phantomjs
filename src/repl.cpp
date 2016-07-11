@@ -147,7 +147,7 @@ REPL::REPL(QWebFrame* webframe, Phantom* parent)
     linenoiseSetCompletionCallback(REPL::offerCompletion);
 
     // Inject REPL utility functions
-    m_webframe->evaluateJavaScript(Utils::readResourceFileUtf8(":/repl.js"), QString("phantomjs://repl.js"));
+    m_webframe->evaluateJavaScript(Utils::readResourceFileUtf8(":/repl.js"), QString(JAVASCRIPT_SOURCE_PLATFORM_URL).arg("repl.js"));
 
     // Add self to JavaScript world
     m_webframe->addToJavaScriptWindowObject("_repl", this);
@@ -188,7 +188,7 @@ void REPL::offerCompletion(const char* buf, linenoiseCompletions* lc)
                                   QString()
                               ).toStringList();
 
-    foreach (QString c, completions) {
+    foreach(QString c, completions) {
         if (lastIndexOfDot > -1) {
             // Preserve the "toInspect" portion of the string to complete
             linenoiseAddCompletion(lc, QString("%1.%2").arg(toInspect, c).toLocal8Bit().data());

@@ -6,6 +6,7 @@ import errno
 import glob
 import imp
 import os
+import platform
 import posixpath
 import re
 import shlex
@@ -79,7 +80,7 @@ def activate_colorization(options):
     elif options.color == "never":
         _COLORS = _COLOR_NONE
     else:
-        if sys.stdout.isatty():
+        if sys.stdout.isatty() and platform.system() != "Windows":
             try:
                 n = int(subprocess.check_output(["tput", "colors"]))
                 if n >= 8:
@@ -108,8 +109,8 @@ CIPHERLIST_2_7_9 = (
     '!eNULL:!MD5:!DSS:!RC4'
 )
 def wrap_socket_ssl(sock, base_path):
-    crtfile = os.path.join(base_path, 'certs/https-snakeoil.crt')
-    keyfile = os.path.join(base_path, 'certs/https-snakeoil.key')
+    crtfile = os.path.join(base_path, 'lib/certs/https-snakeoil.crt')
+    keyfile = os.path.join(base_path, 'lib/certs/https-snakeoil.key')
 
     try:
         ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
@@ -241,9 +242,13 @@ class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler, object):
         self.postdata = None
         super(FileHandler, self).__init__(*args, **kwargs)
 
-    # silent, do not pollute stdout nor stderr.
     def log_message(self, format, *args):
-        return
+        if self.verbose >= 3:
+            sys.stdout.write("## " +
+                             ("HTTPS: " if self.server.is_ssl else "HTTP: ") +
+                             (format % args) +
+                             "\n")
+            sys.stdout.flush()
 
     # accept POSTs, read the postdata and stash it in an instance variable,
     # then forward to do_GET; handle_request hooks can vary their behavior
@@ -266,6 +271,14 @@ class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler, object):
     # produce the response.
     def send_head(self):
         path = self.translate_path(self.path)
+
+        if self.verbose >= 3:
+            sys.stdout.write("## " +
+                             ("HTTPS: " if self.server.is_ssl else "HTTP: ") +
+                             self.command + " " + self.path + " -> " +
+                             path +
+                             "\n")
+            sys.stdout.flush()
 
         # do not allow direct references to .py(c) files,
         # or indirect references to __init__.py
@@ -348,6 +361,7 @@ class TCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
         if use_ssl:
             self.socket = wrap_socket_ssl(self.socket, base_path)
         self._signal_error = signal_error
+        self.is_ssl = use_ssl
 
     def handle_error(self, request, client_address):
         # Ignore errors which can occur naturally if the client
@@ -366,7 +380,7 @@ class HTTPTestServer(object):
         self.httpd        = None
         self.httpsd       = None
         self.base_path    = base_path
-        self.www_path     = os.path.join(base_path, 'www')
+        self.www_path     = os.path.join(base_path, 'lib/www')
         self.signal_error = signal_error
         self.verbose      = verbose
 
@@ -381,6 +395,7 @@ class HTTPTestServer(object):
         })
         handler.www_path = self.www_path
         handler.get_response_hook = ResponseHookImporter(self.www_path)
+        handler.verbose = self.verbose
 
         self.httpd  = TCPServer(False, handler,
                                 self.base_path, self.signal_error)
@@ -668,6 +683,13 @@ class TAPTestGroup(TestGroup):
                 self.add_skip(out[(i+1):], "All further output ignored")
             return
 
+        if any(msg.startswith("ERROR:") for msg in messages):
+            self.add_error(messages, "Before tests")
+            messages = []
+        elif messages:
+            self.add_error(messages, "Stray diagnostic")
+            messages = []
+
         prev_point = 0
 
         for i in range(i+1, len(out)):
@@ -742,13 +764,43 @@ class TAPTestGroup(TestGroup):
 class TestRunner(object):
     def __init__(self, base_path, phantomjs_exe, options):
         self.base_path       = base_path
-        self.cert_path       = os.path.join(base_path, 'certs')
-        self.harness         = os.path.join(base_path, 'testharness.js')
+        self.cert_path       = os.path.join(base_path, 'lib/certs')
+        self.harness         = os.path.join(base_path, 'lib/testharness.js')
         self.phantomjs_exe   = phantomjs_exe
         self.verbose         = options.verbose
         self.debugger        = options.debugger
         self.to_run          = options.to_run
         self.server_errs     = []
+        self.prepare_environ()
+
+    def prepare_environ(self):
+        os.environ["TEST_DIR"] = self.base_path
+
+        # Tell test processes where to find the PhantomJS binary and
+        # the Python interpreter.
+        os.environ["PHANTOMJS"] = self.phantomjs_exe
+        os.environ["PYTHON"] = sys.executable
+
+        # Run all the tests in the "C" locale.  (A UTF-8-based locale
+        # which is thoroughly different from "C" would flush out more
+        # bugs, but we have no way of knowing if such a locale exists.)
+        for var in list(os.environ.keys()):
+            if var[:3] == 'LC_' or var[:4] == 'LANG':
+                del os.environ[var]
+        os.environ["LANG"] = "C"
+
+        # Run all the tests in Chatham Islands Standard Time, UTC+12:45.
+        # This timezone is deliberately chosen to be unusual: it's not a
+        # whole number of hours offset from UTC *and* it's more than twelve
+        # hours offset from UTC.
+        #
+        # The Chatham Islands do observe daylight savings, but we don't
+        # implement that because testsuite issues only reproducible on two
+        # particular days out of the year are too much tsuris.
+        #
+        # Note that the offset in a TZ value is the negative of the way it's
+        # usually written, e.g. UTC+1 would be xxx-1:00.
+        os.environ["TZ"] = "CIST-12:45:00"
 
     def signal_server_error(self, exc_info):
         self.server_errs.append(exc_info)
@@ -760,6 +812,8 @@ class TestRunner(object):
             return ["gdb", "--args", self.phantomjs_exe]
         elif debugger == "lldb":
             return ["lldb", "--", self.phantomjs_exe]
+        elif debugger == "valgrind":
+            return ["valgrind", self.phantomjs_exe]
         else:
             raise RuntimeError("Don't know how to invoke " + self.debugger)
 
@@ -957,6 +1011,7 @@ class TestRunner(object):
 
 def init():
     base_path = os.path.normpath(os.path.dirname(os.path.abspath(__file__)))
+
     phantomjs_exe = os.path.normpath(base_path + '/../bin/phantomjs')
     if sys.platform in ('win32', 'cygwin'):
         phantomjs_exe += '.exe'
@@ -992,19 +1047,6 @@ def init():
             sys.exit(1)
 
         sys.stdout.write(colorize("b", "## Testing PhantomJS "+ver[0])+"\n")
-
-    # Run all the tests in Chatham Islands Standard Time, UTC+12:45.
-    # This timezone is deliberately chosen to be unusual: it's not a
-    # whole number of hours offset from UTC *and* it's more than twelve
-    # hours offset from UTC.
-    #
-    # The Chatham Islands do observe daylight savings, but we don't
-    # implement that because testsuite issues only reproducible on two
-    # particular days out of the year are too much tsuris.
-    #
-    # Note that the offset in a TZ value is the negative of the way it's
-    # usually written, e.g. UTC+1 would be xxx-1:00.
-    os.environ["TZ"] = "CIST-12:45:00"
 
     return runner
 

@@ -1,4 +1,5 @@
 var webpage = require('webpage');
+var fs = require('fs');
 
 test(function () {
     var page = webpage.create();
@@ -66,6 +67,9 @@ test(function () {
     assert_is_true(page.evaluate(function() { return window.caughtError; }));
 }, "should not report errors that were caught");
 
+var helperBase = "error-helper.js";
+var helperFile = fs.join(TEST_DIR, "lib", "fixtures", helperBase);
+
 function check_stack(message, stack) {
     assert_equals(message,
                   "ReferenceError: Can't find variable: referenceError");
@@ -85,11 +89,8 @@ function check_stack(message, stack) {
     }
 }
 
-var helperBase = "error-helper.js";
-var helperFile = "../../fixtures/" + helperBase;
-assert_is_true(phantom.injectJs(helperFile));
-
 test(function () {
+    assert_is_true(phantom.injectJs(helperFile));
     try {
         ErrorHelper.foo();
     } catch (e) {
@@ -99,7 +100,6 @@ test(function () {
 
 async_test(function () {
     var page = webpage.create();
-    page.libraryPath = phantom.libraryPath;
     assert_is_true(page.injectJs(helperFile));
 
     page.onError = this.step_func_done(check_stack);
@@ -107,4 +107,3 @@ async_test(function () {
         setTimeout(function () { ErrorHelper.foo(); }, 0);
     });
 }, "stack trace accuracy (webpage script)");
-

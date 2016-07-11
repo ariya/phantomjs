@@ -1,5 +1,26 @@
 Please see also http://phantomjs.org/releases.html.
 
+2016-01-23: Version 2.1.0
+
+    New features
+
+      * Upgraded Qt to 5.5.1 (issue #13377)
+      * Added support for SSL Client Authentication (issue #11275)
+      * Added support for context menu event (issue #11429)
+      * Allow remote debugging to use random port assigned by the OS (issue #13432)
+
+    Improvements
+
+      * Allow outer context to access arbitrary URLs (issue #11217)
+      * Fixed --local-storage-path and localStoragePath config option (issue #11596)
+      * Restored --local-url-access=no regression (issue #13412)
+      * Fixed an issue with loading JS modules contains a last-line comment (issue #12868)
+      * Fixed an issue with returning binary content in WebServer module (issue #13026)
+      * Fixed encoded URL loading on Windows (issue #12953)
+      * Fixed building with GCC 5 (issue #13518)
+      * Fixed file upload (issue #12506)
+      * Fixed latest OS detection (issue #13829)
+
 2015-01-23: Version 2.0.0
 
     New features
