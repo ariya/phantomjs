@@ -13,7 +13,7 @@ if (system.args.length < 4) {
     phantom.setProxy(host, port, 'manual', '', '');
     page.open(address, function (status) {
         if (status !== 'success') {
-            console.log('FAIL to load the address "' + 
+            console.log('FAIL to load the address "' +
                 address + '" using proxy "' + host + ':' + port + '"');
         } else {
             console.log('Page title is ' + page.evaluate(function () {

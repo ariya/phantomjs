@@ -53,7 +53,6 @@ page.open("http://twitter.com/#!/sencha", function (status) {
         }, function() {
            console.log("The sign-in dialog should be visible now.");
            phantom.exit();
-        });        
+        });
     }
 });
-

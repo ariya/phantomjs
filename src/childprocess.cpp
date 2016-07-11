@@ -86,6 +86,31 @@ bool ChildProcessContext::_start(const QString& cmd, const QStringList& args)
     return m_proc.waitForStarted(1000);
 }
 
+qint64 ChildProcessContext::_write(const QString &chunk, const QString &encoding)
+{
+    // Try to get codec for encoding
+    QTextCodec *codec = QTextCodec::codecForName(encoding.toLatin1());
+
+    // If unavailable, attempt UTF-8 codec
+    if ((QTextCodec *)NULL == codec) {
+        codec = QTextCodec::codecForName("UTF-8");
+
+        // Don't even try to write if UTF-8 codec is unavailable
+        if ((QTextCodec *)NULL == codec) {
+            return -1;
+        }
+    }
+
+    qint64 bytesWritten = m_proc.write(codec->fromUnicode(chunk));
+
+    return bytesWritten;
+}
+
+void ChildProcessContext::_close()
+{
+    m_proc.closeWriteChannel();
+}
+
 // private slots:
 
 void ChildProcessContext::_readyReadStandardOutput()

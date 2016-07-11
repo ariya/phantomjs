@@ -57,6 +57,9 @@ public:
     Q_INVOKABLE void _setEncoding(const QString& encoding);
     Q_INVOKABLE bool _start(const QString& cmd, const QStringList& args);
 
+    Q_INVOKABLE qint64 _write(const QString &chunk, const QString &encoding);
+    Q_INVOKABLE void _close();
+
 signals:
     void exit(const int code) const;
 

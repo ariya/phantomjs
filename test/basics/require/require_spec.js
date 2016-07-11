@@ -50,8 +50,6 @@ tests.push([function () {
     }
 }, "error handling 1"]);
 
-// XFAIL: 'thrower' and 'error_handling_2' fail to have source locations
-// reported.
 tests.push([function error_handling_2 () {
     try {
         require('./thrower').fn();
@@ -59,7 +57,7 @@ tests.push([function error_handling_2 () {
         assert_regexp_match(e.toString() + "\n" + e.stack,
             /^Error: fn\nthrower@[^\n]+?\nerror_handling_2@[^\n]+?\n/);
     }
-}, "error handling 2", { expected_fail: true }]);
+}, "error handling 2"]);
 
 tests.push([function () {
     assert_equals(require('./stubber').stubbed, 'stubbed module');

@@ -328,7 +328,7 @@ QString Config::proxyType() const
     return m_proxyType;
 }
 
-void Config::setProxyType(const QString value)
+void Config::setProxyType(const QString& value)
 {
     m_proxyType = value;
 }
@@ -921,4 +921,3 @@ void Config::setSslClientKeyPassphrase(const QByteArray& sslClientKeyPassphrase)
 {
     m_sslClientKeyPassphrase = sslClientKeyPassphrase;
 }
-

@@ -66,6 +66,7 @@ test(function () {
     assert_type_of(page.uploadFile, 'function');
     assert_type_of(page.sendEvent, 'function');
     assert_type_of(page.setContent, 'function');
+    assert_type_of(page.setFrameContent, 'function');
     assert_type_of(page.switchToChildFrame, 'function');
     assert_type_of(page.switchToMainFrame, 'function');
     assert_type_of(page.switchToParentFrame, 'function');

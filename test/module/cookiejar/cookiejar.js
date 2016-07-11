@@ -59,7 +59,8 @@ test(function () {
 test(function () {
     assert_equals(jar1.cookies.length, 0);
 
-    jar1.addCookie(cookie0);
+    var isAdded = jar1.addCookie(cookie0);
+    assert_equals(isAdded, true);
     assert_equals(jar1.cookies.length, 1);
 
     jar1.deleteCookie('Valid-Cookie-Name');
@@ -77,12 +78,15 @@ test(function () {
 }, "setting and clearing a cookie jar");
 
 test(function () {
-    jar1.addCookie(cookie1);
+    var isAdded = jar1.addCookie(cookie1);
+    assert_equals(isAdded, true);
     assert_equals(jar1.cookies.length, 1);
     assert_equals(jar2.cookies.length, 0);
 
-    jar2.addCookie(cookie2);
-    jar1.deleteCookie('Valid-Cookie-Name-1');
+    isAdded = jar2.addCookie(cookie2);
+    assert_equals(isAdded, true);
+    var isRemoved = jar1.deleteCookie('Valid-Cookie-Name-1');
+    assert_equals(isRemoved, true);
     assert_equals(jar1.cookies.length, 0);
     assert_equals(jar2.cookies.length, 1);
 

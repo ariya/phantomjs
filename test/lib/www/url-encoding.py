@@ -75,7 +75,7 @@ def handle_request(req):
 
     elif url.query == "/%89i%8Bv": # 永久
         time.sleep(5)
-        return do_response('', code=204)
+        return do_response(req, '', code=204)
 
     else:
         return do_response(req,
@@ -83,4 +83,3 @@ def handle_request(req):
             '<p>URL not found: {}</p>'
             .format(html_esc(req.path)),
             code=404)
-

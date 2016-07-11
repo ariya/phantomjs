@@ -118,6 +118,11 @@ class PhantomJSBuilder(object):
             self.makeCommand = ["make"]
             self.makeCommand.extend(flags)
 
+        # if there is no git subdirectory, automatically go into no-git
+        # mode
+        if not os.path.isdir(".git"):
+            self.options.skip_git = True
+
     # run the given command in the given working directory
     def execute(self, command, workingDirectory):
         # python 2 compatibility: manually convert to strings
@@ -132,6 +137,7 @@ class PhantomJSBuilder(object):
 
     # run git clean in the specified path
     def gitClean(self, path):
+        if self.options.skip_git: return 0
         return self.execute(["git", "clean", "-xfd"], path)
 
     # run make, nmake or jom in the specified path
@@ -172,6 +178,8 @@ class PhantomJSBuilder(object):
             platformOptions = [
                 # use the headless QPA platform
                 "-qpa", "phantom",
+                # disable qpa guard
+                "-no-qpa-platform-guard",
                 # explicitly compile with SSL support, so build will fail if headers are missing
                 "-openssl", "-openssl-linked",
                 # disable unnecessary Qt features
@@ -220,8 +228,15 @@ class PhantomJSBuilder(object):
                   if not openssl_found:
                     raise RuntimeError("Could not find OpenSSL")
                 else:
-                  # TODO: Implement
-                  raise RuntimeError("Not implemented")
+                  if os.path.exists(openssl + "/include/openssl/opensslv.h"):
+                    openssl_found = True
+                    openssl_include = "-I" + openssl + "/include"
+                    openssl_lib = "-L" + openssl + "/lib"
+                    platformOptions.extend([openssl_include, openssl_lib])
+                    print("Using OpenSSL at %s" % openssl)
+
+                  if not openssl_found:
+                    raise RuntimeError("No OpenSSL specified: OPENSSL environment variable not found")
             else:
                 # options specific to other Unixes, like Linux, BSD, ...
                 platformOptions.extend([
@@ -253,10 +268,23 @@ class PhantomJSBuilder(object):
             "-nomake", "examples",
             "-nomake", "tools",
             "-nomake", "tests",
-            "-no-qml-debug",
-            "-no-dbus",
-            "-no-opengl",
             "-no-audio-backend",
+            "-no-dbus",
+            "-no-gstreamer",
+            "-no-journald",
+            "-no-opengl",
+            "-no-qml-debug",
+            "-no-sql-db2",
+            "-no-sql-ibase",
+            "-no-sql-mysql",
+            "-no-sql-oci",
+            "-no-sql-odbc",
+            "-no-sql-psql",
+            "-no-sql-sqlite",
+            "-no-sql-sqlite2",
+            "-no-sql-tds",
+            "-no-tslib",
+            "-no-xcb-xlib",
             "-D", "QT_NO_GRAPHICSVIEW",
             "-D", "QT_NO_GRAPHICSEFFECT",
             "-D", "QT_NO_STYLESHEET",
@@ -268,7 +296,7 @@ class PhantomJSBuilder(object):
         ]
         configure.extend(self.platformQtConfigureOptions())
         if self.options.qt_config:
-            configure.extend(self.options.qt_config)
+            configure.extend(''.join(self.options.qt_config).split(" "))
 
         if self.options.debug:
             configure.append("-debug")
@@ -311,13 +339,27 @@ class PhantomJSBuilder(object):
         print("configuring Qt WebKit, please wait...")
         configureOptions = [
             # disable some webkit features we do not need
+            "WEBKIT_CONFIG-=build_tests",
             "WEBKIT_CONFIG-=build_webkit2",
+            "WEBKIT_CONFIG-=have_glx",
+            "WEBKIT_CONFIG-=have_qtquick",
+            "WEBKIT_CONFIG-=have_qtsensors",
+            "WEBKIT_CONFIG-=have_qttestlib",
+            "WEBKIT_CONFIG-=have_qttestsupport",
+            "WEBKIT_CONFIG-=have_xcomposite",
+            "WEBKIT_CONFIG-=have_xrender",
             "WEBKIT_CONFIG-=netscape_plugin_api",
             "WEBKIT_CONFIG-=use_gstreamer",
             "WEBKIT_CONFIG-=use_gstreamer010",
             "WEBKIT_CONFIG-=use_native_fullscreen_video",
+            "WEBKIT_CONFIG-=use_webp",
             "WEBKIT_CONFIG-=video",
             "WEBKIT_CONFIG-=web_audio",
+            "WEBKIT_TOOLS_CONFIG-=build_imagediff",
+            "WEBKIT_TOOLS_CONFIG-=build_minibrowser",
+            "WEBKIT_TOOLS_CONFIG-=build_qttestsupport",
+            "WEBKIT_TOOLS_CONFIG-=build_test_npapi",
+            "WEBKIT_TOOLS_CONFIG-=build_wtr",
         ]
         if self.options.webkit_qmake_args:
             configureOptions.extend(self.options.webkit_qmake_args)
@@ -339,9 +381,10 @@ class PhantomJSBuilder(object):
 
     # ensure the git submodules are all available
     def ensureSubmodulesAvailable(self):
+        if self.options.skip_git: return
         if self.execute(["git", "submodule", "init"], ".") != 0:
             raise RuntimeError("Initialization of git submodules failed.")
-        if self.execute(["git", "submodule", "update", "--init"], ".") != 0:
+        if self.execute(["git", "submodule", "update", "--remote"], ".") != 0:
             raise RuntimeError("Initial update of git submodules failed.")
 
     # run all build steps required to get a final PhantomJS binary at the end
@@ -401,6 +444,9 @@ def parseArguments():
                             help="Skip configure step of Qt WebKit, only build it.\n"
                                  "Only enable this option when neither the environment nor Qt Base "
                                  "has changed and only an update of Qt WebKit is required.")
+    advanced.add_argument("--skip-git", action="store_true",
+                            help="Skip all actions that require Git.  For use when building from "
+                                 "a tarball release.")
     options = parser.parse_args()
     if options.debug and options.release:
         raise RuntimeError("Cannot build with both debug and release mode enabled.")

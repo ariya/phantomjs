@@ -354,7 +354,7 @@ bool FileSystem::_copyTree(const QString& source, const QString& destination) co
             return false;
         }
 
-        foreach (QFileInfo entry, sourceDir.entryInfoList(sourceDirFilter, QDir::DirsFirst)) {
+        foreach(QFileInfo entry, sourceDir.entryInfoList(sourceDirFilter, QDir::DirsFirst)) {
             if (entry.isDir()) {
                 if (!FileSystem::_copyTree(entry.absoluteFilePath(),
                                            destination + "/" + entry.fileName())) { //< directory: recursive call
@@ -393,7 +393,7 @@ bool FileSystem::_removeTree(const QString& path) const
     QDir::Filters dirFilter = QDir::NoDotAndDotDot | QDir::System | QDir::Hidden | QDir::AllDirs | QDir::Files;
 
     if (dir.exists()) {
-        foreach (QFileInfo info, dir.entryInfoList(dirFilter, QDir::DirsFirst)) {
+        foreach(QFileInfo info, dir.entryInfoList(dirFilter, QDir::DirsFirst)) {
             if (info.isDir()) {
                 if (!FileSystem::_removeTree(info.absoluteFilePath())) { //< directory: recursive call
                     return false;
@@ -464,7 +464,7 @@ QObject* FileSystem::_open(const QString& path, const QVariantMap& opts) const
     QFile::OpenMode modeCode = QFile::NotOpen;
 
     // Determine the OpenMode
-    foreach (const QChar& c, modeVar.toString()) {
+    foreach(const QChar & c, modeVar.toString()) {
         switch (c.toLatin1()) {
         case 'r': case 'R': {
             modeCode |= QFile::ReadOnly;

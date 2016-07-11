@@ -19,4 +19,3 @@ page.open("http://phantomjs.org/", function(status) {
       phantom.exit(1);
     }
 });
-

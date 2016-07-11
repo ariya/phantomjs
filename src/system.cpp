@@ -102,6 +102,12 @@ System::System(QObject* parent) :
     case QSysInfo::WV_WINDOWS8:
         m_os.insert("version", "8");
         break;
+    case QSysInfo::WV_WINDOWS8_1:
+        m_os.insert("version", "8.1");
+        break;
+    case QSysInfo::WV_WINDOWS10:
+        m_os.insert("version", "10");
+        break;
     default:
         m_os.insert("version", "unknown");
         break;
@@ -111,12 +117,6 @@ System::System(QObject* parent) :
 
     QString osRelease = getOSRelease();
     m_os.insert("release", osRelease);
-
-    int kernelVersionMajor = 0;
-    QStringList releaseParts = osRelease.split('.');
-    if (releaseParts.length() == 3) {
-        kernelVersionMajor = releaseParts[0].toInt();
-    }
 
     switch (QSysInfo::MacintoshVersion) {
     case QSysInfo::MV_10_3:
@@ -140,18 +140,14 @@ System::System(QObject* parent) :
     case QSysInfo::MV_10_9:
         m_os.insert("version", "10.9 (Mavericks)");
         break;
+    case QSysInfo::MV_10_10:
+        m_os.insert("version", "10.10 (Yosemite)");
+        break;
+    case QSysInfo::MV_10_11:
+        m_os.insert("version", "10.11 (El Capitan)");
+        break;
     default:
-        // Deduce OS X version from the kernel version.
-        // This is only used for version not yet recognized by Qt
-        // (there is no associated QSysInfo::MV_ enum).
-        switch (kernelVersionMajor) {
-        case 14:
-            m_os.insert("version", "10.10 (Yosemite)");
-            break;
-        default:
-            m_os.insert("version", "unknown");
-            break;
-        }
+        m_os.insert("version", "unknown");
         break;
     }
 #elif defined(Q_OS_LINUX)

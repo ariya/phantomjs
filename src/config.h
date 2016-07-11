@@ -121,7 +121,7 @@ public:
     void setOutputEncoding(const QString& value);
 
     QString proxyType() const;
-    void setProxyType(const QString value);
+    void setProxyType(const QString& value);
 
     QString proxy() const;
     void setProxy(const QString& value);
