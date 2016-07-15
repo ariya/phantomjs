@@ -4,7 +4,7 @@
 	branch = phantomjs
 [submodule "qtwebkit"]
 	path = src/qt/qtwebkit
-	url = https://github.com/Vitallium/qtwebkit.git
+	url = https://github.com/WinnerSoftLab/qtwebkit.git
 	branch = phantomjs
 [submodule "3rdparty-win"]
 	path = src/qt/3rdparty
