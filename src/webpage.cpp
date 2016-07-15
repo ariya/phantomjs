@@ -78,7 +78,7 @@
 #define INPAGE_CALL_NAME                "window.callAriel"
 #define CALLBACKS_OBJECT_INJECTION      INPAGE_CALL_NAME" = function() { return window."CALLBACKS_OBJECT_NAME".call.call(_ariel, Array.prototype.slice.call(arguments, 0)); };"
 #define CALLBACKS_OBJECT_PRESENT        "typeof(window."CALLBACKS_OBJECT_NAME") !== \"undefined\";"
-
+#define IFRAME_COPY_NAV_FROM_PARENT     "window.navigator = parent.window.navigator;"
 #define STDOUT_FILENAME "/dev/stdout"
 #define STDERR_FILENAME "/dev/stderr"
 
@@ -1762,6 +1762,7 @@ static void injectCallbacksObjIntoFrame(QWebFrame* frame, WebpageCallbacks* call
         // Decorate the window object in this frame (object ownership left to the creator/parent)
         frame->addToJavaScriptWindowObject(CALLBACKS_OBJECT_NAME, callbacksObject, QWebFrame::QtOwnership);
         frame->evaluateJavaScript(CALLBACKS_OBJECT_INJECTION);
+        frame->evaluateJavaScript(IFRAME_COPY_NAV_FROM_PARENT);
     }
 }
 
