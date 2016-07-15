@@ -127,6 +127,7 @@ private:
     QHash<QNetworkReply*, int> m_ids;
     QSet<QNetworkReply*> m_started;
     int m_idCounter;
+    QVariant m_lastHttpStatus;
     QNetworkDiskCache* m_networkDiskCache;
     QVariantMap m_customHeaders;
     QSslConfiguration m_sslConfiguration;
