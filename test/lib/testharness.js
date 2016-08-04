@@ -1485,7 +1485,7 @@ if (args.test_script === "") {
     // require.paths has no such limitation.
     var test_script = fs.absolute(args.test_script);
     phantom.libraryPath = test_script.slice(0,
-        test_script.lastIndexOf(fs.separator));
+        test_script.lastIndexOf('/'));
     require.paths.push(phantom.libraryPath);
 
     var output = new Output(sys.stdout, args.verbose);

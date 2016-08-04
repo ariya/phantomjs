@@ -95,12 +95,12 @@ async_test(function () {
             'name' : 'Invalid-Cookie-Name-5',
             'value' : 'Invalid-Cookie-Value-5',
             'domain' : 'localhost',
-            'expires' : new Date().getTime() - 1 //< date in the past
+            'expires' : new Date().getTime() - 100000000 //< date in the past
         },{ // cookie expired (date in "sec since epoch" - using "expiry").
             'name' : 'Invalid-Cookie-Name-6',
             'value' : 'Invalid-Cookie-Value-6',
             'domain' : 'localhost',
-            'expiry' : new Date().getTime() - 1 //< date in the past
+            'expiry' : new Date().getTime() - 100000000 //< date in the past
         }];
 
     page.open(url, this.step_func_done(function (status) {
