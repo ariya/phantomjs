@@ -13,7 +13,7 @@ if (system.args.length !== 2) {
 
 var port = system.args[1];
 
-service = server.listen(port, function (request, response) {
+var service = server.listen(port, function (request, response) {
     console.log('Request received at ' + new Date());
 
     response.statusCode = 200;
