@@ -1,0 +1,17 @@
+{% if page.categories contains category_name %}
+
+  <div class="nav-up">
+    &#8810; <a href="{{ site.url }}/api/">API</a>
+  </div>
+
+  <h2 class="nav-title">
+    {% if page.title != category_label %}
+      &#8810; <a href="{{ site.url }}/api/{{ category_name }}" class="nav-title">{{ category_label }}</a>
+    {% else %}
+      {{ category_label }}
+    {% endif %}
+  </h2>
+
+  {% include nav-list.md %}
+
+{% endif %}

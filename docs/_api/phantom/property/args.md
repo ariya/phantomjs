@@ -1,0 +1,28 @@
+---
+layout: post
+title:  args
+section: phantom
+kind: property
+permalink: api/phantom/property/args.html
+---
+
+`phantom.args` {String[]}
+
+**Stability:** _REMOVED_ - Use [`system.args`]({{ site.url }}/api/system/property/args.html) from the [System Module]({{ site.url }}/api/system/). Note that system.args contains the script name as its first element.
+
+Read-only. An array of the arguments passed to the script.
+
+## Examples
+
+```javascript
+phantom.args
+// @TODO: Finish phantom.args example.
+```
+
+
+
+
+
+
+
+

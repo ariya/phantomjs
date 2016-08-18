@@ -1,0 +1,29 @@
+name: PhantomJS
+highlighter: rouge
+markdown: kramdown
+kramdown:
+  input: GFM
+  auto_ids: true
+  syntax_highlighter: rouge
+
+# root URL for editing pages on GitHub (remember trailing slash)
+githubEdit: https://github.com/ariya/phantomjs/edit/master/docs/
+
+# When pushing to GitHub
+url: http://phantomjs.org
+
+# When Developing Locally
+#url: http://localhost:4000
+
+collections:
+  api:
+    output: true
+
+sectionTitles:
+  webpage: Web Page Module
+  phantom: phantom Object
+  child_process: Child Process Module
+  fs: File System Module
+  stream: Stream Objects
+  system: System Module
+  webserver: Web Server Module

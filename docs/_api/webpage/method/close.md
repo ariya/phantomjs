@@ -1,0 +1,31 @@
+---
+layout: post
+title:  close
+section: webpage
+kind: method
+permalink: api/webpage/method/close.html
+---
+
+`close()` {void}
+
+**Introduced:** PhantomJS 1.7
+
+Close the page and releases the memory heap associated with it. Do not use the page instance after calling this.
+
+Due to some technical limitations, the web page object might not be completely garbage collected. This is often encountered when the same object is used over and over again. Calling this function may stop the increasing heap allocation.
+
+## Examples
+
+```javascript
+var webPage = require('webpage');
+var page = webPage.create();
+// @TODO: Finish page.close example.
+```
+
+
+
+
+
+
+
+

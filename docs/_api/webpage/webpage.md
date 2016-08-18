@@ -1,0 +1,13 @@
+---
+layout: post
+title: Web Page Module
+section: webpage
+permalink: api/webpage/index.html
+---
+
+To start using, you must `require` a reference to the `webpage` module then use it to create an instance:
+
+```javascript
+var webPage = require('webpage');
+var page = webPage.create();
+```

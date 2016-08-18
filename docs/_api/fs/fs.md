@@ -1,0 +1,16 @@
+---
+layout: post
+title: File System Module
+section: fs
+permalink: api/fs/index.html
+---
+
+A set of API functions is available to access files and directories, modeled after the [CommonJS Filesystem proposal](http://wiki.commonjs.org/wiki/Filesystem).
+
+To start using, you must `require` a reference to the `fs` module:
+
+```javascript
+var fs = require('fs');
+```
+
+[Stream objects]({{ site.url }}/api/stream/) are returned from the [fs.open]({{ site.url }}/api/fs/method/open.html) method.

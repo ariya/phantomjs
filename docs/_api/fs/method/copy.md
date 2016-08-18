@@ -1,0 +1,32 @@
+---
+layout: post
+title:  copy
+section: fs
+kind: method
+permalink: api/fs/method/copy.html
+---
+
+'copy(string source, string destination)'
+
+This will try to copy a file from one path to another.
+
+Parameter 1 is the source file and parameter 2 is the destination path with the file name.
+
+If the source file can't be found then it will throw a 'Unable to copy file SOURCE at DESTINATION' and hang execution.
+
+If the destination can not be created then it will throw a 'Unable to copy file SOURCE at DESTINATION' and hang execution. It will not overwrite existing files.
+
+## Examples
+
+```javascript
+var fs = require('fs');
+fs.copy("A.txt", "folder/A.txt");
+```
+
+
+
+
+
+
+
+

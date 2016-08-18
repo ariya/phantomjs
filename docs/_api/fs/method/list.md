@@ -1,0 +1,39 @@
+---
+layout: post
+title:  list
+section: fs
+kind: method
+permalink: api/fs/method/list.html
+---
+
+'list(string)' (Array)
+
+List the contents of a directory on the file system as simple array. This will returns an empty array if the directory is unreadable or doesn't exist.
+
+## Examples
+
+```javascript
+// EXAMPLE: Show a list of files in a specific directory as a fully qualified path:
+var fs = require('fs');
+var path = "/etc/";
+// Get a list all files in directory
+var list = fs.list(path);
+// Cycle through the list
+for(var x = 0; x < list.length; x++){
+  // Note: If you didn't end path with a slash, you need to do so here.
+	var file = path + list[x];
+	if(fs.isFile(file)){
+		// Do something
+	}
+}
+
+phantom.exit();
+```
+
+
+
+
+
+
+
+

@@ -1,0 +1,24 @@
+---
+layout: post
+title:  title
+section: webpage
+kind: property
+permalink: api/webpage/property/title.html
+---
+
+## Examples
+
+```javascript
+page.open('http://phantomjs.org', function (status) {
+  console.log(page.title); // get page Title
+  phantom.exit();
+});
+```
+
+
+
+
+
+
+
+

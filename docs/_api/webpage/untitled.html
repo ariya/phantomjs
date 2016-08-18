@@ -1,0 +1,17 @@
+XXX
+{% for doc in site.api %}
+  C{{ doc.title }}C
+{% endfor %}
+XXX
+
+
+
+
+
+<ul>
+  {% for thingy in site[collectable] %}
+    {% if thingy.section == page.section %}
+      <li>{{ thingy.title }}</li>
+    {% endif %}
+  {% endfor %}
+</ul>

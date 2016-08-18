@@ -1,0 +1,38 @@
+---
+layout: post
+title:  isFile
+section: fs
+kind: method
+permalink: api/fs/method/is-file.html
+---
+
+'isFile(string)' (BOOL)
+
+This will determine if the path is a file. It returns a boolean, true if the path is a file.
+
+## Examples
+
+```javascript
+var fs = require('fs');
+var path = "/etc/";
+// Get a list all files in directory
+var list = fs.list(path);
+// Cycle through the list
+for(var x = 0; x < list.length; x++){
+  // Note: If you didn't end path with a slash, you need to do so here.
+	var file = path + list[x];
+	if(fs.isFile(file)){
+		// Do something
+	}
+}
+
+phantom.exit();
+```
+
+
+
+
+
+
+
+
