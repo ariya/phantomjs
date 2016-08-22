@@ -323,11 +323,16 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
 
     // http://code.google.com/p/phantomjs/issues/detail?id=337
     if (op == QNetworkAccessManager::PostOperation) {
-        if (outgoingData) { postData = outgoingData->peek(MAX_REQUEST_POST_BODY_SIZE); }
-        QString contentType = req.header(QNetworkRequest::ContentTypeHeader).toString();
-        if (contentType.isEmpty()) {
-            req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-        }
+      	if (outgoingData) {
+        		postData = outgoingData->peek(MAX_REQUEST_POST_BODY_SIZE);
+        		QString contentType = req.header(QNetworkRequest::ContentTypeHeader).toString();
+        		if (contentType.isEmpty() && postData.size() > 0) {
+        			// Added a test to see if we actually have data before setting the header, some webservices
+        			// crashes when sending an invalid Content-Type (Error 415), so not sending the header at all
+        			// can avoid us those troubles.
+            		req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+        		}
+				}
     }
 
     // set custom HTTP headers
