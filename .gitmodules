@@ -5,3 +5,7 @@
 	path = src/qt/webkit
 	url = https://github.com/matteoceraico/webkit.git
 	branch = qtwebkit-phantom
+[submodule "src/qt/qtbase"]
+	path = src/qt/qtbase
+	url = https://github.com/matteoceraico/qtbase.git
+	branch = 5.6.1-phantom
