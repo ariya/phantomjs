@@ -322,6 +322,7 @@ class PhantomJSBuilder(object):
             print("Skipping build of Qt Base")
             return
 
+        # Removing libraries imported from webkit installation
         command = ["rm", os.path.abspath("src/qt/qtbase/lib/libQt5WebKit*")]
         subprocess.call(" ".join(command), shell=True)
         command = ["rm", os.path.abspath("src/qt/qtbase/mkspecs/modules/qt_lib_webkit*")]
@@ -349,6 +350,9 @@ class PhantomJSBuilder(object):
         os.putenv("SQLITE3SRCDIR", os.path.abspath("src/qt/qtbase/src/3rdparty/sqlite"))
 
         print("configuring Qt WebKit, please wait...")
+        enable_touch_events =  "ON"
+        if self.options.disable_touch_events:
+            enable_touch_events = "OFF"
 
         cmakeArgs = [
             "-Wno-dev",
@@ -358,9 +362,8 @@ class PhantomJSBuilder(object):
             "-DENABLE_TOOLS=OFF",
             "-DENABLE_API_TESTS=OFF",
             "-DENABLE_TEST_SUPPORT=OFF",
-            "-DDISABLE_TOUCH_EVENTS=OFF"
+            "-DENABLE_TOUCH_EVENTS="+enable_touch_events
         ]
-
         command = [
             "./Tools/Scripts/build-webkit",
             "--qt",
@@ -381,13 +384,18 @@ class PhantomJSBuilder(object):
         if self.execute(shlex.split(" ".join(command)), "src/qt/webkit") != 0:
             raise RuntimeError("Building Qt WebKit failed.")
 
+        # Removing old libraries installed
+        command = ["rm", "-rf", os.path.abspath("src/qt/qtwebkit")]
+        subprocess.call(" ".join(command), shell=True)
+
+        # Installing new libraries
         command = list(self.makeCommand);
         command.append("install");
         self.execute(command, "src/qt/webkit/WebKitBuild/Release")
 
+        # Moving needed libraries into qtbase
         command = ["cp", os.path.abspath("src/qt/qtwebkit/lib/libQt5WebKit*"), os.path.abspath("src/qt/qtbase/lib/")]
         subprocess.call(" ".join(command), shell=True)
-
         command = ["cp", os.path.abspath("src/qt/qtwebkit/mkspecs/modules/qt_lib_webkit*"), os.path.abspath("src/qt/qtbase/mkspecs/modules/")]
         subprocess.call(" ".join(command), shell=True)
 
@@ -405,7 +413,7 @@ class PhantomJSBuilder(object):
         if self.options.skip_git: return
         if self.execute(["git", "submodule", "init"], ".") != 0:
             raise RuntimeError("Initialization of git submodules failed.")
-        if self.execute(["git", "submodule", "update"], ".") != 0:
+        if self.execute(["git", "submodule", "update", "--remote"], ".") != 0:
             raise RuntimeError("Initial update of git submodules failed.")
 
     # run all build steps required to get a final PhantomJS binary at the end
@@ -467,6 +475,9 @@ def parseArguments():
                                  "has changed and only an update of Qt WebKit is required.")
     advanced.add_argument("--skip-git", action="store_true",
                             help="Skip all actions that require Git.  For use when building from "
+                                 "a tarball release.")
+    advanced.add_argument("--disable-touch-events", action="store_true",
+                            help="Build phantomjs without touch events support."
                                  "a tarball release.")
     options = parser.parse_args()
     if options.debug and options.release:
