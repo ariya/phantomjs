@@ -1,3 +1,7 @@
 [submodule "3rdparty-win"]
 	path = src/qt/3rdparty
 	url = https://github.com/Vitallium/phantomjs-3rdparty-win.git
+[submodule "src/qt/webkit"]
+	path = src/qt/webkit
+	url = https://github.com/matteoceraico/webkit.git
+	branch = qtwebkit-phantom
