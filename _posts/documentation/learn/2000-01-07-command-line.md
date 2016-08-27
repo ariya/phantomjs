@@ -7,7 +7,7 @@ permalink: api/command-line.html
 
 _**As the codebase is updated, we hope to keep these documents updated as well. Unless otherwise stated, this documentation currently applies to the latest PhantomJS release:** PhantomJS 2.1.1_
 
-Assuming PhantomJS is [built](http://phantomjs.org/build.html) and its executable is place somewhere in the PATH, it can be invoked as follows:
+Assuming PhantomJS is [built](http://phantomjs.org/build.html) and its executable is placed somewhere in the PATH, it can be invoked as follows:
 
 ```bash
 phantomjs [options] somescript.js [arg1 [arg2 [...]]]
