@@ -7,7 +7,7 @@ permalink: api/webpage/method/render-buffer.html
 
 `renderBuffer(format, quality)`
 
-Renders the web page to an image buffer which can be sent directly to a client (e.g. using the webserve module)
+Renders the web page to an image buffer which can be sent directly to a client (e.g. using the webserver module)
 
 ## Supported formats
 
