@@ -40,6 +40,7 @@
 #define COOKIE_JAR_VERSION      1
 
 // Operators needed for Cookie Serialization
+// cookie序列化操作
 QT_BEGIN_NAMESPACE
 QDataStream& operator<<(QDataStream& stream, const QList<QNetworkCookie>& list)
 {
@@ -51,6 +52,7 @@ QDataStream& operator<<(QDataStream& stream, const QList<QNetworkCookie>& list)
     return stream;
 }
 
+// cookie反序列化
 QDataStream& operator>>(QDataStream& stream, QList<QNetworkCookie>& list)
 {
     list.clear();
@@ -303,6 +305,7 @@ QVariantMap CookieJar::cookieToMap(const QString& name, const QString& url) cons
     return QVariantMap();
 }
 
+// 根据cookie名称和url地址删除指定cookie
 bool CookieJar::deleteCookie(const QString& name, const QString& url)
 {
     bool deleted = false;
@@ -318,9 +321,11 @@ bool CookieJar::deleteCookie(const QString& name, const QString& url)
             if (name.isEmpty()) {           //< Neither "name" or "url" provided
                 // This method has been used wrong:
                 // "redirecting" to the right method for the job
+                // 如果name和url都为空，则清除掉所有cookie
                 clearCookies();
             } else {                        //< Only "name" provided
                 // Delete all cookies with the given name from the CookieJar
+                // 删除指定名称的cookie
                 cookiesListAll = allCookies();
                 for (int i = cookiesListAll.length() - 1; i >= 0; --i) {
                     if (cookiesListAll.at(i).name() == name) {
@@ -334,6 +339,7 @@ bool CookieJar::deleteCookie(const QString& name, const QString& url)
         } else {
             // Delete cookie(s) from the ones visible to the given "url".
             // Use the "name" to delete only the right one, otherwise all of them.
+            // 根据url获取cookie列表
             QList<QNetworkCookie> cookiesListUrl = cookies(url);
             cookiesListAll = allCookies();
             for (int i = cookiesListAll.length() - 1; i >= 0; --i) {
@@ -358,11 +364,13 @@ bool CookieJar::deleteCookie(const QString& name, const QString& url)
     return deleted;
 }
 
+// 根据url地址删除cookie
 bool CookieJar::deleteCookies(const QString& url)
 {
     if (isEnabled()) {
         if (url.isEmpty()) {
             // No URL provided: delete ALL the cookies in the CookieJar
+            // 如果url地址为空，则清除掉所有cookie
             clearCookies();
             return true;
         }
@@ -374,6 +382,7 @@ bool CookieJar::deleteCookies(const QString& url)
     return false;
 }
 
+// 清除所有cookie
 void CookieJar::clearCookies()
 {
     if (isEnabled()) {
@@ -429,8 +438,12 @@ bool CookieJar::purgeExpiredCookies()
     return false;
 }
 
+/**
+    清除session类型的cookie
+**/
 bool CookieJar::purgeSessionCookies()
 {
+    // 获取cookiee列表
     QList<QNetworkCookie> cookiesList = allCookies();
 
     // If empty, there is nothing to purge
@@ -441,13 +454,16 @@ bool CookieJar::purgeSessionCookies()
     // Check if any cookie has expired
     int prePurgeCookiesCount = cookiesList.count();
     for (int i = cookiesList.count() - 1; i >= 0; --i) {
+        // 如果是session类型的cookie
         if (cookiesList.at(i).isSessionCookie()) {
             qDebug() << "CookieJar - Purged (session)" << cookiesList.at(i).toRawForm();
+            // 移除
             cookiesList.removeAt(i);
         }
     }
 
     // Set cookies and returns "true" if at least 1 session cookie was found and removed
+    // 如果有cookie被移除，则重新设置cookie列表，避免不必要的操作
     if (prePurgeCookiesCount != cookiesList.count()) {
         setAllCookies(cookiesList);
         return true;
@@ -455,10 +471,12 @@ bool CookieJar::purgeSessionCookies()
     return false;
 }
 
+// 保存cookie
 void CookieJar::save()
 {
     if (isEnabled()) {
         // Get rid of all the Cookies that have expired
+        // 移除所有过期的cookie
         purgeExpiredCookies();
 
 #ifndef QT_NO_DEBUG_OUTPUT
@@ -469,15 +487,20 @@ void CookieJar::save()
 
         // Store cookies
         if (m_cookieStorage) {
+            // 存储
             m_cookieStorage->setValue(QLatin1String("cookies"), QVariant::fromValue<QList<QNetworkCookie> >(allCookies()));
         }
     }
 }
 
+/**
+    加载cookie
+**/
 void CookieJar::load()
 {
     if (isEnabled()) {
         // Register a "StreamOperator" for this Meta Type, so we can easily serialize/deserialize the cookies
+        // 为元数据类型注册一个StreamOpertor，方便对cookie进行序列化和反序列化
         qRegisterMetaTypeStreamOperators<QList<QNetworkCookie> >("QList<QNetworkCookie>");
 
         // Load all the cookies
@@ -498,6 +521,9 @@ void CookieJar::load()
     }
 }
 
+/**
+    判断cookie列表中是否包含某个cookie
+**/
 bool CookieJar::contains(const QNetworkCookie& cookieToFind) const
 {
     QList<QNetworkCookie> cookiesList = allCookies();
