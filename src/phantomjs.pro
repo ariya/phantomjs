@@ -8,10 +8,9 @@ DESTDIR = ../bin
 RESOURCES = phantomjs.qrc \
     ghostdriver/ghostdriver.qrc
 
-win32 {
+CONFIG(static):win32: {
     RESOURCES += \
-     qt/qtwebkit/Source/WebCore/inspector/front-end/WebKit.qrc \
-     qt/qtwebkit/Source/WebCore/generated/InspectorBackendCommands.qrc
+        $$(WEB_INSPECTOR_RESOURCES_DIR)/WebInspector.qrc
 }
 
 HEADERS = \
