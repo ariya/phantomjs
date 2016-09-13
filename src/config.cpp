@@ -36,7 +36,6 @@
 #include <QFileInfo>
 #include <QWebPage>
 #include <QWebFrame>
-#include <QNetworkProxy>
 
 #include "terminal.h"
 #include "qcommandline.h"
@@ -44,7 +43,6 @@
 #include "consts.h"
 
 #include <iostream>
-
 
 static const struct QCommandLineConfigEntry flags[] = {
     { QCommandLine::Option, '\0', "cookies-file", "Sets the file name to store the persistent cookies", QCommandLine::Optional },

@@ -31,8 +31,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include <QString>
-#include <QStringList>
 #include <QNetworkProxy>
 #include <QVariant>
 

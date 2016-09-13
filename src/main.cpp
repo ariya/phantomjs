@@ -28,16 +28,13 @@
 */
 #include "consts.h"
 #include "utils.h"
-#include "env.h"
 #include "phantom.h"
 #include "crashdump.h"
 
 #include <QApplication>
 #include <QSslSocket>
-#include <QIcon>
 #include <QWebSettings>
 
-#include <exception>
 #include <stdio.h>
 
 static int inner_main(int argc, char** argv)
