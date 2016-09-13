@@ -306,6 +306,7 @@ void NetworkAccessManager::setCookieJar(QNetworkCookieJar* cookieJar)
 QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkRequest& request, QIODevice* outgoingData)
 {
     QNetworkRequest req(request);
+    req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
     QString scheme = req.url().scheme().toLower();
 
     if (!QSslSocket::supportsSsl()) {
@@ -322,7 +323,7 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
     QByteArray postData;
 
     // http://code.google.com/p/phantomjs/issues/detail?id=337
-    if (op == QNetworkAccessManager::PostOperation) {
+    if (op == PostOperation) {
         if (outgoingData) { postData = outgoingData->peek(MAX_REQUEST_POST_BODY_SIZE); }
         QString contentType = req.header(QNetworkRequest::ContentTypeHeader).toString();
         if (contentType.isEmpty()) {
@@ -352,7 +353,7 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
     data["url"] = url.data();
     data["method"] = toString(op);
     data["headers"] = headers;
-    if (op == QNetworkAccessManager::PostOperation) { data["postData"] = postData.data(); }
+    if (op == PostOperation) { data["postData"] = postData.data(); }
     data["time"] = QDateTime::currentDateTime();
 
     JsNetworkRequest jsNetworkRequest(&req, this);
@@ -387,9 +388,10 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
         connect(nt, SIGNAL(timeout()), this, SLOT(handleTimeout()));
     }
 
-    connect(reply, SIGNAL(readyRead()), this, SLOT(handleStarted()));
-    connect(reply, SIGNAL(sslErrors(const QList<QSslError>&)), this, SLOT(handleSslErrors(const QList<QSslError>&)));
-    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(handleNetworkError()));
+    connect(reply, &QNetworkReply::readyRead, this, &NetworkAccessManager::handleStarted);
+    connect(reply, &QNetworkReply::sslErrors, this, &NetworkAccessManager::handleSslErrors);
+    connect(reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error), this, &NetworkAccessManager::handleNetworkError);
+    connect(reply, &QNetworkReply::redirected, this, &NetworkAccessManager::handleRedirect);
 
     // synchronous requests will be finished at this point
     if (reply->isFinished()) {
@@ -505,11 +507,11 @@ void NetworkAccessManager::handleSslErrors(const QList<QSslError>& errors)
     }
 }
 
-void NetworkAccessManager::handleNetworkError()
+void NetworkAccessManager::handleNetworkError(QNetworkReply::NetworkError error)
 {
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
     qDebug() << "Network - Resource request error:"
-             << reply->error()
+             << error
              << "(" << reply->errorString() << ")"
              << "URL:" << reply->url().toEncoded();
 
@@ -535,4 +537,19 @@ QVariantList NetworkAccessManager::getHeadersFromReply(const QNetworkReply* repl
     }
 
     return headers;
+}
+
+void NetworkAccessManager::handleRedirect(const QUrl& url)
+{
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+
+    qDebug() << "Network - Redirecting to " << url.toEncoded();
+
+    QVariantMap data;
+    data["id"] = m_ids.value(reply);
+    data["url"] = url.toEncoded().data();
+
+    emit resourceRedirect(data);
+
+    get(QNetworkRequest(url));
 }
