@@ -47,7 +47,7 @@ public:
     QVariant returnValue() const;
     void setReturnValue(const QVariant& returnValue);
 
-signals:
+Q_SIGNALGS:
     void called(const QVariantList& arguments);
 
 private:

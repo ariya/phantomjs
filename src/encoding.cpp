@@ -35,7 +35,7 @@ Encoding::Encoding()
     QTextCodec* codec = QTextCodec::codecForName(DEFAULT_CODEC_NAME);
 
     // Fall back to locale codec
-    if ((QTextCodec*)NULL == codec) {
+    if (!codec) {
         codec = QTextCodec::codecForLocale();
     }
 
@@ -73,7 +73,7 @@ void Encoding::setEncoding(const QString& encoding)
     if (!encoding.isEmpty()) {
         QTextCodec* codec = QTextCodec::codecForName(encoding.toLatin1());
 
-        if ((QTextCodec*)NULL != codec) {
+        if (!codec) {
             m_codec = codec;
         }
     }
@@ -86,7 +86,7 @@ QTextCodec* Encoding::getCodec() const
 {
     QTextCodec* codec = m_codec;
 
-    if ((QTextCodec*)NULL == codec) {
+    if (!codec) {
         codec = QTextCodec::codecForLocale();
     }
 

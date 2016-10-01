@@ -29,11 +29,11 @@
 
 #include "filesystem.h"
 
-#include <QFile>
-#include <QFileInfo>
 #include <QDir>
 #include <QDebug>
 #include <QDateTime>
+#include <QFile>
+#include <QFileInfo>
 
 // File
 // public:
@@ -223,7 +223,7 @@ bool File::setEncoding(const QString& encoding)
     }
 
     // "Binary" mode doesn't use/need text codecs
-    if ((QTextStream*)NULL == m_fileStream) {
+    if (!m_fileStream) {
         // TODO: Should we switch to "text" mode?
         return false;
     }
@@ -232,7 +232,7 @@ bool File::setEncoding(const QString& encoding)
     // "utf-8"), we need to get the codec in the system first and use its
     // canonical name
     QTextCodec* codec = QTextCodec::codecForName(encoding.toLatin1());
-    if ((QTextCodec*)NULL == codec) {
+    if (!codec) {
         return false;
     }
 
@@ -253,7 +253,7 @@ QString File::getEncoding() const
 {
     QString encoding;
 
-    if ((QTextStream*)NULL != m_fileStream) {
+    if (m_fileStream) {
         encoding = QString(m_fileStream->codec()->name());
     }
 

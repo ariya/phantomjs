@@ -61,7 +61,7 @@ bool Terminal::setEncoding(const QString& encoding)
     // "utf-8"), we need to get the codec in the system first and use its
     // canonical name
     QTextCodec* codec = QTextCodec::codecForName(encoding.toLatin1());
-    if ((QTextCodec*)NULL == codec) {
+    if (!codec) {
         return false;
     }
 
