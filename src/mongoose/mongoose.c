@@ -2396,6 +2396,7 @@ static void handle_directory_request(struct mg_connection *conn,
   struct dirent *dp;
   DIR *dirp;
   struct de *entries = NULL;
+  struct de *tmp_entries = NULL;
   char path[PATH_MAX];
   int i, sort_direction, num_entries = 0, arr_size = 128;
 
@@ -2423,8 +2424,14 @@ static void handle_directory_request(struct mg_connection *conn,
 
     if (entries == NULL || num_entries >= arr_size) {
       arr_size *= 2;
-      entries = (struct de *) realloc(entries,
+      tmp_entries = (struct de *) realloc(entries,
           arr_size * sizeof(entries[0]));
+      if (tmp_entries != NULL) {
+        entries = tmp_entries;
+      } else {
+        free (entries);
+        entries = NULL;
+      }
     }
 
     if (entries == NULL) {
