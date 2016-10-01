@@ -60,7 +60,7 @@ public:
     Q_INVOKABLE qint64 _write(const QString &chunk, const QString &encoding);
     Q_INVOKABLE void _close();
 
-Q_SINGALS:
+Q_SIGNALS:
     void exit(const int code) const;
 
     /**
