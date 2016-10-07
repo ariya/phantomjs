@@ -66,6 +66,7 @@ test(function () {
     assert_type_of(system.stdout.writeLine, 'function');
     assert_type_of(system.stdout.flush, 'function');
     assert_type_of(system.stdout.close, 'function');
+    assert_type_of(system.stdout.isTTY, 'function');
 }, "system.stdout");
 
 test(function () {

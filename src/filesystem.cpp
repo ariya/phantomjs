@@ -29,6 +29,7 @@
 
 #include "filesystem.h"
 
+#include <stdio.h>
 #include <QDir>
 #include <QDebug>
 #include <QDateTime>
@@ -135,6 +136,14 @@ bool File::write(const QString& data)
         }
         return m_file->write(bytes);
     }
+}
+
+bool File::isTTY()
+{
+    if (isatty(fileno(stdout))) {
+        return true;
+    }
+    return false;
 }
 
 bool File::seek(const qint64 pos)
