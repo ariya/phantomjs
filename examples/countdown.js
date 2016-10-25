@@ -1,8 +1,10 @@
-var t = 10;
-while (t > 0) {
-    console.log(t);
-    phantom.sleep(1000);
-    t = t - 1;
-}
-console.log('BLAST OFF');
-phantom.exit();
+"use strict";
+var t = 10,
+    interval = setInterval(function(){
+        if ( t > 0 ) {
+            console.log(t--);
+        } else {
+            console.log("BLAST OFF!");
+            phantom.exit();
+        }
+    }, 1000);
