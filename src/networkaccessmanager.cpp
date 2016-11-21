@@ -306,7 +306,11 @@ void NetworkAccessManager::setCookieJar(QNetworkCookieJar* cookieJar)
 QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkRequest& request, QIODevice* outgoingData)
 {
     QNetworkRequest req(request);
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
     req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+#endif
+
     QString scheme = req.url().scheme().toLower();
 
     if (!QSslSocket::supportsSsl()) {
@@ -391,7 +395,10 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
     connect(reply, &QNetworkReply::readyRead, this, &NetworkAccessManager::handleStarted);
     connect(reply, &QNetworkReply::sslErrors, this, &NetworkAccessManager::handleSslErrors);
     connect(reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error), this, &NetworkAccessManager::handleNetworkError);
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
     connect(reply, &QNetworkReply::redirected, this, &NetworkAccessManager::handleRedirect);
+#endif
 
     // synchronous requests will be finished at this point
     if (reply->isFinished()) {
@@ -510,6 +517,7 @@ void NetworkAccessManager::handleSslErrors(const QList<QSslError>& errors)
 void NetworkAccessManager::handleNetworkError(QNetworkReply::NetworkError error)
 {
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+
     qDebug() << "Network - Resource request error:"
              << error
              << "(" << reply->errorString() << ")"
@@ -539,6 +547,7 @@ QVariantList NetworkAccessManager::getHeadersFromReply(const QNetworkReply* repl
     return headers;
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
 void NetworkAccessManager::handleRedirect(const QUrl& url)
 {
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
@@ -553,3 +562,4 @@ void NetworkAccessManager::handleRedirect(const QUrl& url)
 
     get(QNetworkRequest(url));
 }
+#endif

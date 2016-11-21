@@ -108,7 +108,10 @@ Q_SIGNALS:
     void resourceReceived(const QVariant& data);
     void resourceError(const QVariant& data);
     void resourceTimeout(const QVariant& data);
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
     void resourceRedirect(const QVariant& data);
+#endif
 
 private slots:
     void handleStarted();
@@ -117,7 +120,10 @@ private slots:
     void handleSslErrors(const QList<QSslError>& errors);
     void handleNetworkError(QNetworkReply::NetworkError);
     void handleTimeout();
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
     void handleRedirect(const QUrl& url);
+#endif
 
 private:
     void prepareSslConfiguration(const Config* config);
