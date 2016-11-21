@@ -42,6 +42,11 @@
 
 static int inner_main(int argc, char** argv)
 {
+#ifdef Q_OS_LINUX
+    // override default Qt platform plugin
+    qputenv("QT_QPA_PLATFORM", "offscreen");
+#endif
+
     QApplication app(argc, argv);
 
     app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
