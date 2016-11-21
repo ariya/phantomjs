@@ -95,6 +95,10 @@ win32-msvc* {
     }
 }
 
+linux {
+    CONFIG += c++11
+}
+
 openbsd* {
     LIBS += -L/usr/X11R6/lib
 }
