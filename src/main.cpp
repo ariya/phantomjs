@@ -32,16 +32,19 @@
 #include "crashdump.h"
 
 #include <QApplication>
+#include <QtPlugin>
 #include <QSslSocket>
 #include <QWebSettings>
 
 #include <stdio.h>
 
+Q_IMPORT_PLUGIN(PhantomIntegrationPlugin);
+
 static int inner_main(int argc, char** argv)
 {
 #ifdef Q_OS_LINUX
     // override default Qt platform plugin
-    qputenv("QT_QPA_PLATFORM", "offscreen");
+    qputenv("QT_QPA_PLATFORM", "phantom");
 #endif
 
     QApplication app(argc, argv);

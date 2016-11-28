@@ -1,4 +1,5 @@
 TARGET = qphantom
+CONFIG += static
 
 PLUGIN_TYPE = platforms
 PLUGIN_CLASS_NAME = PhantomIntegrationPlugin
