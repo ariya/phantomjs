@@ -27,6 +27,7 @@
 #include "FontDescription.h"
 #include "FontFallbackList.h"
 #include "FontSelector.h"
+#include "FontPlatformData.h"
 #if HAVE(QRAWFONT)
 #include "GlyphBuffer.h"
 #endif
@@ -471,6 +472,8 @@ void Font::drawEmphasisMarksForSimpleText(GraphicsContext* /* context */, const 
 QFont Font::font() const
 {
     QFont f = primaryFont()->getQtFont();
+    f.setWeight(toQFontWeight(weight()));
+    f.setItalic(italic());
     if (m_letterSpacing != 0)
         f.setLetterSpacing(QFont::AbsoluteSpacing, m_letterSpacing);
     if (m_wordSpacing != 0)
