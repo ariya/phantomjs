@@ -28,6 +28,12 @@ For the 32-bit version:
  $ docker run -v $PWD:/src tubia/debian:wheezy /src/deploy/docker-build.sh
 ```
 
+For an RPM package:
+```bash
+$ git clean -xfd .
+$ docker run -v $PWD:/src centos:6 /src/deploy/docker-mkrpm.sh
+```
+
 The built binary will be extracted out of the container and copied to
 the current directory.
 
