@@ -34,10 +34,10 @@ which gives the following `tiger.png`:
 
 ![Rendered Tiger](http://lh6.ggpht.com/_Oijhf1ZPv-4/TR6iM8J0KrI/AAAAAAAABy4/RCZ8Eg567LM/s400/tiger.png)
 
-Another example is to show [polar clock](http://raphaeljs.com/polar-clock.html) (from [RaphaelJS](http://raphaeljs.com)):
+Another example is to show [polar clock](https://dmitrybaranovskiy.github.io/raphael/polar-clock.html) (from [RaphaelJS](https://dmitrybaranovskiy.github.io/raphael/)):
 
 ```bash
-phantomjs rasterize.js http://raphaeljs.com/polar-clock.html clock.png
+phantomjs rasterize.js https://dmitrybaranovskiy.github.io/raphael/polar-clock.html clock.png
 ```
 
 ![Polar Clock](https://lh5.googleusercontent.com/_Oijhf1ZPv-4/TUuUx1o-tuI/AAAAAAAAB00/Ba-Gxl5Zp6Q/s288/polar-clock.png)
