@@ -18,7 +18,7 @@ var fs = require('fs');
 
 var path = '/Full/Path/To/Test/';
 
-if(fs.makeDirectory(test))
+if(fs.makeDirectory(path))
   console.log('"'+path+'" was created.');
 else
   console.log('"'+path+'" is NOT created.');
