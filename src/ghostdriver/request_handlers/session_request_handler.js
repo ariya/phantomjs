@@ -766,27 +766,31 @@ ghostdriver.SessionReqHand = function(session) {
             }
 
             // If the cookie is expired OR if it was successfully added
-            if ((postObj.cookie.expiry && postObj.cookie.expiry <= new Date().getTime()) ||
-                currWindow.addCookie(postObj.cookie)) {
+            if (postObj.cookie.expiry && postObj.cookie.expiry <= new Date().getTime()) {
+                return; // The cookie is expired.
+            }
+                // Something went wrong while trying to set the cookie
+            if (postObj.cookie.domain && currWindow.url.indexOf(postObj.cookie.domain) < 0) {
+                // Domain mismatch
+                _errors.handleFailedCommandEH(_errors.FAILED_CMD_STATUS_CODES.InvalidCookieDomain,
+                    "Can only set Cookies for the current domain",
+                    req,
+                    res,
+                    _session);
+                return;
+            }
+
+            // If addCookie would return true on success (currently always false) a day as specified in documentation
+            // We will need to check the result and throw an error like _errors.FAILED_CMD_STATUS_CODES.UnableToSetCookie with message "Unable to set Cookie"
+            if (currWindow.addCookie(postObj.cookie)) {
                 // Notify success
                 res.success(_session.getId());
             } else {
-                // Something went wrong while trying to set the cookie
-                if (currWindow.url.indexOf(postObj.cookie.domain) < 0) {
-                    // Domain mismatch
-                    _errors.handleFailedCommandEH(_errors.FAILED_CMD_STATUS_CODES.InvalidCookieDomain,
-                        "Can only set Cookies for the current domain",
-                        req,
-                        res,
-                        _session);
-                } else {
-                    // Something else went wrong
-                    _errors.handleFailedCommandEH(_errors.FAILED_CMD_STATUS_CODES.UnableToSetCookie,
-                        "Unable to set Cookie",
-                        req,
-                        res,
-                        _session);
-                }
+                _errors.handleFailedCommandEH(_errors.FAILED_CMD_STATUS_CODES.UnableToSetCookie,
+                    "Unable to set Cookie",
+                    req,
+                    res,
+                    _session);
             }
         } else {
             throw _errors.createInvalidReqMissingCommandParameterEH(req);
