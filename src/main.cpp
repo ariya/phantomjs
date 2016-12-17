@@ -38,7 +38,9 @@
 
 #include <stdio.h>
 
+#ifdef Q_OS_LINUX
 Q_IMPORT_PLUGIN(PhantomIntegrationPlugin);
+#endif
 
 static int inner_main(int argc, char** argv)
 {

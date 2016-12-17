@@ -94,9 +94,9 @@ win32-msvc* {
     }
 }
 
-include($$PWD/qt-qpa-platform-plugin/phantom.pri)
-
 linux {
+    include($$PWD/qt-qpa-platform-plugin/phantom.pri)
+
     CONFIG += c++11
     QTPLUGIN.platforms = -
     LIBS += -L$$PWD/qt-qpa-platform-plugin/plugins/platforms
