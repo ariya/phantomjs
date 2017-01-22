@@ -19,7 +19,7 @@ page.onLoadStarted = function() {
   var currentUrl = page.evaluate(function() {
     return window.location.href;
   });
-  console.log('Current page ' + currentUrl + ' will gone...');
+  console.log('Current page ' + currentUrl + ' will be gone...');
   console.log('Now loading a new page...');
 };
 ```
