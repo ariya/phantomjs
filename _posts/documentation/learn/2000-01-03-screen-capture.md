@@ -5,9 +5,9 @@ categories: docs docs-learn
 permalink: screen-capture.html
 ---
 
-Since PhantomJS is using WebKit, a real layout and rendering engine, it can capture a web page as a screenshot. Because PhantomJS can render anything on the web page, it can be used to convert contents not only in HTML and CSS, but also SVG and Canvas.
+Since PhantomJS is using WebKit, a real layout and rendering engine, it can capture a web page as a screenshot. Because PhantomJS can render anything on the web page, it can be used to convert HTML content styled with CSS but also SVG, images and Canvas elements.
 
-The following script demonstrates the simplest use of page capture. It loads the Github homepage and then saves it as an image, `github.png`.
+The following script demonstrates the simplest use of page capture. It loads the GitHub homepage and then saves it as an image, `github.png`.
 
 ```javascript
 var page = require('webpage').create();
@@ -42,13 +42,13 @@ phantomjs rasterize.js https://dmitrybaranovskiy.github.io/raphael/polar-clock.h
 
 ![Polar Clock](https://lh5.googleusercontent.com/_Oijhf1ZPv-4/TUuUx1o-tuI/AAAAAAAAB00/Ba-Gxl5Zp6Q/s288/polar-clock.png)
 
-Producing PDF output is also easy, e.g. from a Wikipedia article:
+Producing PDF output is also easy, such as from a Wikipedia article:
 
 ```bash
 phantomjs rasterize.js 'http://en.wikipedia.org/w/index.php?title=Jakarta&printable=yes' jakarta.pdf
 ```
 
-You can change the size of the screenshot and the webpage using the attribute of the page:
+You can change the size of the screenshot and the webpage using the page's attributes:
 
 ```javascript
 var page = require('webpage').create();
