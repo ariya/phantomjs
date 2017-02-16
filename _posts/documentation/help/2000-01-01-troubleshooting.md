@@ -19,7 +19,7 @@ All examples are designed to work with the latest version of PhantomJS. If some 
 
 If the data is not transferred correctly, check if the network works as expected.
 
-Since every network request and response can be "sniffed", add simple callbacks to facilitate such troubleshooting. For more details, see the wiki page on [[Network Monitoring|Network Monitoring]]. An example of a simple logging:
+Since every network request and response can be "sniffed", add simple callbacks to facilitate such troubleshooting. For more details, see the wiki page on [Network Monitoring](network-monitoring.html). An example of a simple logging:
 
 ```javascript
 page.onResourceRequested = function (request) {
