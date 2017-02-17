@@ -1,3 +1,39 @@
+# 扩展方法
++ loadJsAsModule
+
+```javascript
+   var test = phantom.loadJsAsModule('test.js')
+   console.log(test)
+   console.log(test.key)
+   console.log(typeof test.fn)
+```
+
+test.js
+
+```javascript
+   module.exports = {
+   	key: 'this is key.',
+	fn: function(){
+		console.log('this is a function.')
+	}
+   }
+```
+
+控制台输出:
+
+```javascript
+	[object Object]
+	this is key.
+	function
+```
+
+bug:
+
+通常typeof test.fn的结果为object,why?
+
+
+
+
 # [PhantomJS](http://phantomjs.org) - Scriptable Headless WebKit
 
 PhantomJS ([phantomjs.org](http://phantomjs.org)) is a headless WebKit scriptable with JavaScript.  The latest [stable release](http://phantomjs.org/release-2.1.html) is version 2.1.

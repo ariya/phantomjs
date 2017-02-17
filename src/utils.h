@@ -34,6 +34,8 @@
 #include <QtGlobal>
 #include "encoding.h"
 
+#include <QVariant>
+
 class QWebFrame;
 
 /**
@@ -71,6 +73,18 @@ bool loadJSForDebug(const QString& jsFilePath,
                     const QString& libraryPath,
                     QWebFrame* targetFrame,
                     const bool autorun = false);
+
+QVariant injectJsInFrameAsModule(const QString& jsFilePath,
+                     const QString& libraryPath,
+                     QWebFrame* targetFrame,
+                     const bool startingScript = false);
+
+QVariant injectJsInFrameAsModule(const QString& jsFilePath,
+                     const QString& jsFileLanguage,
+                     const Encoding& jsFileEnc,
+                     const QString& libraryPath,
+                     QWebFrame* targetFrame,
+                     const bool startingScript = false);
 
 QString readResourceFileUtf8(const QString& resourceFilePath);
 

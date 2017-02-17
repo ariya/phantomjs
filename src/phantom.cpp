@@ -408,6 +408,25 @@ bool Phantom::injectJs(const QString& jsFilePath)
     return Utils::injectJsInFrame(pre + jsFilePath, libraryPath(), m_page->mainFrame());
 }
 
+QVariant Phantom::loadJsAsModule(const QString& jsFilePath)
+{
+    QString pre = "";
+    qDebug() << "Phantom - loadJsAsModule:" << jsFilePath;
+
+    // If in Remote Webdriver Mode, we need to manipulate the PATH, to point it to a resource in `ghostdriver.qrc`
+    if (webdriverMode()) {
+        pre = ":/ghostdriver/";
+        qDebug() << "Phantom - loadJsAsModule: prepending" << pre;
+    }
+
+    if (m_terminated) {
+        return false;
+    }
+
+    return Utils::injectJsInFrameAsModule(pre + jsFilePath, libraryPath(), m_page->mainFrame());
+}
+
+
 void Phantom::setProxy(const QString& ip, const qint64& port, const QString& proxyType, const QString& user, const QString& password)
 {
     qDebug() << "Set " << proxyType << " proxy to: " << ip << ":" << port;
