@@ -66,7 +66,7 @@ try {
     router = new ghostdriver.RouterReqHand();
 
     // Start the server
-    if (server.listen(ghostdriver.config.port, { "keepAlive" : true }, router.handle)) {
+    if (server.listen(ghostdriver.config.ip+":"+ghostdriver.config.port, { "keepAlive" : true }, router.handle)) {
         _log.info("Main", "running on port " + server.port);
 
         // If a Selenium Grid HUB was provided, register to it!
