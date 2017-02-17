@@ -1,9 +1,9 @@
-# [PhantomJS](http://phantomjs.org) - Scriptable Headless WebKit
-
+## [PhantomJS](http://phantomjs.org) - Scriptable Headless WebKit
+It is a project named PhantomJS <br>
 PhantomJS ([phantomjs.org](http://phantomjs.org)) is a headless WebKit scriptable with JavaScript.  The latest [stable release](http://phantomjs.org/release-2.1.html) is version 2.1.
-
+<br>
 **Note**: Please **do not** create a GitHub pull request **without** reading the [Contribution Guide](https://github.com/ariya/phantomjs/blob/master/CONTRIBUTING.md) first. Failure to do so may result in the rejection of the pull request.
-
+<br>
 ## Use Cases
 
 - **Headless web testing**. Lightning-fast testing without the browser is now possible!
