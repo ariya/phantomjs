@@ -1212,7 +1212,7 @@ bool WebPage::renderPdf(QPdfWriter& pdfWriter)
     } else if (paperSize.contains("format")) {
         const QPageLayout::Orientation orientation = paperSize.contains("orientation")
                 && paperSize.value("orientation").toString().compare("landscape", Qt::CaseInsensitive) == 0 ?
-                QPageLayout::Portrait : QPageLayout::Landscape;
+                QPageLayout::Landscape : QPageLayout::Portrait;
         pdfWriter.setPageOrientation(orientation);
         static const struct {
             QString format;
@@ -1288,10 +1288,7 @@ bool WebPage::renderPdf(QPdfWriter& pdfWriter)
     }
 
     pdfWriter.setPageMargins(QMarginsF(marginLeft, marginTop, marginRight, marginBottom), QPageLayout::Point);
-
-    QPainter painter(&pdfWriter);
-    m_mainFrame->render(&painter);
-    painter.end();
+    m_mainFrame->print(&pdfWriter, this);
 
     return true;
 }
