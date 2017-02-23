@@ -1,0 +1,4 @@
+#!/bin/bash
+
+(cd build && docker build -t phantomjs_compile .)
+docker run --rm -it -v `pwd`:/tmp phantomjs_compile cp /bin/phantomjs /tmp
