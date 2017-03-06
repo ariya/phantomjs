@@ -1379,7 +1379,9 @@ void WebPage::_uploadFile(const QString& selector, const QStringList& fileNames)
         }
     }
 
-    el.evaluateJavaScript(JS_ELEMENT_CLICK);
+    // el.evaluateJavaScript(JS_ELEMENT_CLICK);
+    el.setFocus();
+    sendEvent("keypress", QVariant(Qt::Key_Enter));
 }
 
 bool WebPage::injectJs(const QString& jsFilePath)
