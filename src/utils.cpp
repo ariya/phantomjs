@@ -134,6 +134,10 @@ bool injectJsInFrame(const QString& jsFilePath, const QString& jsFileLanguage, c
         }
         return false;
     }
+    if (startingScript)
+    {
+        scriptBody=QString("var __run; try { __run=eval(\"(function() {%1})\"); } catch(error) { console.log(error); console.log(error.stack); phantom.exit(); } __run();").arg(scriptBody.replace('\\',"\\\\").replace('\n',"\\n").replace('\"',"\\\""));
+    }
     // Execute JS code in the context of the document
     targetFrame->evaluateJavaScript(scriptBody);
     return true;
