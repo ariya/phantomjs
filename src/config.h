@@ -214,6 +214,7 @@ public slots:
 
 private:
     void resetToDefaults();
+    void loadDefaultJsonFile();
     void setProxyHost(const QString& value);
     void setProxyPort(const int value);
 
