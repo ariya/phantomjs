@@ -61,6 +61,7 @@ class Config: public QObject
     Q_PROPERTY(bool printDebugMessages READ printDebugMessages WRITE setPrintDebugMessages)
     Q_PROPERTY(bool javascriptCanOpenWindows READ javascriptCanOpenWindows WRITE setJavascriptCanOpenWindows)
     Q_PROPERTY(bool javascriptCanCloseWindows READ javascriptCanCloseWindows WRITE setJavascriptCanCloseWindows)
+    Q_PROPERTY(int resourceTimeout READ resourceTimeout WRITE setResourceTimeout)
     Q_PROPERTY(QString sslProtocol READ sslProtocol WRITE setSslProtocol)
     Q_PROPERTY(QString sslCiphers READ sslCiphers WRITE setSslCiphers)
     Q_PROPERTY(QString sslCertificatesPath READ sslCertificatesPath WRITE setSslCertificatesPath)
@@ -177,6 +178,9 @@ public:
     void setJavascriptCanCloseWindows(const bool value);
     bool javascriptCanCloseWindows() const;
 
+    void setResourceTimeout(const int value);
+    int resourceTimeout() const;
+
     void setSslProtocol(const QString& sslProtocolName);
     QString sslProtocol() const;
 
@@ -256,6 +260,7 @@ private:
     bool m_printDebugMessages;
     bool m_javascriptCanOpenWindows;
     bool m_javascriptCanCloseWindows;
+    int m_resourceTimeout;
     QString m_sslProtocol;
     QString m_sslCiphers;
     QString m_sslCertificatesPath;
