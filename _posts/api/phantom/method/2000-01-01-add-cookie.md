@@ -15,9 +15,9 @@ Add a Cookie to the CookieJar.  Returns `true` if successfully added, otherwise 
 
 ```javascript
 phantom.addCookie({
-  'name': 'Added-Cookie-Name',
-  'value': 'Added-Cookie-Value',
-  'domain': '.google.com'
+  name: 'Added-Cookie-Name',
+  value: 'Added-Cookie-Value',
+  domain: '.google.com'
 });
 ```
 
