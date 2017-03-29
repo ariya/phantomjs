@@ -3303,6 +3303,24 @@ static void close_all_listening_sockets(struct mg_context *ctx) {
   }
 }
 
+static int get_port_from_socket(SOCKET sock) {
+  struct sockaddr_in sin;
+  socklen_t len = sizeof(sin);
+  if (getsockname(sock, (struct sockaddr *)&sin, &len) == -1) {
+    return NULL;
+  } else {
+    return ntohs(sin.sin_port);
+  }
+}
+
+int mg_get_first_listening_port(struct mg_context *ctx) {
+  if (ctx->listening_sockets != NULL) {
+    return get_port_from_socket(ctx->listening_sockets->sock);
+  }
+
+  return NULL;
+}
+
 // Valid listening port specification is: [ip_address:]port[s|p]
 // Examples: 80, 443s, 127.0.0.1:3128p, 1.2.3.4:8080sp
 static int parse_port_string(const struct vec *vec, struct socket *so) {

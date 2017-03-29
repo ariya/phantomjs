@@ -214,6 +214,7 @@ const char *mg_version(void);
 //   mg_md5(buf, "aa", "bb", NULL);
 void mg_md5(char *buf, ...);
 
+int mg_get_first_listening_port(struct mg_context *ctx);
 
 #ifdef __cplusplus
 }
