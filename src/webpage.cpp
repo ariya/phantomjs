@@ -216,6 +216,18 @@ protected:
         }
         bool isNavigationLocked = m_webPage->navigationLocked();
 
+        //when redirection happens, add requestUrl's fragment to new url if new url has no fragment
+        if (!isNavigationLocked && isMainFrame && frame != NULL && m_webPage -> m_mainFrame -> requestedUrl().hasFragment() && !request.url().hasFragment())
+        {
+            QUrl* newUrl = new QUrl(request.url());
+            newUrl -> setFragment(m_webPage -> m_mainFrame ->requestedUrl().fragment());
+            if (*newUrl != m_webPage -> m_mainFrame -> url())
+            {
+                frame -> setUrl(*newUrl);
+                return !isNavigationLocked;
+            }
+        }
+
         emit m_webPage->navigationRequested(
             request.url().toEncoded(),       //< Requested URL
             navigationType,                  //< Navigation Type
