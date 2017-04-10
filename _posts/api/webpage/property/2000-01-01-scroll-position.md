@@ -16,7 +16,7 @@ var webPage = require('webpage');
 var page = webPage.create();
 
 page.scrollPosition = {
-  top: 100,
+  top: page.scrollPosition["top"] + document.body.scrollHeight,
   left: 0
 };
 ```
