@@ -80,6 +80,8 @@ Several page capture projects utilizing PhantomJS:
 
  * [Guard PhantomJS](https://github.com/carhartl/guard-phantomjs) automatically runs PhantomJS using Guard.
 
+ * [Phantombuster](https://phantombuster.com/cloud-services) is a service for running PhantomJS scripts in the cloud.
+
  * [phridge](https://github.com/peerigon/phridge) provides an easy way to run scripts in PhantomJS and return results back to node.js.
 
  * [phantomjs-node](https://github.com/amir20/phantomjs-node) provides PhantomJS bridge for Node.js applications.
