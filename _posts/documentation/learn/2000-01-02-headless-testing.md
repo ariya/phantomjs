@@ -15,6 +15,7 @@ The following table summarizes the list of various test frameworks and the corre
 
 | Framework  | Test Runner |
 |:-----------|:------------|
+| [Preamble](http://jeffschwartz.github.io/preamble/)| built-in|
 | [Buster.JS](http://busterjs.org)| built-in|
 | [Capybara](http://jnicklas.github.com/capybara) |[Poltergeist](https://github.com/jonleighton/poltergeist), [Terminus](http://terminus.jcoglan.com)
 | [Mocha](http://mochajs.org) | [Chutzpah](http://mmanela.github.io/chutzpah/), [mocha-phantomjs](https://github.com/nathanboktae/mocha-phantomjs) |
