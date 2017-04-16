@@ -9,6 +9,14 @@ This instruction assumes that PhantomJS is installed and its executable is place
 
 The code shown here is also available in [various examples]({{ site.url }}/examples/) included with PhantomJS. You are also recommended to explore the use of PhantomJS for [page automation]({{ site.url }}/page-automation.html), [network monitoring]({{ site.url }}/network-monitoring.html), [screen capture]({{ site.url }}/screen-capture.html), and [headless testing]({{ site.url }}/headless-testing.html).
 
+## Installation
+
+Make sure you have moved the files included in the download to a specific folder. I like to use a bin-folder inside the C: drive. Then, create a PATH variable pointing to this location. EX: C://bin/phantomjs. Read about system variables [here](http://www.java.com/en/download/help/path.xml).
+To check if it works, open up CMD and run:
+```bash
+phantomjs --version
+```
+
 ## Hello, World!
 
 Create a new text file that contains the following two lines:
