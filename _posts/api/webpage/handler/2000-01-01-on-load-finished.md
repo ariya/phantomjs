@@ -9,7 +9,7 @@ permalink: api/webpage/handler/on-load-finished.html
 
 This callback is invoked when the page finishes the loading. It may accept a single argument indicating the page's `status`: `'success'` if no network errors occurred, otherwise `'fail'`.
 
-Also see `page.open` for an alternate hook for the `onLoadFinished` callback.
+Also see `page.open` for an alternate hook for the `onLoadFinished` callback. If a callback is supplied in page.open this callback will be replaced with that callback.
 
 ## Examples
 
