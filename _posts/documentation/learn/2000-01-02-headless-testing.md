@@ -19,6 +19,7 @@ The following table summarizes the list of various test frameworks and the corre
 | [Capybara](http://jnicklas.github.com/capybara) |[Poltergeist](https://github.com/jonleighton/poltergeist), [Terminus](http://terminus.jcoglan.com)
 | [Mocha](http://mochajs.org) | [Chutzpah](http://mmanela.github.io/chutzpah/), [mocha-phantomjs](https://github.com/nathanboktae/mocha-phantomjs) |
 | [FuncUnit](http://funcunit.com) | built-in|
+| [GhostJS](https://github.com/KevinGrandon/ghostjs) | built-in|
 | [Hiro](http://hirojs.com) | built-in|
 | [Karma](http://karma-runner.github.com/) (née Testacular) | built-in |
 | [Jasmine](https://github.com/pivotal/jasmine) | [Chutzpah](http://mmanela.github.io/chutzpah/), [grunt-contrib-jasmine](https://github.com/gruntjs/grunt-contrib-jasmine), [guard-jasmine](https://github.com/netzpirat/guard-jasmine), [phantom-jasmine](https://github.com/jcarver989/phantom-jasmine)|
