@@ -44,7 +44,8 @@ The following script demonstrates the simplest use of page object. It loads exam
 
 ```javascript
 var page = require('webpage').create();
-page.open('http://example.com', function(status) {
+page.open('http://example.com/', function(status) {
+  // Trailing slash on the above url is required
   console.log("Status: " + status);
   if(status === "success") {
     page.render('example.png');
