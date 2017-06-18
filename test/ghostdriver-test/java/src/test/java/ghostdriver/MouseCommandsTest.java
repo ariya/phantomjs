@@ -1,7 +1,7 @@
 /*
 This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2014, Ivan De Marino <http://ivandemarino.me>
+Copyright (c) 2012-2014, Ivan De Marino <http://ivandemarino.me>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -49,9 +49,9 @@ public class MouseCommandsTest extends BaseTestWithServer {
         // Move mouse by x,y
         actionBuilder.moveByOffset(100, 100).build().perform();
         // Move mouse on a given element
-        actionBuilder.moveToElement(d.findElement(By.id("logo_homepage"))).build().perform();
+        actionBuilder.moveToElement(d.findElement(By.id("logo_homepage_link"))).build().perform();
         // Move mouse on a given element, by x,y relative coordinates
-        actionBuilder.moveToElement(d.findElement(By.id("logo_homepage")), 50, 50).build().perform();
+        actionBuilder.moveToElement(d.findElement(By.id("logo_homepage_link")), 50, 50).build().perform();
     }
 
     @Test
@@ -66,7 +66,7 @@ public class MouseCommandsTest extends BaseTestWithServer {
         // Right click
         actionBuilder.contextClick(null).build().perform();
         // Right click on the logo (it will cause a "/moveto" before clicking
-        actionBuilder.contextClick(d.findElement(By.id("logo_homepage"))).build().perform();
+        actionBuilder.contextClick(d.findElement(By.id("logo_homepage_link"))).build().perform();
     }
 
     @Test
@@ -79,7 +79,7 @@ public class MouseCommandsTest extends BaseTestWithServer {
         // Double click
         actionBuilder.doubleClick().build().perform();
         // Double click on the logo
-        actionBuilder.doubleClick(d.findElement(By.id("logo_homepage"))).build().perform();
+        actionBuilder.doubleClick(d.findElement(By.id("logo_homepage_link"))).build().perform();
     }
 
     @Test
@@ -93,7 +93,7 @@ public class MouseCommandsTest extends BaseTestWithServer {
         actionBuilder.clickAndHold().build().perform();
         actionBuilder.release();
         // Hold on the logo, then release
-        actionBuilder.clickAndHold(d.findElement(By.id("logo_homepage"))).build().perform();
+        actionBuilder.clickAndHold(d.findElement(By.id("logo_homepage_link"))).build().perform();
         actionBuilder.release();
     }
 

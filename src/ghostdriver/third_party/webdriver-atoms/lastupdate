@@ -1,7 +1,7 @@
-2014-01-02 22:06:54
+2017-01-30 06:02:16
 
-commit 14fa800511cc5d66d426e08b0b2ab926c7ed7398 (HEAD, tag: refs/tags/selenium-2.39.0)
-Author: Jim Evans <james.h.evans.jr@gmail.com>
-Date:   Mon Dec 16 11:26:02 2013 -0500
+commit 35ae25b1534ae328c771e0856c93e187490ca824 (HEAD, tag: refs/tags/selenium-2.53.0)
+Author: Luke Inman-Semerau <luke.semerau@gmail.com>
+Date:   Tue Mar 15 09:39:24 2016 -0700
 
-    Updating .NET CHANGELOG for 2.39.0 release
+    bumping version numbers and updating changelog for 2.53 (python & java)

@@ -1,7 +1,7 @@
 /*
 This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2014, Ivan De Marino <http://ivandemarino.me>
+Copyright (c) 2012-2014, Ivan De Marino <http://ivandemarino.me>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -74,7 +74,7 @@ public class ElementMethodsTest extends BaseTestWithServer {
         WebDriver d = getDriver();
 
         d.get("http://www.google.com");
-        WebElement link = d.findElement(By.cssSelector("a[href=\"/intl/en/ads/\"]"));
+        WebElement link = d.findElement(By.cssSelector("a[href*=\"/intl/en/ads/\"]"));
         link.click();
 
         assertTrue(d.getTitle().contains("Ads"));
@@ -116,27 +116,6 @@ public class ElementMethodsTest extends BaseTestWithServer {
         boolean conditionMet = text.contains("form-onsubmit");
 
         assertTrue(conditionMet);
-    }
-
-    @Test
-    public void shouldWaitForPossiblePageLoadOnlyWhenClickingOnSomeElement() {
-        WebDriver d = getDriver();
-
-        d.get("http://duckduckgo.com");
-        WebElement inputTextEl = d.findElement(By.id("search_form_input_homepage"));
-        WebElement submitSearchDivWrapperEl = d.findElement(By.id("search_wrapper_homepage"));
-        WebElement submitSearchInputEl = d.findElement(By.id("search_button_homepage"));
-
-        // Enter a query
-        inputTextEl.sendKeys("GhostDriver");
-
-        assertFalse(d.getTitle().contains("GhostDriver"));
-        // Ensure clicking on the Button DIV wrapper DOESN'T expect a pageload
-        submitSearchDivWrapperEl.click();
-        assertFalse(d.getTitle().contains("GhostDriver"));
-        // Instead, clicking on the actual Input element DOES
-        submitSearchInputEl.click();
-        assertTrue(d.getTitle().contains("GhostDriver"));
     }
 
     @Test

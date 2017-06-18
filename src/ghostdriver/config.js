@@ -34,7 +34,8 @@ var defaultConfig = {
         "version"   : "",
         "logFile"   : null,
         "logLevel"  : "INFO",
-        "logColor"  : false
+        "logColor"  : false,
+        "remoteHost": null
     },
     config = {
         "ip"        : defaultConfig.ip,
@@ -44,7 +45,8 @@ var defaultConfig = {
         "version"   : defaultConfig.version,
         "logFile"   : defaultConfig.logFile,
         "logLevel"  : defaultConfig.logLevel,
-        "logColor"  : defaultConfig.logColor
+        "logColor"  : defaultConfig.logColor,
+        "remoteHost": defaultConfig.remoteHost
     },
     logOutputFile = null,
     logger = require("./logger.js"),
@@ -78,7 +80,7 @@ function apply () {
 
 exports.init = function(cliArgs) {
     var i, k,
-        regexp = new RegExp("^--([a-z]+)=([a-z0-9_/\\\\:.]+)$", "i"),
+        regexp = new RegExp("^--([a-z]+)=([^\x00-\x1f\x7f\u2028\u2029]+)$", "i"),
         regexpRes;
 
     // Loop over all the Command Line Arguments

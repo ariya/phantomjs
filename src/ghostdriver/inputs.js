@@ -317,7 +317,7 @@ ghostdriver.Inputs = function () {
     },
 
     _mouseButtonUp = function (session, button) {
-        _mouseButtonEvent(session, "mouseUp", button);
+        _mouseButtonEvent(session, "mouseup", button);
     },
 
     _keyEvent = function (session, eventType, keyCode) {
@@ -328,6 +328,12 @@ ghostdriver.Inputs = function () {
     _mouseButtonEvent = function (session, eventType, button) {
         button = button || "left";
         eventType = eventType || "click";
+        if (button == "right" && eventType == "click") {
+            session.getCurrentWindow().sendEvent("contextmenu",
+            _mousePos.x, _mousePos.y, //< x, y
+            _currentModifierKeys);
+            return;
+        }
         session.getCurrentWindow().sendEvent(eventType,
             _mousePos.x, _mousePos.y, //< x, y
             button, _currentModifierKeys);

@@ -7,6 +7,10 @@
     <title>Testing Alerts</title>
 
     <script type="text/javascript">
+        function addChild(id, value) {
+          document.getElementById(id).innerHTML = '<p id="' + value + '" '  + value + '</p>';
+        }
+
         function setInnerText(id, value) {
           document.getElementById(id).innerHTML = '<p>' + value + '</p>';
         }
@@ -36,10 +40,13 @@
 <h1>Testing Alerts and Stuff</h1>
 
 <p>This tests alerts: <a href="#" id="alert" onclick="alert('cheese');">click me</a></p>
+<p>This tests alerts: <a href="#" id="alert2" onclick="alert('cheese'); addChild('alert2', 'cheese-child');">click me</a></p>
+<p>This tests confirm: <a href="#" id="confirm2" onclick="this.value = confirm('cheese');">click me</a></p>
 
 <p>This tests alerts: <a href="#" id="empty-alert" onclick="alert('');">click me</a></p>
 
 <p>Let's make the <a href="#" id="prompt" onclick="displayPrompt();">prompt happen</a></p>
+<p>Let's make the <a href="#" id="prompt2" onclick="this.value = prompt('my message','default value');">prompt happen</a></p>
 
 <p>Let's make the <a href="#" id="prompt-with-default" onclick="displayPromptWithDefault();">prompt with default happen</a></p>
 

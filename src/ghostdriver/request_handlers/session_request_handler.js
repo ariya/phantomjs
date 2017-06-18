@@ -56,6 +56,7 @@ ghostdriver.SessionReqHand = function(session) {
         WINDOW_HANDLE   : "window_handle",
         WINDOW_HANDLES  : "window_handles",
         FRAME           : "frame",
+        FRAME_DIR       : "/frame/",
         SOURCE          : "source",
         COOKIE          : "cookie",
         KEYS            : "keys",
@@ -155,6 +156,9 @@ ghostdriver.SessionReqHand = function(session) {
             return;
         } else if (req.urlParsed.file === _const.FRAME && req.method === "POST") {
             _postFrameCommand(req, res);
+            return;
+        } else if (req.urlParsed.directory == _const.FRAME_DIR && req.method === "POST") {
+            _postFrameParentCommand(req, res);
             return;
         } else if (req.urlParsed.file === _const.SOURCE && req.method === "GET") {
             _getSourceCommand(req, res);
@@ -325,11 +329,12 @@ ghostdriver.SessionReqHand = function(session) {
         // NOTE: PhantomJS is headless, so there is no "screen" to maximize to
         // or "window" resize to that.
         //
-        // NOTE: The most common screen resolution used online is currently: 1366x768
+        // NOTE: The most common desktop screen resolution used online is currently: 1366x768
         // See http://gs.statcounter.com/#resolution-ww-monthly-201307-201312.
+        // Jan 2017
         targetWindow.viewportSize = {
-            width   : 1366,
-            height  : 768
+            width   : 1920,
+            height  : 1080
         };
 
         res.success(_session.getId());
@@ -471,12 +476,9 @@ ghostdriver.SessionReqHand = function(session) {
 
     _getUrlCommand = function(req, res) {
         // Get the URL at which the Page currently is
-        var result = _protoParent.getSessionCurrWindow.call(this, _session, req).evaluate(
-            require("./webdriver_atoms.js").get("execute_script"),
-            "return location.toString()",
-            []);
+        var result = _protoParent.getSessionCurrWindow.call(this, _session, req).url;
 
-        res.respondBasedOnResult(_session, res, result);
+        res.respondBasedOnResult(_session, res, {status: 0, value: result});
     },
 
     _postUrlCommand = function(req, res) {
@@ -620,14 +622,9 @@ ghostdriver.SessionReqHand = function(session) {
                 _log.debug("_postFrameCommand.element", JSON.stringify(postObj.id));
 
                 // Will use the Element JSON to find the frame name
-                frameName = currWindow.evaluate(
-                    require("./webdriver_atoms.js").get("execute_script"),
-                    "if (!arguments[0].name && !arguments[0].id) { " +
-                    "   arguments[0].name = '_random_name_id_' + new Date().getTime(); " +
-                    "   arguments[0].id = arguments[0].name; " +
-                    "} " +
-                    "return arguments[0].name || arguments[0].id;",
-                    [postObj.id]);
+                frameName = JSON.parse(currWindow.evaluate(
+                    require("./webdriver_atoms.js").get("frame_name"),
+                    postObj.id));
 
                 _log.debug("_postFrameCommand.frameName", frameName.value);
 
@@ -656,6 +653,26 @@ ghostdriver.SessionReqHand = function(session) {
             }
         } else {
             throw _errors.createInvalidReqMissingCommandParameterEH(req);
+        }
+    },
+
+    _postFrameParentCommand = function(req, res) {
+
+        var currWindow = _protoParent.getSessionCurrWindow.call(this, _session, req),
+            switched;
+
+        _log.debug("_postFrameParentCommand");
+
+        switched = currWindow.switchToParentFrame();
+
+        if (switched) {
+            res.success(_session.getId());
+        } else {
+            // ... otherwise, throw the appropriate exception
+            throw _errors.createFailedCommandEH(_errors.FAILED_CMD_STATUS_CODES.NoSuchFrame,
+                "Unable to switch to frame",
+                req,
+                _session);
         }
     },
 
@@ -760,9 +777,35 @@ ghostdriver.SessionReqHand = function(session) {
         }
 
         if (postObj.cookie) {
+
+            // set default values
+            if (!postObj.cookie.path) {
+                postObj.cookie.path = "/";
+            }
+
+            if (!postObj.cookie.secure) {
+                postObj.cookie.secure = false;
+            }
+
+            if (!postObj.cookie.domain) {
+                postObj.cookie.domain = require("./third_party/parseuri.js").parse(currWindow.url).host;
+            }
+
+            if (postObj.cookie.hasOwnProperty('httpOnly')) {
+                postObj.cookie.httponly = postObj.cookie.httpOnly;
+                delete postObj.cookie['httpOnly'];
+            } else {
+                postObj.cookie.httponly = false;
+            }
+
             // JavaScript deals with Timestamps in "milliseconds since epoch": normalize!
             if (postObj.cookie.expiry) {
                 postObj.cookie.expiry *= 1000;
+            }
+
+            if (!postObj.cookie.expiry) {
+                // 24*60*60*365*20*1000 = 630720000 number of milliseconds in 20 years
+                postObj.cookie.expiry = Date.now() + 630720000000;
             }
 
             // If the cookie is expired OR if it was successfully added
