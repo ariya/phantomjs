@@ -71,6 +71,7 @@ class WebPage : public QObject
     Q_PROPERTY(bool navigationLocked READ navigationLocked WRITE setNavigationLocked)
     Q_PROPERTY(QVariantMap customHeaders READ customHeaders WRITE setCustomHeaders)
     Q_PROPERTY(qreal zoomFactor READ zoomFactor WRITE setZoomFactor)
+    Q_PROPERTY(float devicePixelRatio READ devicePixelRatio WRITE setDevicePixelRatio)
     Q_PROPERTY(QVariantList cookies READ cookies WRITE setCookies)
     Q_PROPERTY(QString windowName READ windowName)
     Q_PROPERTY(QObjectList pages READ pages)
@@ -139,6 +140,9 @@ public:
 
     void setZoomFactor(qreal zoom);
     qreal zoomFactor() const;
+
+    void setDevicePixelRatio(float ratio);
+    float devicePixelRatio() const;
 
     /**
      * Value of <code>"window.name"</code> within the main page frame.

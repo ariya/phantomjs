@@ -443,6 +443,7 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
 
     m_dpi = qRound(QApplication::primaryScreen()->logicalDotsPerInch());
     m_customWebPage->setViewportSize(QSize(400, 300));
+    m_customWebPage->setDevicePixelRatio(1.0);
 }
 
 WebPage::~WebPage()
@@ -1380,6 +1381,15 @@ void WebPage::_uploadFile(const QString& selector, const QStringList& fileNames)
     }
 
     el.evaluateJavaScript(JS_ELEMENT_CLICK);
+}
+
+void WebPage::setDevicePixelRatio(float ratio) {
+    m_customWebPage->setDevicePixelRatio(ratio);
+}
+
+float WebPage::devicePixelRatio() const
+{
+    return m_customWebPage->devicePixelRatio();
 }
 
 bool WebPage::injectJs(const QString& jsFilePath)
