@@ -10,7 +10,7 @@ var ABSENT_DIR = "absentdir02",
     CONTENT_MULTIPLIER = 1024;
 
 test(function () {
-    assert_throws("Unable to read file '"+ ABSENT_FILE +"' size",
+    assert_throws(`Unable to read file "${ABSENT_FILE}" size`,
                   function () { fs.size(ABSENT_FILE); });
 
     assert_equals(fs.lastModified(ABSENT_FILE), null);
