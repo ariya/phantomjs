@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -307,10 +307,6 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
 {
     QNetworkRequest req(request);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-    req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
-#endif
-
     QString scheme = req.url().scheme().toLower();
 
     if (!QSslSocket::supportsSsl()) {
@@ -395,10 +391,6 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
     connect(reply, &QNetworkReply::readyRead, this, &NetworkAccessManager::handleStarted);
     connect(reply, &QNetworkReply::sslErrors, this, &NetworkAccessManager::handleSslErrors);
     connect(reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error), this, &NetworkAccessManager::handleNetworkError);
-
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-    connect(reply, &QNetworkReply::redirected, this, &NetworkAccessManager::handleRedirect);
-#endif
 
     // synchronous requests will be finished at this point
     if (reply->isFinished()) {
@@ -546,20 +538,3 @@ QVariantList NetworkAccessManager::getHeadersFromReply(const QNetworkReply* repl
 
     return headers;
 }
-
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-void NetworkAccessManager::handleRedirect(const QUrl& url)
-{
-    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-
-    qDebug() << "Network - Redirecting to " << url.toEncoded();
-
-    QVariantMap data;
-    data["id"] = m_ids.value(reply);
-    data["url"] = url.toEncoded().data();
-
-    emit resourceRedirect(data);
-
-    get(QNetworkRequest(url));
-}
-#endif
