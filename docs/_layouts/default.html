@@ -1,0 +1,52 @@
+---
+layout: document
+---
+
+<div class="masthead">
+
+  {% include header.html %}
+
+  <div class="intro grid">
+
+    <div class="grid_7 alpha">
+      <h1>
+        Full web stack<br>
+        No browser required
+      </h1>
+      <p class="explanation">
+        PhantomJS is a headless WebKit scriptable with a JavaScript API.
+        It has <strong>fast</strong> and <strong>native</strong> support for various web standards:
+        DOM handling, CSS selector, JSON, Canvas, and SVG.<br></a>
+      </p>
+      <p class="action">
+        <a href="{{ site.url }}/download.html" class="btn-download">Download <span class="version">v2.1</span></a>
+        <a href="{{ site.url }}/quick-start.html">Get started</a>
+      </p>
+    </div>
+
+    <div class="intro-example grid_5 omega">
+      <pre class="solarized">
+<strong>// Simple Javascript example</strong>
+
+<span class="object">console</span>.<span class="function">log</span>(<span class="literal">'Loading a web page'</span>);
+var <span class="object">page</span> = require(<span class="literal">'webpage'</span>).<span class="function">create</span>();
+var <span class="object">url</span> = <span class="literal">'http://phantomjs.org/'</span>;
+<span class="object">page</span>.<span class="function">open</span>(url, <span class="function">function</span> (status) {
+  <span class="comment">//Page is loaded!</span>
+  <span class="object">phantom</span>.<span class="function">exit</span>();
+});
+      </pre>
+    </div>
+  </div>
+
+</div>
+
+{% include community.html %}
+
+<div class="description grid">
+  {{ content }}
+</div>
+
+<a href="https://github.com/ariya/phantomjs/">
+  <img style="position:absolute;top:0;left:0;border:0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork PhantomJS on GitHub">
+</a>

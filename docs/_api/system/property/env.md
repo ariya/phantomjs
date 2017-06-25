@@ -1,0 +1,32 @@
+---
+layout: post
+title:  env
+section: system
+kind: property
+permalink: api/system/property/env.html
+---
+
+`system.env` {Object}
+
+Queries and returns a list of key-value pairs representing the environment variables.
+
+## Examples
+
+The following example demonstrates the same functionality as the Unix `printenv` utility or the Windows `set` command:
+
+```javascript
+var system = require('system');
+var env = system.env;
+
+Object.keys(env).forEach(function(key) {
+  console.log(key + '=' + env[key]);
+});
+```
+
+
+
+
+
+
+
+

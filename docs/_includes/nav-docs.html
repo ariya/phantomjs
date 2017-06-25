@@ -1,0 +1,30 @@
+<h2 class="nav-title">Documentation</h2>
+
+<ul>
+  <li class="nav-group">
+    <div class="nav-group-label">Get Started</div>
+    {% assign category_docs = site.categories.docs-get-started %}
+    {% include nav-list.md %}
+  </li>
+  <li class="nav-group">
+    <div class="nav-group-label">Learn</div>
+    {% assign category_docs = site.categories.docs-learn %}
+    {% include nav-list.md %}
+  </li>
+  <li class="nav-group">
+    <div class="nav-group-label">Get Help</div>
+    {% assign category_docs = site.categories.docs-help %}
+    {% include nav-list.md %}
+  </li>
+  <li class="nav-group">
+    <div class="nav-group-label">Explore</div>
+    {% assign category_docs = site.categories.docs-explore %}
+    {% include nav-list.md %}
+  </li>
+  <li class="nav-group">
+    <div class="nav-group-label">Contribute</div>
+    {% assign category_docs = site.categories.docs-contribute %}
+    {% include nav-list.md %}
+  </li>
+</ul>
+

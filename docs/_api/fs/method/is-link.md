@@ -1,0 +1,35 @@
+---
+layout: post
+title:  isLink
+section: fs
+kind: method
+permalink: api/fs/method/is-link.html
+---
+
+'isLink(string)' (BOOL)
+
+This will return true if the file path is a symlink (or a shortcut on Windows), otherwise it will return false.
+
+Be aware that Unix-like systems and Windows systems don't manage symlinks and shortcuts the same way.
+
+## Examples
+
+```javascript
+var fs = require('fs');
+var path = '/Full/Path/To/file';
+
+if (fs.isLink(path))
+  console.log('"'+path+'" is a link.');
+else
+  console.log('"'+path+'" is an absolute path');
+
+phantom.exit();
+```
+
+
+
+
+
+
+
+

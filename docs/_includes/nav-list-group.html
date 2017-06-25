@@ -1,0 +1,19 @@
+{% for post in site[page.collection] sort_by:title %}
+{% if post.kind == kind and post.section == page.section %}
+  {% assign current_class = nil %}
+  {% assign last_item_class = nil %}
+
+  {% if page.url == post.url %}
+    {% assign current_class = ' current' %}
+  {% endif %}
+
+  <li class="nav-item nav-item-{{ kind }}{{ current_class }}">
+    <span class="nav-item-label">{{ kind_key }}</span>
+    {% if current_class == nil %}
+    <a href="{{ site.url }}{{ post.url }}" class="nav-item-name">{{ post.title }}</a>
+    {% else %}
+    <span class="nav-item-name">{{ post.title }}</span>
+    {% endif %}
+  </li>
+{% endif %}
+{% endfor %}

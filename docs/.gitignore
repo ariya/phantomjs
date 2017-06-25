@@ -1,0 +1,13 @@
+.DS_Store
+
+# vim temp files
+*.swp
+
+# jekyll files
+_site
+.jekyll-metadata
+.sass-cache
+
+# sublime
+/phantomjs.sublime-project
+/phantomjs.sublime-workspace

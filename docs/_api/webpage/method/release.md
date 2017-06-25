@@ -1,0 +1,31 @@
+---
+layout: post
+title:  release
+section: webpage
+kind: method
+permalink: api/webpage/method/release.html
+---
+
+`release()` {void}
+
+**Stability:** _DEPRECATED_ - Use `page.close`
+
+Releases memory heap associated with this page. Do not use the page instance after calling this.
+
+Due to some technical limitations, the web page object might not be completely garbage collected. This is often encountered when the same object is used over and over again. Calling this function may stop the increasing heap allocation.
+
+## Examples
+
+```javascript
+var webPage = require('webpage');
+var page = webPage.create();
+// @TODO: Finish page.release example.
+```
+
+
+
+
+
+
+
+

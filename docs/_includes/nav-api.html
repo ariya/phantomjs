@@ -1,0 +1,53 @@
+{% if page.title == 'API' %}
+
+  <h2 class="nav-title">API</h2>
+
+  <ul>
+    <li><a href="{{ site.url }}/api/command-line.html">Command Line Interface</a></li>
+    <li><a href="{{ site.url }}/api/phantom/">phantom Object</a></li>
+    <li><a href="{{ site.url }}/api/webpage/">Web Page Module</a></li>
+    <li><a href="{{ site.url }}/api/child_process/">Child Process Module</a></li>
+    <li><a href="{{ site.url }}/api/fs/">File System Module</a></li>
+    <li><a href="{{ site.url }}/api/system/">System Module</a></li>
+    <li><a href="{{ site.url }}/api/webserver/">Web Server Module</a></li>
+  </ul>
+
+{% else %}
+
+  <div class="nav-up">
+    &#8810; <a href="{{ site.url }}/api/">API</a>
+  </div>
+
+  <h2 class="nav-title">
+    {% if page.kind %}
+      &#8810; <a href="{{ site.url }}/api/{{ page.section }}" class="nav-title">{{ site.sectionTitles[page.section] }}</a>
+    {% else %}
+      {{ site.sectionTitles[page.section] }}
+    {% endif %}
+  </h2>
+
+  <ul class="nav-list-group">
+    {% assign kind = 'doc' %}
+    {% assign kind_key = 'D' %}
+    {% include nav-list-group.html %}
+  </ul>
+
+  <ul class="nav-list-group">
+    {% assign kind = 'property' %}
+    {% assign kind_key = 'P' %}
+    {% include nav-list-group.html %}
+  </ul>
+
+  <ul class="nav-list-group">
+    {% assign kind = 'method' %}
+    {% assign kind_key = 'M' %}
+    {% include nav-list-group.html %}
+  </ul>
+
+  <ul class="nav-list-group">
+    {% assign kind = 'handler' %}
+    {% assign kind_key = 'H' %}
+    {% include nav-list-group.html %}
+  </ul>
+
+{% endif %}
