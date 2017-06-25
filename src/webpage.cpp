@@ -172,14 +172,23 @@ protected:
 
     void javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID)
     {
-        Q_UNUSED(lineNumber);
-        Q_UNUSED(sourceID);
-        emit m_webPage->javaScriptConsoleMessageSent(message);
+        emit m_webPage->javaScriptConsoleMessageSent(message, lineNumber, sourceID);
     }
 
     void javaScriptError(const QString& message, int lineNumber, const QString& sourceID, const QString& stack)
     {
         emit m_webPage->javaScriptErrorSent(message, lineNumber, sourceID, stack);
+    }
+
+    void consoleMessageReceived(MessageSource source, MessageLevel level, const QString& message, int lineNumber, const QString& sourceID)
+    {
+        Q_UNUSED(source);
+
+        if (level == ErrorMessageLevel) {
+            emit m_webPage->javaScriptErrorSent(message, lineNumber, sourceID, QString());
+        } else {
+            emit m_webPage->javaScriptConsoleMessageSent(message, lineNumber, sourceID);
+        }
     }
 
     QString userAgentForUrl(const QUrl& url) const
