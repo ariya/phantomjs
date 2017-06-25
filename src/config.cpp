@@ -78,6 +78,7 @@ static const struct QCommandLineConfigEntry flags[] = {
     { QCommandLine::Option, '\0', "webdriver-logfile", "File where to write the WebDriver's Log (default 'none') (NOTE: needs '--webdriver') ", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "webdriver-loglevel", "WebDriver Logging Level: (supported: 'ERROR', 'WARN', 'INFO', 'DEBUG') (default 'INFO') (NOTE: needs '--webdriver') ", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "webdriver-selenium-grid-hub", "URL to the Selenium Grid HUB: 'URL_TO_HUB' (default 'none') (NOTE: needs '--webdriver') ", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "webdriver-ghostdriver-path", "Sets the path to Ghostdriver's main.js", QCommandLine::Optional },
     { QCommandLine::Param, '\0', "script", "Script", QCommandLine::Flags(QCommandLine::Optional | QCommandLine::ParameterFence)},
     { QCommandLine::Param, '\0', "argument", "Script argument", QCommandLine::OptionalMultiple },
     { QCommandLine::Switch, 'w', "wd", "Equivalent to '--webdriver' option above", QCommandLine::Optional },
@@ -573,6 +574,16 @@ QString Config::webdriverSeleniumGridHub() const
     return m_webdriverSeleniumGridHub;
 }
 
+void Config::setWebdriverGhostdriverPath(const QString& path)
+{
+    m_webdriverGhostdriverPath = path;
+}
+
+QString Config::webdriverGhostdriverPath() const
+{
+    return m_webdriverGhostdriverPath;
+}
+
 // private:
 void Config::resetToDefaults()
 {
@@ -637,6 +648,7 @@ void Config::resetToDefaults()
     m_webdriverLogFile = QString();
     m_webdriverLogLevel = "INFO";
     m_webdriverSeleniumGridHub = QString();
+    m_webdriverGhostdriverPath = QString();
 }
 
 void Config::setProxyAuthPass(const QString& value)
@@ -831,6 +843,9 @@ void Config::handleOption(const QString& option, const QVariant& value)
     }
     if (option == "webdriver-selenium-grid-hub") {
         setWebdriverSeleniumGridHub(value.toString());
+    }
+    if (option == "webdriver-ghostdriver-path") {
+        setWebdriverGhostdriverPath(value.toString());
     }
 }
 

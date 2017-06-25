@@ -204,9 +204,15 @@ bool Phantom::execute()
     if (m_config->isWebdriverMode()) {                                   // Remote WebDriver mode requested
         qDebug() << "Phantom - execute: Starting Remote WebDriver mode";
 
-        if (!Utils::injectJsInFrame(":/ghostdriver/main.js", QString(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
-            m_returnValue = -1;
-            return false;
+        QString ghostdriver_path = ":/ghostdriver/main.js";
+        if (!m_config->webdriverGhostdriverPath().isEmpty()) {
+          ghostdriver_path = m_config->webdriverGhostdriverPath();
+          setLibraryPath(QFileInfo(ghostdriver_path).dir().absolutePath());
+        }
+
+        if (!Utils::injectJsInFrame(ghostdriver_path, QString(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
+          m_returnValue = -1;
+          return false;
         }
     } else if (m_config->scriptFile().isEmpty()) {                       // REPL mode requested
         qDebug() << "Phantom - execute: Starting REPL mode";
@@ -396,7 +402,7 @@ bool Phantom::injectJs(const QString& jsFilePath)
     qDebug() << "Phantom - injectJs:" << jsFilePath;
 
     // If in Remote Webdriver Mode, we need to manipulate the PATH, to point it to a resource in `ghostdriver.qrc`
-    if (webdriverMode()) {
+    if (webdriverMode() && m_config->webdriverGhostdriverPath().isEmpty()) {
         pre = ":/ghostdriver/";
         qDebug() << "Phantom - injectJs: prepending" << pre;
     }
