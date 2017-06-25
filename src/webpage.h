@@ -81,6 +81,7 @@ class WebPage : public QObject
     Q_PROPERTY(int framesCount READ framesCount)
     Q_PROPERTY(QString focusedFrameName READ focusedFrameName)
     Q_PROPERTY(QObject* cookieJar READ cookieJar WRITE setCookieJarFromQObject)
+    Q_PROPERTY(qreal devicePixelRatio READ devicePixelRatio WRITE setDevicePixelRatio)
 
 public:
     WebPage(QObject* parent, const QUrl& baseUrl = QUrl());
@@ -488,6 +489,8 @@ public slots:
     qreal stringToPointSize(const QString&) const;
     qreal printMargin(const QVariantMap&, const QString&);
     qreal getHeight(const QVariantMap&, const QString&) const;
+    qreal devicePixelRatio() const;
+    void setDevicePixelRatio(qreal devicePixelRatio);
 
 signals:
     void initialized();
