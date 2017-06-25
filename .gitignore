@@ -47,6 +47,7 @@ qrc_*
 *.tmp
 *.log
 *.sdf
+*.sln
 *.vcxproj
 *.vcxproj.filters
 *.lib
@@ -60,3 +61,4 @@ bin/
 *.class
 build/
 .gradle/
+/.vs
