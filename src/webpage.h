@@ -497,7 +497,7 @@ signals:
     void loadStarted();
     void loadFinished(const QString& status);
     void javaScriptAlertSent(const QString& msg);
-    void javaScriptConsoleMessageSent(const QString& message);
+    void javaScriptConsoleMessageSent(const QString& message, int lineNumber = -1, const QString& sourceID = QString());
     void javaScriptErrorSent(const QString& msg, int lineNumber, const QString& sourceID, const QString& stack);
     void resourceRequested(const QVariant& requestData, QObject* request);
     void resourceReceived(const QVariant& resource);
