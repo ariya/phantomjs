@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2012 execjosh, http://execjosh.blogspot.com
@@ -43,9 +43,7 @@ ChildProcessContext::ChildProcessContext(QObject* parent)
     connect(&m_proc, SIGNAL(error(QProcess::ProcessError)), this, SLOT(_error(QProcess::ProcessError)));
 }
 
-ChildProcessContext::~ChildProcessContext()
-{
-}
+ChildProcessContext::~ChildProcessContext() = default;
 
 // public:
 
@@ -149,9 +147,7 @@ ChildProcess::ChildProcess(QObject* parent)
 {
 }
 
-ChildProcess::~ChildProcess()
-{
-}
+ChildProcess::~ChildProcess() = default;
 
 // public:
 

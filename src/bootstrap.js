@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -56,7 +56,7 @@ phantom.__defineErrorSignalHandler__ = function (obj, page, handlers) {
               function: item.functionName
             };
           });
-          if (revisedStack.length == 0)
+          if (revisedStack.length === 0)
             revisedStack = [{
               file: source,
               line: lineNumber
@@ -162,7 +162,7 @@ phantom.callback = function (callback) {
 
   function dirname(path) {
     var replaced = path.replace(/\/[^/]*\/?$/, '');
-    if (replaced == path) {
+    if (replaced === path) {
       replaced = '';
     }
     return replaced;

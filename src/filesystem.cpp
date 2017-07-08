@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
@@ -27,13 +27,13 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "filesystem.h"
-
 #include <QDir>
 #include <QDebug>
 #include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
+
+#include "filesystem.h"
 
 // File
 // public:

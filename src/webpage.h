@@ -28,23 +28,23 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef WEBPAGE_H
-#define WEBPAGE_H
+#pragma once
 
 #include <QMap>
 #include <QVariantMap>
 #include <QWebPage>
 #include <QWebFrame>
-#include <QPdfWriter>
 
-#include "cookiejar.h"
+#include "webpagerenderer.h"
+#include "network/cookiejar.h"
 
 class Config;
 class CustomPage;
-class WebpageCallbacks;
 class NetworkAccessManager;
 class QWebInspector;
 class Phantom;
+class WebpageCallbacks;
+class WebPageRenderer;
 
 class WebPage : public QObject
 {
@@ -255,7 +255,7 @@ public slots:
      * @param format String containing one of the supported types
      * @return Rendering base-64 encoded of the page if the given format is supported, otherwise an empty string
      */
-    QString renderBase64(const QByteArray& format = "png");
+    QString renderBase64(const QByteArray& format, const QVariantMap& option = QVariantMap());
     bool injectJs(const QString& jsFilePath);
     void _appendScriptElement(const QString& scriptUrl);
     QObject* _getGenericCallback();
@@ -486,8 +486,6 @@ public slots:
 
     void setProxy(const QString& proxyUrl);
 
-    qreal stringToPointSize(const QString&) const;
-    qreal printMargin(const QVariantMap&, const QString&);
     qreal getHeight(const QVariantMap&, const QString&) const;
     qreal devicePixelRatio() const;
     void setDevicePixelRatio(qreal devicePixelRatio);
@@ -511,16 +509,13 @@ signals:
 
 private slots:
     void finish(bool ok);
-    void setupFrame(QWebFrame* frame = NULL);
+    void setupFrame(QWebFrame* frame = Q_NULLPTR);
     void updateLoadingProgress(int progress);
     void handleRepaintRequested(const QRect& dirtyRect);
     void handleUrlChanged(const QUrl& url);
     void handleCurrentFrameDestroyed();
 
 private:
-    enum RenderMode { Content, Viewport };
-    QImage renderImage(const RenderMode mode = Content);
-    bool renderPdf(QPdfWriter& pdfWriter);
     void applySettings(const QVariantMap& defaultSettings);
     QString userAgent() const;
 
@@ -542,6 +537,8 @@ private:
     NetworkAccessManager* m_networkAccessManager;
     QWebFrame* m_mainFrame;
     QWebFrame* m_currentFrame;
+    QPointer<CookieJar> m_cookieJar;
+    WebPageRenderer* m_pageRenderer;
     QRect m_clipRect;
     QPoint m_scrollPosition;
     QVariantMap m_paperSize; // For PDF output via render()
@@ -553,11 +550,8 @@ private:
     bool m_ownsPages;
     int m_loadingProgress;
     bool m_shouldInterruptJs;
-    CookieJar* m_cookieJar;
     qreal m_dpi;
 
     friend class Phantom;
     friend class CustomPage;
 };
-
-#endif // WEBPAGE_H

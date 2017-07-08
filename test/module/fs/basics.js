@@ -134,7 +134,7 @@ test(function () {
 }, "remove a file");
 
 test(function () {
-    assert_throws(`Unable to open file "${ABSENT}`, function () { fs.open(ABSENT, "r"); });
+    assert_throws(`Unable to open file "${ABSENT}"`, function () { fs.open(ABSENT, "r"); });
 
     assert_throws(`Unable to copy file "${ABSENT}" at "${FILENAME_COPY}"`,
                   function () { fs.copy(ABSENT, FILENAME_COPY); });

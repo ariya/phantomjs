@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -28,8 +28,7 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef COOKIEJAR_H
-#define COOKIEJAR_H
+#pragma once
 
 #include <QSettings>
 #include <QNetworkCookie>
@@ -44,11 +43,11 @@ class CookieJar: public QNetworkCookieJar
     Q_PROPERTY(QVariantList cookies READ cookiesToMap WRITE addCookiesFromMap)
 
 public:
-    CookieJar(QString cookiesFile, QObject* parent = NULL);
+    CookieJar(QString cookiesFile, QObject* parent = Q_NULLPTR);
     virtual ~CookieJar();
 
-    bool setCookiesFromUrl(const QList<QNetworkCookie>& cookieList, const QUrl& url);
-    QList<QNetworkCookie> cookiesForUrl(const QUrl& url) const;
+    bool setCookiesFromUrl(const QList<QNetworkCookie>& cookieList, const QUrl& url) Q_DECL_OVERRIDE;
+    QList<QNetworkCookie> cookiesForUrl(const QUrl& url) const Q_DECL_OVERRIDE;
 
     bool addCookie(const QNetworkCookie& cookie, const QString& url = QString());
     bool addCookies(const QList<QNetworkCookie>& cookiesList, const QString& url = QString());
@@ -64,7 +63,7 @@ public:
     void disable();
     bool isEnabled() const;
 
-public slots:
+public Q_SLOTS:
     bool addCookie(const QVariantMap& cookie);
     bool addCookieFromMap(const QVariantMap& cookie, const QString& url = QString());
     bool addCookiesFromMap(const QVariantList& cookiesList, const QString& url = QString());
@@ -74,7 +73,7 @@ public slots:
     void clearCookies();
     void close();
 
-private slots:
+private Q_SLOTS:
     bool purgeExpiredCookies();
     bool purgeSessionCookies();
     void save();
@@ -83,9 +82,6 @@ private slots:
 private:
     bool contains(const QNetworkCookie& cookie) const;
 
-private:
     QSettings* m_cookieStorage;
     bool m_enabled;
 };
-
-#endif // COOKIEJAR_H

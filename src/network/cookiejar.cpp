@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -28,14 +28,14 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "phantom.h"
-#include "config.h"
-#include "cookiejar.h"
-
 #include <QDateTime>
 #include <QDataStream>
 #include <QSettings>
 #include <QTimer>
+
+#include "config.h"
+#include "cookiejar.h"
+#include "phantom.h"
 
 #define COOKIE_JAR_VERSION      1
 

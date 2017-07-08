@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
@@ -29,12 +29,6 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "webserver.h"
-
-#include "encoding.h"
-#include "mongoose/mongoose.h"
-#include "consts.h"
-
 #include <QByteArray>
 #include <QHostAddress>
 #include <QMetaType>
@@ -42,6 +36,12 @@
 #include <QUrl>
 #include <QVector>
 #include <QDebug>
+
+#include "webserver.h"
+
+#include "consts.h"
+#include "encoding.h"
+#include "mongoose/mongoose.h"
 
 namespace UrlEncodedParser
 {
@@ -90,14 +90,14 @@ static void* callback(mg_event event,
     if (server->handleRequest(event, conn, request)) {
         // anything non-null... pretty ugly, why not simply a bool??
         return server;
-    } else {
-        return 0;
     }
+
+    return Q_NULLPTR;
 }
 
 WebServer::WebServer(QObject* parent)
     : QObject(parent)
-    , m_ctx(0)
+    , m_ctx(Q_NULLPTR)
 {
     setObjectName("WebServer");
     qRegisterMetaType<WebServerResponse*>("WebServerResponse*");
@@ -119,7 +119,7 @@ bool WebServer::listenOnPort(const QString& port, const QVariantMap& opts)
     if (opts.value("keepAlive", false).toBool()) {
         options << "enable_keep_alive" << "yes";
     }
-    options << NULL;
+    options << Q_NULLPTR;
 
     // Start the server
     m_ctx = mg_start(&callback, this, options.data());
@@ -149,7 +149,7 @@ void WebServer::close()
             }
         }
         mg_stop(m_ctx);
-        m_ctx = 0;
+        m_ctx = Q_NULLPTR;
         m_port.clear();
     }
 }

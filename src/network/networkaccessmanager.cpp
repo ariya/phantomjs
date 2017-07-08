@@ -39,10 +39,10 @@
 #include <QSslKey>
 #include <QRegExp>
 
-#include "phantom.h"
-#include "config.h"
 #include "cookiejar.h"
 #include "networkaccessmanager.h"
+#include "phantom.h"
+#include "settings.h"
 
 // 10 MB
 const qint64 MAX_REQUEST_POST_BODY_SIZE = 10 * 1000 * 1000;
@@ -83,7 +83,7 @@ NoFileAccessReply::NoFileAccessReply(QObject* parent, const QNetworkRequest& req
     setUrl(req.url());
     setOperation(op);
 
-    qRegisterMetaType<QNetworkReply::NetworkError>();
+    qRegisterMetaType<NetworkError>();
     QString msg = (QCoreApplication::translate("QNetworkReply", "Protocol \"%1\" is unknown")
                    .arg(req.url().scheme()));
     setError(ProtocolUnknownError, msg);
@@ -94,7 +94,7 @@ NoFileAccessReply::NoFileAccessReply(QObject* parent, const QNetworkRequest& req
 }
 
 // The destructor must be out-of-line in order to trigger generation of the vtable.
-NoFileAccessReply::~NoFileAccessReply() {}
+NoFileAccessReply::~NoFileAccessReply() = default;
 
 
 TimeoutTimer::TimeoutTimer(QObject* parent)
@@ -151,10 +151,10 @@ const ssl_protocol_option ssl_protocol_options[] = {
 };
 
 // public:
-NetworkAccessManager::NetworkAccessManager(QObject* parent, const Config* config)
+NetworkAccessManager::NetworkAccessManager(QObject* parent, const Settings* settings)
     : QNetworkAccessManager(parent)
-    , m_ignoreSslErrors(config->ignoreSslErrors())
-    , m_localUrlAccessEnabled(config->localUrlAccessEnabled())
+    , m_ignoreSslErrors(settings->ignoreSslErrors())
+    , m_localUrlAccessEnabled(settings->localUrlAccessEnabled())
     , m_authAttempts(0)
     , m_maxAuthAttempts(3)
     , m_resourceTimeout(0)
@@ -162,34 +162,34 @@ NetworkAccessManager::NetworkAccessManager(QObject* parent, const Config* config
     , m_networkDiskCache(0)
     , m_sslConfiguration(QSslConfiguration::defaultConfiguration())
 {
-    if (config->diskCacheEnabled()) {
+    if (settings->diskCacheEnabled()) {
         m_networkDiskCache = new QNetworkDiskCache(this);
 
-        if (config->diskCachePath().isEmpty()) {
+        if (settings->diskCachePath().isEmpty()) {
             m_networkDiskCache->setCacheDirectory(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
         } else {
-            m_networkDiskCache->setCacheDirectory(config->diskCachePath());
+            m_networkDiskCache->setCacheDirectory(settings->diskCachePath());
         }
 
-        if (config->maxDiskCacheSize() >= 0) {
-            m_networkDiskCache->setMaximumCacheSize(qint64(config->maxDiskCacheSize()) * 1024);
+        if (settings->maxDiskCacheSize() >= 0) {
+            m_networkDiskCache->setMaximumCacheSize(qint64(settings->maxDiskCacheSize()) * 1024);
         }
         setCache(m_networkDiskCache);
     }
 
     if (QSslSocket::supportsSsl()) {
-        prepareSslConfiguration(config);
+        prepareSslConfiguration(settings);
     }
 
     connect(this, SIGNAL(authenticationRequired(QNetworkReply*, QAuthenticator*)), SLOT(provideAuthentication(QNetworkReply*, QAuthenticator*)));
     connect(this, SIGNAL(finished(QNetworkReply*)), SLOT(handleFinished(QNetworkReply*)));
 }
 
-void NetworkAccessManager::prepareSslConfiguration(const Config* config)
+void NetworkAccessManager::prepareSslConfiguration(const Settings* settings)
 {
     m_sslConfiguration = QSslConfiguration::defaultConfiguration();
 
-    if (config->ignoreSslErrors()) {
+    if (settings->ignoreSslErrors()) {
         m_sslConfiguration.setPeerVerifyMode(QSslSocket::VerifyNone);
     }
 
@@ -197,7 +197,7 @@ void NetworkAccessManager::prepareSslConfiguration(const Config* config)
     for (const ssl_protocol_option* proto_opt = ssl_protocol_options;
             proto_opt->name;
             proto_opt++) {
-        if (config->sslProtocol() == proto_opt->name) {
+        if (settings->sslProtocol() == proto_opt->name) {
             m_sslConfiguration.setProtocol(proto_opt->proto);
             setProtocol = true;
             break;
@@ -210,10 +210,10 @@ void NetworkAccessManager::prepareSslConfiguration(const Config* config)
 
     // Essentially the same as what QSslSocket::setCiphers(QString) does.
     // That overload isn't available on QSslConfiguration.
-    if (!config->sslCiphers().isEmpty()) {
+    if (!settings->sslCiphers().isEmpty()) {
         QList<QSslCipher> cipherList;
         foreach(const QString & cipherName,
-                config->sslCiphers().split(QLatin1String(":"),
+            settings->sslCiphers().split(QLatin1String(":"),
                                            QString::SkipEmptyParts)) {
             QSslCipher cipher(cipherName);
             if (!cipher.isNull()) {
@@ -225,16 +225,16 @@ void NetworkAccessManager::prepareSslConfiguration(const Config* config)
         }
     }
 
-    if (!config->sslCertificatesPath().isEmpty()) {
+    if (!settings->sslCertificatesPath().isEmpty()) {
         QList<QSslCertificate> caCerts = QSslCertificate::fromPath(
-                                             config->sslCertificatesPath(), QSsl::Pem, QRegExp::Wildcard);
+            settings->sslCertificatesPath(), QSsl::Pem, QRegExp::Wildcard);
 
         m_sslConfiguration.setCaCertificates(caCerts);
     }
 
-    if (!config->sslClientCertificateFile().isEmpty()) {
+    if (!settings->sslClientCertificateFile().isEmpty()) {
         QList<QSslCertificate> clientCerts = QSslCertificate::fromPath(
-                config->sslClientCertificateFile(), QSsl::Pem, QRegExp::Wildcard);
+            settings->sslClientCertificateFile(), QSsl::Pem, QRegExp::Wildcard);
 
         if (!clientCerts.isEmpty()) {
             QSslCertificate clientCert = clientCerts.first();
@@ -244,15 +244,15 @@ void NetworkAccessManager::prepareSslConfiguration(const Config* config)
             m_sslConfiguration.setCaCertificates(caCerts);
             m_sslConfiguration.setLocalCertificate(clientCert);
 
-            QFile* keyFile = NULL;
-            if (config->sslClientKeyFile().isEmpty()) {
-                keyFile = new QFile(config->sslClientCertificateFile());
+            QFile* keyFile = Q_NULLPTR;
+            if (settings->sslClientKeyFile().isEmpty()) {
+                keyFile = new QFile(settings->sslClientCertificateFile());
             } else {
-                keyFile = new QFile(config->sslClientKeyFile());
+                keyFile = new QFile(settings->sslClientKeyFile());
             }
 
             if (keyFile->open(QIODevice::ReadOnly | QIODevice::Text)) {
-                QSslKey key(keyFile->readAll(), QSsl::Rsa, QSsl::Pem, QSsl::PrivateKey, config->sslClientKeyPassphrase());
+                QSslKey key(keyFile->readAll(), QSsl::Rsa, QSsl::Pem, QSsl::PrivateKey, settings->sslClientKeyPassphrase());
 
                 m_sslConfiguration.setPrivateKey(key);
                 keyFile->close();
