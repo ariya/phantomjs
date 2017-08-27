@@ -1,4 +1,10 @@
-QT += core-private gui-private platformsupport-private
+QT += core-private gui-private
+
+lessThan(QT_MINOR_VERSION, 8) {
+    QT += platformsupport-private
+} else {
+    QT += fontdatabase_support_private eventdispatcher_support_private
+}
 
 SOURCES += $$PWD/phantomintegration.cpp \
            $$PWD/phantombackingstore.cpp
