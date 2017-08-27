@@ -42,15 +42,24 @@
 #include "phantomintegration.h"
 #include "phantombackingstore.h"
 
+#include <QtGlobal>
 #include <private/qpixmap_raster_p.h>
 
 #if defined(Q_OS_MAC)
 # include <QtPlatformSupport/private/qcoretextfontdatabase_p.h>
 #else
-# include <QtPlatformSupport/private/qgenericunixfontdatabase_p.h>
+# if QT_VERSION < QT_VERSION_CHECK(5, 8, 0)
+#  include <QtPlatformSupport/private/qgenericunixfontdatabase_p.h>
+# else
+#  include <QtFontDatabaseSupport/private/qgenericunixfontdatabase_p.h>
+# endif
 #endif
 
-#include <QtPlatformSupport/private/qgenericunixeventdispatcher_p.h>
+#if QT_VERSION < QT_VERSION_CHECK(5, 8, 0)
+# include <QtPlatformSupport/private/qgenericunixeventdispatcher_p.h>
+#else
+# include <QtEventDispatcherSupport/private/qgenericunixeventdispatcher_p.h>
+#endif
 
 #include <qpa/qplatformnativeinterface.h>
 #include <qpa/qplatformscreen.h>
