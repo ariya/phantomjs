@@ -45,7 +45,7 @@ Supported command-line options are:
  * `--proxy-auth` specifies the authentication information for the proxy, e.g. `--proxy-auth=username:password`).
  * `--script-encoding=encoding` sets the encoding used for the starting script (default is `utf8`).
  * `--script-language` sets the script language instead of detecting it: 'javascript'.
- * `--ssl-protocol=[sslv3|sslv2|tlsv1|tlsv1.1|tlsv1.2|any']` sets the SSL protocol for secure connections (default is `SSLv3`). Not all values may be supported, depending on the system OpenSSL library.
+ * `--ssl-protocol=[sslv3|sslv2|tlsv1|tlsv1.1|tlsv1.2|any]` sets the SSL protocol for secure connections (default is `SSLv3`). Not all values may be supported, depending on the system OpenSSL library.
  * `--ssl-certificates-path=<val>` sets the location for custom CA certificates (if none set, uses system default).
  * `--ssl-client-certificate-file` sets the location of a client certificate.
  * `--ssl-client-key-file` sets the location of a clients' private key.
