@@ -10,7 +10,7 @@ This instruction assumes that PhantomJS is installed and its executable is place
 Mac PATH suggested setup:
   1. Open Terminal.
   2. Type `vi ~/.bash_profile` and hit enter (this opens or creates your bash_profile where you can customize Terminal commands).
-  3. Press `i` to enter insert/edit mode then type `alias phantomjs='~/PATH/TO/phantomjs'` and be sure to replace `~/PATH/TO/phantomjs` with something like `~/Documents/PhantomJS/bin/phantomsj` or wherever the file exists on your machine.
+  3. Press `i` to enter insert/edit mode then type `alias phantomjs='~/PATH/TO/phantomjs'` and be sure to replace `~/PATH/TO/phantomjs` with something like `~/Documents/PhantomJS/bin/phantomjs` or wherever the file exists on your machine.
   4. Press `esc` to exit insert/edit mode then type `:x` and hit enter to save the file.
   5. Quit and re-open Terminal.
   6. Type `phantomjs` and hit enter. If you see the prompt `phantomjs>` then you're all set.
