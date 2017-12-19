@@ -91,6 +91,7 @@ public:
     QVariantMap customHeaders() const;
 
     void setCookieJar(QNetworkCookieJar* cookieJar);
+    QString getCookieStringFromUrl(const QUrl &url);
 
 protected:
     bool m_ignoreSslErrors;
@@ -102,6 +103,7 @@ protected:
     QString m_password;
     QNetworkReply* createRequest(Operation op, const QNetworkRequest& req, QIODevice* outgoingData) Q_DECL_OVERRIDE;
     void handleFinished(QNetworkReply* reply, const QVariant& status, const QVariant& statusText);
+    QVariant getResponseBodyFromReply(QNetworkReply* reply);
 
 Q_SIGNALS:
     void resourceRequested(const QVariant& data, QObject*);

@@ -367,7 +367,10 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     // attribute "WebSecurityEnabled" must be applied during the initializing
     // security context for Document instance. Setting up it later will not cause any effect
     QWebSettings* settings = m_customWebPage->settings();
-    settings->setAttribute(QWebSettings::WebSecurityEnabled, phantomCfg->webSecurityEnabled());
+    // settings->setAttribute(QWebSettings::WebSecurityEnabled, phantomCfg->webSecurityEnabled());
+    // FIXME: 'WebSecurityEnabled' is not a member of 'QWebSettings' ?
+    settings->setAttribute(QWebSettings::XSSAuditingEnabled, phantomCfg->webSecurityEnabled());
+    settings->setAttribute(QWebSettings::JavascriptCanAccessClipboard, phantomCfg->webSecurityEnabled());
 
     m_mainFrame = m_customWebPage->mainFrame();
     m_currentFrame = m_mainFrame;

@@ -44,6 +44,10 @@
 #include "cookiejar.h"
 #include "networkaccessmanager.h"
 
+#include <private/qnetworkreplyhttpimpl_p.h>
+
+using namespace QtPrivate;
+
 // 10 MB
 const qint64 MAX_REQUEST_POST_BODY_SIZE = 10 * 1000 * 1000;
 
@@ -302,6 +306,15 @@ void NetworkAccessManager::setCookieJar(QNetworkCookieJar* cookieJar)
     cookieJar->setParent(Phantom::instance());
 }
 
+QString NetworkAccessManager::getCookieStringFromUrl(const QUrl &url)
+{
+    QStringList cookies;
+    foreach (QNetworkCookie cookie, cookieJar()->cookiesForUrl(url)) {
+        cookies.append(cookie.toRawForm(QNetworkCookie::NameAndValueOnly));
+    }
+    return cookies.join("; ");
+}
+
 // protected:
 QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkRequest& request, QIODevice* outgoingData)
 {
@@ -345,6 +358,15 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
         QVariantMap header;
         header["name"] = QString::fromUtf8(headerName);
         header["value"] = QString::fromUtf8(req.rawHeader(headerName));
+        headers += header;
+    }
+
+    // get Cookie from cookiejar
+    QString cookie = getCookieStringFromUrl(req.url());
+    if (!cookie.isEmpty()) {
+        QVariantMap header;
+        header["name"] = "Cookie";
+        header["value"] = getCookieStringFromUrl(req.url());
         headers += header;
     }
 
@@ -401,6 +423,59 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
     return reply;
 }
 
+QVariant NetworkAccessManager::getResponseBodyFromReply(QNetworkReply* reply)
+{
+    QNetworkReplyHttpImpl *http_reply = static_cast<QNetworkReplyHttpImpl*>(reply);
+    QNetworkReplyHttpImplPrivate * const d = http_reply->d_func();
+    QByteArray data;
+
+    // cacheload device
+    if (d->cacheLoadDevice) {
+        if (!d->downloadMultiBuffer.isEmpty()) {
+            QList<QByteArray> buffers;
+            while(!d->downloadMultiBuffer.isEmpty()) {
+                buffers.append(d->downloadMultiBuffer.read());
+            }
+            if(buffers.length() > 0) {
+                foreach (const QByteArray& item, buffers) {
+                    d->downloadMultiBuffer.append(item);
+                }
+            }
+            data += buffers.join();
+            goto end;
+        }
+        QByteArray cached = d->cacheLoadDevice->readAll();
+        d->cacheLoadDevice->reset();
+        data += cached;
+        goto end;
+    }
+    // zerocopy buffer
+    if (d->downloadZerocopyBuffer) {
+        qint64 howMuch = d->downloadBufferCurrentSize - d->downloadBufferReadPosition;
+        data += QByteArray(d->downloadZerocopyBuffer + d->downloadBufferReadPosition,howMuch);
+        goto end;
+    }
+    // normal buffer
+    if (d->downloadMultiBuffer.isEmpty()) {
+        goto end;
+    } else {
+        QList<QByteArray> buffers;
+        while(!d->downloadMultiBuffer.isEmpty()) {
+            buffers.append(d->downloadMultiBuffer.read());
+        }
+        if(buffers.length() > 0) {
+            foreach (const QByteArray& item, buffers) {
+                d->downloadMultiBuffer.append(item);
+            }
+        }
+        data += buffers.join();
+        goto end;
+    }
+
+end:
+    return QString::fromLatin1(data.data(),data.length());
+}
+
 void NetworkAccessManager::handleTimeout()
 {
     TimeoutTimer* nt = qobject_cast<TimeoutTimer*>(sender());
@@ -443,7 +518,7 @@ void NetworkAccessManager::handleStarted()
     data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
-    data["body"] = "";
+    data["body"] = getResponseBodyFromReply(reply);
 
     emit resourceReceived(data);
 }
