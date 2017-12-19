@@ -67,6 +67,7 @@ static const struct QCommandLineConfigEntry flags[] = {
     { QCommandLine::Option, '\0', "proxy", "Sets the proxy server, e.g. '--proxy=http://proxy.company.com:8080'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "proxy-auth", "Provides authentication information for the proxy, e.g. ''-proxy-auth=username:password'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "proxy-type", "Specifies the proxy type, 'http' (default), 'none' (disable completely), or 'socks5'", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "resource-timeout", "Sets the timer used for stopping request, default is 0 (no timer)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "script-encoding", "Sets the encoding used for the starting script, default is 'utf8'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "script-language", "Sets the script language instead of detecting it: 'javascript'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "web-security", "Enables web security, 'true' (default) or 'false'", QCommandLine::Optional },
@@ -520,6 +521,16 @@ bool Config::javascriptCanCloseWindows() const
     return m_javascriptCanCloseWindows;
 }
 
+void Config::setResourceTimeout(const int value)
+{
+    m_resourceTimeout = value;
+}
+
+int Config::resourceTimeout() const
+{
+    return m_resourceTimeout;
+}
+
 void Config::setWebdriver(const QString& webdriverConfig)
 {
     // Parse and validate the configuration
@@ -608,6 +619,7 @@ void Config::resetToDefaults()
     m_webSecurityEnabled = true;
     m_javascriptCanOpenWindows = true;
     m_javascriptCanCloseWindows = true;
+    m_resourceTimeout = 0;
     m_helpFlag = false;
     m_printDebugMessages = false;
     m_sslProtocol = "default";
@@ -791,6 +803,10 @@ void Config::handleOption(const QString& option, const QVariant& value)
 
     if (option == "proxy-auth") {
         setProxyAuth(value.toString());
+    }
+
+    if (option == "resource-timeout") {
+        setResourceTimeout(value.toInt());
     }
 
     if (option == "script-encoding") {
