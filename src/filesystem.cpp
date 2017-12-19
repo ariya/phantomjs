@@ -140,7 +140,7 @@ bool File::write(const QString& data)
 
 bool File::isTTY()
 {
-    if (isatty(fileno(stdout))) {
+    if (istty(fileno(stdout))) {
         return true;
     }
     return false;
