@@ -148,11 +148,21 @@ ghostdriver.Session = function(desiredCapabilities) {
     _getProxySettingsFromCapabilities = function(proxyCapability) {
         var proxySettings = {};
         if (proxyCapability["proxyType"].toLowerCase() == _const.PROXY_TYPES.MANUAL) {      //< TODO: support other options
-            if (proxyCapability["httpProxy"] !== "null") {                                  //< TODO: support other proxy types
+            if (proxyCapability["httpProxy"] && proxyCapability["httpProxy"] !== "null") {  //< TODO: support other proxy types
                 var urlParts = proxyCapability["httpProxy"].split(':');
                 proxySettings["ip"] = urlParts[0];
                 proxySettings["port"] = urlParts[1];
                 proxySettings["proxyType"] = "http";
+                proxySettings["user"] = "";
+                proxySettings["password"] = "";
+
+                return proxySettings;
+            }
+            if (proxyCapability["socksProxy"] && proxyCapability["socksProxy"] !== "null") {
+                var urlParts = proxyCapability["socksProxy"].split(':');
+                proxySettings["ip"] = urlParts[0];
+                proxySettings["port"] = urlParts[1];
+                proxySettings["proxyType"] = "socks5";
                 proxySettings["user"] = "";
                 proxySettings["password"] = "";
 
