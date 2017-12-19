@@ -54,6 +54,7 @@ public slots:
      */
     QString read(const QVariant& n = -1);
     bool write(const QString& data);
+    bool isTTY();
 
     bool seek(const qint64 pos);
 
