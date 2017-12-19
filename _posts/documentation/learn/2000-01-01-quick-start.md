@@ -7,6 +7,16 @@ permalink: quick-start.html
 
 This instruction assumes that PhantomJS is installed and its executable is placed somewhere in the PATH.
 
+Mac PATH suggested setup:
+  1. Open Terminal.
+  2. Type `vi ~/.bash_profile` and hit enter (this opens or creates your bash_profile where you can customize Terminal commands).
+  3. Press `i` to enter insert/edit mode then type `alias phantomjs='~/PATH/TO/phantomjs'` and be sure to replace `~/PATH/TO/phantomjs` with something like `~/Documents/PhantomJS/bin/phantomjs` or wherever the file exists on your machine.
+  4. Press `esc` to exit insert/edit mode then type `:x` and hit enter to save the file.
+  5. Quit and re-open Terminal.
+  6. Type `phantomjs` and hit enter. If you see the prompt `phantomjs>` then you're all set.
+  7. Type `phantom.exit()` to end the PhantomJS program.
+  8. Now you can navigate to any folder and run PhantomJS by simply typing `phantomjs`. This is helpful when saving screenshots because the images will be saved inside the folder that's active in your Terminal.
+
 The code shown here is also available in [various examples]({{ site.url }}/examples/) included with PhantomJS. You are also recommended to explore the use of PhantomJS for [page automation]({{ site.url }}/page-automation.html), [network monitoring]({{ site.url }}/network-monitoring.html), [screen capture]({{ site.url }}/screen-capture.html), and [headless testing]({{ site.url }}/headless-testing.html).
 
 ## Hello, World!
