@@ -1,1 +1,2 @@
-AppVeyor building without problems
+AppVeyor building PJS without problems
+Jenkins refuses to build PJS (at lst on FreeBSD). Will try on other OSes.
