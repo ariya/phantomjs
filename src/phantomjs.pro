@@ -1,11 +1,14 @@
 TEMPLATE = app
 TARGET = phantomjs
 QT += network webkitwidgets
-CONFIG += console
+CONFIG += console precompile_header
+
+PRECOMPILED_HEADER = config.h
 
 DESTDIR = ../bin
 
-RESOURCES = phantomjs.qrc \
+RESOURCES = \
+    phantomjs.qrc \
     ghostdriver/ghostdriver.qrc
 
 CONFIG(static) {
@@ -22,44 +25,47 @@ CONFIG(static) {
 HEADERS = \
     callback.h \
     childprocess.h \
-    config.h \
     consts.h \
-    cookiejar.h \
     crashdump.h \
+    custompage.h \
     encoding.h \
     env.h \
     filesystem.h \
-    networkaccessmanager.h \
     phantom.h \
+    phantompage.h \
     repl.h \
+    settings.h \
     system.h \
     terminal.h \
-    utils.h \
     webpage.h \
-    webserver.h
+    webpagerenderer.h \
+    webserver.h \
+    network\cookiejar.h \
+    network\networkaccessmanager.h
 
 SOURCES = \
     callback.cpp \
     childprocess.cpp \
-    config.cpp \
-    cookiejar.cpp \
     crashdump.cpp \
+    custompage.cpp \
     encoding.cpp \
     env.cpp \
     filesystem.cpp \
     main.cpp \
-    networkaccessmanager.cpp \
     phantom.cpp \
+    phantompage.cpp \
     repl.cpp \
+    settings.cpp \
     system.cpp \
     terminal.cpp \
-    utils.cpp \
     webpage.cpp \
-    webserver.cpp
+    webpagerenderer.cpp \
+    webserver.cpp \
+    network\cookiejar.cpp \
+    network\networkaccessmanager.cpp
 
 OTHER_FILES = \
     bootstrap.js \
-    configurator.js \
     modules/child_process.js \
     modules/cookiejar.js \
     modules/fs.js \
@@ -72,7 +78,6 @@ include(linenoise/linenoise.pri)
 include(qcommandline/qcommandline.pri)
 
 win32: RC_FILE = phantomjs_win.rc
-os2:   RC_FILE = phantomjs_os2.rc
 
 mac {
     QMAKE_CXXFLAGS += -fvisibility=hidden
@@ -83,9 +88,6 @@ mac {
 }
 
 win32-msvc* {
-    DEFINES += NOMINMAX \
-        WIN32_LEAN_AND_MEAN \
-        _CRT_SECURE_NO_WARNINGS
     # ingore warnings:
     # 4049 - locally defined symbol 'symbol' imported
     QMAKE_LFLAGS += /ignore:4049 /LARGEADDRESSAWARE

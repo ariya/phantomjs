@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
@@ -27,8 +27,7 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef REPL_H
-#define REPL_H
+#pragma once
 
 #include <QWebFrame>
 
@@ -75,5 +74,3 @@ private:
     bool m_looping;
     QByteArray m_historyFilepath;
 };
-
-#endif // REPL_H

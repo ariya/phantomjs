@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
@@ -28,12 +28,14 @@
 */
 
 #include "filesystem.h"
-
+#include <stdio.h>
 #include <QDir>
 #include <QDebug>
 #include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
+
+#include "filesystem.h"
 
 // File
 // public:
@@ -135,6 +137,14 @@ bool File::write(const QString& data)
         }
         return m_file->write(bytes);
     }
+}
+
+bool File::isTTY()
+{
+    if (isTTY(fileno(stdout))) {
+        return true;
+    }
+    return false;
 }
 
 bool File::seek(const qint64 pos)

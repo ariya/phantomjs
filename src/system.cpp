@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2012 execjosh, http://execjosh.blogspot.com
@@ -28,14 +28,13 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "system.h"
-
 #include <QSslSocket>
 #include <QSysInfo>
 #include <QVariantMap>
 #include <QTextCodec>
 
 #include "env.h"
+#include "system.h"
 #include "terminal.h"
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
@@ -54,9 +53,9 @@ QString getOSRelease()
 
 System::System(QObject* parent) :
     QObject(parent)
-    , m_stdout((File*)NULL)
-    , m_stderr((File*)NULL)
-    , m_stdin((File*)NULL)
+    , m_stdout(Q_NULLPTR)
+    , m_stderr(Q_NULLPTR)
+    , m_stdin(Q_NULLPTR)
 {
     // Populate "env"
     m_env = Env::instance()->asVariantMap();
@@ -165,17 +164,17 @@ System::System(QObject* parent) :
 System::~System()
 {
     // Clean-up standard streams
-    if ((File*)NULL != m_stdout) {
+    if (!m_stdout) {
         delete m_stdout;
-        m_stdout = (File*)NULL;
+        m_stdout = Q_NULLPTR;
     }
-    if ((File*)NULL != m_stderr) {
+    if (!m_stderr) {
         delete m_stderr;
-        m_stderr = (File*)NULL;
+        m_stderr = Q_NULLPTR;
     }
-    if ((File*)NULL != m_stdin) {
+    if (!m_stdin) {
         delete m_stdin;
-        m_stdin = (File*)NULL;
+        m_stdin = Q_NULLPTR;
     }
 }
 
@@ -211,7 +210,7 @@ bool System::isSSLSupported() const
 
 QObject* System::_stdout()
 {
-    if ((File*)NULL == m_stdout) {
+    if (!m_stdout) {
         QFile* f = new QFile();
         f->open(stdout, QIODevice::WriteOnly | QIODevice::Unbuffered);
         m_stdout = createFileInstance(f);
@@ -222,7 +221,7 @@ QObject* System::_stdout()
 
 QObject* System::_stderr()
 {
-    if ((File*)NULL == m_stderr) {
+    if (!m_stderr) {
         QFile* f = new QFile();
         f->open(stderr, QIODevice::WriteOnly | QIODevice::Unbuffered);
         m_stderr = createFileInstance(f);
@@ -233,7 +232,7 @@ QObject* System::_stderr()
 
 QObject* System::_stdin()
 {
-    if ((File*)NULL == m_stdin) {
+    if (!m_stdin) {
         QFile* f = new QFile();
         f->open(stdin, QIODevice::ReadOnly | QIODevice::Unbuffered);
         m_stdin = createFileInstance(f);
@@ -246,15 +245,15 @@ QObject* System::_stdin()
 
 void System::_onTerminalEncodingChanged(const QString& encoding)
 {
-    if ((File*)NULL != m_stdin) {
+    if (m_stdin) {
         m_stdin->setEncoding(encoding);
     }
 
-    if ((File*)NULL != m_stdout) {
+    if (m_stdout) {
         m_stdout->setEncoding(encoding);
     }
 
-    if ((File*)NULL != m_stderr) {
+    if (m_stderr) {
         m_stderr->setEncoding(encoding);
     }
 }

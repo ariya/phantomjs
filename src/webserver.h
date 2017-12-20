@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
@@ -28,8 +28,7 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef WEBSERVER_H
-#define WEBSERVER_H
+#pragma once
 
 #include <QVariantMap>
 #include <QMutex>
@@ -150,5 +149,3 @@ private:
     QString m_encoding;
     QSemaphore* m_close;
 };
-
-#endif // WEBSERVER_H
