@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -29,9 +29,7 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef CONSTS_H
-#define CONSTS_H
-
+#pragma once
 #define PHANTOMJS_VERSION_MAJOR     2
 #define PHANTOMJS_VERSION_MINOR     5
 #define PHANTOMJS_VERSION_PATCH     0
@@ -70,5 +68,3 @@
 #define PAGE_SETTINGS_DPI                   "dpi"
 
 #define DEFAULT_WEBDRIVER_CONFIG            "127.0.0.1:8910"
-
-#endif // CONSTS_H

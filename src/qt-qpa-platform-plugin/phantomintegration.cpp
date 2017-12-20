@@ -47,10 +47,10 @@
 #if defined(Q_OS_MAC)
 # include <QtPlatformSupport/private/qcoretextfontdatabase_p.h>
 #else
-# include <QtPlatformSupport/private/qgenericunixfontdatabase_p.h>
+#include <QtFontDatabaseSupport/private/qgenericunixfontdatabase_p.h>
 #endif
 
-#include <QtPlatformSupport/private/qgenericunixeventdispatcher_p.h>
+#include <QtEventDispatcherSupport/private/qgenericunixeventdispatcher_p.h>
 
 #include <qpa/qplatformnativeinterface.h>
 #include <qpa/qplatformscreen.h>

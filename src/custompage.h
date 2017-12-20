@@ -1,7 +1,9 @@
 ﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
+  Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
+  Copyright (C) 2017 Vitaly Slobodin <vitaliy.slobodin@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -29,48 +31,46 @@
 
 #pragma once
 
-#include <QWebFrame>
+#include <QWebPage>
 
 #include "phantom.h"
-
-// Linenoise is a C Library: we need to externalise it's symbols for linkage
-extern "C" {
-#include "linenoise.h"
-}
+#include "webpage.h"
 
 /**
- * REPL. Read–Eval–Print Loop.
- *
- * This class realises the REPL functionality within PhantomJS.
- * It's a Singleton: invoke "REPL::getInstance(QWebFrame *, Phantom *) to
- * create the first-and-only instance, or no parameter to get the singleton
- * if previously created.
- *
- * It's based the Linenoise library (https://github.com/tadmarshall/linenoise).
- * More info about REPL: http://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop
- */
-class REPL: public QObject
+* @class CustomPage
+*/
+class CustomPage : public QWebPage
 {
     Q_OBJECT
 
 public:
-    static bool instanceExists();
-    static REPL* getInstance(QWebFrame* webframe = NULL, Phantom* parent = NULL);
+    CustomPage(WebPage* parent = Q_NULLPTR);
 
-    Q_INVOKABLE QString _getClassName(QObject* obj) const;
-    Q_INVOKABLE QStringList _enumerateCompletions(QObject* obj) const;
+    bool extension(Extension extension, const ExtensionOption* option, ExtensionReturn* output) Q_DECL_OVERRIDE;
+
+    void setCookieJar(CookieJar* cookieJar);
+    void setUserAgent(QString userAgent);
+    QString userAgent() const;
+    void addFileToUpload(QString filename);
+    void clearUploadFiles();
+
+public Q_SLOTS:
+    bool shouldInterruptJavaScript() Q_DECL_OVERRIDE;
+
+protected:
+    bool supportsExtension(Extension extension) const Q_DECL_OVERRIDE;
+    QString chooseFile(QWebFrame* originatingFrame, const QString& oldFile) Q_DECL_OVERRIDE;
+    void javaScriptAlert(QWebFrame* originatingFrame, const QString& msg) Q_DECL_OVERRIDE;
+    bool javaScriptConfirm(QWebFrame* originatingFrame, const QString& msg) Q_DECL_OVERRIDE;
+    bool javaScriptPrompt(QWebFrame* originatingFrame, const QString& msg, const QString& defaultValue, QString* result) Q_DECL_OVERRIDE;
+    void onConsoleMessageReceived(MessageSource source, MessageLevel level, const QString& message, int lineNumber, const QString& sourceID);
+    QString userAgentForUrl(const QUrl& url) const Q_DECL_OVERRIDE;
+    bool acceptNavigationRequest(QWebFrame* frame, const QNetworkRequest& request, NavigationType type) Q_DECL_OVERRIDE;
+    QWebPage* createWindow(WebWindowType type) Q_DECL_OVERRIDE;
 
 private:
-    REPL(QWebFrame* webframe, Phantom* parent);
-    static void offerCompletion(const char* buf, linenoiseCompletions* lc);
-
-private slots:
-    void startLoop();
-    void stopLoop(const int code);
-
-private:
-    QWebFrame* m_webframe;
-    Phantom* m_parentPhantom;
-    bool m_looping;
-    QByteArray m_historyFilepath;
+    QPointer<WebPage> m_webPage;
+    QPointer<CookieJar> m_cookieJar;
+    QString m_userAgent;
+    QStringList m_uploadFiles;
 };

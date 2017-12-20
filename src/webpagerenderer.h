@@ -2,7 +2,8 @@
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
-  Copyright (C) 2011 execjosh, http://execjosh.blogspot.com
+  Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
+  Copyright (C) 2017 Vitaly Slobodin <vitaliy.slobodin@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -28,69 +29,53 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "encoding.h"
+#pragma once
 
-Encoding::Encoding()
+#include <QBuffer>
+
+#include "custompage.h"
+
+class WebPageRenderer : public QObject
 {
-    QTextCodec* codec = QTextCodec::codecForName(DEFAULT_CODEC_NAME);
+    Q_OBJECT
 
-    // Fall back to locale codec
-    if (!codec) {
-        codec = QTextCodec::codecForLocale();
-    }
+public:
+    enum RenderMode { Content, Viewport };
 
-    m_codec = codec;
-}
+    explicit WebPageRenderer(CustomPage* customPage, qreal dpi, QObject* parent = Q_NULLPTR);
+    virtual ~WebPageRenderer() = default;
 
-Encoding::Encoding(const QString& encoding)
-{
-    setEncoding(encoding);
-}
+    bool renderToFile(
+        const QString& filename,
+        const QString& format,
+        const QRect clipRect,
+        QVariantMap paperSize,
+        RenderMode mode = Content,
+        int quality = -1);
+    
+    QString renderToBase64(
+        const QString& format,
+        const QRect clipRect,
+        QVariantMap paperSize,
+        RenderMode mode = Content,
+        int quality = -1) const;
 
-Encoding::~Encoding()
-{
-    m_codec = Q_NULLPTR;
-}
+    void setDpi(qreal dpi);
 
-QString Encoding::decode(const QByteArray& bytes) const
-{
-    return getCodec()->toUnicode(bytes);
-}
+    // TODO: make private
+    qreal stringToPointSize(const QString& string) const;
 
-QByteArray Encoding::encode(const QString& string) const
-{
-    return getCodec()->fromUnicode(string);
-}
+private:
+    qreal printMargin(const QVariantMap& map, const QString& key) const;
+    QBuffer* renderPdf(QVariantMap paperSize, QRect clipRect) const;
 
-QString Encoding::getName() const
-{
-    // TODO Is it safe to assume UTF-8 here?
-    return QString::fromUtf8(getCodec()->name());
-}
+    QImage* renderImage(const RenderMode mode, QRect clipRect) const;
 
-void Encoding::setEncoding(const QString& encoding)
-{
-    if (!encoding.isEmpty()) {
-        QTextCodec* codec = QTextCodec::codecForName(encoding.toLatin1());
+#ifdef Q_OS_WIN
+    // TODO: Change output of stdout or stderr to binary
+    void setStdOutputMode(const QString& filename, int mode);
+#endif
 
-        if (codec) {
-            m_codec = codec;
-        }
-    }
-}
-
-const Encoding Encoding::UTF8 = Encoding("UTF-8");
-
-// private:
-QTextCodec* Encoding::getCodec() const
-{
-    QTextCodec* codec = m_codec;
-
-    if (!codec) {
-        codec = QTextCodec::codecForLocale();
-    }
-
-    return codec;
-}
-
-const QByteArray Encoding::DEFAULT_CODEC_NAME = "UTF-8";
+    CustomPage* m_customPage;
+    qreal m_dpi;
+};

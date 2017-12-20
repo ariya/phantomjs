@@ -28,8 +28,7 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef NETWORKACCESSMANAGER_H
-#define NETWORKACCESSMANAGER_H
+#pragma once
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -37,7 +36,7 @@
 #include <QTimer>
 #include <QStringList>
 
-class Config;
+class Settings;
 class QAuthenticator;
 class QNetworkDiskCache;
 class QSslConfiguration;
@@ -82,7 +81,7 @@ class NetworkAccessManager : public QNetworkAccessManager
 {
     Q_OBJECT
 public:
-    NetworkAccessManager(QObject* parent, const Config* config);
+    NetworkAccessManager(QObject* parent, const Settings* settings);
     void setUserName(const QString& userName);
     void setPassword(const QString& password);
     void setMaxAuthAttempts(int maxAttempts);
@@ -119,7 +118,7 @@ private slots:
     void handleTimeout();
 
 private:
-    void prepareSslConfiguration(const Config* config);
+    void prepareSslConfiguration(const Settings* settings);
     QVariantList getHeadersFromReply(const QNetworkReply* reply);
 
     QHash<QNetworkReply*, int> m_ids;
@@ -129,5 +128,3 @@ private:
     QVariantMap m_customHeaders;
     QSslConfiguration m_sslConfiguration;
 };
-
-#endif // NETWORKACCESSMANAGER_H

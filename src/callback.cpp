@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2012 Milian Wolff, KDAB <milian.wolff@kdab.com>
@@ -27,9 +27,9 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "callback.h"
-
 #include <QDebug>
+
+#include "callback.h"
 
 Callback::Callback(QObject* parent)
     : QObject(parent)

@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -28,20 +28,21 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PHANTOM_H
-#define PHANTOM_H
+#pragma once
 
+#include <QFileInfo>
 #include <QPointer>
 
+#include "childprocess.h"
 #include "filesystem.h"
 #include "encoding.h"
-#include "config.h"
+#include "phantompage.h"
+#include "settings.h"
 #include "system.h"
-#include "childprocess.h"
-#include "cookiejar.h"
+#include "network/cookiejar.h"
 
-class WebPage;
 class CustomPage;
+class WebPage;
 class WebServer;
 
 class Phantom : public QObject
@@ -51,7 +52,7 @@ class Phantom : public QObject
     Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
     Q_PROPERTY(QString outputEncoding READ outputEncoding WRITE setOutputEncoding)
     Q_PROPERTY(QVariantMap version READ version)
-    Q_PROPERTY(QObject* page READ page)
+    Q_PROPERTY(QObject* page READ hostPage)
     Q_PROPERTY(bool cookiesEnabled READ areCookiesEnabled WRITE setCookiesEnabled)
     Q_PROPERTY(QVariantList cookies READ cookies WRITE setCookies)
     Q_PROPERTY(bool webdriverMode READ webdriverMode)
@@ -59,12 +60,12 @@ class Phantom : public QObject
 
 private:
     // Private constructor: the Phantom class is a singleton
-    Phantom(QObject* parent = nullptr);
+    Phantom(QObject* parent = Q_NULLPTR);
     void init();
 
 public:
     static Phantom* instance();
-    virtual ~Phantom();
+    ~Phantom();
 
     QVariantMap defaultPageSettings() const;
 
@@ -79,16 +80,14 @@ public:
 
     QVariantMap version() const;
 
-    QObject* page() const;
-
     /**
-     * Pointer to the Config loaded at startup.
-     * The configuration is determined by the commandline parameters.
-     *
-     * @brief config
-     * @return Pointer to the current Config(uration)
-     */
-    Config* config() const;
+    * Pointer to the Settings loaded at startup.
+    * The configuration is determined by the commandline parameters.
+    *
+    * @brief settings
+    * @return Pointer to the current Settings(uration)
+    */
+    Settings* settings() const;
 
     bool printDebugMessages() const;
 
@@ -103,6 +102,10 @@ public:
      * Create `child_process` module instance
      */
     Q_INVOKABLE QObject* _createChildProcess();
+
+    void appendPage(WebPage* webPage);
+
+    PhantomPage* hostPage() const;
 
 public slots:
     QObject* createCookieJar(const QString& filePath);
@@ -171,7 +174,7 @@ public slots:
      * @param port The proxy port
      * @param proxyType The type of this proxy
      */
-    void setProxy(const QString& ip, const qint64& port = 80, const QString& proxyType = "http", const QString& user = NULL, const QString& password = NULL);
+    void setProxy(const QString& ip, const qint16& port = 80, const QString& proxyType = "http", const QString& user = NULL, const QString& password = NULL);
 
     QString proxy();
 
@@ -223,23 +226,23 @@ private slots:
 
 private:
     void doExit(int code);
+    QPointer<Settings> m_settings;
+    QPointer<PhantomPage> m_hostPage;
+    QFileInfo m_libraryPath;
 
     Encoding m_scriptFileEnc;
-    WebPage* m_page;
     bool m_terminated;
     int m_returnValue;
+    qreal m_defaultDpi;
     QString m_script;
     QVariantMap m_defaultPageSettings;
-    FileSystem* m_filesystem;
-    System* m_system;
-    ChildProcess* m_childprocess;
+
+    QPointer<FileSystem> m_filesystem;
+    QPointer<System> m_system;
+    QPointer<ChildProcess> m_childprocess;
     QList<QPointer<WebPage> > m_pages;
     QList<QPointer<WebServer> > m_servers;
-    QPointer<Config> m_config;
-    CookieJar* m_defaultCookieJar;
-    qreal m_defaultDpi;
+    QPointer<CookieJar> m_defaultCookieJar;
 
-    friend class CustomPage;
+    Q_DISABLE_COPY(Phantom)
 };
-
-#endif // PHANTOM_H

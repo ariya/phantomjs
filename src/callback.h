@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2012 Milian Wolff, KDAB <milian.wolff@kdab.com>
@@ -27,8 +27,7 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef CALLBACK_H
-#define CALLBACK_H
+#pragma once
 
 #include <QObject>
 #include <QVariant>
@@ -53,5 +52,3 @@ Q_SIGNALS:
 private:
     QVariant m_returnValue;
 };
-
-#endif // CALLBACK_H
