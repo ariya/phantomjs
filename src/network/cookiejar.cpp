@@ -197,7 +197,7 @@ bool CookieJar::addCookieFromMap(const QVariantMap& cookie, const QString& url)
                 QString datetime = expiresVar.toString().replace(" GMT", "");
                 expirationDate = QDateTime::fromString(datetime, "ddd, dd MMM yyyy hh:mm:ss");
             } else if (expiresVar.type() == QVariant::Double) {
-                // Set cookie expire date via "number of seconds since epoch"
+                // Set cookie expire date via "number of milliseconds since epoch"
                 // NOTE: Every JS number is a Double.
                 // @see http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-262.pdf
                 expirationDate = QDateTime::fromMSecsSinceEpoch(expiresVar.toLongLong());
