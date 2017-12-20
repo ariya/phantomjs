@@ -27,6 +27,8 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "filesystem.h"
+#include <stdio.h>
 #include <QDir>
 #include <QDebug>
 #include <QDateTime>
@@ -135,6 +137,14 @@ bool File::write(const QString& data)
         }
         return m_file->write(bytes);
     }
+}
+
+bool File::isTTY()
+{
+    if (isTTY(fileno(stdout))) {
+        return true;
+    }
+    return false;
 }
 
 bool File::seek(const qint64 pos)

@@ -807,7 +807,8 @@ bool WebPage::render(const QString& fileName, const QVariantMap& option)
     return m_pageRenderer->renderToFile(fileName, format, m_clipRect, m_paperSize, mode, quality);
 }
 
-QString WebPage::renderBase64(const QByteArray& format, const QVariantMap& option)
+QString WebPage::renderBase64(const QByteArray& format, const QVariantMap& option
+QString WebPage::renderBase64(const QByteArray& format, const int quality)
 {
     int quality = -1;
 
@@ -815,6 +816,8 @@ QString WebPage::renderBase64(const QByteArray& format, const QVariantMap& optio
 
     if (outputFormat.isEmpty()) {
         outputFormat = "png";
+        // Writing image to the buffer, using PNG encoding
+        rawPageRendering.save(&buffer, nformat, quality);
     }
 
     if (option.contains("quality")) {
