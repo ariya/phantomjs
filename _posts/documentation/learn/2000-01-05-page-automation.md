@@ -58,16 +58,17 @@ var page = require('webpage').create();
 ```
 What can be extracted and executed on it?
 
-#### Attributes
-* page.canGoForward -> boolean
+### Attributes
+
+#### page.canGoForward -> boolean
 
 If window.history.forward would be a valid action
 
-* page.canGoBack -> boolean
+#### page.canGoBack -> boolean
 
 If window.history.back would be a valid action
 
-* page.clipRect -> object
+#### page.clipRect -> object
 
 Can be set to an object of the following form:
 
@@ -76,11 +77,11 @@ Can be set to an object of the following form:
 ```
 It specifies which part of the screen will be taken in the screenshot
 
-* page.content -> string
+#### page.content -> string
 
 The whole HTML content of the page
 
-* page.cookies -> object
+#### page.cookies -> object
 
 The cookies.
 They have this form:
@@ -96,49 +97,49 @@ They have this form:
 }
 ```
 
-* page.customHeaders -> object
+#### page.customHeaders -> object
 
 TODO
 
-* page.event -> object 
+#### page.event -> object 
 
 Contains modifiers and keys
 TODO
 
-* page.libraryPath -> string 
+#### page.libraryPath -> string 
 
 The current library path, usually it's the directory where the script
 is executed from
 
-* page.loading -> boolean 
+#### page.loading -> boolean 
 
 If the page is loading or not
 
-* page.loadingProgress -> number 
+#### page.loadingProgress -> number 
 
 The percentage that has been loaded. 100 means that the page is loaded.
 
-* page.navigationLocked -> boolean 
+#### page.navigationLocked -> boolean 
 
 TODO
 
-* page.offlineStoragePath -> string 
+#### page.offlineStoragePath -> string 
 Where the sqlite3 localstorage and other offline data are stored.
 
-* page.offlineStorageQuota, 'number 
+#### page.offlineStorageQuota, 'number 
 
 The quota in bytes that can be stored offline
 
-* page.paperSize -> object 
+#### page.paperSize -> object 
 
 Similar to clipRect but takes real paper sizes such as A4.
 For an in depth example check  [this](https://github.com/ariya/phantomjs/blob/d10b8dc5832797be434f43fa2cbd4f1110d035fb/examples/printheaderfooter.js).
 
-* page.plainText -> string 
+#### page.plainText -> string 
 
 The elements that are plain text in the page
 
-* page.scrollPosition -> object 
+#### page.scrollPosition -> object 
 
 The current scrolling position as an object of the following form:
 
@@ -149,20 +150,20 @@ The current scrolling position as an object of the following form:
 }
 ```
 
-* page.settings -> object 
+#### page.settings -> object 
 
 The settings which currently only has the useragent string
 page.settings.userAgent = 'SpecialAgent';
 
-* page.title -> string 
+#### page.title -> string 
 
 The page title
 
-* page.url -> string 
+#### page.url -> string 
 
 The page url
 
-* page.viewportSize -> object 
+#### page.viewportSize -> object 
 
 The browser size which is in the following form:
 
@@ -173,16 +174,17 @@ The browser size which is in the following form:
 }
 ```
 
-* page.windowName -> string 
+#### page.windowName -> string 
 
 The name of the browser window that is assigned by the WM.
 
-* page.zoomFactor -> number 
+#### page.zoomFactor -> number 
 
 The zoom factor. 1 is the normal zoom.
 
 
-#### Functions
+
+### Functions
 * page.childFramesCount
 * page.childFramesName
 * page.close
@@ -212,7 +214,7 @@ The zoom factor. 1 is the normal zoom.
 * page.deleteCookie
 * page.clearCookies
 
-#### Handlers/Callbacks
+### Handlers/Callbacks
 List of all the page events:
 
 * onInitialized
