@@ -89,7 +89,7 @@ exports.execFile = function (cmd, args, opts, cb) {
   })
 
   ctx.on("exit", function (code) {
-    return cb(null, stdout, stderr)
+    return cb(null, stdout, stderr, code)
   })
 
   ctx._start(cmd, args)
