@@ -56,15 +56,12 @@ page.open(system.args[1], function(status){
     } else {
         waitFor(function(){
             return page.evaluate(function(){
-                return document.body.querySelector('.jasmine-symbol-summary .jasmine-pending') === null
+
             });
         }, function(){
             var exitCode = page.evaluate(function(){
                 try {
                     console.log('');
-                    console.log(document.body.querySelector('.jasmine-alert .jasmine-duration').innerText);
-                    console.log(document.body.querySelector('.jasmine-alert .jasmine-bar').innerText);
-                    var list = document.body.querySelectorAll('.jasmine-results > .jasmine-failures > .jasmine-spec-detail');
                     if (list && list.length > 0) {
                       for (i = 0; i < list.length; ++i) {
                           var el = list[i],
@@ -77,7 +74,6 @@ page.open(system.args[1], function(status){
                       }
                       return 1;
                     } else {
-                      console.log(document.body.querySelector('.jasmine-summary').innerText);
                       return 0;
                     }
                 } catch (ex) {

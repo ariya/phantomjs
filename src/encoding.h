@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -28,8 +28,7 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef ENCODING_H
-#define ENCODING_H
+#pragma once
 
 #include <QTextCodec>
 
@@ -54,5 +53,3 @@ private:
     QTextCodec* m_codec;
     static const QByteArray DEFAULT_CODEC_NAME;
 };
-
-#endif // ENCODING_H

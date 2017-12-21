@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -28,8 +28,6 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "crashdump.h"
-
 #include <exception>
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,6 +41,8 @@
 #include <sys/resource.h>
 #include <string.h>
 #endif
+
+#include "crashdump.h"
 
 void
 print_crash_message()

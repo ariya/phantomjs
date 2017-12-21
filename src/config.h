@@ -1,8 +1,9 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
-  Copyright (C) 2011 execjosh, http://execjosh.blogspot.com
+  Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
+  Copyright (C) 2017 Vitaly Slobodin <vitaliy.slobodin@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -28,23 +29,26 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifdef __cplusplus
 
-#include <QNetworkProxy>
-#include <QVariant>
+#include <stdio.h>
 
-class QCommandLine;
+// Qt
+#include <QApplication>
+#include <QFileInfo>
 
+<<<<<<< HEAD
+#ifndef QT_NO_DEBUG
+#include <QDebug>
+#endif
+=======
 class Config: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString cookiesFile READ cookiesFile WRITE setCookiesFile)
     Q_PROPERTY(bool diskCacheEnabled READ diskCacheEnabled WRITE setDiskCacheEnabled)
     Q_PROPERTY(int maxDiskCacheSize READ maxDiskCacheSize WRITE setMaxDiskCacheSize)
-    Q_PROPERTY(QString diskCachePath READ diskCachePath WRITE setDiskCachePath)
     Q_PROPERTY(bool ignoreSslErrors READ ignoreSslErrors WRITE setIgnoreSslErrors)
-    Q_PROPERTY(bool localUrlAccessEnabled READ localUrlAccessEnabled WRITE setLocalUrlAccessEnabled)
     Q_PROPERTY(bool localToRemoteUrlAccessEnabled READ localToRemoteUrlAccessEnabled WRITE setLocalToRemoteUrlAccessEnabled)
     Q_PROPERTY(QString outputEncoding READ outputEncoding WRITE setOutputEncoding)
     Q_PROPERTY(QString proxyType READ proxyType WRITE setProxyType)
@@ -53,49 +57,43 @@ class Config: public QObject
     Q_PROPERTY(QString scriptEncoding READ scriptEncoding WRITE setScriptEncoding)
     Q_PROPERTY(bool webSecurityEnabled READ webSecurityEnabled WRITE setWebSecurityEnabled)
     Q_PROPERTY(QString offlineStoragePath READ offlineStoragePath WRITE setOfflineStoragePath)
-    Q_PROPERTY(QString localStoragePath READ localStoragePath WRITE setLocalStoragePath)
-    Q_PROPERTY(int localStorageDefaultQuota READ localStorageDefaultQuota WRITE setLocalStorageDefaultQuota)
     Q_PROPERTY(int offlineStorageDefaultQuota READ offlineStorageDefaultQuota WRITE setOfflineStorageDefaultQuota)
     Q_PROPERTY(bool printDebugMessages READ printDebugMessages WRITE setPrintDebugMessages)
     Q_PROPERTY(bool javascriptCanOpenWindows READ javascriptCanOpenWindows WRITE setJavascriptCanOpenWindows)
     Q_PROPERTY(bool javascriptCanCloseWindows READ javascriptCanCloseWindows WRITE setJavascriptCanCloseWindows)
     Q_PROPERTY(QString sslProtocol READ sslProtocol WRITE setSslProtocol)
-    Q_PROPERTY(QString sslCiphers READ sslCiphers WRITE setSslCiphers)
     Q_PROPERTY(QString sslCertificatesPath READ sslCertificatesPath WRITE setSslCertificatesPath)
-    Q_PROPERTY(QString sslClientCertificateFile READ sslClientCertificateFile WRITE setSslClientCertificateFile)
-    Q_PROPERTY(QString sslClientKeyFile READ sslClientKeyFile WRITE setSslClientKeyFile)
-    Q_PROPERTY(QByteArray sslClientKeyPassphrase READ sslClientKeyPassphrase WRITE setSslClientKeyPassphrase)
     Q_PROPERTY(QString webdriver READ webdriver WRITE setWebdriver)
     Q_PROPERTY(QString webdriverLogFile READ webdriverLogFile WRITE setWebdriverLogFile)
     Q_PROPERTY(QString webdriverLogLevel READ webdriverLogLevel WRITE setWebdriverLogLevel)
     Q_PROPERTY(QString webdriverSeleniumGridHub READ webdriverSeleniumGridHub WRITE setWebdriverSeleniumGridHub)
+    Q_PROPERTY(QString webdriverSeleniumGridRemoteProxyClass READ webdriverSeleniumGridRemoteProxyClass WRITE setWebdriverSeleniumGridRemoteProxyClass)
+>>>>>>> 279b3d7406e953a970e05fd599cc7d420f52dae2
 
-public:
-    Config(QObject* parent = 0);
+#include <QWebFrame>
+#include <QWebPage>
 
-    void init(const QStringList* const args);
-    void processArgs(const QStringList& args);
-    void loadJsonFile(const QString& filePath);
+#endif
 
-    QString helpText() const;
+// platform specific define options
+#ifdef Q_OS_WIN
 
-    bool autoLoadImages() const;
-    void setAutoLoadImages(const bool value);
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#define _CRT_SECURE_NO_WARNINGS
 
-    QString cookiesFile() const;
-    void setCookiesFile(const QString& cookiesFile);
+#ifdef _MSC_VER // Visual Studio
+    #define __PRETTY_FUNCTION__ __FUNCTION__
+#endif
 
+<<<<<<< HEAD
+#endif
+=======
     QString offlineStoragePath() const;
-    void setOfflineStoragePath(const QString& value);
+    void setOfflineStoragePath(const QString &value);
 
     int offlineStorageDefaultQuota() const;
     void setOfflineStorageDefaultQuota(int offlineStorageDefaultQuota);
-
-    QString localStoragePath() const;
-    void setLocalStoragePath(const QString& value);
-
-    int localStorageDefaultQuota() const;
-    void setLocalStorageDefaultQuota(int localStorageDefaultQuota);
 
     bool diskCacheEnabled() const;
     void setDiskCacheEnabled(const bool value);
@@ -103,50 +101,44 @@ public:
     int maxDiskCacheSize() const;
     void setMaxDiskCacheSize(int maxDiskCacheSize);
 
-    QString diskCachePath() const;
-    void setDiskCachePath(const QString& value);
-
     bool ignoreSslErrors() const;
     void setIgnoreSslErrors(const bool value);
-
-    bool localUrlAccessEnabled() const;
-    void setLocalUrlAccessEnabled(const bool value);
 
     bool localToRemoteUrlAccessEnabled() const;
     void setLocalToRemoteUrlAccessEnabled(const bool value);
 
     QString outputEncoding() const;
-    void setOutputEncoding(const QString& value);
+    void setOutputEncoding(const QString &value);
 
     QString proxyType() const;
-    void setProxyType(const QString& value);
+    void setProxyType(const QString value);
 
     QString proxy() const;
-    void setProxy(const QString& value);
+    void setProxy(const QString &value);
     QString proxyHost() const;
     int proxyPort() const;
 
     QString proxyAuth() const;
-    void setProxyAuth(const QString& value);
+    void setProxyAuth(const QString &value);
     QString proxyAuthUser() const;
     QString proxyAuthPass() const;
-    void setProxyAuthUser(const QString& value);
-    void setProxyAuthPass(const QString& value);
+    void setProxyAuthUser(const QString &value);
+    void setProxyAuthPass(const QString &value);
 
     QStringList scriptArgs() const;
-    void setScriptArgs(const QStringList& value);
+    void setScriptArgs(const QStringList &value);
 
     QString scriptEncoding() const;
-    void setScriptEncoding(const QString& value);
+    void setScriptEncoding(const QString &value);
 
     QString scriptLanguage() const;
-    void setScriptLanguage(const QString& value);
+    void setScriptLanguage(const QString &value);
 
     QString scriptFile() const;
-    void setScriptFile(const QString& value);
+    void setScriptFile(const QString &value);
 
     QString unknownOption() const;
-    void setUnknownOption(const QString& value);
+    void setUnknownOption(const QString &value);
 
     bool versionFlag() const;
     void setVersionFlag(const bool value);
@@ -178,20 +170,8 @@ public:
     void setSslProtocol(const QString& sslProtocolName);
     QString sslProtocol() const;
 
-    void setSslCiphers(const QString& sslCiphersName);
-    QString sslCiphers() const;
-
     void setSslCertificatesPath(const QString& sslCertificatesPath);
     QString sslCertificatesPath() const;
-
-    void setSslClientCertificateFile(const QString& sslClientCertificateFile);
-    QString sslClientCertificateFile() const;
-
-    void setSslClientKeyFile(const QString& sslClientKeyFile);
-    QString sslClientKeyFile() const;
-
-    void setSslClientKeyPassphrase(const QByteArray& sslClientKeyPassphrase);
-    QByteArray sslClientKeyPassphrase() const;
 
     void setWebdriver(const QString& webdriverConfig);
     QString webdriver() const;
@@ -206,31 +186,30 @@ public:
     void setWebdriverSeleniumGridHub(const QString& hubUrl);
     QString webdriverSeleniumGridHub() const;
 
+    void setWebdriverSeleniumGridRemoteProxyClass(const QString& webdriverSeleniumGridRemoteProxyClass);
+    QString webdriverSeleniumGridRemoteProxyClass() const;
+
 public slots:
-    void handleSwitch(const QString& sw);
-    void handleOption(const QString& option, const QVariant& value);
-    void handleParam(const QString& param, const QVariant& value);
-    void handleError(const QString& error);
+    void handleSwitch(const QString &sw);
+    void handleOption(const QString &option, const QVariant &value);
+    void handleParam(const QString& param, const QVariant &value);
+    void handleError(const QString &error);
 
 private:
     void resetToDefaults();
-    void setProxyHost(const QString& value);
+    void setProxyHost(const QString &value);
     void setProxyPort(const int value);
-    void setAuthUser(const QString& value);
-    void setAuthPass(const QString& value);
+    void setAuthUser(const QString &value);
+    void setAuthPass(const QString &value);
 
-    QCommandLine* m_cmdLine;
+    QCommandLine *m_cmdLine;
     bool m_autoLoadImages;
     QString m_cookiesFile;
     QString m_offlineStoragePath;
     int m_offlineStorageDefaultQuota;
-    QString m_localStoragePath;
-    int m_localStorageDefaultQuota;
     bool m_diskCacheEnabled;
     int m_maxDiskCacheSize;
-    QString m_diskCachePath;
     bool m_ignoreSslErrors;
-    bool m_localUrlAccessEnabled;
     bool m_localToRemoteUrlAccessEnabled;
     QString m_outputEncoding;
     QString m_proxyType;
@@ -255,16 +234,14 @@ private:
     bool m_javascriptCanOpenWindows;
     bool m_javascriptCanCloseWindows;
     QString m_sslProtocol;
-    QString m_sslCiphers;
     QString m_sslCertificatesPath;
-    QString m_sslClientCertificateFile;
-    QString m_sslClientKeyFile;
-    QByteArray m_sslClientKeyPassphrase;
     QString m_webdriverIp;
     QString m_webdriverPort;
     QString m_webdriverLogFile;
     QString m_webdriverLogLevel;
     QString m_webdriverSeleniumGridHub;
+    QString m_webdriverSeleniumGridRemoteProxyClass;
 };
 
 #endif // CONFIG_H
+>>>>>>> 279b3d7406e953a970e05fd599cc7d420f52dae2

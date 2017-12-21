@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -28,11 +28,11 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "terminal.h"
+#include <iostream>
 
 #include <QCoreApplication>
 
-#include <iostream>
+#include "terminal.h"
 
 static Terminal* terminal_instance = 0;
 
@@ -61,7 +61,7 @@ bool Terminal::setEncoding(const QString& encoding)
     // "utf-8"), we need to get the codec in the system first and use its
     // canonical name
     QTextCodec* codec = QTextCodec::codecForName(encoding.toLatin1());
-    if ((QTextCodec*)NULL == codec) {
+    if (!codec) {
         return false;
     }
 
