@@ -261,8 +261,13 @@ public slots:
      * @param quality Integer representing a value from 1 to 100; default is -1
      * @return Rendering base-64 encoded of the page if the given format is supported, otherwise an empty string
      */
+<<<<<<< HEAD
     QString renderBase64(const QByteArray& format, const QVariantMap& option = QVariantMap());
     QString renderBase64(const QByteArray& format = "png", const int quality = -1);
+=======
+    QString renderBase64(const QByteArray& format = "png");
+    QByteArray renderBuffer(const QByteArray &format = "png", const int quality = -1);
+>>>>>>> 27b5754ae0bb142a2129d4ed8252d39b9140edda
     bool injectJs(const QString& jsFilePath);
     void _appendScriptElement(const QString& scriptUrl);
     QObject* _getGenericCallback();
