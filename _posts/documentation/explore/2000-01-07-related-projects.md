@@ -105,6 +105,8 @@ Several page capture projects utilizing PhantomJS:
  * [PhantomXHR](https://github.com/Huddle/PhantomXHR) isolates UI from server API for fast automated UI testing.
  
  * [PHP PhantomJs](http://jonnnnyw.github.io/php-phantomjs/) provides a PHP interface for PhantomJS.
+ 
+ * [MTS](https://github.com/merlinthemagic/MTS/) provides a PHP interface for PhantomJS.
 
  * [shortcut.io](https://github.com/hukl/shortcut.io) uses PhantomJS to generate the screenshot of the bookmarked web sites.
 
