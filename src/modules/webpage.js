@@ -396,6 +396,7 @@ function decorateNewPage(opts, page) {
      * @param   {number}    timeMs  time to wait before execution
      * @param   {...}       args    function arguments
      */
+<<<<<<< HEAD
   page.evaluateAsync = function (func, timeMs, args) {
     // Remove the first 2 arguments because we are going to consume them
     var args = Array.prototype.slice.call(arguments, 2),
@@ -412,6 +413,23 @@ function decorateNewPage(opts, page) {
       funcTimeoutWrapper += ', arguments[' + numArgsToAppend + ']';
     }
     funcTimeoutWrapper += '); }';
+=======
+    page.evaluateAsync = function (func, timeMs, args) {
+        // Remove the first 2 arguments because we are going to consume them
+        var args = Array.prototype.slice.call(arguments, 2),
+            numArgsToAppend = args.length,
+            funcTimeoutWrapper;
+
+        if (!(func instanceof Function || typeof func === 'string' || func instanceof String)) {
+            throw "Wrong use of WebPage#evaluateAsync";
+        }
+        // Wrapping the "func" argument into a setTimeout
+        funcTimeoutWrapper = "function() { setTimeout(" + func.toString() + ", " + timeMs;
+        for (var i = 0; i < numArgsToAppend; i++) {
+            funcTimeoutWrapper += ", arguments[" + i + "]";
+        }
+        funcTimeoutWrapper += "); }";
+>>>>>>> 4bc6b95ba7e8f329faccc54f4be6ed139591f0ac
 
     // Augment the "args" array
     args.splice(0, 0, funcTimeoutWrapper);
