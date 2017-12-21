@@ -397,6 +397,7 @@ function decorateNewPage(opts, page) {
      * @param   {...}       args    function arguments
      */
 
+
     // Augment the "args" array
     args.splice(0, 0, funcTimeoutWrapper);
 
