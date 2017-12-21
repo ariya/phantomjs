@@ -63,8 +63,197 @@
 #define BLANK_HTML                      "<html><head></head><body></body></html>"
 #define CALLBACKS_OBJECT_NAME           "_phantom"
 #define INPAGE_CALL_NAME                "window.callPhantom"
+<<<<<<< HEAD
 #define CALLBACKS_OBJECT_INJECTION      INPAGE_CALL_NAME" = function() { return window." CALLBACKS_OBJECT_NAME ".call.call(_phantom, Array.prototype.slice.call(arguments, 0)); };"
 #define CALLBACKS_OBJECT_PRESENT        "typeof(window." CALLBACKS_OBJECT_NAME ") !== \"undefined\";"
+=======
+#define CALLBACKS_OBJECT_INJECTION      INPAGE_CALL_NAME" = function() { return window."CALLBACKS_OBJECT_NAME".call.call(_phantom, Array.prototype.slice.call(arguments, 0)); };"
+#define CALLBACKS_OBJECT_PRESENT        "typeof(window."CALLBACKS_OBJECT_NAME") !== \"undefined\";"
+
+#define STDOUT_FILENAME "/dev/stdout"
+#define STDERR_FILENAME "/dev/stderr"
+#define MIN_BUFFER_SIZE 4096
+
+
+/**
+  * @class CustomPage
+  */
+class CustomPage: public QWebPage
+{
+    Q_OBJECT
+
+public:
+    CustomPage(WebPage* parent = 0)
+        : QWebPage(parent)
+        , m_webPage(parent)
+    {
+        m_userAgent = QWebPage::userAgentForUrl(QUrl());
+        setForwardUnsupportedContent(true);
+    }
+
+    bool extension(Extension extension, const ExtensionOption* option, ExtensionReturn* output)
+    {
+        Q_UNUSED(option);
+
+        if (extension == ChooseMultipleFilesExtension) {
+            static_cast<ChooseMultipleFilesExtensionReturn*>(output)->fileNames = m_uploadFiles;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    void setCookieJar(CookieJar* cookieJar)
+    {
+        m_cookieJar = cookieJar;
+    }
+
+public slots:
+    bool shouldInterruptJavaScript()
+    {
+        m_webPage->javascriptInterrupt();
+
+        if (m_webPage->m_shouldInterruptJs) {
+
+            // reset our flag
+            m_webPage->m_shouldInterruptJs = false;
+            return true;
+        }
+        return false;
+    }
+
+protected:
+    bool supportsExtension(Extension extension) const
+    {
+        return extension == ChooseMultipleFilesExtension;
+    }
+
+    QString chooseFile(QWebFrame* originatingFrame, const QString& oldFile)
+    {
+        Q_UNUSED(originatingFrame);
+
+        // Check if User set a file via File Picker
+        QString chosenFile = m_webPage->filePicker(oldFile);
+        if (chosenFile == QString::null && m_uploadFiles.count() > 0) {
+            // Check if instead User set a file via uploadFile API
+            chosenFile = m_uploadFiles.first();
+        }
+
+        // Return the value coming from the "filePicker" callback, IFF not null.
+        qDebug() << "CustomPage - file chosen for upload:" << chosenFile;
+        return chosenFile;
+    }
+
+    void javaScriptAlert(QWebFrame* originatingFrame, const QString& msg)
+    {
+        Q_UNUSED(originatingFrame);
+        emit m_webPage->javaScriptAlertSent(msg);
+    }
+
+    bool javaScriptConfirm(QWebFrame* originatingFrame, const QString& msg)
+    {
+        Q_UNUSED(originatingFrame);
+        return m_webPage->javaScriptConfirm(msg);
+    }
+
+    bool javaScriptPrompt(QWebFrame* originatingFrame, const QString& msg, const QString& defaultValue, QString* result)
+    {
+        Q_UNUSED(originatingFrame);
+        return m_webPage->javaScriptPrompt(msg, defaultValue, result);
+    }
+
+    void javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID)
+    {
+        Q_UNUSED(lineNumber);
+        Q_UNUSED(sourceID);
+        emit m_webPage->javaScriptConsoleMessageSent(message);
+    }
+
+    void javaScriptError(const QString& message, int lineNumber, const QString& sourceID, const QString& stack)
+    {
+        emit m_webPage->javaScriptErrorSent(message, lineNumber, sourceID, stack);
+    }
+
+    QString userAgentForUrl(const QUrl& url) const
+    {
+        Q_UNUSED(url);
+        return m_userAgent;
+    }
+
+    bool acceptNavigationRequest(QWebFrame* frame, const QNetworkRequest& request, QWebPage::NavigationType type)
+    {
+        bool isMainFrame = (frame == m_webPage->m_mainFrame);
+
+        QString navigationType = "Undefined";
+        switch (type) {
+        case NavigationTypeLinkClicked:
+            navigationType = "LinkClicked";
+            break;
+        case NavigationTypeFormSubmitted:
+            navigationType = "FormSubmitted";
+            break;
+        case NavigationTypeBackOrForward:
+            navigationType = "BackOrForward";
+            break;
+        case NavigationTypeReload:
+            navigationType = "Reload";
+            break;
+        case NavigationTypeFormResubmitted:
+            navigationType = "FormResubmitted";
+            break;
+        case NavigationTypeOther:
+            navigationType = "Other";
+            break;
+        }
+        bool isNavigationLocked = m_webPage->navigationLocked();
+
+        emit m_webPage->navigationRequested(
+            request.url().toEncoded(),       //< Requested URL
+            navigationType,                  //< Navigation Type
+            !isNavigationLocked,             //< Will navigate (not locked)?
+            isMainFrame);                    //< Is main frame?
+
+        return !isNavigationLocked;
+    }
+
+    QWebPage* createWindow(WebWindowType type)
+    {
+        Q_UNUSED(type);
+        WebPage* newPage;
+
+        // Create a new "raw" WebPage object
+        if (m_webPage->ownsPages()) {
+            newPage = new WebPage(m_webPage);
+        } else {
+            newPage = new WebPage(Phantom::instance());
+            Phantom::instance()->m_pages.append(newPage);
+        }
+        newPage->setCookieJar(m_cookieJar);
+
+        // Apply default settings
+        newPage->applySettings(Phantom::instance()->defaultPageSettings());
+
+        // Signal JS shim to catch, decorate and store this new child page
+        emit m_webPage->rawPageCreated(newPage);
+
+        // Return the new QWebPage to the QWebKit backend
+        return newPage->m_customWebPage;
+    }
+
+    void fileDownloadRequested(const QString& url, const QVariantMap& responseData)
+    {
+        emit m_webPage->fileDownloadRequested(QUrl(url), responseData);
+    }
+
+private:
+    WebPage* m_webPage;
+    QString m_userAgent;
+    QStringList m_uploadFiles;
+    friend class WebPage;
+    CookieJar* m_cookieJar;
+};
+
+>>>>>>> 6de05970f9469099919266342243b23d4bf2f843
 
 /**
   * Contains the Callback Objects used to regulate callback-traffic from the webpage internal context.
@@ -80,11 +269,20 @@ class WebpageCallbacks : public QObject
 public:
     WebpageCallbacks(QObject* parent = Q_NULLPTR)
         : QObject(parent)
+<<<<<<< HEAD
         , m_genericCallback(Q_NULLPTR)
         , m_filePickerCallback(Q_NULLPTR)
         , m_jsConfirmCallback(Q_NULLPTR)
         , m_jsPromptCallback(Q_NULLPTR)
         , m_jsInterruptCallback(Q_NULLPTR)
+=======
+        , m_genericCallback(NULL)
+        , m_filePickerCallback(NULL)
+        , m_jsConfirmCallback(NULL)
+        , m_jsPromptCallback(NULL)
+        , m_jsInterruptCallback(NULL)
+        , m_fileDownloadCallback(NULL)
+>>>>>>> 6de05970f9469099919266342243b23d4bf2f843
     {
     }
 
@@ -138,6 +336,17 @@ public:
         return m_jsInterruptCallback;
     }
 
+    QObject *getFileDownloadCallback()
+    {
+        qDebug() << "WebpageCallbacks - getFileDownloadCallback";
+
+        if (!m_fileDownloadCallback) {
+            m_fileDownloadCallback = new Callback(this);
+        }
+
+        return m_fileDownloadCallback;
+    }
+
 public slots:
     QVariant call(const QVariantList& arguments)
     {
@@ -153,6 +362,7 @@ private:
     Callback* m_jsConfirmCallback;
     Callback* m_jsPromptCallback;
     Callback* m_jsInterruptCallback;
+    Callback* m_fileDownloadCallback;
 
     friend class WebPage;
 };
@@ -203,6 +413,7 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     connect(m_customWebPage, SIGNAL(windowCloseRequested()), this, SLOT(close()), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(loadProgress(int)), this, SLOT(updateLoadingProgress(int)));
     connect(m_customWebPage, SIGNAL(repaintRequested(QRect)), this, SLOT(handleRepaintRequested(QRect)), Qt::QueuedConnection);
+    connect(m_customWebPage, SIGNAL(unsupportedContent(QNetworkReply*)), this, SLOT(downloadRequested(QNetworkReply*)));
 
     // Start with transparent background.
     QPalette palette = m_customWebPage->palette();
@@ -216,6 +427,7 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     m_mainFrame->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_mainFrame->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
+    m_customWebPage->setForwardUnsupportedContent(true);
     QWebSettings* pageSettings = m_customWebPage->settings();
     pageSettings->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
     pageSettings->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
@@ -635,6 +847,18 @@ void WebPage::javascriptInterrupt()
     }
 }
 
+QString WebPage::fileDownloadPrompt(const QUrl& url, const QVariantMap& responseData)
+{
+    if (m_callbacks->m_fileDownloadCallback) {
+        QVariant res = m_callbacks->m_fileDownloadCallback->call(QVariantList() << url << responseData);
+        if (!res.isNull() && res.canConvert<QString>()) {
+            return res.toString();
+        }
+    }
+
+    return "";
+}
+
 void WebPage::finish(bool ok)
 {
     QString status = ok ? "success" : "fail";
@@ -991,6 +1215,15 @@ QObject* WebPage::_getJsInterruptCallback()
     }
 
     return m_callbacks->getJsInterruptCallback();
+}
+
+QObject *WebPage::_getFileDownloadCallback()
+{
+    if (!m_callbacks) {
+        m_callbacks = new WebpageCallbacks(this);
+    }
+
+    return m_callbacks->getFileDownloadCallback();
 }
 
 void WebPage::sendEvent(const QString& type, const QVariant& arg1, const QVariant& arg2, const QString& mouseButton, const QVariant& modifierArg)
@@ -1355,6 +1588,7 @@ void WebPage::clearMemoryCache()
     QWebSettings::clearMemoryCaches();
 }
 
+<<<<<<< HEAD
 qreal WebPage::devicePixelRatio() const
 {
     return m_customWebPage->devicePixelRatio();
@@ -1363,6 +1597,78 @@ qreal WebPage::devicePixelRatio() const
 void WebPage::setDevicePixelRatio(qreal devicePixelRatio)
 {
     m_customWebPage->setDevicePixelRatio(devicePixelRatio);
+=======
+void WebPage::downloadRequested(QNetworkReply* networkReply)
+{
+    QUrl downloadUrl = networkReply->url();
+    qDebug() << "WebPage - downloadRequested:" << downloadUrl;
+
+    QVariant header = networkReply->header(QNetworkRequest::ContentLengthHeader);
+    bool ok;
+    int size = header.toInt(&ok);
+    if (ok && size == 0)
+        return;
+
+    QVariantMap responseData;
+    responseData["filename"] = QFileInfo(downloadUrl.toString()).fileName();
+    responseData["size"] = size;
+    responseData["contentType"] = networkReply->header(QNetworkRequest::ContentTypeHeader).toString();
+
+    QString filename = fileDownloadPrompt(downloadUrl, responseData);
+
+    if (filename.isEmpty()) {
+        qDebug() << "WebPage - downloadRequested. File download aborted (filename is empty)";
+        networkReply->abort();
+    } else {
+        QString downloadingFilename = QFileInfo(downloadUrl.toString()).fileName();
+        QFileInfo fileInfo(filename);
+
+        if (fileInfo.isRelative()) {
+            fileInfo.makeAbsolute();
+        }
+
+        if (fileInfo.isDir()) {
+            // check if the target directory is writable
+            if (!fileInfo.isWritable()) {
+                emit fileDownloadError("Requested path is not writable");
+                networkReply->abort();
+                return;
+            }
+
+            m_downloadingFiles[networkReply] = fileInfo.path() + downloadingFilename;
+        } else {
+            m_downloadingFiles[networkReply]  = fileInfo.filePath();
+        }
+
+        connect(networkReply, SIGNAL(finished()), this, SLOT(downloadFinished()));
+    }
+}
+
+void WebPage::downloadFinished()
+{
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+
+    if (reply && reply->error() == QNetworkReply::NoError && m_downloadingFiles.contains(reply)) {
+        qDebug() << "WebPage - downloadFinished";
+        QFile file(m_downloadingFiles[reply]);
+
+        if (!file.open(QIODevice::WriteOnly)) {
+            emit fileDownloadError("Error opening output file: " + file.errorString());
+        } else {
+            qint64 bufferSize = qMin<qint64>(MIN_BUFFER_SIZE, reply->size());
+            QByteArray buffer;
+            while (!(buffer = reply->read(bufferSize)).isEmpty()) {
+                file.write(buffer);
+            }
+            file.close();
+        }
+
+        m_downloadingFiles.remove(reply);
+
+        // We can safely mark this QNetworkReply for deleting later since Webkit will not handle it
+        reply->deleteLater();
+    }
+>>>>>>> 6de05970f9469099919266342243b23d4bf2f843
 }
 
 #include "webpage.moc"
