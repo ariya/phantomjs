@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
@@ -27,8 +27,6 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "repl.h"
-
 #include <QStandardPaths>
 #include <QTimer>
 #include <QDir>
@@ -36,9 +34,10 @@
 #include <QMetaMethod>
 #include <QMetaProperty>
 
+#include "repl.h"
+
 #include "consts.h"
 #include "terminal.h"
-#include "utils.h"
 
 #define PROMPT                          "phantomjs> "
 #define HISTORY_FILENAME                "phantom_repl_history"
@@ -147,7 +146,8 @@ REPL::REPL(QWebFrame* webframe, Phantom* parent)
     linenoiseSetCompletionCallback(REPL::offerCompletion);
 
     // Inject REPL utility functions
-    m_webframe->evaluateJavaScript(Utils::readResourceFileUtf8(":/repl.js"));
+    // TODO: REPL
+    // m_webframe->evaluateJavaScript(Utils::readResourceFileUtf8(":/repl.js"));
 
     // Add self to JavaScript world
     m_webframe->addToJavaScriptWindowObject("_repl", this);

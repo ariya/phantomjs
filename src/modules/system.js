@@ -6,25 +6,25 @@
 exports.platform = 'phantomjs';
 
 Object.defineProperty(exports, 'stdout', {
-    enumerable: true,
-    writeable: false,
-    get: function() {
-        return exports.standardout;
-    }
+  enumerable: true,
+  writeable: false,
+  get: function() {
+    return exports.standardout;
+  }
 });
 
 Object.defineProperty(exports, 'stdin', {
-    enumerable: true,
-    writeable: false,
-    get: function() {
-        return exports.standardin;
-    }
+  enumerable: true,
+  writeable: false,
+  get: function() {
+    return exports.standardin;
+  }
 });
 
 Object.defineProperty(exports, 'stderr', {
-    enumerable: true,
-    writeable: false,
-    get: function() {
-        return exports.standarderr;
-    }
+  enumerable: true,
+  writeable: false,
+  get: function() {
+    return exports.standarderr;
+  }
 });

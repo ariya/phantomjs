@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
@@ -27,8 +27,7 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef FILESYSTEM_H
-#define FILESYSTEM_H
+#pragma once
 
 #include <QStringList>
 #include <QFile>
@@ -46,7 +45,7 @@ public:
     File(QFile* openfile, QTextCodec* codec, QObject* parent = 0);
     virtual ~File();
 
-public slots:
+public Q_SLOTS:
     /**
      * @param n Number of bytes to read (a negative value means read up to EOF)
      * NOTE: The use of QVariant here is necessary to catch JavaScript `null`.
@@ -54,6 +53,7 @@ public slots:
      */
     QString read(const QVariant& n = -1);
     bool write(const QString& data);
+    bool isTTY();
 
     bool seek(const qint64 pos);
 
@@ -83,8 +83,9 @@ class FileSystem : public QObject
 
 public:
     FileSystem(QObject* parent = 0);
+    virtual ~FileSystem() = default;
 
-public slots:
+public Q_SLOTS:
     // Attributes
     // 'size(path)' implemented in "filesystem-shim.js" using '_size(path)'
     int _size(const QString& path) const;
@@ -140,5 +141,3 @@ public slots:
     bool isWritable(const QString& path) const;
     bool isLink(const QString& path) const;
 };
-
-#endif // FILESYSTEM_H

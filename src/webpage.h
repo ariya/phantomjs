@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -28,23 +28,23 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef WEBPAGE_H
-#define WEBPAGE_H
+#pragma once
 
 #include <QMap>
 #include <QVariantMap>
 #include <QWebPage>
 #include <QWebFrame>
-#include <QPdfWriter>
 
-#include "cookiejar.h"
+#include "webpagerenderer.h"
+#include "network/cookiejar.h"
 
 class Config;
 class CustomPage;
-class WebpageCallbacks;
 class NetworkAccessManager;
 class QWebInspector;
 class Phantom;
+class WebpageCallbacks;
+class WebPageRenderer;
 
 class WebPage : public QObject
 {
@@ -81,6 +81,7 @@ class WebPage : public QObject
     Q_PROPERTY(int framesCount READ framesCount)
     Q_PROPERTY(QString focusedFrameName READ focusedFrameName)
     Q_PROPERTY(QObject* cookieJar READ cookieJar WRITE setCookieJarFromQObject)
+    Q_PROPERTY(qreal devicePixelRatio READ devicePixelRatio WRITE setDevicePixelRatio)
 
 public:
     WebPage(QObject* parent, const QUrl& baseUrl = QUrl());
@@ -252,9 +253,11 @@ public slots:
      *
      * @brief renderBase64
      * @param format String containing one of the supported types
+     * @param quality Integer representing a value from 1 to 100; default is -1
      * @return Rendering base-64 encoded of the page if the given format is supported, otherwise an empty string
      */
-    QString renderBase64(const QByteArray& format = "png");
+    QString renderBase64(const QByteArray& format, const QVariantMap& option = QVariantMap());
+    QString renderBase64(const QByteArray& format = "png", const int quality = -1);
     bool injectJs(const QString& jsFilePath);
     void _appendScriptElement(const QString& scriptUrl);
     QObject* _getGenericCallback();
@@ -485,24 +488,21 @@ public slots:
 
     void setProxy(const QString& proxyUrl);
 
-    qreal stringToPointSize(const QString&) const;
-    qreal printMargin(const QVariantMap&, const QString&);
     qreal getHeight(const QVariantMap&, const QString&) const;
+    qreal devicePixelRatio() const;
+    void setDevicePixelRatio(qreal devicePixelRatio);
 
 signals:
     void initialized();
     void loadStarted();
     void loadFinished(const QString& status);
     void javaScriptAlertSent(const QString& msg);
-    void javaScriptConsoleMessageSent(const QString& message);
+    void javaScriptConsoleMessageSent(const QString& message, int lineNumber = -1, const QString& sourceID = QString());
     void javaScriptErrorSent(const QString& msg, int lineNumber, const QString& sourceID, const QString& stack);
     void resourceRequested(const QVariant& requestData, QObject* request);
     void resourceReceived(const QVariant& resource);
     void resourceError(const QVariant& errorData);
     void resourceTimeout(const QVariant& errorData);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-    void resourceRedirect(const QVariant& data);
-#endif
     void urlChanged(const QString& url);
     void navigationRequested(const QString& url, const QString& navigationType, bool navigationLocked, bool isMainFrame);
     void rawPageCreated(QObject* page);
@@ -511,16 +511,13 @@ signals:
 
 private slots:
     void finish(bool ok);
-    void setupFrame(QWebFrame* frame = NULL);
+    void setupFrame(QWebFrame* frame = Q_NULLPTR);
     void updateLoadingProgress(int progress);
     void handleRepaintRequested(const QRect& dirtyRect);
     void handleUrlChanged(const QUrl& url);
     void handleCurrentFrameDestroyed();
 
 private:
-    enum RenderMode { Content, Viewport };
-    QImage renderImage(const RenderMode mode = Content);
-    bool renderPdf(QPdfWriter& pdfWriter);
     void applySettings(const QVariantMap& defaultSettings);
     QString userAgent() const;
 
@@ -542,6 +539,8 @@ private:
     NetworkAccessManager* m_networkAccessManager;
     QWebFrame* m_mainFrame;
     QWebFrame* m_currentFrame;
+    QPointer<CookieJar> m_cookieJar;
+    WebPageRenderer* m_pageRenderer;
     QRect m_clipRect;
     QPoint m_scrollPosition;
     QVariantMap m_paperSize; // For PDF output via render()
@@ -553,11 +552,8 @@ private:
     bool m_ownsPages;
     int m_loadingProgress;
     bool m_shouldInterruptJs;
-    CookieJar* m_cookieJar;
     qreal m_dpi;
 
     friend class Phantom;
     friend class CustomPage;
 };
-
-#endif // WEBPAGE_H

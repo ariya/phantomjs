@@ -26,20 +26,33 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /* generate node configuration for this node */
-var nodeconf = function(ip, port, hub, proxy, version) {
+var nodeconf = function(ip, port, hub, proxy, version, remoteHost) {
         var ref$, hubHost, hubPort;
 
         ref$ = hub.match(/([\w\d\.]+):(\d+)/);
         hubHost = ref$[1];
         hubPort = +ref$[2]; //< ensure it's of type "number"
+        var platform;
+        if(ghostdriver && ghostdriver.system){
+            platform = ghostdriver.system.os.name.toUpperCase();
+        }
+        else{
+            // The prior behavior was to just assume Linux.
+            // Worst case scenario, we get the status quo, but
+            // this block is really just a guard condition anyway
+            platform = "LINUX";
+        }
 
-        var ghostdriver = ghostdriver || {};
+        var returnHost = "http://" + ip + ":" + port;
+        if (remoteHost) {
+            returnHost = remoteHost;
+        }
 
         return {
             capabilities: [{
                 browserName: "phantomjs",
                 version: version,
-                platform: ghostdriver.system.os.name + '-' + ghostdriver.system.os.version + '-' + ghostdriver.system.os.architecture,
+                platform: platform,
                 maxInstances: 1,
                 seleniumProtocol: "WebDriver"
             }],
@@ -57,14 +70,14 @@ var nodeconf = function(ip, port, hub, proxy, version) {
                 registerCycle: 5000,
                 role: "wd",
                 url: "http://" + ip + ":" + port,
-                remoteHost: "http://" + ip + ":" + port
+                remoteHost: returnHost
             }
         };
     },
     _log = require("./logger.js").create("HUB Register");
 
 module.exports = {
-    register: function(ip, port, hub, proxy, version) {
+    register: function(ip, port, hub, proxy, version, remoteHost) {
         var page;
 
         try {
@@ -77,7 +90,7 @@ module.exports = {
             /* Register with selenium grid server */
             page.open(hub + 'grid/register', {
                 operation: 'post',
-                data: JSON.stringify(nodeconf(ip, port, hub, proxy, version)),
+                data: JSON.stringify(nodeconf(ip, port, hub, proxy, version, remoteHost)),
                 headers: {
                     'Content-Type': 'application/json'
                 }

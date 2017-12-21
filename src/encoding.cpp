@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -49,7 +49,7 @@ Encoding::Encoding(const QString& encoding)
 
 Encoding::~Encoding()
 {
-    m_codec = (QTextCodec*)NULL;
+    m_codec = Q_NULLPTR;
 }
 
 QString Encoding::decode(const QByteArray& bytes) const
@@ -73,7 +73,7 @@ void Encoding::setEncoding(const QString& encoding)
     if (!encoding.isEmpty()) {
         QTextCodec* codec = QTextCodec::codecForName(encoding.toLatin1());
 
-        if (!codec) {
+        if (codec) {
             m_codec = codec;
         }
     }
