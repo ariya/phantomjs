@@ -34,7 +34,3 @@ Reference: http://dev.iksaif.net/projects/qcommandline/repository/revisions/mast
 wkhtmlpdf - http://wkhtmltopdf.org
 License: GNU Lesser General Public License (LGPL)
 Reference: https://github.com/wkhtmltopdf/wkhtmltopdf/blob/master/LICENSE
-
-AppVeyor - https://www.appveyor.com
-License: GNU GPL and/or proprietary
-Reference: https://www.appveyor.com
