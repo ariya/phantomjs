@@ -32,8 +32,13 @@
 
 #include <QMap>
 #include <QVariantMap>
+<<<<<<< HEAD
 #include <QWebPage>
 #include <QWebFrame>
+=======
+#include <QtWebKitWidgets/QWebPage>
+#include <QtWebKitWidgets/QWebFrame>
+>>>>>>> cbf2a8d8cdb7bdbb9825c4057493aafa56a3f531
 
 #include "webpagerenderer.h"
 #include "network/cookiejar.h"
@@ -524,6 +529,11 @@ private slots:
     void downloadFinished();
 
 private:
+<<<<<<< HEAD
+=======
+    QImage renderImage();
+    bool renderPdf(const QString& fileName);
+>>>>>>> cbf2a8d8cdb7bdbb9825c4057493aafa56a3f531
     void applySettings(const QVariantMap& defaultSettings);
     QString userAgent() const;
 
