@@ -1086,9 +1086,13 @@ QString WebPage::renderBase64(const QByteArray& format, const int quality)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 QImage WebPage::renderImage()
 =======
 QByteArray WebPage::renderBuffer(const QByteArray &format, const int quality)
+=======
+QString WebPage::renderBase64(const QByteArray &format, const int quality)
+>>>>>>> 5abc801459f115c1ebea59937298db423446ea23
 {
     QByteArray nformat = format.toLower();
 

@@ -258,6 +258,7 @@ public slots:
      *
      * @brief renderBase64
      * @param format String containing one of the supported types
+<<<<<<< HEAD
      * @param quality Integer representing a value from 1 to 100; default is -1
      * @return Rendering base-64 encoded of the page if the given format is supported, otherwise an empty string
      */
@@ -281,6 +282,23 @@ public slots:
 
     void setContent(const QString& content, const QString& baseUrl);
     void setFrameContent(const QString& content, const QString& baseUrl);
+=======
+     * @param quality containing a value from 1 to 100. Default is -1.
+     * @return Rendering base-64 encoded of the page if the given format is supported, otherwise an empty string
+     */
+    QString renderBase64(const QByteArray &format = "png", const int quality = -1);
+    bool injectJs(const QString &jsFilePath);
+    void _appendScriptElement(const QString &scriptUrl);
+    QObject *_getGenericCallback();
+    QObject *_getFilePickerCallback();
+    QObject *_getJsConfirmCallback();
+    QObject *_getJsPromptCallback();
+    QObject *_getJsInterruptCallback();
+    void _uploadFile(const QString &selector, const QStringList &fileNames);
+    void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant(), const QString &mouseButton = QString(), const QVariant &modifierArg = QVariant());
+
+    void setContent(const QString &content, const QString &baseUrl);
+>>>>>>> 5abc801459f115c1ebea59937298db423446ea23
     /**
      * Returns a Child Page that matches the given <code>"window.name"</code>.
      * This utility method is faster than accessing the
