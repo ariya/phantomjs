@@ -56,21 +56,21 @@ page.open(system.args[1], function(status){
     } else {
         waitFor(function(){
             return page.evaluate(function(){
-                return document.body.querySelector('.symbolSummary .pending') === null
+                return document.body.querySelector('.jasmine-suite-detail') !== null;
             });
         }, function(){
             var exitCode = page.evaluate(function(){
                 try {
                     console.log('');
-                    console.log(document.body.querySelector('.description').innerText);
-                    var list = document.body.querySelectorAll('.results > #details > .specDetail.failed');
+                    console.log(document.body.querySelector('.jasmine-suite-detail').innerText);
+                    var list = document.body.querySelectorAll('.jasmine-failures .jasmine-failed');
                     if (list && list.length > 0) {
                       console.log('');
                       console.log(list.length + ' test(s) FAILED:');
                       for (i = 0; i < list.length; ++i) {
                           var el = list[i],
-                              desc = el.querySelector('.description'),
-                              msg = el.querySelector('.resultMessage.fail');
+                              desc = el.querySelector('.jasmine-description'),
+                              msg = el.querySelector('.jasmine-result-message');
                           console.log('');
                           console.log(desc.innerText);
                           console.log(msg.innerText);
@@ -78,7 +78,7 @@ page.open(system.args[1], function(status){
                       }
                       return 1;
                     } else {
-                      console.log(document.body.querySelector('.alert > .passingAlert.bar').innerText);
+                      console.log(document.body.querySelector('.jasmine-alert > .jasmine-passed').innerText);
                       return 0;
                     }
                 } catch (ex) {
