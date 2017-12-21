@@ -31,6 +31,7 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+<<<<<<< HEAD
 phantom.__defineErrorSignalHandler__ = function (obj, page, handlers) {
   var handlerName = 'onError';
 
@@ -81,6 +82,52 @@ phantom.__defineErrorSignalHandler__ = function (obj, page, handlers) {
     },
     configurable: true
   });
+=======
+phantom.__defineErrorSignalHandler__ = function(obj, page, handlers) {
+    var handlerName = 'onError';
+
+    Object.defineProperty(obj, handlerName, {
+        set: function (f) {
+            // Disconnect previous handler (if any)
+            var handlerObj = handlers[handlerName];
+            if (!!handlerObj && typeof handlerObj.callback === "function" && typeof handlerObj.connector === "function") {
+                try { page.javaScriptErrorSent.disconnect(handlerObj.connector); }
+                catch (e) { }
+            }
+
+            // Delete the previous handler
+            delete handlers[handlerName];
+
+            if (typeof f === 'function') {
+                var connector = function (message, lineNumber, source, stack) {
+                    var revisedStack = [];
+                    if (stack) {
+                        revisedStack = JSON.parse(stack).map(function (item) {
+                            return { file: item.url, line: item.lineNumber, function: item.functionName };
+                        });
+                    }
+                    if (revisedStack.length == 0)
+                        revisedStack = [{ file: source, line: lineNumber }];
+
+                    f(message, revisedStack);
+                };
+                // Store the new handler for reference
+                handlers[handlerName] = {
+                    callback: f,
+                    connector: connector
+                };
+
+                page.javaScriptErrorSent.connect(connector);
+            }
+        },
+        get: function () {
+            var handlerObj = handlers[handlerName];
+            return (!!handlerObj && typeof handlerObj.callback === "function" && typeof handlerObj.connector === "function") ?
+                handlers[handlerName].callback :
+                undefined;
+        }
+    });
+>>>>>>> cf99a48a546fcf426a8e953498264c90760cdb28
 };
 
 (function () {
