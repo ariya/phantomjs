@@ -1055,9 +1055,75 @@ QString WebPage::renderBase64(const QByteArray& format, const int quality)
         quality = option.value("quality").toInt();
     }
 
+<<<<<<< HEAD
     WebPageRenderer::RenderMode mode;
     if (option.contains("onlyViewport") && option.value("onlyViewport").toBool()) {
         mode = WebPageRenderer::Viewport;
+=======
+bool WebPage::renderPdf(QPdfWriter& pdfWriter)
+{
+    pdfWriter.setResolution(m_dpi);
+    QVariantMap paperSize = m_paperSize;
+
+    if (paperSize.isEmpty()) {
+        const QSize pageSize = m_mainFrame->contentsSize();
+        paperSize.insert("width", QString::number(pageSize.width()) + "px");
+        paperSize.insert("height", QString::number(pageSize.height()) + "px");
+        paperSize.insert("margin", "0px");
+    }
+
+    if (paperSize.contains("width") && paperSize.contains("height")) {
+        const QSizeF sizePt(ceil(stringToPointSize(paperSize.value("width").toString())),
+                            ceil(stringToPointSize(paperSize.value("height").toString())));
+        pdfWriter.setPageSize(QPageSize(sizePt, QPageSize::Point));
+    } else if (paperSize.contains("format")) {
+        const QPageLayout::Orientation orientation = paperSize.contains("orientation")
+                && paperSize.value("orientation").toString().compare("landscape", Qt::CaseInsensitive) == 0 ?
+                QPageLayout::Landscape : QPageLayout::Portrait;
+        pdfWriter.setPageOrientation(orientation);
+        static const struct {
+            QString format;
+            QPageSize::PageSizeId paperSize;
+        } formats[] = {
+            { "A0", QPageSize::A0 },
+            { "A1", QPageSize::A1 },
+            { "A2", QPageSize::A2 },
+            { "A3", QPageSize::A3 },
+            { "A4", QPageSize::A4 },
+            { "A5", QPageSize::A5 },
+            { "A6", QPageSize::A6 },
+            { "A7", QPageSize::A7 },
+            { "A8", QPageSize::A8 },
+            { "A9", QPageSize::A9 },
+            { "B0", QPageSize::B0 },
+            { "B1", QPageSize::B1 },
+            { "B2", QPageSize::B2 },
+            { "B3", QPageSize::B3 },
+            { "B4", QPageSize::B4 },
+            { "B5", QPageSize::B5 },
+            { "B6", QPageSize::B6 },
+            { "B7", QPageSize::B7 },
+            { "B8", QPageSize::B8 },
+            { "B9", QPageSize::B9 },
+            { "B10", QPageSize::B10 },
+            { "C5E", QPageSize::C5E },
+            { "Comm10E", QPageSize::Comm10E },
+            { "DLE", QPageSize::DLE },
+            { "Executive", QPageSize::Executive },
+            { "Folio", QPageSize::Folio },
+            { "Ledger", QPageSize::Ledger },
+            { "Legal", QPageSize::Legal },
+            { "Letter", QPageSize::Letter },
+            { "Tabloid", QPageSize::Tabloid }
+        };
+        pdfWriter.setPageSize(QPageSize(QPageSize::A4)); // Fallback
+        for (uint i = 0; i < sizeof(formats) / sizeof(formats[0]); ++i) {
+            if (paperSize.value("format").toString().compare(formats[i].format, Qt::CaseInsensitive) == 0) {
+                pdfWriter.setPageSize(QPageSize(formats[i].paperSize));
+                break;
+            }
+        }
+>>>>>>> 051794898f75750337821a6e7a3a2f9e09588cf6
     } else {
         mode = WebPageRenderer::Content;
     }
