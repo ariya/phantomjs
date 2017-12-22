@@ -547,6 +547,5 @@ void NetworkAccessManager::handleNetworkError(QNetworkReply* reply, int requestI
     data["errorString"] = reply->errorString();
     data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
     data["statusText"] = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
-
     emit resourceError(data);
 }

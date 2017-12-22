@@ -93,7 +93,6 @@ public:
     QVariantMap customHeaders() const;
     QStringList captureContent() const;
     void setCaptureContent(const QStringList& patterns);
-
     void setCookieJar(QNetworkCookieJar* cookieJar);
 
 protected:
