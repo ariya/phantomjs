@@ -23,6 +23,7 @@ PhantomJS ([phantomjs.org](http://phantomjs.org)) is a headless WebKit scriptabl
 - Explore the complete [documentation](http://phantomjs.org/documentation/).
 - Read tons of [user articles](http://phantomjs.org/buzz.html) on using PhantomJS.
 - Join the [mailing-list](http://groups.google.com/group/phantomjs) and discuss with other PhantomJS fans.
+- Join discussions at our [forum](discuss.phantomjs.org)
 
 PhantomJS is free software/open source, and is distributed under the [BSD license](http://opensource.org/licenses/BSD-3-Clause). It contains third-party code, see the included `third-party.txt` file for the license information on third-party code.
 
