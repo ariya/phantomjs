@@ -37,7 +37,6 @@
 #include <QSslConfiguration>
 #include <QTimer>
 #include <QStringList>
-
 #include "networkreplytracker.h"
 
 class Config;
