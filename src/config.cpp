@@ -37,12 +37,10 @@
 #include <QWebPage>
 #include <QWebFrame>
 #include <QNetworkProxy>
-
 #include "terminal.h"
 #include "qcommandline.h"
 #include "utils.h"
 #include "consts.h"
-
 #include <iostream>
 
 
