@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2012 execjosh, http://execjosh.blogspot.com
@@ -27,8 +27,7 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef CHILDPROCESS_H
-#define CHILDPROCESS_H
+#pragma once
 
 #include <QObject>
 #include <QProcess>
@@ -48,7 +47,7 @@ class ChildProcessContext : public QObject
     Q_PROPERTY(qint64 pid READ pid)
 
 public:
-    explicit ChildProcessContext(QObject* parent = 0);
+    explicit ChildProcessContext(QObject* parent = Q_NULLPTR);
     virtual ~ChildProcessContext();
 
     qint64 pid() const;
@@ -60,7 +59,7 @@ public:
     Q_INVOKABLE qint64 _write(const QString &chunk, const QString &encoding);
     Q_INVOKABLE void _close();
 
-signals:
+Q_SIGNALS:
     void exit(const int code) const;
 
     /**
@@ -96,5 +95,3 @@ public:
 
     Q_INVOKABLE QObject* _createChildProcessContext();
 };
-
-#endif // CHILDPROCESS_H

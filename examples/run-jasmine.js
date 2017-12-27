@@ -28,7 +28,7 @@ function waitFor(testFx, onReady, timeOutMillis) {
                     phantom.exit(1);
                 } else {
                     // Condition fulfilled (timeout and/or condition is 'true')
-                    console.log("'waitFor()' finished in " + (new Date().getTime() - start) + "ms.");
+                    // console.log("'waitFor()' finished in " + (new Date().getTime() - start) + "ms.");
                     typeof(onReady) === "string" ? eval(onReady) : onReady(); //< Do what it's supposed to do once the condition is fulfilled
                     clearInterval(interval); //< Stop this interval
                 }
@@ -56,29 +56,24 @@ page.open(system.args[1], function(status){
     } else {
         waitFor(function(){
             return page.evaluate(function(){
-                return document.body.querySelector('.symbolSummary .pending') === null
+
             });
         }, function(){
             var exitCode = page.evaluate(function(){
                 try {
                     console.log('');
-                    console.log(document.body.querySelector('.description').innerText);
-                    var list = document.body.querySelectorAll('.results > #details > .specDetail.failed');
                     if (list && list.length > 0) {
-                      console.log('');
-                      console.log(list.length + ' test(s) FAILED:');
                       for (i = 0; i < list.length; ++i) {
                           var el = list[i],
-                              desc = el.querySelector('.description'),
-                              msg = el.querySelector('.resultMessage.fail');
+                              desc = el.querySelector('.jasmine-description'),
+                              msg = el.querySelector('.jasmine-result-message');
                           console.log('');
                           console.log(desc.innerText);
-                          console.log(msg.innerText);
+                          console.log('  ' + msg.innerText);
                           console.log('');
                       }
                       return 1;
                     } else {
-                      console.log(document.body.querySelector('.alert > .passingAlert.bar').innerText);
                       return 0;
                     }
                 } catch (ex) {

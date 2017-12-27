@@ -1,7 +1,7 @@
 /*
 This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2014, Ivan De Marino <http://ivandemarino.me>
+Copyright (c) 2012-2014, Ivan De Marino <http://ivandemarino.me>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -31,6 +31,8 @@ import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import static org.junit.Assert.assertTrue;
 
@@ -49,7 +51,6 @@ public class GoogleSearchTest extends BaseTest {
         // Submit form
         element.submit();
 
-        // Check results contains the term we searched for
-        assertTrue(d.getTitle().toLowerCase().contains(strToSearchFor.toLowerCase()));
+        new WebDriverWait(d, 5).until(ExpectedConditions.titleIs("Cheese! - Google Search"));
     }
 }

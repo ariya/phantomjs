@@ -31,14 +31,15 @@
 #ifndef NETWORKACCESSMANAGER_H
 #define NETWORKACCESSMANAGER_H
 
+#include <QAuthenticator>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QSslConfiguration>
 #include <QTimer>
 #include <QStringList>
+#include "networkreplytracker.h"
 
 class Config;
-class QAuthenticator;
 class QNetworkDiskCache;
 class QSslConfiguration;
 
@@ -47,7 +48,7 @@ class TimeoutTimer : public QTimer
     Q_OBJECT
 
 public:
-    TimeoutTimer(QObject* parent = nullptr);
+    TimeoutTimer(QObject* parent = 0);
     QNetworkReply* reply;
     QVariantMap data;
 };
@@ -57,7 +58,7 @@ class JsNetworkRequest : public QObject
     Q_OBJECT
 
 public:
-    JsNetworkRequest(QNetworkRequest* request, QObject* parent = nullptr);
+    JsNetworkRequest(QNetworkRequest* request, QObject* parent = 0);
     Q_INVOKABLE void abort();
     Q_INVOKABLE void changeUrl(const QString& url);
     Q_INVOKABLE bool setHeader(const QString& name, const QVariant& value);
@@ -73,9 +74,9 @@ class NoFileAccessReply : public QNetworkReply
 public:
     NoFileAccessReply(QObject* parent, const QNetworkRequest& req, const QNetworkAccessManager::Operation op);
     ~NoFileAccessReply();
-    void abort() Q_DECL_OVERRIDE {}
+    void abort() {}
 protected:
-    qint64 readData(char*, qint64) Q_DECL_OVERRIDE { return -1; }
+    qint64 readData(char*, qint64) { return -1; }
 };
 
 class NetworkAccessManager : public QNetworkAccessManager
@@ -89,7 +90,8 @@ public:
     void setResourceTimeout(int resourceTimeout);
     void setCustomHeaders(const QVariantMap& headers);
     QVariantMap customHeaders() const;
-
+    QStringList captureContent() const;
+    void setCaptureContent(const QStringList& patterns);
     void setCookieJar(QNetworkCookieJar* cookieJar);
 
 protected:
@@ -100,35 +102,37 @@ protected:
     int m_resourceTimeout;
     QString m_userName;
     QString m_password;
-    QNetworkReply* createRequest(Operation op, const QNetworkRequest& req, QIODevice* outgoingData) Q_DECL_OVERRIDE;
-    void handleFinished(QNetworkReply* reply, const QVariant& status, const QVariant& statusText);
+    QNetworkReply* createRequest(Operation op, const QNetworkRequest& req, QIODevice* outgoingData = 0);
 
-Q_SIGNALS:
+signals:
     void resourceRequested(const QVariant& data, QObject*);
     void resourceReceived(const QVariant& data);
     void resourceError(const QVariant& data);
     void resourceTimeout(const QVariant& data);
-    void resourceRedirect(const QVariant& data);
 
 private slots:
-    void handleStarted();
-    void handleFinished(QNetworkReply* reply);
+    void handleStarted(QNetworkReply* reply, int requestId);
+    void handleFinished(QNetworkReply* reply, int requestId, int status, const QString& statusText, const QString& body);
     void provideAuthentication(QNetworkReply* reply, QAuthenticator* authenticator);
-    void handleSslErrors(const QList<QSslError>& errors);
-    void handleNetworkError(QNetworkReply::NetworkError);
+    void handleSslErrors(QNetworkReply* reply, const QList<QSslError>& errors);
+    void handleNetworkError(QNetworkReply* reply, int requestId);
     void handleTimeout();
-    void handleRedirect(const QUrl& url);
 
 private:
-    void prepareSslConfiguration(const Config* config);
-    QVariantList getHeadersFromReply(const QNetworkReply* reply);
 
-    QHash<QNetworkReply*, int> m_ids;
-    QSet<QNetworkReply*> m_started;
+    bool shouldCaptureResponse(const QString& url);
+    void compileCaptureContentPatterns();
+    void prepareSslConfiguration(const Config* config);
+
     int m_idCounter;
+    QVariant m_lastHttpStatus;
     QNetworkDiskCache* m_networkDiskCache;
     QVariantMap m_customHeaders;
+    QStringList m_captureContentPatterns;
+    QList<QRegExp> m_compiledCaptureContentPatterns;
     QSslConfiguration m_sslConfiguration;
+
+    NetworkReplyTracker m_replyTracker;
 };
 
 #endif // NETWORKACCESSMANAGER_H

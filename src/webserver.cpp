@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
@@ -29,12 +29,6 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "webserver.h"
-
-#include "encoding.h"
-#include "mongoose/mongoose.h"
-#include "consts.h"
-
 #include <QByteArray>
 #include <QHostAddress>
 #include <QMetaType>
@@ -42,6 +36,12 @@
 #include <QUrl>
 #include <QVector>
 #include <QDebug>
+
+#include "webserver.h"
+
+#include "consts.h"
+#include "encoding.h"
+#include "mongoose/mongoose.h"
 
 namespace UrlEncodedParser
 {
@@ -90,14 +90,14 @@ static void* callback(mg_event event,
     if (server->handleRequest(event, conn, request)) {
         // anything non-null... pretty ugly, why not simply a bool??
         return server;
-    } else {
-        return 0;
     }
+
+    return Q_NULLPTR;
 }
 
 WebServer::WebServer(QObject* parent)
     : QObject(parent)
-    , m_ctx(0)
+    , m_ctx(Q_NULLPTR)
 {
     setObjectName("WebServer");
     qRegisterMetaType<WebServerResponse*>("WebServerResponse*");
@@ -119,7 +119,7 @@ bool WebServer::listenOnPort(const QString& port, const QVariantMap& opts)
     if (opts.value("keepAlive", false).toBool()) {
         options << "enable_keep_alive" << "yes";
     }
-    options << NULL;
+    options << Q_NULLPTR;
 
     // Start the server
     m_ctx = mg_start(&callback, this, options.data());
@@ -149,7 +149,7 @@ void WebServer::close()
             }
         }
         mg_stop(m_ctx);
-        m_ctx = 0;
+        m_ctx = Q_NULLPTR;
         m_port.clear();
     }
 }
@@ -209,6 +209,7 @@ bool WebServer::handleRequest(mg_event event, mg_connection* conn, const mg_requ
         qs = qs.toPercentEncoding(/*exclude=*/ "!$&'()*+,;=:/[]@?");
         uri.append('?');
         uri.append(qs);
+        requestObject["query"] = UrlEncodedParser::parse(qs);
     }
     requestObject["url"] = uri.data();
 
@@ -420,19 +421,23 @@ void WebServerResponse::writeHead(int statusCode, const QVariantMap& headers)
 
 void WebServerResponse::write(const QVariant& body)
 {
-    if (!m_headersSent) {
-        writeHead(m_statusCode, m_headers);
+    QByteArray data;
+    if(body.type() == QVariant::ByteArray) {
+        data = body.toByteArray();
+    }else{
+        if (m_encoding.isEmpty()) {
+            data = body.toString().toUtf8();
+        } else if (m_encoding.toLower() == "binary") {
+            data = body.toString().toLatin1();
+        } else {
+            Encoding encoding;
+            encoding.setEncoding(m_encoding);
+            data = encoding.encode(body.toString());
+        }
     }
 
-    QByteArray data;
-    if (m_encoding.isEmpty()) {
-        data = body.toString().toUtf8();
-    } else if (m_encoding.toLower() == "binary") {
-        data = body.toString().toLatin1();
-    } else {
-        Encoding encoding;
-        encoding.setEncoding(m_encoding);
-        data = encoding.encode(body.toString());
+    if (!m_headersSent) {
+        writeHead(m_statusCode, m_headers);
     }
 
     mg_write(m_conn, data.constData(), data.size());

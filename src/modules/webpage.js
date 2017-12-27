@@ -115,8 +115,7 @@ function definePageSignalHandler(page, handlers, handlerName, signalName) {
             return !!handlers[handlerName] && typeof handlers[handlerName].callback === "function" ?
                 handlers[handlerName].callback :
                 undefined;
-        },
-        configurable: true
+        }
     });
 }
 
@@ -260,8 +259,6 @@ function decorateNewPage(opts, page) {
     definePageSignalHandler(page, handlers, "onResourceError", "resourceError");
 
     definePageSignalHandler(page, handlers, "onResourceTimeout", "resourceTimeout");
-
-    definePageSignalHandler(page, handlers, "onResourceRedirect", "resourceRedirect");
 
     definePageSignalHandler(page, handlers, "onAlert", "javaScriptAlertSent");
 

@@ -41,4 +41,6 @@ However, if you have previously built the sources in release mode, you
 should clean your tree to make sure all the debugging symbols gets
 compiled:
 
-  $ make clean && cd src/qt && make clean && cd ../..
+```bash
+ $ make clean && cd src/qt && make clean && cd ../..
+```
