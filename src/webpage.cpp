@@ -1,4 +1,4 @@
-﻿/*
+/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -28,52 +28,60 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "webpage.h"
 
-#include <QBuffer>
-#include <QDebug>
-#include <QDesktopServices>
-#include <QDir>
-#include <QFileInfo>
-#include <QImageWriter>
-#include <QKeyEvent>
-#include <QMapIterator>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QScreen>
-#include <QUrl>
-#include <QUuid>
-#include <QWebElement>
-#include <QWebHistoryItem>
-#include <QWebFrame>
-#include <QWebInspector>
-#include <QWebPage>
-#include <QtPrintSupport/QPrinter>
 #include <math.h>
 
-#include "callback.h"
+#include <QApplication>
+#include <QContextMenuEvent>
+#include <QDesktopServices>
+#include <QDateTime>
+#include <QDir>
+#include <QFileInfo>
+#include <QKeyEvent>
+#include <QMouseEvent>
+#include <QNetworkAccessManager>
+#include <QNetworkCookie>
+#include <QNetworkRequest>
+#include <QPainter>
+#include <QtPrintSupport/QPrinter>
+#include <QWebHistory>
+#include <QWebHistoryItem>
+#include <QWebElement>
+#include <QWebFrame>
+#include <QWebPage>
+#include <QWebInspector>
+#include <QMapIterator>
+#include <QBuffer>
+#include <QDebug>
+#include <QImageWriter>
+#include <QUuid>
+#include <QUrl>
+#include <QNetworkProxy>
+
+#include "phantom.h"
+#include "networkaccessmanager.h"
+#include "utils.h"
 #include "config.h"
 #include "consts.h"
-#include "custompage.h"
-#include "phantom.h"
+#include "callback.h"
+#include "cookiejar.h"
 #include "system.h"
-#include "webpage.h"
-#include "network/cookiejar.h"
-#include "network/networkaccessmanager.h"
+
+#ifdef Q_OS_WIN
+#include <io.h>
+#include <fcntl.h>
+#endif
 
 // Ensure we have at least head and body.
 #define BLANK_HTML                      "<html><head></head><body></body></html>"
 #define CALLBACKS_OBJECT_NAME           "_phantom"
 #define INPAGE_CALL_NAME                "window.callPhantom"
-<<<<<<< HEAD
-#define CALLBACKS_OBJECT_INJECTION      INPAGE_CALL_NAME" = function() { return window." CALLBACKS_OBJECT_NAME ".call.call(_phantom, Array.prototype.slice.call(arguments, 0)); };"
-#define CALLBACKS_OBJECT_PRESENT        "typeof(window." CALLBACKS_OBJECT_NAME ") !== \"undefined\";"
-=======
 #define CALLBACKS_OBJECT_INJECTION      INPAGE_CALL_NAME" = function() { return window."CALLBACKS_OBJECT_NAME".call.call(_phantom, Array.prototype.slice.call(arguments, 0)); };"
 #define CALLBACKS_OBJECT_PRESENT        "typeof(window."CALLBACKS_OBJECT_NAME") !== \"undefined\";"
 
 #define STDOUT_FILENAME "/dev/stdout"
 #define STDERR_FILENAME "/dev/stderr"
-#define MIN_BUFFER_SIZE 4096
 
 
 /**
@@ -208,6 +216,18 @@ protected:
         }
         bool isNavigationLocked = m_webPage->navigationLocked();
 
+        //when redirection happens, add requestUrl's fragment to new url if new url has no fragment
+        if (!isNavigationLocked && isMainFrame && frame != NULL && m_webPage -> m_mainFrame -> requestedUrl().hasFragment() && !request.url().hasFragment())
+        {
+            QUrl* newUrl = new QUrl(request.url());
+            newUrl -> setFragment(m_webPage -> m_mainFrame ->requestedUrl().fragment());
+            if (*newUrl != m_webPage -> m_mainFrame -> url())
+            {
+                frame -> setUrl(*newUrl);
+                return !isNavigationLocked;
+            }
+        }
+
         emit m_webPage->navigationRequested(
             request.url().toEncoded(),       //< Requested URL
             navigationType,                  //< Navigation Type
@@ -231,19 +251,14 @@ protected:
         }
         newPage->setCookieJar(m_cookieJar);
 
-        // Apply default/existing settings
-        newPage->applySettings(m_webPage->m_settings);
+        // Apply default settings
+        newPage->applySettings(Phantom::instance()->defaultPageSettings());
 
         // Signal JS shim to catch, decorate and store this new child page
         emit m_webPage->rawPageCreated(newPage);
 
         // Return the new QWebPage to the QWebKit backend
         return newPage->m_customWebPage;
-    }
-
-    void fileDownloadRequested(const QString& url, const QVariantMap& responseData)
-    {
-        emit m_webPage->fileDownloadRequested(QUrl(url), responseData);
     }
 
 private:
@@ -254,7 +269,6 @@ private:
     CookieJar* m_cookieJar;
 };
 
->>>>>>> 6de05970f9469099919266342243b23d4bf2f843
 
 /**
   * Contains the Callback Objects used to regulate callback-traffic from the webpage internal context.
@@ -268,22 +282,13 @@ class WebpageCallbacks : public QObject
     Q_OBJECT
 
 public:
-    WebpageCallbacks(QObject* parent = Q_NULLPTR)
+    WebpageCallbacks(QObject* parent = 0)
         : QObject(parent)
-<<<<<<< HEAD
-        , m_genericCallback(Q_NULLPTR)
-        , m_filePickerCallback(Q_NULLPTR)
-        , m_jsConfirmCallback(Q_NULLPTR)
-        , m_jsPromptCallback(Q_NULLPTR)
-        , m_jsInterruptCallback(Q_NULLPTR)
-=======
         , m_genericCallback(NULL)
         , m_filePickerCallback(NULL)
         , m_jsConfirmCallback(NULL)
         , m_jsPromptCallback(NULL)
         , m_jsInterruptCallback(NULL)
-        , m_fileDownloadCallback(NULL)
->>>>>>> 6de05970f9469099919266342243b23d4bf2f843
     {
     }
 
@@ -337,17 +342,6 @@ public:
         return m_jsInterruptCallback;
     }
 
-    QObject *getFileDownloadCallback()
-    {
-        qDebug() << "WebpageCallbacks - getFileDownloadCallback";
-
-        if (!m_fileDownloadCallback) {
-            m_fileDownloadCallback = new Callback(this);
-        }
-
-        return m_fileDownloadCallback;
-    }
-
 public slots:
     QVariant call(const QVariantList& arguments)
     {
@@ -363,7 +357,6 @@ private:
     Callback* m_jsConfirmCallback;
     Callback* m_jsPromptCallback;
     Callback* m_jsInterruptCallback;
-    Callback* m_fileDownloadCallback;
 
     friend class WebPage;
 };
@@ -380,17 +373,17 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     setObjectName("WebPage");
     m_callbacks = new WebpageCallbacks(this);
     m_customWebPage = new CustomPage(this);
-    Settings* phantomCfg = Phantom::instance()->settings();
+    Config* phantomCfg = Phantom::instance()->config();
 
     // To grant universal access to a web page
     // attribute "WebSecurityEnabled" must be applied during the initializing
     // security context for Document instance. Setting up it later will not cause any effect
+    // see <qt\src\3rdparty\webkit\Source\WebCore\dom\Document.cpp:4468>
     QWebSettings* settings = m_customWebPage->settings();
     settings->setAttribute(QWebSettings::WebSecurityEnabled, phantomCfg->webSecurityEnabled());
 
     m_mainFrame = m_customWebPage->mainFrame();
     m_currentFrame = m_mainFrame;
-    m_settings = Phantom::instance()->defaultPageSettings();
     m_mainFrame->setHtml(BLANK_HTML, baseUrl);
 
     // NOTE: below you can see that between all the event handlers
@@ -415,7 +408,7 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     connect(m_customWebPage, SIGNAL(windowCloseRequested()), this, SLOT(close()), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(loadProgress(int)), this, SLOT(updateLoadingProgress(int)));
     connect(m_customWebPage, SIGNAL(repaintRequested(QRect)), this, SLOT(handleRepaintRequested(QRect)), Qt::QueuedConnection);
-    connect(m_customWebPage, SIGNAL(unsupportedContent(QNetworkReply*)), this, SLOT(downloadRequested(QNetworkReply*)));
+
 
     // Start with transparent background.
     QPalette palette = m_customWebPage->palette();
@@ -429,21 +422,17 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     m_mainFrame->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_mainFrame->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
-    m_customWebPage->setForwardUnsupportedContent(true);
     QWebSettings* pageSettings = m_customWebPage->settings();
     pageSettings->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
     pageSettings->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
     pageSettings->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
 
-    bool isLocalStorageEnabled = phantomCfg->localStorageDefaultQuota() >= 0;
-    pageSettings->setAttribute(QWebSettings::LocalStorageEnabled, isLocalStorageEnabled);
+    pageSettings->setAttribute(QWebSettings::LocalStorageEnabled, true);
 
-    if (isLocalStorageEnabled) {
-        if (phantomCfg->localStoragePath().isEmpty()) {
-            pageSettings->setLocalStoragePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
-        } else {
-            pageSettings->setLocalStoragePath(phantomCfg->localStoragePath());
-        }
+    if (phantomCfg->localStoragePath().isEmpty()) {
+        pageSettings->setLocalStoragePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+    } else {
+        pageSettings->setLocalStoragePath(phantomCfg->localStoragePath());
     }
 
     // Custom network access manager to allow traffic monitoring.
@@ -458,11 +447,7 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     connect(m_networkAccessManager, SIGNAL(resourceTimeout(QVariant)),
             SIGNAL(resourceTimeout(QVariant)));
 
-    m_dpi = qRound(QApplication::primaryScreen()->logicalDotsPerInch());
     m_customWebPage->setViewportSize(QSize(400, 300));
-
-    // create web page renderer
-    m_pageRenderer = new WebPageRenderer(m_customWebPage, m_dpi, this);
 }
 
 WebPage::~WebPage()
@@ -499,18 +484,10 @@ void WebPage::setContent(const QString& content, const QString& baseUrl)
     }
 }
 
+
 void WebPage::setFrameContent(const QString& content)
 {
     m_currentFrame->setHtml(content);
-}
-
-void WebPage::setFrameContent(const QString& content, const QString& baseUrl)
-{
-    if (baseUrl == "about:blank") {
-        m_currentFrame->setHtml(BLANK_HTML);
-    } else {
-        m_currentFrame->setHtml(content, QUrl(baseUrl));
-    }
 }
 
 QString WebPage::title() const
@@ -651,23 +628,18 @@ int WebPage::showInspector(const int port)
 
 void WebPage::applySettings(const QVariantMap& def)
 {
-<<<<<<< HEAD
     QWebSettings* opt = m_customWebPage->settings();
-=======
-    m_settings = def;
-
-    QWebSettings *opt = m_customWebPage->settings();
->>>>>>> 071c1c1dc3aa4c6abaa6a4be927bfee376ed89e4
 
     opt->setAttribute(QWebSettings::AutoLoadImages, def[PAGE_SETTINGS_LOAD_IMAGES].toBool());
     opt->setAttribute(QWebSettings::JavascriptEnabled, def[PAGE_SETTINGS_JS_ENABLED].toBool());
     opt->setAttribute(QWebSettings::XSSAuditingEnabled, def[PAGE_SETTINGS_XSS_AUDITING].toBool());
     opt->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls, def[PAGE_SETTINGS_LOCAL_ACCESS_REMOTE].toBool());
+    opt->setAttribute(QWebSettings::WebSecurityEnabled, def[PAGE_SETTINGS_WEB_SECURITY_ENABLED].toBool());
     opt->setAttribute(QWebSettings::JavascriptCanOpenWindows, def[PAGE_SETTINGS_JS_CAN_OPEN_WINDOWS].toBool());
     opt->setAttribute(QWebSettings::JavascriptCanCloseWindows, def[PAGE_SETTINGS_JS_CAN_CLOSE_WINDOWS].toBool());
 
     if (def.contains(PAGE_SETTINGS_USER_AGENT)) {
-        m_customWebPage->setUserAgent(def[PAGE_SETTINGS_USER_AGENT].toString());
+        m_customWebPage->m_userAgent = def[PAGE_SETTINGS_USER_AGENT].toString();
     }
 
     if (def.contains(PAGE_SETTINGS_USERNAME)) {
@@ -689,10 +661,6 @@ void WebPage::applySettings(const QVariantMap& def)
     if (def.contains(PAGE_SETTINGS_PROXY)) {
         setProxy(def[PAGE_SETTINGS_PROXY].toString());
     }
-
-    if (def.contains(PAGE_SETTINGS_DPI)) {
-        m_dpi = def[PAGE_SETTINGS_DPI].toReal();
-    }
 }
 
 void WebPage::setProxy(const QString& proxyUrl)
@@ -709,7 +677,7 @@ void WebPage::setProxy(const QString& proxyUrl)
 
 QString WebPage::userAgent() const
 {
-    return m_customWebPage->userAgent();
+    return m_customWebPage->m_userAgent;
 }
 
 void WebPage::setNavigationLocked(bool lock)
@@ -791,11 +759,14 @@ QVariantMap WebPage::paperSize() const
 
 QVariant WebPage::evaluateJavaScript(const QString& code)
 {
+    QVariant evalResult;
     QString function = "(" + code + ")()";
 
     qDebug() << "WebPage - evaluateJavaScript" << function;
 
-    QVariant evalResult = m_currentFrame->evaluateJavaScript(function);
+    evalResult = m_currentFrame->evaluateJavaScript(
+                     function,                                   //< function evaluated
+                     QString("phantomjs://webpage.evaluate()")); //< reference source file
 
     qDebug() << "WebPage - evaluateJavaScript result" << evalResult;
 
@@ -855,18 +826,6 @@ void WebPage::javascriptInterrupt()
     }
 }
 
-QString WebPage::fileDownloadPrompt(const QUrl& url, const QVariantMap& responseData)
-{
-    if (m_callbacks->m_fileDownloadCallback) {
-        QVariant res = m_callbacks->m_fileDownloadCallback->call(QVariantList() << url << responseData);
-        if (!res.isNull() && res.canConvert<QString>()) {
-            return res.toString();
-        }
-    }
-
-    return "";
-}
-
 void WebPage::finish(bool ok)
 {
     QString status = ok ? "success" : "fail";
@@ -912,12 +871,6 @@ QVariantList WebPage::cookies() const
 {
     // Return all the Cookies visible to this Page, as a list of Maps (aka JSON in JS space)
     return m_cookieJar->cookiesToMap(this->url());
-}
-
-QVariantList WebPage::cookiesForUrl(const QString& url) const
-{
-    // Return all the Cookies visible to this Page, at the specified URL, as a list of Maps (aka JSON in JS space)
-    return m_cookieJar->cookiesToMap(url);
 }
 
 bool WebPage::addCookie(const QVariantMap& cookie)
@@ -966,13 +919,6 @@ void WebPage::openUrl(const QString& address, const QVariant& op, const QVariant
         }
     }
 
-    // pass custom Headers to the request
-    QMapIterator<QString, QVariant> i(customHeaders());
-    while (i.hasNext()) {
-        i.next();
-        request.setRawHeader(i.key().toUtf8(), i.value().toString().toUtf8());
-    }
-
     if (operation.isEmpty()) {
         operation = "get";
     }
@@ -992,7 +938,7 @@ void WebPage::openUrl(const QString& address, const QVariant& op, const QVariant
     }
 
     if (networkOp == QNetworkAccessManager::UnknownOperation) {
-        m_mainFrame->evaluateJavaScript("console.error('Unknown network operation: " + operation + "');");
+        m_mainFrame->evaluateJavaScript("console.error('Unknown network operation: " + operation + "');", QString());
         return;
     }
 
@@ -1027,50 +973,91 @@ bool WebPage::render(const QString& fileName, const QVariantMap& option)
     if (m_mainFrame->contentsSize().isEmpty()) {
         return false;
     }
+
+    QString outFileName = fileName;
+    QString tempFileName = "";
+
     QString format = "";
-    int quality = -1;
+    int quality = -1; // QImage#save default
+
+    if (fileName == STDOUT_FILENAME || fileName == STDERR_FILENAME) {
+        if (!QFile::exists(fileName)) {
+            // create temporary file for OS that have no /dev/stdout or /dev/stderr. (ex. windows)
+            tempFileName = QDir::tempPath() + "/phantomjstemp" + QUuid::createUuid().toString();
+            outFileName = tempFileName;
+        }
+
+        format = "png"; // default format for stdout and stderr
+    } else {
+        QFileInfo fileInfo(outFileName);
+        QDir dir;
+        dir.mkpath(fileInfo.absolutePath());
+    }
 
     if (option.contains("format")) {
         format = option.value("format").toString();
     } else if (fileName.endsWith(".pdf", Qt::CaseInsensitive)) {
         format = "pdf";
-    } else {
-        // by default we use png
-        format = "png";
     }
+
     if (option.contains("quality")) {
         quality = option.value("quality").toInt();
     }
 
-<<<<<<< HEAD
-    WebPageRenderer::RenderMode mode;
-    if (option.contains("onlyViewport") && option.value("onlyViewport").toBool()) {
-        mode = WebPageRenderer::Viewport;
-=======
     bool retval = true;
     if (format == "pdf") {
         retval = renderPdf(outFileName);
->>>>>>> cbf2a8d8cdb7bdbb9825c4057493aafa56a3f531
     } else {
-        mode = WebPageRenderer::Content;
+        QImage rawPageRendering = renderImage();
+
+        const char* f = 0; // 0 is QImage#save default
+        if (format != "") {
+            f = format.toLocal8Bit().constData();
+        }
+
+        retval = rawPageRendering.save(outFileName, f, quality);
     }
 
-    return m_pageRenderer->renderToFile(fileName, format, m_clipRect, m_paperSize, mode, quality);
+    if (tempFileName != "") {
+        // cleanup temporary file and render to stdout or stderr
+        QFile i(tempFileName);
+        i.open(QIODevice::ReadOnly);
+
+        QByteArray ba = i.readAll();
+
+        System* system = (System*)Phantom::instance()->createSystem();
+        if (fileName == STDOUT_FILENAME) {
+#ifdef Q_OS_WIN
+            _setmode(_fileno(stdout), O_BINARY);
+#endif
+
+            ((File*)system->_stdout())->write(QString::fromLatin1(ba.constData(), ba.size()));
+
+#ifdef Q_OS_WIN
+            _setmode(_fileno(stdout), O_TEXT);
+#endif
+        } else if (fileName == STDERR_FILENAME) {
+#ifdef Q_OS_WIN
+            _setmode(_fileno(stderr), O_BINARY);
+#endif
+
+            ((File*)system->_stderr())->write(QString::fromLatin1(ba.constData(), ba.size()));
+
+#ifdef Q_OS_WIN
+            _setmode(_fileno(stderr), O_TEXT);
+#endif
+        }
+
+        i.close();
+
+        QFile::remove(tempFileName);
+    }
+
+    return retval;
 }
 
-QString WebPage::renderBase64(const QByteArray& format, const QVariantMap& option
-QString WebPage::renderBase64(const QByteArray& format, const int quality)
+QString WebPage::renderBase64(const QByteArray& format)
 {
-<<<<<<< HEAD
-    int quality = -1;
-
-    QByteArray outputFormat = format;
-
-    if (outputFormat.isEmpty()) {
-        outputFormat = "png";
-        // Writing image to the buffer, using PNG encoding
-        rawPageRendering.save(&buffer, nformat, quality);
-=======
     QByteArray nformat = format.toLower();
 
     // Check if the given format is supported
@@ -1092,66 +1079,103 @@ QString WebPage::renderBase64(const QByteArray& format, const int quality)
     return "";
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 QImage WebPage::renderImage()
-=======
-QByteArray WebPage::renderBuffer(const QByteArray &format, const int quality)
-=======
-QString WebPage::renderBase64(const QByteArray &format, const int quality)
->>>>>>> 5abc801459f115c1ebea59937298db423446ea23
-{
-    QByteArray nformat = format.toLower();
-
-    // Check if the given format is supported
-    if (QImageWriter::supportedImageFormats().contains(nformat)) {
-        QImage rawPageRendering = renderImage();
-
-        // Prepare buffer for writing
-        QByteArray bytes;
-        QBuffer buffer(&bytes);
-        buffer.open(QIODevice::WriteOnly);
-
-        // Writing image to the buffer, using PNG encoding
-        rawPageRendering.save(&buffer, nformat, quality);
-
-        return bytes;
-    }
-
-    // Return an empty string in case an unsupported format was provided
-    return "";
-}
-
-QImage WebPage::renderImage(const RenderMode mode)
->>>>>>> 27b5754ae0bb142a2129d4ed8252d39b9140edda
 {
     QSize contentsSize = m_mainFrame->contentsSize();
     contentsSize -= QSize(m_scrollPosition.x(), m_scrollPosition.y());
     QRect frameRect = QRect(QPoint(0, 0), contentsSize);
     if (!m_clipRect.isNull()) {
         frameRect = m_clipRect;
->>>>>>> cbf2a8d8cdb7bdbb9825c4057493aafa56a3f531
     }
 
-    if (option.contains("quality")) {
-        quality = option.value("quality").toInt();
+    QSize viewportSize = m_customWebPage->viewportSize();
+    m_customWebPage->setViewportSize(contentsSize);
+
+#ifdef Q_OS_WIN
+    QImage::Format format = QImage::Format_ARGB32_Premultiplied;
+#else
+    QImage::Format format = QImage::Format_ARGB32;
+#endif
+
+    QImage buffer(frameRect.size(), format);
+    buffer.fill(Qt::transparent);
+
+    QPainter painter;
+
+    // We use tiling approach to work-around Qt software rasterizer bug
+    // when dealing with very large paint device.
+    // See http://code.google.com/p/phantomjs/issues/detail?id=54.
+    const int tileSize = 4096;
+    int htiles = (buffer.width() + tileSize - 1) / tileSize;
+    int vtiles = (buffer.height() + tileSize - 1) / tileSize;
+    for (int x = 0; x < htiles; ++x) {
+        for (int y = 0; y < vtiles; ++y) {
+
+            QImage tileBuffer(tileSize, tileSize, format);
+            tileBuffer.fill(Qt::transparent);
+
+            // Render the web page onto the small tile first
+            painter.begin(&tileBuffer);
+            painter.setRenderHint(QPainter::Antialiasing, true);
+            painter.setRenderHint(QPainter::TextAntialiasing, true);
+            painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+            painter.translate(-frameRect.left(), -frameRect.top());
+            painter.translate(-x * tileSize, -y * tileSize);
+            m_mainFrame->render(&painter, QRegion(frameRect));
+            painter.end();
+
+            // Copy the tile to the main buffer
+            painter.begin(&buffer);
+            painter.setCompositionMode(QPainter::CompositionMode_Source);
+            painter.drawImage(x * tileSize, y * tileSize, tileBuffer);
+            painter.end();
+        }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    WebPageRenderer::RenderMode mode;
-    if (option.contains("onlyViewport") && option.value("onlyViewport").toBool()) {
-        mode = WebPageRenderer::Viewport;
-=======
-bool WebPage::renderPdf(QPdfWriter& pdfWriter)
-=======
+    m_customWebPage->setViewportSize(viewportSize);
+    return buffer;
+}
+
+#define PHANTOMJS_PDF_DPI 72            // Different defaults. OSX: 72, X11: 75(?), Windows: 96
+
+qreal stringToPointSize(const QString& string)
+{
+    static const struct {
+        QString unit;
+        qreal factor;
+    } units[] = {
+        { "mm", 72 / 25.4 },
+        { "cm", 72 / 2.54 },
+        { "in", 72 },
+        { "px", 72.0 / PHANTOMJS_PDF_DPI },
+        { "", 72.0 / PHANTOMJS_PDF_DPI }
+    };
+    for (uint i = 0; i < sizeof(units) / sizeof(units[0]); ++i) {
+        if (string.endsWith(units[i].unit)) {
+            QString value = string;
+            value.chop(units[i].unit.length());
+            return value.toDouble() * units[i].factor;
+        }
+    }
+    return 0;
+}
+
+qreal printMargin(const QVariantMap& map, const QString& key)
+{
+    const QVariant margin = map.value(key);
+    if (margin.isValid() && margin.canConvert(QVariant::String)) {
+        return stringToPointSize(margin.toString());
+    } else {
+        return 0;
+    }
+}
+
 bool WebPage::renderPdf(const QString& fileName)
->>>>>>> cbf2a8d8cdb7bdbb9825c4057493aafa56a3f531
 {
     QPrinter printer;
     printer.setOutputFormat(QPrinter::PdfFormat);
     printer.setOutputFileName(fileName);
-    printer.setResolution(m_dpi);
+    printer.setResolution(PHANTOMJS_PDF_DPI);
     QVariantMap paperSize = m_paperSize;
 
     if (paperSize.isEmpty()) {
@@ -1168,13 +1192,8 @@ bool WebPage::renderPdf(const QString& fileName)
     } else if (paperSize.contains("format")) {
         const QPrinter::Orientation orientation = paperSize.contains("orientation")
                 && paperSize.value("orientation").toString().compare("landscape", Qt::CaseInsensitive) == 0 ?
-<<<<<<< HEAD
-                QPageLayout::Landscape : QPageLayout::Portrait;
-        pdfWriter.setPageOrientation(orientation);
-=======
                 QPrinter::Landscape : QPrinter::Portrait;
         printer.setOrientation(orientation);
->>>>>>> cbf2a8d8cdb7bdbb9825c4057493aafa56a3f531
         static const struct {
             QString format;
             QPrinter::PaperSize paperSize;
@@ -1217,19 +1236,41 @@ bool WebPage::renderPdf(const QString& fileName)
                 break;
             }
         }
->>>>>>> 051794898f75750337821a6e7a3a2f9e09588cf6
     } else {
-        mode = WebPageRenderer::Content;
+        return false;
     }
 
-<<<<<<< HEAD
-    return m_pageRenderer->renderToBase64(outputFormat, m_clipRect, m_paperSize, mode, quality);
-=======
+    if (paperSize.contains("border") && !paperSize.contains("margin")) {
+        // backwards compatibility
+        paperSize["margin"] = paperSize["border"];
+    }
+
+    qreal marginLeft = 0;
+    qreal marginTop = 0;
+    qreal marginRight = 0;
+    qreal marginBottom = 0;
+
+    if (paperSize.contains("margin")) {
+        const QVariant margins = paperSize["margin"];
+        if (margins.canConvert(QVariant::Map)) {
+            const QVariantMap map = margins.toMap();
+            marginLeft = printMargin(map, "left");
+            marginTop = printMargin(map, "top");
+            marginRight = printMargin(map, "right");
+            marginBottom = printMargin(map, "bottom");
+        } else if (margins.canConvert(QVariant::String)) {
+            const qreal margin = stringToPointSize(margins.toString());
+            marginLeft = margin;
+            marginTop = margin;
+            marginRight = margin;
+            marginBottom = margin;
+        }
+    }
+
     printer.setPageMargins(marginLeft, marginTop, marginRight, marginBottom, QPrinter::Point);
 
     m_mainFrame->print(&printer, this);
     return true;
->>>>>>> cbf2a8d8cdb7bdbb9825c4057493aafa56a3f531
 }
 
 void WebPage::setZoomFactor(qreal zoom)
@@ -1247,7 +1288,7 @@ QString WebPage::windowName() const
     return m_mainFrame->evaluateJavaScript("window.name;").toString();
 }
 
-qreal WebPage::getHeight(const QVariantMap& map, const QString& key) const
+qreal getHeight(const QVariantMap& map, const QString& key)
 {
     QVariant footer = map.value(key);
     if (!footer.canConvert(QVariant::Map)) {
@@ -1257,7 +1298,7 @@ qreal WebPage::getHeight(const QVariantMap& map, const QString& key) const
     if (!height.canConvert(QVariant::String)) {
         return 0;
     }
-    return m_pageRenderer->stringToPointSize(height.toString());
+    return stringToPointSize(height.toString());
 }
 
 qreal WebPage::footerHeight() const
@@ -1286,7 +1327,7 @@ QString getHeaderFooter(const QVariantMap& map, const QString& key, QWebFrame* f
             }
         }
     }
-    frame->evaluateJavaScript("console.error('Bad header callback given, use phantom.callback);");
+    frame->evaluateJavaScript("console.error('Bad header callback given, use phantom.callback);", QString());
     return QString();
 }
 
@@ -1308,35 +1349,24 @@ void WebPage::_uploadFile(const QString& selector, const QStringList& fileNames)
     }
 
     // Filter out "fileNames" that don't actually exist
-    m_customWebPage->clearUploadFiles();
+    m_customWebPage->m_uploadFiles.clear();
     for (int i = 0, ilen = fileNames.length(); i < ilen; ++i) {
         if (QFile::exists(fileNames[i])) {
-            m_customWebPage->addFileToUpload(fileNames[i]);
+            m_customWebPage->m_uploadFiles.append(fileNames[i]);
         }
     }
 
-    // el.evaluateJavaScript(JS_ELEMENT_CLICK);
-    el.setFocus();
-    sendEvent("keypress", QVariant(Qt::Key_Enter));
+    el.evaluateJavaScript(JS_ELEMENT_CLICK);
 }
 
 bool WebPage::injectJs(const QString& jsFilePath)
 {
-    QFile file(jsFilePath);
-
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        return false;
-    }
-
-    QTextStream in(&file);
-    m_currentFrame->evaluateJavaScript(in.readAll());
-
-    return true;
+    return Utils::injectJsInFrame(jsFilePath, m_libraryPath, m_currentFrame);
 }
 
 void WebPage::_appendScriptElement(const QString& scriptUrl)
 {
-    m_currentFrame->evaluateJavaScript(QString(JS_APPEND_SCRIPT_ELEMENT).arg(scriptUrl));
+    m_currentFrame->evaluateJavaScript(QString(JS_APPEND_SCRIPT_ELEMENT).arg(scriptUrl), scriptUrl);
 }
 
 QObject* WebPage::_getGenericCallback()
@@ -1382,15 +1412,6 @@ QObject* WebPage::_getJsInterruptCallback()
     }
 
     return m_callbacks->getJsInterruptCallback();
-}
-
-QObject *WebPage::_getFileDownloadCallback()
-{
-    if (!m_callbacks) {
-        m_callbacks = new WebpageCallbacks(this);
-    }
-
-    return m_callbacks->getFileDownloadCallback();
 }
 
 void WebPage::sendEvent(const QString& type, const QVariant& arg1, const QVariant& arg2, const QString& mouseButton, const QVariant& modifierArg)
@@ -1753,89 +1774,6 @@ void WebPage::stopJavaScript()
 void WebPage::clearMemoryCache()
 {
     QWebSettings::clearMemoryCaches();
-}
-
-<<<<<<< HEAD
-qreal WebPage::devicePixelRatio() const
-{
-    return m_customWebPage->devicePixelRatio();
-}
-
-void WebPage::setDevicePixelRatio(qreal devicePixelRatio)
-{
-    m_customWebPage->setDevicePixelRatio(devicePixelRatio);
-=======
-void WebPage::downloadRequested(QNetworkReply* networkReply)
-{
-    QUrl downloadUrl = networkReply->url();
-    qDebug() << "WebPage - downloadRequested:" << downloadUrl;
-
-    QVariant header = networkReply->header(QNetworkRequest::ContentLengthHeader);
-    bool ok;
-    int size = header.toInt(&ok);
-    if (ok && size == 0)
-        return;
-
-    QVariantMap responseData;
-    responseData["filename"] = QFileInfo(downloadUrl.toString()).fileName();
-    responseData["size"] = size;
-    responseData["contentType"] = networkReply->header(QNetworkRequest::ContentTypeHeader).toString();
-
-    QString filename = fileDownloadPrompt(downloadUrl, responseData);
-
-    if (filename.isEmpty()) {
-        qDebug() << "WebPage - downloadRequested. File download aborted (filename is empty)";
-        networkReply->abort();
-    } else {
-        QString downloadingFilename = QFileInfo(downloadUrl.toString()).fileName();
-        QFileInfo fileInfo(filename);
-
-        if (fileInfo.isRelative()) {
-            fileInfo.makeAbsolute();
-        }
-
-        if (fileInfo.isDir()) {
-            // check if the target directory is writable
-            if (!fileInfo.isWritable()) {
-                emit fileDownloadError("Requested path is not writable");
-                networkReply->abort();
-                return;
-            }
-
-            m_downloadingFiles[networkReply] = fileInfo.path() + downloadingFilename;
-        } else {
-            m_downloadingFiles[networkReply]  = fileInfo.filePath();
-        }
-
-        connect(networkReply, SIGNAL(finished()), this, SLOT(downloadFinished()));
-    }
-}
-
-void WebPage::downloadFinished()
-{
-    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-
-    if (reply && reply->error() == QNetworkReply::NoError && m_downloadingFiles.contains(reply)) {
-        qDebug() << "WebPage - downloadFinished";
-        QFile file(m_downloadingFiles[reply]);
-
-        if (!file.open(QIODevice::WriteOnly)) {
-            emit fileDownloadError("Error opening output file: " + file.errorString());
-        } else {
-            qint64 bufferSize = qMin<qint64>(MIN_BUFFER_SIZE, reply->size());
-            QByteArray buffer;
-            while (!(buffer = reply->read(bufferSize)).isEmpty()) {
-                file.write(buffer);
-            }
-            file.close();
-        }
-
-        m_downloadingFiles.remove(reply);
-
-        // We can safely mark this QNetworkReply for deleting later since Webkit will not handle it
-        reply->deleteLater();
-    }
->>>>>>> 6de05970f9469099919266342243b23d4bf2f843
 }
 
 #include "webpage.moc"
