@@ -1694,10 +1694,6 @@ static int c_itoa(char *buf, size_t buf_size, int64_t num, int base, int flags,
   return i;
 }
 
-int c_vsnprintf(char *buf, size_t buf_size, const char *fmt, va_list ap) WEAK;
-int c_vsnprintf(char *buf, size_t buf_size, const char *fmt, va_list ap) {
-  int ch, i = 0, len_mod, flags, precision, field_width;
-
   while ((ch = *fmt++) != '\0') {
     if (ch != '%') {
       C_SNPRINTF_APPEND_CHAR(ch);
@@ -1726,20 +1722,6 @@ int c_vsnprintf(char *buf, size_t buf_size, const char *fmt, va_list ap) {
       if (*fmt == '*') {
         field_width = va_arg(ap, int);
         fmt++;
-      }
-
-      /* Precision */
-      if (*fmt == '.') {
-        fmt++;
-        if (*fmt == '*') {
-          precision = va_arg(ap, int);
-          fmt++;
-        } else {
-          while (*fmt >= '0' && *fmt <= '9') {
-            precision *= 10;
-            precision += *fmt++ - '0';
-          }
-        }
       }
 
       /* Length modifier */
