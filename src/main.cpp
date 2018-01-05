@@ -71,7 +71,7 @@ static int inner_main(int argc, char** argv)
 {
 #ifdef Q_OS_LINUX
     // override default Qt platform plugin
-    qputenv("QT_QPA_PLATFORM", "phantom");
+    qputenv("QT_QPA_PLATFORM", "offscreen");
 #endif
 
     // Registering an alternative Message Handler
