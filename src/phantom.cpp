@@ -398,12 +398,9 @@ void Phantom::setProxy(const QString& ip, const qint16& port, const QString& pro
         if (proxyType == "socks5") {
             networkProxyType = QNetworkProxy::Socks5Proxy;
         }
-        // Checking for passed proxy user and/or password
-        if (!user.isEmpty() || !password.isEmpty()) {
-            QNetworkProxy proxy(networkProxyType, ip, port, user, password);
-            QNetworkProxy::setApplicationProxy(proxy);
+           QNetworkProxy::setApplicationProxy(proxy);
         } else {
-            QNetworkProxy proxy(networkProxyType, ip, port);
+          QNetworkProxy proxy(networkProxyType, ip, port, QString(), QString(), m_config.useProxyForLocalhost());
             QNetworkProxy::setApplicationProxy(proxy);
         }
     }
