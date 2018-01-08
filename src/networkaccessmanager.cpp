@@ -478,7 +478,11 @@ void NetworkAccessManager::handleStarted(QNetworkReply* reply, int requestId)
     data["headers"] = headers;
     data["requestHeaders"] = requestHeaders;
     data["time"] = QDateTime::currentDateTime();
+<<<<<<< HEAD
     data["body"] = "";
+=======
+    data["fromCache"] = reply->attribute(QNetworkRequest::SourceIsFromCacheAttribute).toBool();
+>>>>>>> f1f3cd7b5aa0815028f4a18a65a1a7b76c41ade0
 
     QWebFrame *frame = qobject_cast<QWebFrame *>(reply->request().originatingObject());
     data["frameName"] = frame->frameName();
@@ -519,9 +523,6 @@ void NetworkAccessManager::handleFinished(QNetworkReply* reply, int requestId, i
     data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
-    data["body"] = body;
-    data["bodySize"] = bodySize;
-
     emit resourceReceived(data);
 }
 
