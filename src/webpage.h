@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -28,23 +28,28 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef WEBPAGE_H
-#define WEBPAGE_H
+#pragma once
 
 #include <QMap>
 #include <QVariantMap>
+<<<<<<< HEAD
 #include <QWebPage>
 #include <QWebFrame>
-#include <QPdfWriter>
+=======
+#include <QtWebKitWidgets/QWebPage>
+#include <QtWebKitWidgets/QWebFrame>
+>>>>>>> cbf2a8d8cdb7bdbb9825c4057493aafa56a3f531
 
-#include "cookiejar.h"
+#include "webpagerenderer.h"
+#include "network/cookiejar.h"
 
 class Config;
 class CustomPage;
-class WebpageCallbacks;
 class NetworkAccessManager;
 class QWebInspector;
 class Phantom;
+class WebpageCallbacks;
+class WebPageRenderer;
 
 class WebPage : public QObject
 {
@@ -81,6 +86,7 @@ class WebPage : public QObject
     Q_PROPERTY(int framesCount READ framesCount)
     Q_PROPERTY(QString focusedFrameName READ focusedFrameName)
     Q_PROPERTY(QObject* cookieJar READ cookieJar WRITE setCookieJarFromQObject)
+    Q_PROPERTY(qreal devicePixelRatio READ devicePixelRatio WRITE setDevicePixelRatio)
 
 public:
     WebPage(QObject* parent, const QUrl& baseUrl = QUrl());
@@ -252,9 +258,17 @@ public slots:
      *
      * @brief renderBase64
      * @param format String containing one of the supported types
+<<<<<<< HEAD
+     * @param quality Integer representing a value from 1 to 100; default is -1
      * @return Rendering base-64 encoded of the page if the given format is supported, otherwise an empty string
      */
+<<<<<<< HEAD
+    QString renderBase64(const QByteArray& format, const QVariantMap& option = QVariantMap());
+    QString renderBase64(const QByteArray& format = "png", const int quality = -1);
+=======
     QString renderBase64(const QByteArray& format = "png");
+    QByteArray renderBuffer(const QByteArray &format = "png", const int quality = -1);
+>>>>>>> 27b5754ae0bb142a2129d4ed8252d39b9140edda
     bool injectJs(const QString& jsFilePath);
     void _appendScriptElement(const QString& scriptUrl);
     QObject* _getGenericCallback();
@@ -262,11 +276,29 @@ public slots:
     QObject* _getJsConfirmCallback();
     QObject* _getJsPromptCallback();
     QObject* _getJsInterruptCallback();
+    QObject *_getFileDownloadCallback();
     void _uploadFile(const QString& selector, const QStringList& fileNames);
     void sendEvent(const QString& type, const QVariant& arg1 = QVariant(), const QVariant& arg2 = QVariant(), const QString& mouseButton = QString(), const QVariant& modifierArg = QVariant());
 
     void setContent(const QString& content, const QString& baseUrl);
     void setFrameContent(const QString& content, const QString& baseUrl);
+=======
+     * @param quality containing a value from 1 to 100. Default is -1.
+     * @return Rendering base-64 encoded of the page if the given format is supported, otherwise an empty string
+     */
+    QString renderBase64(const QByteArray &format = "png", const int quality = -1);
+    bool injectJs(const QString &jsFilePath);
+    void _appendScriptElement(const QString &scriptUrl);
+    QObject *_getGenericCallback();
+    QObject *_getFilePickerCallback();
+    QObject *_getJsConfirmCallback();
+    QObject *_getJsPromptCallback();
+    QObject *_getJsInterruptCallback();
+    void _uploadFile(const QString &selector, const QStringList &fileNames);
+    void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant(), const QString &mouseButton = QString(), const QVariant &modifierArg = QVariant());
+
+    void setContent(const QString &content, const QString &baseUrl);
+>>>>>>> 5abc801459f115c1ebea59937298db423446ea23
     /**
      * Returns a Child Page that matches the given <code>"window.name"</code>.
      * This utility method is faster than accessing the
@@ -407,6 +439,14 @@ public slots:
      */
     QVariantList cookies() const;
     /**
+     * Cookies visible by this Page, at the specified URL.
+     *
+     * @see WebPage::setCookies for details on the format
+     * @brief cookiesForUrl
+     * @return QList of QVariantMap cookies visible to this Page, at the specified URL
+     */
+    QVariantList cookiesForUrl(const QString& url) const;
+    /**
      * Add a Cookie in QVariantMap format
      * @see WebPage::setCookies for details on the format
      * @brief addCookie
@@ -485,42 +525,46 @@ public slots:
 
     void setProxy(const QString& proxyUrl);
 
-    qreal stringToPointSize(const QString&) const;
-    qreal printMargin(const QVariantMap&, const QString&);
     qreal getHeight(const QVariantMap&, const QString&) const;
+    qreal devicePixelRatio() const;
+    void setDevicePixelRatio(qreal devicePixelRatio);
 
 signals:
     void initialized();
     void loadStarted();
     void loadFinished(const QString& status);
     void javaScriptAlertSent(const QString& msg);
-    void javaScriptConsoleMessageSent(const QString& message);
+    void javaScriptConsoleMessageSent(const QString& message, int lineNumber = -1, const QString& sourceID = QString());
     void javaScriptErrorSent(const QString& msg, int lineNumber, const QString& sourceID, const QString& stack);
     void resourceRequested(const QVariant& requestData, QObject* request);
     void resourceReceived(const QVariant& resource);
     void resourceError(const QVariant& errorData);
     void resourceTimeout(const QVariant& errorData);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-    void resourceRedirect(const QVariant& data);
-#endif
     void urlChanged(const QString& url);
     void navigationRequested(const QString& url, const QString& navigationType, bool navigationLocked, bool isMainFrame);
     void rawPageCreated(QObject* page);
     void closing(QObject* page);
     void repaintRequested(const int x, const int y, const int width, const int height);
+    void fileDownloadRequested(const QUrl &url, const QVariantMap& responseData);
+    void fileDownloadFinished();
+    void fileDownloadError(const QString &error);
 
 private slots:
     void finish(bool ok);
-    void setupFrame(QWebFrame* frame = NULL);
+    void setupFrame(QWebFrame* frame = Q_NULLPTR);
     void updateLoadingProgress(int progress);
     void handleRepaintRequested(const QRect& dirtyRect);
     void handleUrlChanged(const QUrl& url);
     void handleCurrentFrameDestroyed();
+    void downloadRequested(QNetworkReply* networkReply);
+    void downloadFinished();
 
 private:
-    enum RenderMode { Content, Viewport };
-    QImage renderImage(const RenderMode mode = Content);
-    bool renderPdf(QPdfWriter& pdfWriter);
+<<<<<<< HEAD
+=======
+    QImage renderImage();
+    bool renderPdf(const QString& fileName);
+>>>>>>> cbf2a8d8cdb7bdbb9825c4057493aafa56a3f531
     void applySettings(const QVariantMap& defaultSettings);
     QString userAgent() const;
 
@@ -536,15 +580,19 @@ private:
     bool javaScriptConfirm(const QString& msg);
     bool javaScriptPrompt(const QString& msg, const QString& defaultValue, QString* result);
     void javascriptInterrupt();
+    QString fileDownloadPrompt(const QUrl& url, const QVariantMap& responseData);
 
 private:
     CustomPage* m_customWebPage;
     NetworkAccessManager* m_networkAccessManager;
     QWebFrame* m_mainFrame;
     QWebFrame* m_currentFrame;
+    QPointer<CookieJar> m_cookieJar;
+    WebPageRenderer* m_pageRenderer;
     QRect m_clipRect;
     QPoint m_scrollPosition;
     QVariantMap m_paperSize; // For PDF output via render()
+    QVariantMap m_settings; // For retention of parent page settings
     QString m_libraryPath;
     QWebInspector* m_inspector;
     WebpageCallbacks* m_callbacks;
@@ -553,11 +601,9 @@ private:
     bool m_ownsPages;
     int m_loadingProgress;
     bool m_shouldInterruptJs;
-    CookieJar* m_cookieJar;
     qreal m_dpi;
+    QMap<QNetworkReply*, QString> m_downloadingFiles;
 
     friend class Phantom;
     friend class CustomPage;
 };
-
-#endif // WEBPAGE_H

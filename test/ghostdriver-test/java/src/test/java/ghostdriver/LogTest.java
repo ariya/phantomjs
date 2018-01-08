@@ -1,7 +1,7 @@
 /*
 This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2014, Ivan De Marino <http://ivandemarino.me>
+Copyright (c) 2012-2014, Ivan De Marino <http://ivandemarino.me>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -33,6 +33,11 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
+import org.openqa.selenium.logging.LogType;
+import org.openqa.selenium.logging.LoggingPreferences;
+import org.openqa.selenium.remote.CapabilityType;
+import java.util.logging.Level;
+import org.junit.BeforeClass;
 
 import java.util.Set;
 
@@ -40,6 +45,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class LogTest extends BaseTestWithServer {
+
+    @BeforeClass
+    public static void setCustomHeaders() {
+        LoggingPreferences logPrefs = new LoggingPreferences();
+        logPrefs.enable(LogType.BROWSER, Level.ALL);
+        logPrefs.enable("har", Level.ALL);
+        sCaps.setCapability(CapabilityType.LOGGING_PREFS, logPrefs);
+    }
+
     @Test
     public void shouldReturnListOfAvailableLogs() {
         WebDriver d = getDriver();
@@ -75,6 +89,10 @@ public class LogTest extends BaseTestWithServer {
         for (LogEntry logEntry : logEntries) {
             System.out.println(logEntry);
         }
+
+        // Clears logs
+        logEntries = d.manage().logs().get("browser");
+        assertEquals(0, logEntries.getAll().size());
     }
 
     @Test
@@ -86,5 +104,9 @@ public class LogTest extends BaseTestWithServer {
         for (LogEntry logEntry : logEntries) {
             System.out.println(logEntry);
         }
+
+        String firstRequestMessage = logEntries.getAll().get(0).getMessage();
+        String secondRequestMessage = d.manage().logs().get("har").getAll().get(0).getMessage();
+        assertTrue(secondRequestMessage.length() < firstRequestMessage.length());
     }
 }

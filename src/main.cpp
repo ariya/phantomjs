@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -26,28 +26,56 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include "consts.h"
-#include "utils.h"
-#include "phantom.h"
-#include "crashdump.h"
 
 #include <QApplication>
 #include <QtPlugin>
 #include <QSslSocket>
 #include <QWebSettings>
 
-#include <stdio.h>
+#include "consts.h"
+#include "crashdump.h"
+#include "phantom.h"
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) && defined(QT_STATIC)
 Q_IMPORT_PLUGIN(PhantomIntegrationPlugin);
 #endif
+
+static bool g_printDebugMessages;
+void messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
+{
+    Q_UNUSED(context);
+    QString now = QDateTime::currentDateTime().toString(Qt::ISODate);
+
+    switch (type) {
+    case QtInfoMsg:
+        fprintf(stderr, "%s [INFO] %s\n", qPrintable(now), qPrintable(msg));
+        break;
+    case QtDebugMsg:
+        if (g_printDebugMessages) {
+            fprintf(stderr, "%s [DEBUG] %s\n", qPrintable(now), qPrintable(msg));
+        }
+        break;
+    case QtWarningMsg:
+        fprintf(stderr, "%s [WARNING] %s\n", qPrintable(now), qPrintable(msg));
+        break;
+    case QtCriticalMsg:
+        fprintf(stderr, "%s [CRITICAL] %s\n", qPrintable(now), qPrintable(msg));
+        break;
+    case QtFatalMsg:
+        fprintf(stderr, "%s [FATAL] %s\n", qPrintable(now), qPrintable(msg));
+        abort();
+    }
+}
 
 static int inner_main(int argc, char** argv)
 {
 #ifdef Q_OS_LINUX
     // override default Qt platform plugin
-    qputenv("QT_QPA_PLATFORM", "phantom");
+    qputenv("QT_QPA_PLATFORM", "offscreen");
 #endif
+
+    // Registering an alternative Message Handler
+    qInstallMessageHandler(messageHandler);
 
     QApplication app(argc, argv);
 
@@ -57,8 +85,15 @@ static int inner_main(int argc, char** argv)
     app.setOrganizationDomain("www.ofilabs.com");
     app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
 
-    // Registering an alternative Message Handler
-    qInstallMessageHandler(Utils::messageHandler);
+    // parse command-line arguments
+    QStringList args = QApplication::arguments();
+
+    // Prepare the configuration object based on the command line arguments.
+    // Because this object will be used by other classes, it needs to be ready ASAP.
+    Settings* settings = new Settings();
+    settings->init(&args);
+
+    g_printDebugMessages = settings->debug();
 
 #if defined(Q_OS_LINUX)
     if (QSslSocket::supportsSsl()) {
@@ -78,6 +113,7 @@ static int inner_main(int argc, char** argv)
     // End script execution: delete the phantom singleton and set
     // execution return value
     int retVal = phantom->returnValue();
+    delete settings;
     delete phantom;
 
 #ifndef QT_NO_DEBUG
@@ -91,6 +127,10 @@ static int inner_main(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
+    // do not catch exceptions in debug builds
+#ifdef QT_DEBUG
+    return inner_main(argc, argv);
+#else
     try {
         init_crash_handler();
         return inner_main(argc, argv);
@@ -119,4 +159,5 @@ int main(int argc, char** argv)
         print_crash_message();
         return 1;
     }
+#endif
 }
