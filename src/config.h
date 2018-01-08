@@ -31,9 +31,17 @@
 
 #ifdef __cplusplus
 
+<<<<<<< HEAD
 #include <stdio.h>
 #include <QApplication>
 #include <QFileInfo>
+=======
+#include <QString>
+#include <QStringList>
+#include <QNetworkProxy>
+#include <QVariant>
+#include <QCommandLineParser>
+>>>>>>> 20da5b0a41b28bcc3b94ab761150338a59f5b84e
 
 class Config: public QObject
 {
@@ -176,6 +184,7 @@ class Config: public QObject
     void setWebdriverSeleniumGridHub(const QString& hubUrl);
     QString webdriverSeleniumGridHub() const;
 
+<<<<<<< HEAD
     void setWebdriverSeleniumGridRemoteProxyClass(const QString& webdriverSeleniumGridRemoteProxyClass);
     QString webdriverSeleniumGridRemoteProxyClass() const;
 
@@ -185,14 +194,22 @@ public slots:
     void handleParam(const QString& param, const QVariant &value);
     void handleError(const QString &error);
 
+=======
+>>>>>>> 20da5b0a41b28bcc3b94ab761150338a59f5b84e
 private:
+	void handleSwitches();
+	void handleOptions();
+	void handleParams();
+	void handleError(const QString &error);
+
     void resetToDefaults();
     void setProxyHost(const QString &value);
     void setProxyPort(const int value);
     void setAuthUser(const QString &value);
     void setAuthPass(const QString &value);
+	bool readBooleanValue(const QString &option, const QString &value) const;
 
-    QCommandLine *m_cmdLine;
+    QCommandLineParser m_parser;
     bool m_autoLoadImages;
     QString m_cookiesFile;
     QString m_offlineStoragePath;
