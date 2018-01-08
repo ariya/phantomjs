@@ -29,9 +29,7 @@
 */
 
 #include "webpage.h"
-
 #include <math.h>
-
 #include <QApplication>
 #include <QContextMenuEvent>
 #include <QDesktopServices>
@@ -58,7 +56,6 @@
 #include <QUuid>
 #include <QUrl>
 #include <QNetworkProxy>
-
 #include "phantom.h"
 #include "networkaccessmanager.h"
 #include "utils.h"
@@ -67,19 +64,13 @@
 #include "callback.h"
 #include "cookiejar.h"
 #include "system.h"
-
-#ifdef Q_OS_WIN
 #include <io.h>
 #include <fcntl.h>
-#endif
-
-// Ensure we have at least head and body.
 #define BLANK_HTML                      "<html><head></head><body></body></html>"
 #define CALLBACKS_OBJECT_NAME           "_phantom"
 #define INPAGE_CALL_NAME                "window.callPhantom"
 #define CALLBACKS_OBJECT_INJECTION      INPAGE_CALL_NAME" = function() { return window."CALLBACKS_OBJECT_NAME".call.call(_phantom, Array.prototype.slice.call(arguments, 0)); };"
 #define CALLBACKS_OBJECT_PRESENT        "typeof(window."CALLBACKS_OBJECT_NAME") !== \"undefined\";"
-
 #define STDOUT_FILENAME "/dev/stdout"
 #define STDERR_FILENAME "/dev/stderr"
 
@@ -251,8 +242,8 @@ protected:
         }
         newPage->setCookieJar(m_cookieJar);
 
-        // Apply default settings
-        newPage->applySettings(Phantom::instance()->defaultPageSettings());
+        // Apply default/existing settings
+        newPage->applySettings(m_webPage->m_settings);
 
         // Signal JS shim to catch, decorate and store this new child page
         emit m_webPage->rawPageCreated(newPage);
@@ -384,6 +375,7 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
 
     m_mainFrame = m_customWebPage->mainFrame();
     m_currentFrame = m_mainFrame;
+    m_settings = Phantom::instance()->defaultPageSettings();
     m_mainFrame->setHtml(BLANK_HTML, baseUrl);
 
     // NOTE: below you can see that between all the event handlers
@@ -628,8 +620,6 @@ int WebPage::showInspector(const int port)
 
 void WebPage::applySettings(const QVariantMap& def)
 {
-    QWebSettings* opt = m_customWebPage->settings();
-
     opt->setAttribute(QWebSettings::AutoLoadImages, def[PAGE_SETTINGS_LOAD_IMAGES].toBool());
     opt->setAttribute(QWebSettings::JavascriptEnabled, def[PAGE_SETTINGS_JS_ENABLED].toBool());
     opt->setAttribute(QWebSettings::XSSAuditingEnabled, def[PAGE_SETTINGS_XSS_AUDITING].toBool());

@@ -518,6 +518,56 @@ describe("WebPage construction with options", function () {
             expect(page.settings.timeout).toEqual(opts.settings.timeout);
         });
     });
+<<<<<<< HEAD
+=======
+
+    describe("specifying userAgent", function () {
+        var opts = {
+            settings: {
+                userAgent: "PHANTOMJS-TEST-USER-AGENT"
+            }
+        };
+        var page = new WebPage(opts);
+        it("should have userAgent as '"+opts.settings.userAgent+"'",function () {
+            expect(page.settings.userAgent).toEqual(opts.settings.userAgent);
+        });
+
+        page.open('http://www.google.com');
+        page.evaluate(function() {
+            window.open('http://www.yahoo.com', 'yahoo');
+        });
+
+        it('should have a child page', function() {
+            expect(page.pages.length).toEqual(1);
+        });
+
+        it("should equal set a userAgent of parent page", function() {
+            var user_agent = page.evaluate(function() {
+              return window.navigator.userAgent;
+            });
+
+            expect(user_agent).toEqual(opts.settings.userAgent);
+        });
+
+        it("should inherit a userAgent of child page", function() {
+            var user_agent = page.pages[0].evaluate(function() {
+              return window.navigator.userAgent;
+            });
+
+            expect(user_agent).toEqual(opts.settings.userAgent);
+        });
+    });
+
+    describe("specifying viewportSize", function () {
+        var opts = {
+            viewportSize: {
+                height: 100,
+                width: 200
+            }
+        };
+        checkViewportSize(new WebPage(opts), opts.viewportSize);
+    });
+>>>>>>> 365fc3c2121786efb88c21c7bf3b1cb5d9774289
 });
 
 describe("WebPage switch frame of execution (deprecated API)", function(){
