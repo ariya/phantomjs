@@ -37,11 +37,6 @@
 #include <QApplication>
 #include <QFileInfo>
 
-<<<<<<< HEAD
-#ifndef QT_NO_DEBUG
-#include <QDebug>
-#endif
-=======
 class Config: public QObject
 {
     Q_OBJECT
@@ -86,9 +81,6 @@ class Config: public QObject
     #define __PRETTY_FUNCTION__ __FUNCTION__
 #endif
 
-<<<<<<< HEAD
-#endif
-=======
     QString offlineStoragePath() const;
     void setOfflineStoragePath(const QString &value);
 
@@ -242,6 +234,3 @@ private:
     QString m_webdriverSeleniumGridHub;
     QString m_webdriverSeleniumGridRemoteProxyClass;
 };
-
-#endif // CONFIG_H
->>>>>>> 279b3d7406e953a970e05fd599cc7d420f52dae2

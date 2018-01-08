@@ -90,7 +90,7 @@ phantom.defaultErrorHandler = function (message, stack) {
   stack.forEach(function (item) {
     var message = item.file + ':' + item.line;
     if (item['function'])
-      message += ' in ' + item['function'];
+      message += ' in ' + item['function']; //>> /dev/stderra;
     console.log('  ' + message);
   });
 };

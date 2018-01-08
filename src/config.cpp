@@ -785,5 +785,6 @@ void Config::setWebdriverSeleniumGridRemoteProxyClass(const QString& webdriverSe
 
 QString Config::webdriverSeleniumGridRemoteProxyClass() const
 {
+	// TODO:: Self contained
     return m_webdriverSeleniumGridRemoteProxyClass;
 }
