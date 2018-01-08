@@ -38,9 +38,7 @@
 #include <QScreen>
 #include <QStandardPaths>
 #include <QWebPage>
-
 #include "phantom.h"
-
 #include "callback.h"
 #include "childprocess.h"
 #include "consts.h"
@@ -49,7 +47,6 @@
 #include "terminal.h"
 #include "webpage.h"
 #include "webserver.h"
-
 #include "network/cookiejar.h"
 
 static Phantom* phantomInstance = Q_NULLPTR;
@@ -131,16 +128,14 @@ void Phantom::init()
     m_defaultPageSettings[PAGE_SETTINGS_LOAD_IMAGES] = QVariant::fromValue(m_settings->autoLoadImages());
     m_defaultPageSettings[PAGE_SETTINGS_JS_ENABLED] = QVariant::fromValue(true);
     m_defaultPageSettings[PAGE_SETTINGS_XSS_AUDITING] = QVariant::fromValue(false);
-    // TODO
-    // m_defaultPageSettings[PAGE_SETTINGS_USER_AGENT] = QVariant::fromValue(m_page->userAgent());
+    
+// TODO m_defaultPageSettings[PAGE_SETTINGS_USER_AGENT] = QVariant::fromValue(m_page->userAgent());
     m_defaultPageSettings[PAGE_SETTINGS_USER_AGENT] = QVariant::fromValue(QString("PhantomJS"));
     m_defaultPageSettings[PAGE_SETTINGS_LOCAL_ACCESS_REMOTE] = QVariant::fromValue(m_settings->localToRemoteUrlAccessEnabled());
     m_defaultPageSettings[PAGE_SETTINGS_WEB_SECURITY_ENABLED] = QVariant::fromValue(m_settings->webSecurityEnabled());
     m_defaultPageSettings[PAGE_SETTINGS_JS_CAN_OPEN_WINDOWS] = QVariant::fromValue(m_settings->javascriptCanOpenWindows());
     m_defaultPageSettings[PAGE_SETTINGS_JS_CAN_CLOSE_WINDOWS] = QVariant::fromValue(m_settings->javascriptCanCloseWindows());
     m_defaultPageSettings[PAGE_SETTINGS_DPI] = QVariant::fromValue(m_defaultDpi);
-    // m_page->applySettings(m_defaultPageSettings);
-
     setLibraryPath(QFileInfo(m_settings->scriptFile()).dir().absolutePath());
 }
 
