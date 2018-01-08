@@ -1,5 +1,4 @@
-﻿/*
-  This file is part of the PhantomJS project from Ofi Labs.
+﻿/* This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
@@ -83,14 +82,13 @@ phantom.__defineErrorSignalHandler__ = function(obj, page, handlers) {
   phantom.__defineErrorSignalHandler__(phantom, phantom.page, handlers);
 })();
 
-// TODO: Make this output to STDERR
 phantom.defaultErrorHandler = function (message, stack) {
   console.log(message + '\n');
 
   stack.forEach(function (item) {
     var message = item.file + ':' + item.line;
     if (item['function'])
-      message += ' in ' + item['function']; //>> /dev/stderra;
+      message += ' in ' + item['function']; // TODO >> /dev/stderra;
     console.log('  ' + message);
   });
 };
@@ -107,15 +105,15 @@ phantom.callback = function (callback) {
 };
 
 (function () {
-  // CommonJS module implementation follows
 
+  // CommonJS module implementation follows
   window.global = window;
-  // fs is loaded at the end, when everything is ready
+
+  // TODO Quiet loading of fs at the end, when everything is ready
   var fs;
   var cache = {};
   var paths = [];
-  // use getters to initialize lazily
-  // (for future, now both fs and system are loaded anyway)
+
   var nativeExports = {
     get fs() {
       return phantom.createFilesystem();

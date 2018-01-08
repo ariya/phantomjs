@@ -51,7 +51,7 @@
 
 static Phantom* phantomInstance = Q_NULLPTR;
 
-// private:
+// private members:
 Phantom::Phantom(QObject* parent)
     : QObject(parent)
     , m_terminated(false)

@@ -31,7 +31,6 @@
 */
 
 #include "config.h"
-
 #include <QDir>
 #include <QFileInfo>
 #include <QWebPage>
