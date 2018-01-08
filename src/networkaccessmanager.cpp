@@ -387,6 +387,9 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
     if (op == QNetworkAccessManager::PostOperation) { data["postData"] = postData.data(); }
     data["time"] = QDateTime::currentDateTime();
 
+    QWebFrame *frame = qobject_cast<QWebFrame *>(request.originatingObject());
+    data["frameName"] = frame->frameName();
+
     JsNetworkRequest jsNetworkRequest(&req, this);
     emit resourceRequested(data, &jsNetworkRequest);
 
@@ -455,7 +458,7 @@ void NetworkAccessManager::handleTimeout()
 
 void NetworkAccessManager::handleStarted(QNetworkReply* reply, int requestId)
 {
-    QVariantList headers;
+   QVariantList headers;
     foreach(QByteArray headerName, reply->rawHeaderList()) {
         QVariantMap header;
         header["name"] = QString::fromUtf8(headerName);
@@ -476,6 +479,9 @@ void NetworkAccessManager::handleStarted(QNetworkReply* reply, int requestId)
     data["requestHeaders"] = requestHeaders;
     data["time"] = QDateTime::currentDateTime();
     data["body"] = "";
+
+    QWebFrame *frame = qobject_cast<QWebFrame *>(reply->request().originatingObject());
+    data["frameName"] = frame->frameName();
 
     emit resourceReceived(data);
 }
@@ -516,7 +522,6 @@ void NetworkAccessManager::handleFinished(QNetworkReply* reply, int requestId, i
     data["body"] = body;
     data["bodySize"] = bodySize;
 
-
     emit resourceReceived(data);
 }
 
@@ -543,7 +548,5 @@ void NetworkAccessManager::handleNetworkError(QNetworkReply* reply, int requestI
     data["url"] = reply->url().toString();
     data["errorCode"] = reply->error();
     data["errorString"] = reply->errorString();
-    data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-    data["statusText"] = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
-    emit resourceError(data);
+   emit resourceError(data);
 }
