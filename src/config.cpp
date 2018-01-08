@@ -382,7 +382,21 @@ void Config::setProxy(const QString &value)
     }
 }
 
+<<<<<<< HEAD
 void Config::setProxyAuth(const QString &value)
+=======
+bool Config::useProxyForLocalhost() const
+{
+  return m_useProxyForLocalhost;
+}
+
+void Config::setUseProxyForLocalhost(const bool &value) 
+{
+  m_useProxyForLocalhost = value;
+}
+
+void Config::setProxyAuth(const QString& value)
+>>>>>>> f3ceb611309760736b317e04bf42a3419e1bbfec
 {
     QString proxyUser = value;
     QString proxyPass = "";
