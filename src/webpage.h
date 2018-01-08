@@ -522,6 +522,8 @@ public slots:
     void stopJavaScript();
 
     void clearMemoryCache();
+    
+    void applySettings(const QVariantMap& defaultSettings);
 
     void setProxy(const QString& proxyUrl);
 
@@ -564,8 +566,11 @@ private:
 =======
     QImage renderImage();
     bool renderPdf(const QString& fileName);
+<<<<<<< HEAD
 >>>>>>> cbf2a8d8cdb7bdbb9825c4057493aafa56a3f531
     void applySettings(const QVariantMap& defaultSettings);
+=======
+>>>>>>> b846133605b98e001e5f9b70d61145be2cf1f674
     QString userAgent() const;
 
     /**
