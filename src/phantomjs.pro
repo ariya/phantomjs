@@ -75,7 +75,6 @@ OTHER_FILES = \
 
 include(mongoose/mongoose.pri)
 include(linenoise/linenoise.pri)
-include(qcommandline/qcommandline.pri)
 
 win32: RC_FILE = phantomjs_win.rc
 
