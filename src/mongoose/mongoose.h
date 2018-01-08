@@ -1630,15 +1630,15 @@ char *inet_ntoa(struct in_addr in);
 #define CS_COMMON_PLATFORMS_PLATFORM_STM32_H_
 #if CS_PLATFORM == CS_P_STM32
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdint.h>
-#include <inttypes.h>
-#include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
-#include <memory.h>
 #include <fcntl.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
 #include <stm32_sdk_hal.h>
 
 #define to64(x) strtoll(x, NULL, 10)
@@ -6197,7 +6197,7 @@ extern "C" {
 void mg_set_protocol_socks(struct mg_connection *c);
 
 /* Create socks tunnel for the client connection */
-struct mg_iface *mg_socks_mk_iface(struct mg_mgr *, const char *proxy_addr);
+struct mg_iface *mg_socks_mk_iface(struct mg_mgr *, const char *proxy_addr)
 
 #ifdef __cplusplus
 }
