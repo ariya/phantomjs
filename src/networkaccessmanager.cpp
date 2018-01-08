@@ -39,7 +39,6 @@
 #include <QSslCipher>
 #include <QSslKey>
 #include <QRegExp>
-
 #include "phantom.h"
 #include "config.h"
 #include "cookiejar.h"
@@ -464,9 +463,7 @@ void NetworkAccessManager::handleStarted(QNetworkReply* reply, int requestId)
         headers += header;
     }
 
-    m_lastHttpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-    
-    QVariantMap data;
+   QVariantMap data;
     data["stage"] = "start";
     data["id"] = requestId;
     data["url"] = reply->url().toEncoded().data();
@@ -476,6 +473,7 @@ void NetworkAccessManager::handleStarted(QNetworkReply* reply, int requestId)
     data["bodySize"] = 0;
     data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
+    data["requestHeaders"] = requestHeaders;
     data["time"] = QDateTime::currentDateTime();
     data["body"] = "";
 
