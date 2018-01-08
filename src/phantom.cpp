@@ -38,9 +38,7 @@
 #include <QScreen>
 #include <QStandardPaths>
 #include <QWebPage>
-
 #include "phantom.h"
-
 #include "callback.h"
 #include "childprocess.h"
 #include "consts.h"
@@ -49,7 +47,6 @@
 #include "terminal.h"
 #include "webpage.h"
 #include "webserver.h"
-
 #include "network/cookiejar.h"
 
 static Phantom* phantomInstance = Q_NULLPTR;

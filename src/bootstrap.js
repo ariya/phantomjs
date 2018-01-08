@@ -33,7 +33,7 @@
 
 phantom.__defineErrorSignalHandler__ = function(obj, page, handlers) {
     var handlerName = 'onError';
-
+//
     Object.defineProperty(obj, handlerName, {
         set: function (f) {
             // Disconnect previous handler (if any)
