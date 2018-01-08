@@ -68,6 +68,10 @@ struct ctl_msg {
 
 #if MG_ENABLE_MQTT
 struct mg_mqtt_message;
+
+#define MG_MQTT_ERROR_INCOMPLETE_MSG -1
+#define MG_MQTT_ERROR_MALFORMED_MSG -2
+
 MG_INTERNAL int parse_mqtt(struct mbuf *io, struct mg_mqtt_message *mm);
 #endif
 
@@ -1694,6 +1698,10 @@ static int c_itoa(char *buf, size_t buf_size, int64_t num, int base, int flags,
   return i;
 }
 
+int c_vsnprintf(char *buf, size_t buf_size, const char *fmt, va_list ap) WEAK;
+int c_vsnprintf(char *buf, size_t buf_size, const char *fmt, va_list ap) {
+  int ch, i = 0, len_mod, flags, precision, field_width;
+
   while ((ch = *fmt++) != '\0') {
     if (ch != '%') {
       C_SNPRINTF_APPEND_CHAR(ch);
@@ -1722,6 +1730,20 @@ static int c_itoa(char *buf, size_t buf_size, int64_t num, int base, int flags,
       if (*fmt == '*') {
         field_width = va_arg(ap, int);
         fmt++;
+      }
+
+      /* Precision */
+      if (*fmt == '.') {
+        fmt++;
+        if (*fmt == '*') {
+          precision = va_arg(ap, int);
+          fmt++;
+        } else {
+          while (*fmt >= '0' && *fmt <= '9') {
+            precision *= 10;
+            precision += *fmt++ - '0';
+          }
+        }
       }
 
       /* Length modifier */
@@ -2749,17 +2771,6 @@ MG_INTERNAL void mg_recv_common(struct mg_connection *nc, void *buf, int len,
     MG_FREE(buf);
   }
   mg_call(nc, NULL, nc->user_data, MG_EV_RECV, &len);
-
-  /* If the buffer is still full after the user callback, fail */
-  if (nc->recv_mbuf_limit > 0 && nc->recv_mbuf.len >= nc->recv_mbuf_limit) {
-    char h1[50], h2[50];
-    int flags = MG_SOCK_STRINGIFY_IP | MG_SOCK_STRINGIFY_PORT;
-    mg_conn_addr_to_str(nc, h1, sizeof(h1), flags);
-    mg_conn_addr_to_str(nc, h2, sizeof(h2), flags | MG_SOCK_STRINGIFY_REMOTE);
-    LOG(LL_ERROR, ("%p %s <-> %s recv buffer %lu bytes, not drained, closing",
-                   nc, h1, h2, (unsigned long) nc->recv_mbuf.len));
-    nc->flags |= MG_F_CLOSE_IMMEDIATELY;
-  }
 }
 
 void mg_if_recv_tcp_cb(struct mg_connection *nc, void *buf, int len, int own) {
@@ -10329,7 +10340,7 @@ MG_INTERNAL int parse_mqtt(struct mbuf *io, struct mg_mqtt_message *mm) {
   unsigned char lc = 0;
   int cmd;
 
-  if (io->len < 2) return -1;
+  if (io->len < 2) return MG_MQTT_ERROR_INCOMPLETE_MSG;
   header = io->buf[0];
   cmd = header >> 4;
 
@@ -10341,12 +10352,12 @@ MG_INTERNAL int parse_mqtt(struct mbuf *io, struct mg_mqtt_message *mm) {
     len += (lc & 0x7f) << 7 * len_len;
     len_len++;
     if (!(lc & 0x80)) break;
-    if (len_len > 4) return -2;
+    if (len_len > 4) return MG_MQTT_ERROR_MALFORMED_MSG;
   }
 
   end = p + len;
   if (lc & 0x80 || len > (io->len - (p - io->buf))) {
-    return -1;
+    return MG_MQTT_ERROR_INCOMPLETE_MSG;
   }
 
   mm->cmd = cmd;
@@ -10355,31 +10366,31 @@ MG_INTERNAL int parse_mqtt(struct mbuf *io, struct mg_mqtt_message *mm) {
   switch (cmd) {
     case MG_MQTT_CMD_CONNECT: {
       p = scanto(p, &mm->protocol_name);
-      if (p > end - 4) return -2;
+      if (p > end - 4) return MG_MQTT_ERROR_MALFORMED_MSG;
       mm->protocol_version = *(uint8_t *) p++;
       mm->connect_flags = *(uint8_t *) p++;
       mm->keep_alive_timer = getu16(p);
       p += 2;
-      if (p >= end) return -2;
+      if (p >= end) return MG_MQTT_ERROR_MALFORMED_MSG;
       p = scanto(p, &mm->client_id);
-      if (p > end) return -2;
+      if (p > end) return MG_MQTT_ERROR_MALFORMED_MSG;
       if (mm->connect_flags & MG_MQTT_HAS_WILL) {
-        if (p >= end) return -2;
+        if (p >= end) return MG_MQTT_ERROR_MALFORMED_MSG;
         p = scanto(p, &mm->will_topic);
       }
       if (mm->connect_flags & MG_MQTT_HAS_WILL) {
-        if (p >= end) return -2;
+        if (p >= end) return MG_MQTT_ERROR_MALFORMED_MSG;
         p = scanto(p, &mm->will_message);
       }
       if (mm->connect_flags & MG_MQTT_HAS_USER_NAME) {
-        if (p >= end) return -2;
+        if (p >= end) return MG_MQTT_ERROR_MALFORMED_MSG;
         p = scanto(p, &mm->user_name);
       }
       if (mm->connect_flags & MG_MQTT_HAS_PASSWORD) {
-        if (p >= end) return -2;
+        if (p >= end) return MG_MQTT_ERROR_MALFORMED_MSG;
         p = scanto(p, &mm->password);
       }
-      if (p != end) return -2;
+      if (p != end) return MG_MQTT_ERROR_MALFORMED_MSG;
 
       LOG(LL_DEBUG,
           ("%d %2x %d proto [%.*s] client_id [%.*s] will_topic [%.*s] "
@@ -10393,7 +10404,7 @@ MG_INTERNAL int parse_mqtt(struct mbuf *io, struct mg_mqtt_message *mm) {
       break;
     }
     case MG_MQTT_CMD_CONNACK:
-      if (end - p < 2) return -2;
+      if (end - p < 2) return MG_MQTT_ERROR_MALFORMED_MSG;
       mm->connack_ret_code = p[1];
       break;
     case MG_MQTT_CMD_PUBACK:
@@ -10405,9 +10416,9 @@ MG_INTERNAL int parse_mqtt(struct mbuf *io, struct mg_mqtt_message *mm) {
       break;
     case MG_MQTT_CMD_PUBLISH: {
       p = scanto(p, &mm->topic);
-      if (p > end) return -2;
+      if (p > end) return MG_MQTT_ERROR_MALFORMED_MSG;
       if (mm->qos > 0) {
-        if (end - p < 2) return -2;
+        if (end - p < 2) return MG_MQTT_ERROR_MALFORMED_MSG;
         mm->message_id = getu16(p);
         p += 2;
       }
@@ -10416,7 +10427,7 @@ MG_INTERNAL int parse_mqtt(struct mbuf *io, struct mg_mqtt_message *mm) {
       break;
     }
     case MG_MQTT_CMD_SUBSCRIBE:
-      if (end - p < 2) return -2;
+      if (end - p < 2) return MG_MQTT_ERROR_MALFORMED_MSG;
       mm->message_id = getu16(p);
       p += 2;
       /*
@@ -10452,11 +10463,28 @@ static void mqtt_handler(struct mg_connection *nc, int ev,
       while (1) {
         int len = parse_mqtt(io, &mm);
         if (len < 0) {
-          if (len == -1) break; /* not fully buffered */
-          /* Protocol error. */
-          nc->flags |= MG_F_CLOSE_IMMEDIATELY;
+          if (len == MG_MQTT_ERROR_MALFORMED_MSG) {
+            /* Protocol error. */
+            nc->flags |= MG_F_CLOSE_IMMEDIATELY;
+          } else if (len == MG_MQTT_ERROR_INCOMPLETE_MSG) {
+            /* Not fully buffered, let's check if we have a chance to get more
+             * data later */
+            if (nc->recv_mbuf_limit > 0 &&
+                nc->recv_mbuf.len >= nc->recv_mbuf_limit) {
+              LOG(LL_ERROR, ("%p recv buffer (%lu bytes) exceeds the limit "
+                             "%lu bytes, and not drained, closing",
+                             nc, (unsigned long) nc->recv_mbuf.len,
+                             (unsigned long) nc->recv_mbuf_limit));
+              nc->flags |= MG_F_CLOSE_IMMEDIATELY;
+            }
+          } else {
+            /* Should never be here */
+            LOG(LL_ERROR, ("%p invalid len: %d, closing", nc, len));
+            nc->flags |= MG_F_CLOSE_IMMEDIATELY;
+          }
           break;
         }
+
         nc->handler(nc, MG_MQTT_EVENT_BASE + mm.cmd, &mm MG_UD_ARG(user_data));
         mbuf_remove(io, len);
       }
@@ -14774,7 +14802,9 @@ struct mg_lwip_conn_state {
   /* Last SSL write size, for retries. */
   int last_ssl_write_size;
   /* Whether MG_SIG_RECV is already pending for this connection */
-  int recv_pending;
+  int recv_pending : 1;
+  /* Whether the connection is about to close, just `rx_chain` needs to drain */
+  int draining_rx_chain : 1;
 };
 
 enum mg_sig_type {
@@ -14933,7 +14963,16 @@ static err_t mg_lwip_tcp_recv_cb(void *arg, struct tcp_pcb *tpcb,
   DBG(("%p %p %u %d", nc, tpcb, (p != NULL ? p->tot_len : 0), err));
   if (p == NULL) {
     if (nc != NULL && !(nc->flags & MG_F_CLOSE_IMMEDIATELY)) {
-      mg_lwip_post_signal(MG_SIG_CLOSE_CONN, nc);
+      struct mg_lwip_conn_state *cs = (struct mg_lwip_conn_state *) nc->sock;
+      if (cs->rx_chain != NULL) {
+        /*
+         * rx_chain still contains non-consumed data, don't close the
+         * connection
+         */
+        cs->draining_rx_chain = 1;
+      } else {
+        mg_lwip_post_signal(MG_SIG_CLOSE_CONN, nc);
+      }
     } else {
       /* Tombstoned connection, do nothing. */
     }
@@ -14970,24 +15009,16 @@ static err_t mg_lwip_tcp_recv_cb(void *arg, struct tcp_pcb *tpcb,
   return ERR_OK;
 }
 
-static void mg_lwip_handle_recv_tcp(struct mg_connection *nc) {
+static void mg_lwip_consume_rx_chain_tcp(struct mg_connection *nc) {
   struct mg_lwip_conn_state *cs = (struct mg_lwip_conn_state *) nc->sock;
-
-#if MG_ENABLE_SSL
-  if (nc->flags & MG_F_SSL) {
-    if (nc->flags & MG_F_SSL_HANDSHAKE_DONE) {
-      mg_lwip_ssl_recv(nc);
-    } else {
-      mg_lwip_ssl_do_hs(nc);
-    }
-    return;
-  }
-#endif
-
   mgos_lock();
-  while (cs->rx_chain != NULL) {
+  while (cs->rx_chain != NULL && nc->recv_mbuf.len < nc->recv_mbuf_limit) {
     struct pbuf *seg = cs->rx_chain;
-    size_t len = (seg->len - cs->rx_offset);
+
+    size_t seg_len = (seg->len - cs->rx_offset);
+    size_t buf_avail = (nc->recv_mbuf_limit - nc->recv_mbuf.len);
+    size_t len = MIN(seg_len, buf_avail);
+
     char *data = (char *) MG_MALLOC(len);
     if (data == NULL) {
       mgos_unlock();
@@ -15006,6 +15037,21 @@ static void mg_lwip_handle_recv_tcp(struct mg_connection *nc) {
     mgos_lock();
   }
   mgos_unlock();
+}
+
+static void mg_lwip_handle_recv_tcp(struct mg_connection *nc) {
+#if MG_ENABLE_SSL
+  if (nc->flags & MG_F_SSL) {
+    if (nc->flags & MG_F_SSL_HANDSHAKE_DONE) {
+      mg_lwip_ssl_recv(nc);
+    } else {
+      mg_lwip_ssl_do_hs(nc);
+    }
+    return;
+  }
+#endif
+
+  mg_lwip_consume_rx_chain_tcp(nc);
 
   if (nc->send_mbuf.len > 0) {
     mg_lwip_mgr_schedule_poll(nc->mgr);
@@ -15626,7 +15672,7 @@ void mg_ev_mgr_lwip_process_signals(struct mg_mgr *mgr) {
         break;
       }
       case MG_SIG_CLOSE_CONN: {
-        nc->flags |= MG_F_CLOSE_IMMEDIATELY;
+        nc->flags |= MG_F_SEND_AND_CLOSE;
         mg_close_conn(nc);
         break;
       }
@@ -15736,6 +15782,19 @@ time_t mg_lwip_if_poll(struct mg_iface *iface, int timeout_ms) {
         min_timer = nc->ev_timer_time;
       }
       num_timers++;
+    }
+
+    if (nc->sock != INVALID_SOCKET) {
+      /* Try to consume data from cs->rx_chain */
+      mg_lwip_consume_rx_chain_tcp(nc);
+
+      /*
+       * If the connection is about to close, and rx_chain is finally empty,
+       * send the MG_SIG_CLOSE_CONN signal
+       */
+      if (cs->draining_rx_chain && cs->rx_chain == NULL) {
+        mg_lwip_post_signal(MG_SIG_CLOSE_CONN, nc);
+      }
     }
   }
 #if 0
