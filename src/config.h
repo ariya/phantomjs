@@ -32,8 +32,6 @@
 #ifdef __cplusplus
 
 #include <stdio.h>
-
-// Qt
 #include <QApplication>
 #include <QFileInfo>
 
