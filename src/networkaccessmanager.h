@@ -112,7 +112,7 @@ signals:
 
 private slots:
     void handleStarted(QNetworkReply* reply, int requestId);
-    void handleFinished(QNetworkReply* reply, int requestId, int status, const QString& statusText, const QString& body);
+    void handleFinished(QNetworkReply* reply, int requestId, int status, const QString& statusText, const QString& body, int bodySize);
     void provideAuthentication(QNetworkReply* reply, QAuthenticator* authenticator);
     void handleSslErrors(QNetworkReply* reply, const QList<QSslError>& errors);
     void handleNetworkError(QNetworkReply* reply, int requestId);

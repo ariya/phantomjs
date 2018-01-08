@@ -185,7 +185,7 @@ NetworkAccessManager::NetworkAccessManager(QObject* parent, const Config* config
     connect(&m_replyTracker, SIGNAL(started(QNetworkReply*, int)), this,  SLOT(handleStarted(QNetworkReply*, int)));
     connect(&m_replyTracker, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError>&)), this, SLOT(handleSslErrors(QNetworkReply*, const QList<QSslError>&)));
     connect(&m_replyTracker, SIGNAL(error(QNetworkReply*, int, QNetworkReply::NetworkError)), this, SLOT(handleNetworkError(QNetworkReply*, int)));
-    connect(&m_replyTracker, SIGNAL(finished(QNetworkReply*, int, int, const QString&, const QString&)), SLOT(handleFinished(QNetworkReply*, int, int, const QString&, const QString&)));
+    connect(&m_replyTracker, SIGNAL(finished(QNetworkReply*, int, int, const QString&, const QString&, int)), SLOT(handleFinished(QNetworkReply*, int, int, const QString&, const QString&, int)));
 }
 
 void NetworkAccessManager::prepareSslConfiguration(const Config* config)
@@ -473,7 +473,7 @@ void NetworkAccessManager::handleStarted(QNetworkReply* reply, int requestId)
     data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
     data["statusText"] = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
     data["contentType"] = reply->header(QNetworkRequest::ContentTypeHeader);
-    data["bodySize"] = reply->size();
+    data["bodySize"] = 0;
     data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
@@ -493,7 +493,7 @@ void NetworkAccessManager::provideAuthentication(QNetworkReply* reply, QAuthenti
     }
 }
 
-void NetworkAccessManager::handleFinished(QNetworkReply* reply, int requestId, int status, const QString& statusText, const QString& body)
+void NetworkAccessManager::handleFinished(QNetworkReply* reply, int requestId, int status, const QString& statusText, const QString& body, int bodySize)
 {
     QVariantList headers;
     foreach(QByteArray headerName, reply->rawHeaderList()) {
@@ -516,7 +516,7 @@ void NetworkAccessManager::handleFinished(QNetworkReply* reply, int requestId, i
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
     data["body"] = body;
-    data["bodySize"] = body.length();
+    data["bodySize"] = bodySize;
 
 
     emit resourceReceived(data);

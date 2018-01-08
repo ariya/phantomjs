@@ -38,6 +38,39 @@
 class WebPageRenderer : public QObject
 {
     Q_OBJECT
+<<<<<<< HEAD:src/webpagerenderer.h
+=======
+public:
+
+    /*
+      reply - reply to be proxied(nested reply)
+      shouldCaptureResponseBody - if true, response body will be collected and
+                                  available through body() method
+     */
+    NetworkReplyProxy(QObject* parent, QNetworkReply* reply,
+                      bool shouldCaptureResponseBody);
+
+
+    /*
+      Returns collected body
+     */
+    QString body();
+
+    /*
+      Returns the body size. Even if body isn't being captured.
+     */
+    int bodySize();
+
+    /*
+      Returns nested reply
+     */
+    QNetworkReply* nestedReply() const
+    {
+        //TODO: in cpp
+        return m_reply;
+    };
+
+>>>>>>> 545b03cd213815576fdc90ee12f13506b9310d26:src/networkreplyproxy.h
 
 public:
     enum RenderMode { Content, Viewport };
@@ -76,6 +109,15 @@ private:
     void setStdOutputMode(const QString& filename, int mode);
 #endif
 
+<<<<<<< HEAD:src/webpagerenderer.h
     CustomPage* m_customPage;
     qreal m_dpi;
+=======
+private:
+    QNetworkReply* m_reply;
+    QByteArray m_data;
+    int m_dataSize;
+    QByteArray m_buffer;
+    bool m_shouldCaptureResponseBody;
+>>>>>>> 545b03cd213815576fdc90ee12f13506b9310d26:src/networkreplyproxy.h
 };
