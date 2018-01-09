@@ -31,9 +31,9 @@
 
 #pragma once
 #define PHANTOMJS_VERSION_MAJOR     2
-#define PHANTOMJS_VERSION_MINOR     5
-#define PHANTOMJS_VERSION_PATCH     0
-#define PHANTOMJS_VERSION_STRING    "2.5.0-development"
+#define PHANTOMJS_VERSION_MINOR     1
+#define PHANTOMJS_VERSION_PATCH     3
+#define PHANTOMJS_VERSION_STRING    "2.1.3-development"
 
 #define HTTP_HEADER_CONTENT_LENGTH      "content-length"
 #define HTTP_HEADER_CONTENT_TYPE        "content-type"
