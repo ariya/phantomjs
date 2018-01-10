@@ -32,14 +32,6 @@
 
 #include <QMap>
 #include <QVariantMap>
-<<<<<<< HEAD
-#include <QWebPage>
-#include <QWebFrame>
-=======
-#include <QtWebKitWidgets/QWebPage>
-#include <QtWebKitWidgets/QWebFrame>
->>>>>>> cbf2a8d8cdb7bdbb9825c4057493aafa56a3f531
-
 #include "webpagerenderer.h"
 #include "network/cookiejar.h"
 
@@ -258,48 +250,7 @@ public slots:
      *
      * @brief renderBase64
      * @param format String containing one of the supported types
-<<<<<<< HEAD
-     * @param quality Integer representing a value from 1 to 100; default is -1
-     * @return Rendering base-64 encoded of the page if the given format is supported, otherwise an empty string
-     */
-<<<<<<< HEAD
-    QString renderBase64(const QByteArray& format, const QVariantMap& option = QVariantMap());
-    QString renderBase64(const QByteArray& format = "png", const int quality = -1);
-=======
-    QString renderBase64(const QByteArray& format = "png");
-    QByteArray renderBuffer(const QByteArray &format = "png", const int quality = -1);
->>>>>>> 27b5754ae0bb142a2129d4ed8252d39b9140edda
-    bool injectJs(const QString& jsFilePath);
-    void _appendScriptElement(const QString& scriptUrl);
-    QObject* _getGenericCallback();
-    QObject* _getFilePickerCallback();
-    QObject* _getJsConfirmCallback();
-    QObject* _getJsPromptCallback();
-    QObject* _getJsInterruptCallback();
-    QObject *_getFileDownloadCallback();
-    void _uploadFile(const QString& selector, const QStringList& fileNames);
-    void sendEvent(const QString& type, const QVariant& arg1 = QVariant(), const QVariant& arg2 = QVariant(), const QString& mouseButton = QString(), const QVariant& modifierArg = QVariant());
-
-    void setContent(const QString& content, const QString& baseUrl);
-    void setFrameContent(const QString& content, const QString& baseUrl);
-=======
-     * @param quality containing a value from 1 to 100. Default is -1.
-     * @return Rendering base-64 encoded of the page if the given format is supported, otherwise an empty string
-     */
-    QString renderBase64(const QByteArray &format = "png", const int quality = -1);
-    bool injectJs(const QString &jsFilePath);
-    void _appendScriptElement(const QString &scriptUrl);
-    QObject *_getGenericCallback();
-    QObject *_getFilePickerCallback();
-    QObject *_getJsConfirmCallback();
-    QObject *_getJsPromptCallback();
-    QObject *_getJsInterruptCallback();
-    void _uploadFile(const QString &selector, const QStringList &fileNames);
-    void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant(), const QString &mouseButton = QString(), const QVariant &modifierArg = QVariant());
-
-    void setContent(const QString &content, const QString &baseUrl);
->>>>>>> 5abc801459f115c1ebea59937298db423446ea23
-    /**
+   /**
      * Returns a Child Page that matches the given <code>"window.name"</code>.
      * This utility method is faster than accessing the
      * <code>"windowName"</code> property of every <code>"page.pages"</code>
@@ -562,16 +513,7 @@ private slots:
     void downloadFinished();
 
 private:
-<<<<<<< HEAD
-=======
-    QImage renderImage();
-    bool renderPdf(const QString& fileName);
-<<<<<<< HEAD
->>>>>>> cbf2a8d8cdb7bdbb9825c4057493aafa56a3f531
-    void applySettings(const QVariantMap& defaultSettings);
-=======
->>>>>>> b846133605b98e001e5f9b70d61145be2cf1f674
-    QString userAgent() const;
+   QString userAgent() const;
 
     /**
      * Switches focus from the Current Frame to the Child Frame, identified by `frame`.
