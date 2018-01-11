@@ -58,4 +58,4 @@ class Config: public QObject
     Q_PROPERTY(QString webdriverLogLevel READ webdriverLogLevel WRITE setWebdriverLogLevel)
     Q_PROPERTY(QString webdriverSeleniumGridHub READ webdriverSeleniumGridHub WRITE setWebdriverSeleniumGridHub)
     Q_PROPERTY(QString webdriverSeleniumGridRemoteProxyClass READ webdriverSeleniumGridRemoteProxyClass WRITE setWebdriverSeleniumGridRemoteProxyClass)
-;
+};
