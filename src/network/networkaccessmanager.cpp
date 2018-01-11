@@ -38,7 +38,6 @@
 #include <QSslCipher>
 #include <QSslKey>
 #include <QRegExp>
-
 #include "cookiejar.h"
 #include "networkaccessmanager.h"
 #include "phantom.h"
@@ -322,7 +321,7 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
     QByteArray url = req.url().toEncoded();
     QByteArray postData;
 
-    // set custom HTTP headers
+   // set custom HTTP headers
     QVariantMap::const_iterator i = m_customHeaders.begin();
     while (i != m_customHeaders.end()) {
         req.setRawHeader(i.key().toLatin1(), i.value().toByteArray());
