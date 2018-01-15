@@ -31,14 +31,13 @@
 #include <QtPlugin>
 #include <QSslSocket>
 #include <QWebSettings>
-
 #include "consts.h"
 #include "crashdump.h"
 #include "phantom.h"
 
-#if defined(Q_OS_LINUX) && defined(QT_STATIC)
+if defined(Q_OS_LINUX) && defined(QT_STATIC)
 Q_IMPORT_PLUGIN(PhantomIntegrationPlugin);
-#endif
+endif
 
 static bool g_printDebugMessages;
 void messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
@@ -76,9 +75,7 @@ static int inner_main(int argc, char** argv)
 
     // Registering an alternative Message Handler
     qInstallMessageHandler(messageHandler);
-
     QApplication app(argc, argv);
-
     app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
     app.setApplicationName("PhantomJS");
     app.setOrganizationName("Ofi Labs");
@@ -159,5 +156,4 @@ int main(int argc, char** argv)
         print_crash_message();
         return 1;
     }
-#endif
-}
+#endif}

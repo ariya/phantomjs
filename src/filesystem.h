@@ -27,8 +27,6 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
-
 #include <QStringList>
 #include <QFile>
 #include <QTextCodec>
@@ -54,22 +52,17 @@ public Q_SLOTS:
     QString read(const QVariant& n = -1);
     bool write(const QString& data);
     bool isTTY();
-
     bool seek(const qint64 pos);
-
     QString readLine();
     bool writeLine(const QString& data);
-
     bool atEnd() const;
     void flush();
     void close();
-
     QString getEncoding() const;
     bool setEncoding(const QString& encoding);
 
 private:
     bool _isUnbuffered() const;
-
     QFile* m_file;
     QTextStream* m_fileStream;
 };

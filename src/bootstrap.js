@@ -5,6 +5,7 @@
   Copyright (C) 2011 James Roe <roejames12@hotmail.com>
   Copyright (C) 2011 execjosh, http://execjosh.blogspot.com
   Copyright (C) 2012 James M. Greene <james.m.greene@gmail.com>
+  Copyright (c) 2018 pixiuPL
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -94,7 +95,6 @@ phantom.defaultErrorHandler = function (message, stack) {
 };
 
 phantom.onError = phantom.defaultErrorHandler;
-
 phantom.callback = function (callback) {
   var ret = phantom.createCallback();
   ret.called.connect(function (args) {
@@ -310,7 +310,6 @@ phantom.callback = function (callback) {
     }
     cache[filename] = module;
     module._load();
-
     return module.exports;
   };
 

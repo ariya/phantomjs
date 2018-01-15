@@ -10,7 +10,5 @@
     }
   ],
   "dependencies": {
-    "https://github.com/cesanta/mongoose": "6.10",
-    "https://github.com/qt/qtwebkit/tree/v5.212.0-alpha2": "v5.212-alpha2"
   }
 }

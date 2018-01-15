@@ -28,12 +28,13 @@
 */
 
 #include <QDebug>
-
 #include "callback.h"
 
 Callback::Callback(QObject* parent)
     : QObject(parent)
 {
+	// No action here?
+	// TODO Implement some type of action
 }
 
 QVariant Callback::call(const QVariantList& arguments)

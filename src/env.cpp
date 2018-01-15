@@ -31,7 +31,6 @@
 #include <QString>
 #include <QVariantMap>
 #include <QProcessEnvironment>
-
 #include "env.h"
 
 static Env* env_instance = Q_NULLPTR;
@@ -41,7 +40,6 @@ Env* Env::instance()
     if (!env_instance) {
         env_instance = new Env();
     }
-
     return env_instance;
 }
 

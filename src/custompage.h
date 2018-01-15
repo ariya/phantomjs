@@ -29,25 +29,17 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
-
 #include <QWebPage>
-
 #include "phantom.h"
 #include "webpage.h"
 
-/**
-* @class CustomPage
-*/
 class CustomPage : public QWebPage
 {
     Q_OBJECT
 
-public:
-    CustomPage(WebPage* parent = Q_NULLPTR);
+public: CustomPage(WebPage* parent = Q_NULLPTR);
 
     bool extension(Extension extension, const ExtensionOption* option, ExtensionReturn* output) Q_DECL_OVERRIDE;
-
     void setCookieJar(CookieJar* cookieJar);
     void setUserAgent(QString userAgent);
     QString userAgent() const;

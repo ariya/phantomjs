@@ -28,11 +28,7 @@
  */
 
 #include <sys/cdefs.h>
-//NOTE: commented out to make it compile on linux
-// __FBSDID("$FreeBSD: src/usr.bin/brandelf/brandelf.c,v 1.25.22.2 2012/03/16 03:22:37 eadler Exp $");
-
 #include <sys/types.h>
-//NOTE: changed path to make it compile on linux
 #include <elf.h>
 #include <sys/errno.h>
 #include <err.h>
@@ -51,7 +47,7 @@ struct ELFtypes {
 	const char *str;
 	int value;
 };
-/* XXX - any more types? */
+
 static struct ELFtypes elftypes[] = {
 	{ "FreeBSD",	ELFOSABI_FREEBSD },
 	{ "Linux",	ELFOSABI_LINUX },
@@ -59,10 +55,8 @@ static struct ELFtypes elftypes[] = {
 	{ "SVR4",	ELFOSABI_SYSV }
 };
 
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
-
 	const char *strtype = "FreeBSD";
 	int type = ELFOSABI_FREEBSD;
 	int retval = 0;
@@ -86,7 +80,7 @@ main(int argc, char **argv)
 			listed = 1;
 			break;
 		case 'v':
-			/* does nothing */
+			/* do nothing */
 			break;
 		case 't':
 			if (force)
@@ -163,16 +157,14 @@ fail:
 	return retval;
 }
 
-static void
-usage(void)
+static void usage(void)
 {
 	(void)fprintf(stderr,
 	    "usage: brandelf [-lv] [-f ELF_ABI_number] [-t string] file ...\n");
 	exit(1);
 }
 
-static const char *
-iselftype(int etype)
+static const char * iselftype(int etype)
 {
 	size_t elfwalk;
 
@@ -184,8 +176,7 @@ iselftype(int etype)
 	return 0;
 }
 
-static int
-elftype(const char *elfstrtype)
+static int elftype(const char *elfstrtype)
 {
 	size_t elfwalk;
 
@@ -197,8 +188,7 @@ elftype(const char *elfstrtype)
 	return -1;
 }
 
-static void
-printelftypes(void)
+static void printelftypes(void)
 {
 	size_t elfwalk;
 
