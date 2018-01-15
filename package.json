@@ -1,0 +1,8 @@
+{
+  "name": "PhantomJS",
+  "version": "2.1.3",
+  "dependencies": {
+    "mongoose": "cesanta/mongoose",
+    "linenoise": "antirez/linenoise"
+  }
+}
