@@ -24,12 +24,6 @@
 # Where `NS` can be overridden via the --prefix flag.
 # This feature can be enabled with the --exportable-headers, and basically
 # all it does is to wrap the C body in a preprocessor guard.
-#
-# TODO(mkm): make it work also for mongoose where we also generate
-# the public header from a bunch of unamalgamated header files.
-# Currently this script can handle mongoose amalgamation because it doesn't
-# flip the --autoinc flag.
-#
 
 import argparse
 import re
