@@ -29,12 +29,10 @@
 */
 
 #pragma once
-
 #include <QNetworkProxy>
 #include <QVariant>
 
 class QCommandLine;
-
 class Settings: public QObject
 {
     Q_OBJECT
@@ -71,131 +69,91 @@ class Settings: public QObject
 public:
     Settings(QObject* parent = 0);
     virtual ~Settings() = default;
-
     void init(const QStringList* const args);
     void processArgs(const QStringList& args);
     void loadJsonFile(const QString& filePath);
-
     QString helpText() const;
-
     bool autoLoadImages() const;
     void setAutoLoadImages(const bool value);
-
     QString cookiesFile() const;
     void setCookiesFile(const QString& cookiesFile);
-
     QString offlineStoragePath() const;
     void setOfflineStoragePath(const QString& value);
-
     int offlineStorageDefaultQuota() const;
     void setOfflineStorageDefaultQuota(int offlineStorageDefaultQuota);
-
     QString localStoragePath() const;
     void setLocalStoragePath(const QString& value);
-
     int localStorageDefaultQuota() const;
     void setLocalStorageDefaultQuota(int localStorageDefaultQuota);
-
     bool diskCacheEnabled() const;
     void setDiskCacheEnabled(const bool value);
-
     int maxDiskCacheSize() const;
     void setMaxDiskCacheSize(int maxDiskCacheSize);
-
     QString diskCachePath() const;
     void setDiskCachePath(const QString& value);
-
     bool ignoreSslErrors() const;
     void setIgnoreSslErrors(const bool value);
-
     bool localUrlAccessEnabled() const;
     void setLocalUrlAccessEnabled(const bool value);
-
     bool localToRemoteUrlAccessEnabled() const;
     void setLocalToRemoteUrlAccessEnabled(const bool value);
-
     QString outputEncoding() const;
     void setOutputEncoding(const QString& value);
-
     QString proxyType() const;
     void setProxyType(const QString& value);
-
     QString proxy() const;
     void setProxy(const QString& value);
     QString proxyHost() const;
     qint16 proxyPort() const;
-
     QString proxyAuth() const;
     void setProxyAuth(const QString& value);
     QString proxyAuthUser() const;
     QString proxyAuthPass() const;
     void setProxyAuthUser(const QString& value);
     void setProxyAuthPass(const QString& value);
-
     QStringList scriptArgs() const;
     void setScriptArgs(const QStringList& value);
-
     QString scriptFile() const;
     void setScriptFile(const QString& value);
-
     QString unknownOption() const;
     void setUnknownOption(const QString& value);
-
     bool versionFlag() const;
     void setVersionFlag(const bool value);
-
     void setDebug(const bool value);
     bool debug() const;
-
     void setRemoteDebugPort(const int port);
     int remoteDebugPort() const;
-
     void setRemoteDebugAutorun(const bool value);
     bool remoteDebugAutorun() const;
-
     bool webSecurityEnabled() const;
     void setWebSecurityEnabled(const bool value);
-
     bool helpFlag() const;
     void setHelpFlag(const bool value);
-
     void setPrintDebugMessages(const bool value);
     bool printDebugMessages() const;
-
     void setJavascriptCanOpenWindows(const bool value);
     bool javascriptCanOpenWindows() const;
-
     void setJavascriptCanCloseWindows(const bool value);
     bool javascriptCanCloseWindows() const;
-
     void setSslProtocol(const QString& sslProtocolName);
     QString sslProtocol() const;
-
     void setSslCiphers(const QString& sslCiphersName);
     QString sslCiphers() const;
-
     void setSslCertificatesPath(const QString& sslCertificatesPath);
     QString sslCertificatesPath() const;
-
     void setSslClientCertificateFile(const QString& sslClientCertificateFile);
     QString sslClientCertificateFile() const;
-
     void setSslClientKeyFile(const QString& sslClientKeyFile);
     QString sslClientKeyFile() const;
-
     void setSslClientKeyPassphrase(const QByteArray& sslClientKeyPassphrase);
     QByteArray sslClientKeyPassphrase() const;
-
     void setWebdriver(const QString& webdriverConfig);
     QString webdriver() const;
     bool isWebdriverMode() const;
-
     void setWebdriverLogFile(const QString& webdriverLogFile);
     QString webdriverLogFile() const;
-
     void setWebdriverLogLevel(const QString& webdriverLogLevel);
     QString webdriverLogLevel() const;
-
     void setWebdriverSeleniumGridHub(const QString& hubUrl);
     QString webdriverSeleniumGridHub() const;
 
@@ -209,7 +167,6 @@ private:
     void resetToDefaults();
     void setProxyHost(const QString& value);
     void setProxyPort(const int value);
-
     QCommandLine* m_cmdLine;
     bool m_autoLoadImages;
     QString m_cookiesFile;
@@ -256,6 +213,5 @@ private:
     QString m_webdriverLogFile;
     QString m_webdriverLogLevel;
     QString m_webdriverSeleniumGridHub;
-
     Q_DISABLE_COPY(Settings);
 };

@@ -32,13 +32,13 @@
 #include <QSysInfo>
 #include <QVariantMap>
 #include <QTextCodec>
-
 #include "env.h"
 #include "system.h"
 #include "terminal.h"
 
-#if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
+if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
 #include <sys/utsname.h>
+
 QString getOSRelease()
 {
     QString release;

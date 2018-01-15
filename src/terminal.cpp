@@ -29,9 +29,7 @@
 */
 
 #include <iostream>
-
 #include <QCoreApplication>
-
 #include "terminal.h"
 
 static Terminal* terminal_instance = 0;
