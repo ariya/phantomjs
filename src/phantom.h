@@ -32,7 +32,6 @@
 
 #include <QFileInfo>
 #include <QPointer>
-
 #include "childprocess.h"
 #include "filesystem.h"
 #include "encoding.h"
@@ -44,7 +43,6 @@
 class CustomPage;
 class WebPage;
 class WebServer;
-
 class Phantom : public QObject
 {
     Q_OBJECT
@@ -66,18 +64,13 @@ private:
 public:
     static Phantom* instance();
     ~Phantom();
-
     QVariantMap defaultPageSettings() const;
-
     QString outputEncoding() const;
     void setOutputEncoding(const QString& encoding);
-
     bool execute();
     int returnValue() const;
-
     QString libraryPath() const;
     void setLibraryPath(const QString& libraryPath);
-
     QVariantMap version() const;
 
     /**
@@ -88,23 +81,17 @@ public:
     * @return Pointer to the current Settings(uration)
     */
     Settings* settings() const;
-
     bool printDebugMessages() const;
-
     bool areCookiesEnabled() const;
     void setCookiesEnabled(const bool value);
-
     bool webdriverMode() const;
-
     int remoteDebugPort() const;
 
     /**
      * Create `child_process` module instance
      */
     Q_INVOKABLE QObject* _createChildProcess();
-
     void appendPage(WebPage* webPage);
-
     PhantomPage* hostPage() const;
 
 public slots:
@@ -175,7 +162,6 @@ public slots:
      * @param proxyType The type of this proxy
      */
     void setProxy(const QString& ip, const qint16& port = 80, const QString& proxyType = "http", const QString& user = NULL, const QString& password = NULL);
-
     QString proxy();
 
     // exit() will not exit in debug mode. debugExit() will always exit.
@@ -221,7 +207,6 @@ signals:
 
 private slots:
     void printConsoleMessage(const QString& msg);
-
     void onInitialized();
 
 private:
@@ -229,20 +214,17 @@ private:
     QPointer<Settings> m_settings;
     QPointer<PhantomPage> m_hostPage;
     QFileInfo m_libraryPath;
-
     Encoding m_scriptFileEnc;
     bool m_terminated;
     int m_returnValue;
     qreal m_defaultDpi;
     QString m_script;
     QVariantMap m_defaultPageSettings;
-
     QPointer<FileSystem> m_filesystem;
     QPointer<System> m_system;
     QPointer<ChildProcess> m_childprocess;
     QList<QPointer<WebPage> > m_pages;
     QList<QPointer<WebServer> > m_servers;
     QPointer<CookieJar> m_defaultCookieJar;
-
     Q_DISABLE_COPY(Phantom)
 };
