@@ -27,8 +27,6 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
-
 #include <QObject>
 #include <QVariantMap>
 
@@ -43,6 +41,5 @@ public:
 
 private:
     Env();
-
     QVariantMap m_map;
 };
