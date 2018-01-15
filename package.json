@@ -10,5 +10,6 @@
     }
   ],
   "dependencies": {
+    "https://github.com/cesanta/mongoose": "6.10"
   }
 }
