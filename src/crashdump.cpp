@@ -32,28 +32,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
-
 #include <QtGlobal>
-
-#if defined(Q_OS_WIN)
 #include <windows.h>
-#else
 #include <sys/resource.h>
 #include <string.h>
-#endif
-
 #include "crashdump.h"
 
-void
-print_crash_message()
+void print_crash_message()
 {
     fputs("PhantomJS has crashed. Please read the bug reporting guide at\n"
           "<http://phantomjs.org/bug-reporting.html> and file a bug report.\n",
           stderr);
     fflush(stderr);
 }
-
-#if defined(Q_OS_WIN)
 
 static LONG WINAPI unhandled_exception_filter(LPEXCEPTION_POINTERS ptrs)
 {
@@ -63,13 +54,7 @@ static LONG WINAPI unhandled_exception_filter(LPEXCEPTION_POINTERS ptrs)
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
-#if _MSC_VER >= 1400
-static void
-invalid_parameter_handler(const wchar_t* expression,
-                          const wchar_t* function,
-                          const wchar_t* file,
-                          unsigned int line,
-                          uintptr_t /*reserved*/)
+static void invalid_parameter_handler(const wchar_t* expression, const wchar_t* function, const wchar_t* file, unsigned int line, uintptr_t )
 {
     // The parameters all have the value NULL unless a debug version of the CRT library is used
     // https://msdn.microsoft.com/en-us/library/a9yf33zb(v=VS.80).aspx
@@ -135,8 +120,7 @@ init_crash_handler_os()
 
 #else // not Windows; Unix assumed
 
-static void
-handle_fatal_signal(int signo)
+static void handle_fatal_signal(int signo)
 {
     // It would be nice to print the offending signal name here, but
     // strsignal() isn't reliably available.  Instead we let the shell do it.
@@ -144,8 +128,7 @@ handle_fatal_signal(int signo)
     raise(signo);
 }
 
-static void
-init_crash_handler_os()
+static void init_crash_handler_os()
 {
     const char* offender;
 
@@ -196,8 +179,7 @@ fail:
 
 #endif // not Windows
 
-void
-init_crash_handler()
+void init_crash_handler()
 {
     // Qt, QtWebkit, and PhantomJS mostly don't make use of C++ exceptions,
     // so in the rare cases where an exception does get thrown, it will
