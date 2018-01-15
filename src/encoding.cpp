@@ -38,7 +38,6 @@ Encoding::Encoding()
     if (!codec) {
         codec = QTextCodec::codecForLocale();
     }
-
     m_codec = codec;
 }
 
@@ -64,7 +63,6 @@ QByteArray Encoding::encode(const QString& string) const
 
 QString Encoding::getName() const
 {
-    // TODO Is it safe to assume UTF-8 here?
     return QString::fromUtf8(getCodec()->name());
 }
 
@@ -81,8 +79,7 @@ void Encoding::setEncoding(const QString& encoding)
 
 const Encoding Encoding::UTF8 = Encoding("UTF-8");
 
-// private:
-QTextCodec* Encoding::getCodec() const
+private: QTextCodec* Encoding::getCodec() const
 {
     QTextCodec* codec = m_codec;
 

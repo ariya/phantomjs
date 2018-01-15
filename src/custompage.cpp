@@ -31,25 +31,20 @@
 
 #include "custompage.h"
 
-CustomPage::CustomPage(WebPage* parent)
-    : QWebPage(parent)
-    , m_webPage(parent)
+CustomPage::CustomPage(WebPage* parent) : QWebPage(parent), m_webPage(parent)
 {
     m_userAgent = QWebPage::userAgentForUrl(QUrl());
     setForwardUnsupportedContent(true);
-
     connect(this, &QWebPage::consoleMessageReceived, this, &CustomPage::onConsoleMessageReceived);
 }
 
 bool CustomPage::extension(Extension extension, const ExtensionOption* option, ExtensionReturn* output)
 {
     Q_UNUSED(option);
-
     if (extension == ChooseMultipleFilesExtension) {
         static_cast<ChooseMultipleFilesExtensionReturn*>(output)->fileNames = m_uploadFiles;
         return true;
     }
-
     return false;
 }
 
@@ -61,7 +56,6 @@ void CustomPage::setCookieJar(CookieJar* cookieJar)
 bool CustomPage::shouldInterruptJavaScript()
 {
     m_webPage->javascriptInterrupt();
-
     if (m_webPage->m_shouldInterruptJs) {
         // reset our flag
         m_webPage->m_shouldInterruptJs = false;

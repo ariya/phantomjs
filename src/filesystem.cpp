@@ -34,7 +34,6 @@
 #include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
-
 #include "filesystem.h"
 
 // File
@@ -234,8 +233,7 @@ bool File::setEncoding(const QString& encoding)
 
     // "Binary" mode doesn't use/need text codecs
     if (!m_fileStream) {
-        // TODO: Should we switch to "text" mode?
-        return false;
+       return false;
     }
 
     // Since there can be multiple names for the same codec (i.e., "utf8" and
@@ -270,21 +268,18 @@ QString File::getEncoding() const
     return encoding;
 }
 
-// private:
-
-bool File::_isUnbuffered() const
+private bool File::_isUnbuffered() const
 {
     return m_file->openMode() & QIODevice::Unbuffered;
 }
 
 
 // FileSystem
-// public:
-FileSystem::FileSystem(QObject* parent)
+public: FileSystem::FileSystem(QObject* parent)
     : QObject(parent)
 { }
 
-// public slots:
+public slots:
 
 // Attributes
 int FileSystem::_size(const QString& path) const
