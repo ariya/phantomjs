@@ -30,15 +30,10 @@
 
 #ifndef UTILS_H
 #define UTILS_H
-
 #include <QtGlobal>
 #include "encoding.h"
 
 class QWebFrame;
-
-/**
- * Aggregate common utility functions.
- */
 
 namespace Utils
 {
@@ -73,7 +68,6 @@ bool loadJSForDebug(const QString& jsFilePath,
                     const bool autorun = false);
 
 QString readResourceFileUtf8(const QString& resourceFilePath);
-
-};
+;
 
 #endif // UTILS_H

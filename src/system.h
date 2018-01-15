@@ -29,13 +29,11 @@
 */
 
 #pragma once
-
 #include <QApplication>
 #include <QObject>
 #include <QStringList>
 #include <QMap>
 #include <QVariant>
-
 #include "filesystem.h"
 
 // This class implements the CommonJS System/1.0 spec.

@@ -35,9 +35,7 @@
 #include <QFileInfo>
 #include <QWebFrame>
 #include <QWebPage>
-
 #include "settings.h"
-
 #include "consts.h"
 #include "qcommandline.h"
 #include "terminal.h"
@@ -90,19 +88,16 @@ Settings::Settings(QObject* parent)
     // We will handle --help and --version ourselves in phantom.cpp
     m_cmdLine->enableHelp(false);
     m_cmdLine->enableVersion(false);
-
     resetToDefaults();
 }
 
 void Settings::init(const QStringList* const args)
 {
     resetToDefaults();
-
     QByteArray envSslCertDir = qgetenv("SSL_CERT_DIR");
     if (!envSslCertDir.isEmpty()) {
         setSslCertificatesPath(envSslCertDir);
     }
-
     processArgs(*args);
 }
 
@@ -112,7 +107,6 @@ void Settings::processArgs(const QStringList& args)
     connect(m_cmdLine, SIGNAL(optionFound(const QString&, const QVariant&)), this, SLOT(handleOption(const QString&, const QVariant&)));
     connect(m_cmdLine, SIGNAL(paramFound(const QString&, const QVariant&)), this, SLOT(handleParam(const QString&, const QVariant&)));
     connect(m_cmdLine, SIGNAL(parseError(const QString&)), this, SLOT(handleError(const QString&)));
-
     m_cmdLine->setArguments(args);
     m_cmdLine->setConfig(flags);
     m_cmdLine->parse();
@@ -162,8 +156,6 @@ void Settings::loadJsonFile(const QString& filePath)
         Terminal::instance()->cerr("File with settings MUST be in JSON format!");
         return;
     }
-
-    // TODO: Parse JSON
 }
 
 QString Settings::helpText() const
@@ -342,7 +334,6 @@ void Settings::setProxyAuth(const QString& value)
     if (proxyUser.lastIndexOf(':') > 0) {
         proxyPass = proxyUser.mid(proxyUser.lastIndexOf(':') + 1).trimmed();
         proxyUser = proxyUser.left(proxyUser.lastIndexOf(':')).trimmed();
-
         setProxyAuthUser(proxyUser);
         setProxyAuthPass(proxyPass);
     }
@@ -650,7 +641,6 @@ void Settings::handleSwitch(const QString& sw)
 void Settings::handleOption(const QString& option, const QVariant& value)
 {
     bool boolValue = false;
-
     QStringList booleanFlags;
     booleanFlags << "debug";
     booleanFlags << "disk-cache";
