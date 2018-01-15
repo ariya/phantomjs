@@ -35,23 +35,13 @@
 #include <QSet>
 #include <QNetworkReply>
 
-
 class QSslError;
 class NetworkReplyProxy;
-
-/*
-  This class tracks replies and converts reply signals
-  to phantomjs specific ones. It uses NetworkReplyProxy to collect
-  body of the response and passes body as a signal argument.
- */
 class NetworkReplyTracker: public QObject
 {
     Q_OBJECT
-public:
 
-    NetworkReplyTracker(QObject* parent = 0);
-
-
+public:  NetworkReplyTracker(QObject* parent = 0);
     /*
       reply - reply to track
       requestId - unique request id, used to distinguis replies internally
@@ -60,7 +50,6 @@ public:
     QNetworkReply* trackReply(QNetworkReply* reply, int requestId,
                               bool shouldCaptureResponseBody);
 
-
     /*
       Abort request
       status - set custom HTTP status code
@@ -68,17 +57,13 @@ public:
      */
     void abort(QNetworkReply* reply, int status, const QString& statusString);
 
-
 signals:
-
     void started(QNetworkReply* reply, int requestId);
     void finished(QNetworkReply* reply, int requestId, int status, const QString& statusText, const QString& body, int bodySize);
     void sslErrors(QNetworkReply*, const QList<QSslError>&);
     void error(QNetworkReply*, int requestId, QNetworkReply::NetworkError);
 
-
 private slots:
-
     void handleIncomingData();
     void handleReplyFinished();
     void handleSslErrors(const QList<QSslError>& errors);

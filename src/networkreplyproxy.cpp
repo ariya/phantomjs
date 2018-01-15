@@ -60,14 +60,11 @@ NetworkReplyProxy::NetworkReplyProxy(QObject* parent, QNetworkReply* reply,
 
 QString NetworkReplyProxy::body()
 {
-    //TODO converting data to QString in a special way(without charset encoding),
-    //similar to File::read method in 'filesystem' module.
-    QString ret(m_data.size(), ' ');
+   QString ret(m_data.size(), ' ');
     for (int i = 0; i < m_data.size(); ++i) {
         ret[i] = m_data.at(i);
     }
-
-    return ret;
+   return ret;
 }
 
 int NetworkReplyProxy::bodySize()
@@ -120,12 +117,6 @@ void NetworkReplyProxy::ignoreSslErrors()
 
 void NetworkReplyProxy::applyMetaData()
 {
-    /*
-      We have to store headers and attributes, otherwise
-      QNetworkReply non-virtual methods (attribute, header, etc.)
-      would not have data to return.
-    */
-
     QList<QByteArray> headers = m_reply->rawHeaderList();
     foreach (QByteArray header, headers) {
         setRawHeader(header, m_reply->rawHeader(header));

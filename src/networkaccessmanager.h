@@ -30,7 +30,6 @@
 
 #ifndef NETWORKACCESSMANAGER_H
 #define NETWORKACCESSMANAGER_H
-
 #include <QAuthenticator>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -42,7 +41,6 @@
 class Config;
 class QNetworkDiskCache;
 class QSslConfiguration;
-
 class TimeoutTimer : public QTimer
 {
     Q_OBJECT
@@ -123,7 +121,6 @@ private:
     bool shouldCaptureResponse(const QString& url);
     void compileCaptureContentPatterns();
     void prepareSslConfiguration(const Config* config);
-
     int m_idCounter;
     QVariant m_lastHttpStatus;
     QNetworkDiskCache* m_networkDiskCache;
@@ -131,7 +128,6 @@ private:
     QStringList m_captureContentPatterns;
     QList<QRegExp> m_compiledCaptureContentPatterns;
     QSslConfiguration m_sslConfiguration;
-
     NetworkReplyTracker m_replyTracker;
 };
 

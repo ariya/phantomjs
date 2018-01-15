@@ -32,10 +32,9 @@
 #include "networkreplyproxy.h"
 
 
-NetworkReplyTracker::NetworkReplyTracker(QObject* parent)
-    : QObject(parent)
+NetworkReplyTracker::NetworkReplyTracker(QObject* parent): QObject(parent)
 {
-	// TODO body
+	// TODO body. Once done, remove TODO marker and test.
 }
 
 
@@ -43,22 +42,12 @@ QNetworkReply* NetworkReplyTracker::trackReply(QNetworkReply* reply, int request
         bool shouldCaptureResponseBody)
 {
     NetworkReplyProxy* proxy = new NetworkReplyProxy(this, reply, shouldCaptureResponseBody);
-
-    /*
-      Tracking link between proxy and proxied reply.
-      Its possible to get nested reply as a slot argument instead of proxy.
-      QNetworkAccessManager::createRequest stores original reply internally
-      and passes it in certain conditions as a signal argument -
-      authenticationRequire slot, for instance, will receive original reply not the proxy.
-     */
     m_replies[reply] = proxy;
     m_ids[proxy] = requestId;
-
     connect(proxy, SIGNAL(readyRead()), this, SLOT(handleIncomingData()));
     connect(proxy, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(handleNetworkError(QNetworkReply::NetworkError)));
     connect(proxy, SIGNAL(sslErrors(const QList<QSslError>&)), this, SLOT(handleSslErrors(const QList<QSslError>&)));
     connect(proxy, SIGNAL(finished()), SLOT(handleReplyFinished()));
-
     return proxy;
 }
 
