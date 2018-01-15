@@ -180,7 +180,6 @@ NetworkAccessManager::NetworkAccessManager(QObject* parent, const Config* config
 
 
     connect(this, SIGNAL(authenticationRequired(QNetworkReply*, QAuthenticator*)), SLOT(provideAuthentication(QNetworkReply*, QAuthenticator*)));
-
     connect(&m_replyTracker, SIGNAL(started(QNetworkReply*, int)), this,  SLOT(handleStarted(QNetworkReply*, int)));
     connect(&m_replyTracker, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError>&)), this, SLOT(handleSslErrors(QNetworkReply*, const QList<QSslError>&)));
     connect(&m_replyTracker, SIGNAL(error(QNetworkReply*, int, QNetworkReply::NetworkError)), this, SLOT(handleNetworkError(QNetworkReply*, int)));
@@ -205,7 +204,7 @@ void NetworkAccessManager::prepareSslConfiguration(const Config* config)
             break;
         }
     }
-    // FIXME: actually object to an invalid setting.
+
     if (!setProtocol) {
         m_sslConfiguration.setProtocol(QSsl::SecureProtocols);
     }
@@ -318,11 +317,6 @@ void NetworkAccessManager::compileCaptureContentPatterns()
 void NetworkAccessManager::setCookieJar(QNetworkCookieJar* cookieJar)
 {
     QNetworkAccessManager::setCookieJar(cookieJar);
-    // Remove NetworkAccessManager's ownership of this CookieJar and
-    // pass it to the PhantomJS Singleton object.
-    // CookieJar is shared between multiple instances of NetworkAccessManager.
-    // It shouldn't be deleted when the NetworkAccessManager is deleted, but
-    // only when close is called on the cookie jar.
     cookieJar->setParent(Phantom::instance());
 }
 
@@ -478,15 +472,8 @@ void NetworkAccessManager::handleStarted(QNetworkReply* reply, int requestId)
     data["headers"] = headers;
     data["requestHeaders"] = requestHeaders;
     data["time"] = QDateTime::currentDateTime();
-<<<<<<< HEAD
-    data["body"] = "";
-=======
-    data["fromCache"] = reply->attribute(QNetworkRequest::SourceIsFromCacheAttribute).toBool();
->>>>>>> f1f3cd7b5aa0815028f4a18a65a1a7b76c41ade0
-
     QWebFrame *frame = qobject_cast<QWebFrame *>(reply->request().originatingObject());
     data["frameName"] = frame->frameName();
-
     emit resourceReceived(data);
 }
 
