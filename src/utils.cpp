@@ -31,7 +31,6 @@
 #include "utils.h"
 #include "consts.h"
 #include "terminal.h"
-
 #include <QFile>
 #include <QDebug>
 #include <QDateTime>
@@ -86,9 +85,7 @@ static QString jsFromScriptFile(const QString& scriptPath, const QString& script
 namespace Utils
 {
 
-bool printDebugMessages = false;
-
-void messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
+bool printDebugMessages(void messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
     Q_UNUSED(context);
     QString now = QDateTime::currentDateTime().toString(Qt::ISODate);

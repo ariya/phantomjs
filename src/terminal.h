@@ -29,10 +29,8 @@
 */
 
 #pragma once
-
 #include <QObject>
 #include <QString>
-
 #include "encoding.h"
 
 class Terminal: public QObject
