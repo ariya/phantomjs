@@ -31,11 +31,7 @@
 
 #include <QObject>
 #include <QProcess>
-
-#ifdef Q_OS_WIN
 #include <QtCore/qt_windows.h>
-#endif
-
 #include "encoding.h"
 
 /**
@@ -43,8 +39,8 @@
  */
 class ChildProcessContext : public QObject
 {
-    Q_OBJECT
-    Q_PROPERTY(qint64 pid READ pid)
+    Q_OBJECT;
+    Q_PROPERTY(qint64 pid READ pid);
 
 public:
     explicit ChildProcessContext(QObject* parent = Q_NULLPTR);
@@ -52,10 +48,8 @@ public:
 
     qint64 pid() const;
     Q_INVOKABLE void kill(const QString& signal = "SIGTERM");
-
     Q_INVOKABLE void _setEncoding(const QString& encoding);
     Q_INVOKABLE bool _start(const QString& cmd, const QStringList& args);
-
     Q_INVOKABLE qint64 _write(const QString &chunk, const QString &encoding);
     Q_INVOKABLE void _close();
 
