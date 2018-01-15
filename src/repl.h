@@ -30,7 +30,6 @@
 #pragma once
 
 #include <QWebFrame>
-
 #include "phantom.h"
 
 // Linenoise is a C Library: we need to externalise it's symbols for linkage
@@ -56,7 +55,6 @@ class REPL: public QObject
 public:
     static bool instanceExists();
     static REPL* getInstance(QWebFrame* webframe = NULL, Phantom* parent = NULL);
-
     Q_INVOKABLE QString _getClassName(QObject* obj) const;
     Q_INVOKABLE QStringList _enumerateCompletions(QObject* obj) const;
 
