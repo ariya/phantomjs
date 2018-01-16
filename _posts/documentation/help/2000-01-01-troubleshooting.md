@@ -33,7 +33,7 @@ On Windows, the default proxy setting may cause a massive network latency (see K
 
 ### SELinux
 
-SELinux can stop PhantomJS working. The solution given here, to create a custom policy, has been reported to work: http://serverfault.com/a/430499/87322
+SELinux can stop PhantomJS working. The solution given here, to create a custom policy, has been reported to [work](http://serverfault.com/a/430499/87322)
 
 
 ### Error Handling
