@@ -1,6 +1,5 @@
 VPATH += $$PWD
 INCLUDEPATH += $$PWD
-
 SOURCES += mongoose.c
 HEADERS += mongoose.h
 linux*:LIBS += -ldl

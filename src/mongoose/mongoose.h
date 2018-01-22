@@ -9,7 +9,7 @@
  * This software is dual-licensed: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation. For the terms of this
- * license, see <http://www.gnu.org/licenses/>.
+ * license, see <http://www.gnu.org/licenses/> or file LICENSE.txt
  *
  * You are free to use this software under the terms of the GNU General
  * Public License, but WITHOUT ANY WARRANTY; without even the implied
