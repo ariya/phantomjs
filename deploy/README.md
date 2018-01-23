@@ -4,6 +4,11 @@ Packaging PhantomJS
 This directory contains various scripts to assist with making PhantomJS
 packages.
 
+Packaging for Windows
+---------------------
+
+Soon.
+
 Packaging for Linux
 -------------------
 
