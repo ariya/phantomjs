@@ -4,15 +4,14 @@ This page describes how to contribute changes to PhantomJS.
 
 Please do **not** create a pull request without reading this guide first. Failure to do so may result in the **rejection** of the pull request.
 
-## For The Impatients
-
-**Development env suggestion**
-Suggested setup:
+## Development enviroment
 
 * Windows/Unix (min. 8GB RAM)
 * Visual Studio Code
 * Git (standalone)
 * Separate partition (min. 10GB) solely for storing build files.
+
+## Important things
 
 **Work on own branch**.
 If your changes need to be modified due to some reviews, it is less clutter to tweak an isolated feature branch and push it again.
