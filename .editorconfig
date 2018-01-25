@@ -9,7 +9,8 @@ indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-# 2 space indentation
+# TAB indentation
 [*.js]
-indent_style = space
-indent_size = 2
+indent_style = tab
+indent_size = 4
+indent_key_invoke = $TAB
