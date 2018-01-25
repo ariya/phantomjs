@@ -6,7 +6,15 @@ Please do **not** create a pull request without reading this guide first. Failur
 
 ## For The Impatients
 
-**Work on a feature branch**.
+**Development env suggestion**
+Suggested setup:
+
+* Windows/Unix (min. 8GB RAM)
+* Visual Studio Code
+* Git (standalone)
+* Separate partition (min. 10GB) solely for storing build files.
+
+**Work on own branch**.
 If your changes need to be modified due to some reviews, it is less clutter to tweak an isolated feature branch and push it again.
 
 **Create a ticket in the issue tracker**.
