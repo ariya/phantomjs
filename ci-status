@@ -1,3 +1,4 @@
 AppVeyor building PJS without problems
 **Testing builds on Windows 2016**
+** Not building on Windows 2016. Will investigate**
 
