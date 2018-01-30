@@ -9,7 +9,7 @@
  * This software is dual-licensed: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation. For the terms of this
- * license, see <http://www.gnu.org/licenses/> or file LICENSE.txt
+ * license, see <http://www.gnu.org/licenses/>.
  *
  * You are free to use this software under the terms of the GNU General
  * Public License, but WITHOUT ANY WARRANTY; without even the implied
@@ -1085,6 +1085,7 @@ int gettimeofday(struct timeval *tp, void *tzp);
 #include <ctype.h>
 #include <errno.h>
 #include <inttypes.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 #include <time.h>
@@ -1639,6 +1640,9 @@ char *inet_ntoa(struct in_addr in);
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <unistd.h>
+#include <dirent.h>
+
 #include <stm32_sdk_hal.h>
 
 #define to64(x) strtoll(x, NULL, 10)
@@ -1654,8 +1658,6 @@ typedef struct stat cs_stat_t;
 #ifndef MG_ENABLE_FILESYSTEM
 #define MG_ENABLE_FILESYSTEM 1
 #endif
-
-#define CS_DEFINE_DIRENT
 
 #endif /* CS_PLATFORM == CS_P_STM32 */
 #endif /* CS_COMMON_PLATFORMS_PLATFORM_STM32_H_ */
@@ -2075,8 +2077,8 @@ int cs_base64_decode(const unsigned char *s, int len, char *dst, int *dec_len);
 #include <stdarg.h>
 #include <stdlib.h>
 
-/* Amalgamated: #include "common/platform.h" */
 /* Amalgamated: #include "common/mg_str.h" */
+/* Amalgamated: #include "common/platform.h" */
 
 #ifndef CS_ENABLE_STRDUP
 #define CS_ENABLE_STRDUP 0
@@ -2220,23 +2222,22 @@ struct mg_str mg_next_comma_list_entry_n(struct mg_str list, struct mg_str *val,
  * - | or ,  divides alternative patterns
  * - any other character matches itself
  * ```
- * Match is case-insensitive. Returns number of bytes matched, or -1 if no
- * match.
+ * Match is case-insensitive. Return number of bytes matched.
  * Examples:
  * ```
  * mg_match_prefix("a*f", len, "abcdefgh") == 6
- * mg_match_prefix("a*f", len, "abcdexgh") == -1
+ * mg_match_prefix("a*f", len, "abcdexgh") == 0
  * mg_match_prefix("a*f|de*,xy", len, "defgh") == 5
  * mg_match_prefix("?*", len, "abc") == 3
- * mg_match_prefix("?*", len, "") == -1
+ * mg_match_prefix("?*", len, "") == 0
  * ```
  */
-int mg_match_prefix(const char *pattern, int pattern_len, const char *str);
+size_t mg_match_prefix(const char *pattern, int pattern_len, const char *str);
 
 /*
  * Like `mg_match_prefix()`, but takes `pattern` and `str` as `struct mg_str`.
  */
-int mg_match_prefix_n(const struct mg_str pattern, const struct mg_str str);
+size_t mg_match_prefix_n(const struct mg_str pattern, const struct mg_str str);
 
 #ifdef __cplusplus
 }
@@ -6197,7 +6198,7 @@ extern "C" {
 void mg_set_protocol_socks(struct mg_connection *c);
 
 /* Create socks tunnel for the client connection */
-struct mg_iface *mg_socks_mk_iface(struct mg_mgr *, const char *proxy_addr)
+struct mg_iface *mg_socks_mk_iface(struct mg_mgr *, const char *proxy_addr);
 
 #ifdef __cplusplus
 }
