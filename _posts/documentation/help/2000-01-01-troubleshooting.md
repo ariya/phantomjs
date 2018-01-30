@@ -78,15 +78,15 @@ page.evaluateAsync(function() {
     debugger; // step 9 will wait here in the second web browser tab
 });
 ```
-1. Instrument your PhantomJS script with two `debugger;` lines as in the example above.
-1. Start PhantomJS on the command line with the `--remote-debugger-port=9000` option.
-1. Open http://127.0.0.1:9000/ in a Webkit-based web browser.
-1. There should be a bulleted list with a single link. Click on it to open a web inspector that operates in the *PhantomJS* context. (Sometimes the link is invisible because it contains no text; if you see nothing, navigate directly to http://127.0.0.1:9000//webkit/inspector/inspector.html?page=1.)
-1. Change to the Console section of the inspector and execute the statement `__run()`. This should cause the script to run until your first `debugger;` statement.
-1. Open a new browser tab and return to the debugging portal at http://127.0.0.1:9000. There should now be a second entry in the bulleted list.
-1. Click on this entry to open a new debugger that operates in the context of *your page* inside PhantomJS.
-1. Return to the first web inspector tab and click the "Continue" button in the debugger.
-1. In the second tab, you should now find the JS debugger paused at the second `debugger;` statement. You can now debug your page's JS using the full capabilities of the Webkit inspector.
+*Instrument your PhantomJS script with two `debugger;` lines as in the example above.
+*Start PhantomJS on the command line with the `--remote-debugger-port=9000` option.
+*Open http://127.0.0.1:9000/ in a Webkit-based web browser.
+*There should be a bulleted list with a single link. Click on it to open a web inspector that operates in the __PhantomJS__ context. (Sometimes the link is invisible because it contains no text; if you see nothing, navigate directly to http://127.0.0.1:9000//webkit/inspector/inspector.html?page=1.)
+*Change to the Console section of the inspector and execute the statement `__run()`. This should cause the script to run until your first `debugger;` statement.
+*Open a new browser tab and return to the debugging portal at http://127.0.0.1:9000. There should now be a second entry in the bulleted list.
+*Click on this entry to open a new debugger that operates in the context of __your page__ inside PhantomJS.
+*Return to the first web inspector tab and click the "Continue" button in the debugger.
+*In the second tab, you should now find the JS debugger paused at the second `debugger;` statement. You can now debug your page's JS using the full capabilities of the Webkit inspector.
 
 
 ### Interactive Mode (REPL)

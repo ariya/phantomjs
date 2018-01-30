@@ -15,3 +15,4 @@ To be able to track changes **committed and pushed** to **this branch only**
 =============================================================================
 
 25-01-2018 || pixiupl || modified main page to include announcement of deprecation for x86 arch.
+30-02-2018 || pixiupl || tweaks in **troubleshooting** page
