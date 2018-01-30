@@ -78,6 +78,8 @@ page.evaluateAsync(function() {
     debugger; // step 9 will wait here in the second web browser tab
 });
 ```
+
+
 *Instrument your PhantomJS script with two `debugger;` lines as in the example above.
 *Start PhantomJS on the command line with the `--remote-debugger-port=9000` option.
 *Open http://127.0.0.1:9000/ in a Webkit-based web browser.
