@@ -26,20 +26,6 @@ layout: document
         <a href="https://github.com/ariya/phantomjs/archive/master.zip" class="btn-download">Download sources from repo</a>
       </p>
     </div>
-
-    <div class="intro-example grid_5 omega">
-      <pre class="solarized">
-<strong>// Simple Javascript example</strong>
-
-<span class="object">console</span>.<span class="function">log</span>(<span class="literal">'Loading a web page'</span>);
-var <span class="object">page</span> = require(<span class="literal">'webpage'</span>).<span class="function">create</span>();
-var <span class="object">url</span> = <span class="literal">'http://phantomjs.org/'</span>;
-<span class="object">page</span>.<span class="function">open</span>(url, <span class="function">function</span> (status) {
-  <span class="comment">//Page is loaded!</span>
-  <span class="object">phantom</span>.<span class="function">exit</span>();
-});
-      </pre>
-    </div>
   </div>
 
 {% include community.html %}
