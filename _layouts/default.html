@@ -2,21 +2,45 @@
 layout: document
 ---
 
+<div class="masthead">
+
   {% include header.html %}
+  <h1 style="text-align: center;font-size: x-large; color:chartreuse">Info: Introducing <a href="{{ site.url }}/anon.html">announcements</a>page</h1><br>
+  <h1 style="text-align: center;font-size: large; color:red">Important: Our repo on BitBucket is <b>deprecated</b>. Use <a href="https://github.com/ariya/phantomjs.git">our GitHub repo</a> instead</h1><br>
+  <h1 style="text-align: center;font-size: large; color:red">Important: We are slowly phasing out support of PJS 2.1.1. EOL for 2.1.1 is 01-03-2018</h1>
 
-  <div class="jumbotron">
-        <h1 class="display-4">PhantomJS</h1>
-        <p class="lead">Headless WebKit scriptable with a JavaScript API.
-            It has <strong>fast</strong> and <strong>native</strong> support for various web standards:
-            DOM handling, CSS selector, JSON, Canvas, and SVG.<br></a>
-        </p>
-        <hr class="my-4">
-        <p>Full web stack<br>
-          No browser required
-        </p>
-        <a class="btn btn-primary btn-lg" href="{{ site.url }}/download.html">Download 2.1.3</a>
-      </div>
+  <div class="intro grid">
 
+    <div class="grid_7 alpha">
+      <h1>
+        Full web stack<br>
+        No browser required
+      </h1>
+      <p class="explanation">
+        PhantomJS is a headless WebKit scriptable with a JavaScript API.
+        It has <strong>fast</strong> and <strong>native</strong> support for various web standards:
+        DOM handling, CSS selector, JSON, Canvas, and SVG.<br></a>
+      </p>
+      <p class="action">
+        <a href="{{ site.url }}/download.html" class="btn-download">Download <span class="version">v2.1.3</span></a>
+        <a href="https://github.com/ariya/phantomjs/archive/master.zip">Grab latest sources</a>
+      </p>
+    </div>
+
+    <div class="intro-example grid_5 omega">
+      <pre class="solarized">
+<strong>// Simple Javascript example</strong>
+
+<span class="object">console</span>.<span class="function">log</span>(<span class="literal">'Loading a web page'</span>);
+var <span class="object">page</span> = require(<span class="literal">'webpage'</span>).<span class="function">create</span>();
+var <span class="object">url</span> = <span class="literal">'http://phantomjs.org/'</span>;
+<span class="object">page</span>.<span class="function">open</span>(url, <span class="function">function</span> (status) {
+  <span class="comment">//Page is loaded!</span>
+  <span class="object">phantom</span>.<span class="function">exit</span>();
+});
+      </pre>
+    </div>
+  </div>
 
 {% include community.html %}
 
