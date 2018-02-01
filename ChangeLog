@@ -2,6 +2,8 @@
 Please see also http://phantomjs.org/releases.html.|
 ====================================================
 
+2018-02-01: Created repository at GitLab. should be mirror with GH.
+
 2018-01-08: PhantomJS version 2.1.3 (Dev-release). !! Do not use in production enviroments !!
 
 	* Qt upgraded
