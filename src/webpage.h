@@ -29,10 +29,6 @@
 */
 
 #pragma once
-
-#include <QMap>
-#include <QVariantMap>
-#include "webpagerenderer.h"
 #include "network/cookiejar.h"
 
 class Config;
