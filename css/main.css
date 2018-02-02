@@ -26,7 +26,7 @@ ol, ul {
   display: list-item;
   text-decoration-style: solid;
   text-decoration-line: underline;
-  text-decoration-color: red;
+  font: bold;
 }
 
 table {
