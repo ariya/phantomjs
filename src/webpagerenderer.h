@@ -38,8 +38,6 @@
 class WebPageRenderer : public QObject
 {
     Q_OBJECT
-<<<<<<< HEAD:src/webpagerenderer.h
-=======
 public:
 
     /*
@@ -70,7 +68,6 @@ public:
         return m_reply;
     };
 
->>>>>>> 545b03cd213815576fdc90ee12f13506b9310d26:src/networkreplyproxy.h
 
 public:
     enum RenderMode { Content, Viewport };
@@ -108,16 +105,6 @@ private:
     // TODO: Change output of stdout or stderr to binary
     void setStdOutputMode(const QString& filename, int mode);
 #endif
-
-<<<<<<< HEAD:src/webpagerenderer.h
     CustomPage* m_customPage;
     qreal m_dpi;
-=======
-private:
-    QNetworkReply* m_reply;
-    QByteArray m_data;
-    int m_dataSize;
-    QByteArray m_buffer;
-    bool m_shouldCaptureResponseBody;
->>>>>>> 545b03cd213815576fdc90ee12f13506b9310d26:src/networkreplyproxy.h
 };

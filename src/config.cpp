@@ -31,18 +31,8 @@
 */
 
 #include "config.h"
-#include <QDir>
-#include <QFileInfo>
-#include <QWebPage>
-#include <QWebFrame>
-#include <QNetworkProxy>
-#include "terminal.h"
-#include "utils.h"
 #include "consts.h"
-#include <iostream>
 
-
-<<<<<<< HEAD
 static const struct QCommandLineConfigEntry flags[] =
 {
     { QCommandLine::Option, '\0', "cookies-file", "Sets the file name to store the persistent cookies", QCommandLine::Optional },
@@ -77,67 +67,10 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Switch, 'h', "help", "Shows this message and quits", QCommandLine::Optional },
     { QCommandLine::Switch, 'v', "version", "Prints out PhantomJS version", QCommandLine::Optional },
     QCOMMANDLINE_CONFIG_ENTRY_END
-=======
-static const QCommandLineOption cookiesFileOption("cookies-file", "Sets the file name to store the persistent cookies", "cookies-file");
-static const QCommandLineOption configOption("config", "Specifies JSON-formatted configuration file", "config");
-static const QCommandLineOption debugOption("debug", "Prints additional warning and debug message: 'true' or 'false' (default)", "debug");
-static const QCommandLineOption diskCacheOption("disk-cache", "Enables disk cache: 'true' or 'false' (default)", "disk-cache");
-static const QCommandLineOption ignoreSslErrorsOption("ignore-ssl-errors", "Ignores SSL errors (expired/self-signed certificate errors): 'true' or 'false' (default)", "ignore-ssl-errors");
-static const QCommandLineOption loadImagesOption("load-images", "Loads all inlined images: 'true' (default) or 'false'", "load-images");
-static const QCommandLineOption localStoragePathOption("local-storage-path", "Specifies the location for offline local storage", "local-storage-path");
-static const QCommandLineOption localStorageQuotaOption("local-storage-quota", "Sets the maximum size of the offline local storage (in KB)", "local-storage-quota");
-static const QCommandLineOption localUrlAccessOption("local-url-access", "Allows use of 'file:///' URLs: 'true' (default) or 'false'", "local-url-access");
-static const QCommandLineOption localToRemoteUrlAccessOption("local-to-remote-url-access", "Allows local content to access remote URL: 'true' or 'false' (default)", "local-to-remote-url-access");
-static const QCommandLineOption maxDiskCacheSizeOption("max-disk-cache-size", "Limits the size of the disk cache (in KB)", "maxDiskCacheSizeOption");
-static const QCommandLineOption outputEncodingOption("output-encoding", "Sets the encoding for the terminal output, default is 'utf8'", "output-encoding");
-static const QCommandLineOption remoteDebuggerPortOption("remote-debugger-port", "Starts the script in a debug harness and listens on the specified port", "remote-debugger-port");
-static const QCommandLineOption remoteDebuggerAutorunOption("remote-debugger-autorun", "Runs the script in the debugger immediately: 'true' or 'false' (default)", "remote-debugger-autorun");
-static const QCommandLineOption proxyOption("proxy", "Sets the proxy server, e.g. '--proxy=http://proxy.company.com:8080'", "proxy");
-static const QCommandLineOption proxyAuthOption("proxy-auth", "Provides authentication information for the proxy, e.g. ''-proxy-auth=username:password'", "proxy-auth");
-static const QCommandLineOption proxyTypeOption("proxy-type", "Specifies the proxy type, 'http' (default), 'none' (disable completely), or 'socks5'", "proxy-type");
-static const QCommandLineOption scriptEncodingOption("script-encoding", "Sets the encoding used for the starting script, default is 'utf8'", "script-encoding");
-static const QCommandLineOption scriptLanguageOption("script-language", "Sets the script language instead of detecting it: 'javascript'", "script-language");
-static const QCommandLineOption webSecurityOption("web-security", "Enables web security, 'true' (default) or 'false'", "web-security");
-static const QCommandLineOption sslProtocolOption("ssl-protocol", "Selects a specific SSL protocol version to offer. Values (case insensitive): TLSv1.2, TLSv1.1, TLSv1.0, TLSv1 (same as v1.0), SSLv3, or ANY. Default is to offer all that Qt thinks are secure (SSLv3 and up). Not all values may be supported, depending on the system OpenSSL library.", "ssl-protocol");
-static const QCommandLineOption sslCiphersOption("ssl-ciphers", "Sets supported TLS/SSL ciphers. Argument is a colon-separated list of OpenSSL cipher names (macros like ALL, kRSA, etc. may not be used). Default matches modern browsers.", "ssl-ciphers");
-static const QCommandLineOption sslCertificatesPathOption("ssl-certificates-path", "Sets the location for custom CA certificates (if none set, uses system default)", "ssl-certificates-path");
-static const QCommandLineOption webdriverLogfileOption("webdriver-logfile", "File where to write the WebDriver's Log (default 'none') (NOTE: needs '--webdriver') ", "webdriver-logfile");
-static const QCommandLineOption webdriverLogLevelOption("webdriver-loglevel", "WebDriver Logging Level: (supported: 'ERROR', 'WARN', 'INFO', 'DEBUG') (default 'INFO') (NOTE: needs '--webdriver') ", "webdriver-loglever");
-static const QCommandLineOption webdriverSeleniumGridHubOption("webdriver-selenium-grid-hub", "URL to the Selenium Grid HUB: 'URL_TO_HUB' (default 'none') (NOTE: needs '--webdriver') ", "webdriver-selenium-grid-hub");
-static const QCommandLineOption webdriverAddressOption("webdriver-address", "Set the 'Remote WebDriver mode' address '[[<IP>:]<PORT>]' (default '127.0.0.1:8910') ", "webdriver-address", "127.0.0.1:8910");
-
-static const QCommandLineOption scriptOption("script", "Script", "script");
-static const QCommandLineOption scriptArgumentOption("scriptArgument", "Script argument", "scriptArgument");
-
-static const QCommandLineOption helpOption({ "h", "help" }, "Shows this message and quits");
-static const QCommandLineOption versionOption({ "v", "version" }, "Prints out PhantomJS version");
-static const QCommandLineOption webdriverOption({ "w", "wd", "webdriver" }, "Will start PhantomJS in 'Remote WebDriver mode'");
-
-
-struct UnknownOptionException {
-	const QString &m_optionName;
-	explicit UnknownOptionException(const QString &optionName)
-		:m_optionName(optionName){}
->>>>>>> 20da5b0a41b28bcc3b94ab761150338a59f5b84e
 };
-
-
 
 Config::Config(QObject *parent)
     : QObject(parent)
-{
-<<<<<<< HEAD
-    m_cmdLine = new QCommandLine;
-
-    // We will handle --help and --version ourselves in phantom.cpp
-    m_cmdLine->enableHelp(false);
-    m_cmdLine->enableVersion(false);
-
-=======
->>>>>>> 20da5b0a41b28bcc3b94ab761150338a59f5b84e
-    resetToDefaults();
-}
-
 void Config::init(const QStringList *const args)
 {
     resetToDefaults();
@@ -381,22 +314,6 @@ void Config::setProxy(const QString &value)
         setProxyPort(proxyUrl.port(1080));
     }
 }
-
-<<<<<<< HEAD
-void Config::setProxyAuth(const QString &value)
-=======
-bool Config::useProxyForLocalhost() const
-{
-  return m_useProxyForLocalhost;
-}
-
-void Config::setUseProxyForLocalhost(const bool &value) 
-{
-  m_useProxyForLocalhost = value;
-}
-
-void Config::setProxyAuth(const QString& value)
->>>>>>> f3ceb611309760736b317e04bf42a3419e1bbfec
 {
     QString proxyUser = value;
     QString proxyPass = "";
@@ -720,31 +637,7 @@ bool Config::readBooleanValue(const QString& option, const QString &value) const
 		throw UnknownOptionException(option);
 	}
 	return (value == "true") || (value == "yes");
-	 
 }
-
-<<<<<<< HEAD
-    QStringList booleanFlags;
-    booleanFlags << "debug";
-    booleanFlags << "disk-cache";
-    booleanFlags << "ignore-ssl-errors";
-    booleanFlags << "load-images";
-    booleanFlags << "local-to-remote-url-access";
-    booleanFlags << "remote-debugger-autorun";
-    booleanFlags << "web-security";
-    if (booleanFlags.contains(option)) {
-        if ((value != "true") && (value != "yes") && (value != "false") && (value != "no")) {
-            setUnknownOption(QString("Invalid values for '%1' option.").arg(option));
-            return;
-        }
-        boolValue = (value == "true") || (value == "yes");
-=======
-void Config::handleOptions()
-{
-    if (m_parser.isSet(cookiesFileOption)) {
-        setCookiesFile(m_parser.value(cookiesFileOption));
->>>>>>> 20da5b0a41b28bcc3b94ab761150338a59f5b84e
-    }
 
     if (m_parser.isSet(configOption)) {
 		loadJsonFile(m_parser.value(configOption));
@@ -780,19 +673,6 @@ void Config::handleOptions()
 
 	if (m_parser.isSet(localToRemoteUrlAccessOption)) {
         setLocalToRemoteUrlAccessEnabled(readBooleanValue(localToRemoteUrlAccessOption.valueName(), m_parser.value(localToRemoteUrlAccessOption)));
-    }
-
-<<<<<<< HEAD
-    if (option == "local-to-remote-url-access") {
-        setLocalToRemoteUrlAccessEnabled(boolValue);
-=======
-	if (m_parser.isSet(maxDiskCacheSizeOption)) {
-		setMaxDiskCacheSize(m_parser.value(maxDiskCacheSizeOption).toInt());
-    }
-
-	if (m_parser.isSet(outputEncodingOption)) {
-		setOutputEncoding(m_parser.value(outputEncodingOption));
->>>>>>> 20da5b0a41b28bcc3b94ab761150338a59f5b84e
     }
 
 	if (m_parser.isSet(remoteDebuggerAutorunOption)) {
@@ -834,18 +714,6 @@ void Config::handleOptions()
 
 	if (m_parser.isSet(sslCiphersOption)) {
 		setSslCiphers(m_parser.value(sslCiphersOption));
-    }
-<<<<<<< HEAD
-    if (option == "ssl-protocol") {
-        setSslProtocol(value.toString());
-    }
-    if (option == "ssl-certificates-path") {
-        setSslCertificatesPath(value.toString());
-=======
-
-	if (m_parser.isSet(sslCertificatesPathOption)) {
-		setSslCertificatesPath(m_parser.value(sslCertificatesPathOption));
->>>>>>> 20da5b0a41b28bcc3b94ab761150338a59f5b84e
     }
 
     if (m_parser.isSet(webdriverAddressOption) ) {
