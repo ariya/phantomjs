@@ -27,7 +27,7 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
+/** TODO Investigate
 #include <QAuthenticator>
 #include <QDateTime>
 #include <QDesktopServices>
@@ -42,7 +42,7 @@
 #include "networkaccessmanager.h"
 #include "phantom.h"
 #include "settings.h"
-
+**/
 // 10 MB
 const qint64 MAX_REQUEST_POST_BODY_SIZE = 10 * 1000 * 1000;
 
