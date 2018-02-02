@@ -22,8 +22,12 @@ img {
 ol, ul {
   list-style: none; }
 
-li {
-  display: list-item; }
+.li {
+  display: list-item;
+  text-decoration-style: solid;
+  text-decoration-line: underline;
+  text-decoration-color: red;
+}
 
 table {
   border-collapse: collapse;
