@@ -20,7 +20,6 @@ if (fs.isAbsolute(path))
   console.log('"'+path+'" is an absolute path.');
 else
   console.log('"'+path+'" is NOT an absolute path.');
-
 phantom.exit();
 ```
 
