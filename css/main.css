@@ -20,13 +20,11 @@ img {
   -ms-interpolation-mode: bicubic; }
 
 ol, ul {
-  list-style: none; }
+  list-style: square; }
 
 .li {
   display: list-item;
-  text-decoration-style: solid;
   text-decoration-line: underline;
-  font-size: x-large;
 }
 
 table {
