@@ -416,20 +416,10 @@ body {
   background: linear-gradient(top, tan 0, tan 100%);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='tan',endColorstr='tan',GradientType=0);
   font-weight: 700;
-  text-shadow: 0 -1px 0 #3d9700;
+  text-shadow: 0 -1px 0 tan;
   -webkit-box-shadow: inset 0 2px 0 0 #def67e, 0px 2px 5px rgba(0, 0, 0, 0.2);
   -moz-box-shadow: inset 0 2px 0 0 #def67e, 0px 2px 5px rgba(0, 0, 0, 0.2);
-  box-shadow: inset 0 2px 0 0 #def67e, 0px 2px 5px rgba(0, 0, 0, 0.2); }
-
-.btn-download:hover {
-  background: #97bd38;
-  background: -moz-linear-gradient(top, #bef038 0, #97bd38 100%);
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #bef038), color-stop(100%, #97bd38));
-  background: -webkit-linear-gradient(top, #bef038 0, #97bd38 100%);
-  background: -o-linear-gradient(top, #bef038 0, #97bd38 100%);
-  background: -ms-linear-gradient(top, #bef038 0, #97bd38 100%);
-  background: linear-gradient(top, #bef038 0, #97bd38 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#bef038',endColorstr='#97bd38',GradientType=0); }
+  box-shadow: inset 0 2px 0 0, tan, 0px 2px 5px rgba(0, 0, 0, 0.2); }
 
 .btn-download span {
   font-weight: 400; }
