@@ -24,7 +24,6 @@ for(var x = 0; x < list.length; x++){
 		// Do something
 	}
 }
-
 phantom.exit();
 ```
 
