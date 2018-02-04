@@ -14,3 +14,6 @@ url: http://phantomjs.org
 
 # When Developing Locally
 # url: http://localhost:4000
+
+theme: jekyll-theme-cayman
+show_downloads: "true"
