@@ -16,3 +16,4 @@ url: http://phantomjs.org
 # url: http://localhost:4000
 
 theme: jekyll-theme-cayman
+show_downloads: "true"
