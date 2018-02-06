@@ -49,7 +49,7 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "remote-debugger-port", "Starts the script in a debug harness and listens on the specified port", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "remote-debugger-autorun", "Runs the script in the debugger immediately: 'true' or 'false' (default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "proxy", "Sets the proxy server, e.g. '--proxy=http://proxy.company.com:8080'", QCommandLine::Optional },
-    { QCommandLine::Option, '\0', "proxy-auth", "Provides authentication information for the proxy, e.g. ''-proxy-auth=username:password'", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "proxy-auth", "Provides authentication information for the proxy, e.g. '--proxy-auth=username:password'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "proxy-type", "Specifies the proxy type, 'http' (default), 'none' (disable completely), or 'socks5'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "script-encoding", "Sets the encoding used for the starting script, default is 'utf8'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "script-language", "Sets the script language instead of detecting it: 'javascript', 'coffeescript'", QCommandLine::Optional },
@@ -650,7 +650,7 @@ bool Config::readBooleanValue(const QString& option, const QString &value) const
 	if (m_parser.isSet(diskCacheOption)) {
 		setDiskCacheEnabled(readBooleanValue(diskCacheOption.valueName(), m_parser.value(diskCacheOption)));
 	}
-    
+
 	if (m_parser.isSet(ignoreSslErrorsOption)) {
         setIgnoreSslErrors(readBooleanValue(ignoreSslErrorsOption.valueName(), m_parser.value(ignoreSslErrorsOption)));
     }
