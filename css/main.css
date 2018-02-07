@@ -310,9 +310,9 @@ body {
 
 .anon {
   display: grid;
-  background: #444444;
+  background: #4444;
   text-shadow: #000;
-  text-transform: capitalize;
+  text-transform: none;
   height: auto;
   color: white;
   text-align: center;
