@@ -313,12 +313,15 @@ body {
   background: #4444;
   text-shadow: #000;
   text-transform: none;
-  font-weight: bold;
   height: auto;
   color: red;
   text-align: center;
   font-family: Arial, Helvetica, sans-serif;
   font-size: large;
+}
+
+.anon li{
+  list-style: none;
 }
 
 .community {
