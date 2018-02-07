@@ -309,9 +309,9 @@ body {
   color: white; }
 
 .community {
-  background: #e1e0dc;
+  background: #268bd2;
   height: auto;
-  color: #43413e;
+  color: #000;
   text-align: center;
   font-size: x-large;
   padding: 1.5em 0; }
