@@ -310,6 +310,7 @@ body {
 
 .community {
   background: #e1e0dc;
+  height: max-content;
   color: #43413e;
   text-align: center;
   font-size: x-large;
