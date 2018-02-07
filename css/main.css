@@ -308,6 +308,17 @@ body {
 .nav-main a:hover {
   color: white; }
 
+.anon {
+  display: grid;
+  background: #268bd2;
+  text-shadow: #000;
+  text-transform: capitalize;
+  height: auto;
+  color: #000;
+  text-align: center;
+  font-family: Courier New, Courier, monospace;
+}
+
 .community {
   background: #268bd2;
   text-shadow: #000;
