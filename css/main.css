@@ -302,7 +302,7 @@ body {
   color: #e1e0dc;
   text-decoration: tomato;
   font-weight: 700;
-  text-transform: uppercase;
+  text-transform: capitalize;
   margin: 0 1em; }
 
 .nav-main a:hover {
