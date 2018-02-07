@@ -310,13 +310,13 @@ body {
 
 .anon {
   display: grid;
-  background: #268bd2;
+  background: #444444;
   text-shadow: #000;
   text-transform: capitalize;
   height: auto;
-  color: #000;
+  color: white;
   text-align: center;
-  font-family: Courier New, Courier, monospace;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .community {
