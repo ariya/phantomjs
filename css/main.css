@@ -2,6 +2,7 @@ a, abbr, acronym, address, applet, article, aside, audio, b, big, blockquote, bo
   border: 0;
   margin: 0;
   padding: 0;
+  font-size: small;
  }
 
 html, body {
@@ -20,7 +21,8 @@ img {
   color: transparent;
   font-size: 0;
   vertical-align: middle;
-  -ms-interpolation-mode: bicubic; }
+  -ms-interpolation-mode:nearest-neighbor; /* if not working set-back to bicubic */
+}
 
 ol, ul {
   list-style: square; }
