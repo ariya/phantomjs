@@ -313,10 +313,12 @@ body {
   background: #4444;
   text-shadow: #000;
   text-transform: none;
+  font-weight: bold;
   height: auto;
-  color: white;
+  color: red;
   text-align: center;
   font-family: Arial, Helvetica, sans-serif;
+  font-size: large;
 }
 
 .community {
