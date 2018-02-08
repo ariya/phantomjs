@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 set -e
-
 SOURCE_PATH=/src
 BUILD_PATH=$HOME/build
 
