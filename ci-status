@@ -1,0 +1,5 @@
+AppVeyor building PJS without problems
+**Testing builds on Windows 2016**
+** Not building on Windows (yet). Will investigate**
+
+Testing build on CentOS (7.x).
