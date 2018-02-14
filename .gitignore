@@ -19,6 +19,8 @@ qrc_*
 /symbols
 /src/qt/qtc-debugging-helper
 /src/phantomjs_plugin_import.cpp
+/*.docx
+/*.pdf
 
 # ignore ctags
 /tags
