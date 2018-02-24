@@ -139,14 +139,17 @@ struct ssl_protocol_option {
     QSsl::SslProtocol proto;
 };
 const ssl_protocol_option ssl_protocol_options[] = {
-    { "default", QSsl::SecureProtocols },
-    { "tlsv1.2", QSsl::TlsV1_2 },
-    { "tlsv1.1", QSsl::TlsV1_1 },
-    { "tlsv1.0", QSsl::TlsV1_0 },
-    { "tlsv1",   QSsl::TlsV1_0 },
-    { "sslv3",   QSsl::SslV3 },
-    { "any",     QSsl::AnyProtocol },
-    { 0,         QSsl::UnknownProtocol }
+    { "default",  QSsl::SecureProtocols },
+    { "tlsv1.2+", QSsl::TlsV1_2OrLater },
+    { "tlsv1.2",  QSsl::TlsV1_2 },
+    { "tlsv1.1+", QSsl::TlsV1_1OrLater },
+    { "tlsv1.1",  QSsl::TlsV1_1 },
+    { "tlsv1.0+", QSsl::TlsV1_0OrLater },
+    { "tlsv1.0",  QSsl::TlsV1_0 },
+    { "tlsv1",    QSsl::TlsV1_0 },
+    { "sslv3",    QSsl::SslV3 },
+    { "any",      QSsl::AnyProtocol },
+    { 0,          QSsl::UnknownProtocol }
 };
 
 // public:
