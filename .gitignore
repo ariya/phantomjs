@@ -9,5 +9,3 @@ _site
 /.sass-cache/
 /phantomjs.sublime-project
 /phantomjs.sublime-workspace
-/*.pdf
-/*doc*

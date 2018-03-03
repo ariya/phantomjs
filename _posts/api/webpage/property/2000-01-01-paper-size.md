@@ -21,7 +21,7 @@ Supported dimension units are: `'mm'`, `'cm'`, `'in'`, `'px'`. No unit means `'p
 
 (*Previously known as __Border__, which can still be used for compatibility purposes*)
 
-Margin is optional and defaults to `0`.  Can be provided as a single dimension or as an object containing one or more of the following properties: `'top'`, `'left'`, `'bottom'`, `'right'`. Margin values cannot be negative.
+Margin is optional and defaults to `0`.  Can be provided as a single dimension or as an object containing one or more of the following properties: `'top'`, `'left'`, `'bottom'`, `'right'`.
 
 ### Format
 
