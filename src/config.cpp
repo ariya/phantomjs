@@ -314,6 +314,8 @@ void Config::setProxy(const QString &value)
         setProxyPort(proxyUrl.port(1080));
     }
 }
+
+void Config::setProxyAuth(const QString &value)
 {
     QString proxyUser = value;
     QString proxyPass = "";
