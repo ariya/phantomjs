@@ -348,7 +348,7 @@ class PhantomJSBuilder(object):
         if self.options.skip_git: return
         if self.execute(["git", "submodule", "init"], ".") != 0:
             raise RuntimeError("Initialization of git submodules failed.")
-        if self.execute(["git", "submodule", "update", "--remote"], ".") != 0:
+        if self.execute(["git", "submodule", "update", "--init"], ".") != 0:
             raise RuntimeError("Initial update of git submodules failed.")
 
     # run all build steps required to get a final PhantomJS binary at the end
