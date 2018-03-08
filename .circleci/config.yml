@@ -1,0 +1,13 @@
+version: 2
+jobs:
+  build:
+    docker:
+        - image: buildpack-deps:xenial
+    steps:
+      - checkout
+      - run: apt-get -y update
+      - run: apt install -y ruby gperf flex bison
+      - run: python ./build.py --confirm --release --silent --jobs 2
+      - run: bin/phantomjs --version
+      - run: ldd bin/phantomjs
+      - run: python test/run-tests.py --verbose

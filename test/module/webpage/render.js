@@ -57,9 +57,8 @@ function render_test(format, option) {
     var opt    = arr[2];
     var props  = {};
 
-    // All tests fail on Linux.  All tests except JPG fail on Mac.
-    // Currently unknown which tests fail on Windows.
-    if (format !== "jpg" || system.os.name !== "mac")
+    // All tests except JPG fail.
+    if (format !== "jpg")
         props.expected_fail = true;
 
     async_test(function () { render_test.call(this, format, opt); },
