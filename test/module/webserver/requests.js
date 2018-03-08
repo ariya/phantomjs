@@ -3,9 +3,13 @@ setup(function () {
     server = require("webserver").create();
 
     // Should be unable to listen on port 1 (FIXME: this might succeed if
-    // the test suite is being run with root privileges).
-    assert_is_false(server.listen(1, function () {}));
-    assert_equals(server.port, "");
+    // the test suite is being run with root privileges, hence skip it
+    // on CircleCI runs.
+    var env = require("system").env;
+    if (!env.hasOwnProperty("CIRCLECI")) {
+        assert_is_false(server.listen(1, function () {}));
+        assert_equals(server.port, "");
+    }
 
     // Find an unused port in the 1024--32767 range on which to run the
     // rest of the tests.  The function in "request_cb" will be called
