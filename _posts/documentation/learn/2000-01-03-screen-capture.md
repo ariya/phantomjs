@@ -34,6 +34,13 @@ which gives the following `tiger.png`:
 
 ![Rendered Tiger](http://lh6.ggpht.com/_Oijhf1ZPv-4/TR6iM8J0KrI/AAAAAAAABy4/RCZ8Eg567LM/s400/tiger.png)
 
+If you need to add a header and a footer including page numbers in your PDF output, use [printheaderfooter.js](https://github.com/ariya/phantomjs/blob/master/examples/printheaderfooter.js). 
+
+```bash
+phantomjs printheaderfooter.js http://phantomjs.org/screen-capture.html screenCapture.pdf
+```
+
+
 Another example is to show [polar clock](https://dmitrybaranovskiy.github.io/raphael/polar-clock.html) (from [RaphaelJS](https://dmitrybaranovskiy.github.io/raphael/)):
 
 ```bash
