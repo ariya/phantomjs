@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Headless Testing with PhantomJS</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="shortcut icon" href="/img/favicon.ico">
+</head>
+<body>
+<h1>Headless Testing with PhantomJS</h1>
+
+<p>One major use case of PhantomJS is <strong>headless testing</strong> of web applications. It is suitable for general command-line based testing, within a precommit hook, and as part of a continuous integration system.</p>
+
+<h2 id="test-frameworks">Test Frameworks</h2>
+
+<p>PhantomJS itself is <strong>not</strong> a test framework, it is only used to launch the tests via a suitable test runner.</p>
+
+<p>The following table summarizes the list of various test frameworks and the corresponding test runners. If the framework does not need an external/third-party runner, it is marked as “built-in”.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Framework</th>
+      <th style="text-align: left">Test Runner</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><a href="http://busterjs.org">Buster.JS</a></td>
+      <td style="text-align: left">built-in</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><a href="http://teamcapybara.github.io/capybara/">Capybara</a></td>
+      <td style="text-align: left"><a href="https://github.com/jonleighton/poltergeist">Poltergeist</a>, <a href="http://terminus.jcoglan.com">Terminus</a></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><a href="http://mochajs.org">Mocha</a></td>
+      <td style="text-align: left"><a href="http://mmanela.github.io/chutzpah/">Chutzpah</a>, <a href="https://github.com/nathanboktae/mocha-phantomjs">mocha-phantomjs</a></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><a href="http://funcunit.com">FuncUnit</a></td>
+      <td style="text-align: left">built-in</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><a href="http://hirojs.com">Hiro</a></td>
+      <td style="text-align: left">built-in</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><a href="http://karma-runner.github.com/">Karma</a> (née Testacular)</td>
+      <td style="text-align: left">built-in</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><a href="https://github.com/pivotal/jasmine">Jasmine</a></td>
+      <td style="text-align: left"><a href="http://mmanela.github.io/chutzpah/">Chutzpah</a>, <a href="https://github.com/gruntjs/grunt-contrib-jasmine">grunt-contrib-jasmine</a>, <a href="https://github.com/netzpirat/guard-jasmine">guard-jasmine</a>, <a href="https://github.com/jcarver989/phantom-jasmine">phantom-jasmine</a></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><a href="http://arunoda.github.io/laika/">Laika</a></td>
+      <td style="text-align: left">built-in</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><a href="http://jeffschwartz.github.io/preamble/">Preamble</a></td>
+      <td style="text-align: left">built-in</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><a href="https://bitbucket.org/eradman/phantom-assert">phantom-assert</a></td>
+      <td style="text-align: left">built-in</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><a href="http://qunitjs.com">QUnit</a></td>
+      <td style="text-align: left"><a href="https://github.com/jonkemp/qunit-phantomjs-runner">qunit-phantomjs-runner</a>, <a href="http://mmanela.github.io/chutzpah/">Chutzpah</a>, <a href="https://github.com/proxv/qlive">Qlive</a>, <a href="http://github.com/aaronroyer/qunited">QUnited</a></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><a href="http://code.google.com/p/robotframework/">Robot Framework</a></td>
+      <td style="text-align: left"><a href="https://github.com/datakurre/phantomrobot">phantomrobot</a></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><a href="https://github.com/gizur/rxtestrunner">Rx Test Runner</a></td>
+      <td style="text-align: left">built-in</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><a href="https://github.com/juliangruber/tape-run">tape-run</a></td>
+      <td style="text-align: left">built-in</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><a href="https://github.com/airportyh/testem">Testem</a></td>
+      <td style="text-align: left">built-in</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><a href="http://www.venusjs.org/">Venus.js</a></td>
+      <td style="text-align: left">built-in</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><a href="http://dvcs.w3.org/hg/webdriver/raw-file/tip/webdriver-spec.html">WebDriver</a></td>
+      <td style="text-align: left"><a href="https://github.com/detro/ghostdriver">GhostDriver</a></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><a href="https://github.com/WebReflection/wru">wru</a></td>
+      <td style="text-align: left">built-in</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><a href="http://yuilibrary.com/projects/yuitest">YUITest</a></td>
+      <td style="text-align: left"><a href="https://github.com/davglass/grover">Grover</a>, <a href="https://github.com/metafeather/phantomjs-yuitest">phantomjs-yuitest</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>PhantomJS includes <a href="https://github.com/ariya/phantomjs/blob/master/examples/run-qunit.js">run-qunit</a> and <a href="https://github.com/ariya/phantomjs/blob/master/examples/run-jasmine.js">run-jasmine</a> in its <code class="highlighter-rouge">examples</code> subdirectory. However, these are for illustration purposes and lack important reporting features necessary for real-world uses!</p>
+
+<h2 id="phantomjs-tailored-testing">PhantomJS tailored testing</h2>
+
+<p>In addition, there are <a href="http://phantomjs.org/related-projects.html">Related Projects</a> which are built on top of PhantomJS to provide convenient high-level functionality for testing purposes:</p>
+
+<ul>
+  <li><a href="http://casperjs.org">Casper.js</a> is useful to build scripted navigation and testing</li>
+  <li><a href="https://github.com/StanAngeloff/lotte">Lotte</a> adds jQuery-like methods, chaining, and more assertion logic</li>
+  <li><a href="https://github.com/jgonera/webspecter">WebSpecter</a> is a BDD-style acceptance test framework for web applications</li>
+</ul>
+
+<h2 id="continuous-integration-systems">Continuous Integration Systems</h2>
+
+<p>Using PhantomJS with CI system such as <strong><a href="http://jenkins-ci.org/">Jenkins</a></strong> or <strong><a href="http://www.jetbrains.com/teamcity/">TeamCity</a></strong> does not require special setup. Make sure PhantomJS is installed properly on the slave/build agent and it is ready to go.</p>
+
+<p>Since PhantomJS is purely headless on Linux, the agent can run on an installation without any GUI. This means, a barebone Linux system without X11 is not a problem for PhantomJS. It makes it possible to spawn light build agents on Amazon EC2 or Heroku instances.</p>
+
+<p><strong><a href="http://about.travis-ci.org/">Travis CI</a></strong>, a popular hosted CI system, has built-in support for PhantomJS. See <a href="http://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-PhantomJS">its documentation</a> for details.</p>
+
+<hr>
+
+<footer>
+<p>&#8592; Back to the <a href="/">homepage</a></p>
+<p><small>&copy; 2010-2018 <a href="https://github.com/ariya/phantomjs/graphs/contributors">PhantomJS contributors</a>. Distributed under the BSD license (SPDX: <a href="https://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a>).</small></p>
+</footer>
+
+</body>
+</html>
