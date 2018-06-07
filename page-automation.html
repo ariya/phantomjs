@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Page Automation with PhantomJS</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="shortcut icon" href="/img/favicon.ico">
+</head>
+<body>
+<h1>Page Automation with PhantomJS</h1>
+
+<p>Because PhantomJS can load and manipulate a web page, it is perfect to carry out various page automation tasks.</p>
+
+<h2 id="dom-manipulation">DOM Manipulation</h2>
+
+<p>Since the script is executed as if it is running on a web browser, standard <a href="http://en.wikipedia.org/wiki/DOM_scripting">DOM scripting</a> and <a href="http://www.w3.org/TR/css3-selectors/">CSS selectors</a> work just fine.</p>
+
+<p>The following <code>useragent.js</code> example demonstrates reading the <code>textContent</code> property of the element whose <em>id</em> is <code>qua</code>:</p>
+
+<pre>
+var page = require('webpage').create();
+console.log('The default user agent is ' + page.settings.userAgent);
+page.settings.userAgent = 'SpecialAgent';
+page.open('http://www.httpuseragent.org', function(status) {
+  if (status !== 'success') {
+    console.log('Unable to access network');
+  } else {
+    var ua = page.evaluate(function() {
+      return document.getElementById('qua').textContent;
+    });
+    console.log(ua);
+  }
+  phantom.exit();
+});
+</pre>
+
+<p>The above example also shows the approach to customize the <a href="https://stackoverflow.com/questions/2601372
+">User-Agent string</a> seen by the remote web server.</p>
+
+<h2 id="use-jquery-and-other-libraries">Use jQuery and Other Libraries</h2>
+
+<p>As of version 1.6, you are also able to include <a href="http://jquery.com">jQuery</a> into your page using <code>page.includeJs</code> as follows:</p>
+
+<pre>
+var page = require('webpage').create();
+page.open('http://www.sample.com', function() {
+  page.includeJs("http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js", function() {
+    page.evaluate(function() {
+      $("button").click();
+    });
+    phantom.exit()
+  });
+});
+</pre>
+
+<p>The above snippet will open up a web page, include the jQuery library into the page, and then click on all buttons using jQuery. It will then exit from the web page.</p>
+
+<p>Make sure to put the <code>phantom.exit()</code> statement within the <code>page.includeJs</code> or else it may exit prematurely before the JavaScript library is included.</p>
+
+<h2 id="the-webpage-instance">The Webpage instance</h2>
+
+<p>Suppose you have an instance of the webpage:</p>
+
+<pre>var page = require('webpage').create();</pre>
+
+<p>What can be extracted and executed on it?</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<h4 id="pagecangoforward---boolean">page.canGoForward -&gt; boolean</h4>
+
+<p>If window.history.forward would be a valid action</p>
+
+<h4 id="pagecangoback---boolean">page.canGoBack -&gt; boolean</h4>
+
+<p>If window.history.back would be a valid action</p>
+
+<h4 id="pagecliprect---object">page.clipRect -&gt; object</h4>
+
+<p>Can be set to an object of the following form:</p>
+
+<pre>{ top: 0, left: 0, width: 1024, height: 768 }</pre>
+
+<p>It specifies which part of the screen will be taken in the screenshot</p>
+
+<h4 id="pagecontent---string">page.content -&gt; string</h4>
+
+<p>The whole HTML content of the page</p>
+
+<h4 id="pagecookies---object">page.cookies -&gt; object</h4>
+
+<p>The cookies.
+They have this form:</p>
+
+<pre>
+{
+  'name' : 'Valid-Cookie-Name',
+  'value' : 'Valid-Cookie-Value',
+  'domain' : 'localhost',
+  'path' : '/foo',
+  'httponly' : true,
+  'secure' : false
+}
+</pre>
+
+<h4 id="pagecustomheaders---object">page.customHeaders -&gt; object</h4>
+
+<p>TODO</p>
+
+<h4 id="pageevent---object">page.event -&gt; object</h4>
+
+<p>Contains modifiers and keys
+TODO</p>
+
+<h4 id="pagelibrarypath---string">page.libraryPath -&gt; string</h4>
+
+<p>The current library path, usually it’s the directory where the script
+is executed from</p>
+
+<h4 id="pageloading---boolean">page.loading -&gt; boolean</h4>
+
+<p>If the page is loading or not</p>
+
+<h4 id="pageloadingprogress---number">page.loadingProgress -&gt; number</h4>
+
+<p>The percentage that has been loaded. 100 means that the page is loaded.</p>
+
+<h4 id="pagenavigationlocked---boolean">page.navigationLocked -&gt; boolean</h4>
+
+<p>TODO</p>
+
+<h4 id="pageofflinestoragepath---string">page.offlineStoragePath -&gt; string</h4>
+<p>Where the sqlite3 localstorage and other offline data are stored.</p>
+
+<h4 id="pageofflinestoragequota-number">page.offlineStorageQuota, ‘number</h4>
+
+<p>The quota in bytes that can be stored offline</p>
+
+<h4 id="pagepapersize---object">page.paperSize -&gt; object</h4>
+
+<p>Similar to clipRect but takes real paper sizes such as A4.
+For an in depth example, check this example: <a href="https://github.com/ariya/phantomjs/blob/master/examples/printheaderfooter.js">printheaderfooter.js</a>.</p>
+
+<h4 id="pageplaintext---string">page.plainText -&gt; string</h4>
+
+<p>The elements that are plain text in the page</p>
+
+<h4 id="pagescrollposition---object">page.scrollPosition -&gt; object</h4>
+
+<p>The current scrolling position as an object of the following form:</p>
+
+<pre>{ left: 0, top: 0 }</pre>
+
+<h4 id="pagesettings---object">page.settings -&gt; object</h4>
+
+<p>The settings which currently only has the <code>useragent</code> string, e.g <code>page.settings.userAgent = 'SpecialAgent'</code>;</p>
+
+<h4 id="pagetitle---string">page.title -&gt; string</h4>
+
+<p>The page title</p>
+
+<h4 id="pageurl---string">page.url -&gt; string</h4>
+
+<p>The page url</p>
+
+<h4 id="pageviewportsize---object">page.viewportSize -&gt; object</h4>
+
+<p>The browser size which is in the following form:</p>
+
+<pre>{ width: 1024, height: 768 }</pre>
+
+<h4 id="pagewindowname---string">page.windowName -&gt; string</h4>
+
+<p>The name of the browser window that is assigned by the WM.</p>
+
+<h4 id="pagezoomfactor---number">page.zoomFactor -&gt; number</h4>
+
+<p>The zoom factor. 1 is the normal zoom.</p>
+
+<h3 id="functions">Functions</h3>
+<ul>
+  <li>page.childFramesCount</li>
+  <li>page.childFramesName</li>
+  <li>page.close</li>
+  <li>page.currentFrameName</li>
+  <li>page.deleteLater</li>
+  <li>page.destroyed</li>
+  <li>page.evaluate</li>
+  <li>page.initialized</li>
+  <li>page.injectJs</li>
+  <li>page.javaScriptAlertSent</li>
+  <li>page.javaScriptConsoleMessageSent</li>
+  <li>page.loadFinished</li>
+  <li>page.loadStarted</li>
+  <li>page.openUrl</li>
+  <li>page.release</li>
+  <li>page.render</li>
+  <li>page.resourceError</li>
+  <li>page.resourceReceived</li>
+  <li>page.resourceRequested</li>
+  <li>page.uploadFile</li>
+  <li>page.sendEvent</li>
+  <li>page.setContent</li>
+  <li>page.switchToChildFrame</li>
+  <li>page.switchToMainFrame</li>
+  <li>page.switchToParentFrame</li>
+  <li>page.addCookie</li>
+  <li>page.deleteCookie</li>
+  <li>page.clearCookies</li>
+</ul>
+
+<h3 id="handlerscallbacks">Handlers/Callbacks</h3>
+<p>List of all the page events:</p>
+
+<ul>
+  <li>onInitialized</li>
+  <li>onLoadStarted</li>
+  <li>onLoadFinished</li>
+  <li>onUrlChanged</li>
+  <li>onNavigationRequested</li>
+  <li>onRepaintRequested</li>
+  <li>onResourceRequested</li>
+  <li>onResourceReceived</li>
+  <li>onResourceError</li>
+  <li>onResourceTimeout</li>
+  <li>onAlert</li>
+  <li>onConsoleMessage</li>
+  <li>onClosing</li>
+</ul>
+
+<p>For more information check this in depth example: <a href="https://github.com/ariya/phantomjs/blob/master/examples/page_events.js">page_event.js</a>.</p>
+
+<hr>
+
+<footer>
+<p>&#8592; Back to the <a href="/">homepage</a></p>
+<p><small>&copy; 2010-2018 <a href="https://github.com/ariya/phantomjs/graphs/contributors">PhantomJS contributors</a>. Distributed under the BSD license (SPDX: <a href="https://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a>).</small></p>
+</footer>
+
+</body>
+</html>
