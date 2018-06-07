@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PhantomJS - Frequently Asked Questions (FAQ)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="shortcut icon" href="/img/favicon.ico">
+</head>
+<body>
+<h1>PhantomJS - Frequently Asked Questions (FAQ)</h1>
+
+<p><strong>Q: Why there is no binary package or installer for &lt;insert your favorite OS&gt;?</strong></p>
+
+<p>A: <a href="/download.html">Binary packages</a>, executables, and installer are provided on a volunteer basis.
+They may appear later, or they may not exist at all. We are a very small team and we
+can’t afford to produce all possible combinations of packages for the different
+platforms and operating systems out there.</p>
+
+<p><strong>Q: Why does building PhantomJS take a long time?</strong></p>
+
+<p>A: Because PhantomJS build workflow bundles the WebKit module, it needs to compile
+thousands of source files. Using the binary package is highly recommended.
+It is fast to download and <a href="/download.html">easy to install</a>.</p>
+
+<p><strong>Q: Can you give a time estimate of the availability of feature X?</strong></p>
+
+<p>Because nobody is working full time on PhantomJS, there is no way to
+predict the exact timing of the completion of a particular feature.
+Since every contributor to PhantomJS works at their own pace, sometimes it can
+take a few release cycles until a certain feature is shipped.</p>
+
+<p><strong>Q: Is there any update on issue XYZ??</strong></p>
+
+<p>Any progress related to an issue, whether it is a change in the plan
+or an implementation check-in, will be always posted to the issue
+page. This is part of PhantomJS contribution guide, it is essential to
+the development workflow. If an issue hasn’t received any new update
+for a while, a question like &quot;Is there any update?&quot; has an obvious
+answer.</p>
+
+<p><strong>Q: Why do I get build failure with PhantomJS 1.5 after successfully
+compiled 1.4?</strong></p>
+
+<p>A: PhantomJS has a completely different build workflow in version 1.5 compared to
+its previous versions (read <a href="http://ariya.ofilabs.com/2012/03/the-evolution-of-phantomjs-build-workflow.html">the details</a>). If the working directory still has some left-over
+from 1.4 build process, there will be a compile error, such as:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>phantom.cpp:305: error: no matching <span class="k">function for </span>call to <span class="s1">'QWebFrame::evaluateJavaScript(QString, QString)
+</span></code></pre></div></div>
+
+<p>The solution is to completely clean the directory from old build files. The
+recommended way is to run <tt>git clean -xfd</tt> from the top-level.
+<strong>Warning</strong>: this will remove everything not stored in the Git
+repository database (read Git documentation for more info). Please back-up any files
+appropriately.</p>
+
+<p>After that, run the build script again.</p>
+
+<p><strong>Q: Why do I get the error message <tt>phantomjs: cannot connect to X
+server</tt>?</strong></p>
+
+<p>A: In PhantomJS 1.4 or earlier, X server is still needed. The workaround is to use Xvfb.
+Starting with PhantomJS 1.5, it is <strong>pure headless</strong> and there is no need to
+run X11/Xvfb anymore.</p>
+
+<p><strong>Q: Which WebKit version is used by PhantomJS?</strong></p>
+
+<p>A: If you want to know HTML5/CSS3/other features supported by PhantomJS, using
+WebKit version is not a good idea. See <a href="http://phantomjs.org/supported-web-standards.html">Supported Web Standards </a> documentation page for details.</p>
+
+<p>If you really like to get the WebKit version, find it via the user agent, run the
+<tt>examples/useragent.js</tt>. The actual version depends on the libraries with
+which PhantomJS was compiled.</p>
+
+<p><strong>Q: Why is PhantomJS not written as Node.js module?</strong></p>
+
+<p>A: The short answer: &quot;No one can serve two masters.&quot;</p>
+
+<p>A longer explanation is as follows.</p>
+
+<p>As of now, it is technically very challenging to do so.</p>
+
+<p>Every Node.js module is essentially &quot;a slave&quot; to the core of Node.js, i.e. “the
+master”. In its current state, PhantomJS (and its included WebKit) needs to have the
+full control (in a synchronous matter) over everything: event loop, network stack,
+and JavaScript execution.</p>
+
+<p>If the intention is just about using PhantomJS right from a script running within
+Node.js, such a &quot;loose binding&quot; can be achieved by launching a PhantomJS process and
+interact with it.</p>
+
+<p><strong>Q: When using <code>render()</code>, why is the background transparent?</strong></p>
+
+<p>A: PhantomJS does not set the background color of the web page at all, it is left
+to the page to decide its background color. If the page does not set anything, then
+it remains transparent.</p>
+
+<p>To set an initial background color for a web page, use the following trick:</p>
+
+<pre>
+page.evaluate(function() {
+    document.body.bgColor = 'white';
+});
+</pre>
+        
+
+<hr>
+
+<footer>
+<p>&#8592; Back to the <a href="/">homepage</a></p>
+<p><small>&copy; 2010-2018 <a href="https://github.com/ariya/phantomjs/graphs/contributors">PhantomJS contributors</a>. Distributed under the BSD license (SPDX: <a href="https://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a>).</small></p>
+</footer>
+
+</body>
+</html>
