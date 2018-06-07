@@ -1,51 +1,64 @@
----
-layout: default
-title: PhantomJS
----
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PhantomJS - Scriptable Headless Browser</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="shortcut icon" href="/img/favicon.ico">
+</head>
+<body>
+<h1>PhantomJS - Scriptable Headless Browser</h1>
 
-<h2>PhantomJS is an optimal solution for</h2>
+<p><strong>Important</strong>: PhantomJS development is suspended until further notice (<a href="https://github.com/ariya/phantomjs/issues/15344">more details</a>).</p>
 
-<div id="feature-01" class="feature grid_3 alpha">
-  <h3>Headless Website Testing</h3>
-  <div>
-    <p>
-      Run functional tests with frameworks such as Jasmine, QUnit, Mocha, Capybara, WebDriver, and many others.
-      <a href="/headless-testing.html">Learn more</a>
-    </p>
-  </div>
-</div>
+<p>PhantomJS is a headless web browser scriptable with JavaScript. It runs on Windows, macOS, Linux, and FreeBSD.</p>
 
-<div id="feature-02" class="feature grid_3">
-  <h3>Screen Capture</h3>
-  <div>
-    <p>
-      Programmatically capture web contents, including SVG and Canvas.
-      Create web site screenshots with thumbnail preview.
-      <a href="/screen-capture.html">Learn more</a>
-    </p>
-  </div>
-</div>
+<p>Using QtWebKit as the back-end, it offers fast and native support for various web standards: DOM handling, CSS selector, JSON, Canvas, and SVG.</p>
 
-<div id="feature-03" class="feature grid_3">
-  <h3>Page Automation</h3>
-  <div>
-    <p>
-      Access and manipulate webpages
-      with the standard DOM API, or with
-      usual libraries like jQuery.
-      <br>
-      <a href="/page-automation.html">Learn more</a>
-    </p>
-  </div>
-</div>
+<p>The following simple script for PhantomJS loads Google homepage, waits a bit, and then captures it to an image.</p>
 
-<div id="feature-04" class="feature grid_3 omega">
-  <h3>Network Monitoring</h3>
-  <div>
-    <p>
-      Monitor page loading and export as standard HAR files. Automate performance analysis using YSlow and Jenkins.
-      <a href="/network-monitoring.html">Learn more</a>
-    </p>
-  </div>
-</div>
+<pre>
+var page = require('webpage').create();
+page.open('http://www.google.com', function() {
+    setTimeout(function() {
+        page.render('google.png');
+        phantom.exit();
+    }, 200);
+});
+</pre>
 
+<p>PhantomJS is an optimal solution for:</p>
+
+<dt><a href="/page-automation.html">Page automation</a>
+<dd>Access webpages and extract information using the standard DOM API, or with usual libraries like jQuery.</dd>
+</dt>
+
+<dt><a href="/screen-capture.html">Screen capture</a>
+<dd>Programmatically capture web contents, including SVG and Canvas. Create web site screenshots with thumbnail preview.</li>
+</dd>
+</dt>
+
+<dt><a href="/headless-testing.html">Headless website testing</a>
+<dd>Run functional tests with frameworks such as Jasmine, QUnit, Mocha, WebDriver, etc.</dd>
+</dt>
+
+<dt><a href="/network-monitoring.html">Network monitoring</a>
+<dd> Monitor page loading and export as standard HAR files. Automate performance analysis using YSlow and Jenkins.</dd>
+</dt>
+
+<p>Ready to play with PhantomJS? <a href="/download.html">Download the latest version</a> (check its <a href="/release-2.1.html">release notes</a>)
+and follow the <a href="/quick-start.html">Quick Start</a> guide.</p>
+
+<p>Want to learn more? Read the <a href="/faq">FAQ</a>,
+explore <a href="/examples">more examples</a>, and study the complete <a href="/documentation">documentation</a>.</p>
+
+<p>For the source code, issue tracker, and other development information, visit <a href="https://github.com/ariya/phantomjs">github.com/ariya/phantomjs</a>.</p>
+
+<hr>
+
+<footer>
+<p><small>&copy; 2010-2018 <a href="https://github.com/ariya/phantomjs/graphs/contributors">PhantomJS contributors</a>. Distributed under the BSD license (SPDX: <a href="https://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a>).</small></p>
+</footer>
+
+</body>
+</html>
