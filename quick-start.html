@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Quick Start with PhantomJS</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="shortcut icon" href="/img/favicon.ico">
+</head>
+<body>
+<h1>Quick Start with PhantomJS</h1>
+
+<p>PhantomJS is a <a href="https://en.wikipedia.org/wiki/Command-line_interface">command-line</a> tool. Make sure that you are familiar with the use of <a href="https://www.computerhope.com/issues/chusedos.htm">the command prompt</a> or <a href="https://docs.microsoft.com/en-us/powershell/">PowerShell</a> (on Windows) or <a href="https://en.wikibooks.org/wiki/Guide_to_Unix/Explanations/Shell_Prompt">a terminal</a> (on macOS and Linux).</p>
+
+<p>This instruction assumes that PhantomJS is <a href="/download.html">installed</a> and placed somewhere in the <a href="https://en.wikipedia.org/wiki/PATH_(variable)">PATH</a> (e.g. see <a href="https://www.howtogeek.com/118594/how-to-edit-your-system-path-for-easy-command-line-access/">this tutorial</a> for Windows users).</p>
+
+<h2 id="hello-world">Hello, World!</h2>
+
+<p>Create a new text file that contains the following two lines:</p>
+
+<pre>
+console.log('Hello, world!');
+phantom.exit();
+</pre>
+
+Save it as <code>hello.js</code> and then run it from the terminal or command prompt:
+
+<pre>phantomjs hello.js</pre>
+
+The output is:
+
+<pre>Hello, world!</pre>
+
+In the first line, <code>console.log</code> will print the passed string to the terminal. In the second line, <code>phantom.exit</code> terminates the execution.
+
+It is <strong>very important</strong> to call <code>phantom.exit</code> at some point in the script, otherwise PhantomJS will not be terminated at all.
+
+<h2 id="page-loading">Page Loading</h2>
+
+<p>A web page can be loaded, analyzed, and rendered by creating a <code>webpage</code> object.</p>
+
+<p>The following script demonstrates the simplest use of page object. It loads <code>example.com</code> and then saves it as an image, <code>example.png</code> in the same directory the script was run in.</p>
+
+<pre>
+var page = require('webpage').create();
+page.open('http://example.com', function(status) {
+  console.log("Status: " + status);
+  if(status === "success") {
+    page.render('example.png');
+  }
+  phantom.exit();
+});
+</pre>
+
+<p>Because of its rendering features, PhantomJS can be used to <a href="/screen-capture.html">capture web pages</a>, essentially taking a screenshot of the contents.</p>
+
+<p>The following <code>loadspeed.js</code> script loads a specified URL (do not forget the <code>http</code> protocol) and measures the time it takes to load it.</p>
+
+<pre>
+var page = require('webpage').create(),
+  system = require('system'),
+  t, address;
+
+if (system.args.length === 1) {
+  console.log('Usage: loadspeed.js [some URL]');
+  phantom.exit();
+}
+
+t = Date.now();
+address = system.args[1];
+page.open(address, function(status) {
+  if (status !== 'success') {
+    console.log('FAIL to load the address');
+  } else {
+    t = Date.now() - t;
+    console.log('Loading ' + system.args[1]);
+    console.log('Loading time ' + t + ' msec');
+  }
+  phantom.exit();
+});
+</pre>
+
+<p>Run the script with the command:</p>
+
+<pre>phantomjs loadspeed.js http://www.google.com</pre>
+
+<p>It outputs something like:</p>
+
+<pre>Loading http://www.google.com
+Loading time 719 msec</pre>
+
+<h2 id="code-evaluation">Code Evaluation</h2>
+
+<p>To evaluate JavaScript code in the context of the web page, use <code>evaluate()</code> function. The execution is &quot;sandboxed&quot;, there is no way for the code to access any JavaScript objects and variables outside its own page context. An object can be returned from <code>evaluate()</code>, however it is limited to simple objects and can’t contain functions or closures.</p>
+
+<p>Here is an example to show the title of a web page:</p>
+
+<pre>
+var page = require('webpage').create();
+page.open(url, function(status) {
+  var title = page.evaluate(function() {
+    return document.title;
+  });
+  console.log('Page title is ' + title);
+  phantom.exit();
+});
+</pre>
+
+<p>Any console message from a web page, including from the code inside <code>evaluate()</code>, will not be displayed by default. To override this behavior, use the <code>onConsoleMessage</code> callback. The previous example can be rewritten to:</p>
+
+<pre>
+var page = require('webpage').create();
+page.onConsoleMessage = function(msg) {
+  console.log('Page title is ' + msg);
+};
+page.open(url, function(status) {
+  page.evaluate(function() {
+    console.log(document.title);
+  });
+  phantom.exit();
+});
+</pre>
+
+<p>Since the script is executed as if it is running on a web browser, standard DOM scripting and CSS selectors work just fine. It makes PhantomJS suitable to carry out various <a href="/page-automation.html">page automation</a> tasks.</p>
+
+<h2>Further Study</h2>
+
+<p>The code shown above is also available in <a href="/examples.html">various examples</a> included with PhantomJS.</p>
+
+<p>You are also recommended to explore the use of PhantomJS for <a href="/page-automation.html">page automation</a>, <a href="/network-monitoring.html">network monitoring</a>, <a href="/screen-capture.html">screen capture</a>, and <a href="/headless-testing.html">headless testing</a>.</p>
+
+<hr>
+
+<footer>
+<p>&#8592; Back to the <a href="/">homepage</a></p>
+<p><small>&copy; 2010-2018 <a href="https://github.com/ariya/phantomjs/graphs/contributors">PhantomJS contributors</a>. Distributed under the BSD license (SPDX: <a href="https://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a>).</small></p>
+</footer>
+
+</body>
+</html>
