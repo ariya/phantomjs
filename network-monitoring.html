@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Network Monitoring with PhantomJS</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="shortcut icon" href="/img/favicon.ico">
+</head>
+<body>
+<h1>Network Monitoring with PhantomJS</h1>
+
+<p>Because PhantomJS permits the inspection of network traffic, it is suitable to build various analysis on the network behavior and performance.</p>
+
+<p>All the resource requests and responses can be sniffed using <code class="highlighter-rouge">onResourceRequested</code> and <code class="highlighter-rouge">onResourceReceived</code>. A very simple example to log every request and response is illustrated in the script <a href="https://github.com/ariya/phantomjs/blob/master/examples/netlog.js">netlog.js</a>:</p>
+
+<pre>
+var page = require('webpage').create();
+page.onResourceRequested = function(request) {
+  console.log('Request ' + JSON.stringify(request, undefined, 4));
+};
+page.onResourceReceived = function(response) {
+  console.log('Receive ' + JSON.stringify(response, undefined, 4));
+};
+page.open(url);
+</pre>
+
+<p>By collecting the data and reformatting it, another example, <a href="https://github.com/ariya/phantomjs/blob/master/examples/netsniff.js">netsniff.js</a>, exports the network traffic in <a href="http://www.softwareishard.com/blog/har-12-spec">HAR format</a>. Use <a href="http://www.softwareishard.com/blog/har-viewer">HAR viewer</a> to visualize the result and get the waterfall diagram.</p>
+
+<p>The following shows an examplary waterfall diagram obtained from BBC website:</p>
+
+<p><img src="https://lh6.googleusercontent.com/-xoooH5EB6EE/TgnyJ3r9sRI/AAAAAAAAB98/wYJ_VoWED34/s640/bbc-har.png" alt="Waterfall Diagram" /></p>
+
+<p>For more advanced network analysis, see projects like <a href="https://github.com/jamesgpearce/confess">Confess.js</a> and <a href="http://yslow.org">YSlow</a>.</p>
+
+<p>The <a href="http://yslow.org/phantomjs/">integration</a> of YSlow and PhantomJS is very useful for automated web performance. The report can be in TAP (Test Anything Protocol) and JUnit. Running YSlow with PhantomJS in a continuous integration system such as Jenkins is an easy DIY solution to performance monitoring:</p>
+
+<p><img src="http://i.imgur.com/PTD6j.png" alt="YSlow and Jenkins" /></p>
+
+<hr>
+
+<footer>
+<p>&#8592; Back to the <a href="/">homepage</a></p>
+<p><small>&copy; 2010-2018 <a href="https://github.com/ariya/phantomjs/graphs/contributors">PhantomJS contributors</a>. Distributed under the BSD license (SPDX: <a href="https://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a>).</small></p>
+</footer>
+
+</body>
+</html>
