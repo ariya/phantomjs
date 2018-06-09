@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Example Scripts for PhantomJS</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="shortcut icon" href="/img/favicon.ico">
+</head>
+<body>
+<h1>Example Scripts for PhantomJS</h1>
+
+<p>PhantomJS comes with a lot of <a href="https://github.com/ariya/phantomjs/tree/master/examples">included examples</a>.</p>
+
+<h2 id="basic-examples">Basic examples</h2>
+
+<ul>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/arguments.js">arguments.js</a> shows the arguments passed to the script</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/countdown.js">countdown.js</a> prints a 10 second countdown</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/echoToFile.js">echoToFile.js</a> writes the command line arguments to a file</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/fibo.js">fibo.js</a> lists the first few numbers in the Fibonacci sequence</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/hello.js">hello.js</a> displays the famous message</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/module.js">module.js</a> and <code class="highlighter-rouge">universe.js</code> demonstrate the use of module system</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/outputEncoding.js">outputEncoding.js</a> displays a string in various encodings</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/printenv.js">printenv.js</a> displays the system’s environment variables</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/scandir.js">scandir.js</a> lists all files in a directory and its subdirectories</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/sleepsort.js">sleepsort.js</a> sorts integers and delays display depending on their values</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/version.js">version.js</a> prints out PhantomJS version number</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/page_events.js">page_events.js</a> prints out page events firing: useful to better grasp <code class="highlighter-rouge">page.on*</code> callbacks</li>
+</ul>
+
+<h2 id="renderingrasterization">Rendering/rasterization</h2>
+
+<ul>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/colorwheel.js">colorwheel.js</a> creates a color wheel using HTML5 canvas</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/rasterize.js">rasterize.js</a> rasterizes a web page to image or PDF</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/render_multi_url.js">render_multi_url.js</a> renders multiple web pages to images</li>
+</ul>
+
+<h2 id="page-automation">Page automation</h2>
+
+<ul>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/injectme.js">injectme.js</a> injects itself into a web page context</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/phantomwebintro.js">phantomwebintro.js</a> uses jQuery to read .version element text from phantomjs.org</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/unrandomize.js">unrandomize.js</a> modifies a global object at page initialization</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/waitfor.js">waitfor.js</a> waits until a test condition is true or a timeout occurs</li>
+</ul>
+
+<h2 id="network">Network</h2>
+
+<ul>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/detectsniff.js">detectsniff.js</a> detects if a web page sniffs the user agent</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/loadspeed.js">loadspeed.js</a> computes the loading speed of a web site</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/netlog.js">netlog.js</a> dumps all network requests and responses</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/netsniff.js">netsniff.js</a> captures network traffic in HAR format</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/post.js">post.js</a> sends an HTTP POST request to a test server</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/postserver.js">postserver.js</a> starts a web server and sends an HTTP POST request to it</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/server.js">server.js</a> starts a web server and sends an HTTP GET request to it</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/serverkeepalive.js">serverkeepalive.js</a> starts a web server which answers in plain text</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/simpleserver.js">simpleserver.js</a> starts a web server which answers in HTML</li>
+</ul>
+
+<h2 id="testing">Testing</h2>
+
+<ul>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/run-jasmine.js">run-jasmine.js</a> runs Jasmine based tests</li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/run-qunit.js">run-qunit.js</a> runs QUnit based tests</li>
+</ul>
+
+<h2 id="browser">Browser</h2>
+
+<ul>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/features.js">features.js</a> detects browser features using <code class="highlighter-rouge">modernizr.js</code></li>
+  <li><a href="https://github.com/ariya/phantomjs/blob/master/examples/useragent.js">useragent.js</a> changes the browser’s user agent property</li>
+</ul>
+        
+
+<hr>
+
+<footer>
+<p>&#8592; Back to the <a href="/">homepage</a></p>
+<p><small>&copy; 2010-2018 <a href="https://github.com/ariya/phantomjs/graphs/contributors">PhantomJS contributors</a>. Distributed under the BSD license (SPDX: <a href="https://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a>).</small></p>
+</footer>
+
+</body>
+</html>
