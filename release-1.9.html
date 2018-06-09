@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PhantomJS 1.9 Release Notes</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="shortcut icon" href="/img/favicon.ico">
+</head>
+<body>
+<h1>PhantomJS 1.9 Release Notes</h1>
+
+<p>PhantomJS 1.9, <em><a href="release-names.html">Sakura</a></em>, was released on March 20, 2013. It came with an updated GhostDriver,
+an improved resource loading control, as well as other incremental improvements.</p>
+
+<p><strong>Note:</strong> PhantomJS 1.9 is the last release in the 1.x series. For the next 2.x series, the core implementation will be
+ported to <a href="http://qt-project.org/doc/qt-5.0/qtdoc/qt5-intro.html">Qt 5</a> to get a more modern base platform,
+as well as to have an updated WebKit module.</p>
+
+<p><strong>Network requests control</strong></p>
+
+<p>A new functionality is provided so that every network request can be aborted. This is quite similar to the existing
+support for intercepting those requests (for monitoring purposes), except now any unwanted requests could be blocked as well.
+The following code fragment demonstrate the use:</p>
+
+<pre>
+page.onResourceRequested = function(requestData, request) {
+    if ((/http:\/\/.+?\.css$/gi).test(requestData['url'])) {
+        request.abort();
+    }
+};
+</pre>
+
+<p>If a request has an associated URL ending with <code class="highlighter-rouge">.css</code>, it will not be routed to the server. Effectively,
+this means that the page is loaded <a href="http://ariya.ofilabs.com/2013/06/capturing-web-page-without-stylesheets.html">without any stylesheets</a>
+(often useful to check for connection failures). Matching the URL with the main resource URL can also be used to
+<a href="http://ariya.ofilabs.com/2013/06/web-page-without-external-resources.html">exclude third-party assets</a>.</p>
+
+<p>Of course, the URL matching can be more complicated than these simple examples.</p>
+
+<p><strong>New features</strong></p>
+
+<ul>
+  <li>Added spawn and execFile to execute external programs (issue <a href="https://github.com/ariya/phantomjs/issues/10219">10219</a>)</li>
+  <li>Added the ability to abort network requests (issue <a href="https://github.com/ariya/phantomjs/issues/10230">10230</a>)</li>
+  <li>Added system access to stdin, stdout, and stderr (issue <a href="https://github.com/ariya/phantomjs/issues/10333">10333</a>)</li>
+  <li>Added support for custom CA certificates location (issue <a href="https://github.com/ariya/phantomjs/issues/10916">10916</a>)</li>
+  <li>Added seek function to the File stream (issue <a href="https://github.com/ariya/phantomjs/issues/10937">10937</a>)</li>
+  <li>Implemented file read for a specified number of bytes (issue <a href="https://github.com/ariya/phantomjs/issues/10938">10938</a>)</li>
+  <li>Added a callback to handle network error (issue <a href="https://github.com/ariya/phantomjs/issues/10954">10954</a>,  <a href="https://github.com/ariya/phantomjs/issues/10997">issue 10997</a>)</li>
+  <li>Added custom encoding support when opening a page (issue <a href="https://github.com/ariya/phantomjs/issues/11043">11043</a>)</li>
+  <li>Implemented require.stub() support for a factory function (issue <a href="https://github.com/ariya/phantomjs/issues/11044">11044</a>)</li>
+  <li>Added page loading indicator and progress (issue <a href="https://github.com/ariya/phantomjs/issues/11091">11091</a>)</li>
+  <li>Added a timeout option for network requests (issue <a href="https://github.com/ariya/phantomjs/issues/11129">11129</a>)</li>
+</ul>
+
+<p><strong>Improvements</strong></p>
+
+<ul>
+  <li>Fixed the build on FreeBSD (issue <a href="https://github.com/ariya/phantomjs/issues/10597">10597</a>)</li>
+  <li>Ensured a consistent 72 dpi for Linux headless rendering (issue <a href="https://github.com/ariya/phantomjs/issues/10659">10659</a>)</li>
+  <li>Fixed possible PDF error due to invalid CreationDate field (issue <a href="https://github.com/ariya/phantomjs/issues/10663">10663</a>)</li>
+  <li>Fixed crash when uploading non existing files (issue <a href="https://github.com/ariya/phantomjs/issues/10941">10941</a>)</li>
+  <li>Improved the autocomplete internal of the interactive/REPL mode (issue <a href="https://github.com/ariya/phantomjs/issues/10943">10943</a>)</li>
+  <li>Fixed possible crash when accessing inline frames (issue <a href="https://github.com/ariya/phantomjs/issues/10947">10947</a>)</li>
+  <li>Changed Linux binary package setup to be built on CentOS 5 (issue <a href="https://github.com/ariya/phantomjs/issues/10963">10963</a>)</li>
+  <li>Extended SSL ignore setting to synchronous XHR (issue <a href="https://github.com/ariya/phantomjs/issues/10985">10985</a>)</li>
+  <li>Added convenient constants for modifier keys (issue <a href="https://github.com/ariya/phantomjs/issues/11056">11056</a>)</li>
+  <li>Fixed incorrect date handling in the cookies (issue <a href="https://github.com/ariya/phantomjs/issues/11068">11068</a>)</li>
+  <li>Updated GhostDriver to version 1.0.3 (issue <a href="https://github.com/ariya/phantomjs/issues/11146">11146</a>)</li>
+</ul>
+
+<p><strong>Examples</strong></p>
+
+<ul>
+  <li>Fixed invalid data URI in the netsniff example (issue <a href="https://github.com/ariya/phantomjs/issues/10740">10740</a>)</li>
+  <li>Implemented a new weather example (issue <a href="https://github.com/ariya/phantomjs/issues/10794">10794</a>)</li>
+  <li>Fixed rendering issues in render_multi_url (issue <a href="https://github.com/ariya/phantomjs/issues/11021">11021</a>)</li>
+  <li>Fixed proper event sequence in page_events example (issue <a href="https://github.com/ariya/phantomjs/issues/11028">11028</a>)</li>
+  <li>Miscellanous tweaks (issue <a href="https://github.com/ariya/phantomjs/issues/11082">11082</a>)</li>
+</ul>
+
+<p><strong>Fixes in 1.9.1</strong></p>
+
+<ul>
+  <li>Fixed problems with specifying proxy server (issue <a href="https://github.com/ariya/phantomjs/issues/10811">10811</a>, <a href="https://github.com/ariya/phantomjs/issues/11117">11117</a>)</li>
+  <li>Fixed UTF-8 encoding with system.stdout and system.stderr (issue <a href="https://github.com/ariya/phantomjs/issues/11162">11162</a>)</li>
+  <li>Ensured that onResourceReceived will be always invoked (issue <a href="https://github.com/ariya/phantomjs/issues/11163">11163</a>)</li>
+  <li>Fixed module loading from an absolute path on Windows (issue <a href="https://github.com/ariya/phantomjs/issues/11165">11165</a>)</li>
+  <li>Fixed typo in the command-line option for setting the cache size (issue <a href="https://github.com/ariya/phantomjs/issues/11219">11219</a>)</li>
+  <li>Fixed possible crash when handling network requests (issue <a href="https://github.com/ariya/phantomjs/issues/11252">11252</a>, <a href="https://github.com/ariya/phantomjs/issues/11338">11338</a>)</li>
+</ul>
+
+<p><strong>Fixes in 1.9.2</strong></p>
+
+<ul>
+  <li>Fixed graphical artifacts with transparent background on Windows (issue <a href="https://github.com/ariya/phantomjs/issues/11276">11276</a>, <a href="https://github.com/ariya/phantomjs/issues/11007">11007</a>, <a href="https://github.com/ariya/phantomjs/issues/11366">11366</a>)</li>
+  <li>Updated GhostDriver to version 1.0.4 (issue <a href="https://github.com/ariya/phantomjs/issues/11452">11452</a>)</li>
+</ul>
+
+<p><strong>Fixes in 1.9.3</strong></p>
+
+<ul>
+  <li>Fixed CoreText performance note on OS X 10.9 (issue <a href="https://github.com/ariya/phantomjs/issues/11418">11418</a>)</li>
+  <li>Fixed warning of obsolete userSpaceScaleFactor on OS X 10.9 (issue <a href="https://github.com/ariya/phantomjs/issues/11612">11612</a>)</li>
+</ul>
+
+<p><strong>Fixes in 1.9.6</strong></p>
+
+<ul>
+  <li>Updated GhostDriver to version 1.1.1 (issue <a href="https://github.com/ariya/phantomjs/issues/11877">11877</a>, <a href="https://github.com/ariya/phantomjs/issues/11892">11893</a>)</li>
+</ul>
+
+<p><strong>Fixes in 1.9.7</strong></p>
+
+<ul>
+  <li>Reverted to GhostDriver 1.1.0 instead of 1.1.1 (issue <a href="https://github.com/ariya/phantomjs/issues/11915">11915</a>)</li>
+  <li>Fixed another warning of obsolete userSpaceScaleFactor on OS X 10.9 (issue <a href="https://github.com/ariya/phantomjs/issues/11612">11612</a>)</li>
+</ul>
+
+<p><strong>Fixes in 1.9.8</strong></p>
+
+<ul>
+  <li>Change default SSL protocol to TLSv1 to address POODLE (issue <a href="https://github.com/ariya/phantomjs/issues/12655">12655</a>)</li>
+  <li>Fixed building on OS X 10.10 Yosemite (issue <a href="https://github.com/ariya/phantomjs/issues/12622">12622</a>)</li>
+  <li>Backported crash fix when exit (issue <a href="https://github.com/ariya/phantomjs/issues/11642">11642</a>, <a href="https://github.com/ariya/phantomjs/issues/12431">12431</a>)</li>
+</ul>
+
+<p><strong>Known Issues on Microsoft Windows</strong></p>
+
+<ul>
+  <li>Very slow network performance. The workaround is to set <a href="https://github.com/ariya/phantomjs/wiki/API-Reference#wiki-command-line-options">proxy type</a> to "<tt>none</tt>" (issue <a href="https://github.com/ariya/phantomjs/issues/10580">10580</a>)</li>
+  <li>Some graphics drivers may cause mysterious crash (issue <a href="https://github.com/ariya/phantomjs/issues/10845">10845</a>)</li>
+</ul>
+
+<p>Back to <a href="releases.html">all releases</a>.</p>
+<hr>
+
+<footer>
+<p>&#8592; Back to the <a href="/">homepage</a></p>
+<p><small>&copy; 2010-2018 <a href="https://github.com/ariya/phantomjs/graphs/contributors">PhantomJS contributors</a>. Distributed under the BSD license (SPDX: <a href="https://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a>).</small></p>
+</footer>
+
+</body>
+</html>

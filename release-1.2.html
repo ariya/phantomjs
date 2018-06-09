@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PhantomJS 1.2 Release Notes</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="shortcut icon" href="/img/favicon.ico">
+</head>
+<body>
+<h1>PhantomJS 1.2 Release Notes</h1>
+
+<p>PhantomJS 1.2, <em><a href="release-names.html">Birds of Paradise</a></em>, was released on June 21, 2011. It is a major update, it introduces a whole set of new API. It is not compatible with the previous version. For porting existing scripts into the new API, follow the description below.</p>
+
+<p><strong>WebPage object</strong></p>
+
+<p>In order to improve the security aspect (see issue 41), PhantomJS scripts will not run in the context of web page execution. This means, there is no way for malicious scripts to detect the presence of ‘phantom’ object and exploits its API.</p>
+
+<p>The &quot;sandboxing&quot; is achieved via a new WebPage object. It is an encapsulation of a web page. A specific URL can be loaded using its open() function. A typical usage is:</p>
+
+<pre>
+var page = new WebPage();
+
+page.open(url, function (status) {
+// do something
+});
+</pre>
+
+<p>The callback in the open() is executed when the page loading is completed, with status equals to <code>"success"</code> if there is no error and <code>"fail"</code> if an error has occurred.</p>
+
+<p>The above construct is a convenient version of the following:</p>
+
+<pre>
+var page = new WebPage();
+
+page.onLoadFinished = function (status) {
+// do something
+};
+
+page.open(url);
+</pre>
+
+<p>Beside onLoadFinished, there is also onLoadStarted which is invoked when page loading starts for the first time:</p>
+
+<pre>
+var page = new WebPage();
+
+page.onLoadStarted = function () {
+    console.log('Start loading...');
+};
+
+page.onLoadFinished = function (status) {
+    console.log('Loading finished.');
+};
+
+page.open(url);
+</pre>
+
+<p><strong>Page settings</strong></p>
+
+<p>The behavior of the web page can be set via its settings object, with the following properties:</p>
+
+<p>As an example, here is how to change the user agent:</p>
+
+<pre>
+var page = new WebPage();
+
+page.settings.userAgent = 'Dragonless Phantom';
+
+page.open(url, function (status) {
+    // do something
+});
+</pre>
+
+<p><strong>Rasterization</strong></p>
+
+<p>A web page can be rasterized to an image or a PDF file using render() function.</p>
+
+<p>This rasterize.js is all it takes to capture a web site.</p>
+
+<pre>
+var page = new WebPage(),
+  address, output, size;
+
+if (phantom.args.length < 2 || phantom.args.length > 3) {
+  console.log('Usage: rasterize.js URL filename');
+  phantom.exit();
+} else {
+  address = phantom.args[0];
+  output = phantom.args[1];
+  page.viewportSize = { width: 600, height: 600 };
+  page.open(address, function (status) {
+      if (status !== 'success') {
+          console.log('Unable to load the address!');
+      } else {
+          window.setTimeout(function () {
+              page.render(output);
+              phantom.exit();
+          }, 200);
+      }
+  });
+}
+</pre>
+
+<p><strong>Network traffic</strong></p>
+
+<p>All the resource requests and responses can be sniffed using the onResourceRequested and onResourceReceived. An example to dump everything is:</p>
+
+<pre>
+var page = new WebPage();
+page.onResourceRequested = function (request) {
+    console.log('Request ' + JSON.stringify(request, undefined, 4));
+};
+page.onResourceReceived = function (response) {
+    console.log('Receive ' + JSON.stringify(response, undefined, 4));
+};
+page.open(url);
+</pre>
+
+<p>The included examples/netsniff.js shows how to capture and process all the resource requests and responses and export the result in <a href="http://groups.google.com/group/http-archive-specification?hl=en">HAR format</a>.</p>
+
+<p>The following shows the waterfall diagram obtained from BBC website:</p>
+
+<p><img src="https://lh6.googleusercontent.com/-xoooH5EB6EE/TgnyJ3r9sRI/AAAAAAAAB98/wYJ_VoWED34/s640/bbc-har.png" alt="" /></p>
+
+<p><strong>JavaScript evaluation</strong></p>
+
+<p>To evaluate JavaScript code in the context of the web page, use evaluate() function. The execution is sandboxed, there is no way for the code to access any JavaScript objects and variables outside its own page context. An object can be returned from evaluate(), however it is limited to simple objects and can’t contain functions or closures.</p>
+
+<p>Here is an example to show the title of a web page:</p>
+
+<pre>
+var page = new WebPage();
+page.open(url, function (status) {
+  var title = page.evaluate(function () {
+      return document.title;
+  });
+  console.log('Page title is ' + title);
+});
+</pre>
+
+<p>Any console message from a web page, including from the code inside evaluate(), will not be displayed by default. To override this behavior, use the onConsoleMessage callback. The previous example can be rewritten to:</p>
+
+<pre>
+var page = new WebPage();
+page.onConsoleMessage = function (msg) {
+  console.log('Page title is ' + msg);
+};
+page.open(url, function (status) {
+  page.evaluate(function () {
+      console.log(document.title);
+  });
+});
+</pre>
+
+<p>To inject external code, use injectJs function passing the file name containing the code to be loaded. If the file can not be found in the current directory, it will be searched in the path specified in the libraryPath property. Both phantom and WebPage object have injectJs function.</p>
+
+<p>To load external JavaScript library, includeJs is very useful. It behaves like the well-known dynamic script loading technique. An example:</p>
+
+<pre>
+page.includeJs("http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js", function() {
+    // jQuery is loaded, now manipulate the DOM
+  });
+</pre>
+
+<p><strong>Bug fixes</strong></p>
+
+<p><strong>New features</strong></p>
+
+<p><strong>Examples</strong></p>
+
+<p>Back to <a href="releases.html">all releases</a>.</p>
+<hr>
+
+<footer>
+<p>&#8592; Back to the <a href="/">homepage</a></p>
+<p><small>&copy; 2010-2018 <a href="https://github.com/ariya/phantomjs/graphs/contributors">PhantomJS contributors</a>. Distributed under the BSD license (SPDX: <a href="https://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a>).</small></p>
+</footer>
+
+</body>
+</html>

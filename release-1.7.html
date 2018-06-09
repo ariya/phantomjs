@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PhantomJS 1.7 Release Notes</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="shortcut icon" href="/img/favicon.ico">
+</head>
+<body>
+<h1>PhantomJS 1.7 Release Notes</h1>
+
+<p>PhantomJS 1.7, <em><a href="release-names.html">Blazing Star</a></em>, was released on September 22, 2012. It added module system support (modelled after CommonJS), better cookies handling, additional input events, and other small improvements.</p>
+
+<p><strong>Module system</strong></p>
+
+<p>There has been module system support for a while, however it works only for internal modules. In this release, that support is extended for generic module written in JavaScript or CoffeeScript. The construct for the module system is modelled after <a href="http://wiki.commonjs.org/wiki/Modules/1.1.1">CommonJS Modules 1.1</a>.</p>
+
+<p>As an example, supposed there is a script <code>universe.js</code> which contains the following code:</p>
+
+<pre>
+exports.answer = 42;
+exports.start = function () {
+    console.log('Starting the universe....');
+}
+</pre>
+
+<p>This module can be used in another script like the following:</p>
+
+<pre>
+var universe = require('./universe');
+universe.start();
+console.log('The answer is', universe.answer);
+</pre>
+
+<p>With this module support, a long PhantomJS script can be broken down into smaller files and thus it becomes more maintainable.</p>
+
+<p><strong>Cookies handling</strong></p>
+
+<p>Support for cookies has been added in the previous version. In this release, the implementation is significantly improved in order to make it behave as similar as possible in a real web browser. The cookies are stored in a global container (“cookiejar”) which can be serialized and modified easily.</p>
+
+<p>The following simple example shows every single cookie set when accessing a web site:</p>
+
+<pre>
+var page = require('webpage').create();
+phantom.cookiesEnabled = true;
+page.open('http://m.bing.com', function () {
+    console.log(JSON.stringify(phantom.cookies, null, 2));
+    phantom.exit();
+});
+</pre>
+
+<p><strong>More input events</strong></p>
+
+<p>PhantomJS can send input events to a web page. This not a DOM event, it is more like a real user input in a web browser.</p>
+
+<p>In this version, a mouse event can now explicitly specify the button corresponding to the event: <code>middle</code> or <code>right</code> (otherwise it is left by default). In addition, <code>doubleclick</code> event type is also supported. The following code fragment demonstrates sending a right-click:</p>
+
+<pre>
+page.open(url, function () {
+    page.sendEvent('mousepress', 50, 100, 'right');
+});
+</pre>
+
+<p>Beside mouse events, finally you can also trigger keyboard-related events: <code>keyup</code>, <code>keydown</code>, and <code>keypress</code>. For any of these events, a character or a string needs to be passed as in the following code fragment:</p>
+
+<pre>
+page.open(url, function () {
+    page.sendEvent('keypress', 'A'); // send one char
+    page.sendEvent('keypress', 'PhantomJS'); // send a sequence of characters
+});
+</pre>
+<p><strong>New features</strong></p>
+
+<p><strong>Improvements</strong></p>
+
+<p><strong>Known Issues on Microsoft Windows</strong></p>
+
+<p>Back to <a href="releases.html">all releases</a>.</p>
+
+<hr>
+
+<footer>
+<p>&#8592; Back to the <a href="/">homepage</a></p>
+<p><small>&copy; 2010-2018 <a href="https://github.com/ariya/phantomjs/graphs/contributors">PhantomJS contributors</a>. Distributed under the BSD license (SPDX: <a href="https://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a>).</small></p>
+</footer>
+
+</body>
+</html>

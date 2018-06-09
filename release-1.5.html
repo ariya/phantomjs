@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PhantomJS 1.5 Release Notes</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="shortcut icon" href="/img/favicon.ico">
+</head>
+<body>
+<h1>PhantomJS 1.5 Release Notes</h1>
+
+<p>PhantomJS 1.5, <em><a href="release-names.html">Ghost Flower</a></em>, was released on March 20, 2012. This version is backward compatible with version 1.4. Existing scripts should work without any modification, unless there is a need to run Flash or other plugins (see below).</p>
+
+<p>PyPhantomJS, the implementation of PhantomJS in Python with PyQt, ceased the development (issue 344) and thus the code has been removed from the repository.</p>
+
+<p><strong>Pure headless (no X11) on Linux</strong></p>
+
+<p>While it’s always possible to customize the build of PhantomJS Linux without X11 (in particular since the last 1.4 release), it’s a tedious adventure. Beginning from this release, X11-less setup is the standard when building PhantomJS Linux from source.</p>
+
+<p>The benefits of pure headless are two-fold: no need to use Xvfb, it also compiles out-of-the-box on a barebone Linux server without GUI. This should make it easy to place PhantomJS in various continuous integration systems and cloud/elastic platforms.</p>
+
+<p>Note that the pure headless mode does not compromise the functionalities and rendering quality. For screen capture, text rasterization is still done through FreeType and Fontconfig. Various formats (PNG, GIF, JPEG) for inlined images are still supported. Even producing PDF from the web page works just fine.</p>
+
+<p><strong>No more support for Flash and other plugins</strong></p>
+
+<p>Plugin support has been completely disabled (see  issue 413) for the following reasons:</p>
+
+<ul>
+<li>Going pure headless without X11 means it is not possible to have native window handle for the plugin.</li>
+<li>Flash apps should be tested by whatever tools Adobe provides to the developers.</li>
+<li>Issues are reported but nobody volunteers to analyze or fix them.</li>
+</ul>
+
+<p>Future reported issues and bugs which relate to Flash and other plugins will be marked as WontFix.</p>
+
+<p><strong>Improved troubleshooting</strong></p>
+
+<p>To facilitates easier troubleshooting, there exists support for interactive mode (REPL), remote debugging, and error handling.</p>
+
+<p>If PhantomJS is launched without any argument, it starts in the so-called interactive mode, also known for REPL (read-eval-print-loop). This mode allows a faster cycle of experiment and script prototyping. PhantomJS REPL supports the expected features: command editing, persistent history, and autocomplete (with Tab key).</p>
+
+<p>Terminal line editing feature of this interactive mode is based on <a href="https://github.com/tadmarshall/linenoise">Linenoise</a> (an improved fork of the <a href="https://github.com/antirez/linenoise">original project</a>).</p>
+
+<p>Remote debugging permits inspection of the script and web page via another WebKit-based browser (Safari and Chrome). This is achieved by launching PhantomJS with the new option, as in this example</p>
+
+<pre>phantomjs --remote-debugger-port=9000 test.js</pre>
+
+<p>After than, open Safari/Chrome and go to the http://ipaddress:9000. The browser will show the familiar Web Inspector interface which in this case works on the script being tested.</p>
+
+<p>Note: As of now, remote debugging is only for Linux (see issue 430).</p>
+
+<p>To easily catch an error occured in a web page, whether it is a syntax error or other thrown exception, an onError handler for the WebPage object has been added. An example on such a handler is:</p>
+
+<pre>
+page.onError = function (msg, trace) {
+    console.log(msg);
+    trace.forEach(function(item) {
+        console.log('  ', item.file, ':', item.line);
+    })
+}
+</pre>
+
+<p>Now if the page opens a site with some JavaScript? exceptions, a detailed information (including the stack trace) will be printed out.</p>
+
+<p>Note: Further refinement to the stack trace is still being planned (see issue 166).</p>
+
+<p><strong>System module</strong></p>
+
+<p>A set of functions to access system-level functionalities is available, modelled after CommonJS System proposal.</p>
+
+<p>To start using, it needs to be instantiated via the system module such as:</p>
+
+<pre>var system = require('system');</pre>
+
+<p>Read-only properties:</p>
+
+<p>Query functions:</p>
+
+<p>An example printenv.js demonstrates the same functionality as in the Unix printenv utility:</p>
+
+<pre>
+var system = require('system'),
+    env = system.env,
+    key;
+
+for (key in env) {
+    if (env.hasOwnProperty(key)) {
+        console.log(key + '=' + env[key]);
+    }
+}
+phantom.exit();
+</pre>
+
+<p>An example arguments.js prints all the command-line arguments:</p>
+
+<pre>
+var system = require('system');
+if (system.args.length === 1) {
+    console.log('Try to pass some args when invoking this script!');
+} else {
+    system.args.forEach(function (arg, i) {
+            console.log(i + ': ' + arg);
+    });
+}
+phantom.exit();
+</pre>
+
+<p>If the script is invoked:</p>
+
+<pre>phantomjs arguments.js answer 42</pre>
+
+<p>gives the following result:</p>
+
+<pre>
+0: arguments.js
+1: answer
+2: 42
+</pre>
+
+<p><strong>Control web security</strong></p>
+
+<p>Performing cross-domain XHR is often necessary for some scripting purposes. This is now possible by disabling web security (issue 28), either with –web-security=no command-line option or webSecurityEnabled page setting.</p>
+
+<p>Note: Disabling web security may make the system more vulnerable to attacks and other malicious content. <strong>Use it with great caution</strong>.</p>
+
+<p>An example findads.js uses disabled web security to access the frame content from Google Ads server: https://gist.github.com/2037945.</p>
+
+<p><strong>New features</strong></p>
+
+<p><strong>Bug fixes</strong></p>
+
+<p>Back to <a href="releases.html">all releases</a>.</p>
+<hr>
+
+<footer>
+<p>&#8592; Back to the <a href="/">homepage</a></p>
+<p><small>&copy; 2010-2018 <a href="https://github.com/ariya/phantomjs/graphs/contributors">PhantomJS contributors</a>. Distributed under the BSD license (SPDX: <a href="https://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a>).</small></p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PhantomJS 1.8 Release Notes</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="shortcut icon" href="/img/favicon.ico">
+</head>
+<body>
+<h1>PhantomJS 1.8 Release Notes</h1>
+
+<p>PhantomJS 1.8, <em><a href="release-names.html">Blue Winter Rose</a></em>, was released on December 21, 2012. It integrated Ghost Driver, an implementation of WebDriver Wire Protocol.</p>
+
+<p><strong>WebDriver support via Ghost Driver integration</strong></p>
+
+<p><a href="https://github.com/detro/ghostdriver">Ghost Driver</a>, a project by
+<a href="http://blog.ivandemarino.me/2012/12/04/Finally-GhostDriver-1-0-0">Ivan De Marino</a>, is an implementation
+of <a href="http://code.google.com/p/selenium/wiki/JsonWireProtocol">WebDriver Wire Protocol</a>.
+In this PhantomJS release, Ghost Driver functionalities have been fully integrated.</p>
+
+<p>To launch PhantomJS in <em>Remote WebDriver mode</em> at the intended <code>PORT</code> number:</p>
+
+<pre>phantomjs --webdriver=PORT</pre>
+
+<p>The following example, written in Ruby, assumes PhantomJS WebDriver is running on port <code class="highlighter-rouge">9134</code>.
+The script will load Google, submit a search for the term <em>“PhantomJS”</em> and print the page title
+of the search result page:</p>
+
+<pre>
+require "selenium-webdriver"
+driver = Selenium::WebDriver.for(:remote, :url => "http://localhost:9134")
+driver.navigate.to "http://google.com"
+element = driver.find_element(:name, 'q')
+element.send_keys "PhantomJS"
+element.submit
+puts driver.title
+driver.quit
+</pre>
+
+<p>Bindings for your favourite programming language can be found in <a href="https://code.google.com/p/selenium/downloads/list">Selenium &gt;= 2.27</a>:</p>
+
+<table>
+<thead>
+    <tr>
+        <th>Language Binding</th>
+        <th>Status</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td>Java</td>
+        <td>Available</td>
+    </tr>
+    <tr>
+        <td>C#/.Net</td>
+        <td>Available</td>
+    </tr>
+    <tr>
+        <td>Python</td>
+        <td>Available</td>
+    </tr>
+    <tr>
+        <td>Ruby</td>
+        <td>Available</td>
+    </tr>
+    <tr>
+        <td>PHP</td>
+        <td>Work in progress</td>
+    </tr>
+</tbody>
+</table>
+
+<p><strong>NOTICE:</strong> Language bindings are provided by kind members of the Selenium community.
+Issues related to those should be
+<a href="https://code.google.com/p/selenium/issues/list">reported to Selenium project</a>.
+PhantomJS <strong>solely</strong> implements the Wire Protocol and it is not responsible for any/possible
+binding malfunctions.</p>
+
+<p>More details can be found in
+<a href="http://blog.ivandemarino.me/2012/12/04/Finally-GhostDriver-1-0-0">this blog post</a>.
+Also, make sure you check the documentation of <a href="http://seleniumhq.org/docs/03_webdriver.jsp">Selenium WebDriver</a>.</p>
+
+<p><strong>New features</strong></p>
+
+<p><strong>Improvements</strong></p>
+
+<p><strong>Fix in 1.8.1</strong></p>
+
+<p><strong>Fixes in 1.8.2</strong></p>
+
+<p><strong>Known Issues on Microsoft Windows</strong></p>
+
+<p>Back to <a href="releases.html">all releases</a>.</p>
+
+<hr>
+
+<footer>
+<p>&#8592; Back to the <a href="/">homepage</a></p>
+<p><small>&copy; 2010-2018 <a href="https://github.com/ariya/phantomjs/graphs/contributors">PhantomJS contributors</a>. Distributed under the BSD license (SPDX: <a href="https://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a>).</small></p>
+</footer>
+
+</body>
+</html>

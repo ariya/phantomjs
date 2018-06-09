@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PhantomJS 1.4 Release Notes</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="shortcut icon" href="/img/favicon.ico">
+</head>
+<body>
+<h1>PhantomJS 1.4 Release Notes</h1>
+
+<p>PhantomJS 1.4, <em><a href="release-names.html">Glory of the Snow</a></em>, was released on December 22, 2011. It is a minor update, mostly bug fixes and one new major feature: WebServer module.</p>
+
+<p>This version is backward compatible with version 1.3. Existing scripts should work without any modification.</p>
+
+<p>Minimum requirement to build PhantomJS 1.3 is Qt 4.6 or later. Latest stable release of Qt, i.e. version 4.8.0, is strongly recommended.</p>
+
+<p><strong>WebServer module</strong></p>
+
+<p>Note: This WebServer module is intended for ease of communication between PhantomJS scripts and the outside world. It is not recommended to use it as a general production server.</p>
+
+<p>By using the embedded web server module <a href="https://github.com/valenok/mongoose">Mongoose</a>, PhantomJS script can start a web server which listens to a particular port.</p>
+
+<p>A very simple example is as follows. It always gives the same response for any request.</p>
+
+<pre>
+var server = require('webserver').create();
+var service = server.listen(8080, function (request, response) {
+    response.statusCode = 200;
+    response.write('<html><body>Hello!</body></html>');
+});
+</pre>
+
+<p>The request object passed to the callback function may contain the following properties:</p>
+
+<p>The response object should be used to create the response:</p>
+
+<p>This WebServer module is still rather simple in this version. Depending on the needs, the functionalities and the corresponding API will be expanded in the next versions.</p>
+
+<p><strong>Static version build script</strong></p>
+
+<p>For continuous integration server and various other uses cases, often it is desired to have a static version of PhantomJS which has almost zero dependencies. While building PhantomJS for the static build is not difficult, it is often a daunting task to figure out the bits and pieces necessary to achieve that build.</p>
+
+<p>For convenience, now there are two build scripts, available in the deploy subdirectories, each for Linux and Mac. The script automatically downloads the source code of Qt, build everything locally, and then prepare the binary for deployment. There is no need to have Qt installed on the system before running the script.</p>
+
+<p>The produced binary has very minimal dependencies and can be transferred to another machine easily. With the help of UPX (optional), the size of the binary is only about 10 MB.</p>
+
+<p>Note: Even with the static build, as of now you still need to setup Xvfb for the Linux version. Also for Mac, don’t forget the Info.plist file (see  issue 281).</p>
+
+<p><strong>New features</strong></p>
+
+<ul>
+  <li>Added embedded HTTP server (issue 115)</li>
+  <li>Added convenient build script for Linux (issue 197)</li>
+  <li>Added support for SOCKS5 proxy (issue 266)</li>
+  <li>Updated CoffeeScript compiler to version 1.2 (issue 312)</li>
+</ul>
+
+<p><strong>Bug fixes</strong></p>
+
+<ul>
+  <li>Fix potential crash in QUrl with Qt 4.8 (issue 304)</li>
+  <li>Fix bug in CookieJar with QSettings and string (PyPhantomJS  issue 10)</li>
+  <li>Prevent showing the icon on Mac OS X Dock (issue 281)</li>
+</ul>
+
+<p><strong>Examples</strong></p>
+
+<ul>
+  <li>Added a new example to detect browsers sniffing (issue 263)</li>
+  <li>Added HTTP server example (issue 115)</li>
+</ul>
+
+<p>Back to <a href="releases.html">all releases</a>.</p>
+
+<hr>
+
+<footer>
+<p>&#8592; Back to the <a href="/">homepage</a></p>
+<p><small>&copy; 2010-2018 <a href="https://github.com/ariya/phantomjs/graphs/contributors">PhantomJS contributors</a>. Distributed under the BSD license (SPDX: <a href="https://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a>).</small></p>
+</footer>
+
+</body>
+</html>

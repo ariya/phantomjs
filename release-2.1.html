@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PhantomJS 2.1 Release Notes</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="shortcut icon" href="/img/favicon.ico">
+</head>
+<body>
+<h1>PhantomJS 2.1 Release Notes</h1>
+
+<p>PhantomJS 2.1 was released on January 23, 2016. It came with an updated WebKit library based on Qt 5.5.</p>
+
+<p><strong>New features</strong></p>
+
+<ul>
+  <li>Upgraded Qt to 5.5.1 (issue #13377)</li>
+  <li>Added support for SSL Client Authentication (issue #11275)</li>
+  <li>Added support for context menu event (issue #11429)</li>
+  <li>Allow remote debugging to use random port assigned by the OS (issue #13432)</li>
+</ul>
+
+<p><strong>Improvements</strong></p>
+
+<ul>
+  <li>Allow outer context to access arbitrary URLs (issue #11217)</li>
+  <li>Fixed –local-storage-path and localStoragePath config option (issue #11596)</li>
+  <li>Restored –local-url-access=no regression (issue #13412)</li>
+  <li>Fixed an issue with loading JS modules contains a last-line comment (issue #12868)</li>
+  <li>Fixed an issue with returning binary content in WebServer module (issue #13026)</li>
+  <li>Fixed encoded URL loading on Windows (issue #12953)</li>
+  <li>Fixed building with GCC 5 (issue #13518)</li>
+  <li>Fixed file upload (issue #12506)</li>
+  <li>Fixed latest OS detection (issue #13829)</li>
+</ul>
+
+<p><strong>Known Regression compared to PhantomJS 1.x</strong></p>
+
+<p>Note: If you encounter more regression, please file a bug on PhantomJS
+<a href="https://github.com/ariya/phantomjs/issues">issue tracker</a> and label it as
+<a href="https://github.com/ariya/phantomjs/labels/Regression">Regression</a>.
+Please search the issue tracker first to make sure the problem has not been reported yet.</p>
+
+<ul>
+  <li>onLongRunningScript and stopJavaScript do not work (issue <a href="https://github.com/ariya/phantomjs/issues/12504">12504</a>)</li>
+  <li>PDF rendering too large, page.zoomFactor doesn’t work (issue <a href="https://github.com/ariya/phantomjs/issues/12685">12685</a>)</li>
+</ul>
+
+<p>Back to <a href="releases.html">all releases</a>.</p>
+
+<hr>
+
+<footer>
+<p>&#8592; Back to the <a href="/">homepage</a></p>
+<p><small>&copy; 2010-2018 <a href="https://github.com/ariya/phantomjs/graphs/contributors">PhantomJS contributors</a>. Distributed under the BSD license (SPDX: <a href="https://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a>).</small></p>
+</footer>
+
+</body>
+</html>

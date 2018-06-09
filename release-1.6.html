@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PhantomJS 1.6 Release Notes</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="shortcut icon" href="/img/favicon.ico">
+</head>
+<body>
+<h1>PhantomJS 1.6 Release Notes</h1>
+
+<p>PhantomJS 1.6, <em><a href="release-names.html">Lavender</a></em>, was released on June 20, 2012. It is a minor update, mostly bug fixes and some new API.</p>
+
+<p>This version is backward compatible with version 1.5. Existing scripts should work without any modification.</p>
+
+<p><strong>Improved support for rendering</strong></p>
+
+<p>While it is always possible to capture the web page and render it as an image, it involves creating an external file to hold that image. With this version, the captured content can be retrieved as a string, base64-encoded using the new renderBase64(format) function.</p>
+
+<p>The example will dump the base64-encoded rendering of the web page in PNG format (the default if no format is specified) to the terminal:</p>
+
+<pre>
+var page = require('webpage').create();
+page.open('http://m.bing.com', function (status) {
+    console.log(page.renderBase64());
+    phantom.exit();
+});
+</pre>
+
+<p>To facilitate creating thumbnail preview, scaling the screen capture is now possible via the new zoomFactor property. In this example, the BBC site is captured to an image at 25% zoom.</p>
+
+<pre>
+var page = require('webpage').create();
+page.open('http://news.bbc.co.uk', function (status) {
+    page.zoomFactor = 0.25;
+    page.render('bbc.png');
+    phantom.exit();
+});
+</pre>
+
+<p><strong>Better script evaluation</strong></p>
+
+<p>Arguments can be passed to <code>evaluate()</code> function to run a script in the context of the web page.</p>
+
+<p>In the following example, the text value of a DOM element is extracted. The element is chosen based on the selector which is passed to evaluate.</p>
+
+<pre>
+var page = require('webpage').create();
+page.open('http://m.bing.com', function (status) {
+    var title = page.evaluate(function (s) {
+        return document.querySelector(s).innerText;
+    }, 'title');
+    console.log(title);
+    phantom.exit();
+});
+</pre>
+
+<p>Evaluating a script asynchronously is now possible via the new evaluateAsync function. Unlike the standard evaluate, the function returns immediately and does not wait until the script execution finishes. Consequently there is no return value from this function.</p>
+
+<p><strong>New features</strong></p>
+
+<p><strong>Improvements</strong></p>
+
+<p>Back to <a href="releases.html">all releases</a>.</p>
+
+<hr>
+
+<footer>
+<p>&#8592; Back to the <a href="/">homepage</a></p>
+<p><small>&copy; 2010-2018 <a href="https://github.com/ariya/phantomjs/graphs/contributors">PhantomJS contributors</a>. Distributed under the BSD license (SPDX: <a href="https://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a>).</small></p>
+</footer>
+
+</body>
+</html>

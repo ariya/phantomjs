@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PhantomJS 2.1 Release Notes</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="shortcut icon" href="/img/favicon.ico">
+</head>
+<body>
+<h1>PhantomJS 2.1 Release Notes</h1>
+
+<p>PhantomJS 2.0 was released on January 23, 2015. It came with an updated WebKit library based on Qt 5.3.</p>
+        
+<p><strong>Note 1:</strong> PhantomJS 2.0 is the first release in the 2.x. It has several
+regressions compared to the previous 1.9 release.</p>
+
+<p><strong>Note 2:</strong> This release note will be updated with more information in the coming days/weeks.</p>
+
+<p><strong>Updated Qt and WebKit</strong></p>
+
+<p>This release, and the upcoming 2.x series, is different that PhantomJS
+1.x since it switches the core implementation to use <a href="http://qt-project.org/doc/qt-5.0/qtdoc/qt5-intro.html">Qt 5</a>
+to get a more modern base platform, as well as to have an updated WebKit module.</p>
+
+<p><strong>Removal of CoffeeScript support</strong></p>
+
+<p>PhantomJS 2 can not run scripts written in CoffeeScript anymore
+(see issue <a href="https://github.com/ariya/phantomjs/issues/12410">12410</a>).
+As a workaround, CoffeeScript users can still compile their scripts to
+JavaScript first before executing it with PhantomJS.</p>
+
+<p><strong>Known issues</strong></p>
+
+<p>(To be populated later)</p>
+
+<p><strong>Regression compared to PhantomJS 1.x</strong></p>
+
+<p>Note: If you encounter more regression, please file a bug on PhantomJS
+<a href="https://github.com/ariya/phantomjs/issues">issue tracker</a> and label it as
+<a href="https://github.com/ariya/phantomjs/labels/Regression">Regression</a>.
+Please search the issue tracker first to make sure the problem has not been reported yet.</p>
+
+<ul>
+    <li>File upload does not work (issue <a href="https://github.com/ariya/phantomjs/issues/12506">12506</a>)</li>
+    <li>onLongRunningScript and stopJavaScript do not work (issue <a href="https://github.com/ariya/phantomjs/issues/12504">12504</a>)</li>
+    <li>OS X 10.6 (Snow Leopard) is not supported anymore (issue <a href="https://github.com/ariya/phantomjs/issues/12900">12900</a>)</li>
+    <li>OS X 10.10 (Yosemite) can not build PhantomJS (issue <a href="https://github.com/ariya/phantomjs/issues/12630">12630</a>)</li>
+    <li>PDF rendering too large, page.zoomFactor doesn’t work (issue <a href="https://github.com/ariya/phantomjs/issues/12685">12685</a>)</li>
+</ul>
+
+<p>Back to <a href="releases.html">all releases</a>.</p>
+
+<hr>
+
+<footer>
+<p>&#8592; Back to the <a href="/">homepage</a></p>
+<p><small>&copy; 2010-2018 <a href="https://github.com/ariya/phantomjs/graphs/contributors">PhantomJS contributors</a>. Distributed under the BSD license (SPDX: <a href="https://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a>).</small></p>
+</footer>
+
+</body>
+</html>

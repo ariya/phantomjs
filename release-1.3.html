@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PhantomJS 1.3 Release Notes</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="shortcut icon" href="/img/favicon.ico">
+</head>
+<body>
+<h1>PhantomJS 1.3 Release Notes</h1>
+
+<p>PhantomJS 1.3, <em><a href="release-names.html">Water Lily</a></em>, was released on September 23, 2011. It is a minor update, mostly bug fixes and few additional new features.</p>
+
+<p>This version is backward compatible with version 1.2. Existing scripts should work without any modification.</p>
+
+<p>Minimum requirement to build PhantomJS 1.3 is Qt 4.6 or later. Latest stable release of Qt, i.e. version 4.7.4, is strongly recommended.</p>
+
+<p><strong>Initial module support</strong></p>
+
+<p>Module API modelled after CommonJS Modules is available, currently only supporting webpage and fs built-in modules.</p>
+
+<p>For compatibility reason, WebPage object at the global scope is still available. It will be deprecated in some future release. The new recommended way to create a web page is as follows:</p>
+
+<pre>
+var page = require('webpage').create();
+
+page.open(url, function (status) {
+    // do something
+});
+</pre>
+
+<p><strong>WebPage object improvement</strong></p>
+
+<p>WebPage object wraps a native object that represents the web page. Because of technical limitation, a WebPage object can not be properly garbage collected and freed from the memory. To prevent increasing heap usage when create a lot of WebPage objects, use the new release() function, as in this example:</p>
+
+<pre>
+var page = require('webpage').create();
+
+page.open(url, function (status) {
+    // do something
+    // ....
+    // finish
+    page.release();
+});
+</pre>
+
+<p>A new callback onInitialized can be used to modify the global objects before a page is loaded. In the following example, further calls to Math.random() effectively will always return the specified constant.</p>
+
+<pre>
+page.onInitialized = function() {
+    Math.random = function() {
+        return 42;
+    };
+};
+</pre>
+
+<p>Related to page rasterization using render() function, it is now possible to control the physical scroll offset of the web page using the new property of WebPage called scrollPosition, as illustrated below:</p>
+
+<pre>
+page.scrollPosition = { top: 100, left: 0 };
+page.render('output.png');
+</pre>
+
+<p>There is now a convenient way to create a new page by passing an option the constructor:</p>
+
+<pre>
+var page = new WebPage({
+    onConsoleMessage: function (msg) {
+      console.log(msg);
+    },
+  
+    settings: {
+      loadPlugins: false,
+      userAgent: 'Dragonless Phantom'
+    },
+  
+    viewportSize: {
+      width: 800,
+      height: 600
+    }
+});
+</pre>
+
+<p><strong>Page settings</strong></p>
+
+<p>The behavior of the web page can be further modified by the following new settings:</p>
+
+<p>Example usage:</p>
+
+<pre>
+var page = new WebPage();
+
+page.settings.javascriptEnabled = true;
+page.settings.XSSAuditingEnabled = true;
+page.settings.localToRemoteUrlAccessEnabled = true;
+
+page.open(url, function (status) {
+  // do something
+});
+</pre>
+
+<p><strong>Mouse events</strong></p>
+
+<p>Mouse events can be sent to the page using the new sendEvent function, like in the following examples:</p>
+
+<pre>page.sendEvent('mousedown', 45, 50);</pre>
+
+<p>The first argument is the event type. Other available types are mouseup, mousemove, and click. The next two arguments represents the mouse position.</p>
+
+<p>As of now, left button is the only pressed button for the event. For mousemove however, there is no button pressed (i.e. it is not dragging).</p>
+
+<p>The events are not like synthetic DOM events. Each event is sent to the web page as if it comes as part of user interaction.</p>
+
+<p><strong>File system access</strong></p>
+
+<p>A set of API functions is available to access files and directories. They are modelled after CommonJS Filesystem proposal.</p>
+
+<p>To start using, it needs to be instantiated via the fs module such as:</p>
+
+<pre>var fs = require('fs');</pre>
+
+<p>Read-only properties:</p>
+
+<p>Query functions:</p>
+
+<p>Directory-related functions:</p>
+
+<p>File-related functions:</p>
+
+<p>A stream object returned from the open() function has the following functions:</p>
+
+<p>As an example of file access API, the following function recursively traverses a directory and prints all the found entries:</p>
+
+<pre>
+function scanDirectory(path) {
+    var fs = require('fs');
+    if (fs.exists(path) &amp;&amp; fs.isFile(path)) {
+        console.log(path);
+    } else if (fs.isDirectory(path)) {
+        fs.list(path).forEach(function (e) {
+            if (e !== '.' &amp;&amp; e !== '..') {
+                scanDirectory(path + '/' + e);
+            }
+        });
+    }
+};
+</pre>
+
+<p><strong>Command-line options</strong></p>
+
+<p>Newly available options are:</p>
+
+<p>Rather than passing all options in the command-line, it is also possible to store the options in a file using JavaScript Object Notation (JSON) and then tell PhantomJS to read it:</p>
+
+<pre>phantomjs --config=/path/to/config.json script.js arg1 arg2 arg3</pre>
+
+<p>where the contents of config.json looks like:</p>
+
+<pre>
+{
+    'ignoreSslErrors': true,
+    'localToRemoteUrlAccessEnabled': true
+}
+</pre>
+
+<p><strong>Platform-specific</strong></p>
+
+<p>Mac OS X: There is no more application bundle, the executable is bin/phantomjs and not bin/phantomjs.app/Contents/MacOS/phantomjs anymore.</p>
+
+<p><strong>Bug fixes</strong></p>
+
+<p><strong>New features</strong></p>
+
+<p><strong>Examples</strong></p>
+
+<p>Back to <a href="releases.html">all releases</a>.</p>
+
+<hr>
+
+<footer>
+<p>&#8592; Back to the <a href="/">homepage</a></p>
+<p><small>&copy; 2010-2018 <a href="https://github.com/ariya/phantomjs/graphs/contributors">PhantomJS contributors</a>. Distributed under the BSD license (SPDX: <a href="https://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a>).</small></p>
+</footer>
+
+</body>
+</html>
