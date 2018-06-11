@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>REPL for PhantomJS</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="shortcut icon" href="/img/favicon.ico">
+</head>
+<body>
+<h1>REPL: Read-Eval-Print Loop</h1>
+
+<p>From version 1.5 PhantomJS will provide an Interactive Mode, also known as REPL: Read-Eval-Print Loop.</p>
+
+<h3 id="why-a-repl">Why a REPL?</h3>
+
+<p>Sometimes you feel the urge to test out some small/medium size Javascript code to see how <code>x</code> or <code>y</code> works. Usually you would open the Javascript console in <a href="http://getfirebug.com/">Firebug</a>, the <a href="http://trac.webkit.org/wiki/Web%20Inspector">Webkit Inspector</a>, <a href="http://www.opera.com/dragonfly/">Opera Dragonfly</a> or <a href="https://developers.google.com/web/tools/chrome-devtools/">Chrome DevTools</a> and type away. The addition of a REPL now allows you to do the same from PhantomJS.</p>
+
+<h3 id="how-does-it-work">How does it work</h3>
+
+<p>As mentioned above, REPL stands for READ-EVAL-PRINT LOOP: every line you type (READ) (i.e. type then press ⏎) is sent to the interpreter for immediate execution (EVAL) and feedback (PRINT).</p>
+
+<p>This is (from version 1.5 onward) the new default mode in which PhantomJS starts if you don’t provide any parameter.</p>
+
+<p>Here is an example use that will probably explain better than many words:</p>
+
+<pre>
+$ phantomjs⏎
+phantomjs> phantom.version⏎
+{
+  "major": 1,
+  "minor": 5,
+  "patch": 0
+}
+phantomjs> console.log("phantom is awesome")⏎
+phantom is awesome
+undefined
+phantomjs> window.navigator⏎
+{
+  "cookieEnabled": true,
+  "language": "en-GB",
+  "productSub": "20030107",
+  "product": "Gecko",
+  "appCodeName": "Mozilla",
+  "mimeTypes": {
+    "length": 0
+  },
+  "vendorSub": "",
+  "vendor": "Apple Computer, Inc.",
+  "platform": "MacIntel",
+  "appName": "Netscape",
+  "appVersion": "5.0 (Macintosh; Intel Mac OS X) AppleWebKit/534.34 (KHTML, like Gecko) PhantomJS/1.6.0 (development) Safari/534.34",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/534.34 (KHTML, like Gecko) PhantomJS/1.6.0 (development) Safari/534.34",
+  "plugins": {
+    "length": 0
+  },
+  "onLine": false
+}
+</pre>
+
+<p>Every command gets evaluated on the spot, and the actual return value is printed.</p>
+
+<p>To exit? The usual: either type <code>phantom.exit()</code> or CTRL+C or CTRL+D.</p>
+
+<p>The entire API is available to use in this mode, so you can follow <a href="http://phantomjs.org/examples/index.html">the examples</a> and enter them line by line in REPL and they will work.</p>
+
+<h3 id="auto-completion">Auto-completion</h3>
+
+<p>One of the feature that we saw could bring a lot of value is auto-completion. Sometimes, as much as people like documentation, if they could get a list of methods or properties by just tapping TAB (i.e. <code>→|</code>) it could make all the difference:</p>
+
+<pre>
+phantomjs> phantom.→|
+phantomjs> phantom.injectJs→|
+phantomjs> phantom.exit→|
+phantomjs> phantom.version→|
+phantomjs> phantom.outputEncoding⏎
+"UTF-8"
+phantomjs>
+</pre>
+
+<p>So, if you remember there was a method that did just x but can’t just remember what it was called, now the fastest way to the answer can be just few characters away.</p>
+
+<h3 id="command-history">Command History</h3>
+
+<p>And, of course, the REPL couldn’t be one without history support: just use your UP and DOWN arrow keys to navigate through the list of commands you typed before, for quick reference.</p>
+
+<p>The history file is saved at:</p>
+
+<pre>QDesktopServices::DataLocation + "/phantom_repl_history"</pre>
+
+<p>where DataLocation is defined by Qt and it depends on the operating system. On Mac, for example, it is at:</p>
+
+<pre>"~/Library/Application Support/Ofi Labs/PhantomJS/phantom_repl_history"</pre>
+
+<h3 id="is-it-bug-free">Is it bug free?</h3>
+
+<p>Ehm, no. This is a new functionality and it’s built making all sorts of JavaScript manipulation: there are bugs and we are listening (or waiting for a pull request).</p>
+
+<h3 id="credits">Credits</h3>
+
+<p>We couldn’t have built the REPL and all it’s nice console-like features without <a href="https://github.com/tadmarshall/linenoise">Linenoise</a> project (an improved fork of <a href="https://github.com/antirez/linenoise">the original</a>).</p>
+
+<hr>
+
+<footer>
+<p>&#8592; Back to the <a href="/">homepage</a></p>
+<p><small>&copy; 2010-2018 <a href="https://github.com/ariya/phantomjs/graphs/contributors">PhantomJS contributors</a>. Distributed under the BSD license (SPDX: <a href="https://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a>).</small></p>
+</footer>
+
+</body>
+</html>
