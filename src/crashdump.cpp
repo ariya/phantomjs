@@ -119,8 +119,9 @@ init_crash_handler_os()
     // When the app crashes, don't print the abort message
     // and don't call Dr. Watson to make a crash dump.
     // http://msdn.microsoft.com/en-us/library/e631wekh(v=VS.100).aspx
+#ifndef __MINGW32__
     _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
-
+#endif
 
 #if _MSC_VER >= 1400
     _set_invalid_parameter_handler(invalid_parameter_handler);
