@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reporting issue for PhantomJS</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="shortcut icon" href="/img/favicon.ico">
+</head>
+<body>
+<h1>Reporting an Issue</h1>
+
+<p>PhantomJS does not behave as expected? This is a chance to report it!</p>
+
+<p>Because the team behind PhantomJS is a group of volunteers with very limited maintenance capacity (<a href="https://github.com/ariya/phantomjs/issues/14541">more details</a>), we have to make a certain trade-off when treating a report of an issue.
+<p>There is no guarantee that we can fix every issue (some are impossible or impractical to solve). Following the guide here will maximize the chance that the issue gets addressed, triaged, and looked at.</p>
+
+<p>Some important points to consider:</p>
+
+<dt>Be as <strong>specific</strong> as possible
+<dd>It is impossible to solve the problem without a very good understanding of it.</dd>
+</dt>
+
+<dt>Be <strong>civil</strong> and <strong>reasonable</strong>
+<dd>Discuss only facts and refrain from making a certain deduction, opinion, or judgement.</dd>
+</dt>
+
+<dt>Be <strong>patient</strong>
+<dd>This is a volunteering project, giving the sense of urgency does not magically make the solution appear faster.</dd>
+</dt>
+
+<hr>
+
+<h3>Provide detailed information on the system</h3>
+
+<p>To get the version of PhantomJS:</p>
+<pre>phantomjs --version</pre>
+
+<p>To get the operating system version:</p>
+<ul>
+<li>Linux: use the command line and type <code>uname -a</code></li>
+<li>Microsoft Windows: Start menu, <code>r</code>, and <code>winver</code> (<a href="https://support.microsoft.com/en-us/help/13443/windows-which-operating-system">more details</a>)</li>
+<li>Apple macOS: Apple menu, About This Mac (<a href="https://support.apple.com/en-us/HT201260">more details</a>)</li>
+</ul>
+
+<h3>Describe the steps to reproduce the issue</h3>
+
+<p>Make sure your report has the following:</p>
+<ul>
+  <li>Detailed steps on how to <em>reproduce</em> the issue</li>
+  <li><em>Actual behavior</em>, i.e. what you observed</li>
+  <li><em>Expeced behavior</em>, i.e. what you think PhantomJS should do instead</li>
+</ul>
+
+<p>An example of an <em>incomplete report</em>:</p>
+
+<blockquote>I ran PhantomJS and it crashed.</blockquote>
+
+<p>An example of a <em>good report</em>:</p>
+
+<blockquote>
+<strong>Steps to reproduce:</strong>
+<ol>
+<li>Download and install PhantomJS version 2.1 for Windows</li>
+<li>Open command prompt
+<li>Run <code>phantomjs --version</code></li>
+</ol>
+<strong>Actual behavior</strong>
+<p>PhantomJS crashed.</p>
+<strong>Expected behavior</strong>
+<p>PhantomJS shows its version number.</p>
+</blockquote>
+
+<h3>Attempt to perform test case reduction</h3>
+
+<p>The instruction on the WebKit web site <a href="https://webkit.org/test-case-reduction/">explains</a> this as:</p>
+
+<blockquote><em>...to take a page that demonstrates a problem and remove as much content as possible while still reproducing the original problem.</em></blockquote>
+
+<p>Due to very limited maintenance capacity of the team behind PhantomJS (<a href="https://github.com/ariya/phantomjs/issues/14541">more details</a>), it is simply not feasible to leave it to the PhantomJS team to perform the test case reduction.</p>
+
+<p>When you report that e.g. PhantomJS does not work with web site X, it is also unexpected that you would perform a basic troubleshooting (see some tips given at the above WebKit instructions) to help narrowing down the issue and hopefully to lead it to a possible root cause.</p>
+
+<hr>
+
+<footer>
+<p>&#8592; Back to the <a href="/">homepage</a></p>
+<p><small>&copy; 2010-2018 <a href="https://github.com/ariya/phantomjs/graphs/contributors">PhantomJS contributors</a>. Distributed under the BSD license (SPDX: <a href="https://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a>).</small></p>
+</footer>
+
+</body>
+</html>
