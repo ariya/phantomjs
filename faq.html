@@ -46,8 +46,7 @@ compiled 1.4?</strong></p>
 its previous versions (read <a href="http://ariya.ofilabs.com/2012/03/the-evolution-of-phantomjs-build-workflow.html">the details</a>). If the working directory still has some left-over
 from 1.4 build process, there will be a compile error, such as:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>phantom.cpp:305: error: no matching <span class="k">function for </span>call to <span class="s1">'QWebFrame::evaluateJavaScript(QString, QString)
-</span></code></pre></div></div>
+<pre>phantom.cpp:305: error: no matching function for call to 'QWebFrame::evaluateJavaScript(QString, QString)</pre>
 
 <p>The solution is to completely clean the directory from old build files. The
 recommended way is to run <tt>git clean -xfd</tt> from the top-level.

@@ -31,7 +31,7 @@ page.onResourceRequested = function(requestData, request) {
 };
 </pre>
 
-<p>If a request has an associated URL ending with <code class="highlighter-rouge">.css</code>, it will not be routed to the server. Effectively,
+<p>If a request has an associated URL ending with <code>.css</code>, it will not be routed to the server. Effectively,
 this means that the page is loaded <a href="http://ariya.ofilabs.com/2013/06/capturing-web-page-without-stylesheets.html">without any stylesheets</a>
 (often useful to check for connection failures). Matching the URL with the main resource URL can also be used to
 <a href="http://ariya.ofilabs.com/2013/06/web-page-without-external-resources.html">exclude third-party assets</a>.</p>

@@ -54,8 +54,7 @@ sudo apt-get install build-essential g++ flex bison gperf ruby perl \
 <p>Please also add the folder <code>&lt;phantomjs_path&gt;\src\qt\3rdparty\gnuwin32\bin</code> to your <code>PATH</code>, as required tools such as <code>bison</code>, <code>flex</code>, and <code>gperf</code> will not be found otherwise.
 Example:</p>
 
-<div><div class="highlight"><pre class="highlight"><code>SET PATH=%CD%\src\qt\3rdparty\gnuwin32\bin;%PATH%
-</code></pre></div></div>
+<pre>SET PATH=%CD%\src\qt\3rdparty\gnuwin32\bin;%PATH%</pre>
 
 <p>Run the build script from Visual Studio Command Prompt.</p>
 
@@ -76,19 +75,18 @@ Example:</p>
 
 <p>To obtain the code using <a href="http://git-scm.com/">Git</a> from the official repository <a href="https://github.com/ariya/phantomjs/">github.com/ariya/phantomjs</a>:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone git://github.com/ariya/phantomjs.git
-<span class="nb">cd </span>phantomjs
+<pre>git clone git://github.com/ariya/phantomjs.git
+cd phantomjs
 git checkout 2.1.1
 git submodule init
 git submodule update
-</code></pre></div></div>
+</pre>
 
 <h2 id="compile-and-link">Compile and Link</h2>
 
 <p>From the code checkout:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python build.py
-</code></pre></div></div>
+<pre>python build.py</pre>
 
 <p>This will take some time. Once it is completed, the executable will be available under the <code>bin</code> subdirectory.</p>
 
