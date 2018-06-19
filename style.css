@@ -1,0 +1,5 @@
+body { color: #444; font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif }
+h1, h2, h3, h4 { font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif }
+code, pre { font-family: Consolas, Monaco, 'Courier New', Courier, monospace }
+pre { margin-left: 40px }
+code { border: 1px solid #ccc; padding: 2px 4px; border-radius: 4px; background-color: #f5f5f5; }
