@@ -1,0 +1,46 @@
+Installation Instructions
+*************************
+
+System requirements:
+
+  * C++ toolchain such as g++ 7 or later
+  * CMake version 3.5 or later
+  * Qt 5 toolkit
+  * Python 2.7 (to run the tests)
+
+
+Installation on Linux
+---------------------
+
+On Debian/Ubuntu, the requirements can be fulfilled by installing these packages:
+
+  sudo apt install g++ cmake qt5-default libqt5webkit5-dev python
+
+After unpacking the source tarball or cloning the repository:
+
+  ./configure && make
+
+Do a quick sanity check:
+
+  ./bin/phantomjs --version
+
+Run the test suite:
+
+  make check
+
+Install it (may require sudo):
+
+  make install
+
+
+Installation on Windows
+-----------------------
+
+To be written.
+
+
+Installation on macOS
+---------------------
+
+To be written.
+
