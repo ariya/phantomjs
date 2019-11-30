@@ -32,10 +32,10 @@
 #ifndef CONSTS_H
 #define CONSTS_H
 
-#define PHANTOMJS_VERSION_MAJOR     2
-#define PHANTOMJS_VERSION_MINOR     2
+#define PHANTOMJS_VERSION_MAJOR     3
+#define PHANTOMJS_VERSION_MINOR     0
 #define PHANTOMJS_VERSION_PATCH     0
-#define PHANTOMJS_VERSION_STRING    "2.2.0-development"
+#define PHANTOMJS_VERSION_STRING    "3.0.0-development"
 
 #define HTTP_HEADER_CONTENT_LENGTH      "content-length"
 #define HTTP_HEADER_CONTENT_TYPE        "content-type"
