@@ -132,7 +132,7 @@ bool injectJsInFrame(const QString& jsFilePath, const QString& jsFileLanguage, c
         return false;
     }
     // Execute JS code in the context of the document
-    targetFrame->evaluateJavaScript(scriptBody, QString(JAVASCRIPT_SOURCE_CODE_URL).arg(QFileInfo(scriptPath).fileName()));
+    targetFrame->evaluateJavaScript(scriptBody);
     return true;
 }
 
@@ -147,10 +147,10 @@ bool loadJSForDebug(const QString& jsFilePath, const QString& jsFileLanguage, co
     QString scriptBody = jsFromScriptFile(scriptPath, jsFileLanguage, jsFileEnc);
 
     scriptBody = QString("function __run() {\n%1\n}").arg(scriptBody);
-    targetFrame->evaluateJavaScript(scriptBody, QString(JAVASCRIPT_SOURCE_CODE_URL).arg(QFileInfo(scriptPath).fileName()));
+    targetFrame->evaluateJavaScript(scriptBody);
 
     if (autorun) {
-        targetFrame->evaluateJavaScript("__run()", QString());
+        targetFrame->evaluateJavaScript("__run()");
     }
 
     return true;

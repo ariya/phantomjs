@@ -73,7 +73,8 @@ phantom.__defineErrorSignalHandler__ = function(obj, page, handlers) {
             return (!!handlerObj && typeof handlerObj.callback === "function" && typeof handlerObj.connector === "function") ?
                 handlers[handlerName].callback :
                 undefined;
-        }
+        },
+        configurable: true
     });
 };
 
