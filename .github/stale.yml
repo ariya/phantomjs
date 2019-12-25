@@ -1,0 +1,19 @@
+# Number of days of inactivity before an issue becomes stale
+daysUntilStale: 15
+# Number of days of inactivity before a stale issue is closed
+daysUntilClose: 3
+# Issues with these labels will never be considered stale
+exemptLabels:
+  - pinned
+  - meta
+# Label to use when marking an issue as stale
+staleLabel: stale
+# Comment to post when marking an issue as stale. Set to `false` to disable
+markComment: false
+# Comment to post when closing a stale issue. Set to `false` to disable
+closeComment: >
+  Due to our very limited maintenance capacity (see #14541 for more details),
+  we need to prioritize our development focus on other tasks.
+  Therefore, this issue will be automatically closed.
+  In the future, if we see the need to attend to this issue again, then it will be reopened.
+  Thank you for your contribution!
