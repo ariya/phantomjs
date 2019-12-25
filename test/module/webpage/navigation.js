@@ -27,4 +27,6 @@ async_test(function () {
     page.onLoadFinished = onLoadFinished1;
     page.open(url1);
 
-}, "navigating to a relative URL using window.location");
+}, "navigating to a relative URL using window.location",
+    { skip: true }   // FIXME
+);

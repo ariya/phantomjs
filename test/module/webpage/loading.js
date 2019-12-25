@@ -18,4 +18,6 @@ async_test(function () {
 
     assert_is_true(page.loading);
     assert_greater_than(page.loadingProgress, 0);
-}, "page loading progress");
+}, "page loading progress",
+    { skip: true }   // FIXME
+);

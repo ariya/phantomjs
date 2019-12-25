@@ -34,7 +34,9 @@ test(function () {
 
     page.evaluate(function() { throw Error("foo"); });
     assert_equals(lastError, "Error: foo");
-}, "basic error reporting");
+}, "basic error reporting",
+    { skip: true }   // FIXME
+);
 
 async_test(function () {
     var page = webpage.create();
@@ -47,7 +49,9 @@ async_test(function () {
         setTimeout(function() { referenceError(); }, 0);
     });
 
-}, "error reporting from async events");
+}, "error reporting from async events",
+    { skip: true }   // FIXME
+);
 
 test(function () {
     var page = webpage.create();
@@ -65,7 +69,9 @@ test(function () {
 
     assert_equals(hadError, false);
     assert_is_true(page.evaluate(function() { return window.caughtError; }));
-}, "should not report errors that were caught");
+}, "should not report errors that were caught",
+    { skip: true }   // FIXME
+);
 
 var helperBase = "error-helper.js";
 var helperFile = fs.join(TEST_DIR, "lib", "fixtures", helperBase);
@@ -96,7 +102,9 @@ test(function () {
     } catch (e) {
         check_stack(e.toString(), e.stack);
     }
-}, "stack trace accuracy (controller script)");
+}, "stack trace accuracy (controller script)",
+    { skip: true }   // FIXME
+);
 
 async_test(function () {
     var page = webpage.create();
@@ -106,4 +114,6 @@ async_test(function () {
     page.evaluate(function () {
         setTimeout(function () { ErrorHelper.foo(); }, 0);
     });
-}, "stack trace accuracy (webpage script)");
+}, "stack trace accuracy (webpage script)",
+    { skip: true }   // FIXME
+);
