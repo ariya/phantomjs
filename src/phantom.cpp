@@ -39,6 +39,7 @@
 #include <QMetaProperty>
 #include <QScreen>
 #include <QStandardPaths>
+#include <QtWebKitVersion>
 #include <QtWebKitWidgets/QWebPage>
 
 #include "callback.h"
@@ -51,6 +52,10 @@
 #include "utils.h"
 #include "webpage.h"
 #include "webserver.h"
+
+#if QTWEBKIT_VERSION < ((5<<16) | (212<<8))
+#error "This version of QtWebKit is not supported. Please use QtWebKit >= 5.212"
+#endif
 
 static Phantom* phantomInstance = NULL;
 

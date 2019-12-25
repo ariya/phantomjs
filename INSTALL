@@ -6,11 +6,19 @@ System requirements:
   * C++ toolchain such as g++ 7 or later
   * CMake version 3.5 or later
   * Qt 5 toolkit
+  * Community QtWebKit version 5.212 or later
   * Python 2.7 (to run the tests)
 
 
 Installation on Linux
 ---------------------
+
+Due to the required QtWebKit >= 5.212, only the following distributions will
+be supported:
+
+  * Debian 10 (buster) or later
+  * Ubuntu 18.04 (bionic) or later
+  * Fedora 28 or later
 
 On Debian/Ubuntu, the requirements can be fulfilled by installing these packages:
 
