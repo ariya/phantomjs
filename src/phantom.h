@@ -54,7 +54,6 @@ class Phantom : public QObject
     Q_PROPERTY(QObject* page READ page)
     Q_PROPERTY(bool cookiesEnabled READ areCookiesEnabled WRITE setCookiesEnabled)
     Q_PROPERTY(QVariantList cookies READ cookies WRITE setCookies)
-    Q_PROPERTY(bool webdriverMode READ webdriverMode)
     Q_PROPERTY(int remoteDebugPort READ remoteDebugPort)
 
 private:
@@ -94,8 +93,6 @@ public:
 
     bool areCookiesEnabled() const;
     void setCookiesEnabled(const bool value);
-
-    bool webdriverMode() const;
 
     int remoteDebugPort() const;
 

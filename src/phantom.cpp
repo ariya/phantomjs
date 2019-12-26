@@ -205,14 +205,7 @@ bool Phantom::execute()
     }
 #endif
 
-    if (m_config.isWebdriverMode()) {                                   // Remote WebDriver mode requested
-        qDebug() << "Phantom - execute: Starting Remote WebDriver mode";
-
-        if (!Utils::injectJsInFrame(":/ghostdriver/main.js", QString(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
-            m_returnValue = -1;
-            return false;
-        }
-    } else if (m_config.scriptFile().isEmpty()) {                       // REPL mode requested
+    if (m_config.scriptFile().isEmpty()) {                       // REPL mode requested
         qDebug() << "Phantom - execute: Starting REPL mode";
 
         // REPL is only valid for javascript
@@ -304,11 +297,6 @@ void Phantom::setCookiesEnabled(const bool value)
     }
 }
 
-bool Phantom::webdriverMode() const
-{
-    return m_config.isWebdriverMode();
-}
-
 // public slots:
 QObject* Phantom::createCookieJar(const QString& filePath)
 {
@@ -398,12 +386,6 @@ bool Phantom::injectJs(const QString& jsFilePath)
 {
     QString pre = "";
     qDebug() << "Phantom - injectJs:" << jsFilePath;
-
-    // If in Remote Webdriver Mode, we need to manipulate the PATH, to point it to a resource in `ghostdriver.qrc`
-    if (webdriverMode()) {
-        pre = ":/ghostdriver/";
-        qDebug() << "Phantom - injectJs: prepending" << pre;
-    }
 
     if (m_terminated) {
         return false;
