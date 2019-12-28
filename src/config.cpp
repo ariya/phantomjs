@@ -388,20 +388,6 @@ void Config::setScriptEncoding(const QString& value)
     m_scriptEncoding = value;
 }
 
-QString Config::scriptLanguage() const
-{
-    return m_scriptLanguage;
-}
-
-void Config::setScriptLanguage(const QString& value)
-{
-    if (value.isEmpty()) {
-        return;
-    }
-
-    m_scriptLanguage = value;
-}
-
 QString Config::scriptFile() const
 {
     return m_scriptFile;
@@ -516,7 +502,6 @@ void Config::resetToDefaults()
     m_proxyAuthPass.clear();
     m_scriptArgs.clear();
     m_scriptEncoding = "UTF-8";
-    m_scriptLanguage.clear();
     m_scriptFile.clear();
     m_unknownOption.clear();
     m_versionFlag = false;
@@ -704,10 +689,6 @@ void Config::handleOption(const QString& option, const QVariant& value)
 
     if (option == "script-encoding") {
         setScriptEncoding(value.toString());
-    }
-
-    if (option == "script-language") {
-        setScriptLanguage(value.toString());
     }
 
     if (option == "web-security") {

@@ -1383,7 +1383,7 @@ void WebPage::_uploadFile(const QString& selector, const QStringList& fileNames)
 
 bool WebPage::injectJs(const QString& jsFilePath)
 {
-    return Utils::injectJsInFrame(jsFilePath, m_libraryPath, m_currentFrame);
+    return Utils::injectJsInFrame(jsFilePath, Encoding::UTF8, m_libraryPath, m_currentFrame);
 }
 
 void WebPage::_appendScriptElement(const QString& scriptUrl)

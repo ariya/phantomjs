@@ -137,9 +137,6 @@ public:
     QString scriptEncoding() const;
     void setScriptEncoding(const QString& value);
 
-    QString scriptLanguage() const;
-    void setScriptLanguage(const QString& value);
-
     QString scriptFile() const;
     void setScriptFile(const QString& value);
 

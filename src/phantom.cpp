@@ -208,15 +208,6 @@ bool Phantom::execute()
     if (m_config.scriptFile().isEmpty()) {                       // REPL mode requested
         qDebug() << "Phantom - execute: Starting REPL mode";
 
-        // REPL is only valid for javascript
-        const QString& scriptLanguage = m_config.scriptLanguage();
-        if (scriptLanguage != "javascript" && !scriptLanguage.isNull()) {
-            QString errMessage = QString("Unsupported language: %1").arg(scriptLanguage);
-            Terminal::instance()->cerr(errMessage);
-            qWarning("%s", qPrintable(errMessage));
-            return false;
-        }
-
         // Create the REPL: it will launch itself, no need to store this variable.
         REPL::getInstance(m_page->mainFrame(), this);
     } else {                                                            // Load the User Script
@@ -229,12 +220,12 @@ bool Phantom::execute()
             if (m_config.remoteDebugPort() == 0) {
                 qWarning() << "Can't bind remote debugging server to the port" << originalPort;
             }
-            if (!Utils::loadJSForDebug(m_config.scriptFile(), m_config.scriptLanguage(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), m_config.remoteDebugAutorun())) {
+            if (!Utils::loadJSForDebug(m_config.scriptFile(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), m_config.remoteDebugAutorun())) {
                 m_returnValue = -1;
                 return false;
             }
         } else {
-            if (!Utils::injectJsInFrame(m_config.scriptFile(), m_config.scriptLanguage(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
+            if (!Utils::injectJsInFrame(m_config.scriptFile(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
                 m_returnValue = -1;
                 return false;
             }
@@ -391,7 +382,7 @@ bool Phantom::injectJs(const QString& jsFilePath)
         return false;
     }
 
-    return Utils::injectJsInFrame(pre + jsFilePath, libraryPath(), m_page->mainFrame());
+    return Utils::injectJsInFrame(pre + jsFilePath, Encoding::UTF8, libraryPath(), m_page->mainFrame());
 }
 
 void Phantom::setProxy(const QString& ip, const qint64& port, const QString& proxyType, const QString& user, const QString& password)

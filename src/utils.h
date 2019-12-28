@@ -49,24 +49,12 @@ void messageHandler(QtMsgType type,
 extern bool printDebugMessages;
 
 bool injectJsInFrame(const QString& jsFilePath,
-                     const QString& libraryPath,
-                     QWebFrame* targetFrame,
-                     const bool startingScript = false);
-
-bool injectJsInFrame(const QString& jsFilePath,
-                     const QString& jsFileLanguage,
                      const Encoding& jsFileEnc,
                      const QString& libraryPath,
                      QWebFrame* targetFrame,
                      const bool startingScript = false);
 
 bool loadJSForDebug(const QString& jsFilePath,
-                    const QString& libraryPath,
-                    QWebFrame* targetFrame,
-                    const bool autorun = false);
-
-bool loadJSForDebug(const QString& jsFilePath,
-                    const QString& jsFileLanguage,
                     const Encoding& jsFileEnc,
                     const QString& libraryPath,
                     QWebFrame* targetFrame,
