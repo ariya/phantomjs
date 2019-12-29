@@ -1,0 +1,40 @@
+jobs:
+
+- job: 'amd64_linux_gcc'
+  pool:
+    vmImage: 'ubuntu-18.04'
+  steps:
+  - script: sudo apt-get -y -qq update
+    displayName: 'apt-get update'
+  - script: sudo apt install -y g++ cmake qt5-default libqt5webkit5-dev python
+    displayName: 'Install requirements'
+  - script: g++ --version && cmake --version && qmake --version && python --version
+    displayName: 'Display tools version'
+  - script: ./configure
+    displayName: 'Run configure script'
+  - script: make
+    displayName: 'make'
+  - script: file ./bin/phantomjs && ./bin/phantomjs --version
+    displayName: 'Verify executable'
+  - script: make check
+    displayName: 'Run the tests'
+
+- job: 'amd64_linux_clang'
+  pool:
+    vmImage: 'ubuntu-18.04'
+  steps:
+  - script: sudo apt-get -y -qq update
+    displayName: 'apt-get update'
+  - script: sudo apt install -y clang cmake qt5-default libqt5webkit5-dev python
+    displayName: 'Install requirements'
+  - script: clang++ --version && cmake --version && qmake --version && python --version
+    displayName: 'Display tools version'
+  - script: CC=clang CXX=clang++ ./configure
+    displayName: 'Run configure script'
+  - script: make
+    displayName: 'make'
+  - script: file ./bin/phantomjs && ./bin/phantomjs --version
+    displayName: 'Verify executable'
+  - script: make check
+    displayName: 'Run the tests'
+
