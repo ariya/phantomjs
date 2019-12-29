@@ -12,8 +12,7 @@ staleLabel: stale
 markComment: false
 # Comment to post when closing a stale issue. Set to `false` to disable
 closeComment: >
-  Due to our very limited maintenance capacity (see #14541 for more details),
-  we need to prioritize our development focus on other tasks.
-  Therefore, this issue will be automatically closed.
+  Due to our very limited maintenance capacity, we need to prioritize our development focus on other tasks.
+  Therefore, this issue will be automatically closed (see #15395 for more details).
   In the future, if we see the need to attend to this issue again, then it will be reopened.
   Thank you for your contribution!
