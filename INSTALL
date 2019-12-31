@@ -44,7 +44,32 @@ Install it (may require sudo):
 Installation on Windows
 -----------------------
 
-To be written.
+Only MinGW is supported for now.
+
+First, install MSYS2.
+
+Then, from "MYS2 MinGW64 32-bit" shell, install the required packages:
+
+  pacman -S msys/make
+  pacman -S mingw32/mingw-w64-i686-toolchain
+  pacman -S mingw32/mingw-w64-i686-cmake
+  pacman -S mingw32/mingw-w64-i686-qtwebkit
+  pacman -S mingw32/mingw-w64-i686-python2
+
+Note: add --disable-download-timeout as an additional argument, if the
+installation failed due to the slow server responses.
+
+After unpacking the source tarball or cloning the repository:
+
+  cmake . -G "MinGW Makefiles"
+
+And then start the build process:
+
+  make
+
+Do a quick sanity check:
+
+  ./bin/phantomjs.exe --version
 
 
 Installation on macOS
