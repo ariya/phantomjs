@@ -25,7 +25,12 @@ include_directories(src/linenoise/src)
 include_directories(src/mongoose)
 include_directories(src/qcommandline)
 
-set(EXTRA_LIBS dl)
+if (WIN32)
+  set(EXTRA_LIBS ws2_32)
+  add_definitions(-DQCOMMANDLINE_STATIC)
+else()
+  set(EXTRA_LIBS dl)
+endif()
 
 add_executable(${PROJECT_NAME} src/phantomjs.qrc ${PHANTOMJS_SOURCES} ${THIRDPARTY_SOURCES})
 target_link_libraries(${PROJECT_NAME} ${EXTRA_LIBS} Qt5::Core Qt5::Network Qt5::WebKitWidgets Threads::Threads)
