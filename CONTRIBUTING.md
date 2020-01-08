@@ -37,6 +37,8 @@ For your proposed change, you need to have:
 * **an issue** (in the issue tracker) which describe your bug or feature
 * **a feature branch** in your git fork
 
+Make sure your code change follows the style guide. To format your code, run `./tools/format-code.sh`.
+
 ### Refer the Issue
 
 The commit message needs to link to the issue. This cross-reference is [very important](http://ariya.ofilabs.com/2012/01/small-scale-software-craftsmanship.html) for the following reasons.
