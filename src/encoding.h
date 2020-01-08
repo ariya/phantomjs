@@ -33,8 +33,7 @@
 
 #include <QTextCodec>
 
-class Encoding
-{
+class Encoding {
 public:
     Encoding();
     Encoding(const QString& encoding);

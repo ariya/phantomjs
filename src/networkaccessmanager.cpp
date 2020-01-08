@@ -33,16 +33,16 @@
 #include <QDesktopServices>
 #include <QNetworkDiskCache>
 #include <QNetworkRequest>
-#include <QSslSocket>
+#include <QRegExp>
 #include <QSslCertificate>
 #include <QSslCipher>
 #include <QSslKey>
-#include <QRegExp>
+#include <QSslSocket>
 
-#include "phantom.h"
 #include "config.h"
 #include "cookiejar.h"
 #include "networkaccessmanager.h"
+#include "phantom.h"
 
 // 10 MB
 const qint64 MAX_REQUEST_POST_BODY_SIZE = 10 * 1000 * 1000;
@@ -85,23 +85,21 @@ NoFileAccessReply::NoFileAccessReply(QObject* parent, const QNetworkRequest& req
 
     qRegisterMetaType<QNetworkReply::NetworkError>();
     QString msg = (QCoreApplication::translate("QNetworkReply", "Protocol \"%1\" is unknown")
-                   .arg(req.url().scheme()));
+                       .arg(req.url().scheme()));
     setError(ProtocolUnknownError, msg);
 
     QMetaObject::invokeMethod(this, "error", Qt::QueuedConnection,
-                              Q_ARG(QNetworkReply::NetworkError, ProtocolUnknownError));
+        Q_ARG(QNetworkReply::NetworkError, ProtocolUnknownError));
     QMetaObject::invokeMethod(this, "finished", Qt::QueuedConnection);
 }
 
 // The destructor must be out-of-line in order to trigger generation of the vtable.
 NoFileAccessReply::~NoFileAccessReply() {}
 
-
 TimeoutTimer::TimeoutTimer(QObject* parent)
     : QTimer(parent)
 {
 }
-
 
 JsNetworkRequest::JsNetworkRequest(QNetworkRequest* request, QObject* parent)
     : QObject(parent)
@@ -144,10 +142,10 @@ const ssl_protocol_option ssl_protocol_options[] = {
     { "tlsv1.2", QSsl::TlsV1_2 },
     { "tlsv1.1", QSsl::TlsV1_1 },
     { "tlsv1.0", QSsl::TlsV1_0 },
-    { "tlsv1",   QSsl::TlsV1_0 },
-    { "sslv3",   QSsl::SslV3 },
-    { "any",     QSsl::AnyProtocol },
-    { 0,         QSsl::UnknownProtocol }
+    { "tlsv1", QSsl::TlsV1_0 },
+    { "sslv3", QSsl::SslV3 },
+    { "any", QSsl::AnyProtocol },
+    { 0, QSsl::UnknownProtocol }
 };
 
 // public:
@@ -195,8 +193,8 @@ void NetworkAccessManager::prepareSslConfiguration(const Config* config)
 
     bool setProtocol = false;
     for (const ssl_protocol_option* proto_opt = ssl_protocol_options;
-            proto_opt->name;
-            proto_opt++) {
+         proto_opt->name;
+         proto_opt++) {
         if (config->sslProtocol() == proto_opt->name) {
             m_sslConfiguration.setProtocol(proto_opt->proto);
             setProtocol = true;
@@ -212,9 +210,9 @@ void NetworkAccessManager::prepareSslConfiguration(const Config* config)
     // That overload isn't available on QSslConfiguration.
     if (!config->sslCiphers().isEmpty()) {
         QList<QSslCipher> cipherList;
-        foreach(const QString & cipherName,
-                config->sslCiphers().split(QLatin1String(":"),
-                                           QString::SkipEmptyParts)) {
+        foreach (const QString& cipherName,
+            config->sslCiphers().split(QLatin1String(":"),
+                QString::SkipEmptyParts)) {
             QSslCipher cipher(cipherName);
             if (!cipher.isNull()) {
                 cipherList << cipher;
@@ -227,14 +225,14 @@ void NetworkAccessManager::prepareSslConfiguration(const Config* config)
 
     if (!config->sslCertificatesPath().isEmpty()) {
         QList<QSslCertificate> caCerts = QSslCertificate::fromPath(
-                                             config->sslCertificatesPath(), QSsl::Pem, QRegExp::Wildcard);
+            config->sslCertificatesPath(), QSsl::Pem, QRegExp::Wildcard);
 
         m_sslConfiguration.setCaCertificates(caCerts);
     }
 
     if (!config->sslClientCertificateFile().isEmpty()) {
         QList<QSslCertificate> clientCerts = QSslCertificate::fromPath(
-                config->sslClientCertificateFile(), QSsl::Pem, QRegExp::Wildcard);
+            config->sslClientCertificateFile(), QSsl::Pem, QRegExp::Wildcard);
 
         if (!clientCerts.isEmpty()) {
             QSslCertificate clientCert = clientCerts.first();
@@ -323,7 +321,9 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
 
     // http://code.google.com/p/phantomjs/issues/detail?id=337
     if (op == QNetworkAccessManager::PostOperation) {
-        if (outgoingData) { postData = outgoingData->peek(MAX_REQUEST_POST_BODY_SIZE); }
+        if (outgoingData) {
+            postData = outgoingData->peek(MAX_REQUEST_POST_BODY_SIZE);
+        }
         QString contentType = req.header(QNetworkRequest::ContentTypeHeader).toString();
         if (contentType.isEmpty()) {
             req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
@@ -340,7 +340,7 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
     m_idCounter++;
 
     QVariantList headers;
-    foreach(QByteArray headerName, req.rawHeaderList()) {
+    foreach (QByteArray headerName, req.rawHeaderList()) {
         QVariantMap header;
         header["name"] = QString::fromUtf8(headerName);
         header["value"] = QString::fromUtf8(req.rawHeader(headerName));
@@ -352,7 +352,9 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
     data["url"] = url.data();
     data["method"] = toString(op);
     data["headers"] = headers;
-    if (op == QNetworkAccessManager::PostOperation) { data["postData"] = postData.data(); }
+    if (op == QNetworkAccessManager::PostOperation) {
+        data["postData"] = postData.data();
+    }
     data["time"] = QDateTime::currentDateTime();
 
     JsNetworkRequest jsNetworkRequest(&req, this);
@@ -362,8 +364,7 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
     // The second half of this conditional must match
     // QNetworkAccessManager's own idea of what a local file URL is.
     QNetworkReply* reply;
-    if (!m_localUrlAccessEnabled &&
-            (req.url().isLocalFile() || scheme == QLatin1String("qrc"))) {
+    if (!m_localUrlAccessEnabled && (req.url().isLocalFile() || scheme == QLatin1String("qrc"))) {
         reply = new NoFileAccessReply(this, req, op);
     } else {
         reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
@@ -496,7 +497,7 @@ void NetworkAccessManager::handleFinished(QNetworkReply* reply, const QVariant& 
 void NetworkAccessManager::handleSslErrors(const QList<QSslError>& errors)
 {
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-    foreach(QSslError e, errors) {
+    foreach (QSslError e, errors) {
         qDebug() << "Network - SSL Error:" << e;
     }
 
@@ -527,7 +528,7 @@ void NetworkAccessManager::handleNetworkError()
 QVariantList NetworkAccessManager::getHeadersFromReply(const QNetworkReply* reply)
 {
     QVariantList headers;
-    foreach(QByteArray headerName, reply->rawHeaderList()) {
+    foreach (QByteArray headerName, reply->rawHeaderList()) {
         QVariantMap header;
         header["name"] = QString::fromUtf8(headerName);
         header["value"] = QString::fromUtf8(reply->rawHeader(headerName));

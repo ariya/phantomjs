@@ -31,20 +31,19 @@
 
 #include "webserver.h"
 
+#include "consts.h"
 #include "encoding.h"
 #include "mongoose/mongoose.h"
-#include "consts.h"
 
 #include <QByteArray>
+#include <QDebug>
 #include <QHostAddress>
 #include <QMetaType>
 #include <QThread>
 #include <QUrl>
 #include <QVector>
-#include <QDebug>
 
-namespace UrlEncodedParser
-{
+namespace UrlEncodedParser {
 
 QString unescape(QByteArray in)
 {
@@ -66,7 +65,7 @@ QVariantMap parse(const QByteArray& data)
     if (data.isEmpty()) {
         return ret;
     }
-    foreach(const QByteArray & part, data.split('&')) {
+    foreach (const QByteArray& part, data.split('&')) {
         const int eqPos = part.indexOf('=');
         if (eqPos == -1) {
             ret[unescape(part)] = "";
@@ -79,12 +78,11 @@ QVariantMap parse(const QByteArray& data)
 
     return ret;
 }
-
 }
 
 static void* callback(mg_event event,
-                      mg_connection* conn,
-                      const mg_request_info* request)
+    mg_connection* conn,
+    const mg_request_info* request)
 {
     WebServer* server = static_cast<WebServer*>(request->user_data);
     if (server->handleRequest(event, conn, request)) {
@@ -114,10 +112,12 @@ bool WebServer::listenOnPort(const QString& port, const QVariantMap& opts)
 
     // Create options vector
     QVector<const char*> options;
-    options <<  "listening_ports" << qstrdup(qPrintable(port));
-    options << "enable_directory_listing" << "no";
+    options << "listening_ports" << qstrdup(qPrintable(port));
+    options << "enable_directory_listing"
+            << "no";
     if (opts.value("keepAlive", false).toBool()) {
-        options << "enable_keep_alive" << "yes";
+        options << "enable_keep_alive"
+                << "yes";
     }
     options << NULL;
 
@@ -144,7 +144,7 @@ void WebServer::close()
             // make sure we wake up all pending responses, such that mg_stop()
             // can be called without deadlocking
             QMutexLocker lock(&m_mutex);
-            foreach(WebServerResponse * response, m_pendingResponses) {
+            foreach (WebServerResponse* response, m_pendingResponses) {
                 response->close();
             }
         }
@@ -203,10 +203,10 @@ bool WebServer::handleRequest(mg_event event, mg_connection* conn, const mg_requ
     // force-encoded in ->uri, and only '#' should be force-encoded
     // in ->query_string.)
     QByteArray uri(request->uri);
-    uri = uri.toPercentEncoding(/*exclude=*/ "!$&'()*+,;=:/[]@");
+    uri = uri.toPercentEncoding(/*exclude=*/"!$&'()*+,;=:/[]@");
     if (request->query_string) {
         QByteArray qs(request->query_string);
-        qs = qs.toPercentEncoding(/*exclude=*/ "!$&'()*+,;=:/[]@?");
+        qs = qs.toPercentEncoding(/*exclude=*/"!$&'()*+,;=:/[]@?");
         uri.append('?');
         uri.append(qs);
     }
@@ -223,7 +223,7 @@ bool WebServer::handleRequest(mg_event event, mg_connection* conn, const mg_requ
 #endif
 
     QVariantMap headersObject;
-    QMap<QString, QString> ciHeadersObject;               //< FIXME: "case-insensitive" Headers. This shows how desperately we need a better HTTP Server
+    QMap<QString, QString> ciHeadersObject; //< FIXME: "case-insensitive" Headers. This shows how desperately we need a better HTTP Server
     for (int i = 0; i < request->num_headers; ++i) {
         QString key = QString::fromLocal8Bit(request->http_headers[i].name);
         QString value = QString::fromLocal8Bit(request->http_headers[i].value);
@@ -297,7 +297,6 @@ bool WebServer::handleRequest(mg_event event, mg_connection* conn, const mg_requ
     }
     return true;
 }
-
 
 //BEGIN WebServerResponse
 

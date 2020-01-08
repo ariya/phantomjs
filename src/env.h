@@ -33,8 +33,7 @@
 #include <QObject>
 #include <QVariantMap>
 
-class Env : public QObject
-{
+class Env : public QObject {
     Q_OBJECT
 
 public:

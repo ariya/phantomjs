@@ -31,9 +31,9 @@
 #ifndef WEBSERVER_H
 #define WEBSERVER_H
 
-#include <QVariantMap>
 #include <QMutex>
 #include <QSemaphore>
+#include <QVariantMap>
 
 #include "mongoose.h"
 
@@ -46,8 +46,7 @@ class WebServerResponse;
  *
  * see also: modules/webserver.js
  */
-class WebServer : public QObject
-{
+class WebServer : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString port READ port)
 
@@ -91,12 +90,10 @@ private:
     QAtomicInt m_closing;
 };
 
-
 /**
  * Outgoing HTTP response to client.
  */
-class WebServerResponse : public QObject
-{
+class WebServerResponse : public QObject {
     Q_OBJECT
 
     Q_PROPERTY(int statusCode READ statusCode WRITE setStatusCode)

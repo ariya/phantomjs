@@ -27,14 +27,14 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "consts.h"
-#include "utils.h"
+#include "crashdump.h"
 #include "env.h"
 #include "phantom.h"
-#include "crashdump.h"
+#include "utils.h"
 
 #include <QApplication>
-#include <QSslSocket>
 #include <QIcon>
+#include <QSslSocket>
 #include <QWebSettings>
 
 #include <exception>

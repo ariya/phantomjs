@@ -32,10 +32,10 @@
 #include "consts.h"
 #include "terminal.h"
 
-#include <QFile>
-#include <QDebug>
 #include <QDateTime>
+#include <QDebug>
 #include <QDir>
+#include <QFile>
 #include <QtWebKitWidgets/QWebFrame>
 
 static QString findScript(const QString& jsFilePath, const QString& libraryPath)
@@ -65,7 +65,9 @@ static QString jsFromScriptFile(const QString& scriptPath, const Encoding& enc)
         // Remove CLI script heading
         if (scriptBody.startsWith("#!")) {
             int len = scriptBody.indexOf(QRegExp("[\r\n]"));
-            if (len == -1) { len = scriptBody.length(); }
+            if (len == -1) {
+                len = scriptBody.length();
+            }
             scriptBody.remove(0, len);
         }
 
@@ -75,8 +77,7 @@ static QString jsFromScriptFile(const QString& scriptPath, const Encoding& enc)
     }
 }
 
-namespace Utils
-{
+namespace Utils {
 
 bool printDebugMessages = false;
 

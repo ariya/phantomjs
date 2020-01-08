@@ -34,16 +34,15 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QSslConfiguration>
-#include <QTimer>
 #include <QStringList>
+#include <QTimer>
 
 class Config;
 class QAuthenticator;
 class QNetworkDiskCache;
 class QSslConfiguration;
 
-class TimeoutTimer : public QTimer
-{
+class TimeoutTimer : public QTimer {
     Q_OBJECT
 
 public:
@@ -52,8 +51,7 @@ public:
     QVariantMap data;
 };
 
-class JsNetworkRequest : public QObject
-{
+class JsNetworkRequest : public QObject {
     Q_OBJECT
 
 public:
@@ -66,20 +64,19 @@ private:
     QNetworkRequest* m_networkRequest;
 };
 
-class NoFileAccessReply : public QNetworkReply
-{
+class NoFileAccessReply : public QNetworkReply {
     Q_OBJECT
 
 public:
     NoFileAccessReply(QObject* parent, const QNetworkRequest& req, const QNetworkAccessManager::Operation op);
     ~NoFileAccessReply();
     void abort() {}
+
 protected:
     qint64 readData(char*, qint64) { return -1; }
 };
 
-class NetworkAccessManager : public QNetworkAccessManager
-{
+class NetworkAccessManager : public QNetworkAccessManager {
     Q_OBJECT
 public:
     NetworkAccessManager(QObject* parent, const Config* config);

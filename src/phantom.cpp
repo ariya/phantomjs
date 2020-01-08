@@ -53,7 +53,7 @@
 #include "webpage.h"
 #include "webserver.h"
 
-#if QTWEBKIT_VERSION < ((5<<16) | (212<<8))
+#if QTWEBKIT_VERSION < ((5 << 16) | (212 << 8))
 #error "This version of QtWebKit is not supported. Please use QtWebKit >= 5.212"
 #endif
 
@@ -136,9 +136,9 @@ void Phantom::init()
     m_scriptFileEnc.setEncoding(m_config.scriptEncoding());
 
     connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString)),
-            SLOT(printConsoleMessage(QString)));
+        SLOT(printConsoleMessage(QString)));
     connect(m_page, SIGNAL(initialized()),
-            SLOT(onInitialized()));
+        SLOT(onInitialized()));
 
     m_defaultPageSettings[PAGE_SETTINGS_LOAD_IMAGES] = QVariant::fromValue(m_config.autoLoadImages());
     m_defaultPageSettings[PAGE_SETTINGS_JS_ENABLED] = QVariant::fromValue(true);
@@ -198,19 +198,20 @@ bool Phantom::execute()
     }
 
     qDebug() << "Phantom - execute: Script & Arguments";
-    qDebug() << "    " << "script:" << m_config.scriptFile();
+    qDebug() << "    "
+             << "script:" << m_config.scriptFile();
     QStringList args = m_config.scriptArgs();
     for (int i = 0, ilen = args.length(); i < ilen; ++i) {
         qDebug() << "    " << i << "arg:" << args.at(i);
     }
 #endif
 
-    if (m_config.scriptFile().isEmpty()) {                       // REPL mode requested
+    if (m_config.scriptFile().isEmpty()) { // REPL mode requested
         qDebug() << "Phantom - execute: Starting REPL mode";
 
         // Create the REPL: it will launch itself, no need to store this variable.
         REPL::getInstance(m_page->mainFrame(), this);
-    } else {                                                            // Load the User Script
+    } else { // Load the User Script
         qDebug() << "Phantom - execute: Starting normal mode";
 
         if (m_config.debug()) {
@@ -362,14 +363,7 @@ void Phantom::loadModule(const QString& moduleSource, const QString& filename)
         return;
     }
 
-    QString scriptSource =
-        "(function(require, exports, module) {\n" +
-        moduleSource +
-        "\n}.call({}," +
-        "require.cache['" + filename + "']._getRequire()," +
-        "require.cache['" + filename + "'].exports," +
-        "require.cache['" + filename + "']" +
-        "));";
+    QString scriptSource = "(function(require, exports, module) {\n" + moduleSource + "\n}.call({}," + "require.cache['" + filename + "']._getRequire()," + "require.cache['" + filename + "'].exports," + "require.cache['" + filename + "']" + "));";
     m_page->mainFrame()->evaluateJavaScript(scriptSource);
 }
 
@@ -461,8 +455,7 @@ void Phantom::onInitialized()
 
     // Bootstrap the PhantomJS scope
     m_page->mainFrame()->evaluateJavaScript(
-        Utils::readResourceFileUtf8(":/bootstrap.js")
-    );
+        Utils::readResourceFileUtf8(":/bootstrap.js"));
 }
 
 bool Phantom::setCookies(const QVariantList& cookies)
@@ -497,7 +490,6 @@ void Phantom::clearCookies()
     m_defaultCookieJar->clearCookies();
 }
 
-
 // private:
 void Phantom::doExit(int code)
 {
@@ -508,7 +500,7 @@ void Phantom::doExit(int code)
     // Iterate in reverse order so the first page is the last one scheduled for deletion.
     // The first page is the root object, which will be invalidated when it is deleted.
     // This causes an assertion to go off in BridgeJSC.cpp Instance::createRuntimeObject.
-    QListIterator<QPointer<WebPage> > i(m_pages);
+    QListIterator<QPointer<WebPage>> i(m_pages);
     i.toBack();
     while (i.hasPrevious()) {
         const QPointer<WebPage> page = i.previous();

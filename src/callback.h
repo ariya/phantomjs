@@ -33,8 +33,7 @@
 #include <QObject>
 #include <QVariant>
 
-class Callback : public QObject
-{
+class Callback : public QObject {
     Q_OBJECT
 
     Q_PROPERTY(QVariant returnValue READ returnValue WRITE setReturnValue)

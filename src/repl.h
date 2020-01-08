@@ -50,8 +50,7 @@ extern "C" {
  * It's based the Linenoise library (https://github.com/tadmarshall/linenoise).
  * More info about REPL: http://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop
  */
-class REPL: public QObject
-{
+class REPL : public QObject {
     Q_OBJECT
 
 public:

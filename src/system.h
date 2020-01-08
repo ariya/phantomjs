@@ -32,17 +32,16 @@
 #define SYSTEM_H
 
 #include <QApplication>
+#include <QMap>
 #include <QObject>
 #include <QStringList>
-#include <QMap>
 #include <QVariant>
 
 #include "filesystem.h"
 
 // This class implements the CommonJS System/1.0 spec.
 // See: http://wiki.commonjs.org/wiki/System/1.0
-class System : public QObject
-{
+class System : public QObject {
     Q_OBJECT
     Q_PROPERTY(qint64 pid READ pid)
     Q_PROPERTY(QStringList args READ args)

@@ -42,8 +42,7 @@
 /**
  * This class wraps a QProcess and facilitates emulation of node.js's ChildProcess
  */
-class ChildProcessContext : public QObject
-{
+class ChildProcessContext : public QObject {
     Q_OBJECT
     Q_PROPERTY(qint64 pid READ pid)
 
@@ -57,7 +56,7 @@ public:
     Q_INVOKABLE void _setEncoding(const QString& encoding);
     Q_INVOKABLE bool _start(const QString& cmd, const QStringList& args);
 
-    Q_INVOKABLE qint64 _write(const QString &chunk, const QString &encoding);
+    Q_INVOKABLE qint64 _write(const QString& chunk, const QString& encoding);
     Q_INVOKABLE void _close();
 
 signals:
@@ -86,8 +85,7 @@ private:
 /**
  * Helper class for child_process module
  */
-class ChildProcess : public QObject
-{
+class ChildProcess : public QObject {
     Q_OBJECT
 
 public:

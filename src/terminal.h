@@ -37,8 +37,7 @@
 
 #include "encoding.h"
 
-class Terminal: public QObject
-{
+class Terminal : public QObject {
     Q_OBJECT
 
 public:

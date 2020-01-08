@@ -30,14 +30,13 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
-#include <QStringList>
 #include <QFile>
+#include <QStringList>
 #include <QTextCodec>
 #include <QTextStream>
 #include <QVariant>
 
-class File : public QObject
-{
+class File : public QObject {
     Q_OBJECT
 
 public:
@@ -74,9 +73,7 @@ private:
     QTextStream* m_fileStream;
 };
 
-
-class FileSystem : public QObject
-{
+class FileSystem : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString workingDirectory READ workingDirectory)
     Q_PROPERTY(QString separator READ separator)

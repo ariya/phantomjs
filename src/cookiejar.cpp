@@ -28,16 +28,16 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "phantom.h"
-#include "config.h"
 #include "cookiejar.h"
+#include "config.h"
+#include "phantom.h"
 
-#include <QDateTime>
 #include <QDataStream>
+#include <QDateTime>
 #include <QSettings>
 #include <QTimer>
 
-#define COOKIE_JAR_VERSION      1
+#define COOKIE_JAR_VERSION 1
 
 // Operators needed for Cookie Serialization
 QT_BEGIN_NAMESPACE
@@ -133,12 +133,11 @@ bool CookieJar::addCookie(const QNetworkCookie& cookie, const QString& url)
         // Save a single cookie
         isCookieAdded = setCookiesFromUrl(
             QList<QNetworkCookie>() << cookie, //< unfortunately, "setCookiesFromUrl" requires a list
-            !url.isEmpty() ?
-            url :           //< use given URL
-            QString(        //< mock-up a URL
-                (cookie.isSecure() ? "https://" : "http://") +                              //< URL protocol
-                QString(cookie.domain().startsWith('.') ? "www" : "") + cookie.domain() +   //< URL domain
-                (cookie.path().isEmpty() ? "/" : cookie.path())));                          //< URL path
+            !url.isEmpty() ? url : //< use given URL
+                QString( //< mock-up a URL
+                    (cookie.isSecure() ? "https://" : "http://") + //< URL protocol
+                    QString(cookie.domain().startsWith('.') ? "www" : "") + cookie.domain() + //< URL domain
+                    (cookie.path().isEmpty() ? "/" : cookie.path()))); //< URL path
 
         // Return "true" if the cookie was really set
         if (contains(cookie)) {
@@ -315,11 +314,11 @@ bool CookieJar::deleteCookie(const QString& name, const QString& url)
         QList<QNetworkCookie> cookiesListAll;
 
         if (url.isEmpty()) {
-            if (name.isEmpty()) {           //< Neither "name" or "url" provided
+            if (name.isEmpty()) { //< Neither "name" or "url" provided
                 // This method has been used wrong:
                 // "redirecting" to the right method for the job
                 clearCookies();
-            } else {                        //< Only "name" provided
+            } else { //< Only "name" provided
                 // Delete all cookies with the given name from the CookieJar
                 cookiesListAll = allCookies();
                 for (int i = cookiesListAll.length() - 1; i >= 0; --i) {
@@ -337,8 +336,8 @@ bool CookieJar::deleteCookie(const QString& name, const QString& url)
             QList<QNetworkCookie> cookiesListUrl = cookies(url);
             cookiesListAll = allCookies();
             for (int i = cookiesListAll.length() - 1; i >= 0; --i) {
-                if (cookiesListUrl.contains(cookiesListAll.at(i)) &&            //< if it part of the set of cookies visible at URL
-                        (cookiesListAll.at(i).name() == name || name.isEmpty())) {  //< and if the name matches, or no name provided
+                if (cookiesListUrl.contains(cookiesListAll.at(i)) && //< if it part of the set of cookies visible at URL
+                    (cookiesListAll.at(i).name() == name || name.isEmpty())) { //< and if the name matches, or no name provided
                     // Remove this cookie
                     qDebug() << "CookieJar - Deleted" << cookiesListAll.at(i).toRawForm();
                     cookiesListAll.removeAt(i);
@@ -462,14 +461,14 @@ void CookieJar::save()
         purgeExpiredCookies();
 
 #ifndef QT_NO_DEBUG_OUTPUT
-        foreach(QNetworkCookie cookie, allCookies()) {
+        foreach (QNetworkCookie cookie, allCookies()) {
             qDebug() << "CookieJar - Saved" << cookie.toRawForm();
         }
 #endif
 
         // Store cookies
         if (m_cookieStorage) {
-            m_cookieStorage->setValue(QLatin1String("cookies"), QVariant::fromValue<QList<QNetworkCookie> >(allCookies()));
+            m_cookieStorage->setValue(QLatin1String("cookies"), QVariant::fromValue<QList<QNetworkCookie>>(allCookies()));
         }
     }
 }
@@ -478,11 +477,11 @@ void CookieJar::load()
 {
     if (isEnabled()) {
         // Register a "StreamOperator" for this Meta Type, so we can easily serialize/deserialize the cookies
-        qRegisterMetaTypeStreamOperators<QList<QNetworkCookie> >("QList<QNetworkCookie>");
+        qRegisterMetaTypeStreamOperators<QList<QNetworkCookie>>("QList<QNetworkCookie>");
 
         // Load all the cookies
         if (m_cookieStorage) {
-            setAllCookies(qvariant_cast<QList<QNetworkCookie> >(m_cookieStorage->value(QLatin1String("cookies"))));
+            setAllCookies(qvariant_cast<QList<QNetworkCookie>>(m_cookieStorage->value(QLatin1String("cookies"))));
         }
 
         // If any cookie has expired since last execution, purge and save before going any further
@@ -491,7 +490,7 @@ void CookieJar::load()
         }
 
 #ifndef QT_NO_DEBUG_OUTPUT
-        foreach(QNetworkCookie cookie, allCookies()) {
+        foreach (QNetworkCookie cookie, allCookies()) {
             qDebug() << "CookieJar - Loaded" << cookie.toRawForm();
         }
 #endif
@@ -501,7 +500,7 @@ void CookieJar::load()
 bool CookieJar::contains(const QNetworkCookie& cookieToFind) const
 {
     QList<QNetworkCookie> cookiesList = allCookies();
-    foreach(QNetworkCookie cookie, cookiesList) {
+    foreach (QNetworkCookie cookie, cookiesList) {
         if (cookieToFind == cookie) {
             return true;
         }

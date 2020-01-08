@@ -29,40 +29,39 @@
 
 #include "repl.h"
 
-#include <QStandardPaths>
-#include <QTimer>
 #include <QDir>
-#include <QRegExp>
 #include <QMetaMethod>
 #include <QMetaProperty>
+#include <QRegExp>
+#include <QStandardPaths>
+#include <QTimer>
 
 #include "consts.h"
 #include "terminal.h"
 #include "utils.h"
 
-#define PROMPT                          "phantomjs> "
-#define HISTORY_FILENAME                "phantom_repl_history"
+#define PROMPT "phantomjs> "
+#define HISTORY_FILENAME "phantom_repl_history"
 
 // Only with word characters, spaces and the dot ('.')
 //  we can still attempt to offer a completion to the user
-#define REGEXP_NON_COMPLETABLE_CHARS    "[^\\w\\s\\.]"
+#define REGEXP_NON_COMPLETABLE_CHARS "[^\\w\\s\\.]"
 
 // JS Code to find possible completions
 #define JS_RETURN_POSSIBLE_COMPLETIONS "REPL._getCompletions(%1, \"%2\");"
 
 // JS Code to evaluate User Input and prettify the expression result
-#define JS_EVAL_USER_INPUT \
-    "try { " \
-    "REPL._lastEval = eval(\"%1\");" \
+#define JS_EVAL_USER_INPUT                                                                \
+    "try { "                                                                              \
+    "REPL._lastEval = eval(\"%1\");"                                                      \
     "console.log(JSON.stringify(REPL._lastEval, REPL._expResStringifyReplacer, '   ')); " \
-    "} catch(e) { " \
-    "if (e instanceof TypeError) { " \
-    "console.error(\"'%1' is a cyclic structure\"); " \
-    "} else { " \
-    "console.error(e.message);" \
-    "}" \
+    "} catch(e) { "                                                                       \
+    "if (e instanceof TypeError) { "                                                      \
+    "console.error(\"'%1' is a cyclic structure\"); "                                     \
+    "} else { "                                                                           \
+    "console.error(e.message);"                                                           \
+    "}"                                                                                   \
     "} "
-
 
 // public:
 bool REPL::instanceExists()
@@ -128,14 +127,15 @@ QStringList REPL::_enumerateCompletions(QObject* obj) const
 
 // private:
 REPL::REPL(QWebFrame* webframe, Phantom* parent)
-    : QObject(parent),
-      m_looping(true)
+    : QObject(parent)
+    , m_looping(true)
 {
     m_webframe = webframe;
     m_parentPhantom = parent;
     m_historyFilepath = QString("%1/%2").arg(
-                            QStandardPaths::writableLocation(QStandardPaths::DataLocation),
-                            HISTORY_FILENAME).toLocal8Bit();
+                                            QStandardPaths::writableLocation(QStandardPaths::DataLocation),
+                                            HISTORY_FILENAME)
+                            .toLocal8Bit();
 
     // Ensure the location for the history file exists
     QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
@@ -182,12 +182,10 @@ void REPL::offerCompletion(const char* buf, linenoiseCompletions* lc)
 
     // This will return an array of String with the possible completions
     QStringList completions = REPL::getInstance()->m_webframe->evaluateJavaScript(
-                                  QString(JS_RETURN_POSSIBLE_COMPLETIONS).arg(
-                                      toInspect,
-                                      toComplete)
-                              ).toStringList();
+                                                                 QString(JS_RETURN_POSSIBLE_COMPLETIONS).arg(toInspect, toComplete))
+                                  .toStringList();
 
-    foreach(QString c, completions) {
+    foreach (QString c, completions) {
         if (lastIndexOfDot > -1) {
             // Preserve the "toInspect" portion of the string to complete
             linenoiseAddCompletion(lc, QString("%1.%2").arg(toInspect, c).toLocal8Bit().data());
@@ -203,13 +201,12 @@ void REPL::startLoop()
     char* userInput;
 
     // Load REPL history
-    linenoiseHistoryLoad(m_historyFilepath.data());         //< requires "char *"
+    linenoiseHistoryLoad(m_historyFilepath.data()); //< requires "char *"
     while (m_looping && (userInput = linenoise(PROMPT)) != NULL) {
         if (userInput[0] != '\0') {
             // Send the user input to the main Phantom frame for evaluation
             m_webframe->evaluateJavaScript(
-                QString(JS_EVAL_USER_INPUT).arg(
-                    QString(userInput).replace('"', "\\\"")));
+                QString(JS_EVAL_USER_INPUT).arg(QString(userInput).replace('"', "\\\"")));
 
             // Save command in the REPL history
             linenoiseHistoryAdd(userInput);

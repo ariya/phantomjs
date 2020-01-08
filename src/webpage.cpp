@@ -73,21 +73,19 @@
 #endif
 
 // Ensure we have at least head and body.
-#define BLANK_HTML                      "<html><head></head><body></body></html>"
-#define CALLBACKS_OBJECT_NAME           "_phantom"
-#define INPAGE_CALL_NAME                "window.callPhantom"
-#define CALLBACKS_OBJECT_INJECTION      INPAGE_CALL_NAME " = function() { return window." CALLBACKS_OBJECT_NAME ".call.call(_phantom, Array.prototype.slice.call(arguments, 0)); };"
-#define CALLBACKS_OBJECT_PRESENT        "typeof(window." CALLBACKS_OBJECT_NAME ") !== \"undefined\";"
+#define BLANK_HTML "<html><head></head><body></body></html>"
+#define CALLBACKS_OBJECT_NAME "_phantom"
+#define INPAGE_CALL_NAME "window.callPhantom"
+#define CALLBACKS_OBJECT_INJECTION INPAGE_CALL_NAME " = function() { return window." CALLBACKS_OBJECT_NAME ".call.call(_phantom, Array.prototype.slice.call(arguments, 0)); };"
+#define CALLBACKS_OBJECT_PRESENT "typeof(window." CALLBACKS_OBJECT_NAME ") !== \"undefined\";"
 
 #define STDOUT_FILENAME "/dev/stdout"
 #define STDERR_FILENAME "/dev/stderr"
 
-
 /**
   * @class CustomPage
   */
-class CustomPage: public QWebPage
-{
+class CustomPage : public QWebPage {
     Q_OBJECT
 
 public:
@@ -216,10 +214,10 @@ protected:
         bool isNavigationLocked = m_webPage->navigationLocked();
 
         emit m_webPage->navigationRequested(
-            request.url().toEncoded(),       //< Requested URL
-            navigationType,                  //< Navigation Type
-            !isNavigationLocked,             //< Will navigate (not locked)?
-            isMainFrame);                    //< Is main frame?
+            request.url().toEncoded(), //< Requested URL
+            navigationType, //< Navigation Type
+            !isNavigationLocked, //< Will navigate (not locked)?
+            isMainFrame); //< Is main frame?
 
         return !isNavigationLocked;
     }
@@ -256,7 +254,6 @@ private:
     CookieJar* m_cookieJar;
 };
 
-
 /**
   * Contains the Callback Objects used to regulate callback-traffic from the webpage internal context.
   * It's directly exposed within the webpage JS context,
@@ -264,8 +261,7 @@ private:
   *
   * @class WebPageCallbacks
   */
-class WebpageCallbacks : public QObject
-{
+class WebpageCallbacks : public QObject {
     Q_OBJECT
 
 public:
@@ -348,7 +344,6 @@ private:
     friend class WebPage;
 };
 
-
 WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     : QObject(parent)
     , m_navigationLocked(false)
@@ -396,7 +391,6 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     connect(m_customWebPage, SIGNAL(loadProgress(int)), this, SLOT(updateLoadingProgress(int)));
     connect(m_customWebPage, SIGNAL(repaintRequested(QRect)), this, SLOT(handleRepaintRequested(QRect)), Qt::QueuedConnection);
 
-
     // Start with transparent background.
     QPalette palette = m_customWebPage->palette();
     palette.setBrush(QPalette::Base, Qt::transparent);
@@ -420,8 +414,7 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     if (isLocalStorageEnabled) {
         if (phantomCfg->localStoragePath().isEmpty()) {
             pageSettings->setLocalStoragePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
-        }
-        else {
+        } else {
             pageSettings->setLocalStoragePath(phantomCfg->localStoragePath());
         }
     }
@@ -430,13 +423,13 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     m_networkAccessManager = new NetworkAccessManager(this, phantomCfg);
     m_customWebPage->setNetworkAccessManager(m_networkAccessManager);
     connect(m_networkAccessManager, SIGNAL(resourceRequested(QVariant, QObject*)),
-            SIGNAL(resourceRequested(QVariant, QObject*)));
+        SIGNAL(resourceRequested(QVariant, QObject*)));
     connect(m_networkAccessManager, SIGNAL(resourceReceived(QVariant)),
-            SIGNAL(resourceReceived(QVariant)));
+        SIGNAL(resourceReceived(QVariant)));
     connect(m_networkAccessManager, SIGNAL(resourceError(QVariant)),
-            SIGNAL(resourceError(QVariant)));
+        SIGNAL(resourceError(QVariant)));
     connect(m_networkAccessManager, SIGNAL(resourceTimeout(QVariant)),
-            SIGNAL(resourceTimeout(QVariant)));
+        SIGNAL(resourceTimeout(QVariant)));
 
     m_dpi = qRound(QApplication::primaryScreen()->logicalDotsPerInch());
     m_customWebPage->setViewportSize(QSize(400, 300));
@@ -579,7 +572,6 @@ void WebPage::stop()
 {
     m_customWebPage->triggerAction(QWebPage::Stop);
 }
-
 
 QString WebPage::plainText() const
 {
@@ -734,7 +726,6 @@ QVariantMap WebPage::clipRect() const
     return result;
 }
 
-
 void WebPage::setScrollPosition(const QVariantMap& size)
 {
     int top = size.value("top").toInt();
@@ -769,7 +760,7 @@ QVariant WebPage::evaluateJavaScript(const QString& code)
     qDebug() << "WebPage - evaluateJavaScript" << function;
 
     evalResult = m_currentFrame->evaluateJavaScript(
-                     function);
+        function);
 
     qDebug() << "WebPage - evaluateJavaScript result" << evalResult;
 
@@ -778,14 +769,16 @@ QVariant WebPage::evaluateJavaScript(const QString& code)
 
 QString WebPage::filePicker(const QString& oldFile)
 {
-    qDebug() << "WebPage - filePicker" << "- old file:" << oldFile;
+    qDebug() << "WebPage - filePicker"
+             << "- old file:" << oldFile;
 
     if (m_callbacks->m_filePickerCallback) {
         QVariant res = m_callbacks->m_filePickerCallback->call(QVariantList() << oldFile);
 
         if (res.canConvert<QString>()) {
             QString filePath = res.toString();
-            qDebug() << "WebPage - filePicker" << "- new file:" << filePath;
+            qDebug() << "WebPage - filePicker"
+                     << "- new file:" << filePath;
             // Return this value only if the file actually exists
             if (QFile::exists(filePath)) {
                 return filePath;
@@ -1206,12 +1199,13 @@ bool WebPage::renderPdf(QPdfWriter& pdfWriter)
 
     if (paperSize.contains("width") && paperSize.contains("height")) {
         const QSizeF sizePt(ceil(stringToPointSize(paperSize.value("width").toString())),
-                            ceil(stringToPointSize(paperSize.value("height").toString())));
+            ceil(stringToPointSize(paperSize.value("height").toString())));
         pdfWriter.setPageSize(QPageSize(sizePt, QPageSize::Point));
     } else if (paperSize.contains("format")) {
         const QPageLayout::Orientation orientation = paperSize.contains("orientation")
-                && paperSize.value("orientation").toString().compare("landscape", Qt::CaseInsensitive) == 0 ?
-                QPageLayout::Portrait : QPageLayout::Landscape;
+                && paperSize.value("orientation").toString().compare("landscape", Qt::CaseInsensitive) == 0
+            ? QPageLayout::Portrait
+            : QPageLayout::Landscape;
         pdfWriter.setPageOrientation(orientation);
         static const struct {
             QString format;
@@ -1480,7 +1474,7 @@ void WebPage::sendEvent(const QString& type, const QVariant& arg1, const QVarian
         if (arg1.type() == QVariant::String) {
             // this is the case for e.g. sendEvent("...", 'A')
             // but also works with sendEvent("...", "ABCD")
-            foreach(const QChar typeChar, arg1.toString()) {
+            foreach (const QChar typeChar, arg1.toString()) {
                 sendEvent("keydown", typeChar, QVariant(), QString(), modifierArg);
                 sendEvent("keyup", typeChar, QVariant(), QString(), modifierArg);
             }
@@ -1493,10 +1487,7 @@ void WebPage::sendEvent(const QString& type, const QVariant& arg1, const QVarian
     }
 
     // mouse events
-    if (eventType == "mousedown" ||
-            eventType == "mouseup" ||
-            eventType == "mousemove" ||
-            eventType == "mousedoubleclick") {
+    if (eventType == "mousedown" || eventType == "mouseup" || eventType == "mousemove" || eventType == "mousedoubleclick") {
         QMouseEvent::Type mouseEventType = QEvent::None;
 
         // Which mouse button (if it's a click)
@@ -1562,7 +1553,6 @@ void WebPage::sendEvent(const QString& type, const QVariant& arg1, const QVarian
         return;
     }
 
-
     // mouse click events: Qt doesn't provide this as a separate events,
     // so we compose it with a mousedown/mouseup sequence
     // mouse doubleclick events: It is not enough to simply send a
@@ -1595,7 +1585,7 @@ QStringList WebPage::pagesWindowName() const
 {
     QStringList pagesWindowName;
 
-    foreach(const WebPage * p, this->findChildren<WebPage*>()) {
+    foreach (const WebPage* p, this->findChildren<WebPage*>()) {
         pagesWindowName << p->windowName();
     }
 
@@ -1637,7 +1627,7 @@ QStringList WebPage::framesName() const
 {
     QStringList framesName;
 
-    foreach(const QWebFrame * f, m_currentFrame->childFrames()) {
+    foreach (const QWebFrame* f, m_currentFrame->childFrames()) {
         framesName << f->frameName();
     }
     return framesName;
@@ -1665,15 +1655,15 @@ void WebPage::changeCurrentFrame(QWebFrame* const frame)
 
         if (m_currentFrame != m_mainFrame) {
             disconnect(m_currentFrame, &QWebFrame::destroyed,
-                       this, &WebPage::handleCurrentFrameDestroyed);
+                this, &WebPage::handleCurrentFrameDestroyed);
         }
 
         m_currentFrame = frame;
 
         if (m_currentFrame != m_mainFrame) {
             connect(m_currentFrame, &QWebFrame::destroyed,
-                    this, &WebPage::handleCurrentFrameDestroyed,
-                    Qt::DirectConnection);
+                this, &WebPage::handleCurrentFrameDestroyed,
+                Qt::DirectConnection);
         }
     }
 }

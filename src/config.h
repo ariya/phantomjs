@@ -31,15 +31,14 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <QNetworkProxy>
 #include <QString>
 #include <QStringList>
-#include <QNetworkProxy>
 #include <QVariant>
 
 class QCommandLine;
 
-class Config: public QObject
-{
+class Config : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString cookiesFile READ cookiesFile WRITE setCookiesFile)
     Q_PROPERTY(bool diskCacheEnabled READ diskCacheEnabled WRITE setDiskCacheEnabled)

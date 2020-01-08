@@ -29,18 +29,18 @@
 
 #include "filesystem.h"
 
+#include <QDateTime>
+#include <QDebug>
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QDir>
-#include <QDebug>
-#include <QDateTime>
 
 // File
 // public:
-File::File(QFile* openfile, QTextCodec* codec, QObject* parent) :
-    QObject(parent),
-    m_file(openfile),
-    m_fileStream(0)
+File::File(QFile* openfile, QTextCodec* codec, QObject* parent)
+    : QObject(parent)
+    , m_file(openfile)
+    , m_fileStream(0)
 {
     if (codec) {
         m_fileStream = new QTextStream(m_file);
@@ -72,7 +72,8 @@ QString File::read(const QVariant& n)
     const bool isReadAll = 0 > bytesToRead;
 
     if (!m_file->isReadable()) {
-        qDebug() << "File::read - " << "Couldn't read:" << m_file->fileName();
+        qDebug() << "File::read - "
+                 << "Couldn't read:" << m_file->fileName();
         return QString();
     }
     if (m_file->isWritable()) {
@@ -117,7 +118,8 @@ QString File::read(const QVariant& n)
 bool File::write(const QString& data)
 {
     if (!m_file->isWritable()) {
-        qDebug() << "File::write - " << "Couldn't write:" << m_file->fileName();
+        qDebug() << "File::write - "
+                 << "Couldn't write:" << m_file->fileName();
         return true;
     }
     if (m_fileStream) {
@@ -149,7 +151,8 @@ bool File::seek(const qint64 pos)
 QString File::readLine()
 {
     if (!m_file->isReadable()) {
-        qDebug() << "File::readLine - " << "Couldn't read:" << m_file->fileName();
+        qDebug() << "File::readLine - "
+                 << "Couldn't read:" << m_file->fileName();
         return QString();
     }
     if (m_file->isWritable()) {
@@ -170,7 +173,8 @@ bool File::writeLine(const QString& data)
     if (write(data) && write("\n")) {
         return true;
     }
-    qDebug() << "File::writeLine - " << "Couldn't write:" << m_file->fileName();
+    qDebug() << "File::writeLine - "
+             << "Couldn't write:" << m_file->fileName();
     return false;
 }
 
@@ -185,7 +189,8 @@ bool File::atEnd() const
             return m_file->atEnd();
         }
     }
-    qDebug() << "File::atEnd - " << "Couldn't read:" << m_file->fileName();
+    qDebug() << "File::atEnd - "
+             << "Couldn't read:" << m_file->fileName();
     return false;
 }
 
@@ -267,12 +272,12 @@ bool File::_isUnbuffered() const
     return m_file->openMode() & QIODevice::Unbuffered;
 }
 
-
 // FileSystem
 // public:
 FileSystem::FileSystem(QObject* parent)
     : QObject(parent)
-{ }
+{
+}
 
 // public slots:
 
@@ -354,15 +359,15 @@ bool FileSystem::_copyTree(const QString& source, const QString& destination) co
             return false;
         }
 
-        foreach(QFileInfo entry, sourceDir.entryInfoList(sourceDirFilter, QDir::DirsFirst)) {
+        foreach (QFileInfo entry, sourceDir.entryInfoList(sourceDirFilter, QDir::DirsFirst)) {
             if (entry.isDir()) {
                 if (!FileSystem::_copyTree(entry.absoluteFilePath(),
-                                           destination + "/" + entry.fileName())) { //< directory: recursive call
+                        destination + "/" + entry.fileName())) { //< directory: recursive call
                     return false;
                 }
             } else {
                 if (!FileSystem::_copy(entry.absoluteFilePath(),
-                                       destination + "/" + entry.fileName())) { //< file: copy
+                        destination + "/" + entry.fileName())) { //< file: copy
                     return false;
                 }
             }
@@ -393,7 +398,7 @@ bool FileSystem::_removeTree(const QString& path) const
     QDir::Filters dirFilter = QDir::NoDotAndDotDot | QDir::System | QDir::Hidden | QDir::AllDirs | QDir::Files;
 
     if (dir.exists()) {
-        foreach(QFileInfo info, dir.entryInfoList(dirFilter, QDir::DirsFirst)) {
+        foreach (QFileInfo info, dir.entryInfoList(dirFilter, QDir::DirsFirst)) {
             if (info.isDir()) {
                 if (!FileSystem::_removeTree(info.absoluteFilePath())) { //< directory: recursive call
                     return false;
@@ -456,7 +461,8 @@ QObject* FileSystem::_open(const QString& path, const QVariantMap& opts) const
     const QVariant modeVar = opts["mode"];
     // Ensure only strings
     if (modeVar.type() != QVariant::String) {
-        qDebug() << "FileSystem::open - " << "Mode must be a string!" << modeVar;
+        qDebug() << "FileSystem::open - "
+                 << "Mode must be a string!" << modeVar;
         return 0;
     }
 
@@ -464,27 +470,33 @@ QObject* FileSystem::_open(const QString& path, const QVariantMap& opts) const
     QFile::OpenMode modeCode = QFile::NotOpen;
 
     // Determine the OpenMode
-    foreach(const QChar & c, modeVar.toString()) {
+    foreach (const QChar& c, modeVar.toString()) {
         switch (c.toLatin1()) {
-        case 'r': case 'R': {
+        case 'r':
+        case 'R': {
             modeCode |= QFile::ReadOnly;
             break;
         }
-        case 'a': case 'A': case '+': {
+        case 'a':
+        case 'A':
+        case '+': {
             modeCode |= QFile::Append;
             modeCode |= QFile::WriteOnly;
             break;
         }
-        case 'w': case 'W': {
+        case 'w':
+        case 'W': {
             modeCode |= QFile::WriteOnly;
             break;
         }
-        case 'b': case 'B': {
+        case 'b':
+        case 'B': {
             isBinary = true;
             break;
         }
         default: {
-            qDebug() << "FileSystem::open - " << "Wrong Mode:" << c;
+            qDebug() << "FileSystem::open - "
+                     << "Wrong Mode:" << c;
             return 0;
         }
         }
@@ -493,14 +505,16 @@ QObject* FileSystem::_open(const QString& path, const QVariantMap& opts) const
     // Make sure the file exists OR it can be created at the required path
     if (!QFile::exists(path) && modeCode & QFile::WriteOnly) {
         if (!makeTree(QFileInfo(path).dir().absolutePath())) {
-            qDebug() << "FileSystem::open - " << "Full path coulnd't be created:" << path;
+            qDebug() << "FileSystem::open - "
+                     << "Full path coulnd't be created:" << path;
             return 0;
         }
     }
 
     // Make sure there is something to read
     if (!QFile::exists(path) && modeCode & QFile::ReadOnly) {
-        qDebug() << "FileSystem::open - " << "Trying to read a file that doesn't exist:" << path;
+        qDebug() << "FileSystem::open - "
+                 << "Trying to read a file that doesn't exist:" << path;
         return 0;
     }
 
@@ -510,7 +524,8 @@ QObject* FileSystem::_open(const QString& path, const QVariantMap& opts) const
         const QString charset = opts.value("charset", "UTF-8").toString();
         codec = QTextCodec::codecForName(charset.toLatin1());
         if (!codec) {
-            qDebug() << "FileSystem::open - " << "Unknown charset:" << charset;
+            qDebug() << "FileSystem::open - "
+                     << "Unknown charset:" << charset;
             return 0;
         }
     }
@@ -520,7 +535,8 @@ QObject* FileSystem::_open(const QString& path, const QVariantMap& opts) const
     if (!file->open(modeCode)) {
         // Return "NULL" if the file couldn't be opened as requested
         delete file;
-        qDebug() << "FileSystem::open - " << "Couldn't be opened:" << path;
+        qDebug() << "FileSystem::open - "
+                 << "Couldn't be opened:" << path;
         return 0;
     }
 

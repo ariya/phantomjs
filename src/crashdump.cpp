@@ -31,25 +31,24 @@
 #include "crashdump.h"
 
 #include <exception>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
 
 #include <QtGlobal>
 
 #if defined(Q_OS_WIN)
 #include <windows.h>
 #else
-#include <sys/resource.h>
 #include <string.h>
+#include <sys/resource.h>
 #endif
 
-void
-print_crash_message()
+void print_crash_message()
 {
     fputs("PhantomJS has crashed. Please read the bug reporting guide at\n"
           "<http://phantomjs.org/bug-reporting.html> and file a bug report.\n",
-          stderr);
+        stderr);
     fflush(stderr);
 }
 
@@ -58,7 +57,7 @@ print_crash_message()
 static LONG WINAPI unhandled_exception_filter(LPEXCEPTION_POINTERS ptrs)
 {
     fprintf(stderr, "Fatal Windows exception, code 0x%08x.\n",
-            ptrs->ExceptionRecord->ExceptionCode);
+        ptrs->ExceptionRecord->ExceptionCode);
     print_crash_message();
     return EXCEPTION_EXECUTE_HANDLER;
 }
@@ -66,10 +65,10 @@ static LONG WINAPI unhandled_exception_filter(LPEXCEPTION_POINTERS ptrs)
 #if _MSC_VER >= 1400
 static void
 invalid_parameter_handler(const wchar_t* expression,
-                          const wchar_t* function,
-                          const wchar_t* file,
-                          unsigned int line,
-                          uintptr_t /*reserved*/)
+    const wchar_t* function,
+    const wchar_t* file,
+    unsigned int line,
+    uintptr_t /*reserved*/)
 {
     // The parameters all have the value NULL unless a debug version of the CRT library is used
     // https://msdn.microsoft.com/en-us/library/a9yf33zb(v=VS.80).aspx
@@ -81,7 +80,7 @@ invalid_parameter_handler(const wchar_t* expression,
     fprintf(stderr, "Invalid parameter detected.\n");
 #else
     fprintf(stderr, "Invalid parameter detected at %ls:%u: %ls: %ls\n",
-            file, line, function, expression);
+        file, line, function, expression);
 #endif // _DEBUG
     print_crash_message();
     ExitProcess(STATUS_FATAL_APP_EXIT);
@@ -110,10 +109,7 @@ handle_fatal_signal(int signo)
 static void
 init_crash_handler_os()
 {
-    SetErrorMode(SEM_FAILCRITICALERRORS |
-                 SEM_NOALIGNMENTFAULTEXCEPT |
-                 SEM_NOGPFAULTERRORBOX |
-                 SEM_NOOPENFILEERRORBOX);
+    SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOALIGNMENTFAULTEXCEPT | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);
     SetUnhandledExceptionFilter(unhandled_exception_filter);
 
     // When the app crashes, don't print the abort message
@@ -155,7 +151,9 @@ init_crash_handler_os()
     struct rlimit rl;
     rl.rlim_cur = 0;
     rl.rlim_max = 0;
-    if (setrlimit(RLIMIT_CORE, &rl)) { goto fail; }
+    if (setrlimit(RLIMIT_CORE, &rl)) {
+        goto fail;
+    }
 
     // Ensure that none of the signals that indicate a fatal CPU exception
     // are blocked.  (If they are delivered while blocked, the behavior is
@@ -170,7 +168,9 @@ init_crash_handler_os()
     sigaddset(&mask, SIGILL);
     sigaddset(&mask, SIGSEGV);
     sigaddset(&mask, SIGQUIT);
-    if (sigprocmask(SIG_UNBLOCK, &mask, 0)) { goto fail; }
+    if (sigprocmask(SIG_UNBLOCK, &mask, 0)) {
+        goto fail;
+    }
 
     // Install a signal handler for all the above signals.  This will call
     // print_crash_message and then reraise the signal (so the exit code will
@@ -179,14 +179,26 @@ init_crash_handler_os()
     struct sigaction sa;
     sigemptyset(&sa.sa_mask);
     sa.sa_handler = handle_fatal_signal;
-    sa.sa_flags   = SA_NODEFER | SA_RESETHAND;
+    sa.sa_flags = SA_NODEFER | SA_RESETHAND;
 
-    if (sigaction(SIGABRT, &sa, 0)) { goto fail; }
-    if (sigaction(SIGBUS,  &sa, 0)) { goto fail; }
-    if (sigaction(SIGFPE,  &sa, 0)) { goto fail; }
-    if (sigaction(SIGILL,  &sa, 0)) { goto fail; }
-    if (sigaction(SIGSEGV, &sa, 0)) { goto fail; }
-    if (sigaction(SIGQUIT, &sa, 0)) { goto fail; }
+    if (sigaction(SIGABRT, &sa, 0)) {
+        goto fail;
+    }
+    if (sigaction(SIGBUS, &sa, 0)) {
+        goto fail;
+    }
+    if (sigaction(SIGFPE, &sa, 0)) {
+        goto fail;
+    }
+    if (sigaction(SIGILL, &sa, 0)) {
+        goto fail;
+    }
+    if (sigaction(SIGSEGV, &sa, 0)) {
+        goto fail;
+    }
+    if (sigaction(SIGQUIT, &sa, 0)) {
+        goto fail;
+    }
 
     return;
 
@@ -197,8 +209,7 @@ fail:
 
 #endif // not Windows
 
-void
-init_crash_handler()
+void init_crash_handler()
 {
     // Qt, QtWebkit, and PhantomJS mostly don't make use of C++ exceptions,
     // so in the rare cases where an exception does get thrown, it will

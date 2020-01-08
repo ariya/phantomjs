@@ -33,19 +33,18 @@
 
 #include <QPointer>
 
-#include "filesystem.h"
-#include "encoding.h"
-#include "config.h"
-#include "system.h"
 #include "childprocess.h"
+#include "config.h"
 #include "cookiejar.h"
+#include "encoding.h"
+#include "filesystem.h"
+#include "system.h"
 
 class WebPage;
 class CustomPage;
 class WebServer;
 
-class Phantom : public QObject
-{
+class Phantom : public QObject {
     Q_OBJECT
     Q_PROPERTY(QVariantMap defaultPageSettings READ defaultPageSettings)
     Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
@@ -230,8 +229,8 @@ private:
     FileSystem* m_filesystem;
     System* m_system;
     ChildProcess* m_childprocess;
-    QList<QPointer<WebPage> > m_pages;
-    QList<QPointer<WebServer> > m_servers;
+    QList<QPointer<WebPage>> m_pages;
+    QList<QPointer<WebServer>> m_servers;
     Config m_config;
     CookieJar* m_defaultCookieJar;
     qreal m_defaultDpi;

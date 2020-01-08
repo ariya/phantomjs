@@ -32,8 +32,8 @@
 
 #include <QSslSocket>
 #include <QSysInfo>
-#include <QVariantMap>
 #include <QTextCodec>
+#include <QVariantMap>
 
 #include "../env.h"
 #include "terminal.h"
@@ -52,8 +52,8 @@ QString getOSRelease()
 }
 #endif
 
-System::System(QObject* parent) :
-    QObject(parent)
+System::System(QObject* parent)
+    : QObject(parent)
     , m_stdout((File*)NULL)
     , m_stderr((File*)NULL)
     , m_stdin((File*)NULL)

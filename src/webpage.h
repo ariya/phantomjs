@@ -32,10 +32,10 @@
 #define WEBPAGE_H
 
 #include <QMap>
-#include <QVariantMap>
-#include <QtWebKitWidgets/QWebPage>
-#include <QtWebKitWidgets/QWebFrame>
 #include <QPdfWriter>
+#include <QVariantMap>
+#include <QtWebKitWidgets/QWebFrame>
+#include <QtWebKitWidgets/QWebPage>
 
 #include "cookiejar.h"
 
@@ -46,8 +46,7 @@ class NetworkAccessManager;
 class QWebInspector;
 class Phantom;
 
-class WebPage : public QObject
-{
+class WebPage : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString title READ title)
     Q_PROPERTY(QString frameTitle READ frameTitle)
@@ -515,7 +514,8 @@ private slots:
     void handleCurrentFrameDestroyed();
 
 private:
-    enum RenderMode { Content, Viewport };
+    enum RenderMode { Content,
+        Viewport };
     QImage renderImage(const RenderMode mode = Content);
     bool renderPdf(QPdfWriter& pdfWriter);
     void applySettings(const QVariantMap& defaultSettings);

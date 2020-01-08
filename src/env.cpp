@@ -30,9 +30,9 @@
 #include "env.h"
 
 #include <QCoreApplication>
+#include <QProcessEnvironment>
 #include <QString>
 #include <QVariantMap>
-#include <QProcessEnvironment>
 
 static Env* env_instance = NULL;
 
@@ -49,7 +49,7 @@ Env::Env()
     : QObject(QCoreApplication::instance())
 {
     const QProcessEnvironment& env = QProcessEnvironment::systemEnvironment();
-    foreach(const QString & key, env.keys()) {
+    foreach (const QString& key, env.keys()) {
         m_map[key] = env.value(key);
     }
 }

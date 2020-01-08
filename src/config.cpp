@@ -34,17 +34,16 @@
 
 #include <QDir>
 #include <QFileInfo>
-#include <QtWebKitWidgets/QWebPage>
-#include <QtWebKitWidgets/QWebFrame>
 #include <QNetworkProxy>
+#include <QtWebKitWidgets/QWebFrame>
+#include <QtWebKitWidgets/QWebPage>
 
-#include "terminal.h"
-#include "qcommandline.h"
-#include "utils.h"
 #include "consts.h"
+#include "qcommandline.h"
+#include "terminal.h"
+#include "utils.h"
 
 #include <iostream>
-
 
 static const struct QCommandLineConfigEntry flags[] = {
     { QCommandLine::Option, '\0', "cookies-file", "Sets the file name to store the persistent cookies", QCommandLine::Optional },
@@ -76,7 +75,7 @@ static const struct QCommandLineConfigEntry flags[] = {
     { QCommandLine::Option, '\0', "ssl-client-certificate-file", "Sets the location of a client certificate", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-client-key-file", "Sets the location of a clients' private key", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-client-key-passphrase", "Sets the passphrase for the clients' private key", QCommandLine::Optional },
-    { QCommandLine::Param, '\0', "script", "Script", QCommandLine::Flags(QCommandLine::Optional | QCommandLine::ParameterFence)},
+    { QCommandLine::Param, '\0', "script", "Script", QCommandLine::Flags(QCommandLine::Optional | QCommandLine::ParameterFence) },
     { QCommandLine::Param, '\0', "argument", "Script argument", QCommandLine::OptionalMultiple },
     { QCommandLine::Switch, 'h', "help", "Shows this message and quits", QCommandLine::Optional },
     { QCommandLine::Switch, 'v', "version", "Prints out PhantomJS version", QCommandLine::Optional },
@@ -117,7 +116,6 @@ void Config::processArgs(const QStringList& args)
     m_cmdLine->setArguments(args);
     m_cmdLine->setConfig(flags);
     m_cmdLine->parse();
-
 }
 
 void Config::loadJsonFile(const QString& filePath)
@@ -197,7 +195,6 @@ void Config::setOfflineStorageDefaultQuota(int offlineStorageDefaultQuota)
 {
     m_offlineStorageDefaultQuota = offlineStorageDefaultQuota * 1024;
 }
-
 
 QString Config::localStoragePath() const
 {
@@ -477,7 +474,6 @@ bool Config::javascriptCanCloseWindows() const
 {
     return m_javascriptCanCloseWindows;
 }
-
 
 // private:
 void Config::resetToDefaults()

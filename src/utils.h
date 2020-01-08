@@ -31,8 +31,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <QtGlobal>
 #include "encoding.h"
+#include <QtGlobal>
 
 class QWebFrame;
 
@@ -40,28 +40,26 @@ class QWebFrame;
  * Aggregate common utility functions.
  */
 
-namespace Utils
-{
+namespace Utils {
 
 void messageHandler(QtMsgType type,
-                    const QMessageLogContext& context,
-                    const QString& msg);
+    const QMessageLogContext& context,
+    const QString& msg);
 extern bool printDebugMessages;
 
 bool injectJsInFrame(const QString& jsFilePath,
-                     const Encoding& jsFileEnc,
-                     const QString& libraryPath,
-                     QWebFrame* targetFrame,
-                     const bool startingScript = false);
+    const Encoding& jsFileEnc,
+    const QString& libraryPath,
+    QWebFrame* targetFrame,
+    const bool startingScript = false);
 
 bool loadJSForDebug(const QString& jsFilePath,
-                    const Encoding& jsFileEnc,
-                    const QString& libraryPath,
-                    QWebFrame* targetFrame,
-                    const bool autorun = false);
+    const Encoding& jsFileEnc,
+    const QString& libraryPath,
+    QWebFrame* targetFrame,
+    const bool autorun = false);
 
 QString readResourceFileUtf8(const QString& resourceFilePath);
-
 };
 
 #endif // UTILS_H
