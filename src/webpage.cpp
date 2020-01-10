@@ -951,6 +951,9 @@ void WebPage::openUrl(const QString& address, const QVariant& op, const QVariant
 
         request.setUrl(url);
         m_mainFrame->load(request, networkOp, body);
+
+        // Emulate the behavior of old QtWebKit
+        m_loadingProgress = 1;
     }
 }
 
