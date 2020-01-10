@@ -140,7 +140,7 @@ protected:
 
         // Check if User set a file via File Picker
         QString chosenFile = m_webPage->filePicker(oldFile);
-        if (chosenFile == QString::null && m_uploadFiles.count() > 0) {
+        if (chosenFile.isNull() && m_uploadFiles.count() > 0) {
             // Check if instead User set a file via uploadFile API
             chosenFile = m_uploadFiles.first();
         }
@@ -785,7 +785,7 @@ QString WebPage::filePicker(const QString& oldFile)
             }
         }
     }
-    return QString::null;
+    return QString();
 }
 
 bool WebPage::javaScriptConfirm(const QString& msg)
