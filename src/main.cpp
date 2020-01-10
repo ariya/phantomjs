@@ -34,6 +34,7 @@
 
 #include <QApplication>
 #include <QIcon>
+#include <QSslConfiguration>
 #include <QSslSocket>
 #include <QWebSettings>
 
@@ -61,7 +62,7 @@ static int inner_main(int argc, char** argv)
 #if defined(Q_OS_LINUX)
     if (QSslSocket::supportsSsl()) {
         // Don't perform on-demand loading of root certificates on Linux
-        QSslSocket::addDefaultCaCertificates(QSslSocket::systemCaCertificates());
+        QSslSocket::addDefaultCaCertificates(QSslConfiguration::systemCaCertificates());
     }
 #endif
 
