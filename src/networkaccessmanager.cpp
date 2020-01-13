@@ -49,7 +49,7 @@ const qint64 MAX_REQUEST_POST_BODY_SIZE = 10 * 1000 * 1000;
 
 static const char* toString(QNetworkAccessManager::Operation op)
 {
-    const char* str = 0;
+    const char* str = Q_NULLPTR;
     switch (op) {
     case QNetworkAccessManager::HeadOperation:
         str = "HEAD";
@@ -157,7 +157,7 @@ NetworkAccessManager::NetworkAccessManager(QObject* parent, const Config* config
     , m_maxAuthAttempts(3)
     , m_resourceTimeout(0)
     , m_idCounter(0)
-    , m_networkDiskCache(0)
+    , m_networkDiskCache(Q_NULLPTR)
     , m_sslConfiguration(QSslConfiguration::defaultConfiguration())
 {
     if (config->diskCacheEnabled()) {
@@ -242,7 +242,7 @@ void NetworkAccessManager::prepareSslConfiguration(const Config* config)
             m_sslConfiguration.setCaCertificates(caCerts);
             m_sslConfiguration.setLocalCertificate(clientCert);
 
-            QFile* keyFile = NULL;
+            QFile* keyFile = Q_NULLPTR;
             if (config->sslClientKeyFile().isEmpty()) {
                 keyFile = new QFile(config->sslClientCertificateFile());
             } else {
