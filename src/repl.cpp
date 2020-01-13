@@ -66,12 +66,12 @@
 // public:
 bool REPL::instanceExists()
 {
-    return REPL::getInstance() != NULL;
+    return REPL::getInstance() != Q_NULLPTR;
 }
 
 REPL* REPL::getInstance(QWebFrame* webframe, Phantom* parent)
 {
-    static REPL* singleton = NULL;
+    static REPL* singleton = Q_NULLPTR;
     if (!singleton && webframe && parent) {
         // This will create the singleton only when all the parameters are given
         singleton = new REPL(webframe, parent);
@@ -202,7 +202,7 @@ void REPL::startLoop()
 
     // Load REPL history
     linenoiseHistoryLoad(m_historyFilepath.data()); //< requires "char *"
-    while (m_looping && (userInput = linenoise(PROMPT)) != NULL) {
+    while (m_looping && (userInput = linenoise(PROMPT)) != Q_NULLPTR) {
         if (userInput[0] != '\0') {
             // Send the user input to the main Phantom frame for evaluation
             m_webframe->evaluateJavaScript(

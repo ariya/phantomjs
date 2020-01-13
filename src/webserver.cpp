@@ -119,7 +119,7 @@ bool WebServer::listenOnPort(const QString& port, const QVariantMap& opts)
         options << "enable_keep_alive"
                 << "yes";
     }
-    options << NULL;
+    options << 0;
 
     // Start the server
     m_ctx = mg_start(&callback, this, options.data());

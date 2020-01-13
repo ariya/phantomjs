@@ -275,7 +275,7 @@ public slots:
      * @brief getPage
      * @param windowName
      * @return Returns the page that matches <code>'window.name'</code>,
-     *         or NULL if none is found
+     *         or Q_NULLPTR if none is found
      */
     QObject* getPage(const QString& windowName) const;
 
@@ -507,7 +507,7 @@ signals:
 
 private slots:
     void finish(bool ok);
-    void setupFrame(QWebFrame* frame = NULL);
+    void setupFrame(QWebFrame* frame = Q_NULLPTR);
     void updateLoadingProgress(int progress);
     void handleRepaintRequested(const QRect& dirtyRect);
     void handleUrlChanged(const QUrl& url);

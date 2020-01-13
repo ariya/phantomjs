@@ -57,7 +57,7 @@
 #error "This version of QtWebKit is not supported. Please use QtWebKit >= 5.212"
 #endif
 
-static Phantom* phantomInstance = NULL;
+static Phantom* phantomInstance = Q_NULLPTR;
 
 // private:
 Phantom::Phantom(QObject* parent)
@@ -157,7 +157,7 @@ void Phantom::init()
 // public:
 Phantom* Phantom::instance()
 {
-    if (NULL == phantomInstance) {
+    if (!phantomInstance) {
         phantomInstance = new Phantom();
         phantomInstance->init();
     }
@@ -405,7 +405,7 @@ QString Phantom::proxy()
 {
     QNetworkProxy proxy = QNetworkProxy::applicationProxy();
     if (proxy.hostName().isEmpty()) {
-        return NULL;
+        return QString();
     }
     return proxy.hostName() + ":" + QString::number(proxy.port());
 }
