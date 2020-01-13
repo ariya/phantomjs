@@ -167,7 +167,7 @@ public slots:
      * @param port The proxy port
      * @param proxyType The type of this proxy
      */
-    void setProxy(const QString& ip, const qint64& port = 80, const QString& proxyType = "http", const QString& user = NULL, const QString& password = NULL);
+    void setProxy(const QString& ip, const qint64& port = 80, const QString& proxyType = "http", const QString& user = QString(), const QString& password = QString());
 
     QString proxy();
 

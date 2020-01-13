@@ -89,7 +89,7 @@ class CustomPage : public QWebPage {
     Q_OBJECT
 
 public:
-    CustomPage(WebPage* parent = 0)
+    CustomPage(WebPage* parent = Q_NULLPTR)
         : QWebPage(parent)
         , m_webPage(parent)
     {
@@ -265,13 +265,13 @@ class WebpageCallbacks : public QObject {
     Q_OBJECT
 
 public:
-    WebpageCallbacks(QObject* parent = 0)
+    WebpageCallbacks(QObject* parent = Q_NULLPTR)
         : QObject(parent)
-        , m_genericCallback(NULL)
-        , m_filePickerCallback(NULL)
-        , m_jsConfirmCallback(NULL)
-        , m_jsPromptCallback(NULL)
-        , m_jsInterruptCallback(NULL)
+        , m_genericCallback(Q_NULLPTR)
+        , m_filePickerCallback(Q_NULLPTR)
+        , m_jsConfirmCallback(Q_NULLPTR)
+        , m_jsPromptCallback(Q_NULLPTR)
+        , m_jsInterruptCallback(Q_NULLPTR)
     {
     }
 
@@ -1603,7 +1603,7 @@ QObject* WebPage::getPage(const QString& windowName) const
             return childPages.at(i);
         }
     }
-    return NULL;
+    return Q_NULLPTR;
 }
 
 bool WebPage::ownsPages() const
@@ -1720,7 +1720,7 @@ void WebPage::switchToMainFrame()
 
 bool WebPage::switchToParentFrame()
 {
-    if (m_currentFrame->parentFrame() != NULL) {
+    if (m_currentFrame->parentFrame()) {
         this->changeCurrentFrame(m_currentFrame->parentFrame());
         return true;
     }
@@ -1759,10 +1759,10 @@ static void injectCallbacksObjIntoFrame(QWebFrame* frame, WebpageCallbacks* call
 
 void WebPage::setupFrame(QWebFrame* frame)
 {
-    qDebug() << "WebPage - setupFrame" << (frame == NULL ? "" : frame->frameName());
+    qDebug() << "WebPage - setupFrame" << (frame == Q_NULLPTR ? "" : frame->frameName());
 
     // Inject the Callbacks object in the main frame
-    injectCallbacksObjIntoFrame(frame == NULL ? m_mainFrame : frame, m_callbacks);
+    injectCallbacksObjIntoFrame(frame == Q_NULLPTR ? m_mainFrame : frame, m_callbacks);
 }
 
 void WebPage::updateLoadingProgress(int progress)

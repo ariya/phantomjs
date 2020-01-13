@@ -43,7 +43,7 @@ class CookieJar : public QNetworkCookieJar {
     Q_PROPERTY(QVariantList cookies READ cookiesToMap WRITE addCookiesFromMap)
 
 public:
-    CookieJar(QString cookiesFile, QObject* parent = NULL);
+    CookieJar(QString cookiesFile, QObject* parent = Q_NULLPTR);
     virtual ~CookieJar();
 
     bool setCookiesFromUrl(const QList<QNetworkCookie>& cookieList, const QUrl& url);
