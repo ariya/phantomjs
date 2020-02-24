@@ -10,7 +10,7 @@ kramdown:
 githubEdit: https://github.com/ariya/phantomjs/edit/gh-pages/
 
 # When pushing to GitHub
-url: http://phantomjs.org
+url: https://phantomjs.org
 
 # When Developing Locally
 # url: http://localhost:4000
