@@ -70,7 +70,7 @@ public:
      */
     typedef enum {
 	None = 0, /**< can be used for the last line of a QCommandLineConfigEntry[] . */
-	Switch, /**< a simple switch wihout argument (eg: ls -l) */
+	Switch, /**< a simple switch without argument (eg: ls -l) */
 	Option, /**< an option with an argument (eg: tar -f test.tar) */
 	Param /**< a parameter without '-' delimiter (eg: cp foo bar) */
     } Type;
