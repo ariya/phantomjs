@@ -1,0 +1,17 @@
+name: Code style
+
+on: [push, pull_request]
+
+jobs:
+
+  codestyle:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: brew install clang-format
+      name: Install clang-format
+    - run: clang-format --version
+    - run: bash ./tools/format-code.sh
+      name: Run code formatter
+    - run: git diff --quiet HEAD
+      name: Check if the styling guide is followed
