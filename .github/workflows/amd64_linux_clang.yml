@@ -1,0 +1,20 @@
+name: amd64_linux_clang
+
+on: [push, pull_request]
+
+jobs:
+
+  amd64_linux_clang:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - run: sudo apt -y -qq update
+    - run: sudo apt install -y clang cmake qt5-default libqt5webkit5-dev python
+      name: Install requirements
+    - run: clang++ --version && cmake --version && qmake --version && python --version
+      name: Display tools version
+    - run: CC=clang CXX=clang++ ./configure
+    - run: make
+    - run: file ./bin/phantomjs
+    - run: ./bin/phantomjs --version
+    - run: make check
