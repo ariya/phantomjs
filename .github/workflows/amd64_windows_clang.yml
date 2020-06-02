@@ -1,0 +1,31 @@
+name: amd64_windows_clang
+
+on: [push, pull_request]
+
+jobs:
+
+  amd64_windows_clang:
+    runs-on: windows-2019
+    env:
+      CC: clang
+      CXX: clang++
+    steps:
+    - uses: actions/checkout@v2
+    - run: echo "::add-path::C:\\msys64\\usr\\bin"
+    - run: pacman --version
+    - run: pacman -Sy
+    - run: pacman --noconfirm -S pacman-mirrors
+    - name: 'Install requirements'
+      run: pacman --noconfirm -S mingw64/mingw-w64-x86_64-clang mingw64/mingw-w64-x86_64-cmake mingw64/mingw-w64-x86_64-qtwebkit mingw64/mingw-w64-x86_64-python2
+    - run: echo "::add-path::C:\\msys64\\mingw64\\bin"
+    - run: clang++ --version && cmake --version && qmake --version
+      name: 'Display tools version'
+    - run: bash ./configure
+      name: './configure'
+      env:
+        CMAKE_CMD: 'cmake -G "MinGW Makefiles"'
+    - run: mingw32-make
+      name: 'make'
+    - run: file ./bin/phantomjs
+    - run: ldd ./bin/phantomjs
+    - run: ./bin/phantomjs --version
