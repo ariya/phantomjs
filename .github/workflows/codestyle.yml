@@ -5,13 +5,14 @@ on: [push, pull_request]
 jobs:
 
   codestyle:
-    runs-on: macos-latest
+    runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v2
-    - run: brew install clang-format
+    - run: sudo apt install -y clang-format-6.0
       name: Install clang-format
-    - run: clang-format --version
+    - run: clang-format-6.0 --version
     - run: bash ./tools/format-code.sh
       name: Run code formatter
+    - run: git diff
     - run: git diff --quiet HEAD
       name: Check if the styling guide is followed
