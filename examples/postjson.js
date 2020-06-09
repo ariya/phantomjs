@@ -2,7 +2,7 @@
 
 "use strict";
 var page = require('webpage').create(),
-    server = 'http://posttestserver.com/post.php?dump',
+    server = 'http://ptsv2.com/t/phantomjs-toilet/post',
     data = '{"universe": "expanding", "answer": 42}';
 
 var headers = {
