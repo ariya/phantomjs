@@ -1,0 +1,42 @@
+FROM fedora:31
+
+MAINTAINER Fabio Cicerchia <info@fabiocicerchia.it>
+
+ARG PHANTOMJS_VER
+ENV PHANTOMJS_VER ${PHANTOMJS_VER:-master}
+ENV XDG_RUNTIME_DIR /tmp/runtime-root
+
+RUN set -x \
+    && yum makecache \
+    && yum -y install \
+        ca-certificates \
+        cmake \
+        curl \
+        dumb-init \
+        g++ \
+        gcc \
+        git \
+        make \
+        python3 \
+        qt5 \
+        qt5-qtwebkit-devel \
+    && mkdir -p $XDG_RUNTIME_DIR \
+       && chmod 700 $XDG_RUNTIME_DIR \
+       && chown 19534 $XDG_RUNTIME_DIR \
+    && git clone https://github.com/ariya/phantomjs.git /tmp/phantomjs \
+    && cd /tmp/phantomjs \
+       && git checkout $PHANTOMJS_VER \
+       && ./configure \
+       && make \
+    && make install \
+    && yum clean all \
+    && rm -rf /tmp/phantomjs \
+    && useradd --system --uid 19534 --create-home --shell /usr/sbin/nologin phantomjs \
+    && su phantomjs -s /bin/sh -c "phantomjs --version"
+
+USER phantomjs
+
+EXPOSE 8910
+
+ENTRYPOINT ["dumb-init"]
+CMD ["phantomjs"]

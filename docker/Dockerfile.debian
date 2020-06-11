@@ -1,0 +1,51 @@
+FROM debian:10.4-slim
+
+MAINTAINER Fabio Cicerchia <info@fabiocicerchia.it>
+
+ARG PHANTOMJS_VER
+ENV PHANTOMJS_VER ${PHANTOMJS_VER:-master}
+ENV XDG_RUNTIME_DIR /tmp/runtime-root
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN set -x \
+    && apt-get update \
+    && apt-get -y install --no-install-recommends \
+        ca-certificates \
+        cmake \
+        curl \
+        dumb-init \
+        g++ \
+        gcc \
+        git \
+        libqt5webkit5-dev \
+        make \
+        python3 \
+        qt5-default \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p $XDG_RUNTIME_DIR \
+       && chmod 700 $XDG_RUNTIME_DIR \
+       && chown 19534 $XDG_RUNTIME_DIR \
+    && git clone https://github.com/ariya/phantomjs.git /tmp/phantomjs \
+    && cd /tmp/phantomjs \
+       && git checkout $PHANTOMJS_VER \
+       && ./configure \
+       && make \
+    && make install \
+    && apt-get purge --auto-remove -y \
+        cmake \
+        curl \
+        g++ \
+        gcc \
+        make \
+    && apt-get clean \
+    && rm -rf /tmp/* /var/lib/apt/lists/*
+
+RUN useradd --system --uid 19534 --create-home --shell /usr/sbin/nologin phantomjs \
+    && su phantomjs -s /bin/sh -c "phantomjs --version"
+
+USER phantomjs
+
+EXPOSE 8910
+
+ENTRYPOINT ["dumb-init"]
+CMD ["phantomjs"]
