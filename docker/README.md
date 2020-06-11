@@ -2,12 +2,9 @@
 
 ## Supported tags and respective `Dockerfile` links
 
-  * [`3`, `3-debian`, `3.0`, `3.0-debian`, `3.0.0`, `3.0.0-debian`, `latest`](https://github.com/fabiocicerchia/phantomjs/blob/master/docker/Dockerfile.debian)
-
-  * [`3`, `3-alpine`, `3.0`, `3.0-alpine`, `3.0.0`, `3.0.0-alpine`, `latest`](https://github.com/fabiocicerchia/phantomjs/blob/master/docker/Dockerfile.alpine)
-  * [`3-debian`, `3.0-debian`, `3.0.0-debian`](https://github.com/fabiocicerchia/phantomjs/blob/master/docker/Dockerfile.debian)
-  * [`3-ubuntu`, `3.0-ubuntu`, `3.0.0-ubuntu`](https://github.com/fabiocicerchia/phantomjs/blob/master/docker/Dockerfile.ubuntu)
-  * [`3-fedora`, `3.0-fedora`, `3.0.0-fedora`](https://github.com/fabiocicerchia/phantomjs/blob/master/docker/Dockerfile.fedora)
+  * [`3`, `3-debian`, `3.0`, `3.0-debian`, `3.0.0`, `3.0.0-debian`, `latest`](https://github.com/fabiocicerchia/phantomjs/blob/docker/docker/Dockerfile.debian)
+  * [`3-ubuntu`, `3.0-ubuntu`, `3.0.0-ubuntu`](https://github.com/fabiocicerchia/phantomjs/blob/docker/docker/Dockerfile.ubuntu)
+  * [`3-fedora`, `3.0-fedora`, `3.0.0-fedora`](https://github.com/fabiocicerchia/phantomjs/blob/docker/docker/Dockerfile.fedora)
 
 ## What is PhantomJS
 
