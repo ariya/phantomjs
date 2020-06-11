@@ -67,7 +67,7 @@ To connect to it (some examples per language):
 ## Feedbacks
 
 Improvement ideas and pull requests are welcome via
-[Github Issue Tracker](https://github.com/wernight/docker-phantomjs/issues).
+[Github Issue Tracker](https://github.com/fabiocicerchia/docker-phantomjs/issues).
 
 [phantomjs]:        http://phantomjs.org/
 [docker]:           https://www.docker.io/
