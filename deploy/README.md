@@ -18,14 +18,26 @@ of the PhantomJS source repository:
 
 ```bash
  $ git clean -xfd .
- $ docker run -v $PWD:/src debian:wheezy /src/deploy/docker-build.sh
+ $ docker run -v $PWD:/src ubuntu:16.04 /src/deploy/docker-build.sh
 ```
 
 For the 32-bit version:
 
 ```bash
  $ git clean -xfd .
- $ docker run -v $PWD:/src tubia/debian:wheezy /src/deploy/docker-build.sh
+ $ docker run -v $PWD:/src i386/ubuntu:16.04 /src/deploy/docker-build.sh
+```
+
+For an arm64 version natively:
+```bash
+ $ git clean -xfd .
+ $ docker run -v $PWD:/src ubuntu:16.04 /src/deploy/docker-build.sh
+```
+
+For an arm64 version built on an x86\_64 host:
+```bash
+ $ git clean -xfd .
+ $ docker run -v $PWD:/src arm64v8/ubuntu:16.04 /src/deploy/docker-build.sh
 ```
 
 The built binary will be extracted out of the container and copied to
