@@ -1,0 +1,30 @@
+name: i686_windows_gcc
+
+on: [push, pull_request]
+
+jobs:
+
+  i686_windows_gcc:
+    runs-on: windows-2019
+    env:
+      CC: i686-w64-mingw32-gcc
+    steps:
+    - uses: actions/checkout@v2
+    - run: echo "::add-path::C:\\msys64\\usr\\bin"
+    - run: pacman --version
+    - run: pacman -Sy
+    - run: pacman --noconfirm -S pacman-mirrors
+    - name: 'Install requirements'
+      run: pacman --noconfirm -S mingw-w64-cross-toolchain mingw32/mingw-w64-i686-cmake mingw32/mingw-w64-i686-qtwebkit mingw32/mingw-w64-i686-python2
+    - run: echo "::add-path::C:\\msys64\\mingw32\\bin"
+    - run: i686-w64-mingw32-gcc --version && cmake --version && qmake --version
+      name: 'Display tools version'
+    - run: bash ./configure
+      name: './configure'
+      env:
+        CMAKE_CMD: 'cmake -G "MinGW Makefiles"'
+    - run: mingw32-make
+      name: 'make'
+    - run: file ./bin/phantomjs
+    - run: ldd ./bin/phantomjs
+    - run: ./bin/phantomjs --version
