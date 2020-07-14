@@ -4,18 +4,19 @@ import argparse
 import collections
 import errno
 import glob
-import imp
+import importlib
+import importlib.util
 import os
 import platform
 import posixpath
 import re
 import shlex
-import SimpleHTTPServer
+import http.server
 import socket
-import SocketServer
+import socketserver
 import ssl
 import string
-import cStringIO as StringIO
+from io import StringIO
 import subprocess
 import sys
 import threading
@@ -131,16 +132,16 @@ class ResponseHookImporter(object):
         # All Python response hooks, no matter how deep below www_path,
         # are treated as direct children of the fake "test_www" package.
         if 'test_www' not in sys.modules:
-            imp.load_source('test_www', www_path + '/__init__.py')
+            importlib.util.find_spec('test_www', www_path + '/__init__.py')
 
-        self.tr = string.maketrans('-./%', '____')
+        self.tr = str.maketrans('-./%', '____')
 
     def __call__(self, path):
         modname = 'test_www.' + path.translate(self.tr)
         try:
             return sys.modules[modname]
         except KeyError:
-            return imp.load_source(modname, path)
+            return importlib.util.find_spec(modname, path)
 
 # This should also be in the standard library somewhere, and
 # definitely isn't.
@@ -234,7 +235,7 @@ def do_call_subprocess(command, verbose, stdin_data, timeout):
 # HTTP/HTTPS server, presented on localhost to the tests
 #
 
-class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler, object):
+class FileHandler(http.server.SimpleHTTPRequestHandler, object):
 
     def __init__(self, *args, **kwargs):
         self._cached_untranslated_path = None
@@ -256,7 +257,7 @@ class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler, object):
     def do_POST(self):
         try:
             ln = int(self.headers.get('content-length'))
-        except TypeError, ValueError:
+        except (TypeError, ValueError):
             self.send_response(400, 'Bad Request')
             self.send_header('Content-Type', 'text/plain')
             self.end_headers()
@@ -351,13 +352,13 @@ class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler, object):
         self._cached_translated_path = path
         return path
 
-class TCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+class TCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     # This is how you are officially supposed to set SO_REUSEADDR per
     # https://docs.python.org/2/library/socketserver.html#SocketServer.BaseServer.allow_reuse_address
     allow_reuse_address = True
 
     def __init__(self, use_ssl, handler, base_path, signal_error):
-        SocketServer.TCPServer.__init__(self, ('localhost', 0), handler)
+        socketserver.TCPServer.__init__(self, ('localhost', 0), handler)
         if use_ssl:
             self.socket = wrap_socket_ssl(self.socket, base_path)
         self._signal_error = signal_error
@@ -620,9 +621,7 @@ class ExpectTestGroup(TestGroup):
 class TAPTestGroup(TestGroup):
     """Test group whose output is interpreted according to a variant of the
        Test Anything Protocol (http://testanything.org/tap-specification.html).
-
        Relative to that specification, these are the changes:
-
          * Plan-at-the-end, explanations for directives, and "Bail out!"
            are not supported.  ("1..0 # SKIP: explanation" *is* supported.)
          * "Anything else" lines are an error.
@@ -632,7 +631,6 @@ class TAPTestGroup(TestGroup):
            information about the *next* test point.  Diagnostic lines
            beginning with ## are ignored.
          * Directives are case sensitive.
-
     """
 
     diag_r = re.compile(r"^#(#*)\s*(.*)$")
