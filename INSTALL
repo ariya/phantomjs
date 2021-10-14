@@ -48,7 +48,7 @@ Only MinGW is supported for now.
 
 First, install MSYS2.
 
-Then, from "MYS2 MinGW64 32-bit" shell, install the required packages:
+Then, from "MSYS2 MinGW64 32-bit" shell, install the required packages:
 
   pacman -S msys/make
   pacman -S mingw32/mingw-w64-i686-toolchain
@@ -61,7 +61,7 @@ installation failed due to the slow server responses.
 
 After unpacking the source tarball or cloning the repository:
 
-  cmake . -G "MinGW Makefiles"
+  cmake . -G "MSYS Makefiles"
 
 And then start the build process:
 
