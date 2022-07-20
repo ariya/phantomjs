@@ -5,16 +5,19 @@ on: [push, pull_request]
 jobs:
 
   amd64_windows_clang:
-    runs-on: windows-2019
+    runs-on: windows-latest
     env:
       CC: clang
       CXX: clang++
+      # ruleid: allowed-unsecure-commands
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     steps:
     - uses: actions/checkout@v2
     - run: echo "::add-path::C:\\msys64\\usr\\bin"
-    - run: pacman --version
-    - run: pacman -Sy
-    - run: pacman --noconfirm -S pacman-mirrors
+    - run: |
+        pacman --version
+        pacman -Sy
+        pacman --noconfirm -S pacman-mirrors
     - name: 'Install requirements'
       run: pacman --noconfirm -S mingw64/mingw-w64-x86_64-clang mingw64/mingw-w64-x86_64-cmake mingw64/mingw-w64-x86_64-qtwebkit mingw64/mingw-w64-x86_64-python2
     - run: echo "::add-path::C:\\msys64\\mingw64\\bin"
