@@ -35,7 +35,7 @@
 #include <QTextCodec>
 #include <QVariantMap>
 
-#include "../env.h"
+#include "env.h"
 #include "terminal.h"
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_MAC)

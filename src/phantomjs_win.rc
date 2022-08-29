@@ -13,7 +13,7 @@ BEGIN
         BEGIN
             VALUE "FileDescription",    "PhantomJS is a headless WebKit with JavaScript API"
             VALUE "FileVersion",        PHANTOMJS_VERSION_STRING
-            VALUE "LegalCopyright",     "Copyright (C) Ariya Hidayat 2012"
+            VALUE "LegalCopyright",     "Copyright (C) Ariya Hidayat 2016"
             VALUE "OriginalFilename",   "phantomjs.exe"
             VALUE "ProductName",        "PhantomJS"
             VALUE "ProductVersion",     PHANTOMJS_VERSION_STRING

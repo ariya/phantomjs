@@ -32,8 +32,11 @@
 #define CONFIG_H
 
 #include <QNetworkProxy>
+<<<<<<< HEAD
 #include <QString>
 #include <QStringList>
+=======
+>>>>>>> origin/wip
 #include <QVariant>
 
 class QCommandLine;
@@ -197,8 +200,6 @@ private:
     void resetToDefaults();
     void setProxyHost(const QString& value);
     void setProxyPort(const int value);
-    void setAuthUser(const QString& value);
-    void setAuthPass(const QString& value);
 
     QCommandLine* m_cmdLine;
     bool m_autoLoadImages;

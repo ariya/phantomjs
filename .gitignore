@@ -47,6 +47,7 @@ qrc_*
 *.tmp
 *.log
 *.sdf
+*.sln
 *.vcxproj
 *.vcxproj.filters
 *.lib
@@ -60,6 +61,7 @@ bin/
 *.class
 build/
 .gradle/
+<<<<<<< HEAD
 
 # CMake
 CMakeLists.txt.user
@@ -75,3 +77,6 @@ CTestTestfile.cmake
 _deps
 *_autogen
 
+=======
+/.vs
+>>>>>>> origin/wip

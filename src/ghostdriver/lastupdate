@@ -1,0 +1,7 @@
+2017-03-31 16:18:12
+
+commit be7ffd9d47c1e76c7bfa1d47cdcde9164fd40db8 (HEAD -> refs/heads/master, refs/remotes/origin/master, refs/remotes/origin/HEAD)
+Author: jesg <jesg@users.noreply.github.com>
+Date:   Wed Mar 22 05:08:21 2017 -0700
+
+    allow all resources in whitelist (#514)

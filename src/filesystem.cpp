@@ -29,9 +29,15 @@
 
 #include "filesystem.h"
 
+<<<<<<< HEAD
 #include <QDateTime>
 #include <QDebug>
 #include <QDir>
+=======
+#include <QDir>
+#include <QDebug>
+#include <QDateTime>
+>>>>>>> origin/wip
 #include <QFile>
 #include <QFileInfo>
 

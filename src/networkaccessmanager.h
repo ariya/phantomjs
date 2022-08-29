@@ -1,4 +1,4 @@
-/*
+﻿/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -46,7 +46,7 @@ class TimeoutTimer : public QTimer {
     Q_OBJECT
 
 public:
-    TimeoutTimer(QObject* parent = 0);
+    TimeoutTimer(QObject* parent = nullptr);
     QNetworkReply* reply;
     QVariantMap data;
 };
@@ -55,7 +55,7 @@ class JsNetworkRequest : public QObject {
     Q_OBJECT
 
 public:
-    JsNetworkRequest(QNetworkRequest* request, QObject* parent = 0);
+    JsNetworkRequest(QNetworkRequest* request, QObject* parent = nullptr);
     Q_INVOKABLE void abort();
     Q_INVOKABLE void changeUrl(const QString& url);
     Q_INVOKABLE bool setHeader(const QString& name, const QVariant& value);
@@ -70,10 +70,14 @@ class NoFileAccessReply : public QNetworkReply {
 public:
     NoFileAccessReply(QObject* parent, const QNetworkRequest& req, const QNetworkAccessManager::Operation op);
     ~NoFileAccessReply();
+<<<<<<< HEAD
     void abort() {}
 
+=======
+    void abort() Q_DECL_OVERRIDE {}
+>>>>>>> origin/wip
 protected:
-    qint64 readData(char*, qint64) { return -1; }
+    qint64 readData(char*, qint64) Q_DECL_OVERRIDE { return -1; }
 };
 
 class NetworkAccessManager : public QNetworkAccessManager {
@@ -86,8 +90,6 @@ public:
     void setResourceTimeout(int resourceTimeout);
     void setCustomHeaders(const QVariantMap& headers);
     QVariantMap customHeaders() const;
-    QStringList captureContent() const;
-    void setCaptureContent(const QStringList& patterns);
 
     void setCookieJar(QNetworkCookieJar* cookieJar);
 
@@ -99,21 +101,22 @@ protected:
     int m_resourceTimeout;
     QString m_userName;
     QString m_password;
-    QNetworkReply* createRequest(Operation op, const QNetworkRequest& req, QIODevice* outgoingData = 0);
+    QNetworkReply* createRequest(Operation op, const QNetworkRequest& req, QIODevice* outgoingData) Q_DECL_OVERRIDE;
     void handleFinished(QNetworkReply* reply, const QVariant& status, const QVariant& statusText);
 
-signals:
+Q_SIGNALS:
     void resourceRequested(const QVariant& data, QObject*);
     void resourceReceived(const QVariant& data);
     void resourceError(const QVariant& data);
     void resourceTimeout(const QVariant& data);
+
 
 private slots:
     void handleStarted();
     void handleFinished(QNetworkReply* reply);
     void provideAuthentication(QNetworkReply* reply, QAuthenticator* authenticator);
     void handleSslErrors(const QList<QSslError>& errors);
-    void handleNetworkError();
+    void handleNetworkError(QNetworkReply::NetworkError);
     void handleTimeout();
 
 private:

@@ -20,14 +20,14 @@ if (system.args.length < 3 || system.args.length > 5) {
     } else if (system.args.length > 3 && system.args[3].substr(-2) === "px") {
         size = system.args[3].split('*');
         if (size.length === 2) {
-            pageWidth = parseInt(size[0], 10);
-            pageHeight = parseInt(size[1], 10);
+            var pageWidth = parseInt(size[0], 10),
+                pageHeight = parseInt(size[1], 10);
             page.viewportSize = { width: pageWidth, height: pageHeight };
             page.clipRect = { top: 0, left: 0, width: pageWidth, height: pageHeight };
         } else {
             console.log("size:", system.args[3]);
-            pageWidth = parseInt(system.args[3], 10);
-            pageHeight = parseInt(pageWidth * 3/4, 10); // it's as good an assumption as any
+            var pageWidth = parseInt(system.args[3], 10),
+                pageHeight = parseInt(pageWidth * 3/4, 10); // it's as good an assumption as any
             console.log ("pageHeight:",pageHeight);
             page.viewportSize = { width: pageWidth, height: pageHeight };
         }

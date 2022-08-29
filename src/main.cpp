@@ -27,25 +27,40 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "consts.h"
+<<<<<<< HEAD
 #include "crashdump.h"
 #include "env.h"
+=======
+#include "utils.h"
+>>>>>>> origin/wip
 #include "phantom.h"
 #include "utils.h"
 
 #include <QApplication>
+<<<<<<< HEAD
 #include <QIcon>
 #include <QSslConfiguration>
+=======
+#include <QtPlugin>
+>>>>>>> origin/wip
 #include <QSslSocket>
 #include <QWebSettings>
 
-#include <exception>
 #include <stdio.h>
+
+#ifdef Q_OS_LINUX
+Q_IMPORT_PLUGIN(PhantomIntegrationPlugin);
+#endif
 
 static int inner_main(int argc, char** argv)
 {
 #ifdef Q_OS_LINUX
     // override default Qt platform plugin
+<<<<<<< HEAD
     qputenv("QT_QPA_PLATFORM", "offscreen");
+=======
+    qputenv("QT_QPA_PLATFORM", "phantom");
+>>>>>>> origin/wip
 #endif
 
     QApplication app(argc, argv);

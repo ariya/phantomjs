@@ -57,7 +57,7 @@ class Phantom : public QObject {
 
 private:
     // Private constructor: the Phantom class is a singleton
-    Phantom(QObject* parent = 0);
+    Phantom(QObject* parent = nullptr);
     void init();
 
 public:
@@ -86,7 +86,7 @@ public:
      * @brief config
      * @return Pointer to the current Config(uration)
      */
-    Config* config();
+    Config* config() const;
 
     bool printDebugMessages() const;
 
@@ -229,9 +229,15 @@ private:
     FileSystem* m_filesystem;
     System* m_system;
     ChildProcess* m_childprocess;
+<<<<<<< HEAD
     QList<QPointer<WebPage>> m_pages;
     QList<QPointer<WebServer>> m_servers;
     Config m_config;
+=======
+    QList<QPointer<WebPage> > m_pages;
+    QList<QPointer<WebServer> > m_servers;
+    QPointer<Config> m_config;
+>>>>>>> origin/wip
     CookieJar* m_defaultCookieJar;
     qreal m_defaultDpi;
 

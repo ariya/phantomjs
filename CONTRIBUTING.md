@@ -69,8 +69,8 @@ Refer to your favorite Git tutorial/book for further detailed help.
 
 Some good practices for the feature branch:
 
-* Give it a meaningful name instead of, e.g. `prevent-zero-divide` instead of just `fix`
-* Make *granular* and *atomic* commits, e.g. do not mix a typo fix with some major refactoring
+* Give it a meaningful name, e.g. `prevent-zero-divide`, instead of just `fix`.
+* Make *granular* and *atomic* commits, e.g. do not mix a typo fix with some major refactoring.
 * Keep one branch for one specific issue. If you need to work on other unrelated issues, create another branch.
 
 ## Review and Merge

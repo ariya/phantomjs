@@ -1,0 +1,86 @@
+/*
+This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
+
+Copyright (c) 2012-2014, Ivan De Marino <http://ivandemarino.me>
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+apply plugin: "java"
+apply plugin: "idea"
+apply plugin: "eclipse"
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "1.12"
+    jarFile = "gradle/gradle-wrapper.jar"
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext.commonsFileUploadVersion = "1.3"
+ext.seleniumVersion = "3.0.0"
+ext.jettyVersion = "6.1.21"
+ext.jsr305Version = "2.0.1"
+ext.browsermobProxyClientVersion = "0.1.3"
+ext.phantomjsdriverVersion = "2.0.0"
+
+configurations {
+    // introduces a transitive dependency on selenium 2.53
+    // cyclic dependency on selenium-java
+    all*.exclude group: 'com.codeborne', module: 'phantomjsdriver'
+
+    // not included in selenium 3.+
+    all*.exclude group: 'org.seleniumhq.selenium', module: 'selenium-htmlunit-driver'
+}
+
+dependencies {
+    // Test Dependencies
+    testCompile "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+    testCompile "org.seleniumhq.selenium:selenium-edge-driver:$seleniumVersion"
+    testCompile "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+    testCompile "org.seleniumhq.selenium:selenium-ie-driver:$seleniumVersion"
+    testCompile "org.seleniumhq.selenium:selenium-opera-driver:$seleniumVersion"
+    testCompile "org.seleniumhq.selenium:selenium-safari-driver:$seleniumVersion"
+    testCompile "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+    testCompile "com.google.code.findbugs:jsr305:$jsr305Version"
+    testCompile "org.mortbay.jetty:jetty:$jettyVersion"
+    testCompile "commons-fileupload:commons-fileupload:$commonsFileUploadVersion"
+    testCompile "com.github.detro:browsermob-proxy-client:$browsermobProxyClientVersion"
+
+    // Library under test (PhantomJS Driver, aka "PhantomJS WebDriver Java Binding")
+    testCompile files("../../binding/java/jars/phantomjsdriver-${phantomjsdriverVersion}.jar")
+}
+
+tasks.withType(JavaExec) {
+    classpath = configurations.compile + sourceSets.test.output
+    args project.hasProperty("args") ? project.args.split("\\s") : []
+}
+
+test {
+    maxParallelForks = 3
+
+    afterTest { descriptor, result ->
+        logger.quiet(result.toString() + " for " + descriptor + " in " + descriptor.getParent())
+    }
+}

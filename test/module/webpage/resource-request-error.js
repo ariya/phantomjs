@@ -12,7 +12,7 @@ async_test(function () {
         assert_equals(err.url, TEST_HTTP_BASE + 'notExist.png');
         assert_equals(err.errorCode, 203);
         assert_regexp_match(err.errorString,
-            /Error downloading http:\/\/localhost:[0-9]+\/notExist\.png/);
+            /Error transferring http:\/\/localhost:[0-9]+\/notExist\.png/);
         assert_regexp_match(err.errorString,
             /server replied: File not found/);
     });

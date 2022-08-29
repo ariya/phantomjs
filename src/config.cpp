@@ -34,9 +34,14 @@
 
 #include <QDir>
 #include <QFileInfo>
+<<<<<<< HEAD
 #include <QNetworkProxy>
 #include <QtWebKitWidgets/QWebFrame>
 #include <QtWebKitWidgets/QWebPage>
+=======
+#include <QWebPage>
+#include <QWebFrame>
+>>>>>>> origin/wip
 
 #include "consts.h"
 #include "qcommandline.h"

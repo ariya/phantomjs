@@ -182,8 +182,15 @@ void REPL::offerCompletion(const char* buf, linenoiseCompletions* lc)
 
     // This will return an array of String with the possible completions
     QStringList completions = REPL::getInstance()->m_webframe->evaluateJavaScript(
+<<<<<<< HEAD
                                                                  QString(JS_RETURN_POSSIBLE_COMPLETIONS).arg(toInspect, toComplete))
                                   .toStringList();
+=======
+                                  QString(JS_RETURN_POSSIBLE_COMPLETIONS).arg(
+                                      toInspect,
+                                      toComplete)
+                              ).toStringList();
+>>>>>>> origin/wip
 
     foreach (QString c, completions) {
         if (lastIndexOfDot > -1) {
@@ -206,7 +213,12 @@ void REPL::startLoop()
         if (userInput[0] != '\0') {
             // Send the user input to the main Phantom frame for evaluation
             m_webframe->evaluateJavaScript(
+<<<<<<< HEAD
                 QString(JS_EVAL_USER_INPUT).arg(QString(userInput).replace('"', "\\\"")));
+=======
+                QString(JS_EVAL_USER_INPUT).arg(
+                    QString(userInput).replace('"', "\\\"")));
+>>>>>>> origin/wip
 
             // Save command in the REPL history
             linenoiseHistoryAdd(userInput);
