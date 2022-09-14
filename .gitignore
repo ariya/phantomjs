@@ -56,7 +56,6 @@ qrc_*
 # Build results
 [Dd]ebug*/
 [Rr]elease/
-bin/
 *.class
 build/
 .gradle/
