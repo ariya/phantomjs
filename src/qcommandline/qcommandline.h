@@ -207,7 +207,7 @@ public:
     bool versionEnabled();
 
     /**
-     * Parse command line and emmit signals when switchs, options, or
+     * Parse command line and emmit signals when switches, options, or
      * param are found.
      * @returns true if successfully parsed; otherwise returns false.
      * @sa parseError

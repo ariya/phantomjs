@@ -150,7 +150,7 @@ QCommandLine::parse()
   QQueue < QCommandLineConfigEntry > params;
   QMap < QString, QList < QString > > optionsFound;
   QMap < QString, int > switchsFound;
-  QStringList options, switchs;
+  QStringList options, switches;
   QStringList args = d->args;
 
   bool allparam = false;
@@ -233,7 +233,7 @@ QCommandLine::parse()
       if (!(entry.flags & QCommandLine::Multiple))
 	params.dequeue();
 
-    } else { /* Options and switchs* */
+    } else { /* Options and switches* */
       QString key;
       QString value;
       int idx = arg.indexOf(QLatin1Char('='));
@@ -256,7 +256,7 @@ QCommandLine::parse()
 
       if (entry.type == QCommandLine::Switch) {
 	if (!switchsFound.contains(entry.longName))
-	  switchs << entry.longName;
+	  switches << entry.longName;
 	if (entry.flags & QCommandLine::Multiple)
 	  switchsFound[entry.longName]++;
 	else
@@ -319,7 +319,7 @@ QCommandLine::parse()
     }
   }
 
-  foreach (QString key, switchs) {
+  foreach (QString key, switches) {
     for (int i = 0; i < switchsFound[key]; i++) {
       if (d->help && key == helpEntry.longName)
 	showHelp();

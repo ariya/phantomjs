@@ -459,7 +459,7 @@ public slots:
      * {@see https://developer.mozilla.org/en-US/docs/DOM/window.history#Syntax}.
      * @brief go
      * @param historyRelativeIndex
-     * @return "true" if it does go forward/backgward in the Navigation History, "false" otherwise
+     * @return "true" if it does go forward/backward in the Navigation History, "false" otherwise
      */
     bool go(int historyRelativeIndex);
     /**

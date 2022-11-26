@@ -91,7 +91,7 @@ QStringList REPL::_enumerateCompletions(QObject* obj) const
     const QMetaObject* meta = obj->metaObject();
     QMap<QString, bool> completions;
 
-    // List up slots, signals, and invokable methods
+    // List up slots, signals, and invocable methods
     const int methodOffset = meta->methodOffset();
     const int methodCount = meta->methodCount();
     for (int i = methodOffset; i < methodCount; i++) {
